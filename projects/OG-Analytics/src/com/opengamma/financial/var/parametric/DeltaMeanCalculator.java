@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 
 /**
  * 

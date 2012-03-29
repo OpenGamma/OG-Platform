@@ -7,9 +7,9 @@ package com.opengamma.financial.riskreward;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils;
-import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

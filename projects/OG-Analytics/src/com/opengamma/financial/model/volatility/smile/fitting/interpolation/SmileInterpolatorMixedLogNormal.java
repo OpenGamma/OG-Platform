@@ -7,12 +7,12 @@ package com.opengamma.financial.model.volatility.smile.fitting.interpolation;
 
 import java.util.BitSet;
 
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
  * 

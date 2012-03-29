@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.number.ComplexNumber.ZERO;
+import static com.opengamma.analytics.math.number.ComplexNumber.ZERO;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ComplexMathUtils;
-import com.opengamma.math.fft.JTransformsWrapper;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.analytics.math.ComplexMathUtils;
+import com.opengamma.analytics.math.fft.JTransformsWrapper;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 

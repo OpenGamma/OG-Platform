@@ -7,8 +7,8 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * PDE Data bundle representing PDEs of the type

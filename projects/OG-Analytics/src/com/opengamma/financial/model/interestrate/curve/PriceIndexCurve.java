@@ -8,9 +8,9 @@ package com.opengamma.financial.model.interestrate.curve;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * A curve containing the (estimated) price index at different maturities. The maturities can be (slightly) negative as the price index are known only with a certain lag.

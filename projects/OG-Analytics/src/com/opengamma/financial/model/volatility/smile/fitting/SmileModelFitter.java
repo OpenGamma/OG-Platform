@@ -9,19 +9,19 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
+import com.opengamma.analytics.math.minimization.NonLinearTransformFunction;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.financial.model.volatility.smile.function.SmileModelData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.matrix.OGMatrixAlgebra;
-import com.opengamma.math.minimization.NonLinearParameterTransforms;
-import com.opengamma.math.minimization.NonLinearTransformFunction;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.interestrate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 
 /**

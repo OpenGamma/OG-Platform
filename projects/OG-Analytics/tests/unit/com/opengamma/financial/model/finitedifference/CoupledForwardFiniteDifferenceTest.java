@@ -11,6 +11,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
@@ -19,8 +21,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.Function1D;
 
 /**
  * 

@@ -10,16 +10,16 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

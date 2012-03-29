@@ -14,6 +14,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -44,8 +46,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganAlternat
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 

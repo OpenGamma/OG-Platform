@@ -11,9 +11,9 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.model.option.definition.ConstantElasticityOfVarianceModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 
 /**

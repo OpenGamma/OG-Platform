@@ -7,7 +7,7 @@ package com.opengamma.financial.timeseries.returns;
 
 import cern.colt.Arrays;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;

@@ -8,11 +8,11 @@ package com.opengamma.financial.interestrate;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import com.opengamma.analytics.math.curve.InterpolatedCurveBuildingFunction;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.InterpolatedCurveBuildingFunction;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
  * 

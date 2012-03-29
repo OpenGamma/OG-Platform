@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

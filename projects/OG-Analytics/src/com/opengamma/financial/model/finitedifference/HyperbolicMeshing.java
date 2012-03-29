@@ -7,7 +7,7 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.TrigonometricFunctionUtils;
+import com.opengamma.analytics.math.TrigonometricFunctionUtils;
 
 /** 
    

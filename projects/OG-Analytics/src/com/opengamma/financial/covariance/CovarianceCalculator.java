@@ -8,7 +8,7 @@ package com.opengamma.financial.covariance;
 import static com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils.testTimeSeriesDates;
 import static com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils.testTimeSeriesSize;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

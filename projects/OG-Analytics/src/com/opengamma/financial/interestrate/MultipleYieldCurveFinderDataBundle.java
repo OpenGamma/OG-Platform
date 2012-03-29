@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 
 /**
  * 

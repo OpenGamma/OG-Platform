@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
@@ -22,7 +23,6 @@ import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.math.curve.DoublesCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;

@@ -11,14 +11,14 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.stochastic.StochasticProcess;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

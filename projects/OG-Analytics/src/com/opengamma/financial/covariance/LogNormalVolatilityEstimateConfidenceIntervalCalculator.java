@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.covariance;
 
-import com.opengamma.math.statistics.ConfidenceInterval;
-import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.analytics.math.statistics.ConfidenceInterval;
+import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 

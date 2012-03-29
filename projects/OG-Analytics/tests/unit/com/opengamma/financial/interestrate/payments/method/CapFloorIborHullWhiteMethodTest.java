@@ -14,6 +14,9 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -30,9 +33,6 @@ import com.opengamma.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
-import com.opengamma.math.random.NormalRandomNumberGenerator;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;

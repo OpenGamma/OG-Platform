@@ -7,7 +7,7 @@ package com.opengamma.financial.timeseries.analysis;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 

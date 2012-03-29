@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.minimization.SumToOne;
+import com.opengamma.analytics.math.minimization.SumToOne;
 import com.opengamma.util.ArgumentChecker;
 
 /**

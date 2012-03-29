@@ -5,12 +5,20 @@
  */
 package com.opengamma.financial.equity.variance;
 
-import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
+import static com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
@@ -25,14 +33,6 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLo
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.Strike;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 

@@ -7,7 +7,7 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * Dirichlet boundary condition, i.e. u(A,t) = f(t), where A is the boundary level, and f(t) is some specified function of time

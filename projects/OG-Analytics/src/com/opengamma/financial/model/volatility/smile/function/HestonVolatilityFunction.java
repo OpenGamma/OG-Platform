@@ -9,6 +9,10 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.fourier.FFTModelGreeks;
 import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
@@ -16,10 +20,6 @@ import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristic
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.lang.annotation.ExternalFunction;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * 

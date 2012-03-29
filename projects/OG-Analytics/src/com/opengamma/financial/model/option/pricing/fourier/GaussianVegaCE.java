@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.add;
-import static com.opengamma.math.ComplexMathUtils.log;
+import static com.opengamma.analytics.math.ComplexMathUtils.add;
+import static com.opengamma.analytics.math.ComplexMathUtils.log;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * @deprecated This only exists for code testing during development 

@@ -7,8 +7,8 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Describes a partial differential for a function $V(t,x)$, with the initial condition $V(0,x) = f(x)$

@@ -7,6 +7,10 @@ package com.opengamma.financial.interestrate.bond.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -16,10 +20,6 @@ import com.opengamma.financial.interestrate.market.MarketBundle;
 import com.opengamma.financial.interestrate.market.MarketDiscountingDecorated;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.financial.interestrate.payments.Coupon;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

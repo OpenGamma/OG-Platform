@@ -9,15 +9,15 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
-import com.opengamma.math.interpolation.StepInterpolator1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
+import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.interpolation.NaturalCubicSplineInterpolator1D;
+import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
 
 /**
  * 

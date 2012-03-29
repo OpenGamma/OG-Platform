@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modelling.

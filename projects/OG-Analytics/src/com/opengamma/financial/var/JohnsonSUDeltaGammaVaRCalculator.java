@@ -8,11 +8,11 @@ package com.opengamma.financial.var;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.TrigonometricFunctionUtils;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.analytics.math.TrigonometricFunctionUtils;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 
 /**
  * 

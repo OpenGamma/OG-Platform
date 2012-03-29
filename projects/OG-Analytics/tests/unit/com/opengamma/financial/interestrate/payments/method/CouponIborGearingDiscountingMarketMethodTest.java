@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -25,7 +26,6 @@ import com.opengamma.financial.interestrate.method.market.SensitivityFiniteDiffe
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.market.CouponIborGearingDiscountingMarketMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;

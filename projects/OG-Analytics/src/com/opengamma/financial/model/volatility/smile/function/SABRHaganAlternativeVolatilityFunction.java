@@ -9,8 +9,8 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**

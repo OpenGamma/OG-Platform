@@ -7,12 +7,12 @@ package com.opengamma.financial.model.interestrate;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
-import com.opengamma.math.function.Function1D;
 
 /**
  * Data used for tests on the LMM displaced diffusion.

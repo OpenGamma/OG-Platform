@@ -8,9 +8,9 @@ package com.opengamma.financial.model.option.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

@@ -7,7 +7,7 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

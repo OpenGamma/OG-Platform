@@ -12,10 +12,10 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
  * 

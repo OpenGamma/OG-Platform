@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.swaption.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -19,7 +20,6 @@ import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConsta
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

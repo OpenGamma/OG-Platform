@@ -10,8 +10,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 
 /**
  * 

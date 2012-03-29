@@ -12,9 +12,9 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

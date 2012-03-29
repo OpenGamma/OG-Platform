@@ -5,23 +5,23 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import static com.opengamma.math.FunctionUtils.square;
+import static com.opengamma.analytics.math.FunctionUtils.square;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitter;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * 

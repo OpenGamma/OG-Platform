@@ -7,6 +7,9 @@ package com.opengamma.financial.model.volatility.local;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
@@ -33,9 +36,6 @@ import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceCo
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.StrikeType;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
-import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**

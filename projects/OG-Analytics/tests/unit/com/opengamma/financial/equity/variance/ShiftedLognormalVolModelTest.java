@@ -5,11 +5,22 @@
  */
 package com.opengamma.financial.equity.variance;
 
-import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
+import static com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.equity.variance.pricing.ShiftedLognormalVolModel;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -19,17 +30,6 @@ import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.rootfinding.VectorRootFinder;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * 

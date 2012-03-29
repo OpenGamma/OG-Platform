@@ -7,14 +7,14 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
+import com.opengamma.analytics.math.minimization.NullTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.minimization.NonLinearParameterTransforms;
-import com.opengamma.math.minimization.NullTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
 
 /**
  * 

@@ -10,13 +10,13 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

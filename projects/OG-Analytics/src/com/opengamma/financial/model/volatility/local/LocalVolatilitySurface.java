@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.local;
 
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.model.volatility.surface.StrikeType;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

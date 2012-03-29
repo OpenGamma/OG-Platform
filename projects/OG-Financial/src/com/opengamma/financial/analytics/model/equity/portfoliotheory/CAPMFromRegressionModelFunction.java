@@ -15,6 +15,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -37,7 +38,6 @@ import com.opengamma.financial.equity.capm.CAPMFromRegressionCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.ExternalId;
-import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

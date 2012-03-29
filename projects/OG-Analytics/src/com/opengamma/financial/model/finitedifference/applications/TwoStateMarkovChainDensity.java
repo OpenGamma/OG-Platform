@@ -7,6 +7,10 @@ package com.opengamma.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.financial.model.finitedifference.CoupledFiniteDifference;
 import com.opengamma.financial.model.finitedifference.CoupledPDEDataBundle;
@@ -16,10 +20,6 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  *  Solves a coupled forward PDE (i.e. coupled Fokker-Plank) for the density of an asset when the process is CEV with vol levels determined by a

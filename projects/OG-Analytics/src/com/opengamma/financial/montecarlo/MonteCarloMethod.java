@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.montecarlo;
 
+import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.math.random.RandomNumberGenerator;
 
 /**
  * Generic Monte-Carlo pricing method.

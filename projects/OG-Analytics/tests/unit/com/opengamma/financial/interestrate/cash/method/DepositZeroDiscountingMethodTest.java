@@ -16,6 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.cash.DepositZeroDefinition;
@@ -36,8 +38,6 @@ import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;

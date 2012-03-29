@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.tree;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 

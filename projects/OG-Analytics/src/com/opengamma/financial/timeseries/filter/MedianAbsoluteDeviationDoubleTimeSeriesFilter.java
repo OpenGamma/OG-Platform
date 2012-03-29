@@ -12,9 +12,9 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

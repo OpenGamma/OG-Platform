@@ -7,13 +7,13 @@ package com.opengamma.financial.model.option.pricing.montecarlo;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.stochastic.StochasticProcess;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.Function2D;
-import com.opengamma.math.random.RandomNumberGenerator;
 
 /**
  * 

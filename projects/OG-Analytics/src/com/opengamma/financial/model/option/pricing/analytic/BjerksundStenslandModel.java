@@ -9,15 +9,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * Class defining an analytical approximation for American option prices as
@@ -81,7 +81,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * \end{align*}
  * $$
  * and $\rho = \sqrt{\frac{t_1}{T}}$ and $M(\cdot, \cdot, \cdot)$ is the CDF of the bivariate
- * normal distribution (see {@link com.opengamma.math.statistics.distribution.BivariateNormalDistribution}).
+ * normal distribution (see {@link com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution}).
  *
  * The price of puts is calculated using the Bjerksund-Stensland put-call transformation 
  * $p(S, K, T, r, b, \sigma) = c(K, S, T, r - b, -b, \sigma)$.

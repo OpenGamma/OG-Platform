@@ -7,7 +7,7 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.cube.Cube;
+import com.opengamma.analytics.math.cube.Cube;
 
 /**
  * <b>Note</b> this is for testing purposes and is not recommended for actual use 

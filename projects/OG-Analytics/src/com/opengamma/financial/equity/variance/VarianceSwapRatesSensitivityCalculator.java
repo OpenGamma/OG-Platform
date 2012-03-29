@@ -12,6 +12,11 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
+import com.opengamma.analytics.math.surface.NodalDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;
@@ -19,11 +24,6 @@ import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculato
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
-import com.opengamma.math.surface.NodalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

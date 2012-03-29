@@ -1,8 +1,8 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import java.io.PrintStream;

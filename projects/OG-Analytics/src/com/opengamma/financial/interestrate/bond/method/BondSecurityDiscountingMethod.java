@@ -12,6 +12,10 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
@@ -24,10 +28,6 @@ import com.opengamma.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

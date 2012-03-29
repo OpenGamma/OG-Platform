@@ -12,6 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,7 +30,6 @@ import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToPositionGreekConverter;
 import com.opengamma.financial.sensitivity.PositionGreek;
 import com.opengamma.financial.trade.OptionTradeData;
-import com.opengamma.math.function.Function1D;
 
 /**
  * 

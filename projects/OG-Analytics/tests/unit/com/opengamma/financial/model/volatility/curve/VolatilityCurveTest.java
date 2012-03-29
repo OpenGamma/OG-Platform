@@ -11,10 +11,10 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.curve.InterpolatedCurveShiftFunction;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedCurveShiftFunction;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
  * 

@@ -7,13 +7,13 @@ package com.opengamma.financial.interestrate.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.differentiation.FiniteDifferenceType;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
 
 /**
  * Class used to compute interest rate instrument sensitivity by finite difference.

@@ -7,8 +7,8 @@ package com.opengamma.financial.covariance;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 

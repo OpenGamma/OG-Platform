@@ -9,11 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.statistics.descriptive.GeometricMeanCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleCovarianceCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.math.statistics.descriptive.GeometricMeanCalculator;
-import com.opengamma.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.math.statistics.descriptive.SampleCovarianceCalculator;
-import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;

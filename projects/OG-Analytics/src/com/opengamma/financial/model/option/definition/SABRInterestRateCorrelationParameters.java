@@ -7,9 +7,9 @@ package com.opengamma.financial.model.option.definition;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.DoubleFunction1D;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.math.function.DoubleFunction1D;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling and the correlation parameters for CMS spread modeling.

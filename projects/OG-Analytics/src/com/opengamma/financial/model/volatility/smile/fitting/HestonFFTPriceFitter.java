@@ -7,16 +7,16 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import java.util.BitSet;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * 

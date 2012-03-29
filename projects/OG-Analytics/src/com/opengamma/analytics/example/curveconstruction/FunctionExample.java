@@ -1,9 +1,10 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
-import com.opengamma.math.function.RealPolynomialFunction1D;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.CubicRealRootFinder;
+import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
+
 import java.io.PrintStream;
 import java.util.Arrays;
 

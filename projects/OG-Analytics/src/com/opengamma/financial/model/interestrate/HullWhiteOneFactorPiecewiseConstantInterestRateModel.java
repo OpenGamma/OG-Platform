@@ -7,10 +7,10 @@ package com.opengamma.financial.model.interestrate;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * Methods related to the Hull-White one factor (extended Vasicek) model with piecewise constant volatility.

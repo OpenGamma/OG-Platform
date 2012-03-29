@@ -7,15 +7,15 @@ package com.opengamma.financial.montecarlo;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
-import com.opengamma.math.matrix.CommonsMatrixAlgebra;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 

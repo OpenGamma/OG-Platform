@@ -7,13 +7,13 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * 

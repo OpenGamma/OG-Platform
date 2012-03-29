@@ -7,12 +7,12 @@ package com.opengamma.financial.model.volatility;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.util.CompareUtils;
 
 /**

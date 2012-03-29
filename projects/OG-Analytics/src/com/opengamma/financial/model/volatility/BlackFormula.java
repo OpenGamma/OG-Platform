@@ -8,8 +8,8 @@ package com.opengamma.financial.model.volatility;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -122,7 +122,7 @@ public class BlackFormula {
       } // Give it a guess, and estimate finite-difference derivative
       return rootFinder.getRoot(difference, _strike);
 
-    } catch (final com.opengamma.math.MathException e) {
+    } catch (final com.opengamma.analytics.math.MathException e) {
       System.err.println(e);
       System.err.println("Failed to compute ImpliedVolatility");
       return null;

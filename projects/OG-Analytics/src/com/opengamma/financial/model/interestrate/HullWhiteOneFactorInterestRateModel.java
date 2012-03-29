@@ -9,8 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtils;
 
 /**

@@ -12,12 +12,12 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.interestrate.NodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

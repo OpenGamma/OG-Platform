@@ -9,13 +9,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
+import com.opengamma.analytics.math.rootfinding.Polynomial1DRootFinder;
+import com.opengamma.analytics.math.rootfinding.QuadraticRealRootFinder;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SABRDataBundle;
-import com.opengamma.math.MathException;
-import com.opengamma.math.function.RealPolynomialFunction1D;
-import com.opengamma.math.rootfinding.CubicRealRootFinder;
-import com.opengamma.math.rootfinding.Polynomial1DRootFinder;
-import com.opengamma.math.rootfinding.QuadraticRealRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**

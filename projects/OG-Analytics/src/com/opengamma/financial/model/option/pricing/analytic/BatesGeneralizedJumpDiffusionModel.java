@@ -9,13 +9,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * The Bates generalized jump-diffusion model prices options with an underlying process:

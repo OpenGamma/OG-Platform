@@ -9,9 +9,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator;
-import com.opengamma.math.function.Function;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

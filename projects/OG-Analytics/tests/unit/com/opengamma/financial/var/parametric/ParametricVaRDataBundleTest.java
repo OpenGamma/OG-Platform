@@ -14,9 +14,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.Matrix;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.Matrix;
 
 /**
  * 

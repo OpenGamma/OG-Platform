@@ -11,6 +11,9 @@ import java.util.BitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SineWeightingFunction;
@@ -18,9 +21,6 @@ import com.opengamma.financial.model.volatility.smile.fitting.interpolation.Surf
 import com.opengamma.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.ArgumentChecker;
 
 /**

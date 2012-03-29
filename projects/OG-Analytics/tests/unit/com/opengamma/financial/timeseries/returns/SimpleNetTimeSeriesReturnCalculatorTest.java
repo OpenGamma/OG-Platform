@@ -18,7 +18,7 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

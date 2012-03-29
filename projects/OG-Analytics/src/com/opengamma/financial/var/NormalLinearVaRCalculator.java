@@ -8,7 +8,7 @@ package com.opengamma.financial.var;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.analytics.math.function.Function;
 
 /**
  * 

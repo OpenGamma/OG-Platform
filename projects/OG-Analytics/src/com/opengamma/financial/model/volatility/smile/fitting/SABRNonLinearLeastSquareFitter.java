@@ -9,22 +9,22 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.ParameterizedFunction;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
+import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.ParameterizedFunction;
-import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.MatrixAlgebraFactory;
-import com.opengamma.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.CompareUtils;
 
 /**

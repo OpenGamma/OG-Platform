@@ -7,11 +7,11 @@ package com.opengamma.financial.model.option.pricing.analytic.twoasset;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.option.definition.twoasset.EuropeanExchangeAssetOptionDefinition;
 import com.opengamma.financial.model.option.definition.twoasset.StandardTwoAssetOptionDataBundle;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * The value of a European-style exchange-asset option is given by:

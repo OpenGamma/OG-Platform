@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -37,7 +38,6 @@ import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**

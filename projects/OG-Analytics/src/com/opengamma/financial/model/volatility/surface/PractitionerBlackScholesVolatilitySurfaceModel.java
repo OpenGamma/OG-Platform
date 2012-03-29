@@ -14,13 +14,13 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.regression.LeastSquaresRegression;
+import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
+import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.regression.LeastSquaresRegression;
-import com.opengamma.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

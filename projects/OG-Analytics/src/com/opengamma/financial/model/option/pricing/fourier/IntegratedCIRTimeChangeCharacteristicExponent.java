@@ -5,20 +5,20 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.add;
-import static com.opengamma.math.ComplexMathUtils.divide;
-import static com.opengamma.math.ComplexMathUtils.log;
-import static com.opengamma.math.ComplexMathUtils.mod;
-import static com.opengamma.math.ComplexMathUtils.multiply;
-import static com.opengamma.math.ComplexMathUtils.sqrt;
-import static com.opengamma.math.ComplexMathUtils.subtract;
-import static com.opengamma.math.number.ComplexNumber.I;
+import static com.opengamma.analytics.math.ComplexMathUtils.add;
+import static com.opengamma.analytics.math.ComplexMathUtils.divide;
+import static com.opengamma.analytics.math.ComplexMathUtils.log;
+import static com.opengamma.analytics.math.ComplexMathUtils.mod;
+import static com.opengamma.analytics.math.ComplexMathUtils.multiply;
+import static com.opengamma.analytics.math.ComplexMathUtils.sqrt;
+import static com.opengamma.analytics.math.ComplexMathUtils.subtract;
+import static com.opengamma.analytics.math.number.ComplexNumber.I;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.math.TrigonometricFunctionUtils;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.TrigonometricFunctionUtils;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * The Cox-Ingersoll-Ross process is a mean-reverting positive process, with SDE:

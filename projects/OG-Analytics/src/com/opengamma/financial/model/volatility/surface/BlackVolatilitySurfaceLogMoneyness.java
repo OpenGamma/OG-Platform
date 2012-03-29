@@ -7,9 +7,9 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.surface.Surface;
-import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  * 

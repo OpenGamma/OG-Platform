@@ -10,6 +10,8 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -20,8 +22,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

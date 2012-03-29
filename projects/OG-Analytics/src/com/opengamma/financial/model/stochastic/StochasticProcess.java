@@ -8,8 +8,8 @@ package com.opengamma.financial.model.stochastic;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.Function2D;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function2D;
 
 /**
  * 

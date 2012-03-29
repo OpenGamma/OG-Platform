@@ -7,6 +7,8 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
@@ -16,8 +18,6 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.financial.model.volatility.smile.function.SABRJohnsonVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 

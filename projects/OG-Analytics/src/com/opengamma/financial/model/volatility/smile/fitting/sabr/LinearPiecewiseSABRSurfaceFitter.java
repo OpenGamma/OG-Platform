@@ -9,13 +9,13 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.Strike;
-import com.opengamma.math.MathException;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * 

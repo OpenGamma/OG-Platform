@@ -8,8 +8,8 @@ package com.opengamma.financial.model.option.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * Class describing the data required to price instruments by using a Black volatility cube and curves.

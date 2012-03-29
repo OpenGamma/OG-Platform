@@ -1,10 +1,18 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "matrix-imports"
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /// @export "imports"
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
@@ -20,14 +28,6 @@ import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.RealPolynomialFunction1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.matrix.ColtMatrixAlgebra;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.CubicRealRootFinder;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.money.Currency;
 import java.util.LinkedHashMap;
 

@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -39,8 +41,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.math.MathException;
-import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 

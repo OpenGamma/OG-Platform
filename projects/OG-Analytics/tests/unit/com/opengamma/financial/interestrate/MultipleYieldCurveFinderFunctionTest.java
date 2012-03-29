@@ -13,11 +13,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 
 /**

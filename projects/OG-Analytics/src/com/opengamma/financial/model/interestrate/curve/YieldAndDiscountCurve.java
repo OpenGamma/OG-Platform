@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;

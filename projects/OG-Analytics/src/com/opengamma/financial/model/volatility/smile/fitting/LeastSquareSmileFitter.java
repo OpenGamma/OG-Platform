@@ -9,9 +9,9 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * An interface for least-square fitting of option data to smile models

@@ -7,9 +7,9 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 
 /**
  * 

@@ -7,6 +7,9 @@ package com.opengamma.financial.interestrate.swaption.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
+import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -16,9 +19,6 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
 import com.opengamma.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
-import com.opengamma.math.function.Function2D;
-import com.opengamma.math.integration.IntegratorRepeated2D;
-import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

@@ -13,10 +13,10 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.ColtMatrixAlgebra;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 
 /**
  * 

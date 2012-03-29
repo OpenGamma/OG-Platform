@@ -8,7 +8,7 @@ package com.opengamma.financial.model.finitedifference;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Crank-Nicolson scheme using SOR algorithm to solve the matrix system at each time step 

@@ -16,6 +16,8 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,8 +42,6 @@ import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.function.Function;
 import com.opengamma.util.money.Currency;
 
 /**

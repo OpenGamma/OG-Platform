@@ -9,10 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.math.function.Function1D;
 
 /**
  * Tests of the SABR valuation of options with extrapolation on the right (for high strikes). The SABR pricing is through Black formula with implied volatility.

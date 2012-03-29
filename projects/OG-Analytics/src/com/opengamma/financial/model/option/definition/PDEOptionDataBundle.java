@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  *  Describes a partial differential for a option price V in the form 

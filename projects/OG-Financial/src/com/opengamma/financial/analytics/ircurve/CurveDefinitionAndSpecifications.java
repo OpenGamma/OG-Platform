@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;

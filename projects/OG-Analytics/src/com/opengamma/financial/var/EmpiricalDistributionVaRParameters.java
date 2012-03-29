@@ -7,7 +7,7 @@ package com.opengamma.financial.var;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.statistics.descriptive.PercentileCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.PercentileCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

@@ -9,8 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.function.Function;
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;

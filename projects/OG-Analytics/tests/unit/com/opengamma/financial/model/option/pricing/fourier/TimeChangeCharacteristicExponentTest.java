@@ -11,8 +11,8 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * 

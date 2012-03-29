@@ -8,13 +8,13 @@ package com.opengamma.financial.model.finitedifference.applications;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

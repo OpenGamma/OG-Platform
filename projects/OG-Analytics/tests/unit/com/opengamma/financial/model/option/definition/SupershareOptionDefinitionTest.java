@@ -10,10 +10,10 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.statistics.ConfidenceInterval;
+import com.opengamma.analytics.math.statistics.ConfidenceInterval;
 
 /**
  * 

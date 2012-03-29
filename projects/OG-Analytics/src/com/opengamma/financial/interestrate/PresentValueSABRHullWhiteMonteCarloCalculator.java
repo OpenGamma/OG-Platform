@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister;
 
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet.RatchetIborCalibrationType;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
@@ -25,7 +26,6 @@ import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorP
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
-import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.add;
-import static com.opengamma.math.ComplexMathUtils.conjugate;
-import static com.opengamma.math.ComplexMathUtils.divide;
-import static com.opengamma.math.ComplexMathUtils.multiply;
-import static com.opengamma.math.ComplexMathUtils.subtract;
+import static com.opengamma.analytics.math.ComplexMathUtils.add;
+import static com.opengamma.analytics.math.ComplexMathUtils.conjugate;
+import static com.opengamma.analytics.math.ComplexMathUtils.divide;
+import static com.opengamma.analytics.math.ComplexMathUtils.multiply;
+import static com.opengamma.analytics.math.ComplexMathUtils.subtract;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * 

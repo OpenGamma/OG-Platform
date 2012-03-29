@@ -7,6 +7,11 @@ package com.opengamma.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.CoupledPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
@@ -17,11 +22,6 @@ import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilityS
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * 

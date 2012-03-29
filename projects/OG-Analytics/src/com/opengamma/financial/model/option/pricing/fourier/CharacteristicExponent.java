@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * 

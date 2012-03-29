@@ -7,9 +7,9 @@ package com.opengamma.financial.timeseries.analysis;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.regression.LeastSquaresRegression;
-import com.opengamma.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
+import com.opengamma.analytics.math.regression.LeastSquaresRegression;
+import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
+import com.opengamma.analytics.math.regression.OrdinaryLeastSquaresRegression;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

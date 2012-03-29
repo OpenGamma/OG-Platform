@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.model.option.pricing.tree;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.tree.RecombiningTree;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

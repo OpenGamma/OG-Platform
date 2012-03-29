@@ -9,9 +9,9 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**

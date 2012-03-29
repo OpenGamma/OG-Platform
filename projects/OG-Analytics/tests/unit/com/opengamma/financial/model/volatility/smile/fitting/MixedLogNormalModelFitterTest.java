@@ -15,13 +15,13 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.MathException;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * 

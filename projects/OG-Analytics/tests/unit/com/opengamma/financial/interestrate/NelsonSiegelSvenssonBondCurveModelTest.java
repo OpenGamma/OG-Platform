@@ -12,9 +12,9 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 

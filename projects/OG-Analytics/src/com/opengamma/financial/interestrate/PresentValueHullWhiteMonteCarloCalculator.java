@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister;
 
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
-import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

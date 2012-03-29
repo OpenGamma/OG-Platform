@@ -10,13 +10,13 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.trade.OptionTradeData;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.Pair;
 
 /**

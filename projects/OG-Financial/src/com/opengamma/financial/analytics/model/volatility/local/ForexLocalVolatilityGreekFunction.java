@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -47,7 +48,6 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 
 /**

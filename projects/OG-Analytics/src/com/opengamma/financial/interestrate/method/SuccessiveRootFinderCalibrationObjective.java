@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.interestrate.method;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.math.function.Function1D;
 
 /**
  * A function used as objective function for calibration on successive instrument with a root finding process at each of them.

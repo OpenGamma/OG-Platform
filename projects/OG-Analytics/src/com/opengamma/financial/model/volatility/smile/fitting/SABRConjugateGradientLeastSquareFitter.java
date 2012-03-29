@@ -9,24 +9,24 @@ import java.util.BitSet;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.FunctionUtils;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
+import com.opengamma.analytics.math.minimization.ConjugateDirectionVectorMinimizer;
+import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.ScalarMinimizer;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.FunctionUtils;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.BrentMinimizer1D;
-import com.opengamma.math.minimization.ConjugateDirectionVectorMinimizer;
-import com.opengamma.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.ScalarMinimizer;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.CompareUtils;
 
 /**

@@ -12,13 +12,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.DriftSurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 

@@ -9,16 +9,16 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.cube.Cube;
+import com.opengamma.analytics.math.cube.FunctionalDoublesCube;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
-import com.opengamma.math.cube.Cube;
-import com.opengamma.math.cube.FunctionalDoublesCube;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
 
 /**
  * 

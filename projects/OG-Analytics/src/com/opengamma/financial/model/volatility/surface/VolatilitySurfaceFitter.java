@@ -13,24 +13,24 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.InterpolatedCurveBuildingFunction;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.TransformedInterpolator1D;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.financial.model.volatility.smile.function.SmileModelData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.InterpolatedCurveBuildingFunction;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.TransformedInterpolator1D;
-import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.matrix.OGMatrixAlgebra;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * @param <T> The type of data (i.e. model parameters) used by the smile model

@@ -7,6 +7,7 @@ package com.opengamma.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.financial.model.finitedifference.CoupledFiniteDifference;
 import com.opengamma.financial.model.finitedifference.CoupledPDEDataBundle;
@@ -17,7 +18,6 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.math.function.Function1D;
 
 /**
  * Solves a coupled forward PDE for the price of a call option when the process is CEV with vol levels determined by a two state Markov chain.  

@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitter;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.math.function.Function1D;
 
 /**
  * 

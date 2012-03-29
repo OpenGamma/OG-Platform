@@ -11,11 +11,11 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  * 

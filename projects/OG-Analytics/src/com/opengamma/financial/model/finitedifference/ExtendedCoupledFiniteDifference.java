@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.linearalgebra.Decomposition;
+import com.opengamma.analytics.math.linearalgebra.DecompositionResult;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * 

@@ -16,6 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -37,8 +39,6 @@ import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TreeOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TrinomialOptionModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

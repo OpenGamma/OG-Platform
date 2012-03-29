@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.lowlevelapi.linearalgebra.blas.blas2kernelabstractions;
 
-import com.opengamma.math.matrix.Matrix;
+import com.opengamma.analytics.math.matrix.Matrix;
 
 /**
  * BLAS2*KernelAbstraction classes are used to kinda emulate function pointer passing.

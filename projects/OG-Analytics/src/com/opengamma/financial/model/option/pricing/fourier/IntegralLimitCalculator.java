@@ -9,13 +9,13 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.math.ComplexMathUtils;
-import com.opengamma.math.MathException;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
+import com.opengamma.analytics.math.ComplexMathUtils;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 
 /**
  * A calculator to determine the upper limit of the Fourier integral for a

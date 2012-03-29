@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.swaption.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
@@ -20,7 +21,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceF
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

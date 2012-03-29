@@ -7,11 +7,11 @@ package com.opengamma.financial.model.option.pricing.tree;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.model.option.definition.GeneralLogNormalOptionDataBundle;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.BrentSingleRootFinder;
-import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

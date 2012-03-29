@@ -9,11 +9,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.option.definition.FadeInOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 

@@ -7,15 +7,15 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 
 /**
  * 

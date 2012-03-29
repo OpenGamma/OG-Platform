@@ -5,14 +5,14 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.add;
-import static com.opengamma.math.ComplexMathUtils.multiply;
-import static com.opengamma.math.ComplexMathUtils.square;
+import static com.opengamma.analytics.math.ComplexMathUtils.add;
+import static com.opengamma.analytics.math.ComplexMathUtils.multiply;
+import static com.opengamma.analytics.math.ComplexMathUtils.square;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * This class represents the characteristic exponent for a Brownian motion driven by normally-distributed increments

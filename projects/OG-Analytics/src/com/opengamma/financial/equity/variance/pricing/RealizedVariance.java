@@ -9,9 +9,9 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.FunctionUtils;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.math.FunctionUtils;
-import com.opengamma.math.function.Function1D;
 
 /**
  *  Model-independent Realized Variance result of the swap based upon observations already made.<p>

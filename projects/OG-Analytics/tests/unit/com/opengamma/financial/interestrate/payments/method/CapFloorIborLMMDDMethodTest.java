@@ -14,6 +14,8 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,8 +42,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceF
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.montecarlo.LiborMarketModelMonteCarloMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;

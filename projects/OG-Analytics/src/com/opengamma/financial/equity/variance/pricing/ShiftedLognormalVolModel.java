@@ -8,14 +8,14 @@ package com.opengamma.financial.equity.variance.pricing;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.rootfinding.VectorRootFinder;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**

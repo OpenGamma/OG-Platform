@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
-import com.opengamma.math.cube.Cube;
+import com.opengamma.analytics.math.cube.Cube;
 
 /**
  * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion

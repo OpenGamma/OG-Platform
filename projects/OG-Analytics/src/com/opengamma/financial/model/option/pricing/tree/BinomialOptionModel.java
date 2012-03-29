@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
@@ -19,7 +20,6 @@ import com.opengamma.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.FiniteDifferenceGreekVisitor;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 

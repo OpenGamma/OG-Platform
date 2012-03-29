@@ -7,7 +7,7 @@ package com.opengamma.financial.timeseries.filter;
 
 import cern.colt.Arrays;
 
-import com.opengamma.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

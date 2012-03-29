@@ -6,8 +6,8 @@
  */
 package com.opengamma.financial.interestrate;
 
-import static com.opengamma.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-import static com.opengamma.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,21 +21,21 @@ import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.rootfinding.YieldCurveFittingSetup;
+import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle;
+import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.linearalgebra.DecompositionFactory;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.rootfinding.YieldCurveFittingSetup;
-import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle;
-import com.opengamma.math.rootfinding.YieldCurveFittingTestDataBundle.TestType;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

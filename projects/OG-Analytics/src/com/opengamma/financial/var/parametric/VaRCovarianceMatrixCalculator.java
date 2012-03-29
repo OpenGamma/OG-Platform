@@ -12,15 +12,15 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
 import com.opengamma.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.financial.greeks.NthOrderUnderlying;
 import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

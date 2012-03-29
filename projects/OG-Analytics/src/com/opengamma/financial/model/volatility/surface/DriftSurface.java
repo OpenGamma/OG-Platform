@@ -8,7 +8,7 @@ package com.opengamma.financial.model.volatility.surface;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * for a model of forward rates that follow the SDE df = a(f,t)dt + b(f,t)dw this describes the drift function (of forward, f, and time, t)

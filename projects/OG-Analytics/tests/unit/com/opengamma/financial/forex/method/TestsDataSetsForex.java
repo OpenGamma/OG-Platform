@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -21,7 +22,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
 
 /**

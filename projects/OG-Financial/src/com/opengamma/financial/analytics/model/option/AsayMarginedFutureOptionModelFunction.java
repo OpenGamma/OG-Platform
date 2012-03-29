@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -26,7 +27,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)

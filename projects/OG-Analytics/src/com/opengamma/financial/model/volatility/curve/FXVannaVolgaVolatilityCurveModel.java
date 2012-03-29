@@ -7,11 +7,11 @@ package com.opengamma.financial.model.volatility.curve;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.option.definition.FXOptionDataBundle;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtils;
 
 /**

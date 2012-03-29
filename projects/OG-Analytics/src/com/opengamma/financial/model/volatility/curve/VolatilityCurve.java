@@ -8,9 +8,9 @@ package com.opengamma.financial.model.volatility.curve;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.CurveShiftFunctionFactory;
 
 /**
  * 

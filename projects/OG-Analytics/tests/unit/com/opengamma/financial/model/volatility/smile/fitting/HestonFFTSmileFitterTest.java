@@ -7,8 +7,8 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * 

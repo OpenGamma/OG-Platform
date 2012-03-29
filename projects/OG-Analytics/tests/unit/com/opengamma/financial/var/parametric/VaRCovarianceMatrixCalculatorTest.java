@@ -16,6 +16,9 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.Matrix;
 import com.opengamma.financial.covariance.CovarianceCalculator;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
 import com.opengamma.financial.greeks.Greek;
@@ -28,9 +31,6 @@ import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.Matrix;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;

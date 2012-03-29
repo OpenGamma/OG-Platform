@@ -10,14 +10,14 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.financial.interestrate.method.SuccessiveRootFinderCalibrationObjective;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * Specific calibration engine for the G2++ model with swaption.

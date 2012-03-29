@@ -7,7 +7,7 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.cube.Cube;
+import com.opengamma.analytics.math.cube.Cube;
 
 /**
  *  Operating splitting (as in Duffy chapter 22) with boundary conditions applied at each of the 4 steps 

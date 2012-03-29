@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.tutorial;
 
-import static com.opengamma.math.FunctionUtils.square;
+import static com.opengamma.analytics.math.FunctionUtils.square;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
  * Menu of functions used in the tutorials

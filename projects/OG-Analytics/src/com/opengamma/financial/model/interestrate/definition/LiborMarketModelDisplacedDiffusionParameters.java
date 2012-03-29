@@ -11,12 +11,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponDefinition;
 import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.math.function.Function1D;
 
 /**
  * Parameters related to a multi-factor Libor Market Model with separable

@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
@@ -17,7 +18,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.curve.ConstantDoublesCurve;
 
 /**
  * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values

@@ -10,15 +10,15 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
+import com.opengamma.analytics.math.curve.SubtractCurveSpreadFunction;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.AddCurveSpreadFunction;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.curve.SpreadDoublesCurve;
-import com.opengamma.math.curve.SubtractCurveSpreadFunction;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

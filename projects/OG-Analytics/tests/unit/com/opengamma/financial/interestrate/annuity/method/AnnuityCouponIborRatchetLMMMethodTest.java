@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 
+import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorIborDefinition;
@@ -35,7 +36,6 @@ import com.opengamma.financial.model.interestrate.LiborMarketModelDisplacedDiffu
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.financial.montecarlo.LiborMarketModelMonteCarloMethod;
-import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;

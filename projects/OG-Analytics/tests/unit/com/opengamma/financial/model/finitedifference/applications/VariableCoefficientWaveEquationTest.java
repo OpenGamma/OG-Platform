@@ -8,6 +8,12 @@ package com.opengamma.financial.model.finitedifference.applications;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.FunctionUtils;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
@@ -17,12 +23,6 @@ import com.opengamma.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.math.FunctionUtils;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.Surface;
 
 /**
  * 

@@ -10,12 +10,12 @@ import org.apache.commons.lang.Validate;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.CEVFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.math.function.Function1D;
 
 /**
  * 

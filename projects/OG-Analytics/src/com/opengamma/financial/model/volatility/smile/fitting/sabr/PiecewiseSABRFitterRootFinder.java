@@ -11,6 +11,18 @@ import java.util.BitSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
+import com.opengamma.analytics.math.minimization.NonLinearTransformFunction;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.SmileModelFitter;
@@ -20,18 +32,6 @@ import com.opengamma.financial.model.volatility.smile.fitting.interpolation.Weig
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.math.minimization.NonLinearParameterTransforms;
-import com.opengamma.math.minimization.NonLinearTransformFunction;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.ArgumentChecker;
 
 /**

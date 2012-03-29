@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.riskreward;
 
-import com.opengamma.math.statistics.descriptive.SemiStandardDeviationCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.SemiStandardDeviationCalculator;
 
 /**
  * The Sortino ratio is an extension of the Sharpe ratio (see {@link SharpeRatioCalculator})

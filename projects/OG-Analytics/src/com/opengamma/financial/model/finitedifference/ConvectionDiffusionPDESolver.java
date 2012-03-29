@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Solver for convection-diffusion type partial differential equations (PDEs), i.e.

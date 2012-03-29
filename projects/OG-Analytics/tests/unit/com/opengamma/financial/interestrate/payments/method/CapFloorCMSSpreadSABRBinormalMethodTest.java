@@ -18,6 +18,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.DoubleFunction1D;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -52,9 +55,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.financial.model.volatility.NormalImpliedVolatilityFormula;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.math.function.DoubleFunction1D;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;

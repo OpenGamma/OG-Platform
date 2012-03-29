@@ -7,13 +7,13 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.LinkedHashMap;
 
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.minimization.DoubleRangeLimitTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
 
 /**
  * 

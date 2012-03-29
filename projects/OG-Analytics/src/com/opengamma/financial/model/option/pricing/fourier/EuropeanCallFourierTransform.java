@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.add;
-import static com.opengamma.math.ComplexMathUtils.divide;
-import static com.opengamma.math.ComplexMathUtils.exp;
-import static com.opengamma.math.ComplexMathUtils.multiply;
+import static com.opengamma.analytics.math.ComplexMathUtils.add;
+import static com.opengamma.analytics.math.ComplexMathUtils.divide;
+import static com.opengamma.analytics.math.ComplexMathUtils.exp;
+import static com.opengamma.analytics.math.ComplexMathUtils.multiply;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * Gives the Fourier transform of a European call $\hat{C}(z) =

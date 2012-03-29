@@ -7,6 +7,7 @@ package com.opengamma.financial.interestrate.method.market;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexPrice;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -15,7 +16,6 @@ import com.opengamma.financial.interestrate.market.MarketDiscountingTimeDecorate
 import com.opengamma.financial.interestrate.market.MarketForwardTimeDecorated;
 import com.opengamma.financial.interestrate.market.MarketPriceIndexTimeDecorated;
 import com.opengamma.financial.interestrate.method.PricingMarketMethod;
-import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.util.money.Currency;
 
 /**

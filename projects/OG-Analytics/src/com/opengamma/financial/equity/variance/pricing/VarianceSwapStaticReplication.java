@@ -8,6 +8,12 @@ package com.opengamma.financial.equity.variance.pricing;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.integration.Integrator1D;
+import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
@@ -19,12 +25,6 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLo
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVisitor;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.integration.Integrator1D;
-import com.opengamma.math.integration.RungeKuttaIntegrator1D;
-import com.opengamma.math.minimization.BrentMinimizer1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;

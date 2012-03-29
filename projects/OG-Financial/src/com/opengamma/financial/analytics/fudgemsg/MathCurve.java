@@ -12,15 +12,15 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.math.curve.ConstantDoublesCurve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.curve.NodalDoublesCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 
 /**
- * Fudge builders for com.opengamma.math.curve.* classes
+ * Fudge builders for com.opengamma.analytics.math.curve.* classes
  */
 final class MathCurve {
 

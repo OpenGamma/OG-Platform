@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
  * Provides the BLAS level 1 behaviour for the OG matrix library.

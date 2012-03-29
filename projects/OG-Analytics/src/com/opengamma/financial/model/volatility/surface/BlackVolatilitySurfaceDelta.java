@@ -7,13 +7,13 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.surface.Surface;
-import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  *  A surface that contains the Black (implied) volatility as a function of time to maturity and (call) delta. Delta is in the range [0,1], where 0.5 is

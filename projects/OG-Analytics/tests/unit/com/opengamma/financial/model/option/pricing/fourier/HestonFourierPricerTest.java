@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.ComplexMathUtils.exp;
+import static com.opengamma.analytics.math.ComplexMathUtils.exp;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -13,11 +13,11 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 

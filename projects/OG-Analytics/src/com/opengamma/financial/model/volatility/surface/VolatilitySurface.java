@@ -7,14 +7,14 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.math.Axis;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
+import com.opengamma.analytics.math.surface.SurfaceSliceFunction;
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
-import com.opengamma.math.Axis;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.surface.Surface;
-import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
-import com.opengamma.math.surface.SurfaceSliceFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 

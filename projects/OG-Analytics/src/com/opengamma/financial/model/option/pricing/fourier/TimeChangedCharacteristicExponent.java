@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.model.option.pricing.fourier;
 
-import static com.opengamma.math.number.ComplexNumber.MINUS_I;
+import static com.opengamma.analytics.math.number.ComplexNumber.MINUS_I;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ComplexMathUtils;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.number.ComplexNumber;
+import com.opengamma.analytics.math.ComplexMathUtils;
+import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**
  * This characteristic exponent converts a Levy process from calendar time to

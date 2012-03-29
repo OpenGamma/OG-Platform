@@ -7,11 +7,11 @@ package com.opengamma.financial.model.option.pricing.analytic.formula;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.model.option.definition.Barrier;
 import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.financial.model.option.definition.Barrier.KnockType;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
 
 /**

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import com.opengamma.math.curve.Curve;
+import com.opengamma.analytics.math.curve.Curve;
 
 /**
  * 
