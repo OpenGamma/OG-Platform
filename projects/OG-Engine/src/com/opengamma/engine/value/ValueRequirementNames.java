@@ -38,7 +38,7 @@ public final class ValueRequirementNames {
   ///// Market Data
 
   /**
-   * Cost of carry for an equity or index option (i.e. continuously-compounded dividend yield).
+   * Cost of carry for an equity or index option (ie continuously-compounded dividend yield).
    */
   public static final String COST_OF_CARRY = "Cost Of Carry";
   /**
@@ -85,12 +85,11 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
-   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, ignoring the type of instrument 
-   * etc.).
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   /**
-   * The Jacobian of a yield curve i.e. a matrix where each row is the sensitivity of an instrument used in yield curve construction to the nodal points of the curve.
+   * The Jacobian of a yield curve, that is a matrix where each row is the sensitivity of an instrument used in yield curve construction to the nodal points of the curve.
    */
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
