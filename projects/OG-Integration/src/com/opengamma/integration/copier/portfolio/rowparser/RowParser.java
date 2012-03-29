@@ -162,4 +162,11 @@ public abstract class RowParser {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
   }
 
+
+  public static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value.toString());
+    }
+  }
+
 }
