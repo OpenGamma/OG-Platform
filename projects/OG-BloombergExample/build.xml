@@ -64,7 +64,7 @@
       <jvmarg value="-XX:PermSize=256m" />
       <jvmarg value="-XX:MaxPermSize=256m" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
 		</java>
 	</target>
 
@@ -76,7 +76,7 @@
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
 		</java>
 	</target>
 
