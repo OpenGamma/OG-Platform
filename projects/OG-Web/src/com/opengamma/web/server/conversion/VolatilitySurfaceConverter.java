@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.server.conversion;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +18,9 @@ import com.opengamma.math.surface.Surface;
 
 /**
  * Converter for {@link VolatilitySurface} objects.
- * TODO Describe how this differs from VolatilitySurfaceData
+ * The difference between this form and VolatilitySurfaceData is that the latter
+ * will often be full of repeated values. Here we compute the distinct set of axes values, 
+ * then query the surface for the z values
  */
 public class VolatilitySurfaceConverter implements ResultConverter<VolatilitySurface> {
 
@@ -25,33 +30,52 @@ public class VolatilitySurfaceConverter implements ResultConverter<VolatilitySur
 
     Surface<Double, Double, Double> inputSurface = value.getSurface();
     if (inputSurface instanceof DoublesSurface) {
+      
+      // Compute unique X data
       Double[] xData = inputSurface.getXData();
-      Double[] yData = inputSurface.getYData();
-      final int xCount = xData.length;
-      final int yCount = yData.length;
+      DoubleArrayList uniqueXs = new DoubleArrayList();
+      for (int i = 0; i < xData.length; i++) {
+        if (!uniqueXs.contains(xData[i])) {
+          uniqueXs.add(xData[i]);
+        }
+      }
+      
+      final int xCount = uniqueXs.size();
       result.put("xCount", xCount);
+      
+
+      // Compute unique Y data
+      Double[] yData = inputSurface.getYData();
+      DoubleArrayList uniqueYs = new DoubleArrayList();
+      for (int j = 0; j < yData.length; j++) {
+        if (!uniqueYs.contains(yData[j])) {
+          uniqueYs.add(yData[j]);
+        }
+      }
+      Collections.sort(uniqueYs);
+      final int yCount = uniqueYs.size();
       result.put("yCount", yCount);
       
+      // Convert for display
       if (mode == ConversionMode.FULL) {
         String[] xStrings = new String[xCount];
         for (int i = 0; i < xCount; i++) {
-          xStrings[i] = xData[i].toString();
+          xStrings[i] = uniqueXs.get(i).toString();
         }
         result.put("xData", xStrings);
         
         String[] ysStrings = new String[yCount];
         for (int i = 0; i < yCount; i++) {
-          ysStrings[i] = yData[i].toString();
+          ysStrings[i] = uniqueYs.get(i).toString();
         }
         result.put("yData", ysStrings);
-        
         
         double[][] outputSurface = new double[yCount][xCount];
         boolean[][] missingValues = new boolean[yCount][xCount];
         // Summary view includes only the actual points of the surface
         for (int y = 0; y < yCount; y++) {
           for (int x = 0; x < xCount; x++) {
-            Double volatility = inputSurface.getZValue(xData[x], yData[y]);
+            Double volatility = inputSurface.getZValue(uniqueXs.get(x), uniqueYs.get(y));
             if (volatility == null) {
               missingValues[y][x] = true;
               //Some 'obviously wrong' value in case client displays it.  Can't use NaN
