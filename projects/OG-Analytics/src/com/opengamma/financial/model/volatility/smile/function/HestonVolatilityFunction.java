@@ -48,14 +48,14 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
    * Only use this for testing. If you have a set of options with the same expiry but different strikes, use {@link getVolatilitySetFunction}
    */
   @Override
-  public Function1D<HestonModelData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+  public Function1D<HestonModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
 
     final Function1D<HestonModelData, double[]> func = getVolatilityFunction(forward, new double[] {option.getStrike() }, option.getTimeToExpiry());
 
     return new Function1D<HestonModelData, Double>() {
 
       @Override
-      public Double evaluate(HestonModelData x) {
+      public Double evaluate(final HestonModelData x) {
         return func.evaluate(x)[0];
       }
     };
@@ -70,8 +70,9 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
 
     return new Function1D<HestonModelData, double[]>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public double[] evaluate(HestonModelData x) {
+      public double[] evaluate(final HestonModelData x) {
         final MartingaleCharacteristicExponent ce = new HestonCharacteristicExponent(x);
         //TODO calculations relating to the FFT setup are made each call, even though they will be very similar (depends on Characteristic
         // Exponent). Maybe worth calculating a typical setup, outside of this function
@@ -81,8 +82,8 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
         final double[] vol = new double[m];
         int count = 0;
         for (int i = 0; i < m; i++) {
-          double strike = strikeNPrice[i][0];
-          double price = strikeNPrice[i][1];
+          final double strike = strikeNPrice[i][0];
+          final double price = strikeNPrice[i][1];
           if (price > 0.0) {
             double impVol;
             try {
@@ -90,7 +91,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
               k[count] = strike;
               vol[count] = impVol;
               count++;
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
 
               //impVol = BlackFormulaRepository.impliedVolatility(price, forward, strike, timeToExpiry, true);
             }
@@ -125,28 +126,28 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
   @ExternalFunction
   public double getVolatility(final double forward, final double strike, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega,
       final double rho) {
-    Function1D<HestonModelData, Double> func = getVolatilityFunction(new EuropeanVanillaOption(strike, timeToExpiry, true), forward);
-    HestonModelData data = new HestonModelData(kappa, theta, vol0, omega, rho);
+    final Function1D<HestonModelData, Double> func = getVolatilityFunction(new EuropeanVanillaOption(strike, timeToExpiry, true), forward);
+    final HestonModelData data = new HestonModelData(kappa, theta, vol0, omega, rho);
     return func.evaluate(data);
   }
 
   @ExternalFunction
   public double[] getVolatilitySet(final double forward, final double[] strikes, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega,
       final double rho) {
-    Function1D<HestonModelData, double[]> func = getVolatilityFunction(forward, strikes, timeToExpiry);
-    HestonModelData data = new HestonModelData(kappa, theta, vol0, omega, rho);
+    final Function1D<HestonModelData, double[]> func = getVolatilityFunction(forward, strikes, timeToExpiry);
+    final HestonModelData data = new HestonModelData(kappa, theta, vol0, omega, rho);
     return func.evaluate(data);
   }
 
   @Override
-  public Function1D<HestonModelData, double[]> getVolatilityAdjointFunction(EuropeanVanillaOption option, double forward) {
+  public Function1D<HestonModelData, double[]> getVolatilityAdjointFunction(final EuropeanVanillaOption option, final double forward) {
 
     final Function1D<HestonModelData, double[][]> func = getVolatilityAdjointFunction(forward, new double[] {option.getStrike() }, option.getTimeToExpiry());
     return new Function1D<HestonModelData, double[]>() {
 
       @Override
-      public double[] evaluate(HestonModelData x) {
-        double[][] temp = func.evaluate(x);
+      public double[] evaluate(final HestonModelData x) {
+        final double[][] temp = func.evaluate(x);
         Validate.isTrue(temp.length == 1);
         return temp[0];
       }
@@ -166,10 +167,11 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
 
     return new Function1D<HestonModelData, double[][]>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public double[][] evaluate(HestonModelData x) {
+      public double[][] evaluate(final HestonModelData x) {
         final MartingaleCharacteristicExponent ce = new HestonCharacteristicExponent(x);
-        double[][] greeks = greekCal.getGreeks(forward, 1.0, timeToExpiry, true, ce, lowestStrike, highestStrike, n, _limitSigma, _alpha, _limitTolerance);
+        final double[][] greeks = greekCal.getGreeks(forward, 1.0, timeToExpiry, true, ce, lowestStrike, highestStrike, n, _limitSigma, _alpha, _limitTolerance);
         //1st array is strikes and the second is prices (which we don't need)
         final double[] k = greeks[0];
         final double[] prices = greeks[1];
@@ -200,7 +202,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
         }
 
         //fake the price, forward, and strike sense since we don't used them
-        double[][] res = new double[n][p + 1];
+        final double[][] res = new double[n][p + 1];
         for (int index = 0; index < p - 2; index++) {
           final double[] temp = volSense[index];
           for (int i = 0; i < n; i++) {
@@ -219,14 +221,14 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
   }
 
   @Override
-  public Function1D<HestonModelData, double[]> getModelAdjointFunction(EuropeanVanillaOption option, double forward) {
+  public Function1D<HestonModelData, double[]> getModelAdjointFunction(final EuropeanVanillaOption option, final double forward) {
 
     final Function1D<HestonModelData, double[][]> func = getModelAdjointFunction(forward, new double[] {option.getStrike() }, option.getTimeToExpiry());
     return new Function1D<HestonModelData, double[]>() {
 
       @Override
-      public double[] evaluate(HestonModelData x) {
-        double[][] temp = func.evaluate(x);
+      public double[] evaluate(final HestonModelData x) {
+        final double[][] temp = func.evaluate(x);
         Validate.isTrue(temp.length == 1);
         return temp[0];
       }
@@ -245,10 +247,11 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
 
     return new Function1D<HestonModelData, double[][]>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public double[][] evaluate(HestonModelData x) {
+      public double[][] evaluate(final HestonModelData x) {
         final MartingaleCharacteristicExponent ce = new HestonCharacteristicExponent(x);
-        double[][] greeks = greekCal.getGreeks(forward, 1.0, timeToExpiry, true, ce, lowestStrike, highestStrike, n, _limitSigma, _alpha, _limitTolerance);
+        final double[][] greeks = greekCal.getGreeks(forward, 1.0, timeToExpiry, true, ce, lowestStrike, highestStrike, n, _limitSigma, _alpha, _limitTolerance);
         //1st array is strikes and the second is prices (which we don't need)
 
         final double[] k = greeks[0];
@@ -270,7 +273,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
               modelGreeks[j][count] = greeks[j + 2][i];
             }
             count++;
-          } catch (IllegalArgumentException e) {
+          } catch (final IllegalArgumentException e) {
             //do nothing
           }
         }
@@ -308,7 +311,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
           }
         }
 
-        double[][] res = new double[n][p];
+        final double[][] res = new double[n][p];
         for (int index = 0; index < p; index++) {
           final double[] temp = volSense[index];
           for (int i = 0; i < n; i++) {

@@ -150,8 +150,8 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
         final int n = x.getNumberOfElements();
         final double[] xData = x.getData();
         double oldValue;
-        double[] y = new double[3];
-        double[] res = new double[n];
+        final double[] y = new double[3];
+        final double[] res = new double[n];
         double[] w;
         for (int i = 0; i < n; i++) {
           oldValue = xData[i];
@@ -160,16 +160,15 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
             xData[i] = oldValue - _twoEps;
             if (!domain.evaluate(x)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
-            } else {
-              y[0] = function.evaluate(x);
-              xData[i] = oldValue;
-              y[2] = function.evaluate(x);
-              xData[i] = oldValue - _eps;
-              y[1] = function.evaluate(x);
-              w = wBack;
             }
+            y[0] = function.evaluate(x);
+            xData[i] = oldValue;
+            y[2] = function.evaluate(x);
+            xData[i] = oldValue - _eps;
+            y[1] = function.evaluate(x);
+            w = wBack;
           } else {
-            double temp = function.evaluate(x);
+            final double temp = function.evaluate(x);
             xData[i] = oldValue - _eps;
             if (!domain.evaluate(x)) {
               y[1] = temp;

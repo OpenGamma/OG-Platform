@@ -63,30 +63,30 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements Pri
   public CurrencyAmount presentValue(final CapFloorCMS cms, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(cms);
     Validate.notNull(hwData);
-    double expiryTime = cms.getFixingTime();
-    FixedCouponSwap<? extends Payment> swap = cms.getUnderlyingSwap();
-    int nbFixed = cms.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
-    double[] alphaFixed = new double[nbFixed];
-    double[] dfFixed = new double[nbFixed];
-    double[] discountedCashFlowFixed = new double[nbFixed];
+    final double expiryTime = cms.getFixingTime();
+    final FixedCouponSwap<? extends Payment> swap = cms.getUnderlyingSwap();
+    final int nbFixed = cms.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
+    final double[] alphaFixed = new double[nbFixed];
+    final double[] dfFixed = new double[nbFixed];
+    final double[] discountedCashFlowFixed = new double[nbFixed];
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       alphaFixed[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       dfFixed[loopcf] = hwData.getCurve(swap.getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swap.getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swap.getFixedLeg().getNthPayment(loopcf).getNotional();
     }
 
-    AnnuityPaymentFixed cfeIbor = CFEC.visit(swap.getSecondLeg(), hwData);
-    double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
+    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swap.getSecondLeg(), hwData);
+    final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
       alphaIbor[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime());
       dfIbor[loopcf] = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cfeIbor.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowIbor[loopcf] = dfIbor[loopcf] * cfeIbor.getNthPayment(loopcf).getAmount();
     }
 
-    double alphaPayment = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cms.getPaymentTime());
-    double dfPayment = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cms.getPaymentTime());
+    final double alphaPayment = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cms.getPaymentTime());
+    final double dfPayment = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cms.getPaymentTime());
     // Integration
     final CMSIntegrant integrant = new CMSIntegrant(discountedCashFlowFixed, alphaFixed, discountedCashFlowIbor, alphaIbor, alphaPayment, cms.getStrike(), (cms.isCap() ? 1.0 : -1.0));
     final double limit = 10.0;
@@ -132,8 +132,9 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements Pri
      * @param strike The strike.
      * @param omega The factor.
      */
-    public CMSIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, double alphaPayment, double strike,
-        double omega) {
+    public CMSIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final double alphaPayment,
+        final double strike,
+        final double omega) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _discountedCashFlowIbor = discountedCashFlowIbor;
@@ -145,9 +146,10 @@ public final class CapFloorCMSHullWhiteNumericalIntegrationMethod implements Pri
 
     @Override
     public Double evaluate(final Double x) {
-      double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
-      double dfDensity = Math.exp(-(x + _alphaPayment) * (x + _alphaPayment) / 2.0);
-      double result = dfDensity * Math.max(_omega * (swapRate - _strike), 0.0);
+      @SuppressWarnings("synthetic-access")
+      final double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
+      final double dfDensity = Math.exp(-(x + _alphaPayment) * (x + _alphaPayment) / 2.0);
+      final double result = dfDensity * Math.max(_omega * (swapRate - _strike), 0.0);
       return result;
     }
   }

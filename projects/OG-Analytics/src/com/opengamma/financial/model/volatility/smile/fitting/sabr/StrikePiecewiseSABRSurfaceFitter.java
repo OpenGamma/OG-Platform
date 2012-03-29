@@ -66,6 +66,7 @@ public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
     }
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tk) {
         final double t = tk[0];
@@ -101,14 +102,14 @@ public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
           x = t;
         }
 
-        final double[] strikes = new double[4];
+        final double[] nearestStrikes = new double[4];
         final double[] vols = new double[4];
         final double[] intVar = new double[4];
         double[] y = null;
 
         for (int i = 0; i < 4; i++) {
-          strikes[i] = forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + _lambda * times[i]));
-          vols[i] = fitters[lower + i].evaluate(strikes[i]);
+          nearestStrikes[i] = forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + _lambda * times[i]));
+          vols[i] = fitters[lower + i].evaluate(nearestStrikes[i]);
 
           intVar[i] = vols[i] * vols[i] * times[i];
           //if (i > 0) {

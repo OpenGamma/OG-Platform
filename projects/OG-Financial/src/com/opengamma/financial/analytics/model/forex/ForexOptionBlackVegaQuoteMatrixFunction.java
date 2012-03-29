@@ -23,7 +23,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 /**
  * 
  */
-public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackFunction {
+public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueForexVegaQuoteSensitivityCalculator CALCULATOR = PresentValueForexVegaQuoteSensitivityCalculator.getInstance();
 
   public ForexOptionBlackVegaQuoteMatrixFunction() {
@@ -44,9 +44,10 @@ public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackFun
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
-      final String callForwardCurveName, final String surfaceName, final ComputationTarget target) {
-    final ValueProperties.Builder properties = super.getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
+  protected ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final ComputationTarget target) {
+    final ValueProperties.Builder properties = super.getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName,
+        callForwardCurveName, callCurveCalculationMethod, surfaceName, target);
     properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
     return properties;
   }

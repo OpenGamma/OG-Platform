@@ -21,7 +21,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexOptionBlackPresentValueFunction extends ForexOptionBlackFunction {
+public class ForexOptionBlackPresentValueFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
 
   public ForexOptionBlackPresentValueFunction() {

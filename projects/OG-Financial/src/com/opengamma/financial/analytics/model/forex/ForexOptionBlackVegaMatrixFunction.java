@@ -21,7 +21,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 /**
  * 
  */
-public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackFunction {
+public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
