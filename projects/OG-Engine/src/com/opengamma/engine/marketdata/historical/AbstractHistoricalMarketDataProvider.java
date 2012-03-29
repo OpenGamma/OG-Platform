@@ -111,10 +111,14 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
     final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), ExternalIdBundle.of(identifier), null, getTimeSeriesResolverKey());
-    if (hts == null && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
-      System.err.println("Missing: " + requirement);
+    if (hts == null) {
+      if (s_logger.isDebugEnabled() && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
+        s_logger.debug("Missing market data {}", requirement);
+      }
+      return MarketDataAvailability.NOT_AVAILABLE;
+    } else {
+      return MarketDataAvailability.AVAILABLE;
     }
-    return (hts != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
   }
   
   //-------------------------------------------------------------------------
