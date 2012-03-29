@@ -32,11 +32,11 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
   
   /**
    * @param resolutionKey the resolution key, not-null
-   * @param markDataField the mark to market data field name, not-null
+   * @param mark2marketField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public TradeExchangeTradedPnLFunction(String resolutionKey, String markDataField, String costOfCarryField) {
-    super(resolutionKey, markDataField, costOfCarryField);
+  public TradeExchangeTradedPnLFunction(String resolutionKey, String mark2marketField, String costOfCarryField) {
+    super(resolutionKey, mark2marketField, costOfCarryField);
   }
 
   @Override

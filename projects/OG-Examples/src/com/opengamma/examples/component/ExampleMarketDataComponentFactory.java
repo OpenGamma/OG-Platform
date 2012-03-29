@@ -24,12 +24,12 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.examples.marketdata.ExampleMarketDataProvider;
 import com.opengamma.examples.marketdata.SimulatedMarketDataGenerator;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -75,7 +75,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
   
   protected MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
-    InMemoryLKVMarketDataProvider mdProvider = new InMemoryLKVMarketDataProvider(getSecuritySource());
+    ExampleMarketDataProvider mdProvider = new ExampleMarketDataProvider(getSecuritySource());
     MarketDataProviderFactory mdProviderFactory = new SingletonMarketDataProviderFactory(mdProvider);
     
     SimulatedMarketDataGenerator mdGenerator = new SimulatedMarketDataGenerator(mdProvider, getMarketDataFile(), getGeneratedSecurities(), getGeneratedTimeSeries());

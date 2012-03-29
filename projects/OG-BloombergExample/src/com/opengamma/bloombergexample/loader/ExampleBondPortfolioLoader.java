@@ -42,7 +42,7 @@ public class ExampleBondPortfolioLoader extends AbstractExampleTool {
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Example Bond Portfolio";
+  private static final String PORTFOLIO_NAME = "Bond Portfolio";
 
   //-------------------------------------------------------------------------
   /**
