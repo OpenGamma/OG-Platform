@@ -54,7 +54,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
   private static final Double UN_AVAILABLE_COST = Double.NaN;
 
-  private final String _markDataField;
+  private final String _mark2MarketField;
   private final String _costOfCarryField;
   private final String _resolutionKey;
 
@@ -62,17 +62,17 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
   /**
    * @param resolutionKey the resolution key, not-null
-   * @param markDataField the mark to market data field name, not-null
+   * @param mark2MarketField the mark to market data field name, not-null
    * @param costOfCarryField the cost of carry field name, not-null
    */
-  public AbstractTradeOrDailyPositionPnLFunction(String resolutionKey, String markDataField, String costOfCarryField) {
+  public AbstractTradeOrDailyPositionPnLFunction(String resolutionKey, String mark2MarketField, String costOfCarryField) {
     super();
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
-    ArgumentChecker.notNull(markDataField, "mark data field");
+    ArgumentChecker.notNull(mark2MarketField, "mark data field");
     ArgumentChecker.notNull(costOfCarryField, "cost of carry data field");
 
     _resolutionKey = resolutionKey;
-    _markDataField = markDataField;
+    _mark2MarketField = mark2MarketField;
     _costOfCarryField = costOfCarryField;
   }
 
@@ -95,15 +95,15 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
 
       final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-      final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _markDataField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
+      final HistoricalTimeSeries markToMarketSeries = getMarkToMarketSeries(historicalSource, _mark2MarketField, security.getExternalIdBundle(), _resolutionKey, tradeDate);
 
       if (markToMarketSeries == null || markToMarketSeries.getTimeSeries() == null) {
         s_logger.debug("Could not get identifier / mark to market series pair for security {} for {} using {}",
-            new Object[] {security.getExternalIdBundle(), _markDataField, _resolutionKey });
+            new Object[] {security.getExternalIdBundle(), _mark2MarketField, _resolutionKey });
         return Collections.emptySet();
       }
 
-      tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _markDataField, _resolutionKey);
+      tradeDate = checkAvailableData(tradeDate, markToMarketSeries, security, _mark2MarketField, _resolutionKey);
 
       final Currency ccy = FinancialSecurityUtils.getCurrency(trade.getSecurity());
       final String valueRequirementName = getResultValueRequirementName();

@@ -9,8 +9,12 @@ package com.opengamma.integration.copier.portfolio.writer;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.copier.portfolio.rowparser.RowParser;
@@ -19,6 +23,7 @@ import com.opengamma.integration.copier.sheet.writer.SheetWriter;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,6 +33,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioWriter {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetMultiParserPortfolioWriter.class);
+  
   private Map<String, RowParser> _parserMap = new HashMap<String, RowParser>();
   
   // current row context
@@ -93,6 +100,14 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     
     if (_currentParser != null) {
       _currentRow.putAll(_currentParser.constructRow(position));
+      
+      List<ManageableTrade> trades = position.getTrades();
+      if (trades.size() > 1) {
+        s_logger.warn("Omitting extra trades: only one trade per position is currently supported");
+      }
+      if (trades.size() > 0) {
+        _currentRow.putAll(_currentParser.constructRow(trades.get(0)));
+      }
     }
     
     // Flush out the current row and prepare a new one

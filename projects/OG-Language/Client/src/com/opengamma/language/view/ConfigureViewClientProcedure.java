@@ -118,7 +118,7 @@ public class ConfigureViewClientProcedure extends AbstractProcedureInvoker.NoRes
             if (value instanceof Number) {
               value = new MarketDataMultiplyOperation(((Number) value).doubleValue());
             } else {
-              throw new InvokeInvalidArgumentException("Invalid ADD override - " + marketDataOverride.toString());
+              throw new InvokeInvalidArgumentException("Invalid MULTIPLY override - " + marketDataOverride.toString());
             }
             break;
           default:
