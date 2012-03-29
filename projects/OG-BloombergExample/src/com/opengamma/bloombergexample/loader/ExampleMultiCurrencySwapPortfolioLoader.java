@@ -27,6 +27,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -76,7 +77,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -115,7 +116,6 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-//    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
@@ -130,7 +130,12 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
     
     for (int i = 0; i < SECURITIES_SIZE; i++) {
       Currency ccy = getCurrency(random);
-      SwapSecurity swap = makeSwap(random, ccy);
+      SwapSecurity swap = null;
+      try {
+        swap = makeSwap(random, ccy);
+      } catch (Exception e) {
+        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.        
+      }
       if (swap != null) {
         swaps.add(swap);
       }
@@ -150,8 +155,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
     ConventionBundle swapConvention = getSwapConventionBundle(ccy);
     ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
     
-    // look up the OG_SYNTHETIC ticker out of the bundle
-    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(SecurityUtils.OG_SYNTHETIC_TICKER);
+    // look up the BLOOMBERG ticker out of the bundle
+    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No synthetic ticker set up for " + swapConvention.getName());
     }
@@ -216,11 +221,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
     }
     
-    HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, 
-        swapRateForMaturityIdentifier.toBundle(), 
-        HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, 
-        tradeDate, true, tradeDate, true);
+    HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME,  tradeDate, true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }
@@ -231,7 +232,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   private Double getInitialRate(LocalDate tradeDate, ExternalId liborIdentifier) {
     HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, liborIdentifier.toBundle(), 
+        "PX_LAST", liborIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);
@@ -275,9 +276,9 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   }
   
   private static ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
-    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, "SECONDARY_" + ccy.getCode(), null);
+    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, "DEFAULT_" + ccy.getCode(), null);
     if (curveSpecConfig == null) {
-      throw new OpenGammaRuntimeException("No curve spec builder configuration for SECONDARY_" + ccy.getCode());
+      throw new OpenGammaRuntimeException("No curve spec builder configuration for DEFAULT_" + ccy.getCode());
     }
     ExternalId swapSecurity;
     if (ccy.equals(Currency.USD)) {
