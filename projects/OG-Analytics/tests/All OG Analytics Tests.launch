@@ -120,7 +120,7 @@
 <listEntry value="com.opengamma.math.statistics.leastsquare"/>
 <listEntry value="com.opengamma.math.surface"/>
 <listEntry value="com.opengamma.math.util.wrapper"/>
-<listEntry value="com.opengamma.tutorial"/>
+<listEntry value="com.opengamma.analytics.tutorial"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

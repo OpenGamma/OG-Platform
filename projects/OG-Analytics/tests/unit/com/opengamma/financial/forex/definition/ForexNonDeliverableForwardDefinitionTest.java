@@ -13,10 +13,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Tests related to the construction of ForexNonDeliverableForwardDefinition and it conversion to derivative.

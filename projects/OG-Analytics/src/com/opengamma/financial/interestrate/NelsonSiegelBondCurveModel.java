@@ -7,9 +7,9 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 

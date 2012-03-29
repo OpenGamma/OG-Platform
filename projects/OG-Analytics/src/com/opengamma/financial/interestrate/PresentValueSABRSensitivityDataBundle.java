@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.surface.SurfaceValue;
+import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

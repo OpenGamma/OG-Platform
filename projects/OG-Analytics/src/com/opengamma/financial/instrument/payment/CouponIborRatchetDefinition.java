@@ -11,10 +11,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.payments.derivative.CouponIborRatchet;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Class describing a Ratchet on Ibor coupon. The coupon payment depends on the

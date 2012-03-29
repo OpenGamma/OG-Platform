@@ -7,8 +7,8 @@ package com.opengamma.math.function;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
-import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * This class defines a 1-D function that takes both its argument and

@@ -10,9 +10,9 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

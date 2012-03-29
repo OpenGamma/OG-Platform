@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
@@ -32,7 +33,6 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 

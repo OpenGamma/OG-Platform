@@ -16,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -25,7 +26,6 @@ import com.opengamma.financial.instrument.index.indexon.EONIA;
 import com.opengamma.financial.instrument.index.indexon.FEDFUND;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Tests related to the construction of Federal Fund future.

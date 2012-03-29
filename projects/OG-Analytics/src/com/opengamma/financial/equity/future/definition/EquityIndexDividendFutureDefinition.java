@@ -7,9 +7,9 @@ package com.opengamma.financial.equity.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Each time a view is recalculated, the security definition 

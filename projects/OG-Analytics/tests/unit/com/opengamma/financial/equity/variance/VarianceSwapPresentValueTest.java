@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.RealizedVariance;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -30,7 +31,6 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

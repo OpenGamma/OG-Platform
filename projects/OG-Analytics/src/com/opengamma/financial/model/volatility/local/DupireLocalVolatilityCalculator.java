@@ -8,6 +8,7 @@ package com.opengamma.financial.model.volatility.local;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -21,7 +22,6 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
-import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 

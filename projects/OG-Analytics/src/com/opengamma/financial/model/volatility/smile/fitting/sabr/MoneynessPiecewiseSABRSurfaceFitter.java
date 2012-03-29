@@ -9,6 +9,7 @@ import static com.opengamma.math.FunctionUtils.square;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
@@ -21,7 +22,6 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 
