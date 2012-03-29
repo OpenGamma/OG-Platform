@@ -10,7 +10,7 @@ package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines;
  */
 public class HouseholderVector {
 
-  private double _h[];
+  private double[] _h;
   private double _beta;
 
   /**
