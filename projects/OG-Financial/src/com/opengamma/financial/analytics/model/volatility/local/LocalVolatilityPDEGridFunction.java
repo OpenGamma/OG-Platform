@@ -35,6 +35,9 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -49,9 +52,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 

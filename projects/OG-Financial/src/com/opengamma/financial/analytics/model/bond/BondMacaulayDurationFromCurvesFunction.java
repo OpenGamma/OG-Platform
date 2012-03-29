@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
 
 /**
  * 

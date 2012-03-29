@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 

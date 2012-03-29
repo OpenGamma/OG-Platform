@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
-import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 
 
 /**

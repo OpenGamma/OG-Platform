@@ -13,6 +13,8 @@ import javax.time.calendar.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.riskreward.SharpeRatioCalculator;
+import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
@@ -34,8 +36,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.riskreward.SharpeRatioCalculator;
-import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

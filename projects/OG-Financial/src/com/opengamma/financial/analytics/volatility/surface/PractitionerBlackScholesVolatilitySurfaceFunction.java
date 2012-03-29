@@ -14,6 +14,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -28,7 +29,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;

@@ -8,13 +8,13 @@ package com.opengamma.financial.analytics.model.forex;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
-import com.opengamma.financial.forex.derivative.Forex;
-import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 
 /**
  * 
