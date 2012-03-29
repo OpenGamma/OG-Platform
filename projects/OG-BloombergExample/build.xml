@@ -63,8 +63,6 @@
 			<jvmarg value="-Xmx${jvm.xmx}" />
       <jvmarg value="-XX:PermSize=256m" />
       <jvmarg value="-XX:MaxPermSize=256m" />
-      <jvmarg value="-Xdebug" />
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=n,address=10.0.2.75:5005" />
 			<arg value="-v" />
 			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
@@ -101,8 +99,6 @@
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-      <jvmarg value="-Xdebug" />
-      <jvmarg value="-Xrunjdwp:transport=dt_socket,server=n,address=10.0.2.75:5005" />
 		</java>
 	</target>
 
