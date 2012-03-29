@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.forex.method.FXMatrix;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -55,17 +56,19 @@ import com.opengamma.util.tuple.Pair;
 public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String BLACK_METHOD = "BlackMethod";
-  /** The put funding curve property */
-  public static final String PROPERTY_PUT_FUNDING_CURVE_NAME = "PutFundingCurve";
-  /** The put forward curve property */
-  public static final String PROPERTY_PUT_FORWARD_CURVE_NAME = "PutForwardCurve";
-  /** The call funding curve property */
-  public static final String PROPERTY_CALL_FUNDING_CURVE_NAME = "CallFundingCurve";
-  /** The call forward curve property */
-  public static final String PROPERTY_CALL_FORWARD_CURVE_NAME = "CallForwardCurve";
-  /** The volatility surface name property */
-  public static final String PROPERTY_FX_VOLATILITY_SURFACE_NAME = "FXVolatilitySurface";
-  private static final ForexSecurityConverter s_visitor = new ForexSecurityConverter();
+  /** The put curve property */
+  public static final String PROPERTY_PUT_CURVE = "PutCurve";
+  /** The advisory forward put curve property */
+  public static final String PROPERTY_PUT_FORWARD_CURVE = "PutForwardCurve";
+  /** The property for the calculation method for the put currency curves */
+  public static final String PROPERTY_PUT_CURVE_CALCULATION_METHOD = "PutCurveCalculationMethod";
+  /** The call curve property */
+  public static final String PROPERTY_CALL_CURVE = "CallCurve";
+  /** The advisory forward call curve property */
+  public static final String PROPERTY_CALL_FORWARD_CURVE = "CallForwardCurve";
+  /** The property for the calculation method for the call currency curves */
+  public static final String PROPERTY_CALL_CURVE_CALCULATION_METHOD = "CallCurveCalculationMethod";
+  private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
   public ForexOptionBlackFunction(final String valueRequirementName) {
@@ -78,82 +81,43 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<?> definition = security.accept(s_visitor);
+    final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    String putFundingCurveName = null;
-    String putForwardCurveName = null;
-    String callFundingCurveName = null;
-    String callForwardCurveName = null;
-    String surfaceName = null;
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    if (desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME) != null && !desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME).isEmpty()) {
-      putFundingCurveName = desiredValue.getConstraint(PROPERTY_PUT_FUNDING_CURVE_NAME);
-    }
-    if (desiredValue.getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME) != null && !desiredValue.getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME).isEmpty()) {
-      putForwardCurveName = desiredValue.getConstraint(PROPERTY_PUT_FORWARD_CURVE_NAME);
-    }
-    if (desiredValue.getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME) != null && !desiredValue.getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME).isEmpty()) {
-      callFundingCurveName = desiredValue.getConstraint(PROPERTY_CALL_FUNDING_CURVE_NAME);
-    }
-    if (desiredValue.getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME) != null && !desiredValue.getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME).isEmpty()) {
-      callForwardCurveName = desiredValue.getConstraint(PROPERTY_CALL_FORWARD_CURVE_NAME);
-    }
-    if (desiredValue.getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME) != null && !desiredValue.getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME).isEmpty()) {
-      surfaceName = desiredValue.getConstraint(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
-    }
-    if (putFundingCurveName == null || putForwardCurveName == null || callFundingCurveName == null || callForwardCurveName == null || surfaceName == null) {
-      for (final ComputedValue value : inputs.getAllValues()) {
-        final ValueProperties properties = value.getSpecification().getProperties();
-        if (properties.getValues(PROPERTY_PUT_FUNDING_CURVE_NAME) != null) {
-          putFundingCurveName = properties.getValues(PROPERTY_PUT_FUNDING_CURVE_NAME).iterator().next();
-        }
-        if (properties.getValues(PROPERTY_PUT_FORWARD_CURVE_NAME) != null) {
-          putForwardCurveName = properties.getValues(PROPERTY_PUT_FORWARD_CURVE_NAME).iterator().next();
-        }
-        if (properties.getValues(PROPERTY_CALL_FUNDING_CURVE_NAME) != null) {
-          callFundingCurveName = properties.getValues(PROPERTY_CALL_FUNDING_CURVE_NAME).iterator().next();
-        }
-        if (properties.getValues(PROPERTY_CALL_FORWARD_CURVE_NAME) != null) {
-          callForwardCurveName = properties.getValues(PROPERTY_CALL_FORWARD_CURVE_NAME).iterator().next();
-        }
-        if (properties.getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME) != null) {
-          surfaceName = properties.getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME).iterator().next();
-        }
-      }
-    }
-    final String fullPutFundingCurveName = putFundingCurveName + "_" + putCurrency.getCode();
-    final String fullCallFundingCurveName = callFundingCurveName + "_" + callCurrency.getCode();
-    final String fullPutForwardCurveName = putForwardCurveName + "_" + putCurrency.getCode();
-    final String fullCallForwardCurveName = callForwardCurveName + "_" + callCurrency.getCode();
+    final String putCurveName = desiredValue.getConstraint(PROPERTY_PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(PROPERTY_CALL_CURVE);
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String putForwardCurveName = desiredValue.getConstraint(PROPERTY_PUT_FORWARD_CURVE);
+    final String callForwardCurveName = desiredValue.getConstraint(PROPERTY_CALL_FORWARD_CURVE);
+    final String putCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_PUT_CURVE_CALCULATION_METHOD);
+    final String callCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+    final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
+    final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {fullPutFundingCurveName, fullCallFundingCurveName};
+      curveNames = new String[] {fullPutCurveName, fullCallCurveName};
     } else {
-      curveNames = new String[] {fullCallFundingCurveName, fullPutFundingCurveName};
+      curveNames = new String[] {fullCallCurveName, fullPutCurveName};
     }
-    final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putFundingCurveName);
-    final YieldAndDiscountCurve putForwardCurve = getCurve(inputs, putCurrency, putForwardCurveName);
-    final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callFundingCurveName);
-    final YieldAndDiscountCurve callForwardCurve = getCurve(inputs, callCurrency, callForwardCurveName);
+    final YieldAndDiscountCurve putFundingCurve = getCurve(inputs, putCurrency, putCurveName);
+    final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callCurveName);
     final YieldAndDiscountCurve[] curves;
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
-    curveCurrency.put(fullPutFundingCurveName, putCurrency);
-    curveCurrency.put(fullPutForwardCurveName, putCurrency);
-    curveCurrency.put(fullCallFundingCurveName, callCurrency);
-    curveCurrency.put(fullCallForwardCurveName, callCurrency);
+    curveCurrency.put(fullPutCurveName, putCurrency);
+    curveCurrency.put(fullCallCurveName, callCurrency);
     final String[] allCurveNames;
     final Currency ccy1;
     final Currency ccy2;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
-      curves = new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve};
-      allCurveNames = new String[] {fullPutFundingCurveName, fullPutForwardCurveName, fullCallFundingCurveName, fullCallForwardCurveName};
+      curves = new YieldAndDiscountCurve[] {putFundingCurve, callFundingCurve};
+      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
     } else {
-      curves = new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve, putFundingCurve, putForwardCurve};
-      allCurveNames = new String[] {fullCallFundingCurveName, fullCallForwardCurveName, fullPutFundingCurveName, fullPutForwardCurveName};
+      curves = new YieldAndDiscountCurve[] {callFundingCurve, putFundingCurve};
+      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -175,11 +139,11 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     }
     final SmileDeltaTermStructureParameter smiles = (SmileDeltaTermStructureParameter) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
-    final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
+    final ValueProperties.Builder properties = getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName, callForwardCurveName,
+        callCurveCalculationMethod, surfaceName, target);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
     return getResult(fxOption, smileBundle, spec);
-    //    return getResult(fxOption, smileBundle, inputs, target, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   @Override
@@ -204,137 +168,80 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Set<String> putFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME);
-    if (putFundingCurveNames == null || putFundingCurveNames.size() != 1) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> putCurveNames = constraints.getValues(PROPERTY_PUT_CURVE);
+    if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> putForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME);
-    if (putForwardCurveNames == null || putForwardCurveNames.size() != 1) {
+    final Set<String> callCurveNames = constraints.getValues(PROPERTY_CALL_CURVE);
+    if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME);
-    if (callFundingCurveNames == null || callFundingCurveNames.size() != 1) {
-      return null;
-    }
-    final Set<String> callForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME);
-    if (callForwardCurveNames == null || callForwardCurveNames.size() != 1) {
-      return null;
-    }
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final String putFundingCurveName = putFundingCurveNames.iterator().next();
+    final Set<String> putForwardCurveNames = constraints.getValues(PROPERTY_PUT_FORWARD_CURVE);
+    if (putForwardCurveNames == null || putForwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> callForwardCurveNames = constraints.getValues(PROPERTY_CALL_FORWARD_CURVE);
+    if (callForwardCurveNames == null || callForwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> putCurveCalculationMethods = constraints.getValues(PROPERTY_PUT_CURVE_CALCULATION_METHOD);
+    if (putCurveCalculationMethods == null || putCurveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final Set<String> callCurveCalculationMethods = constraints.getValues(PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+    if (callCurveCalculationMethods == null || callCurveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final String putCurveName = putCurveNames.iterator().next();
+    final String callCurveName = callCurveNames.iterator().next();
     final String putForwardCurveName = putForwardCurveNames.iterator().next();
-    final String callFundingCurveName = callFundingCurveNames.iterator().next();
     final String callForwardCurveName = callForwardCurveNames.iterator().next();
+    final String putCurveCalculationMethod = putCurveCalculationMethods.iterator().next();
+    final String callCurveCalculationMethod = callCurveCalculationMethods.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(putFundingCurveName, PROPERTY_PUT_FUNDING_CURVE_NAME, putForwardCurveName, putFundingCurveName, putCurrency);
-    final ValueRequirement putForwardCurve = getCurveRequirement(putForwardCurveName, PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName, putFundingCurveName, putCurrency);
-    final ValueRequirement callFundingCurve = getCurveRequirement(callFundingCurveName, PROPERTY_CALL_FUNDING_CURVE_NAME, callForwardCurveName, callFundingCurveName, callCurrency);
-    final ValueRequirement callForwardCurve = getCurveRequirement(callForwardCurveName, PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName, callFundingCurveName, callCurrency);
+    final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
+    final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency);
     final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    return Sets.newHashSet(putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve, fxVolatilitySurface, spotRequirement);
+    return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String putFundingCurveName = null;
-    String putForwardCurveName = null;
-    String callFundingCurveName = null;
-    String callForwardCurveName = null;
-    String surfaceName = null;
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final ValueSpecification spec = entry.getKey();
-      if (spec.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
-        if (spec.getTargetSpecification().getUniqueId().equals(putCurrency.getUniqueId())) {
-          final Set<String> putCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-          if (putCurveProperties != null && !putCurveProperties.isEmpty()) {
-            putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-            putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-          } else {
-            putFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
-            putForwardCurveName = putFundingCurveName;
-          }
-        } else if (spec.getTargetSpecification().getUniqueId().equals(callCurrency.getUniqueId())) {
-          final Set<String> callCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-          if (callCurveProperties != null && !callCurveProperties.isEmpty()) {
-            callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-            callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-          } else {
-            callFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
-            callForwardCurveName = callFundingCurveName;
-          }
-        }
-      } else if (spec.getValueName().equals(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA)) {
-        surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
-      }
-    }
-    assert putFundingCurveName != null;
-    assert putForwardCurveName != null;
-    assert callFundingCurveName != null;
-    assert callForwardCurveName != null;
-    assert surfaceName != null;
-    final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get()));
-  }
+  protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
-  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
-        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
-        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
-        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
-        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
-        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
-  }
-
-  protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
-      final String surfaceName, final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
-        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
-        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
-        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
-        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
-        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
-  }
-
-  protected static String getResultCurrency(final ComputationTarget target) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    Currency ccy;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      ccy = callCurrency;
-    } else {
-      ccy = putCurrency;
-    }
-    return ccy.getCode();
-  }
+  protected abstract ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final ComputationTarget target);
 
   protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, ValueSpecification spec);
 
-  //  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
-  //      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName);
-
-  protected static ValueRequirement getCurveRequirement(final String curveName, final String optional, final String forwardCurveName, final String fundingCurveName, final Currency currency) {
-    final ValueProperties.Builder properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).withOptional(optional);
+  protected static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
+    final ValueProperties.Builder properties;
+    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+          .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
   protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency) {
-    final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties surfaceProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);

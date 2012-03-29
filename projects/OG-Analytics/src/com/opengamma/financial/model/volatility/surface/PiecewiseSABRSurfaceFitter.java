@@ -198,6 +198,7 @@ public class PiecewiseSABRSurfaceFitter {
   public BlackVolatilitySurfaceMoneyness getSurfaceLinear() {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
@@ -262,6 +263,7 @@ public class PiecewiseSABRSurfaceFitter {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tk) {
         final double t = tk[0];
@@ -359,6 +361,7 @@ public class PiecewiseSABRSurfaceFitter {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
@@ -455,6 +458,7 @@ public class PiecewiseSABRSurfaceFitter {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
@@ -470,9 +474,8 @@ public class PiecewiseSABRSurfaceFitter {
           final double var = ((_expiries[1] - t) * var1 + (t - _expiries[0]) * var2) / dt;
           if (var >= 0.0) {
             return Math.sqrt(var);
-          } else {
-            return Math.sqrt(var1);
           }
+          return Math.sqrt(var1);
         }
 
         final int index = getLowerBoundIndex(t);
@@ -529,76 +532,6 @@ public class PiecewiseSABRSurfaceFitter {
 
     return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
   }
-
-  //  public BlackVolatilityMoneynessSurface getImpliedVolatilityMoneynessSurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
-  //
-  //    Function<Double, Double> surFunc = new Function<Double, Double>() {
-  //
-  //      @Override
-  //      public Double evaluate(Double... tm) {
-  //        double t = tm[0];
-  //        double m = tm[1];
-  //
-  //        //       final double atmVol = interpolatedATMVol(t);
-  //        // final double forward = _forwardCurve.getForward(t);
-  //
-  //        final double d = -Math.log(m) / Math.sqrt(1 + lambda * t);
-  //        //
-  //        if (t <= _expiries[0]) {
-  //          double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
-  //          return _fitters[0].getVol(k1);
-  //        }
-  //
-  //        double[] xs = new double[_nExpiries];
-  //        double x = 0;
-  //        if (useLogTime) {
-  //          for (int i = 0; i < _nExpiries; i++) {
-  //            xs[i] = Math.log(_expiries[i]);
-  //            x = Math.log(t);
-  //          }
-  //        } else {
-  //          xs = _expiries;
-  //          x = t;
-  //        }
-  //
-  //        final double[] strikes = new double[_nExpiries];
-  //        final double[] vols = new double[_nExpiries];
-  //        final double[] intVar = new double[_nExpiries];
-  //        double[] y = null;
-  //
-  //        for (int i = 0; i < _nExpiries; i++) {
-  //          strikes[i] = _forwards[i] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[i]));
-  //          vols[i] = _fitters[i].getVol(strikes[i]);
-  //
-  //          intVar[i] = vols[i] * vols[i] * _expiries[i];
-  //          if (i > 0) {
-  //            if (intVar[i] < intVar[i - 1]) {
-  //              //  Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
-  //            }
-  //          }
-  //          if (useIntegratedVar) {
-  //            y = intVar;
-  //          } else {
-  //            y = vols;
-  //          }
-  //        }
-  //
-  //        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
-  //        double sigma;
-  //
-  //        double res = EXTRAPOLATOR.interpolate(db, x);
-  //        if (useIntegratedVar) {
-  //          Validate.isTrue(res >= 0.0, "Negative integrated variance");
-  //          sigma = Math.sqrt(res / t);
-  //        } else {
-  //          sigma = res;
-  //        }
-  //        return sigma;
-  //      }
-  //    };
-  //
-  //    return new BlackVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
-  //  }
 
   private int getLowerBoundIndex(final double t) {
     if (t < _expiries[0]) {

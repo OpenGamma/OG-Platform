@@ -38,7 +38,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
   public GenericAnnuity(final P[] payments) {
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0, "Have no payments in annuity");
-    Currency currency0 = payments[0].getCurrency();
+    final Currency currency0 = payments[0].getCurrency();
     double amount = payments[0].getReferenceAmount();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
       Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
@@ -48,8 +48,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
-  @SuppressWarnings("unchecked")
-  public GenericAnnuity(final List<? extends P> payments, final Class<P> pType, boolean isPayer) {
+  public GenericAnnuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.notNull(pType);
     Validate.isTrue(payments.size() > 0);
@@ -79,8 +78,8 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    */
   public boolean isIborOrFixed() {
     boolean result = true;
-    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
-      result = (result & _payments[looppayment].isIborOrFixed());
+    for (final P payment : _payments) {
+      result = (result & payment.isIborOrFixed());
     }
     return result;
   }
@@ -115,10 +114,10 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    * @return The trimmed annuity.
    */
   @SuppressWarnings("unchecked")
-  public GenericAnnuity<P> trimBefore(double trimTime) {
-    List<P> list = new ArrayList<P>();
+  public GenericAnnuity<P> trimBefore(final double trimTime) {
+    final List<P> list = new ArrayList<P>();
     list.clear();
-    for (P payment : _payments) {
+    for (final P payment : _payments) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }
@@ -132,9 +131,9 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    * @return The trimmed annuity.
    */
   @SuppressWarnings("unchecked")
-  public GenericAnnuity<P> trimAfter(double trimTime) {
-    List<P> list = new ArrayList<P>();
-    for (P payment : _payments) {
+  public GenericAnnuity<P> trimAfter(final double trimTime) {
+    final List<P> list = new ArrayList<P>();
+    for (final P payment : _payments) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
@@ -145,8 +144,8 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
   @Override
   public String toString() {
     String result = "Annuity:";
-    for (int looppayment = 0; looppayment < _payments.length; looppayment++) {
-      result += _payments[looppayment].toString();
+    for (final P payment : _payments) {
+      result += payment.toString();
     }
     return result;
   }
@@ -183,12 +182,12 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitGenericAnnuity(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitGenericAnnuity(this);
   }
 

@@ -47,11 +47,11 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
     Validate.notNull(swaption);
     Validate.notNull(hwData);
-    double expiryTime = swaption.getTimeToExpiry();
-    int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
-    double[] alphaFixed = new double[nbFixed];
-    double[] dfFixed = new double[nbFixed];
-    double[] discountedCashFlowFixed = new double[nbFixed];
+    final double expiryTime = swaption.getTimeToExpiry();
+    final int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
+    final double[] alphaFixed = new double[nbFixed];
+    final double[] dfFixed = new double[nbFixed];
+    final double[] discountedCashFlowFixed = new double[nbFixed];
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       alphaFixed[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       dfFixed[loopcf] = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(
@@ -60,10 +60,10 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
           * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional();
     }
 
-    AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
-    double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
-    double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
+    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), hwData);
+    final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
+    final double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
       alphaIbor[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime());
       dfIbor[loopcf] = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cfeIbor.getNthPayment(loopcf).getPaymentTime());
@@ -87,7 +87,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue(instrument, curves);
@@ -117,8 +117,9 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
      * @param notional The notional.
      * @param strike The strike.
      */
-    public SwaptionIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, int nbFixedPaymentYear, double strike,
-        boolean isPayer) {
+    public SwaptionIntegrant(final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final int nbFixedPaymentYear,
+        final double strike,
+        final boolean isPayer) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _discountedCashFlowIbor = discountedCashFlowIbor;
@@ -131,9 +132,10 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
 
     @Override
     public Double evaluate(final Double x) {
-      double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
+      @SuppressWarnings("synthetic-access")
+      final double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
       final double annuityCash = 1.0 / swapRate * (1.0 - 1.0 / Math.pow(1 + swapRate / _nbFixedPaymentYear, _nbFixedPeriod));
-      double dfDensity = Math.exp(-(x + _alphaIbor[0]) * (x + _alphaIbor[0]) / 2.0);
+      final double dfDensity = Math.exp(-(x + _alphaIbor[0]) * (x + _alphaIbor[0]) / 2.0);
       double result;
       result = dfDensity * annuityCash * Math.max((_isPayer ? 1.0 : -1.0) * (swapRate - _strike), 0.0);
       return result;

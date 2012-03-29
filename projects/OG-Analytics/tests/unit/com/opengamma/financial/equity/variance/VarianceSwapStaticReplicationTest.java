@@ -224,6 +224,7 @@ public class VarianceSwapStaticReplicationTest {
       public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
+        @SuppressWarnings("synthetic-access")
         final double fwd = FORWARD_CURVE.getForward(t);
         final boolean isCall = k > fwd;
         final double price = w * BlackFormulaRepository.price(fwd, k, t, sigma1, isCall) + (1 - w) * BlackFormulaRepository.price(fwd, k, t, sigma2, isCall);

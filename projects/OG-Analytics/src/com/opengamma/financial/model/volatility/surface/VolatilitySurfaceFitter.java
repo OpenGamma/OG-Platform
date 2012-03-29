@@ -69,7 +69,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
    * @param interpolators The base interpolator used for each model parameter curve
    */
   public VolatilitySurfaceFitter(final double[] forwards, final double[][] strikes, final double[] expiries, final double[][] impliedVols,
-      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, LinkedHashMap<String, Interpolator1D> interpolators) {
+      final double[][] errors, final VolatilityFunctionProvider<T> model, final LinkedHashMap<String, double[]> nodePoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
 
     Validate.notNull(forwards, "null forwards");
     Validate.notNull(strikes, "null strikes");
@@ -91,13 +91,13 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     //check structure of common expiry strips
     int sum = 0;
     for (int i = 0; i < _nExpiries; i++) {
-      int n = strikes[i].length;
+      final int n = strikes[i].length;
       Validate.isTrue(impliedVols[i].length == n, "#vols in strip " + i + " is wrong");
       Validate.isTrue(errors[i].length == n, "#vols in strip " + i + " is wrong");
 
-      Function1D<T, double[]> func = model.getVolatilityFunction(forwards[i], strikes[i], expiries[i]);
+      final Function1D<T, double[]> func = model.getVolatilityFunction(forwards[i], strikes[i], expiries[i]);
       _volFuncs.add(func);
-      Function1D<T, double[][]> funcAdjoint = model.getModelAdjointFunction(forwards[i], strikes[i], expiries[i]);
+      final Function1D<T, double[][]> funcAdjoint = model.getModelAdjointFunction(forwards[i], strikes[i], expiries[i]);
       _volAdjointFuncs.add(funcAdjoint);
       _struture[i] = n;
       sum += n;
@@ -107,8 +107,8 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     _expiries = expiries;
     _strikes = strikes;
 
-    double[] volsTemp = new double[_nOptions];
-    double[] errorsTemp = new double[_nOptions];
+    final double[] volsTemp = new double[_nOptions];
+    final double[] errorsTemp = new double[_nOptions];
     int index = 0;
     for (int i = 0; i < _nExpiries; i++) {
       for (int j = 0; j < _struture[i]; j++) {
@@ -120,17 +120,17 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     _vols = new DoubleMatrix1D(volsTemp);
     _errors = new DoubleMatrix1D(errorsTemp);
 
-    ParameterLimitsTransform[] transforms = getTransforms();
+    final ParameterLimitsTransform[] transforms = getTransforms();
 
     _parameterNames = nodePoints.keySet();
     _nSmileModelParameters = _parameterNames.size();
 
-    LinkedHashMap<String, Interpolator1D> transformedInterpolators = new LinkedHashMap<String, Interpolator1D>(_nSmileModelParameters);
+    final LinkedHashMap<String, Interpolator1D> transformedInterpolators = new LinkedHashMap<String, Interpolator1D>(_nSmileModelParameters);
     sum = 0;
     index = 0;
-    for (String name : _parameterNames) {
+    for (final String name : _parameterNames) {
       sum += nodePoints.get(name).length;
-      Interpolator1D tInter = new TransformedInterpolator1D(interpolators.get(name), transforms[index++]);
+      final Interpolator1D tInter = new TransformedInterpolator1D(interpolators.get(name), transforms[index++]);
       transformedInterpolators.put(name, tInter);
     }
 
@@ -140,7 +140,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
   }
 
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start) {
-    LeastSquareResults lsRes = SOLVER.solve(_vols, _errors, getModelValueFunction(), getModelJacobianFunction(), start);
+    final LeastSquareResults lsRes = SOLVER.solve(_vols, _errors, getModelValueFunction(), getModelJacobianFunction(), start);
     return new LeastSquareResultsWithTransform(lsRes, new UncoupledParameterTransforms(start, getTransforms(), new BitSet()));
   }
 
@@ -150,26 +150,27 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
         Validate.isTrue(x.getNumberOfElements() == _nKnotPoints); //TODO remove when working properly
 
-        double[] res = new double[_nOptions];
+        final double[] res = new double[_nOptions];
         int index = 0;
 
         for (int i = 0; i < _nExpiries; i++) {
-          double t = _expiries[i];
-          double[] theta = new double[_nSmileModelParameters];
+          final double t = _expiries[i];
+          final double[] theta = new double[_nSmileModelParameters];
           int p = 0;
-          for (String name : _parameterNames) {
-            Curve<Double, Double> curve = curves.get(name);
+          for (final String name : _parameterNames) {
+            final Curve<Double, Double> curve = curves.get(name);
             theta[p++] = curve.getYValue(t);
           }
-          T data = toSmileModelData(theta);
-          double[] temp = _volFuncs.get(i).evaluate(data);
-          int l = temp.length;
+          final T data = toSmileModelData(theta);
+          final double[] temp = _volFuncs.get(i).evaluate(data);
+          final int l = temp.length;
           System.arraycopy(temp, 0, res, index, l);
           index += l;
         }
@@ -187,29 +188,30 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
     final ParameterLimitsTransform[] transform = getTransforms();
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+        final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
-        double[][] res = new double[_nOptions][_nKnotPoints];
+        final double[][] res = new double[_nOptions][_nKnotPoints];
         int optionOffset = 0;
 
         for (int i = 0; i < _nExpiries; i++) {
-          double t = _expiries[i];
-          double[] theta = new double[_nSmileModelParameters]; //the model parameters
-          double[] thetaHat = new double[_nSmileModelParameters]; //the fitting parameters
-          double[][] sense = new double[_nSmileModelParameters][];
+          final double t = _expiries[i];
+          final double[] theta = new double[_nSmileModelParameters]; //the model parameters
+          final double[] thetaHat = new double[_nSmileModelParameters]; //the fitting parameters
+          final double[][] sense = new double[_nSmileModelParameters][];
           int p = 0;
-          for (String name : _parameterNames) {
-            InterpolatedDoublesCurve curve = curves.get(name);
+          for (final String name : _parameterNames) {
+            final InterpolatedDoublesCurve curve = curves.get(name);
             theta[p] = curve.getYValue(t);
             thetaHat[p] = transform[p].transform(theta[p]);
             sense[p] = curve.getInterpolator().getNodeSensitivitiesForValue(curve.getDataBundle(), t);
             p++;
           }
-          T data = toSmileModelData(theta);
+          final T data = toSmileModelData(theta);
           //this thing will be (#strikes/vols) x (# model Params)
-          double[][] temp = _volAdjointFuncs.get(i).evaluate(data);
+          final double[][] temp = _volAdjointFuncs.get(i).evaluate(data);
           final int l = temp.length;
           Validate.isTrue(l == _strikes[i].length); //TODO remove when working properly
           for (int j = 0; j < l; j++) {

@@ -75,6 +75,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
@@ -90,9 +91,8 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
           final double var = ((expiries[1] - t) * var1 + (t - expiries[0]) * var2) / dt;
           if (var >= 0.0) {
             return Math.sqrt(var);
-          } else {
-            return Math.sqrt(var1);
           }
+          return Math.sqrt(var1);
         }
 
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
@@ -145,6 +145,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
 
         return Math.sqrt(tRes);
       }
+
       //        final double t = tm[0];
       //        final double m = tm[1];
       //        final double d = -Math.log(m) / Math.sqrt(1 + _lambda * t);

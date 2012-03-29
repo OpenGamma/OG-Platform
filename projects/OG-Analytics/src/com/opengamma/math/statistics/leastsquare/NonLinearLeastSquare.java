@@ -314,7 +314,7 @@ public class NonLinearLeastSquare {
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos,
-      final Function1D<DoubleMatrix1D, Boolean> constraints, DoubleMatrix1D maxJumps) {
+      final Function1D<DoubleMatrix1D, Boolean> constraints, final DoubleMatrix1D maxJumps) {
 
     Validate.notNull(observedValues, "observedValues");
     Validate.notNull(sigma, " sigma");
@@ -344,9 +344,6 @@ public class NonLinearLeastSquare {
     }
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
-
-    //We no longer use gradient information as a stopping condition
-    final double g0 = _algebra.getNorm2(beta);
 
     for (int count = 0; count < MAX_ATTEMPTS; count++) {
       alpha = getModifiedCurvatureMatrix(jacobian, lambda);
@@ -388,13 +385,13 @@ public class NonLinearLeastSquare {
           return finish(alpha0, decmp, newChiSqr, jacobian, trialTheta, sigma);
         }
 
-        SVDecompositionCommons svd = (SVDecompositionCommons) DecompositionFactory.SV_COMMONS;
+        final SVDecompositionCommons svd = (SVDecompositionCommons) DecompositionFactory.SV_COMMONS;
 
         //add the second derivative information to the Hessian matrix to check we are not at a local maximum or saddle point
         final VectorFieldSecondOrderDifferentiator diff = new VectorFieldSecondOrderDifferentiator();
-        Function1D<DoubleMatrix1D, DoubleMatrix2D[]> secDivFunc = diff.differentiate(func, constraints);
-        DoubleMatrix2D[] secDiv = secDivFunc.evaluate(trialTheta);
-        double[][] temp = new double[nParms][nParms];
+        final Function1D<DoubleMatrix1D, DoubleMatrix2D[]> secDivFunc = diff.differentiate(func, constraints);
+        final DoubleMatrix2D[] secDiv = secDivFunc.evaluate(trialTheta);
+        final double[][] temp = new double[nParms][nParms];
         for (int i = 0; i < nObs; i++) {
           for (int j = 0; j < nParms; j++) {
             for (int k = 0; k < nParms; k++) {
@@ -402,14 +399,14 @@ public class NonLinearLeastSquare {
             }
           }
         }
-        DoubleMatrix2D newAlpha = (DoubleMatrix2D) _algebra.add(alpha0, new DoubleMatrix2D(temp));
+        final DoubleMatrix2D newAlpha = (DoubleMatrix2D) _algebra.add(alpha0, new DoubleMatrix2D(temp));
 
-        SVDecompositionResult svdRes = svd.evaluate(newAlpha);
-        double[] w = svdRes.getSingularValues();
-        DoubleMatrix2D u = svdRes.getU();
-        DoubleMatrix2D v = svdRes.getV();
+        final SVDecompositionResult svdRes = svd.evaluate(newAlpha);
+        final double[] w = svdRes.getSingularValues();
+        final DoubleMatrix2D u = svdRes.getU();
+        final DoubleMatrix2D v = svdRes.getV();
 
-        double[] p = new double[nParms];
+        final double[] p = new double[nParms];
         boolean saddle = false;
 
         double sum = 0.0;
@@ -418,7 +415,7 @@ public class NonLinearLeastSquare {
           for (int j = 0; j < nParms; j++) {
             a += u.getEntry(j, i) * v.getEntry(j, i);
           }
-          int sign = a > 0.0 ? 1 : -1;
+          final int sign = a > 0.0 ? 1 : -1;
           if (w[i] * sign < 0.0) {
             sum += w[i];
             w[i] = -w[i];
@@ -432,13 +429,13 @@ public class NonLinearLeastSquare {
           lambda = increaseLambda(lambda);
           for (int i = 0; i < nParms; i++) {
             if (w[i] < 0.0) {
-              double scale = 0.5 * Math.sqrt(-oldChiSqr * w[i]) / sum;
+              final double scale = 0.5 * Math.sqrt(-oldChiSqr * w[i]) / sum;
               for (int j = 0; j < nParms; j++) {
                 p[j] += scale * u.getEntry(j, i);
               }
             }
           }
-          DoubleMatrix1D direction = new DoubleMatrix1D(p);
+          final DoubleMatrix1D direction = new DoubleMatrix1D(p);
           deltaTheta = direction;
           trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
           int i = 0;
@@ -502,9 +499,8 @@ public class NonLinearLeastSquare {
   private double increaseLambda(final double lambda) {
     if (lambda == 0.0) { // this will happen the first time a full quadratic step fails
       return 0.1;
-    } else {
-      return lambda * 10;
     }
+    return lambda * 10;
   }
 
   private boolean allowJump(final DoubleMatrix1D deltaTheta, final DoubleMatrix1D maxJumps) {

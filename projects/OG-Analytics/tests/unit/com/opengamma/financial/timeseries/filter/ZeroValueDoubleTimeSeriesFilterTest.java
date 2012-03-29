@@ -92,25 +92,25 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
         largeZeroFilteredData[m++] = d;
       }
     }
-    smallZeroFilteredDates = (LocalDate[]) trimToCapacity(smallZeroFilteredDates, k);
+    smallZeroFilteredDates = trimToCapacity(smallZeroFilteredDates, k);
     smallZeroFilteredData = Arrays.trimToCapacity(smallZeroFilteredData, k);
-    smallZeroRejectedDates = (LocalDate[]) trimToCapacity(smallZeroRejectedDates, l);
+    smallZeroRejectedDates = trimToCapacity(smallZeroRejectedDates, l);
     smallZeroRejectedData = Arrays.trimToCapacity(smallZeroRejectedData, l);
-    largeZeroFilteredDates = (LocalDate[]) trimToCapacity(largeZeroFilteredDates, m);
+    largeZeroFilteredDates = trimToCapacity(largeZeroFilteredDates, m);
     largeZeroFilteredData = Arrays.trimToCapacity(largeZeroFilteredData, m);
-    largeZeroRejectedDates = (LocalDate[]) trimToCapacity(largeZeroRejectedDates, j);
+    largeZeroRejectedDates = trimToCapacity(largeZeroRejectedDates, j);
     largeZeroRejectedData = Arrays.trimToCapacity(largeZeroRejectedData, j);
     final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(dates, data);
     FilteredTimeSeries result = SMALL_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(smallZeroFilteredDates, smallZeroFilteredData), 
-                                                new ArrayLocalDateDoubleTimeSeries(smallZeroRejectedDates, smallZeroRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(smallZeroFilteredDates, smallZeroFilteredData),
+        new ArrayLocalDateDoubleTimeSeries(smallZeroRejectedDates, smallZeroRejectedData)));
     result = LARGE_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(largeZeroFilteredDates, largeZeroFilteredData), 
-                                                new ArrayLocalDateDoubleTimeSeries(largeZeroRejectedDates, largeZeroRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(largeZeroFilteredDates, largeZeroFilteredData),
+        new ArrayLocalDateDoubleTimeSeries(largeZeroRejectedDates, largeZeroRejectedData)));
   }
-  
+
   private LocalDate[] trimToCapacity(final LocalDate[] source, final int k) {
-    LocalDate[] result = new LocalDate[k];
+    final LocalDate[] result = new LocalDate[k];
     System.arraycopy(source, 0, result, 0, k);
     return result;
   }

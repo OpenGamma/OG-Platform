@@ -12,6 +12,9 @@ import javax.time.calendar.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 
+ */
 public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix1D> {
 
   @Override

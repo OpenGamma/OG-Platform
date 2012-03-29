@@ -5,8 +5,6 @@
  */
 package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines;
 
-import java.util.Arrays;
-
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
 import com.opengamma.maths.lowlevelapi.linearalgebra.blas.BLAS1;
 import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.types.SingularValueDecomposition.SingularValueDecompositionFullUSV;
@@ -42,7 +40,7 @@ public class DGESVD {
       // u is computed by householder
       // s is the 2 norm of the vector
       // v is 1 by definition
-      // so we need to swap/mangle u&v them
+      // so we need to swap/mangle u&v
       SingularValueDecompositionFullUSV tmp = svdVector(data);
       return new SingularValueDecompositionFullUSV(tmp.getMatrixV(), tmp.getMatrixS(), tmp.getMatrixV());
     }
@@ -78,183 +76,11 @@ public class DGESVD {
       DGEBRD.fullGolubReinsch(matrixAnew, m, n, matrixU, d, dp1, matrixVT);
     }
 
-    return null;
-
-  }
-
-  /*
-   * Reflect the row space about the diag to get an bidiag matrix, should be called after reduceColSpace,
-   * QR form is assumed such that the current data structure is upper triangular, we can therefore ignore the lower part
-   */
-  private static void reduceRowSpace(double[] data, int m, int n) {
-    double ip;
-    double nrm2;
-    int ini;
-    int inj;
-    double data0;
-    double housesq;
-    double beta;
-    double house0;
-    double[] house = new double[n]; // this is slightly wasteful but saves a lot of indexing pain
-    double[] omega = new double[m];
-
-    //    if(j<=n-2)
-    //      [v,beta]=houseHolder(Anew(j,j+1:n)');
-    //      Anew(j:m,j+1:n)=Anew(j:m,j+1:n)*(eye(n-j)-beta*v*v');
-    //   %   Anew(j,j+2:n)=v(2:n-j)';
-    //    end
-
-    // walk in row space, as our data upper triangular we can just trample around in 0..n
-    // we also want to be offset by 1 so that the Householder transforms in the row space don't mess up the column space
-    // also conveniently, the data layout is row major so we walk in the direction of the data
-    for (int i = 0; i < n - 1; i++) {
-      // house is our aptly named Householder vector, which is formed and normalised here...
-      Arrays.fill(house, 0d);
-      ip = 0d;
-      // form inner product of row i
-      for (int j = i + 2; j < n; j++) {
-        inj = i * n + j;
-        ip += data[inj] * data[inj];
-        house[j] = data[inj];
-      }
-      ini = i * n + i + 1;
-      data0 = data[ini];
-      // branch on first value, this is the Partlett idea to stop catastrophic cancellation.
-      nrm2 = Math.sqrt(data0 * data0 + ip);
-      if (data0 <= 0) {
-        house[i + 1] = data0 - nrm2;
-      } else {
-        house[i + 1] = -ip / (data0 + nrm2);
-      }
-      housesq = house[i + 1] * house[i + 1];
-      beta = (2 * housesq) / (ip + housesq); // beta stores 2/(house^T*house).
-      // normalise the householder     
-      house0 = house[i + 1];
-      for (int j = i + 1; j < n; j++) {
-        house[j] = house[j] / house0;
-      }
-
-      // We need to do this: P = (I - beta*house*house^T)
-      // then A*P is the transform for the row space reduction
-      // So we can form up a nice row major matrix vector product and an outer product update:
-      // P*A = A - omega*house^T; where omega = beta*A*house
-      // *but* we also note that house becomes shorter by 1 each time, so the work to do decreases
-      // TODO: This is a BLAS2 offset DGEMV call write it!
-      Arrays.fill(omega, 0d);
-      for (int j = i; j < m; j++) { // start on row i
-        int idx0 = j * n; // step into the jth row 
-        for (int k = j; k < n; k++) { // walk triangle
-          omega[j] += data[idx0 + k] * house[k];
-        }
-      }
-      for (int k = i; k < n; k++) {
-        omega[k] *= beta;
-      }
-
-      // We want to do A - omega*house^T, but *only* for the bit of A that hasn't been already reflected
-      // *and* is in the upper triangle
-      // do block first
-      for (int j = i; j < n - 1; j++) {
-        for (int k = i; k < n; k++) {
-          System.out.println("Rowspace: Hitting =" + (j * n + k) + ". house[k]=" + house[k] + ". omega[j]=" + omega[j] + ". prod=" + (house[k] * omega[j]) + ". data=" + data[j * n + k]);
-          data[j * n + k] -= house[k] * omega[j];
-        }
-
-      }
-
-      System.out.println("house=" + Arrays.toString(house));
-      //      System.out.println("omega=" + Arrays.toString(omega));
-      //      System.out.println("beta=" + beta);
-      //      System.out.println("d=" + Arrays.toString(d));
-      System.out.println("row space: A=");
-      printToMatrix(data, m, n);
-    }
-  }
-
-  /*
-   * Reflect the column space about the diag to get an upper triangular matrix
-   */
-  private static void reduceColSpace(double[] data, int m, int n) {
-    double ip;
-    double nrm2;
-    int ini;
-    double data0;
-    double housesq;
-    double beta;
-    double house0;
-    double[] house = new double[m]; // this is slightly wasteful but saves a lot of indexing pain
-    double[] omega = new double[n];
-    int jni;
-
-    // walk in col space, TODO: it might be better cache wise to walk backwards, investigate 
-    for (int i = 0; i < n; i++) {
-
-      // house is our aptly named Householder vector, which is formed and normalised here...
-      Arrays.fill(house, 0d);
-      ip = 0d;
-      // form inner product of column i
-      for (int j = i + 1; j < m; j++) {
-        jni = j * n + i;
-        ip += data[jni] * data[jni];
-        house[j] = data[jni];
-      }
-      ini = i * n + i;
-      data0 = data[ini];
-      // branch on first value, this is the Partlett idea to stop catastrophic cancellation.
-      nrm2 = Math.sqrt(data0 * data0 + ip);
-      if (data0 <= 0) {
-        house[i] = data0 - nrm2;
-      } else {
-        house[i] = -ip / (data0 + nrm2);
-      }
-      housesq = house[i] * house[i];
-      beta = (2 * housesq) / (ip + housesq); // beta stores 2/(house^T*house).
-      // normalise the householder     
-      house0 = house[i];
-      for (int j = i; j < m; j++) {
-        house[j] = house[j] / house0;
-      }
-
-      // We need to do this: P = (I - beta*house*house^T)
-      // then P*A is the transform. Column entries left of and under the diag indexed by "i" can be set to 0 or ignored
-      // the rest has to be crunched.
-      // So we can form up a lovely matrix vector product and an outer product update:
-      // P*A = A - house*omega^T; where omega = beta*A^T*house
-      // *but* we also note that house becomes shorted by 1 each time, so the work to do decreases
-      // TODO: This is a BLAS2 offset DGEMV call write it!
-      Arrays.fill(omega, 0d);
-      for (int j = i; j < m; j++) { // start on row i
-        int idx0 = j * n; // step into the jth row 
-        final double rhs = house[j];
-        for (int k = i; k < n; k++) {
-          omega[k] += data[idx0 + k] * rhs;
-        }
-      }
-      for (int k = i; k < n; k++) {
-        omega[k] *= beta;
-      }
-
-      // TODO: This is a BLAS2 DGER (if scaled by beta) make it so? Depends on crunch cost of zeros.
-      // We want to do A - house*omega^T, but *only* for the bit of A that hasn't been already reflected
-      for (int j = i; j < i + 1; j++) { // first walk in the triangulary bit
-        for (int k = j; k < n; k++) {
-          //          System.out.println("Tringle: Hitting ="+(j * n + k)+". house[j]="+house[j]+". omega[k]="+omega[k]);
-          data[j * n + k] -= house[j] * omega[k];
-        }
-      }
-      for (int j = i + 1; j < m; j++) { // next walk the square bit
-        for (int k = i + 1; k < n; k++) {
-          //        System.out.println("Block: Hitting ="+(j * n + k)+". house[j]="+house[j]+". omega[k]="+omega[k]+". prod="+(house[j] * omega[k])+". data="+data[j * n + k]);
-          data[j * n + k] -= house[j] * omega[k];
-        }
-      }
-
-      //      System.out.println("house=" + Arrays.toString(house));
-      //      System.out.println("omega=" + Arrays.toString(omega));
-      //      System.out.println("beta=" + beta);
-      //      System.out.println("d=" + Arrays.toString(d));
-      System.out.println("col space: A=");
-      printToMatrix(data, m, n);
+    // TODO: Sort and swap and stick in struct for return
+    if (transposed) {
+      return null;
+    } else {
+      return null;
     }
   }
 
@@ -274,7 +100,6 @@ public class DGESVD {
     // outer product
     final double beta = hv.getBeta();
     final double[] h = hv.getH();
-    System.out.println("houseV=" + Arrays.toString(h));
     int in;
     for (int i = 0; i < n; i++) {
       in = i * n;
@@ -286,43 +111,43 @@ public class DGESVD {
     return new SingularValueDecompositionFullUSV(u, s, v);
   }
 
-  // gets a column
-  /**
-   * 
-   * @param data the data
-   * @param n the number of columns in a matrix
-   * @param colNumber the column number we want
-   * @param startRow the row on which we want to start grabbing column entires
-   * @param endRow the row on which we want to stop grabbing column entires
-   * @return the column
-   */
-  private double[] getcol(double[] data, int n, int colNumber, int startRow, int endRow) {
-    final int walklen = endRow - startRow;
-    final int jmp = startRow * n;
+  //  // gets a column, for debug purposes
+  //  /**
+  //   * 
+  //   * @param data the data
+  //   * @param n the number of columns in a matrix
+  //   * @param colNumber the column number we want
+  //   * @param startRow the row on which we want to start grabbing column entires
+  //   * @param endRow the row on which we want to stop grabbing column entires
+  //   * @return the column
+  //   */
+  //  private double[] getcol(double[] data, int n, int colNumber, int startRow, int endRow) {
+  //    final int walklen = endRow - startRow;
+  //    final int jmp = startRow * n;
+  //
+  //    double[] tmp = new double[walklen];
+  //    for (int i = 0; i < walklen; i++) {
+  //      tmp[i] = data[jmp + i * n + colNumber];
+  //    }
+  //    return tmp;
+  //  }
 
-    double[] tmp = new double[walklen];
-    for (int i = 0; i < walklen; i++) {
-      tmp[i] = data[jmp + i * n + colNumber];
-    }
-    return tmp;
-  }
-
-  // prints a matrix
-  private static void printToMatrix(double[] x, int m, int n) {
-    int in;
-    for (int i = 0; i < m; i++) {
-      in = i * n;
-      for (int j = 0; j < n; j++) {
-        System.out.print(x[in + j] + " ");
-      }
-      System.out.println("\n");
-    }
-  }
+  // prints a matrix, for debug purposes
+//  private static void printToMatrix(double[] x, int m, int n) {
+//    int in;
+//    for (int i = 0; i < m; i++) {
+//      in = i * n;
+//      for (int j = 0; j < n; j++) {
+//        System.out.print(x[in + j] + " ");
+//      }
+//      System.out.println("\n");
+//    }
+//  }
 
   /**
    * overload to stop memcpy
-   * @param x
-   * @return
+   * @param x the vector from which a Householder vector is required
+   * @return a Householder vector based on x
    */
   public static HouseholderVector householder(double[] x) {
     return householder(x, 0, x.length);
@@ -330,8 +155,10 @@ public class DGESVD {
 
   /**
    * Does householder reflections
-   * @param x a
-   * @return a house holder vector
+   * @param x the vector from which a Householder vector is required
+   * @param start the position in the vector which is considered the starting position (to allow subvector computation)
+   * @param end the position in the vector which is considered the end position (to allow subvector computation)
+   * @return a Householder vector based on x
    */
   public static HouseholderVector householder(double[] x, int start, int end) {
     // This is an implementation of the pseudocode from "Matrix Computations 3rd Edition" by G. H. Golub and C. F. Van Loan, pp 210.

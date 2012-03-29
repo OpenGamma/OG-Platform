@@ -55,7 +55,8 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final HbComputationTargetSpecification target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final HbComputationTargetSpecification target, 
+  final Set<ValueRequirement> desiredValues) {
     final PortfolioNode portfolio = target.getPortfolioNode();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();

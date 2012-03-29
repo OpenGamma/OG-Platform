@@ -7,6 +7,15 @@ package com.opengamma.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -37,15 +46,6 @@ import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.AssertJUnit;
-import org.testng.annotations.Test;
 
 /**
  * Tests related to the pricing of OIS coupon by discounting.
@@ -388,8 +388,8 @@ public class CouponOISDiscountingMethodTest {
     SwapFixedOISDefinition oidUsd5YDefinition;
     Swap<? extends Payment, ? extends Payment> ois;
 
-    double[] pv = new double[nbTest];
-    InterestRateCurveSensitivity[] pvcs = new InterestRateCurveSensitivity[nbTest];
+    final double[] pv = new double[nbTest];
+    final InterestRateCurveSensitivity[] pvcs = new InterestRateCurveSensitivity[nbTest];
 
     double totalValue = 0.0;
 
@@ -418,7 +418,6 @@ public class CouponOISDiscountingMethodTest {
     for (int looptest = 0; looptest < nbTest; looptest++) {
       totalValue += pv[looptest];
     }
-
     startTime = System.currentTimeMillis();
     oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
     ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);

@@ -57,7 +57,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
   /**
    * Adds a function to the polynomial. If the function is not a {@link RealPolynomialFunction1D} then the addition takes
    * place as in {@link DoubleFunction1D}, otherwise the result will also be a polynomial.
-   * @param $f$ The function to add
+   * @param f The function to add
    * @return $P+f$
    * @throws IllegalArgumentException If the function is null
    */
@@ -82,7 +82,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
   /**
    * Adds a constant to the polynomial (equivalent to adding the value to the constant term of the polynomial). The result is
    * also a polynomial.
-   * @param $a$ The value to add
+   * @param a The value to add
    * @return $P+a$ 
    */
   @Override
@@ -128,7 +128,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
   /**
    * Multiplies the polynomial by a function. If the function is not a {@link RealPolynomialFunction1D} then the multiplication takes
    * place as in {@link DoubleFunction1D}, otherwise the result will also be a polynomial.
-   * @param $f$ The function by which to multiply
+   * @param f The function by which to multiply
    * @return $P \dot f$
    * @throws IllegalArgumentException If the function is null
    */
@@ -169,7 +169,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
   /**
    * Subtracts a function from the polynomial. If the function is not a {@link RealPolynomialFunction1D} then the subtract takes
    * place as in {@link DoubleFunction1D}, otherwise the result will also be a polynomial.
-   * @param $f$ The function to subtract
+   * @param f The function to subtract
    * @return $P-f$
    * @throws IllegalArgumentException If the function is null
    */
@@ -203,7 +203,7 @@ public class RealPolynomialFunction1D extends DoubleFunction1D {
   /**
    * Subtracts a constant from the polynomial (equivalent to subtracting the value from the constant term of the polynomial). The result is
    * also a polynomial.
-   * @param $a$ The value to add
+   * @param a The value to add
    * @return $P-a$ 
    */
   @Override

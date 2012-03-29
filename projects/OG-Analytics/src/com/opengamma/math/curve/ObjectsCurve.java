@@ -59,7 +59,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param data A map of <i>x-y</i> data, not null
    * @param isSorted Is the <i>x</i>-data sorted
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -79,7 +78,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param data A set of <i>x-y</i> pairs, not null
    * @param isSorted Is the <i>x</i>-data sorted
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
     super();
     Validate.notNull(data, "data");
@@ -105,7 +103,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param isSorted Is the <i>x</i>-data sorted
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
     super();
     Validate.notNull(xData, "x data");
@@ -145,7 +142,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -167,7 +163,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(data, "data");
@@ -195,7 +190,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
-  @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(xData, "x data");
