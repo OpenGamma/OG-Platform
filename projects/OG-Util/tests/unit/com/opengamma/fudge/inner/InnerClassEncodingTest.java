@@ -5,14 +5,19 @@
  */
 package com.opengamma.fudge.inner;
 
-import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
-import org.testng.annotations.Test;
-
-import java.util.*;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.util.fudgemsg.AutoFudgable.autoFudge;
 import static org.testng.Assert.assertEquals;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
  * Test Fudge encoding.

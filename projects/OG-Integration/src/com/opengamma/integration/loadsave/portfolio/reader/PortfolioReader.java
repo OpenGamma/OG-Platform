@@ -6,7 +6,9 @@
 
 package com.opengamma.integration.loadsave.portfolio.reader;
 
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PortfolioWriter
@@ -15,9 +17,17 @@ import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 public abstract interface PortfolioReader {
 
   /**
-   * Write the multisheet contents to the specified portfolio
-   * @param portfolioWriter The portfolio writer to use for writing
+   * Read the next row as a position, possibly containing trades, and one or more securities
+   * @return a pair containing the position and its securities
    */
-  void writeTo(PortfolioWriter portfolioWriter);
-  
+  ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext();
+
+  /**
+   * Get the current portfolio path.
+   * @return  the current node
+   */
+  String[] getCurrentPath();
+
+  void close();
+
 }

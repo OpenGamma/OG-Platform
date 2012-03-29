@@ -20,5 +20,7 @@ public class InstrumentTypeProperties {
   public static final String IR_FUTURE_OPTION = "IR_FUTURE_OPTION";
   /** Property representing a curve for IR futures */
   public static final String IR_FUTURE_PRICE = "IR_FUTURE_PRICE";
+  /** Property representing ATM surfaces for swaptions */
+  public static final String SWAPTION_ATM = "SWAPTION_ATM";
 
 }

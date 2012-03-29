@@ -286,12 +286,14 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   public D add(final D document) {
     ArgumentChecker.notNull(document, "document");
     s_logger.debug("add {}", document);
-    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+    D added = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
         return doAddInTransaction(document);
       }
     });
+    changeManager().entityChanged(ChangeType.ADDED, null, added.getUniqueId(), added.getVersionFromInstant());
+    return added;
   }
 
   /**
@@ -320,21 +322,16 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("update {}", document);
     
-    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+    final UniqueId beforeId = document.getUniqueId();
+    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
+    D updated = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
-        final UniqueId beforeId = document.getUniqueId();
-        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
-        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-          @Override
-          public D doInTransaction(final TransactionStatus status) {
-            return doUpdateInTransaction(document);
-          }
-        });
-        changeManager().entityChanged(ChangeType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-        return result;
+        return doUpdateInTransaction(document);
       }
     });
+    changeManager().entityChanged(ChangeType.UPDATED, beforeId, updated.getUniqueId(), updated.getVersionFromInstant());
+    return updated;
   }
 
   /**
@@ -367,13 +364,13 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     s_logger.debug("remove {}", uniqueId);
-    D result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+    D removed = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
         return doRemoveInTransaction(uniqueId);
       }
     });
-    changeManager().entityChanged(ChangeType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
+    changeManager().entityChanged(ChangeType.REMOVED, removed.getUniqueId(), null, removed.getVersionToInstant());
   }
 
   /**
@@ -398,16 +395,17 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     s_logger.debug("correct {}", document);
+    
     final UniqueId beforeId = document.getUniqueId();
     ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
-    D result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+    D corrected = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
       @Override
       public D doInTransaction(final TransactionStatus status) {
         return doCorrectInTransaction(document);
       }
     });
-    changeManager().entityChanged(ChangeType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-    return result;
+    changeManager().entityChanged(ChangeType.CORRECTED, beforeId, corrected.getUniqueId(), corrected.getVersionFromInstant());
+    return corrected;
   }
 
   /**

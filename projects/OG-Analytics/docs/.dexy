@@ -1,50 +1,9 @@
 {
-        "@list-files.sh|jinja|sh" : { "final" : false, "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find -printf '%P\n'" },
-        "writing-docs.tex|hd|ft|jinja|latex" : {
-            "title" : "Writing OpenGamma Examples",
-            "allinputs" : true,
-            "priority" : 10
-        },
-        "building-docs.tex|hd|ft|jinja|latex" : {
-            "title" : "Building OpenGamma Static Docs with Dexy",
-            "allinputs" : true,
-            "priority" : 10
-        },
-        "og-analytics.tex|hd|ft|ogjinja|latex" : {
-            "allinputs" : true,
-            "header" : "_header_book.tex",
-            "footer" : "_footer_book.tex",
-            "priority" : 10
-        },
-        "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
-            "allinputs" : true,
-            "title" : "Yield Curve Maths",
-            "priority" : 10
-        },
-        "og_docs_true_primitives.tex|hd|ft|jinja|latex" : {
-            "allinputs" : true,
-            "priority" : 10
-        },
-        "*.md|fn|markdown|hd|ft|jinja" : {
-            "allinputs" : true,
-            "priority" : 100
-        },
-        "sync.sh|jinja" : {},
-        "debug.txt|jinja" : { "allinputs" : true },
-        "_*.html" : {},
-        "_*.tex" : {},
-        "*.jpg" : {},
-        "*.png" : {},
-        "*.css" : {},
-        "*.svg" : {},
-        "*.eot" : {},
-        "*.ttf" : {},
-        "*.woff" : {},
-        "*.tex|pyg|l" : {},
-        "*.tex|idio|l" : {},
-        "*.sh|pyg|l" : {},
-        "*.sh|idio|l" : {},
-        "*.py|pyg|l" : {},
-        ".dexy|ppjson|pyg|l" : {}
+    "*.java|fn|java": {
+        "env": {
+            "CLASSPATH": "/mnt/work/sqlite4java-282/sqlite4java.jar:/mnt/work/OG-Platform/projects/OG-Examples/lib/classpath.jar:/mnt/work/OG-Platform/projects/OG-Analytics/build/og-analytics.jar"
+        }
+    },
+    "*.java|idio": {},
+    "*.sqlite3": {}
 }
-

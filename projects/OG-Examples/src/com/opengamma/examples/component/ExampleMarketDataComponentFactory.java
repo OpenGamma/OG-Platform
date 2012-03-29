@@ -22,6 +22,7 @@ import org.springframework.core.io.Resource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
@@ -30,6 +31,7 @@ import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.examples.marketdata.ExampleMarketDataProvider;
 import com.opengamma.examples.marketdata.SimulatedMarketDataGenerator;
+import com.opengamma.master.security.SecurityMaster;
 
 /**
  * Component factory for market data
@@ -54,6 +56,17 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    */
   @PropertyDefinition(validate = "notNull")
   private Resource _marketDataFile;
+  /**
+   * The security master; market data will be simulated for any suitable entries that aren't in the market data file.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecurityMaster _generatedSecurities;
+  /**
+   * The time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
+   * generated.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesSource _generatedTimeSeries;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -65,7 +78,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     ExampleMarketDataProvider mdProvider = new ExampleMarketDataProvider(getSecuritySource());
     MarketDataProviderFactory mdProviderFactory = new SingletonMarketDataProviderFactory(mdProvider);
     
-    SimulatedMarketDataGenerator mdGenerator = new SimulatedMarketDataGenerator(mdProvider, getMarketDataFile());
+    SimulatedMarketDataGenerator mdGenerator = new SimulatedMarketDataGenerator(mdProvider, getMarketDataFile(), getGeneratedSecurities(), getGeneratedTimeSeries());
     repo.registerLifecycle(mdGenerator);
     
     ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
@@ -110,6 +123,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
         return getSecuritySource();
       case 842625186:  // marketDataFile
         return getMarketDataFile();
+      case -1479375155:  // generatedSecurities
+        return getGeneratedSecurities();
+      case 2021015187:  // generatedTimeSeries
+        return getGeneratedTimeSeries();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -126,6 +143,12 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       case 842625186:  // marketDataFile
         setMarketDataFile((Resource) newValue);
         return;
+      case -1479375155:  // generatedSecurities
+        setGeneratedSecurities((SecurityMaster) newValue);
+        return;
+      case 2021015187:  // generatedTimeSeries
+        setGeneratedTimeSeries((HistoricalTimeSeriesSource) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -135,6 +158,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_marketDataFile, "marketDataFile");
+    JodaBeanUtils.notNull(_generatedSecurities, "generatedSecurities");
+    JodaBeanUtils.notNull(_generatedTimeSeries, "generatedTimeSeries");
     super.validate();
   }
 
@@ -148,6 +173,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getMarketDataFile(), other.getMarketDataFile()) &&
+          JodaBeanUtils.equal(getGeneratedSecurities(), other.getGeneratedSecurities()) &&
+          JodaBeanUtils.equal(getGeneratedTimeSeries(), other.getGeneratedTimeSeries()) &&
           super.equals(obj);
     }
     return false;
@@ -159,6 +186,8 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFile());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGeneratedSecurities());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGeneratedTimeSeries());
     return hash ^ super.hashCode();
   }
 
@@ -242,6 +271,61 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the security master; market data will be simulated for any suitable entries that aren't in the market data file.
+   * @return the value of the property, not null
+   */
+  public SecurityMaster getGeneratedSecurities() {
+    return _generatedSecurities;
+  }
+
+  /**
+   * Sets the security master; market data will be simulated for any suitable entries that aren't in the market data file.
+   * @param generatedSecurities  the new value of the property, not null
+   */
+  public void setGeneratedSecurities(SecurityMaster generatedSecurities) {
+    JodaBeanUtils.notNull(generatedSecurities, "generatedSecurities");
+    this._generatedSecurities = generatedSecurities;
+  }
+
+  /**
+   * Gets the the {@code generatedSecurities} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityMaster> generatedSecurities() {
+    return metaBean().generatedSecurities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
+   * generated.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesSource getGeneratedTimeSeries() {
+    return _generatedTimeSeries;
+  }
+
+  /**
+   * Sets the time series source; market data will be simulated for suitable entries from the security master that have a price series. The price series is generated randomly when the security is
+   * generated.
+   * @param generatedTimeSeries  the new value of the property, not null
+   */
+  public void setGeneratedTimeSeries(HistoricalTimeSeriesSource generatedTimeSeries) {
+    JodaBeanUtils.notNull(generatedTimeSeries, "generatedTimeSeries");
+    this._generatedTimeSeries = generatedTimeSeries;
+  }
+
+  /**
+   * Gets the the {@code generatedTimeSeries} property.
+   * generated.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesSource> generatedTimeSeries() {
+    return metaBean().generatedTimeSeries().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ExampleMarketDataComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -266,13 +350,25 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final MetaProperty<Resource> _marketDataFile = DirectMetaProperty.ofReadWrite(
         this, "marketDataFile", ExampleMarketDataComponentFactory.class, Resource.class);
     /**
+     * The meta-property for the {@code generatedSecurities} property.
+     */
+    private final MetaProperty<SecurityMaster> _generatedSecurities = DirectMetaProperty.ofReadWrite(
+        this, "generatedSecurities", ExampleMarketDataComponentFactory.class, SecurityMaster.class);
+    /**
+     * The meta-property for the {@code generatedTimeSeries} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesSource> _generatedTimeSeries = DirectMetaProperty.ofReadWrite(
+        this, "generatedTimeSeries", ExampleMarketDataComponentFactory.class, HistoricalTimeSeriesSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "securitySource",
-        "marketDataFile");
+        "marketDataFile",
+        "generatedSecurities",
+        "generatedTimeSeries");
 
     /**
      * Restricted constructor.
@@ -289,6 +385,10 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
           return _securitySource;
         case 842625186:  // marketDataFile
           return _marketDataFile;
+        case -1479375155:  // generatedSecurities
+          return _generatedSecurities;
+        case 2021015187:  // generatedTimeSeries
+          return _generatedTimeSeries;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -331,6 +431,22 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
      */
     public final MetaProperty<Resource> marketDataFile() {
       return _marketDataFile;
+    }
+
+    /**
+     * The meta-property for the {@code generatedSecurities} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityMaster> generatedSecurities() {
+      return _generatedSecurities;
+    }
+
+    /**
+     * The meta-property for the {@code generatedTimeSeries} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesSource> generatedTimeSeries() {
+      return _generatedTimeSeries;
     }
 
   }

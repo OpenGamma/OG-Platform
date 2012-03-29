@@ -73,6 +73,11 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     final double pv = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0);
+    // Start test
+    //    final double dM2 = -Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+    //    final int omega2 = optionForex.isCall() ? -1 : 1;
+    //    final double pv2 = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM2) * (optionForex.isLong() ? 1.0 : -1.0);
+    // End test
     final CurrencyAmount priceCurrency = CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), pv);
     return MultipleCurrencyAmount.of(priceCurrency);
   }
@@ -178,6 +183,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivity.
    */
+  @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
@@ -211,14 +217,14 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     // Backward sweep
-    double pvBar = 1.0;
+    final double pvBar = 1.0;
     final double dMBar = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getPDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0) * omega * pvBar;
     final double sigmaRootTBar = (-Math.log(forward / strike) / (sigmaRootT * sigmaRootT) - 0.5) * dMBar;
     final double volatilityBar = Math.sqrt(expiry) * sigmaRootTBar;
     final DoublesPair point = DoublesPair.of(optionForex.getExpirationTime(),
         (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());
     // Implementation note: The strike should be in the same currency order as the input data.
-    SurfaceValue result = SurfaceValue.from(point, volatilityBar);
+    final SurfaceValue result = SurfaceValue.from(point, volatilityBar);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
         .getCurrency2(), result);
     return sensi;

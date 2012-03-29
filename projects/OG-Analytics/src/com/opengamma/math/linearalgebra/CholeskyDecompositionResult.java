@@ -13,18 +13,18 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public interface CholeskyDecompositionResult extends DecompositionResult {
 
   /**
-   * Returns the {@latex.inline $\\mathbf{L}$} matrix of the decomposition.
+   * Returns the $\mathbf{L}$ matrix of the decomposition.
    * <p>
-   * {@latex.inline $\\mathbf{L}$} is a lower-triangular matrix.
-   * @return the {@latex.inline $\\mathbf{L}$} matrix
+   * $\mathbf{L}$ is a lower-triangular matrix.
+   * @return the $\mathbf{L}$ matrix
    */
   DoubleMatrix2D getL();
 
   /**
-   * Returns the transpose of the matrix {@latex.inline $\\mathbf{L}$} of the decomposition.
+   * Returns the transpose of the matrix $\mathbf{L}$ of the decomposition.
    * <p>
-   * {@latex.inline $\\mathbf{L}^T$} is a upper-triangular matrix.
-   * @return the {@latex.inline $\\mathbf{L}^T$} matrix
+   * $\mathbf{L}^T$ is a upper-triangular matrix.
+   * @return the $\mathbf{L}^T$ matrix
    */
   DoubleMatrix2D getLT();
 

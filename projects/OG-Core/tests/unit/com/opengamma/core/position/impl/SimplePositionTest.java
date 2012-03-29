@@ -274,16 +274,6 @@ public class SimplePositionTest {
     assertNull(testPosition.getAttributes().get("A"));
   }
 
-  public void test_clearAttributes() {
-    SimplePosition testPosition = new SimplePosition(UniqueId.of("B", "C"), BigDecimal.ONE, ExternalId.of("A", "B"));
-    assertTrue(testPosition.getAttributes().isEmpty());
-    testPosition.addAttribute("A", "B");
-    testPosition.addAttribute("C", "D");
-    assertEquals(2, testPosition.getAttributes().size());
-    testPosition.clearAttributes();
-    assertTrue(testPosition.getAttributes().isEmpty());
-  }
-
   private SecurityLink createLink(String scheme, String value) {
     return new SimpleSecurityLink(ExternalId.of(scheme, value));
   }

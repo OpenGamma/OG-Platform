@@ -5,11 +5,10 @@
  */
  
 package com.opengamma.integration.loadsave.timeseries.writer;
- 
+
 import java.util.HashMap;
 import java.util.Map;
- 
-import com.opengamma.financial.tool.ToolContext;
+
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -22,6 +21,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  
 /**
@@ -32,8 +32,9 @@ public class MasterTimeSeriesWriter implements TimeSeriesWriter {
   private HistoricalTimeSeriesMaster _htsMaster;
   private Map<ExternalId, ObjectIdentifiable> _idMap = new HashMap<ExternalId, ObjectIdentifiable>();
 
-  public MasterTimeSeriesWriter(ToolContext toolContext) {
-    _htsMaster = toolContext.getHistoricalTimeSeriesMaster();
+  public MasterTimeSeriesWriter(HistoricalTimeSeriesMaster htsMaster) {
+    ArgumentChecker.notNull(htsMaster, "htsMaster");
+    _htsMaster = htsMaster;
   }
 
   @Override

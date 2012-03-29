@@ -17,21 +17,24 @@ import com.opengamma.math.function.Function2D;
 import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
 
 /**
- * A {@latex.inline $\\chi^2$} distribution with {@latex.inline $k$} degrees of freedom is the distribution of the sum of squares
- * of {@latex.inline $k$} independent standard normal random variables with cdf and inverse cdf
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * F(x) &=\\frac{\\gamma\\left(\\frac{k}{2}, \\frac{x}{2}\\right)}{\\Gamma\\left(\\frac{k}{2}\\right)}\\\\
- * F^{-1}(p) &= 2\\gamma^{-1}\\left(\\frac{k}{2}, p\\right)
- * \\end{align*}}
- * where {@latex.inline $\\gamma(y, z)$} is the lower incomplete Gamma function and {@latex.inline $\\Gamma(y)$} is the Gamma function.
- * The pdf is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x)=\\frac{x^{\\frac{k}{2}-1}e^{-\\frac{x}{2}}}{2^{\\frac{k}{2}}\\Gamma\\left(\\frac{k}{2}\\right)}
- * \\end{align*}}
+ * A $\chi^2$ distribution with $k$ degrees of freedom is the distribution of
+ * the sum of squares of $k$ independent standard normal random variables with
+ * cdf and inverse cdf
+ * $$
+ * \begin{align*}
+ * F(x) &=\frac{\gamma\left(\frac{k}{2}, \frac{x}{2}\right)}{\Gamma\left(\frac{k}{2}\right)}\\
+ * F^{-1}(p) &= 2\gamma^{-1}\left(\frac{k}{2}, p\right)
+ * \end{align*}
+ * $$
+ * where $\gamma(y, z)$ is the lower incomplete Gamma function and $\Gamma(y)$
+ * is the Gamma function.  The pdf is given by:
+ * $$
+ * \begin{align*}
+ * f(x)=\frac{x^{\frac{k}{2}-1}e^{-\frac{x}{2}}}{2^{\frac{k}{2}}\Gamma\left(\frac{k}{2}\right)}
+ * \end{align*}
+ * $$
  * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the
- * cdf, pdf and {@latex.inline $\\chi^2$}-distributed random numbers.
+ * cdf, pdf and $\chi^2$-distributed random numbers.
  * 
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {

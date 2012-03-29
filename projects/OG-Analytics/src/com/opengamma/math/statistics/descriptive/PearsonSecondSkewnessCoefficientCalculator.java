@@ -10,13 +10,13 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Given a series of data {@latex.inline $x_1, x_2, \\dots, x_n$} with mean {@latex.inline $\\overline{x}$}, median {@latex.inline $m$}
- * and standard deviation {@latex.inline $\\sigma$}, the Pearson second skewness coefficient is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\text{skewness} = \\frac{3(\\overline{x} - m)}{\\sigma}
- * \\end{align*}
- * }
+ * Given a series of data $x_1, x_2, \dots, x_n$ with mean $\overline{x}$, median $m$
+ * and standard deviation $\sigma$, the Pearson second skewness coefficient is given by
+ * $$
+ * \begin{align*}
+ * \text{skewness} = \frac{3(\overline{x} - m)}{\sigma}
+ * \end{align*}
+ * $$
  * @see MeanCalculator
  * @see MedianCalculator
  * @see SampleStandardDeviationCalculator

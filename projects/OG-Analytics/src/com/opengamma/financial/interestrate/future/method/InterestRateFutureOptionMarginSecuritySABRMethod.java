@@ -5,13 +5,17 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -19,13 +23,24 @@ import com.opengamma.util.tuple.DoublesPair;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecuritySABRMethod {
+public final class InterestRateFutureOptionMarginSecuritySABRMethod extends InterestRateFutureOptionMarginSecurityMethod {
+
+  /**
+   * Creates the method unique instance.
+   */
   private static final InterestRateFutureOptionMarginSecuritySABRMethod INSTANCE = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static InterestRateFutureOptionMarginSecuritySABRMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private InterestRateFutureOptionMarginSecuritySABRMethod() {
   }
 
@@ -57,6 +72,12 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
     return priceSecurity;
   }
 
+  @Override
+  public double optionPriceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves, final double priceFuture) {
+    ArgumentChecker.isTrue(curves instanceof SABRInterestRateDataBundle, "Yield curve bundle should contain SABR parameters");
+    return optionPriceFromFuturePrice(security, (SABRInterestRateDataBundle) curves, priceFuture);
+  }
+
   /**
    * Computes the option security price. The future price is computed without convexity adjustment.
    * @param security The future option security.
@@ -66,6 +87,12 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final SABRInterestRateDataBundle sabrData) {
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData);
     return optionPriceFromFuturePrice(security, sabrData, priceFuture);
+  }
+
+  @Override
+  public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof SABRInterestRateDataBundle, "Yield curve bundle should contain SABR parameters");
+    return optionPrice(security, (SABRInterestRateDataBundle) curves);
   }
 
   /**
@@ -93,6 +120,12 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
     return priceFutureDerivative.multiply(priceFutureBar);
   }
 
+  @Override
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof SABRInterestRateDataBundle, "Yield curve bundle should contain SABR parameters");
+    return priceCurveSensitivity(security, (SABRInterestRateDataBundle) curves);
+  }
+
   /**
    * Computes the option security price curve sensitivity. The future price is computed without convexity adjustment.
    * @param security The future option security.
@@ -118,6 +151,11 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
     sensi.addRho(expiryDelay, volatilityAdjoint[4] * volatilityBar);
     sensi.addNu(expiryDelay, volatilityAdjoint[5] * volatilityBar);
     return sensi;
+  }
+
+  @Override
+  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+    throw new UnsupportedOperationException("The InterestRateFutureOptionMarginSecurity don't have a present value, only a price.");
   }
 
 }

@@ -14,28 +14,30 @@ import cern.jet.random.engine.RandomEngine;
 
 /**
  * The Laplace distribution is a continuous probability distribution with probability density function
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x)=\\frac{1}{2b}e^{-\\frac{|x-\\mu|}{b}}
- * \\end{align*}
- * }
- * where {@latex.inline $\\mu$} is the location parameter and {@latex.inline $b$} is the scale parameter. The
+ * $$
+ * \begin{align*}
+ * f(x)=\frac{1}{2b}e^{-\frac{|x-\mu|}{b}}
+ * \end{align*}
+ * $$
+ * where $\mu$ is the location parameter and $b$ is the scale parameter. The
  * cumulative distribution function and its inverse are defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * $$
+ * \begin{align*}
  * F(x)&=
- * \\begin{cases}
- * \\frac{1}{2}e^{\\frac{x-\\mu}{b}} & \\text{if } x < \\mu\\\\
- * 1-\\frac{1}{2}e^{-\\frac{x-\\mu}{b}} & \\text{if } x\\geq \\mu
- * \\end{cases}\\\\
- * F^{-1}(p)&=\\mu-b\\text{ sgn}(p-0.5)\\ln(1-2|p-0.5|)
- * \\end{align*}}
- * Given a uniform random variable {@latex.inline $U$} drawn from the interval {@latex.inline $(-\\frac{1}{2}, \\frac{1}{2}]$},  
- * a Laplace-distributed random variable with parameters {@latex.inline $\\mu$} and {@latex.inline $b$} is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * X=\\mu-b\\text{ sgn}(U)\\ln(1-2|U|)
- * \\end{align*}}
+ * \begin{cases}
+ * \frac{1}{2}e^{\frac{x-\mu}{b}} & \text{if } x < \mu\\
+ * 1-\frac{1}{2}e^{-\frac{x-\mu}{b}} & \text{if } x\geq \mu
+ * \end{cases}\\
+ * F^{-1}(p)&=\mu-b\text{ sgn}(p-0.5)\ln(1-2|p-0.5|)
+ * \end{align*}
+ * $$
+ * Given a uniform random variable $U$ drawn from the interval $(-\frac{1}{2}, \frac{1}{2}]$,  
+ * a Laplace-distributed random variable with parameters $\mu$ and $b$ is given by:
+ * $$
+ * \begin{align*}
+ * X=\mu-b\text{ sgn}(U)\ln(1-2|U|)
+ * \end{align*}
+ * $$
  * 
  */
 public class LaplaceDistribution implements ProbabilityDistribution<Double> {

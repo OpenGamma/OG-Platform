@@ -11,6 +11,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -60,6 +63,9 @@ public class ForexVisitors {
 
   private static class CallCurrencyVisitor implements FinancialSecurityVisitor<Currency> {
 
+    public CallCurrencyVisitor() {
+    }
+
     @Override
     public Currency visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException();
@@ -125,11 +131,6 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
-    //    @Override
-    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    //      throw new UnsupportedOperationException();
-    //    }
-
     @Override
     public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -173,11 +174,29 @@ public class ForexVisitors {
     @Override
     public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getCallCurrency();
+    }
+
+    @Override
+    public Currency visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Currency visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Currency visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
     }
   }
 
   private static class PutCurrencyVisitor implements FinancialSecurityVisitor<Currency> {
 
+    public PutCurrencyVisitor() {
+    }
+
     @Override
     public Currency visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException();
@@ -238,11 +257,6 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
-    //    @Override
-    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    //      throw new UnsupportedOperationException();
-    //    }
-
     @Override
     public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -292,9 +306,27 @@ public class ForexVisitors {
     public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getPutCurrency();
     }
+
+    @Override
+    public Currency visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Currency visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Currency visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
   }
 
   private static class SpotIdentifierVisitor implements FinancialSecurityVisitor<ExternalId> {
+
+    public SpotIdentifierVisitor() {
+    }
 
     @Override
     public ExternalId visitBondSecurity(final BondSecurity security) {
@@ -363,11 +395,6 @@ public class ForexVisitors {
     public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
-
-    //    @Override
-    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    //      throw new UnsupportedOperationException();
-    //    }
 
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
@@ -441,11 +468,29 @@ public class ForexVisitors {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
       }
       return bloomberg;
+    }
+
+    @Override
+    public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
     }
   }
 
   private static class InverseSpotIdentifierVisitor implements FinancialSecurityVisitor<ExternalId> {
 
+    public InverseSpotIdentifierVisitor() {
+    }
+
     @Override
     public ExternalId visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException();
@@ -513,11 +558,6 @@ public class ForexVisitors {
     public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
-
-    //    @Override
-    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    //      throw new UnsupportedOperationException();
-    //    }
 
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
@@ -591,6 +631,21 @@ public class ForexVisitors {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
       }
       return bloomberg;
+    }
+
+    @Override
+    public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+      throw new UnsupportedOperationException();
     }
 
   }

@@ -10,15 +10,15 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Calculates the n<sup>th</sup> sample central moment of a series of data.
+ * Calculates the $n^th$ sample central moment of a series of data.
  * <p>
- * The sample central moment {@latex.inline $\\mu_n$} of a series of data {@latex.inline $x_1, x_2, \\dots, x_s$} is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu_n = \\frac{1}{s}\\sum_{i=1}^s (x_i - \\overline{x})^n
- * \\end{align*}
- * }
- * where {@latex.inline $\\overline{x}$} is the mean.
+ * The sample central moment $\mu_n$ of a series of data $x_1, x_2, \dots, x_s$ is given by:
+ * $$
+ * \begin{align*}
+ * \mu_n = \frac{1}{s}\sum_{i=1}^s (x_i - \overline{x})^n
+ * \end{align*}
+ * $$
+ * where $\overline{x}$ is the mean.
  */
 public class SampleCentralMomentCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();

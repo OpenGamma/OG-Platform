@@ -8,6 +8,7 @@ package com.opengamma.integration.loadsave.sheet.reader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A class for importing portfolio data from XLS (pre-Excel 2007) worksheets
@@ -28,13 +30,14 @@ public class SimpleXlsSheetReader extends SheetReader {
   private Sheet _sheet;
   private Workbook _workbook;
   private int _currentRowNumber;
-//  private int _firstRow;
-//  private int _firstColumn;
-
+  private InputStream _inputStream;
   
   public SimpleXlsSheetReader(String filename, int sheetIndex) {
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
+    
+    ArgumentChecker.notEmpty(filename, "filename");
+
+    _inputStream = openFile(filename);
+    _workbook = getWorkbook(_inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
     _currentRowNumber = _sheet.getFirstRowNum();
     
@@ -46,6 +49,10 @@ public class SimpleXlsSheetReader extends SheetReader {
   }
   
   public SimpleXlsSheetReader(String filename, String sheetName) {
+    
+    ArgumentChecker.notEmpty(filename, "filename");
+    ArgumentChecker.notEmpty(sheetName, "sheetName");
+
     InputStream fileInputStream = openFile(filename);
     _workbook = getWorkbook(fileInputStream);
     _sheet = _workbook.getSheet(sheetName);
@@ -58,26 +65,10 @@ public class SimpleXlsSheetReader extends SheetReader {
     setColumns(getColumnNames(rawRow)); 
   }
 
-  
-  
-  public SimpleXlsSheetReader(String filename, int sheetIndex, String[] columns) {
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
-    _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-  
-  public SimpleXlsSheetReader(String filename, String sheetName, String[] columns) {
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
-    _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-
-
   public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex) {
+    
+    ArgumentChecker.notNull(inputStream, "inputStream");
+
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
     _currentRowNumber = _sheet.getFirstRowNum();
@@ -90,6 +81,10 @@ public class SimpleXlsSheetReader extends SheetReader {
   }
   
   public SimpleXlsSheetReader(InputStream inputStream, String sheetName) {
+    
+    ArgumentChecker.notNull(inputStream, "inputStream");
+    ArgumentChecker.notEmpty(sheetName, "sheetName");
+
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheet(sheetName);
     _currentRowNumber = _sheet.getFirstRowNum();
@@ -100,23 +95,10 @@ public class SimpleXlsSheetReader extends SheetReader {
     String[] columns = getColumnNames(rawRow);
     setColumns(columns); 
   }
-  
-  public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex, String[] columns) {
-    _workbook = getWorkbook(inputStream);
-    _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-  
-  public SimpleXlsSheetReader(InputStream inputStream, String sheetName, String[] columns) {
-    _workbook = getWorkbook(inputStream);
-    _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
 
   
   private Workbook getWorkbook(InputStream inputStream) {
+    
     try {
       return new HSSFWorkbook(inputStream);
     } catch (IOException ex) {
@@ -168,7 +150,8 @@ public class SimpleXlsSheetReader extends SheetReader {
     }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_NUMERIC:
-        return Double.toString(cell.getNumericCellValue());
+        //return Double.toString(cell.getNumericCellValue());
+        return (new DecimalFormat("#.##")).format(cell.getNumericCellValue());
       case Cell.CELL_TYPE_STRING:
         return cell.getStringCellValue();
       case Cell.CELL_TYPE_BOOLEAN:
@@ -177,6 +160,17 @@ public class SimpleXlsSheetReader extends SheetReader {
         return "";
       default:
         return "null";
+    }
+  }
+
+  @Override
+  public void close() {
+    try {
+      if (_inputStream != null) {
+        _inputStream.close();
+      }
+    } catch (IOException ex) {
+      // TODO Auto-generated catch block
     }
   }
   

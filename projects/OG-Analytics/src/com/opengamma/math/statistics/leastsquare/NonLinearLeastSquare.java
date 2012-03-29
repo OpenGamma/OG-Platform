@@ -367,6 +367,11 @@ public class NonLinearLeastSquare {
         continue;
       }
 
+      //debug
+      //      if (lambda > 1e20) {
+      //        System.out.println("lambda: " + lambda);
+      //      }
+
       newError = getError(func, observedValues, sigma, trialTheta);
       newChiSqr = getChiSqr(newError);
 
@@ -451,8 +456,10 @@ public class NonLinearLeastSquare {
           newError = getError(func, observedValues, sigma, trialTheta);
           newChiSqr = getChiSqr(newError);
 
+          int counter = 0;
           while (newChiSqr > oldChiSqr) {
-            if (Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
+            //if even a tiny move along the negative eigenvalue cannot improve chiSqr, then exit
+            if (counter > 10 || Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
               LOGGER.warn("Saddle point detected, but no improvment to chi^2 possible by moving away. It is recomended that a different starting point is used.");
               return finish(newAlpha, decmp, oldChiSqr, jacobian, theta, sigma);
             }
@@ -461,6 +468,7 @@ public class NonLinearLeastSquare {
             trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
             newError = getError(func, observedValues, sigma, trialTheta);
             newChiSqr = getChiSqr(newError);
+            counter++;
           }
         } else {
           //this should be the normal finish - i.e. no improvement in chiSqr and at a true minimum (although there is no guarantee it is not a local minimum)

@@ -18,16 +18,17 @@ import com.opengamma.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 
 /**
- * A calculator to determine the upper limit of the Fourier integral for a characteristic function {@latex.inline $\\phi$}.
+ * A calculator to determine the upper limit of the Fourier integral for a
+ * characteristic function $\phi$.
  * <p>
  * The upper limit is found by determining the root of the function:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x) = \\ln\\left(\\left|\\phi(x - i(1 + \\alpha))\\right|\\right)
- * \\end{align*}
- * }
- * where {@latex.inline $\\alpha$} is the contour (which is parallel to the real axis and shifted down by {@latex.inline $1 + \\alpha$}) over which to
- * integrate.
+ * $$
+ * \begin{align*}
+ * f(x) = \ln\left(\left|\phi(x - i(1 + \alpha))\right|\right)
+ * \end{align*}
+ * $$
+ * where $\alpha$ is the contour (which is parallel to the real axis and
+ * shifted down by $1 + \alpha$) over which to integrate.
  * 
  */
 public class IntegralLimitCalculator {
@@ -38,7 +39,7 @@ public class IntegralLimitCalculator {
   /**
    * 
    * @param psi The characteristic function, not null
-   * @param alpha The value of {@latex.inline $\\alpha$}, not 0 or -1
+   * @param alpha The value of $\alpha$, not 0 or -1
    * @param tol The tolerance for the root
    * @return The root
    */

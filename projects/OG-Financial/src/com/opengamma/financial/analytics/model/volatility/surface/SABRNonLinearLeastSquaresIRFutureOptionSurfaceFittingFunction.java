@@ -127,7 +127,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
           final Double forward = futurePriceData.getYValue(x.doubleValue());
           for (final ObjectsPair<Double, Double> value : strip) {
             if (value.second != null) {
-              strikes.add(1 - value.first / 100);
+              strikes.add(1 - value.first);
               blackVols.add(value.second);
               errors.add(ERROR);
               fittedPointsForStrip.add(value.first);

@@ -16,20 +16,20 @@ import com.opengamma.math.number.ComplexNumber;
 
 /**
  * This class represents the characteristic exponent for a Brownian motion driven by normally-distributed increments
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi_X &= E\\left[e^{iuX}\\right]\\\\
- * &= \\frac{1}{\\sqrt{2\\pi}\\sigma}\\int_{-\\infty}^{\\infty} e^{iux} \\exp\\left(-\\frac{(x - \\mu)^2}{2\\sigma^2}\\right)\\\\
- * %&= \\exp\\left({iu\\mu - \\tfrac{1}{2}\\sigma^2 u^2}\\right)
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \phi_X &= E\left[e^{iuX}\right]\\
+ * &= \frac{1}{\sqrt{2\pi}\sigma}\int_{-\infty}^{\infty} e^{iux} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)\\
+ * %&= \exp\left({iu\mu - \tfrac{1}{2}\sigma^2 u^2}\right)
+ * \end{align*}
+ * $$
  * and
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi_{X_t}(u) &= [\\phi_X(u)]^t \\\\
- * &= \\exp\\left(t\\left(iu\\mu - \\frac{\\sigma^2 u^2}{2}\\right)\\right)
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \phi_{X_t}(u) &= [\phi_X(u)]^t \\
+ * &= \exp\left(t\left(iu\mu - \frac{\sigma^2 u^2}{2}\right)\right)
+ * \end{align*}
+ * $$
  * 
  */
 public class GaussianCharacteristicExponent implements CharacteristicExponent {
@@ -87,7 +87,7 @@ public class GaussianCharacteristicExponent implements CharacteristicExponent {
 
   /**
    * 
-   * @return {@latex.inline $\\infty$}
+   * @return $\infty$
    */
   @Override
   public double getLargestAlpha() {
@@ -96,7 +96,7 @@ public class GaussianCharacteristicExponent implements CharacteristicExponent {
 
   /**
    * 
-   * @return {@latex.inline $-\\infty$}
+   * @return $-\infty$
    */
   @Override
   public double getSmallestAlpha() {

@@ -15,44 +15,48 @@ import com.opengamma.util.CompareUtils;
  * The generalized extreme value distribution is a family of continuous probability distributions that combines the Gumbel (type I),
  * Fr&eacute;chet (type II) and Weibull (type III) families of distributions.
  * <p>
- * This distribution has location parameter {@latex.inline $\\mu$}, shape parameter {@latex.inline $\\xi$}
- * and scale parameter {@latex.inline $\\sigma$}, with
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu&\\in\\Re,\\\\
- * \\xi&\\in\\Re,\\\\
- * \\sigma&>0
- * \\end{align*}}
+ * This distribution has location parameter $\mu$, shape parameter $\xi$
+ * and scale parameter $\sigma$, with
+ * $$
+ * \begin{align*}
+ * \mu&\in\Re,\\
+ * \xi&\in\Re,\\
+ * \sigma&>0
+ * \end{align*}
+ * $$
  * and support
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * x\\in
- * \\begin{cases}
- * \\left[\\mu - \\frac{\\sigma}{\\xi}, +\\infty\\right) & \\text{when } \\xi > 0\\\\
- * (-\\infty,+\\infty) & \\text{when } \\xi = 0\\\\
- * \\left(-\\infty, \\mu - \\frac{\\sigma}{\\xi}\\right] & \\text{when } \\xi < 0
- * \\end{cases}
- * \\end{align*}}
+ * $$
+ * \begin{align*}
+ * x\in
+ * \begin{cases}
+ * \left[\mu - \frac{\sigma}{\xi}, +\infty\right) & \text{when } \xi > 0\\
+ * (-\infty,+\infty) & \text{when } \xi = 0\\\\
+ * \left(-\infty, \mu - \frac{\sigma}{\xi}\right] & \text{when } \xi < 0
+ * \end{cases}
+ * \end{align*}
+ * $$
  * The cdf is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * F(x) &=e^{-t(x)}\\\\
+ * $$
+ * \begin{align*}
+ * F(x) &=e^{-t(x)}\\
  * t(x)&=
- * \\begin{cases}
- * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
- * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
- * \\end{cases}
- * \\end{align*}}
+ * \begin{cases}
+ * \left(1 + \xi\frac{x-\mu}{\sigma}\right)^{-\frac{1}{\xi}} & \text{if } \xi \neq 0,\\
+ * e^{-\frac{x-\mu}{\sigma}} & \text{if } \xi = 0.
+ * \end{cases}
+ * \end{align*}
+ * $$
  * and the pdf by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x)&=\\frac{t(x)^{\\xi + 1}e^{-t(x)}}{\\sigma}\\quad\\\\
+ * $$
+ * \begin{align*}
+ * f(x)&=\frac{t(x)^{\xi + 1}e^{-t(x)}}{\sigma}\quad\\
  * t(x)&=
- * \\begin{cases}
- * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
- * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
- * \\end{cases}
- * \\end{align*}}
+ * \begin{cases}
+ * \left(1 + \xi\frac{x-\mu}{\sigma}\right)^{-\frac{1}{\xi}} & \text{if } \xi \neq 0,\\
+ * e^{-\frac{x-\mu}{\sigma}} & \text{if } \xi = 0.
+ * \end{cases}
+ * \end{align*}
+ * $$
  * 
  */
 public class GeneralizedExtremeValueDistribution implements ProbabilityDistribution<Double> {
@@ -77,7 +81,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
+   * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
   public double getCDF(final Double x) {
@@ -97,7 +101,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
+   * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
   public double getPDF(final Double x) {

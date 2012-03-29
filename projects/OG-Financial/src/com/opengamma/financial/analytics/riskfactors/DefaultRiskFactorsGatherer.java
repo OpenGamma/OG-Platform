@@ -35,6 +35,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -501,6 +504,21 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
         getPresentValue(ValueProperties.builder()));
   }
 
+  @Override
+  public Set<Pair<String, ValueProperties>> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(final String curve, final Currency currency) {
     final ValueProperties.Builder constraints = ValueProperties
@@ -604,5 +622,6 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   private RiskFactorsConfigurationProvider getConfigProvider() {
     return _configProvider;
   }
+
 
 }

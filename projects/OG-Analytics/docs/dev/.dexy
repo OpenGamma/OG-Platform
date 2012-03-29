@@ -1,0 +1,39 @@
+{
+    "*.java|fn|java": {
+        "env": {
+            "CLASSPATH": "/mnt/work/sqlite4java-282/sqlite4java.jar:/mnt/work/OG-Platform/projects/OG-Examples/lib/classpath.jar:/mnt/work/OG-Platform/projects/OG-Analytics/build/og-analytics.jar"
+        }
+    },
+    "*.java|idio": {},
+    "*.md|jinjajit|markdown|easyhtml": {
+        "allinputs": true,
+        "easyhtml": {
+            "css": "th { text-align:left;} table { padding: 5px;} "
+        },
+        "markdown": {
+            "toc": {
+                "anchorlink": true
+            }
+        }
+    },
+    "*.md|pyg": {
+        "pygments": {
+            "lexer": "moin"
+        }
+    },
+    "*.sqlite3": {},
+    "*.txt|pyg": {
+        "pygments": {
+            "lexer": "moin"
+        }
+    },
+    "index.txt|jinjajit": {
+        "allinputs": true
+    },
+    "show-examples.html|jinjajit|xxml": {
+        "allinputs": true,
+        "priority": 5
+    },
+    "show-examples.html|xxml": {},
+    "book.tex|jinjajit|latex" : { "allinputs" : true }
+}

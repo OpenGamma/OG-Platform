@@ -164,7 +164,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   public void presentValueCurveSensitivity() {
 
     InterestRateCurveSensitivity pvs = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, BUNDLE_HW);
-    pvs = pvs.clean();
+    pvs = pvs.cleaned();
     // Bond curve sensitivity
     DoubleAVLTreeSet bondTime = new DoubleAVLTreeSet();
     bondTime.add(BOND_FUTURE_DERIV.getDeliveryLastTime());

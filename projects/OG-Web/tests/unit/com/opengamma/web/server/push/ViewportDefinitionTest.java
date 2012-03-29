@@ -5,19 +5,20 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.WebGridCell;
-import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
+import org.testng.annotations.Test;
+
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.WebGridCell;
+import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 
 /**
  *

@@ -5,22 +5,28 @@
  */
 package com.opengamma.integration.loadsave.portfolio.reader;
 
+import java.io.InputStream;
 import java.util.Map;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A simple portfolio reader assumes that the input sheet only contains one asset class, and may also be used as a base
  * class for specific asset class loaders that follow this rule.
  */
 public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePortfolioReader.class);
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -31,70 +37,76 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
    */
   private String[] _columns;
 
-  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
-    super(SheetReader.newSheetReader(filename));
-    _columns = getSheet().getColumns();
-    _rowParser = rowParser;
-  }
-
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
-    super(sheet);    
-    _columns = getSheet().getColumns();
-    _rowParser = rowParser;
-  }
-
-  public SingleSheetSimplePortfolioReader(String filename, String securityClass, ToolContext toolContext) {
-    super(SheetReader.newSheetReader(filename));
-    _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
-    if (_rowParser == null) {
-      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
-    }
-  }
-
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, ToolContext toolContext) {
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, RowParser rowParser) {   
     super(sheet);
+    
+    ArgumentChecker.notNull(rowParser, "rowParser");
+
     _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
-    if (_rowParser == null) {
-      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
-    }
+    _rowParser = rowParser;
   }
 
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, String securityClass) {
+    this(sheet, RowParser.newRowParser(securityClass));    
+  }
+
+  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, RowParser rowParser) {
+    this(SheetReader.newSheetReader(sheetFormat, inputStream), rowParser);
+  }
+
+  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, String securityClass) {
+    this(SheetReader.newSheetReader(sheetFormat, inputStream), securityClass);    
+  }
+
+  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
+    this(SheetReader.newSheetReader(filename), rowParser);
+  }
+
+  public SingleSheetSimplePortfolioReader(String filename, String securityClass) {
+    this(SheetReader.newSheetReader(filename), securityClass);
+  }
+  
   @Override
-  public void writeTo(PortfolioWriter portfolioWriter) {
-    Map<String, String> row;
-
-    // Get the next row from the sheet
-    while ((row = getSheet().loadNextRow()) != null) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
     
-      // Print debugging output
-      // prettyPrintRow(row);
-      
-      // Build the underlying security
-      ManageableSecurity[] security = _rowParser.constructSecurity(row);
-      
-      // Attempt to write securities and obtain the correct security (either newly written or original)
-      // Write array in reverse order as underlying is at position 0
-      for (int i = security.length - 1; i >= 0; i--) {
-        security[i] = portfolioWriter.writeSecurity(security[i]);        
-      }
-
-      // Build the position and trade(s) using security[0] (underlying)
-      ManageablePosition position = _rowParser.constructPosition(row, security[0]);
-      
-      ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
-      if (trade != null) { 
-        position.addTrade(trade);
-      }
-      
-      // Write positions/trade(s) to masters (trades are implicitly written with the position)
-      portfolioWriter.writePosition(position);
+    Map<String, String> row = getSheet().loadNextRow();    
+    if (row == null) {
+      return null;
     }
+    
+    // Build the underlying security
+    ManageableSecurity[] securities = _rowParser.constructSecurity(row);
+    if (securities != null && securities.length > 0) {
+      
+      // Build the position and trade(s) using security[0] (underlying)
+      ManageablePosition position = _rowParser.constructPosition(row, securities[0]);      
+      if (position != null) {
+        ManageableTrade trade = _rowParser.constructTrade(row, securities[0], position);
+        if (trade != null) { 
+          position.addTrade(trade);
+        }
+      }
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
+      
+    } else {
+      s_logger.warn("Row parser was unable to construct a security from row " + row);
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+    }
+    
   }
 
   public String[] getColumns() {
     return _columns;
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    return new String[0];
+  }
+
+  @Override
+  public void close() {
+    getSheet().close();
   }
 
 }

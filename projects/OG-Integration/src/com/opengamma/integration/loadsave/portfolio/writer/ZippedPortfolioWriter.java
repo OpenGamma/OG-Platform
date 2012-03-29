@@ -13,22 +13,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio
@@ -38,20 +36,18 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ZippedPortfolioWriter.class);
 
-  private static final char DIRECTORY_SEPARATOR = '/';
+  private static final String DIRECTORY_SEPARATOR = "/";
 
   private ZipOutputStream _zipFile;
-  private ToolContext _toolContext;
-  private ManageablePortfolio _portfolio;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
-  private ManageablePortfolioNode _currentNode;
+  private String[] _currentPath = new String[] {};
   private SingleSheetPortfolioWriter _currentWriter;
   private Map<String, SingleSheetPortfolioWriter> _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
   
-  public ZippedPortfolioWriter(String filename, ToolContext toolContext) {
+  public ZippedPortfolioWriter(String filename) {
 
-    _toolContext = toolContext;
+    ArgumentChecker.notEmpty(filename, "filename");
 
     // Confirm file doesn't already exist
     File file = new File(filename);
@@ -65,16 +61,13 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not create zip archive " + filename + " for writing: " + ex.getMessage());
     }
-    
-    // Set up virtual portfolio and root node
-    ManageablePortfolioNode root = new ManageablePortfolioNode("Root");
-    _portfolio = new ManageablePortfolio("Virtual Portfolio", root);
-    _currentNode = _portfolio.getRootNode();
   }
 
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
 
+    ArgumentChecker.notNull(security, "security");
+    
     identifyOrCreatePortfolioWriter(security);
 
     if (_currentWriter != null) {
@@ -89,6 +82,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
 
+    ArgumentChecker.notNull(position, "position");
+    
     if (_currentWriter != null) {
       position = _currentWriter.writePosition(position);
     } else {
@@ -99,36 +94,34 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
-  public ManageablePortfolio getPortfolio() {
-    return _portfolio;
-  }
+  public void setPath(String[] newPath) {
 
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return _currentNode;
-  }
-
-  @Override
-  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
+    ArgumentChecker.notNull(newPath, "newPath");
 
     // First, write the current set of CSVs to the zip file and clear the map of writers
-    flushCurrentBuffers();
-
-    // Change to the new path in the zip file (might need to create)
-    String path = getPath(node);
-    if (!path.equals("")) {
-      ZipEntry entry = new ZipEntry(path);
-      try {
-        _zipFile.putNextEntry(entry);
-        _zipFile.closeEntry();
-      } catch (IOException ex) {
-        // assume the directory already exists
-        //throw new OpenGammaRuntimeException("Could not create folder " + entry.getName() + " in zip file: " + ex.getMessage());
+    if (!getPathString(newPath).equals(getPathString(_currentPath))) {
+      flushCurrentBuffers();
+          
+      // Change to the new path in the zip file (might need to create)
+      if (newPath.length > 0) {
+        String path = StringUtils.arrayToDelimitedString(newPath, DIRECTORY_SEPARATOR) + DIRECTORY_SEPARATOR;
+        ZipEntry entry = new ZipEntry(path);
+        try {
+          _zipFile.putNextEntry(entry);
+          _zipFile.closeEntry();
+        } catch (IOException ex) {
+          // if failed, assume the directory already exists
+          //throw new OpenGammaRuntimeException("Could not create folder " + entry.getName() + " in zip file: " + ex.getMessage());
+        }
       }
-    }
 
-    _currentNode = node;
-    return node;
+      _currentPath = newPath;
+    }
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    return _currentPath;
   }
 
   @Override
@@ -156,45 +149,18 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     }
   }
 
-  private String getPath(ManageablePortfolioNode node) {
-    Stack<ManageablePortfolioNode> stack = findNodeStackByNode(_portfolio.getRootNode(), node);
-    String path = "";
-    
-    // The stack should not be empty as the false 'Root' node is always there first: get rid of it immediately
-    stack.pop(); 
-    
-    while (!stack.isEmpty()) {
-      path += stack.pop().getName().replace(DIRECTORY_SEPARATOR + "", "<slash>") + DIRECTORY_SEPARATOR;
+  
+  private String getPathString(String[] path) {
+    String pathString = StringUtils.arrayToDelimitedString(path, DIRECTORY_SEPARATOR);
+    if (pathString.length() > 0) {
+      pathString += DIRECTORY_SEPARATOR;
     }
-
-    return path;
+    return pathString;
   }
-
-  private Stack<ManageablePortfolioNode> findNodeStackByNode(final ManageablePortfolioNode start, final ManageablePortfolioNode treasure) {
-
-    // This node IS the treasure
-    if (start == treasure) {
-      Stack<ManageablePortfolioNode> stack = new Stack<ManageablePortfolioNode>();
-      stack.push(start);
-      return stack;
-    }
-
-    // Look for treasure in the child nodes
-    for (ManageablePortfolioNode childNode : start.getChildNodes()) {
-      Stack<ManageablePortfolioNode> stack = findNodeStackByNode(childNode, treasure);
-      if (stack != null) {
-        stack.push(start);
-        return stack;
-      }
-    }
-
-    // None of the child nodes contain treasure
-    return null;
-  }
-
+  
   private void flushCurrentBuffers() {
 
-    String path = getPath(_currentNode);
+    String path = getPathString(_currentPath);
     
     s_logger.info("Flushing CSV buffers for ZIP directory " + path);
 
@@ -204,7 +170,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       _writerMap.get(entry.getKey()).close();
 
       ZipEntry zipEntry = new ZipEntry(path + entry.getKey() + ".csv");
-      s_logger.info("Writing " + zipEntry.getName());
+      s_logger.info("Writing " + zipEntry.getName() + " to ZIP archive");
       try {
         _zipFile.putNextEntry(zipEntry);
         entry.getValue().writeTo(_zipFile);
@@ -220,6 +186,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   }
 
   private PortfolioWriter identifyOrCreatePortfolioWriter(ManageableSecurity security) {
+    
     // Identify the correct portfolio writer for this security
     String className = security.getClass().toString();
     className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
@@ -231,7 +198,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
       s_logger.info("Creating a new row parser for " + className + " securities");
 
-      parser = RowParser.newRowParser(className, _toolContext);
+      parser = RowParser.newRowParser(className);
       if (parser == null) {
         return null;
       }

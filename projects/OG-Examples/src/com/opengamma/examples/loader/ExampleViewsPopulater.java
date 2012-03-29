@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -47,6 +48,8 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
+  
+  private static final Currency[] s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.NZD, Currency.DKK};
 
   //-------------------------------------------------------------------------
   /**
@@ -218,7 +221,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     PortfolioSearchResult searchResult = getToolContext().getPortfolioMaster().search(searchRequest);
     if (searchResult.getFirstPortfolio() == null) {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
-      throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
+      throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
     return searchResult.getFirstPortfolio().getUniqueId();
   }
@@ -241,8 +244,8 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId("MultiCurrency Swap Portfolio");
+    ViewDefinition viewDefinition = new ViewDefinition("Example MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -252,7 +255,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     addValueRequirements(defaultCalConfig, SwapSecurity.SECURITY_TYPE, new String[] {ValueRequirementNames.PV01}, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
-    for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
+    for (Currency ccy : s_currencies) {
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
           ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get());
     }

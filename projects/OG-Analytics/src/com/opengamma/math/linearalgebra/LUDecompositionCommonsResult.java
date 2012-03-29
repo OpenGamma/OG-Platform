@@ -25,7 +25,7 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final DoubleMatrix2D _u;
 
   /**
-   * @param lu The result of the LU decomposition, not null. {@latex.inline $\\mathbf{L}$} cannot be singular.
+   * @param lu The result of the LU decomposition, not null. $\mathbf{L}$ cannot be singular.
    */
   public LUDecompositionCommonsResult(final LUDecomposition lu) {
     Validate.notNull(lu, "LU decomposition");

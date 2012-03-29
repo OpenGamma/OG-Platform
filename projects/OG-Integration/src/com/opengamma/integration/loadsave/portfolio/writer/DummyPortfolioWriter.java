@@ -6,14 +6,11 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A dummy portfolio writer, which pretty-prints information instead of persisting
@@ -21,47 +18,48 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
-
-  private ManageablePortfolioNode _node = new ManageablePortfolioNode();
+  private String[] _currentPath = new String[] {};
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
-    s_logger.info("Security: " + security.toString());
+    
+    ArgumentChecker.notNull(security, "security");
+    
+    System.out.println("Security: " + security.toString());
     return security;
   }
 
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
-    s_logger.info("Position: " + position.toString());
+    
+    ArgumentChecker.notNull(position, "position");
+    
+    System.out.println("Position: " + position.toString());
     return position;
   }
 
   @Override
-  public ManageablePortfolio getPortfolio() {
-    return null;
-  }
-
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return _node;
-  }
-
-  @Override
-  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-    s_logger.info("Set node to: " + node.toString());
-    _node = node;
-    return _node;
-  }
-
-  @Override
   public void flush() {
-    s_logger.info("Flushed writer");
+    System.out.println("Flushed writer");
   }
 
   @Override
   public void close() {
-    s_logger.info("Closed writer");
+    System.out.println("Closed writer");
+  }
+
+  @Override
+  public void setPath(String[] newPath) {
+    
+    ArgumentChecker.notNull(newPath, "newPath");
+    _currentPath = newPath;
+    
+    System.out.println("Set path to: " + StringUtils.arrayToDelimitedString(newPath, "/"));
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    return _currentPath;
   }
   
 }

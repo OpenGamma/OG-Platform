@@ -451,7 +451,7 @@ public class ComponentManager {
         mp.set(bean, getRepository().getInstance(propertyType, classifier));
         return;
       } catch (RuntimeException ex) {
-        throw new IllegalArgumentException("Unable to set property " + mp, ex);
+        throw new IllegalArgumentException("Unable to set property " + mp + " of type " + propertyType.getName(), ex);
       }
     }
     ComponentInfo info = getRepository().findInfo(type, classifier);

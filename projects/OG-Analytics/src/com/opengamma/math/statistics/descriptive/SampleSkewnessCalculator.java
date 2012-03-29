@@ -10,14 +10,15 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The sample skewness gives a measure of the asymmetry of the probability distribution of a variable. For a series of data {@latex.inline $x_1, x_2, \\dots, x_n$},
- * an unbiased estimator of the sample skewness is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu_3 = \\frac{\\sqrt{n(n-1)}}{n-2}\\frac{\\frac{1}{n}\\sum_{i=1}^n (x_i - \\overline{x})^3}{\\left(\\frac{1}{n}\\sum_{i=1}^n (x_i - \\overline{x})^2\\right)^\\frac{3}{2}}
- * \\end{align*}
- * } 
- * where {@latex.inline $\\overline{x}$} is the sample mean.
+ * The sample skewness gives a measure of the asymmetry of the probability
+ * distribution of a variable. For a series of data $x_1, x_2, \dots, x_n$, an
+ * unbiased estimator of the sample skewness is
+ * $$
+ * \begin{align*}
+ * \mu_3 = \frac{\sqrt{n(n-1)}}{n-2}\frac{\frac{1}{n}\sum_{i=1}^n (x_i - \overline{x})^3}{\left(\frac{1}{n}\sum_{i=1}^n (x_i - \overline{x})^2\right)^\frac{3}{2}}
+ * \end{align*}
+ * $$
+ * where $\overline{x}$ is the sample mean.
  */
 public class SampleSkewnessCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();

@@ -17,24 +17,25 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 
 /**
- * Class describing a Ratchet on Ibor coupon. The coupon payment depends on the previous coupon ({@latex.inline $C_{i-1}$}), the current Ibor fixing ({@latex.inline $L_i$}). The pay-off is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\alpha^M_i C_{i-1} + \\beta^M_i L_i + \\gamma^M_i 
- * \\end{equation*}
- * }
- * subject to the floor 
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\alpha^F_i C_{i-1} + \\beta^F_i L_i + \\gamma^F_i 
- * \\end{equation*}
- * }
- * and the cap
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\alpha^C_i C_{i-1} + \\beta^C_i L_i + \\gamma^C_i 
- * \\end{equation*}
- * }
+ * Class describing a Ratchet on Ibor coupon. The coupon payment depends on the
+ * previous coupon ($C_{i-1}$), the current Ibor fixing ($L_i$). The pay-off is:
+ * $$
+ * \begin{equation*}
+ * \alpha^M_i C_{i-1} + \beta^M_i L_i + \gamma^M_i 
+ * \end{equation*}
+ * $$ 
+ * subject to the floor :
+ * $$
+ * \begin{equation*}
+ * \alpha^F_i C_{i-1} + \beta^F_i L_i + \gamma^F_i 
+ * \end{equation*}
+ * $$ 
+ * and the cap:
+ * $$
+ * \begin{equation*}
+ * \alpha^C_i C_{i-1} + \beta^C_i L_i + \gamma^C_i 
+ * \end{equation*}
+ * $$
  */
 public class CouponIborRatchetDefinition extends CouponIborDefinition {
 

@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -17,6 +19,10 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.forex.calculator.CurrencyExposureCallSpreadBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCallSpreadBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityCallSpreadBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -52,11 +58,13 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
   private static final ForexOptionVanillaBlackMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_DIGITAL_BLACK = ForexOptionDigitalBlackMethod.getInstance();
-  private static final ForexOptionDigitalCallSpreadMethod METHOD_DIGITAL_SPREAD = new ForexOptionDigitalCallSpreadMethod(METHOD_VANILLA_BLACK);
+  private static final double STANDARD_SPREAD = 0.0001;
+  private static final ForexOptionDigitalCallSpreadBlackMethod METHOD_DIGITAL_SPREAD = new ForexOptionDigitalCallSpreadBlackMethod(STANDARD_SPREAD);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
@@ -89,9 +97,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
    * Tests the present value with an explicit computation.
    */
   public void presentValue() {
-    double spread = 0.0001; // Relative spread.
-    double strikeM = STRIKE * (1 - spread);
-    double strikeP = STRIKE * (1 + spread);
+    double strikeM = STRIKE * (1 - STANDARD_SPREAD);
+    double strikeP = STRIKE * (1 + STANDARD_SPREAD);
     Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
     Forex forexP = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeP));
     ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_CALL_OPTION.getExpirationTime(), IS_CALL, IS_LONG);
@@ -168,7 +175,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     MultipleCurrencyAmount ceM = METHOD_VANILLA_BLACK.currencyExposure(vanillaM, SMILE_BUNDLE);
     MultipleCurrencyAmount ceExpected = ceM.plus(ceP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     MultipleCurrencyAmount ceComputed = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_CALL_OPTION, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: call spread method - present value", ceExpected.getAmount(USD), ceComputed.getAmount(USD), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: call spread method - currency exposure", ceExpected.getAmount(USD), ceComputed.getAmount(USD), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: call spread method - currency exposure", ceExpected.getAmount(EUR), ceComputed.getAmount(EUR), TOLERANCE_PRICE);
   }
 
   @Test
@@ -221,6 +229,86 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     MultipleCurrencyInterestRateCurveSensitivity pvcsExpected = pvcsM.plus(pvcsP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     MultipleCurrencyInterestRateCurveSensitivity pvcsComputed = METHOD_DIGITAL_SPREAD.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertTrue("Forex Digital option: call spread method - present value", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsExpected, pvcsComputed, TOLERANCE_DELTA));
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity.
+   */
+  public void presentValueVolatilitySensitivity() {
+    double strikeM = STRIKE * (1 - STANDARD_SPREAD);
+    double strikeP = STRIKE * (1 + STANDARD_SPREAD);
+    Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
+    Forex forexP = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeP));
+    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_CALL_OPTION.getExpirationTime(), IS_CALL, IS_LONG);
+    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_CALL_OPTION.getExpirationTime(), IS_CALL, IS_LONG);
+    PresentValueForexBlackVolatilitySensitivity pvbvP = METHOD_VANILLA_BLACK.presentValueVolatilitySensitivity(vanillaP, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvbvM = METHOD_VANILLA_BLACK.presentValueVolatilitySensitivity(vanillaM, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvbvExpected = pvbvM.plus(pvbvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    PresentValueForexBlackVolatilitySensitivity pvbvComputed = METHOD_DIGITAL_SPREAD.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - present value volatility sensitivity", pvbvComputed.getVega().getMap().size(), 2);
+    assertTrue("Forex Digital option: call spread method - present value volatility sensitivity", PresentValueForexBlackVolatilitySensitivity.compare(pvbvExpected, pvbvComputed, TOLERANCE_DELTA));
+  }
+
+  @Test
+  /**
+   * Tests the present value. Spread change.
+   */
+  public void presentValueSpreadChange() {
+    double spread1 = 0.0001;
+    double spread2 = 0.0002;
+    ForexOptionDigitalCallSpreadBlackMethod methodCallSpreadBlack1 = new ForexOptionDigitalCallSpreadBlackMethod(spread1);
+    ForexOptionDigitalCallSpreadBlackMethod methodCallSpreadBlack2 = new ForexOptionDigitalCallSpreadBlackMethod(spread2);
+    MultipleCurrencyAmount pv1 = methodCallSpreadBlack1.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    MultipleCurrencyAmount pv2 = methodCallSpreadBlack2.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - present value", pv1.getAmount(USD), pv2.getAmount(USD), 10.0);
+    //    MultipleCurrencyAmount pvBlack = METHOD_DIGITAL_BLACK.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    //    assertEquals("Forex Digital option: call spread method - present value", pvBlack.getAmount(USD), pv2.getAmount(USD), 10.0); // Should fail
+  }
+
+  @Test
+  /**
+   * Tests the present value. Method vs Calculator.
+   */
+  public void presentValueMethodVCalculator() {
+    MultipleCurrencyAmount pv1 = METHOD_DIGITAL_SPREAD.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    PresentValueCallSpreadBlackForexCalculator calculator = new PresentValueCallSpreadBlackForexCalculator(STANDARD_SPREAD);
+    MultipleCurrencyAmount pvCalculator = calculator.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - present value", pv1.getAmount(USD), pvCalculator.getAmount(USD), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the currency exposure. Method vs Calculator.
+   */
+  public void currencyExposureMethodVCalculator() {
+    MultipleCurrencyAmount ceMethod = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    CurrencyExposureCallSpreadBlackForexCalculator calculator = new CurrencyExposureCallSpreadBlackForexCalculator(STANDARD_SPREAD);
+    MultipleCurrencyAmount ceCalculator = calculator.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - currency exposure", ceMethod.getAmount(USD), ceCalculator.getAmount(USD), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: call spread method - currency exposure", ceMethod.getAmount(EUR), ceCalculator.getAmount(EUR), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity. Method vs Calculator.
+   */
+  public void presentValueCurveSensitivityMethodVCalculator() {
+    MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_DIGITAL_SPREAD.presentValueCurveSensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    PresentValueCurveSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueCurveSensitivityCallSpreadBlackForexCalculator(STANDARD_SPREAD);
+    MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = calculator.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertTrue("Forex Digital option: call spread method - present value", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_DELTA));
+  }
+
+  @Test
+  /**
+   * Tests the present value volatility sensitivity.  Method vs Calculator.
+   */
+  public void presentValueVolatilitySensitivityMethodVCalculator() {
+    PresentValueForexBlackVolatilitySensitivity pvbvMethod = METHOD_DIGITAL_SPREAD.presentValueVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator(STANDARD_SPREAD);
+    PresentValueForexBlackVolatilitySensitivity pvbvCalculator = calculator.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertTrue("Forex Digital option: call spread method - present value volatility sensitivity", PresentValueForexBlackVolatilitySensitivity.compare(pvbvMethod, pvbvCalculator, TOLERANCE_DELTA));
   }
 
 }

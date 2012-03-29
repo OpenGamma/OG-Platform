@@ -14,13 +14,13 @@ import com.opengamma.util.time.Expiry;
  * Definition for a powered option. 
  * <p>
  * The exercise style is European. The payoff of these options is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= \\max(S - K, 0)^i\\\\
- * p &= \\max(K - S, 0)^i
- * \\end{align*}
- * }
- * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power and {@latex.inline $S$} is the spot. 
+ * $$
+ * \begin{align*}
+ * c &= \max(S - K, 0)^i\\
+ * p &= \max(K - S, 0)^i
+ * \end{align*}
+ * $$
+ * where $K$ is the strike, $i$ is the power and $S$ is the spot. 
  */
 public class PoweredOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {

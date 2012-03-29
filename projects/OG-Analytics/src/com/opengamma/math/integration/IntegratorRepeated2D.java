@@ -32,7 +32,8 @@ public class IntegratorRepeated2D extends Integrator2D<Double, Double> {
   }
 
   /**
-   * The inner integral function of the repeated 1-D integrations. For a given y it returns {@latex.inline $\\int_{x_1}^{x_2} f(x,y) dx$}.
+   * The inner integral function of the repeated 1-D integrations. For a given
+   * $y$ it returns $\int_{x_1}^{x_2} f(x,y) dx$.
    * @param f The 2-D function.
    * @param lower The lower bound (for the inner-first variable).
    * @param upper The upper bound (for the inner-first variable).

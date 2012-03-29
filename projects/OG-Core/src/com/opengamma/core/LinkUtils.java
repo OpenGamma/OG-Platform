@@ -5,10 +5,13 @@
  */
 package com.opengamma.core;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.google.common.base.Objects;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -30,12 +33,13 @@ public class LinkUtils {
   /**
    * Gets the best representative object from the specified link.
    * <p>
-   * This will return either the object identifier or the external bundle.
+   * This will return either the object identifier or the external bundle, which may be empty.
    * 
    * @param link  the link, not null
    * @return the best representative object, not null
    */
   public static Object best(Link<?> link) {
+    ArgumentChecker.notNull(link, "link");
     ObjectId objectId = link.getObjectId();
     ExternalIdBundle bundle = link.getExternalId();
     return Objects.firstNonNull(objectId, bundle);
@@ -50,6 +54,7 @@ public class LinkUtils {
    * @return the best representative name, not null
    */
   public static String bestName(Link<?> link) {
+    ArgumentChecker.notNull(link, "link");
     ObjectId objectId = link.getObjectId();
     ExternalIdBundle bundle = link.getExternalId();
     if (bundle != null && bundle.size() > 0) {
@@ -63,28 +68,27 @@ public class LinkUtils {
         return bundle.getExternalIds().iterator().next().getValue();
       }
     }
-    if (objectId != null) {
-      return objectId.toString();
-    }
-    return "";
+    return ObjectUtils.toString(objectId);
   }
 
   /**
-   * Tests if the link is "valid" - i.e. it contains either (or both of) an object
-   * reference or an external identifier bundle.
+   * Tests if the link is "valid".
+   * <p>
+   * To be valid it must contain either an object identifier, a non-empty external
+   * identifier bundle, or both.
    * 
-   * @param link link to check
+   * @param link  the link to check, null returns false
    * @return true if valid, false if not
    */
   public static boolean isValid(final Link<?> link) {
+    if (link == null) {
+      return false;
+    }
     if (link.getObjectId() != null) {
       return true;
     }
     final ExternalIdBundle externalId = link.getExternalId();
-    if (externalId == null) {
-      return false;
-    }
-    return !externalId.isEmpty();
+    return externalId != null & externalId.size() > 0;
   }
 
 }

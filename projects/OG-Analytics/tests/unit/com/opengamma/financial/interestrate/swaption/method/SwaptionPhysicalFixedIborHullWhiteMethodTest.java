@@ -286,7 +286,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    */
   public void presentValueCurveSensitivity() {
     InterestRateCurveSensitivity pvsSwaption = METHOD_HW.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    pvsSwaption = pvsSwaption.clean();
+    pvsSwaption = pvsSwaption.cleaned();
     final double deltaTolerancePrice = 1.0E+0;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
@@ -334,8 +334,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     int nbPath = 30000; // 10000 path -> 200 USD by bp
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, FUNDING_CURVE_NAME, BUNDLE_HW);
-    pvcsMC = pvcsMC.clean();
-    InterestRateCurveSensitivity diff = pvcsExplicit.clean().plus(pvcsMC.multiply(-1)).clean();
+    pvcsMC = pvcsMC.cleaned();
+    InterestRateCurveSensitivity diff = pvcsExplicit.cleaned().plus(pvcsMC.multiply(-1)).cleaned();
     final List<DoublesPair> sensiDsc = diff.getSensitivities().get(FUNDING_CURVE_NAME);
     int nbDsc = sensiDsc.size();
     for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {

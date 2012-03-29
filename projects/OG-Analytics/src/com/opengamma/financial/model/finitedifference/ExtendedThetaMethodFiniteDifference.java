@@ -10,10 +10,11 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.surface.Surface;
 
 /**
- * PDE solver for the type {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x)\\frac{\\partial^2}{\\partial x^2}\\left[ \\alpha(t,x) f \\right] +
- * b(t,x)\\frac{\\partial}{\\partial x}\\left[\\beta(t,x) f \\right] + c(t,x)f = 0$}, which includes the Fokker-Planck PDE.
- * If the terms {@latex.inline $\\alpha$} and {@latex.inline $\\beta$} are constant or can be simply differentiated, this can be written in the form
- * {@latex.inline $\\frac{\\partial f}{\\partial t} + a^*(t,x)\\frac{\\partial^2f}{\\partial x^2} +  b^*(t,x)\\frac{\\partial f}{\\partial x} + c^*(t,x)f = 0$}
+ * PDE solver for the type
+ * $\frac{\partial f}{\partial t} + a(t,x)\frac{\partial^2}{\partial x^2}\left[ \alpha(t,x) f \right] + * b(t,x)\frac{\partial}{\partial x}\left[\beta(t,x) f \right] + c(t,x)f = 0$
+ * , which includes the Fokker-Planck PDE.  If the terms $\alpha$ and $\beta$
+ * are constant or can be simply differentiated, this can be written in the form
+ * $\frac{\partial f}{\partial t} + a^*(t,x)\frac{\partial^2f}{\partial x^2} +  b^*(t,x)\frac{\partial f}{\partial x} + c^*(t,x)f = 0$
  * and solved by ThetaMethodFiniteDifference
  */
 public class ExtendedThetaMethodFiniteDifference extends ThetaMethodFiniteDifference {

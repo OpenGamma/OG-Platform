@@ -16,37 +16,40 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * 
  * The value of a two-asset correlation call option is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * c = S_2 e ^ {(b_2 - r)T} M(y_2 + \\sigma_2\\sqrt{T}, y_1 + \\rho\\sigma_2\\sqrt{T}; \\rho) - P e^{-rT} M(y_2, y_1; \\rho)
- * \\end{eqnarray*}}
+ * $$
+ * \begin{eqnarray*}
+ * c = S_2 e ^ {(b_2 - r)T} M(y_2 + \sigma_2\sqrt{T}, y_1 + \rho\sigma_2\sqrt{T}; \rho) - P e^{-rT} M(y_2, y_1; \rho)
+ * \end{eqnarray*}
+ * $$
  * and that of a put is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * p = P e^{-rT} M(-y_2, -y_1; \\rho) - S_2 e^{(b_2 - r)T} M(-y_2 - \\sigma_2\\sqrt{T}, -y_1 - \\rho\\sigma_2\\sqrt{T}; \\rho)
- * \\end{eqnarray*}}
+ * $$
+ * \begin{eqnarray*}
+ * p = P e^{-rT} M(-y_2, -y_1; \rho) - S_2 e^{(b_2 - r)T} M(-y_2 - \sigma_2\sqrt{T}, -y_1 - \rho\sigma_2\sqrt{T}; \rho)
+ * \end{eqnarray*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * y_1 &=& \\frac{\\ln{\\frac{S_1}{K_1}} + (b_1 - \\frac{\\sigma_1^2}{2})T}{\\sigma_1\\sqrt{T}}\\\\
- * y_2 &=& \\frac{\\ln{\\frac{S_2}{P}} + (b_2 - \\frac{\\sigma_2^2}{2})T}{\\sigma_2\\sqrt{T}}
- * \\end{eqnarray*}}
+ * $$
+ * \begin{eqnarray*}
+ * y_1 &=& \frac{\ln{\frac{S_1}{K_1}} + (b_1 - \frac{\sigma_1^2}{2})T}{\sigma_1\sqrt{T}}\\
+ * y_2 &=& \frac{\ln{\frac{S_2}{P}} + (b_2 - \frac{\sigma_2^2}{2})T}{\sigma_2\sqrt{T}}
+ * \end{eqnarray*}
+ * $$
  * and
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{itemize}
- * \\item $K$ is the strike
- * \\item $P$ is the payoff
- * \\item $S_1$ is the spot value of the first asset
- * \\item $S_2$ is the spot value of the second asset
- * \\item $b_1$ is the cost-of-carry of the first asset
- * \\item $b_2$ is the cost-of-carry of the second asset
- * \\item $T$ is the time to expiry of the option
- * \\item $r$ is the spot interest rate for time $T$
- * \\item $\\sigma_1$ is the annualized volatility of the first asset
- * \\item $\\sigma_2$ is the annualized volatility of the second asset
- * \\item $\\rho$ is the correlation between the returns of the two assets
- * \\item $M(x, y; \\rho)$ is the CDF of the bivariate normal distribution   
- * \\end{itemize}}
+ * $$
+ * <ul>
+ * <li>$K$ is the strike</li>
+ * <li>$P$ is the payoff</li>
+ * <li>$S_1$ is the spot value of the first asset</li>
+ * <li>$S_2$ is the spot value of the second asset</li>
+ * <li>$b_1$ is the cost-of-carry of the first asset</li>
+ * <li>$b_2$ is the cost-of-carry of the second asset</li>
+ * <li>$T$ is the time to expiry of the option</li>
+ * <li>$r$ is the spot interest rate for time $T$</li>
+ * <li>$\sigma_1$ is the annualized volatility of the first asset</li>
+ * <li>$\sigma_2$ is the annualized volatility of the second asset</li>
+ * <li>$\rho$ is the correlation between the returns of the two assets</li>
+ * <li>$M(x, y; \rho)$ is the CDF of the bivariate normal distribution   </li>
+ * </ul>
 
  */
 public class TwoAssetCorrelationOptionModel extends TwoAssetAnalyticOptionModel<TwoAssetCorrelationOptionDefinition, StandardTwoAssetOptionDataBundle> {
