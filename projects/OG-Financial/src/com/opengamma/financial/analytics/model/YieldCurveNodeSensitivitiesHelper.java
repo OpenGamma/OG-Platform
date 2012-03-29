@@ -33,6 +33,15 @@ import com.opengamma.util.tuple.DoublesPair;
 public class YieldCurveNodeSensitivitiesHelper {
   private static final DecimalFormat s_formatter = new DecimalFormat("##.######");
 
+  /**
+   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)}
+   * instead
+   * @param curve The curve
+   * @param sensitivitiesForCurve The sensitivities for the curve
+   * @param curveSpec The curve specification
+   * @param resultSpec The resultSpecification
+   * @return The computed value
+   */
   @Deprecated
   public static Set<ComputedValue> getSensitivitiesForCurve(final YieldAndDiscountCurve curve,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
@@ -86,6 +95,18 @@ public class YieldCurveNodeSensitivitiesHelper {
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
 
+  /**
+   * @deprecated Use {@link #getInstrumentLabelledSensitivitiesForCurve(String, YieldCurveBundle, DoubleMatrix1D, InterpolatedYieldCurveSpecificationWithSecurities, ValueSpecification)}
+   * instead
+   * @param forwardCurveName The forward curve name
+   * @param fundingCurveName The funding curve name
+   * @param forwardResultSpecification The forward result specification
+   * @param fundingResultSpecification The funding result specification
+   * @param bundle The bundle containing the yield curves
+   * @param sensitivitiesForCurves A matrix containing the sensitivities to each curve in the bundle
+   * @param curveSpecs The specifications for the forward and funding curves
+   * @return The computed value
+   */
   @Deprecated
   public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName,
       final ValueSpecification forwardResultSpecification, final ValueSpecification fundingResultSpecification, final YieldCurveBundle bundle,

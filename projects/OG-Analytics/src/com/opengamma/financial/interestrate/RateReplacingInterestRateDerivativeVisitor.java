@@ -76,7 +76,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public FixedCouponSwap<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Double rate) {
     return new FixedCouponSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
@@ -110,9 +110,9 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   //TODO remove (or rethink) this ASAP
-  public ForexForward visitForexForward(final ForexForward fx, Double forwardFX) {
-    double x = -fx.getPaymentCurrency1().getAmount() / forwardFX;
-    PaymentFixed fp = new PaymentFixed(fx.getCurrency2(), fx.getPaymentTime(), x, fx.getPaymentCurrency2().getFundingCurveName());
+  public ForexForward visitForexForward(final ForexForward fx, final Double forwardFX) {
+    final double x = -fx.getPaymentCurrency1().getAmount() / forwardFX;
+    final PaymentFixed fp = new PaymentFixed(fx.getCurrency2(), fx.getPaymentTime(), x, fx.getPaymentCurrency2().getFundingCurveName());
     return new ForexForward(fx.getPaymentCurrency1(), fp, fx.getSpotForexRate());
   }
 

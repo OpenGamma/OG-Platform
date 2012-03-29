@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.var.NormalVaRParameters;
-
 /**
  * 
  */
@@ -20,7 +18,7 @@ public class EmpiricalDistributionVaRParametersTest {
   private static final double PERIODS = 250;
   private static final double QUANTILE = 0.9986550101968370;
   private static final EmpiricalDistributionVaRParameters PARAMETERS = new EmpiricalDistributionVaRParameters(HORIZON, PERIODS, QUANTILE);
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeHorizon() {
     new EmpiricalDistributionVaRParameters(-HORIZON, PERIODS, QUANTILE);
@@ -54,6 +52,6 @@ public class EmpiricalDistributionVaRParametersTest {
     other = new EmpiricalDistributionVaRParameters(HORIZON, PERIODS + 1, QUANTILE);
     assertFalse(other.equals(PARAMETERS));
     other = new EmpiricalDistributionVaRParameters(HORIZON, PERIODS, QUANTILE * 0.5);
-    assertFalse(other.equals(PARAMETERS));    
+    assertFalse(other.equals(PARAMETERS));
   }
 }

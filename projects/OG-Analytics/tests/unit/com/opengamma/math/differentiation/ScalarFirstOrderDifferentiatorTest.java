@@ -40,7 +40,6 @@ public class ScalarFirstOrderDifferentiatorTest {
   private static final ScalarFirstOrderDifferentiator CENTRAL = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFirstOrderDifferentiator BACKWARD = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDifferenceType() {
     new ScalarFirstOrderDifferentiator(null);
@@ -62,7 +61,7 @@ public class ScalarFirstOrderDifferentiatorTest {
   @Test
   public void domainTest() {
     final double[] x = new double[] {1.2, 0, Math.PI };
-    Function1D<Double, Double> alFunc = CENTRAL.differentiate(F, DOMAIN);
+    final Function1D<Double, Double> alFunc = CENTRAL.differentiate(F, DOMAIN);
     for (int i = 0; i < 3; i++) {
       assertEquals(alFunc.evaluate(x[i]), DX_ANALYTIC.evaluate(x[i]), 1e-8);
     }

@@ -621,7 +621,6 @@ public class SABRFiniteDifferenceTest {
 
     final BlackVolatilitySurfaceStrike impVol = getSABRImpliedVolSurface(beta, forwardCurve);
     final Function<Double, Double> priceSurface = new Function<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
         final double t = x[0];

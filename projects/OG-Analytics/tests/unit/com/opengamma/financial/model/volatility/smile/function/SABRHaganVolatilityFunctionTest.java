@@ -12,6 +12,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -29,7 +30,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
 
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
 
   private static final SABRHaganVolatilityFunction FUNCTION = new SABRHaganVolatilityFunction();
 
@@ -37,6 +38,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   private static final double BETA = 0.50;
   private static final double RHO = -0.25;
   private static final double NU = 0.4;
+  @SuppressWarnings("hiding")
   private static final double FORWARD = 0.05;
   private static final SABRFormulaData DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
   private static final double T = 4.5;
@@ -85,26 +87,24 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
    * Produce the smile for a given set of strikes.
    */
   public void smile() {
-    double alpha = 0.04079820992199477;
-    double beta = 0.5;
-    double rho = 0.12483799350466732;
-    double nu = 1.1156276403408933;
-    double timeToExpiry = 5.0;
-    double forward = 0.03189998273775524;
-    int nbpoints = 20;
-    double startStrike = 0.0001;
-    double endStrike = 0.2500;
+    final double alpha = 0.04079820992199477;
+    final double beta = 0.5;
+    final double rho = 0.12483799350466732;
+    final double nu = 1.1156276403408933;
+    final double timeToExpiry = 5.0;
+    final double forward = 0.03189998273775524;
+    final int nbpoints = 20;
+    final double startStrike = 0.0001;
+    final double endStrike = 0.2500;
     final SABRFormulaData SabrData = new SABRFormulaData(alpha, beta, rho, nu);
-    double[] strikes = new double[nbpoints + 1];
-    double[] sabrVolatilty = new double[nbpoints + 1];
+    final double[] strikes = new double[nbpoints + 1];
+    final double[] sabrVolatilty = new double[nbpoints + 1];
     EuropeanVanillaOption option;
     for (int loopstrike = 0; loopstrike <= nbpoints; loopstrike++) {
       strikes[loopstrike] = startStrike + loopstrike * (endStrike - startStrike) / nbpoints;
       option = new EuropeanVanillaOption(strikes[loopstrike], timeToExpiry, true);
       sabrVolatilty[loopstrike] = FUNCTION.getVolatilityFunction(option, forward).evaluate(SabrData);
     }
-    double test = 0.0;
-    test++;
   }
 
   @Test
@@ -372,6 +372,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-5);
 
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike) {
         return getZ(forward, strike, alpha, beta, nu) - z;

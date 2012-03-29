@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.model.volatility.smile.function;
 
+import static org.testng.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.annotations.Test;
-import static org.testng.Assert.assertEquals;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
@@ -35,7 +36,9 @@ public class HestonVolatilityFunctionTest {
 
   private static final VolatilityFunctionProvider<HestonModelData> VOL_FUNC_PROVIDER_FD = new VolatilityFunctionProvider<HestonModelData>() {
 
-    public Function1D<HestonModelData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+    @Override
+    @SuppressWarnings("synthetic-access")
+    public Function1D<HestonModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
       return VOL_FUNC_PROVIDER.getVolatilityFunction(option, forward);
     }
   };
@@ -45,9 +48,9 @@ public class HestonVolatilityFunctionTest {
     VOL_FUNC_LIST = new ArrayList<Function1D<HestonModelData, Double>>(n);
     STRIKES = new double[n];
     for (int i = 0; i < n; i++) {
-      double m = -1 + 2.0 * i / (n - 1);
+      final double m = -1 + 2.0 * i / (n - 1);
       STRIKES[i] = FORWARD * Math.exp(m);
-      EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], TIME, false);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES[i], TIME, false);
       VOL_FUNC_LIST.add(VOL_FUNC_PROVIDER.getVolatilityFunction(option, FORWARD));
     }
     VOL_FUNC_SET = VOL_FUNC_PROVIDER.getVolatilityFunction(FORWARD, STRIKES, TIME);
@@ -56,7 +59,7 @@ public class HestonVolatilityFunctionTest {
   @Test
   public void testVolFunction() {
     final int n = STRIKES.length;
-    double[] vols = VOL_FUNC_SET.evaluate(DATA);
+    final double[] vols = VOL_FUNC_SET.evaluate(DATA);
     for (int i = 0; i < n; i++) {
       assertEquals(vols[i], VOL_FUNC_LIST.get(i).evaluate(DATA), 1e-4, "Strike: " + STRIKES[i]);
     }
@@ -65,11 +68,11 @@ public class HestonVolatilityFunctionTest {
   @Test
   public void tesVolFunctionAdjoint() {
     final int n = STRIKES.length;
-    Function1D<HestonModelData, double[][]> adjointSetFunc = VOL_FUNC_PROVIDER.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
-    Function1D<HestonModelData, double[][]> adjointSetFuncFD = VOL_FUNC_PROVIDER_FD.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
+    final Function1D<HestonModelData, double[][]> adjointSetFunc = VOL_FUNC_PROVIDER.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
+    final Function1D<HestonModelData, double[][]> adjointSetFuncFD = VOL_FUNC_PROVIDER_FD.getVolatilityAdjointFunction(FORWARD, STRIKES, TIME);
 
-    double[][] adjointSet = adjointSetFunc.evaluate(DATA);
-    double[][] adjointSetFD = adjointSetFuncFD.evaluate(DATA);
+    final double[][] adjointSet = adjointSetFunc.evaluate(DATA);
+    final double[][] adjointSetFD = adjointSetFuncFD.evaluate(DATA);
 
     assertEquals(adjointSet.length, n, "#strikes");
     assertEquals(adjointSetFD.length, n, "#strikes FD");

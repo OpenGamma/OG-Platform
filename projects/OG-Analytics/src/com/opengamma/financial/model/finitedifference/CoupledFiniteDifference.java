@@ -160,8 +160,6 @@ public class CoupledFiniteDifference {
         m[xNodes + i][i] = dt * _theta * lambda2;
       }
 
-
-
       double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
@@ -249,8 +247,6 @@ public class CoupledFiniteDifference {
         full1[n] = Arrays.copyOfRange(f, 0, xNodes);
         full2[n] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
       }
-
-
 
     }
     final PDEResults1D[] res = new PDEResults1D[2];

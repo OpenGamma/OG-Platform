@@ -315,9 +315,9 @@ public class CouponOISDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
 
     // Test pricing, too. Notice that the value of a coupon on its payment date is non-zero
-    final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-    CurrencyAmount pvConverted = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) cpnConverted, CURVES);
-    CurrencyAmount pvExpected = CouponFixedDiscountingMethod.getInstance().presentValue(cpnExpected, CURVES);
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    CurrencyAmount pvConverted = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) cpnConverted, curves);
+    CurrencyAmount pvExpected = CouponFixedDiscountingMethod.getInstance().presentValue(cpnExpected, curves);
     assertEquals("CouponOIS definition: toDerivative", pvConverted, pvExpected);
     assertEquals("CouponOIS definition: toDerivative", pvConverted, CurrencyAmount.of(EUR_CUR, 19445.833380471457));
 

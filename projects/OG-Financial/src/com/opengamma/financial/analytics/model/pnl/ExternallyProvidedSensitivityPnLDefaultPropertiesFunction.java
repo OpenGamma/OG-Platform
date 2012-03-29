@@ -14,7 +14,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,7 +24,7 @@ public class ExternallyProvidedSensitivityPnLDefaultPropertiesFunction extends D
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  
+
   public ExternallyProvidedSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
@@ -35,14 +34,14 @@ public class ExternallyProvidedSensitivityPnLDefaultPropertiesFunction extends D
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
   }
- 
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
   }
-  
+
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
