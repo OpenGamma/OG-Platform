@@ -34,6 +34,7 @@ import com.opengamma.livedata.UserPrincipal;
   private UniqueId _attachedViewDefinitionId;
   private boolean _shutdown;
   private MarketDataInjector _marketDataInjector;
+  private ViewResultListener _resultListener;
 
   public MockViewClient(final UniqueId identifier) {
     _identifier = identifier;
@@ -181,7 +182,11 @@ import com.opengamma.livedata.UserPrincipal;
 
   @Override
   public void setResultListener(final ViewResultListener resultListener) {
-    // Ignore
+    _resultListener = resultListener;
+  }
+
+  public ViewResultListener getResultListener() {
+    return _resultListener;
   }
 
   @Override
