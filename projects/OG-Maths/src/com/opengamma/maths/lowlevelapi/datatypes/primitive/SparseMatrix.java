@@ -26,7 +26,14 @@ public class SparseMatrix implements MatrixPrimitive {
    * The row enumeration is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
    */
   public enum majorness {
-    column, row
+    /**
+     * column, indicates that entries in the columns are sequential in memory. 
+     */
+    column,
+    /**
+     * row, indicates that entries in the rows are sequential in memory. 
+     */ 
+    row
   };
 
   /**

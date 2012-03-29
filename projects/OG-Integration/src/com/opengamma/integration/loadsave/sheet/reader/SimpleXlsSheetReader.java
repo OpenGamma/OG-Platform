@@ -121,7 +121,10 @@ public class SimpleXlsSheetReader extends SheetReader {
     // Map read-in row onto expected columns
     Map<String, String> result = new HashMap<String, String>();
     for (int i = 0; i < getColumns().length; i++) {
-      result.put(getColumns()[i], getCell(rawRow, rawRow.getFirstCellNum() + i));
+      String cell = getCell(rawRow, rawRow.getFirstCellNum() + i).trim();
+      if (cell != null && cell.length() > 0) {
+        result.put(getColumns()[i], cell);
+      }
     }
 
     return result;
@@ -159,7 +162,7 @@ public class SimpleXlsSheetReader extends SheetReader {
       case Cell.CELL_TYPE_BLANK:
         return "";
       default:
-        return "null";
+        return null;
     }
   }
 

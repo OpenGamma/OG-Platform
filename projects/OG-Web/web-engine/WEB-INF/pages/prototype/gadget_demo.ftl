@@ -1,13 +1,5 @@
-<!doctype html>
-<!--[if IE 8 ]><html lang="en" class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html lang="en" class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
+<#include "modules/common/og.common.header.ftl">
 <title>OpenGamma</title>
-<!--[if lt IE 9]><script type="text/javascript" src="/prototype/scripts/lib/html5.js"></script><![endif]-->
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
@@ -107,7 +99,7 @@ ${ogScript.print('og_analytics.js',false)}
             return str;
         })(5, '');
         iframe = '<iframe src="/jax/bundles/fm/prototype/gadget.ftl#/timeseries/key=' + key + '"\
-            scrolling="no" title="Timeseries"></iframe>';
+            frameborder="0" scrolling="no" title="Timeseries"></iframe>';
         og.api.common.set_cache(key, data);
         $(iframe).appendTo('body').dialog({
             autoOpen: true, height: 345, width: 875, modal: false,
@@ -127,10 +119,11 @@ ${ogScript.print('og_analytics.js',false)}
           return view = {
               load: function (args) {
                   masthead.menu.set_tab(page_name);
-                  $('.ui-layout-center').html($('<a href="#">LAUNCH</a>').click(function (e) {
-                    e.preventDefault();
-                    launch_ts_gadget(fake_data);
-                  }));
+                  setTimeout(function () {
+                    var $link = $('<a href="#">LAUNCH</a>');
+                    $('.ui-layout-center').html($link);
+                    $link.click(function (e) {e.preventDefault(); launch_ts_gadget(fake_data);});
+                  }, 100);
               },
               init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
               rules: module.rules

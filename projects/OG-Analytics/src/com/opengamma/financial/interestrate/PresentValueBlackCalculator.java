@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -14,6 +12,7 @@ import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysical
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value calculator for interest rate instruments using Black model with implied volatilities.
@@ -48,19 +47,19 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
 
   @Override
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
       return METHOD_SWAPTION_CASH.presentValue(swaption, curvesBlack).getAmount();
     }
-    throw new UnsupportedOperationException("The PresentValueBlackSwaptionCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+    throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
       return METHOD_SWAPTION_PHYSICAL.presentValue(swaption, curvesBlack).getAmount();
@@ -70,8 +69,8 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(option);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(option, "option");
     return METHOD_OPTIONFUTURESMARGIN_BLACK.presentValue(option, curves).getAmount();
   }
 
