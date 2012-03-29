@@ -6,16 +6,19 @@
 package com.opengamma.financial.riskreward;
 
 /**
- * The risk-adjusted performance (RAP) measure expresses the average return an asset or fund would have achieved if it had the same risk as the market.
+ * The risk-adjusted performance ($RAP$) measure expresses the average return an
+ * asset or fund would have achieved if it had the same risk as the market.
  * The risk measure used is the standard deviation.
  * <p>
  * It is defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * RAP_i = \\frac{\\sigma_M}{\\sigma_i}(\\mu_i - R_f) + R_f
- * \\end{eqnarray*}}
- * where {@latex.inline $\\sigma_M$} is the standard deviation of the market returns, {@latex.inline $\\sigma_i$} is the standard deviation of the asset
- * returns, {@latex.inline $\\mu_i$} is the asset return and {@latex.inline $R_f$} is the risk-free return
+ * $$
+ * \begin{eqnarray*}
+ * RAP_i = \frac{\sigma_M}{\sigma_i}(\mu_i - R_f) + R_f
+ * \end{eqnarray*}
+ * $$
+ * where $\sigma_M$ is the standard deviation of the market returns, $\sigma_i$
+ * is the standard deviation of the asset returns, $\mu_i$ is the asset return
+ * and $R_f$ is the risk-free return
  */
 public class RiskAdjustedPerformanceCalculator {
 

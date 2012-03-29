@@ -15,16 +15,19 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Defines a European-style exchange-one-asset-for-another option. The holder can exchange an amount {@latex.inline $Q_1$} of the first underlying for an amount {@latex.inline $Q_2$}
- * of the second underlying.
+ * Defines a European-style exchange-one-asset-for-another option. The holder
+ * can exchange an amount $Q_1$ of the first underlying for an amount $Q_2$ of
+ * the second underlying.
  * <p>
- * The payoff of this option is  
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * max\\left(Q_1S_1 - Q_2S_2, 0\\right)
- * \\end{eqnarray*}}
- * where {@latex.inline $Q_1$} is the quantity of the first asset, {@latex.inline $S_1$} is the spot price of the first underlying, {@latex.inline $Q_2$} is the quantity of the second asset 
- * and {@latex.inline $S_2$} is the spot price of the second underlying.
+ * The payoff of this option is:
+ * $$
+ * \begin{eqnarray*}
+ * max\left(Q_1S_1 - Q_2S_2, 0\right)
+ * \end{eqnarray*}
+ * $$
+ * where $Q_1$ is the quantity of the first asset, $S_1$ is the spot price of
+ * the first underlying, $Q_2$ is the quantity of the second asset and $S_2$ is
+ * the spot price of the second underlying.
  */
 public class EuropeanExchangeAssetOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();

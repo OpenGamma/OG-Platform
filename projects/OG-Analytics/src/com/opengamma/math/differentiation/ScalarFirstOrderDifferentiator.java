@@ -14,8 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Differentiates a scalar function with respect to its argument using finite difference.
  * <p>
- * For a function <i>y = f(x)</i> where <i>x</i> and <i>y</i> are scalars, this class produces a gradient function <i>g(x)</i>,
- * i.e. a function that returns the gradient for each point <i>x</i>, where <i>g</i> is the scalar {@latex.inline $\\frac{dy}{dx}$}.
+ * For a function $y = f(x)$ where $x$ and $y$ are scalars, this class produces
+ * a gradient function $g(x)$, i.e. a function that returns the gradient for
+ * each point $x$, where $g$ is the scalar $\frac{dy}{dx}$.
  */
 public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Double, Double> {
   private static final double DEFAULT_EPS = 1e-5;

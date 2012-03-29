@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Parent class for root-finders that find a single real root {@latex.inline $x$} for a function {@latex.inline $f(x)$}.  
+ * Parent class for root-finders that find a single real root $x$ for a function $f(x)$.  
  */
 public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double> {
 

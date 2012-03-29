@@ -8,8 +8,8 @@ package com.opengamma.math.rootfinding;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Interface for classes that attempt to find a root for a one-dimensional function (see {@link com.opengamma.math.function.Function1D}) {@latex.inline $f(x)$} bounded 
- * by user-supplied values, {@latex.inline $x_1$} and {@latex.inline $x_2$}. If there is not a single root between these 
+ * Interface for classes that attempt to find a root for a one-dimensional function (see {@link com.opengamma.math.function.Function1D}) $f(x)$ bounded 
+ * by user-supplied values, $x_1$ and $x_2$. If there is not a single root between these 
  * bounds, an exception is thrown.
  * @param <S> The input type of the function
  * @param <T> The output type of the function

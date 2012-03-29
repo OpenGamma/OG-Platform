@@ -32,7 +32,7 @@ public interface ProbabilityDistribution<T> {
 
   /**
    * Given a probability, return the value that returns this cdf
-   * @param p The probability, not null. {@latex.inline $0 \\geq p \\geq 1$}
+   * @param p The probability, not null. $0 \geq p \geq 1$
    * @return The inverse cdf
    */
   double getInverseCDF(T p);

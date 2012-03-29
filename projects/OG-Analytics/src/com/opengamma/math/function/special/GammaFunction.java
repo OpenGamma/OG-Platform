@@ -11,17 +11,20 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * The gamma function is a generalization of the factorial to complex and real numbers. It is defined by the integral
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\Gamma(z)=\\int_0^\\infty t^{z-1}e^{-t}dt
- * \\end{equation*}}
+ * The gamma function is a generalization of the factorial to complex and real
+ * numbers. It is defined by the integral:
+ * $$
+ * \begin{equation*}
+ * \Gamma(z)=\int_0^\infty t^{z-1}e^{-t}dt
+ * \end{equation*}
+ * $$
  * and is related to the factorial by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\Gamma(n+1)=n!
- * \\end{equation*}}
- * It is analytic everywhere but {@latex.inline $z=0, -1, -2, \\ldots$}
+ * $$
+ * \begin{equation*}
+ * \Gamma(n+1)=n!
+ * \end{equation*}
+ * $$
+ * It is analytic everywhere but $z=0, -1, -2, \ldots$
  * <p>
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/special/Gamma.html">Commons Math library implementation</a> 
  * of the Gamma function.

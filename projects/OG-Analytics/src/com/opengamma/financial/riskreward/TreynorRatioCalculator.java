@@ -12,15 +12,18 @@ import com.opengamma.financial.timeseries.util.TimeSeriesDataTestUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * The Treynor ratio is a measure of the excess return with respect to the risk-free rate per unit of systematic risk. The systematic risk is the beta of the 
- * asset or portfolio with respect to the asset.
+ * The Treynor ratio is a measure of the excess return with respect to the
+ * risk-free rate per unit of systematic risk. The systematic risk is the beta
+ * of the asset or portfolio with respect to the asset.
  * <p>
  * The Treynor ratio is defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * T = \\frac{R_i - R_f}{\\beta_i}
- * \\end{eqnarray*}}   
- * where {@latex.inline $R_i$} is the asset return, {@latex.inline $R_f$} is the risk-free return and {@latex.inline $\\beta_i$} is the portfolio's beta.
+ * $$
+ * \begin{eqnarray*}
+ * T = \frac{R_i - R_f}{\beta_i}
+ * \end{eqnarray*}
+ * $$
+ * where $R_i$ is the asset return, $R_f$ is the risk-free return and $\beta_i$
+ * is the portfolio's beta.
  */
 public class TreynorRatioCalculator {
   private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;

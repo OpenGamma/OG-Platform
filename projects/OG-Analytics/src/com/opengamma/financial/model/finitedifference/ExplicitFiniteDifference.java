@@ -10,7 +10,7 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.math.surface.Surface;
 
 /**
- * Explicit solver for the PDE {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x) \\frac{\\partial f}{\\partial x} + (t,x)f = 0$}
+ * Explicit solver for the PDE $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2} + b(t,x) \frac{\partial f}{\partial x} + (t,x)f = 0$
  * @deprecated This is for testing purposes and is not recommended for actual use. 
  */
 @Deprecated

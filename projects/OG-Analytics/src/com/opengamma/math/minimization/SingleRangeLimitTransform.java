@@ -8,48 +8,49 @@ package com.opengamma.math.minimization;
 import org.apache.commons.lang.Validate;
 
 /**
- * If a model parameter {@latex.inline $x$} is constrained to be either above or below some level {@latex.inline $a$} (i.e. {@latex.inline $x > a$} or {@latex.inline $x < a$}), 
- * the function to transform it to an unconstrained variable {@latex.inline $y$} is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * If a model parameter $x$ is constrained to be either above or below some
+ * level $a$ (i.e. $x > a$ or $x < a$), the function to transform it to an
+ * unconstrained variable $y$ is given by
+ * $$
+ * \begin{align*}
  * y = 
- * \\begin{cases}
- * \\ln(e^{x-a} - 1)\\quad & x > a\\\\
- * a - \\ln(e^{a-x} - 1)\\quad & x < a
- * \\end{cases}
- * \\end{align*}
- * }
+ * \begin{cases}
+ * \ln(e^{x-a} - 1)\quad & x > a\\
+ * a - \ln(e^{a-x} - 1)\quad & x < a
+ * \end{cases}
+ * \end{align*}
+ * $$
  * with inverse transform
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * $$
+ * \begin{align*}
  * x = 
- * \\begin{cases}
- * a + \\ln(e^y + 1)\\quad & x > a\\\\
- * a - \\ln(e^y + 1)\\quad & x < a
- * \\end{cases}
- * \\end{align*}
- * }
- * For large {@latex.inline $y > 50$}, this becomes
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * \begin{cases}
+ * a + \ln(e^y + 1)\quad & x > a\\
+ * a - \ln(e^y + 1)\quad & x < a
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * For large $y > 50$, this becomes
+ * $$
+ * \begin{align*}
  * y = 
- * \\begin{cases}
- * x - a\\quad & x > a\\\\
- * a - x\\quad & x < a
- * \\end{cases}
- * \\end{align*}
- * }
+ * \begin{cases}
+ * x - a\quad & x > a\\
+ * a - x\quad & x < a
+ * \end{cases}
+ * \end{align*}
+ * $$
  * with inverse transform
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * $$
+ * \begin{align*}
  * x = 
- * \\begin{cases}
- * a + y\\quad & x > a\\\\
- * a - y\\quad & x < a
- * \\end{cases}
- * \\end{align*}
- * }
- * so any value of {@latex.inline $y$} will give a value of {@latex.inline $x$}.
+ * \begin{cases}
+ * a + y\quad & x > a\\
+ * a - y\quad & x < a
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * so any value of $y$ will give a value of $x$.
  */
 public class SingleRangeLimitTransform implements ParameterLimitsTransform {
   private static final double EXP_MAX = 50.;
@@ -80,8 +81,8 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the value of {@latex.inline $x$} is not consistent with the limit (e.g. the limit is {@latex.inline $x > a$} and {@latex.inline $x$} is
-   * less than {@latex.inline $a$}
+   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit (e.g. the limit is $x > a$ and $x$ is
+   * less than $a$
    */
   @Override
   public double transform(final double x) {
@@ -110,8 +111,8 @@ public class SingleRangeLimitTransform implements ParameterLimitsTransform {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If the value of {@latex.inline $x$} is not consistent with the limit (e.g. the limit is {@latex.inline $x > a$} and {@latex.inline $x$} is
-   * less than {@latex.inline $a$}
+   * @throws IllegalArgumentException If the value of $x$ is not consistent with the limit (e.g. the limit is $x > a$ and $x$ is
+   * less than $a$
    */
   @Override
   public double transformGradient(final double x) {

@@ -11,16 +11,16 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * Class representing the Heaviside step function, defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * $$
+ * \begin{align*}
  * H(x) = 
- * \\begin{cases}
- * 0 & \\text{ when } x < 0\\\\
- * 1 & \\text{ when } x > 0
- * \\end{cases}
- * \\end{align*}
- * }
- * This function is discontinuous and is not defined for {@latex.inline $x = 0$}.
+ * \begin{cases}
+ * 0 & \text{ when } x < 0\\
+ * 1 & \text{ when } x > 0
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * This function is discontinuous and is not defined for $x=0$.
  */
 public class HeavisideFunction extends Function1D<Double, Double> {
 

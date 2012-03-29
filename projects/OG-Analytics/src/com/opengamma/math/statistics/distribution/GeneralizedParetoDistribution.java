@@ -17,39 +17,45 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * 
- * The generalized Pareto distribution is a family of power law probability distributions with location parameter {@latex.inline $\\mu$}, shape parameter {@latex.inline $\\xi$}
- * and scale parameter {@latex.inline $\\sigma$}, where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * \\mu&\\in&\\Re,\\\\
- * \\xi&\\in&\\Re,\\\\
- * \\sigma&>&0
- * \\end{eqnarray*}}
+ * The generalized Pareto distribution is a family of power law probability
+ * distributions with location parameter $\mu$, shape parameter $\xi$ and scale
+ * parameter $\sigma$, where
+ * $$
+ * \begin{eqnarray*}
+ * \mu&\in&\Re,\\
+ * \xi&\in&\Re,\\
+ * \sigma&>&0
+ * \end{eqnarray*}
+ * $$
  * and with support
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * x\\geq\\mu\\quad\\quad\\quad(\\xi\\geq 0)\\\\
- * \\mu\\leq x\\leq\\mu-\\frac{\\sigma}{\\xi}\\quad(\\xi<0)
- * \\end{eqnarray*}}
+ * $$
+ * \begin{eqnarray*}
+ * x\geq\mu\quad\quad\quad(\xi\geq 0)\\
+ * \mu\leq x\leq\mu-\frac{\sigma}{\xi}\quad(\xi<0)
+ * \end{eqnarray*}
+ * $$
  * The cdf is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * F(z)&=1-\\left(1 + \\xi z\\right)^{-\\frac{1}{\\xi}}\\\\
- * z&=\\frac{x-\\mu}{\\sigma}
- * \\end{align*}}
+ * $$
+ * \begin{align*}
+ * F(z)&=1-\left(1 + \xi z\right)^{-\frac{1}{\xi}}\\
+ * z&=\frac{x-\mu}{\sigma}
+ * \end{align*}
+ * $$
  * and the pdf is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(z)&=\\frac{\\left(1+\\xi z\\right)^{-\\left(\\frac{1}{\\xi} + 1\\right)}}{\\sigma}\\\\
- * z&=\\frac{x-\\mu}{\\sigma}
- * \\end{align*}}
- * Given a uniform random number variable {@latex.inline $U$} drawn from the interval {@latex.inline $(0,1]$}, a
- * Pareto-distributed random variable with parameters {@latex.inline $\\mu$}, {@latex.inline $\\sigma$} and
- * {@latex.inline $\\xi$} is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * X=\\mu + \\frac{\\sigma\\left(U^{-\\xi}-1\\right)}{\\xi}\\sim GPD(\\mu,\\sigma,\\xi)
- * \\end{align*}}
+ * $$
+ * \begin{align*}
+ * f(z)&=\frac{\left(1+\xi z\right)^{-\left(\frac{1}{\xi} + 1\right)}}{\sigma}\\
+ * z&=\frac{x-\mu}{\sigma}
+ * \end{align*}
+ * $$
+ * Given a uniform random number variable $U$ drawn from the interval $(0,1]$, a
+ * Pareto-distributed random variable with parameters $\mu$, $\sigma$ and
+ * $\xi$ is given by
+ * $$
+ * \begin{align*}
+ * X=\mu + \frac{\sigma\left(U^{-\xi}-1\right)}{\xi}\sim GPD(\mu,\sigma,\xi)
+ * \end{align*}
+ * $$
  */
 public class GeneralizedParetoDistribution implements ProbabilityDistribution<Double> {
   // TODO check cdf, pdf for support
@@ -109,7 +115,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
+   * @throws IllegalArgumentException If $x \not\in$ support
    */
   @Override
   public double getCDF(final Double x) {
@@ -129,7 +135,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
 
   /**
   * {@inheritDoc} 
-  * @throws IllegalArgumentException If {@latex.inline $x \\not\\in$} support
+  * @throws IllegalArgumentException If $x \not\in$ support
   */
   @Override
   public double getPDF(final Double x) {

@@ -13,16 +13,16 @@ import com.opengamma.math.function.Function1D;
 /**
  * Class that performs integration using Gaussian quadrature.
  * <p>
- * If a function {@latex.inline $f(x)$} can be written as
- * {@latex.inline $f(x) = W(x)g(x)$}, where {@latex.inline $g(x)$} is approximately polynomial, then for suitably
- * chosen weights {@latex.inline $w_i$} and points {@latex.inline $x_i$}, the integral can be approximated as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\int_{-1}^1 f(x)dx 
- * &=\\int_{-1}^1 W(x)g(x)dx\\\\
- * &\\approx \\sum_{\\i=1}^{n} w_i f(x_i)
- * \\end{align*}
- * } 
+ * If a function $f(x)$ can be written as $f(x) = W(x)g(x)$, where $g(x)$ is
+ * approximately polynomial, then for suitably chosen weights $w_i$ and points
+ * $x_i$, the integral can be approximated as:
+ * $$
+ * \begin{align*}
+ * \int_{-1}^1 f(x)dx 
+ * &=\int_{-1}^1 W(x)g(x)dx\\
+ * &\approx \sum_{\i=1}^{n} w_i f(x_i)
+ * \end{align*}
+ * $$
  * The evaluation points, weights and valid limits of integration depend on the type of orthogonal polynomials that are used 
  * (see {@link com.opengamma.math.function.special.OrthogonalPolynomialFunctionGenerator} and {@link GaussLaguerreWeightAndAbscissaFunction}).
  * 

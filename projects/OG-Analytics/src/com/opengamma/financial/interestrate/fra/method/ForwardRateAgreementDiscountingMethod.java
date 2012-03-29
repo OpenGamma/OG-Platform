@@ -22,16 +22,22 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method to compute the present value and its sensitivities for a FRA with discounting. The present value is computed as the (forward rate - FRA rate) 
- * multiplied by the notional and the payment accrual factor and discounted to settlement. The discounting to settlement is done using the forward rate over
- * the fixing period. The value is further discounted from settlement to today using the discounting curve.
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * P^D(0,t_1)\\frac{\\delta_P(F-K)}{1+\\delta_F F} \\quad \\mbox{and}\\quad F = \\frac{1}{\\delta_F}\\left( \\frac{P^j(0,t_1)}{P^j(0,t_2)}-1\\right)
- * \\end{equation*}
- * }
- * This approach is valid subject to a independence hypothesis between the discounting curve and some spread.
- * <P> Reference: Henrard, M. (2010). The irony in the derivatives discounting part II: the crisis. Wilmott Journal, 2(6):301-316.
+ * Method to compute the present value and its sensitivities for a FRA with
+ * discounting. The present value is computed as the (forward rate - FRA rate)
+ * multiplied by the notional and the payment accrual factor and discounted to
+ * settlement. The discounting to settlement is done using the forward rate
+ * over the fixing period. The value is further discounted from settlement to
+ * today using the discounting curve.
+ * $$
+ * \begin{equation*}
+ * P^D(0,t_1)\frac{\delta_P(F-K)}{1+\delta_F F} \quad \mbox{and}\quad F = \frac{1}{\delta_F}\left( \frac{P^j(0,t_1)}{P^j(0,t_2)}-1\right)
+ * \end{equation*}
+ * $$
+ * This approach is valid subject to a independence hypothesis between the
+ * discounting curve and some spread.
+ * <p>
+ * Reference: Henrard, M. (2010). The irony in the derivatives discounting part
+ * II: the crisis. Wilmott Journal, 2(6):301-316.
  */
 public final class ForwardRateAgreementDiscountingMethod implements PricingMethod {
   private static final ForwardRateAgreementDiscountingMethod INSTANCE = new ForwardRateAgreementDiscountingMethod();

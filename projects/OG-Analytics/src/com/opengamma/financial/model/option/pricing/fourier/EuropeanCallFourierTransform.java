@@ -17,8 +17,9 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * Gives the Fourier transform of a European call {@latex.inline $\\hat{C}(z) = -\\frac{\\phi(z)}{z(z+i)}$} where {@latex.inline $\\phi(z)$} is the characteristic function of
- * the (normalised) terminal distribution of the underlying 
+ * Gives the Fourier transform of a European call $\hat{C}(z) =
+ * -\frac{\phi(z)}{z(z+i)}$ where $\phi(z)$ is the characteristic function of
+ *  the (normalised) terminal distribution of the underlying 
  */
 public class EuropeanCallFourierTransform {
   private final CharacteristicExponent _ce;

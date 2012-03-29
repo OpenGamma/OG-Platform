@@ -23,14 +23,15 @@ import com.opengamma.util.time.Expiry;
  * made, is European.
  * <p>
  * The payoff of this option is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mathrm{payoff} = \\max(c_{BSM}(S, K, T_2), p_{BSM}(S, K, T_2))
- * \\end{align*}
- * }
- * where {@latex.inline $c_{BSM}$} is the general Black-Scholes Merton call price, {@latex.inline $c_{BSM}$} is the general Black-Scholes Merton 
- * put price (see {@link BlackScholesMertonModel}), {@latex.inline $K$} is the strike, {@latex.inline $S$} is the spot and {@latex.inline $T_2$}
- * is the time to expiry of the underlying option.
+ * $$
+ * \begin{align*}
+ * \mathrm{payoff} = \max(c_{BSM}(S, K, T_2), p_{BSM}(S, K, T_2))
+ * \end{align*}
+ * $$
+ * where $c_{BSM}$ is the general Black-Scholes Merton call price, $c_{BSM}$ is
+ * the general Black-Scholes Merton put price (see {@link * BlackScholesMertonModel}),
+ * $K$ is the strike, $S$ is the spot and $T_2$ is the time to expiry of the
+ * underlying option.
  */
 
 public class SimpleChooserOptionDefinition extends OptionDefinition {
