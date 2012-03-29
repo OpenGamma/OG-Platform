@@ -5,12 +5,12 @@
  */
 package com.opengamma.examples.tool;
 
-import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.tool.AbstractIntegrationTool;
 
 /**
  * Abstract class for tools that sets up a tool context.
  */
-public abstract class AbstractExampleTool extends AbstractTool {
+public abstract class AbstractExampleTool extends AbstractIntegrationTool {
 
   /**
    * Example configuration for tools.
