@@ -13,11 +13,15 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Differentiates a scalar field (i.e. there is a scalar value for every point in some vector space) with respect to the vector space using finite difference.
+ * Differentiates a scalar field (i.e. there is a scalar value for every point
+ * in some vector space) with respect to the vector space using finite
+ * difference.
  * <p>
- * For a function <i>y = f(<b>x</b>)</i> where <i><b>x</b></i> is a n-dimensional vector and <i>y</i> is a scalar, this class produces a gradient function
- * <i><b>g</b>(<b>x</b>)</i>, i.e. a function that returns the gradient for each point <i><b>x</b></i>, where <i><b>g</b></i> is the n-dimensional vector
- * {@latex.inline $\\frac{dy}{dx_i}$}.
+ * For a function $y = f(\mathbf{x})$ where $\mathbf{x}$ is a n-dimensional
+ * vector and $y$ is a scalar, this class produces a gradient function
+ * $\mathbf{g}(\mathbf{x})$, i.e. a function that returns the gradient for each
+ * point $\mathbf{x}$, where $\mathbf{g}$ is the n-dimensional vector
+ * $\frac{dy}{dx_i}$.
  */
 public class ScalarFieldFirstOrderDifferentiator implements Differentiator<DoubleMatrix1D, Double, DoubleMatrix1D> {
   private static final double DEFAULT_EPS = 1e-5;

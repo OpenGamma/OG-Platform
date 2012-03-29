@@ -17,18 +17,18 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * Class for pricing supershare options (see {@link com.opengamma.financial.model.option.definition.SupershareOptionDefinition}).
  * <p>
  * The price is calculated using the formula:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * w = \\frac{S e^{(b-r)T}}{K_L}(N(d_1) - N(d_2))
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * w = \frac{S e^{(b-r)T}}{K_L}(N(d_1) - N(d_2))
+ * \end{align*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d_1 &= \\frac{\\ln{\\frac{S}{K_L}} + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}\\\\
- * d_2 &= \\frac{\\ln{\\frac{S}{K_H}} + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * d_1 &= \frac{\ln{\frac{S}{K_L}} + (b + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\\
+ * d_2 &= \frac{\ln{\frac{S}{K_H}} + (b + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}
+ * \end{align*}
+ * $$
  * 
  */
 public class SupershareOptionModel extends AnalyticOptionModel<SupershareOptionDefinition, StandardOptionDataBundle> {

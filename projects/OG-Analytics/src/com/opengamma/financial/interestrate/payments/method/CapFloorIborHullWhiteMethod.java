@@ -18,17 +18,18 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor with Hull-White one factor model.
- *  The general pricing formula is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * \\frac{\\delta_p}{\\delta_F}P^D(0,t_p)\\left( \\frac{P^j(0,t_0)}{P^j(0,t_1)} N(-\\kappa-\\alpha_0) - (1+\\delta_F K) N(-\\kappa-\\alpha_1) \\right)
- * \\end{equation*}
- * where
- * \\begin{equation*}
- * \\kappa = \\frac{1}{\\alpha_1-\\alpha_0} \\left( \\ln\\left(\\frac{(1+\\delta_F K)P^j(0,t_1)}{P^j(0,t_0)}\\right) - \\frac12 (\\alpha_1^2 - \\alpha_0^2) \\right).
- * \\end{equation*}
- * }
+ * Class used to compute the price and sensitivity of a Ibor cap/floor with
+ * Hull-White one factor model.  The general pricing formula is given by:
+ * $$
+ * \begin{equation*}
+ * \frac{\delta_p}{\delta_F}P^D(0,t_p)\left( \frac{P^j(0,t_0)}{P^j(0,t_1)} N(-\kappa-\alpha_0) - (1+\delta_F K) N(-\kappa-\alpha_1) \right)
+ * \end{equation*}
+ * $$
+ * where:
+ * \begin{equation*}
+ * \kappa = \frac{1}{\alpha_1-\alpha_0} \left( \ln\left(\frac{(1+\delta_F K)P^j(0,t_1)}{P^j(0,t_0)}\right) - \frac12 (\alpha_1^2 - \alpha_0^2) \right).
+ * \end{equation*}
+ * $$
  */
 public class CapFloorIborHullWhiteMethod implements PricingMethod {
 

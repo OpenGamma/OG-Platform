@@ -24,34 +24,35 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * This model can be used to approximate the value of call-on-call or put-on-call options. It is most accurate for at- and
- * in-the-money options.
+ * This model can be used to approximate the value of call-on-call or
+ * put-on-call options. It is most accurate for at- and in-the-money options.
  * <p>
- * The value of a call-on-call option can be approximated by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c_{call} \\approx c_{BSM}N(d_1) - K_2e^{-rT_2}N(d2)
- * \\end{align*}
- * }
+ * The value of a call-on-call option can be approximated by:
+ * $$
+ * \begin{align*}
+ * c_{call} \approx c_{BSM}N(d_1) - K_2e^{-rT_2}N(d2)
+ * \end{align*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d1 &= \\frac{\\ln(\\frac{c_{BSM}}{K_2}) + (b + \\frac{\\hat{\\sigma^2}}{2})T_2}{\\hat{\\sigma}\\sqrt{T_2}}\\\\
- * \\hat{\\sigma} &= \\frac{\\sigma|\\Delta_{BSM}|S}{c_{BSM}}\\\\
- * c_{BSM} &= c_{BSM}(S, K_1, T_1, r, b, \\sigma)\\\\
- * \\Delta_{BSM} &= \\Delta_{BSM}(S, K_1, T_1, r, b, \\sigma)
- * \\end{align*}
- * }
- * where {@latex.inline $K_1$} is the strike on the underlying option, {@latex.inline $T_1$} is the expiry of the underlying option,
- * {@latex.inline $K_2$} is the strike of the option-on-option, {@latex.inline $T_2$} is the expiry of the option-on-option, and
- * {@latex.inline $BSM$} is the standard Black-Scholes-Merton pricing model ({@link BlackScholesMertonModel}).
- *<p>
- * The value of a put-on-call can be approximated by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * p_{call} \\approx K_2e^{-eT_2}N(d_2) - c_{BSM}N(d_1)
- * \\end{align*}
- * } 
+ * $$
+ * \begin{align*}
+ * d1 &= \frac{\ln(\frac{c_{BSM}}{K_2}) + (b + \frac{\hat{\sigma^2}}{2})T_2}{\hat{\sigma}\sqrt{T_2}}\\
+ * \hat{\sigma} &= \frac{\sigma|\Delta_{BSM}|S}{c_{BSM}}\\
+ * c_{BSM} &= c_{BSM}(S, K_1, T_1, r, b, \sigma)\\
+ * \Delta_{BSM} &= \Delta_{BSM}(S, K_1, T_1, r, b, \sigma)
+ * \end{align*}
+ * $$
+ * where $K_1$ is the strike on the underlying option, $T_1$ is the expiry of
+ * the underlying option, $K_2$ is the strike of the option-on-option, $T_2$ is
+ * the expiry of the option-on-option, and $BSM$ is the standard
+ * Black-Scholes-Merton pricing model ({@link BlackScholesMertonModel}).
+ * <p>
+ * The value of a put-on-call can be approximated by:
+ * $$
+ * \begin{align*}
+ * p_{call} \approx K_2e^{-eT_2}N(d_2) - c_{BSM}N(d_1)
+ * \end{align*}
+ * $$
  */
 public class BensoussanCrouhyGalaiOptionOnOptionModel extends AnalyticOptionModel<EuropeanOptionOnEuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);

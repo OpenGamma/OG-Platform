@@ -14,11 +14,15 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Differentiates a vector field (i.e. there is a vector value for every point in some vector space) with respect to the vector space using finite difference.
+ * Differentiates a vector field (i.e. there is a vector value for every point
+ * in some vector space) with respect to the vector space using finite
+ * difference.
  * <p>
- * For a function <i><b>y</b> = f(<b>x</b>)</i> where <i><b>x</b></i> is a n-dimensional vector and <i><b>y</b></i> is a m-dimensional vector, this class produces
- * the Jacobian function <i><b>J</b>(<b>x</b>)</i>, i.e. a function that returns the Jacobian for each point <i><b>x</b></i>, where <i><b>J</b></i> is the
- * m &times; n matrix {@latex.inline $\\frac{dy_i}{dx_j}$}
+ * For a function $\mathbf{y} = f(\mathbf{x})$ where $\mathbf{x}$ is a
+ * n-dimensional vector and $\mathbf{y}$ is a m-dimensional vector, this class
+ * produces the Jacobian function $\mathbf{J}(\mathbf{x})$, i.e. a function
+ * that returns the Jacobian for each point $\mathbf{x}$, where
+ * $\mathbf{J}$ is the $m \times n$ matrix $\frac{dy_i}{dx_j}$
  */
 public class VectorFieldFirstOrderDifferentiator implements Differentiator<DoubleMatrix1D, DoubleMatrix1D, DoubleMatrix2D> {
   private static final double DEFAULT_EPS = 1e-5;

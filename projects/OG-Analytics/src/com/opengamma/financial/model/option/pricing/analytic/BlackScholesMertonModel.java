@@ -19,27 +19,27 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 /**
  * Generalized Black-Scholes-Merton option pricing. 
  * <p>
- * The price of an option is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= Se^{(b-r)T}N(d_1) - Ke^{-rT}N(d_2)\\\\
+ * The price of an option is given by
+ * $$
+ * \begin{align*}
+ * c &= Se^{(b-r)T}N(d_1) - Ke^{-rT}N(d_2)\\
  * p &= Ke^{-rT}N(-d_2) - Se^{(b-r)T}N(-d_1)
- * \\end{align*}
- * }
+ * \end{align*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d_1 &= \\frac{\\ln(\\frac{S}{K}) + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}\\\\
- * d_2 &= d_1 - \\sigma\\sqrt{T}
- * \\end{align*}
- * } 
+ * $$
+ * \begin{align*}
+ * d_1 &= \frac{\ln(\frac{S}{K}) + (b + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\\
+ * d_2 &= d_1 - \sigma\sqrt{T}
+ * \end{align*}
+ * $$
  * Depending on the data supplied, the model is:
  * <ul>
- * <li><em>b = r</em>   Black-Scholes stock option pricing model
- * <li><em>b = r - q</em>   Merton stock option model with continuous dividend yield <em>q</em>
- * <li><em>b = 0</em>   Black future option model
- * <li><em>b = 0, r = 0</em>   Asay margined future option model
- * <li><em>b = r - r<sub>f</sub></em>   Garman-Kohlhagen FX option model, with foreign risk-free rate <em>r<sub>f</sub></em>
+ * <li>$b=r$ Black-Scholes stock option pricing model
+ * <li>$b=r-q$ Merton stock option model with continuous dividend yield $q$
+ * <li>$b=0$ Black future option model
+ * <li>$b=0, r=0$ Asay margined future option model
+ * <li>$b=r-r_f$ Garman-Kohlhagen FX option model, with foreign risk-free rate $r_f$.
  * </ul>
  * 
  */
@@ -133,12 +133,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Carry rho}_{call} &= TSe^{(b-r)T}N(d_1)\\\\
-     * \\text{Carry rho}_{put} &= -TSe^{(b-r)T}N(-d_1)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Carry rho}_{call} &= TSe^{(b-r)T}N(d_1)\\
+     * \text{Carry rho}_{put} &= -TSe^{(b-r)T}N(-d_1)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitCarryRho() {
@@ -149,12 +149,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Delta_{call} &= e^{(b-r)T)}N(d_1)\\\\
-     * \\Delta_{put} &= e^{(b-r)T}(N(d_1) - 1)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Delta_{call} &= e^{(b-r)T)}N(d_1)\\
+     * \Delta_{put} &= e^{(b-r)T}(N(d_1) - 1)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitDelta() {
@@ -164,12 +164,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Delta bleed}_{call} &= -e^{(b-r)T}\\left[n(d_1)\\left(\\frac{b}{\\sigma\\sqrt{T}} + \\frac{d_2}{2T}\\right) + (b - r)N(d_1)\\right]\\\\
-     * \\text{Delta bleed}_{put} &= -e^{(b-r)T}\\left[n(d_1)\\left(\\frac{b}{\\sigma\\sqrt{T}} - \\frac{d_2}{2T}\\right) + (b - r)N(d_1)\\right]
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Delta bleed}_{call} &= -e^{(b-r)T}\left[n(d_1)\left(\frac{b}{\sigma\sqrt{T}} + \frac{d_2}{2T}\right) + (b - r)N(d_1)\right]\\
+     * \text{Delta bleed}_{put} &= -e^{(b-r)T}\left[n(d_1)\left(\frac{b}{\sigma\sqrt{T}} - \frac{d_2}{2T}\right) + (b - r)N(d_1)\right]
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitDeltaBleed() {
@@ -180,11 +180,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Driftless theta} = \\frac{Sn(d_1)\\sigma}{2\\sqrt{T}}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Driftless theta} = \frac{Sn(d_1)\sigma}{2\sqrt{T}}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitDriftlessTheta() {
@@ -194,11 +194,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{dVanna dVol} = \\frac{\\text{Vanna}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - 1\\right)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{dVanna dVol} = \frac{\text{Vanna}}{\sigma}\left(d_1 d_2 - \frac{d_1}{d_2} - 1\right)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitDVannaDVol() {
@@ -208,12 +208,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{dZeta dVol}_{call} &= -\\frac{n(d_2)d_1}{\\sigma}\\\\
-     * \\text{dZeta dVol}_{put} &= \\frac{n(d_2)d_1}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{dZeta dVol}_{call} &= -\frac{n(d_2)d_1}{\sigma}\\
+     * \text{dZeta dVol}_{put} &= \frac{n(d_2)d_1}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitDZetaDVol() {
@@ -223,12 +223,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Lambda_{call} &= \\frac{e^{(b-r)T}N(d_1)S}{P_{call}}\\\\
-     * \\Lambda_{put} &= \\frac{e^{(b-r)T}(N(d_1) - 1)S}{P_{put}}\\\\
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Lambda_{call} &= \frac{e^{(b-r)T}N(d_1)S}{P_{call}}\\
+     * \Lambda_{put} &= \frac{e^{(b-r)T}(N(d_1) - 1)S}{P_{put}}\\
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitElasticity() {
@@ -238,11 +238,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Gamma = \\frac{n(d_1)e^{(b-r)T}}{S\\sigma\\sqrt{T}}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Gamma = \frac{n(d_1)e^{(b-r)T}}{S\sigma\sqrt{T}}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitGamma() {
@@ -255,11 +255,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Gamma bleed} = \\Gamma\\left[r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} + \\frac{1 - d_1 d_2}{2T}\\right]
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Gamma bleed} = \Gamma\left[r - b + \frac{b d_1}{\sigma\sqrt{T}} + \frac{1 - d_1 d_2}{2T}\right]
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitGammaBleed() {
@@ -269,11 +269,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Gamma_P = \\frac{S\\Gamma}{100}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Gamma_P = \frac{S\Gamma}{100}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitGammaP() {
@@ -282,11 +282,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Gamma bleed}_P = \\Gamma_P\\left[r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} + \\frac{1 - d_1 d_2}{2T}\\right]
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Gamma bleed}_P = \Gamma_P\left[r - b + \frac{b d_1}{\sigma\sqrt{T}} + \frac{1 - d_1 d_2}{2T}\right]
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitGammaPBleed() {
@@ -296,12 +296,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Phi_{call} &= -TSe^{(b-r)T}N(d_1)\\\\
-     * \\Phi_{put} &= TSe^{(b-r)T}N(-d_1)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Phi_{call} &= -TSe^{(b-r)T}N(d_1)\\
+     * \Phi_{put} &= TSe^{(b-r)T}N(-d_1)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitPhi() {
@@ -320,12 +320,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\rho_{call} &= TKe^{-rT}N(d_2)\\\\
-     * \\rho_{put} &= -TKe^{-rT}N(-d_2)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \rho_{call} &= TKe^{-rT}N(d_2)\\
+     * \rho_{put} &= -TKe^{-rT}N(-d_2)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitRho() {
@@ -336,11 +336,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Speed} = \\frac{\\Gamma\\left(1 + \\frac{d_1}{\\sigma\\sqrt{T}}\\right)}{S}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Speed} = \frac{\Gamma\left(1 + \frac{d_1}{\sigma\sqrt{T}}\right)}{S}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitSpeed() {
@@ -350,10 +350,10 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Speed}_P = -\\frac{\\Gamma d_1}{100\\sigma\\sqrt{T}}
-     * \\end{align*}
+     * $$
+     * \begin{align*}
+     * \text{Speed}_P = -\frac{\Gamma d_1}{100\sigma\sqrt{T}}
+     * \end{align*}
      * }
      */
     @Override
@@ -364,12 +364,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Strike delta}_{call} &= -e^{-rT}N(d_2)\\\\
-     * \\text{Strike delta}_{put} &= e^{-rT}N(-d_2)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Strike delta}_{call} &= -e^{-rT}N(d_2)\\
+     * \text{Strike delta}_{put} &= e^{-rT}N(-d_2)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitStrikeDelta() {
@@ -380,11 +380,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Strike gamma} = \\frac{n(d_2)e^{-rT}}{K\\sigma\\sqrt{T}}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Strike gamma} = \frac{n(d_2)e^{-rT}}{K\sigma\sqrt{T}}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitStrikeGamma() {
@@ -394,12 +394,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\Theta_{call} &= -\\frac{Se^{(b-r)T}\\sqrt{T}}{2\\sqrt{T}} - (b - r)Se^{(b-r)T}N(d_1) - rKe^{-rT}N(d_2)\\\\
-     * \\Theta_{put} &= -\\frac{Se^{(b-r)T}\\sqrt{T}}{2\\sqrt{T}} + (b - r)Se^{(b-r)T}N(-d_1) + rKe^{-rT}N(-d_2)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \Theta_{call} &= -\frac{Se^{(b-r)T}\sqrt{T}}{2\sqrt{T}} - (b - r)Se^{(b-r)T}N(d_1) - rKe^{-rT}N(d_2)\\
+     * \Theta_{put} &= -\frac{Se^{(b-r)T}\sqrt{T}}{2\sqrt{T}} + (b - r)Se^{(b-r)T}N(-d_1) + rKe^{-rT}N(-d_2)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitTheta() {
@@ -411,11 +411,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vanna} = \\frac{-e^{(b-r)T}d_2 n(d_1)}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vanna} = \frac{-e^{(b-r)T}d_2 n(d_1)}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVanna() {
@@ -425,11 +425,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Variance vomma} = \\frac{Se^{(b-r)T}\\sqrt{T}n(d_1)[(d_1 d_2 - 1)(d_1 d_2 - 3) - (d_1^2 + d_2^2)]}{8\\sigma^5}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Variance vomma} = \frac{Se^{(b-r)T}\sqrt{T}n(d_1)[(d_1 d_2 - 1)(d_1 d_2 - 3) - (d_1^2 + d_2^2)]}{8\sigma^5}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVarianceUltima() {
@@ -439,10 +439,10 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVarianceVanna() {
@@ -452,11 +452,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Variance vega} = \\frac{Se^{(b-r)T}n(d_1)\\sqrt{T}}{2\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Variance vega} = \frac{Se^{(b-r)T}n(d_1)\sqrt{T}}{2\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVarianceVega() {
@@ -466,11 +466,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Variance vomma} = \\frac{Se^{(b-r)T}\\sqrt{T}n(d_1)(d_1 d_2 - 1)}{4\\sigma^3}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Variance vomma} = \frac{Se^{(b-r)T}\sqrt{T}n(d_1)(d_1 d_2 - 1)}{4\sigma^3}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVarianceVomma() {
@@ -480,11 +480,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vega} = Se^{(b-r)T}n(d_1)\\sqrt{T}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vega} = Se^{(b-r)T}n(d_1)\sqrt{T}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVega() {
@@ -494,11 +494,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vega bleed} = \\text{Vega}\\left(r - b + \\frac{b d_1}{\\sigma\\sqrt{T}} - \\frac{1 + d_1 d_2}{2T}\\right)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vega bleed} = \text{Vega}\left(r - b + \frac{b d_1}{\sigma\sqrt{T}} - \frac{1 + d_1 d_2}{2T}\right)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVegaBleed() {
@@ -508,11 +508,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vega}_p = \\frac{S\\sigma e^{(b-r)T}n(d_1)\\sqrt{T}}{10}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vega}_p = \frac{S\sigma e^{(b-r)T}n(d_1)\sqrt{T}}{10}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVegaP() {
@@ -522,11 +522,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Ultima} = \\frac{\\text{Vomma}}{\\sigma}\\left(d_1 d_2 - \\frac{d_1}{d_2} - \\frac{d_2}{d_1} - 1\\right)
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Ultima} = \frac{\text{Vomma}}{\sigma}\left(d_1 d_2 - \frac{d_1}{d_2} - \frac{d_2}{d_1} - 1\right)
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitUltima() {
@@ -536,11 +536,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vomma} = \\frac{\\text{Vega } d_1 d_2}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vomma} = \frac{\text{Vega } d_1 d_2}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVomma() {
@@ -550,11 +550,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Vomma}_P= \\frac{\\text{Vega}_P d_1 d_2}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Vomma}_P= \frac{\text{Vega}_P d_1 d_2}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitVommaP() {
@@ -573,10 +573,10 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitZetaBleed() {
@@ -586,11 +586,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Zomma} = \\frac{\\Gamma(d_1 d_2 - 1)}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Zomma} = \frac{\Gamma(d_1 d_2 - 1)}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitZomma() {
@@ -600,11 +600,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     /**
      * {@inheritDoc}
-     * {@latex.ilb %preamble{\\usepackage{amsmath}}
-     * \\begin{align*}
-     * \\text{Zomma}_P = \\frac{\\Gamma_P(d_1 d_2 - 1)}{\\sigma}
-     * \\end{align*}
-     * }
+     * $$
+     * \begin{align*}
+     * \text{Zomma}_P = \frac{\Gamma_P(d_1 d_2 - 1)}{\sigma}
+     * \end{align*}
+     * $$
      */
     @Override
     public Double visitZommaP() {

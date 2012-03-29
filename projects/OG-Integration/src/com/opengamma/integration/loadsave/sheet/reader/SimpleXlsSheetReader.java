@@ -8,6 +8,7 @@ package com.opengamma.integration.loadsave.sheet.reader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -149,7 +150,8 @@ public class SimpleXlsSheetReader extends SheetReader {
     }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_NUMERIC:
-        return Double.toString(cell.getNumericCellValue());
+        //return Double.toString(cell.getNumericCellValue());
+        return (new DecimalFormat("#.##")).format(cell.getNumericCellValue());
       case Cell.CELL_TYPE_STRING:
         return cell.getStringCellValue();
       case Cell.CELL_TYPE_BOOLEAN:
@@ -164,7 +166,9 @@ public class SimpleXlsSheetReader extends SheetReader {
   @Override
   public void close() {
     try {
-      _inputStream.close();
+      if (_inputStream != null) {
+        _inputStream.close();
+      }
     } catch (IOException ex) {
       // TODO Auto-generated catch block
     }

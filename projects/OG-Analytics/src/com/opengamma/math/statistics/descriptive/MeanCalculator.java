@@ -12,11 +12,12 @@ import com.opengamma.math.function.Function1D;
 /**
  * Calculates the arithmetic mean of a series of data.
  * <p>
- * The arithmetic mean {@latex.inline $\\mu$} of a series of elements {@latex.inline $x_1, x_2, \\dots, x_n$} is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu = \\frac{1}{n}\\left({\\sum\\limits_{i=1}^n x_i}\\right)
- * \\end{align*}} 
+ * The arithmetic mean $\mu$ of a series of elements $x_1, x_2, \dots, x_n$ is given by:
+ * $$
+ * \begin{align*}
+ * \mu = \frac{1}{n}\left({\sum\limits_{i=1}^n x_i}\right)
+ * \end{align*}
+ * $$
  */
 public class MeanCalculator extends Function1D<double[], Double> {
 

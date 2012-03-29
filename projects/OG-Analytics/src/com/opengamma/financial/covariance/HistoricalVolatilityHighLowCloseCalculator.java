@@ -19,16 +19,19 @@ import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * The historical high-low-close volatility of a price time series can be calculated using:
- * {@latex.ilb %preamble{\\usepackage{amsmath}} 
- * \\begin{eqnarray*}
- * \\sigma = \\frac{1}{n}\\sum\\limits_{i=1}^n \\frac{rr_i}{2} - \\frac{1}{n}\\sum\\limits_{i=1}^n (2\\ln{2} - 1) r_i^2
- * \\end{eqnarray*}}
- * where {@latex.inline $rr_i$} is the {@latex.inline %preamble{\\usepackage{amsmath}} $i^\\text{th}$} period <b>relative</b> return of the high and low prices,
- * {@latex.inline $rr_i$} is the {@latex.inline %preamble{\\usepackage{amsmath}} $i^\\text{th}$} period return of the close price
- * and {@latex.inline $n$} is the number of data points in the price series. 
- * <p> 
- * Although any relative return calculator can be used, to get correct results the calculator should be a {@link ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator}.
+ * The historical high-low-close volatility of a price time series can be
+ * calculated using:
+ * $$ 
+ * \begin{eqnarray*}
+ * \sigma = \frac{1}{n}\sum\limits_{i=1}^n \frac{rr_i}{2} - \frac{1}{n}\sum\limits_{i=1}^n (2\ln{2} - 1) r_i^2
+ * \end{eqnarray*}
+ * $$
+ * where $rr_i$ is the $i^\text{th}$ period *relative* return of the high and
+ * low prices, $rr_i$ is the $i^\text{th}$ period return of the close price and
+ * $n$ is the number of data points in the price series. 
+ * <p>
+ * Although any relative return calculator can be used, to get correct results
+ * the calculator should be a {@link ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator}.
  */
 public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityHighLowCloseCalculator.class);
@@ -36,7 +39,9 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
   private final RelativeTimeSeriesReturnCalculator _relativeReturnCalculator;
 
   /**
-   * Creates a calculator with the given return and relative return calculation method and default values for the calculation mode and allowable percentage of bad data points
+   * Creates a calculator with the given return and relative return calculation
+   * method and default values for the calculation mode and allowable
+   * percentage of bad data points
    * @param returnCalculator The return calculator
    * @param relativeReturnCalculator The relative return calculator
    * @throws IllegalArgumentException If the return calculator is null

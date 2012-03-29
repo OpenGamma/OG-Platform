@@ -469,11 +469,8 @@
     <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
       doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
-      header="${javadoc-all.header}"
+      header="${javadoc-all.header}" failonerror="Yes"
       maxmemory="2G">
-      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
       <link href="http://download.oracle.com/javase/6/docs/api/" />
       <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
       <link href="http://threeten.sourceforge.net/apidocs/" />

@@ -11,6 +11,9 @@ import org.apache.commons.cli.Options;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.integration.loadsave.portfolio.PortfolioCopierVisitor;
+import com.opengamma.integration.loadsave.portfolio.QuietPortfolioCopierVisitor;
+import com.opengamma.integration.loadsave.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.reader.MasterPortfolioReader;
@@ -37,6 +40,8 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
+  /** Verbose option flag */
+  private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
@@ -77,8 +82,16 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
     // Construct portfolio copier
     PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
         
-    // Copy portfolio
-    portfolioCopier.copy(portfolioReader, portfolioWriter);
+    // Create visitor for verbose/quiet mode
+    PortfolioCopierVisitor portfolioCopierVisitor; 
+    if (getCommandLine().hasOption(VERBOSE_OPT)) {
+      portfolioCopierVisitor = new VerbosePortfolioCopierVisitor();
+    } else {
+      portfolioCopierVisitor = new QuietPortfolioCopierVisitor();
+    }
+    
+    // Call the portfolio loader with the supplied arguments
+    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
 
     // close stuff
     portfolioReader.close();
@@ -139,6 +152,11 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
         "The security type(s) to export (ignored if ZIP output file is specified)");
     options.addOption(assetClassOption);
     
+    Option verboseOption = new Option(
+        VERBOSE_OPT, "verbose", false, 
+        "Displays progress messages on the terminal");
+    options.addOption(verboseOption);
+
     return options;
   }
 

@@ -14,13 +14,13 @@ import com.opengamma.util.time.Expiry;
  * Definition for an asymmetric power options (a.k.a. standard power options).
  * <p>
  * The exercise style is European. The payoff of these options is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= \\max(S^i - K, 0)\\\\
- * p &= \\max(K - S^i, 0)
- * \\end{align*}
- * }
- * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power, with {@latex.inline $i > 0$}, and {@latex.inline $S$} is the spot.
+ * $$
+ * \begin{align*}
+ * c &= \max(S^i - K, 0)\\\\
+ * p &= \max(K - S^i, 0)
+ * \end{align*}
+ * $$
+ * where $K$ is the strike, $i$ is the power, with $i > 0$, and $S$ is the spot.
  */
 public class AsymmetricPowerOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {

@@ -8,27 +8,31 @@ package com.opengamma.financial.model.finitedifference;
 import com.opengamma.math.cube.Cube;
 
 /**
- * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion type partial differential equations (PDEs), i.e. 
- * {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x,y) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x,y) \\frac{\\partial f}{\\partial x} + c(t,x,y)f 
- * + d(t,x,y) \\frac{\\partial^2 f}{\\partial y^2} + e(t,x,y) \\frac{\\partial^2 f}{\\partial x \\partial y} + f(t,x,y) \\frac{\\partial f}{\\partial y} = 0$}
- * This follows the physical convention of time starting at zero and moving forward to some desired point tMax. For the financial convention of 'time' starting at maturity and moving
- * backwards to zero, simply set tMax equal to maturity and transform the PDE to be in terms of 'time-to-maturity'  
+ * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion
+ * type partial differential equations (PDEs), i.e. 
+ * $\frac{\partial f}{\partial t} + a(t,x,y) \frac{\partial^2 f}{\partial x^2} + b(t,x,y) \frac{\partial f}{\partial x} + c(t,x,y)f 
+ * + d(t,x,y) \frac{\partial^2 f}{\partial y^2} + e(t,x,y) \frac{\partial^2 f}{\partial x \partial y} + f(t,x,y) \frac{\partial f}{\partial y} = 0$
+ * This follows the physical convention of time starting at zero and moving
+ * forward to some desired point tMax. For the financial convention of 'time'
+ * starting at maturity and moving backwards to zero, simply set tMax equal to
+ * maturity and transform the PDE to be in terms of 'time-to-maturity'  
  */
 public interface ConvectionDiffusionPDESolver2D {
 
   /**
-   * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion type partial differential equations (PDEs), i.e. 
-   * {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x,y) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x,y) \\frac{\\partial f}{\\partial x} + c(t,x,y)f 
-   * + d(t,x,y) \\frac{\\partial^2 f}{\\partial y^2} + e(t,x,y) \\frac{\\partial^2 f}{\\partial x \\partial y} + f(t,x,y) \\frac{\\partial f}{\\partial y} = 0$}
+   * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion
+   * type partial differential equations (PDEs), i.e. 
+   * $\frac{\partial f}{\partial t} + a(t,x,y) \frac{\partial^2 f}{\partial x^2} + b(t,x,y) \frac{\partial f}{\partial x} + c(t,x,y)f 
+   * + d(t,x,y) \frac{\partial^2 f}{\partial y^2} + e(t,x,y) \frac{\partial^2 f}{\partial x \partial y} + f(t,x,y) \frac{\partial f}{\partial y} = 0$
    * @param pdeData Data bundle holding a description of the PDE 
    * @param tSteps Number of steps in the time direction (Note: The number of grid points in the time direction  will be tSteps + 1)
    * @param xSteps Number of steps in the first spatial direction (Note: The number of grid points in this  direction  will be xSteps + 1)
    * @param ySteps Number of steps in the second spatial direction (Note: The number of grid points in this  direction  will be ySteps + 1)
    * @param tMax Time starts at zero (where the initial condition is set) and runs to tMax (where the solution is taken)
-   * @param xLowerBoundary Descriptor of the lower boundary in x 
-   * @param xUpperBoundary Descriptor of the upper boundary in x 
-   * @param yLowerBoundary Descriptor of the lower boundary in y 
-   * @param yUpperBoundary Descriptor of the upper boundary in y 
+   * @param xLowerBoundary Descriptor of the lower boundary in $x$
+   * @param xUpperBoundary Descriptor of the upper boundary in $x$
+   * @param yLowerBoundary Descriptor of the lower boundary in $y$
+   * @param yUpperBoundary Descriptor of the upper boundary in $y$
    * @return An array of the function value on the spatial grid at tMax
    */
   double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, BoundaryCondition2D xLowerBoundary,
@@ -36,8 +40,8 @@ public interface ConvectionDiffusionPDESolver2D {
 
   /**
    * Solver for 2D (i.e. 2  spatial dimensions and time) convection-diffusion type partial differential equations (PDEs), i.e. 
-   * {@latex.inline $\\frac{\\partial f}{\\partial t} + a(t,x,y) \\frac{\\partial^2 f}{\\partial x^2} + b(t,x,y) \\frac{\\partial f}{\\partial x} + c(t,x,y)f 
-   * + d(t,x,y) \\frac{\\partial^2 f}{\\partial y^2} + e(t,x,y) \\frac{\\partial^2 f}{\\partial x \\partial y} + f(t,x,y) \\frac{\\partial f}{\\partial y} = 0$}
+   * $\frac{\partial f}{\partial t} + a(t,x,y) \frac{\partial^2 f}{\partial x^2} + b(t,x,y) \frac{\partial f}{\partial x} + c(t,x,y)f 
+   * + d(t,x,y) \frac{\partial^2 f}{\partial y^2} + e(t,x,y) \frac{\partial^2 f}{\partial x \partial y} + f(t,x,y) \frac{\partial f}{\partial y} = 0$
    * @param pdeData Data bundle holding a description of the PDE 
    * @param tSteps Number of steps in the time direction (Note: The number of grid points in the time direction  will be tSteps + 1)
    * @param xSteps Number of steps in the first spatial direction (Note: The number of grid points in this  direction  will be xSteps + 1)

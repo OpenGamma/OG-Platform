@@ -11,21 +11,22 @@ import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.TrigonometricFunctionUtils;
 
 /**
- * If a model parameter {@latex.inline $x$} is constrained to be between two values {@latex.inline $a \\geq x \\geq b$}, the function to transform it to an unconstrained
- * variable is {@latex.inline $y$} is given by
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * y &= \\tanh^{-1}\\left(\\frac{x - m}{s}\\right)\\\\
- * m &= \\frac{a + b}{2}\\\\
- * s &= \\frac{b - a}{2}
- * \\end{align*}
- * }
+ * If a model parameter $x$ is constrained to be between two values $a \geq x
+ * \geq b$, the function to transform it to an unconstrained variable is $y$ is
+ * given by
+ * $$
+ * \begin{align*}
+ * y &= \tanh^{-1}\left(\frac{x - m}{s}\right)\\
+ * m &= \frac{a + b}{2}\\
+ * s &= \frac{b - a}{2}
+ * \end{align*}
+ * $$
  * with the inverse transform
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * x &= s\\tanh(y) + m\\\\
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * x &= s\tanh(y) + m\\
+ * \end{align*}
+ * $$
  */
 public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   private static final double TANH_MAX = 25.0;
@@ -48,7 +49,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   /**
-   * If {@latex.inline $y > 25$}, this returns {@latex.inline $b$}. If {@latex.inline $y < -25$} returns {@latex.inline $a$}.
+   * If $y > 25$, this returns $b$. If $y < -25$ returns $a$.
    * {@inheritDoc}
    */
   @Override
@@ -63,7 +64,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If {@latex.inline $x > b$} or {@latex.inline $x < a$}
+   * @throws IllegalArgumentException If $x > b$ or $x < a$
    */
   @Override
   public double transform(final double x) {
@@ -77,7 +78,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
   }
 
   /**
-   * If {@latex.inline $|y| > 25$}, this returns 0.
+   * If $|y| > 25$, this returns 0.
    * {@inheritDoc}
    */
   @Override
@@ -90,7 +91,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
 
   /**
    * {@inheritDoc}
-   * @throws IllegalArgumentException If {@latex.inline $x > b$} or {@latex.inline $x < a$}
+   * @throws IllegalArgumentException If $x > b$ or $x < a$
    */
   @Override
   public double transformGradient(final double x) {

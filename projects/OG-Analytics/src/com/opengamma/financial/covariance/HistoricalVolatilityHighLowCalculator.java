@@ -19,14 +19,17 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * The historical volatility of a price time series can be calculated using:
- * {@latex.ilb %preamble{\\usepackage{amsmath}} 
- * \\begin{eqnarray*}
- * \\sigma = \\frac{1}{{2 n \\sqrt{\\ln{2}}}}\\sum\\limits_{i=1}^n r_i
- * \\end{eqnarray*}}
- * where {@latex.inline $r_i$} is the {@latex.inline %preamble{\\usepackage{amsmath}} $i^\\text{th}$} period <b>relative</b> return of the high and low prices of a series,
- * and {@latex.inline $n$} is the number of data points in the price series. 
+ * $$ 
+ * \begin{eqnarray*}
+ * \sigma = \frac{1}{{2 n \sqrt{\ln{2}}}}\sum\limits_{i=1}^n r_i
+ * \end{eqnarray*}
+ * $$
+ * where $r_i$ is the $i^\text{th}$ period *relative* return of the high and
+ * low prices of a series, and $n$ is the number of data points in the price
+ * series. 
  * <p> 
- * Although any relative return calculator can be used, to get correct results the calculator should be a {@link ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator}.
+ * Although any relative return calculator can be used, to get correct results
+ * the calculator should be a {@link ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator}.
  */
 public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityHighLowCalculator.class);

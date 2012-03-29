@@ -16,16 +16,16 @@ import cern.jet.stat.Probability;
 
 /**
  * The normal distribution is a continuous probability distribution with probability density function
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x) = \\frac{1}{\\sqrt{2\\pi}\\sigma} e^{-\\frac{(x - \\mu)^2}{2\\sigma^2}}
- * \\end{align*}
- * }
- * where {@latex.inline $\\mu$} is the mean and {@latex.inline $\\sigma$} the standard deviation of 
+ * $$
+ * \begin{align*}
+ * f(x) = \frac{1}{\sqrt{2\pi}\sigma} e^{-\frac{(x - \mu)^2}{2\sigma^2}}
+ * \end{align*}
+ * $$
+ * where $\mu$ is the mean and $\sigma$ the standard deviation of 
  * the distribution.
  * <p>
- * For values of the cumulative distribution function {@latex.inline $|x| > 7.6$} this class calculates the cdf 
- * directly. For all other methods and values of {@latex.inline $x$}, this class is a wrapper for the
+ * For values of the cumulative distribution function $|x| > 7.6$ this class calculates the cdf 
+ * directly. For all other methods and values of $x$, this class is a wrapper for the
  * <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/Normal.html">Colt</a> implementation of the normal distribution.
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
@@ -60,14 +60,14 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * {@inheritDoc}
-   * The cern.jet.random library gives poor results for {@latex.inline $x < -8$}, and returns zero for {@latex.inline $x < -8.37$}, so beyond {@latex.inline $x < -7.6$} 
+   * The cern.jet.random library gives poor results for $x < -8$, and returns zero for $x < -8.37$, so beyond $x < -7.6$ 
    * we use the approximation 
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{align*}
-   * N(x) \\approx \\frac{N'(x)}{\\sqrt{1 + x^2}}
-   * \\end{align*}
-   * }
-   * and use the symmetry of the distribution for {@latex.inline $x > 7.6$}  
+   * $$
+   * \begin{align*}
+   * N(x) \approx \frac{N'(x)}{\sqrt{1 + x^2}}
+   * \end{align*}
+   * $$
+   * and use the symmetry of the distribution for $x > 7.6$  
    */
   @Override
   public double getCDF(final Double x) {

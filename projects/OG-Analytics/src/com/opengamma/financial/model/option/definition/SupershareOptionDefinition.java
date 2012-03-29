@@ -12,18 +12,18 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * Class defining a supershare option. 
- * <p> 
+ * <p>
  * Supershare options have European-style exercise with payoff
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mathrm{payoff} = 
- * \\begin{cases}
- * \\frac{S}{K_L} \\quad & \\mathrm{if} \\quad K_L \\leq S \\leq K_H\\\\
- * 0\\quad & \\mathrm{otherwise}
- * \\end{cases}
- * \\end{align*}
- * }
- * where {@latex.inline $K_L$} is the lower bound, {@latex.inline $K_H$}  the upper bound and {@latex.inline $S$} the spot.
+ * $$
+ * \begin{align*}
+ * \mathrm{payoff} = 
+ * \begin{cases}
+ * \frac{S}{K_L} \quad & \mathrm{if} \quad K_L \leq S \leq K_H\\
+ * 0\quad & \mathrm{otherwise}
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * where $K_L$ is the lower bound, $K_H$ the upper bound and $S$ the spot.
  */
 public class SupershareOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();

@@ -13,13 +13,13 @@ import com.opengamma.math.function.RealPolynomialFunction1D;
 /**
  * Class that calculates the real roots of a quadratic function. 
  * <p>
- * The roots can be found analytically. For a quadratic {@latex.inline $ax^2 + bx + c = 0$}, the roots are given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * x_{1, 2} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
- * \\end{align*}
- * }
- * If no real roots exist (i.e. {@latex.inline $b^2 - 4ac < 0$}) then an exception is thrown.
+ * The roots can be found analytically. For a quadratic $ax^2 + bx + c = 0$, the roots are given by:
+ * $$
+ * \begin{align*}
+ * x_{1, 2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+ * \end{align*}
+ * $$
+ * If no real roots exist (i.e. $b^2 - 4ac < 0$) then an exception is thrown.
  */
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
 

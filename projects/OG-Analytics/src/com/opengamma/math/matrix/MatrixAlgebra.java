@@ -59,8 +59,8 @@ public abstract class MatrixAlgebra {
   }
 
   /**
-   * Returns the quotient of two matrices {@latex.inline $C = \\frac{A}{B} = AB^{-1}$}, where {@latex.inline $B^{-1}$} is the pseudo-inverse of {@latex.inline $B$} i.e. 
-   * {@latex.inline %preamble{\\usepackage{bbold}} $BB^{-1} = \\mathbb{1}$}.
+   * Returns the quotient of two matrices $C = \frac{A}{B} = AB^{-1}$, where
+   * $B^{-1}$ is the pseudo-inverse of $B$ i.e.  $BB^{-1} = \mathbb{1}$.
    * @param m1 The numerator matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @param m2 The denominator, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @return The result
@@ -74,30 +74,31 @@ public abstract class MatrixAlgebra {
   }
 
   /**
-   * Returns the Kronecker product of two matrices. If {@latex.inline $\\mathbf{A}$} is an {@latex.inline $m \\times n$} matrix and {@latex.inline $\\mathbf{B}$} is
-   * a {@latex.inline $p \\times q$} matrix, then the Kronecker product {@latex.inline $A \\otimes B$} is an {@latex.inline $mp \\times nq$} matrix with elements
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{align*}
-   * A \\otimes B &= 
-   * \\begin{pmatrix}
-   * a_{11}\\mathbf{B} & \\cdots & a_{1n}\\mathbf{B} \\\\
-   * \\vdots           & \\ddots & \\vdots           \\\\
-   * a_{m1}\\mathbf{B} & \\cdots & a_{mn}\\mathbf{B}
-   * \\end{pmatrix}\\\\
+   * Returns the Kronecker product of two matrices. If $\mathbf{A}$ is an $m
+   * \times n$ matrix and $\mathbf{B}$ is a $p \times q$ matrix, then the
+   * Kronecker product $A \otimes B$ is an $mp \times nq$ matrix with elements
+   * $$
+   * \begin{align*}
+   * A \otimes B &= 
+   * \begin{pmatrix}
+   * a_{11}\mathbf{B} & \cdots & a_{1n}\mathbf{B} \\
+   * \vdots           & \ddots & \vdots           \\
+   * a_{m1}\mathbf{B} & \cdots & a_{mn}\mathbf{B}
+   * \end{pmatrix}\\
    * &= 
-   * \\begin{pmatrix}
-   * a_{11}b_{11} & a_{11}b_{12} & \\cdots & a_{11}b_{1q} & \\cdots & a_{1n}b_{11} & a_{1n}b_{12} & \\cdots & a_{1n}b_{1q} \\\\
-   * a_{11}b_{21} & a_{11}b_{22} & \\cdots & a_{11}b_{2q} & \\cdots & a_{1n}b_{21} & a_{1n}b_{22} & \\cdots & a_{1n}b_{2q} \\\\
-   * \\vdots      & \\vdots      & \\ddots & \\vdots      & \\cdots & \\vdots      & \\vdots      & \\ddots & \\cdots        \\\\
-   * a_{11}b_{p1} & a_{11}b_{p2} & \\cdots & a_{11}b_{pq} & \\cdots & a_{1n}b_{p1} & a_{1n}b_{p2} & \\cdots & a_{1n}b_{pq} \\\\
-   * \\vdots      & \\vdots      &         & \\vdots      & \\ddots & \\vdots      & \\vdots      &         & \\cdots        \\\\
-   * a_{m1}b_{11} & a_{m1}b_{12} & \\cdots & a_{m1}b_{1q} & \\cdots & a_{mn}b_{11} & a_{mn}b_{12} & \\cdots & a_{mn}b_{1q} \\\\
-   * a_{m1}b_{21} & a_{m1}b_{22} & \\cdots & a_{m1}b_{2q} & \\cdots & a_{mn}b_{21} & a_{mn}b_{22} & \\cdots & a_{mn}b_{2q} \\\\
-   * \\vdots      & \\vdots      & \\ddots & \\vdots      & \\cdots & \\vdots      & \\vdots      & \\ddots & \\cdots        \\\\
-   * a_{m1}b_{p1} & a_{m1}b_{p2} & \\cdots & a_{m1}b_{pq} & \\cdots & a_{mn}b_{p1} & a_{mn}b_{p2} & \\cdots & a_{mn}b_{pq}       
-   * \\end{pmatrix}
-   * \\end{align*}
-   * }
+   * \begin{pmatrix}
+   * a_{11}b_{11} & a_{11}b_{12} & \cdots & a_{11}b_{1q} & \cdots & a_{1n}b_{11} & a_{1n}b_{12} & \cdots & a_{1n}b_{1q} \\
+   * a_{11}b_{21} & a_{11}b_{22} & \cdots & a_{11}b_{2q} & \cdots & a_{1n}b_{21} & a_{1n}b_{22} & \cdots & a_{1n}b_{2q} \\
+   * \vdots      & \vdots      & \ddots & \vdots      & \cdots & \vdots      & \vdots      & \ddots & \cdots        \\
+   * a_{11}b_{p1} & a_{11}b_{p2} & \cdots & a_{11}b_{pq} & \cdots & a_{1n}b_{p1} & a_{1n}b_{p2} & \cdots & a_{1n}b_{pq} \\
+   * \vdots      & \vdots      &         & \vdots      & \ddots & \vdots      & \vdots      &         & \cdots        \\
+   * a_{m1}b_{11} & a_{m1}b_{12} & \cdots & a_{m1}b_{1q} & \cdots & a_{mn}b_{11} & a_{mn}b_{12} & \cdots & a_{mn}b_{1q} \\
+   * a_{m1}b_{21} & a_{m1}b_{22} & \cdots & a_{m1}b_{2q} & \cdots & a_{mn}b_{21} & a_{mn}b_{22} & \cdots & a_{mn}b_{2q} \\
+   * \vdots      & \vdots      & \ddots & \vdots      & \cdots & \vdots      & \vdots      & \ddots & \cdots        \\
+   * a_{m1}b_{p1} & a_{m1}b_{p2} & \cdots & a_{m1}b_{pq} & \cdots & a_{mn}b_{p1} & a_{mn}b_{p2} & \cdots & a_{mn}b_{pq}       
+   * \end{pmatrix}
+   * \end{align*}
+   * $$
    * @param m1 The first matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @param m2 The second matrix, not null. This matrix must be a {@link DoubleMatrix2D}.
    * @return The Kronecker product
@@ -254,27 +255,27 @@ public abstract class MatrixAlgebra {
   public abstract DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2);
 
   /**
-   * For a vector, returns the <a href = "http://mathworld.wolfram.com/L1-Norm.html"> {@latex.inline $L_1$} norm</a> (also known as the Taxicab norm or Manhattan norm), i.e. 
-   * {@latex.inline $\\Sigma |x_i|$}. 
+   * For a vector, returns the <a href="http://mathworld.wolfram.com/L1-Norm.html">$L_1$ norm</a>
+   * (also known as the Taxicab norm or Manhattan norm), i.e.  $\Sigma |x_i|$. 
    * <p>
    * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteColumnSumNorm.html">maximum absolute column sum norm</a> of the matrix.
    * @param m A vector or matrix, not null
-   * @return The {@latex.inline $L_1$} norm
+   * @return The $L_1$ norm
    */
   public abstract double getNorm1(final Matrix<?> m);
 
   /**
-   * For a vector, returns <a href="http://mathworld.wolfram.com/L2-Norm.html"> {@latex.inline $L_2$} norm</a> (also known as the Euclidean norm).
+   * For a vector, returns <a href="http://mathworld.wolfram.com/L2-Norm.html">$L_2$ norm</a> (also known as the Euclidean norm).
    * <p>
-   * For a matrix, returns the <a href="http://mathworld.wolfram.com/SpectralNorm.html"> spectral norm</a>
+   * For a matrix, returns the <a href="http://mathworld.wolfram.com/SpectralNorm.html">spectral norm</a>
    * @param m A vector or matrix, not null
    * @return the norm
    */
   public abstract double getNorm2(final Matrix<?> m);
 
   /**
-   * For a vector, returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html"> {@latex.inline $L_\\infty$} norm</a>.
-   * {@latex.inline $L_\\infty$} norm is the maximum of the absolute values of the elements.
+   * For a vector, returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html">$L_\infty$ norm</a>.
+   * $L_\infty$ norm is the maximum of the absolute values of the elements.
    * <p>
    * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html">maximum absolute row sum norm</a>
    * @param m a vector or a matrix, not null
@@ -283,7 +284,7 @@ public abstract class MatrixAlgebra {
   public abstract double getNormInfinity(final Matrix<?> m);
 
   /**
-   * Returns a matrix raised to an integer power, e.g. {@latex.inline $\\mathbf{A}^3 = \\mathbf{A}\\mathbf{A}\\mathbf{A}$}.
+   * Returns a matrix raised to an integer power, e.g. $\mathbf{A}^3 = \mathbf{A}\mathbf{A}\mathbf{A}$.
    * @param m A square matrix, not null
    * @param p An integer power
    * @return The result 
@@ -291,7 +292,7 @@ public abstract class MatrixAlgebra {
   public abstract DoubleMatrix2D getPower(final Matrix<?> m, final int p);
 
   /**
-   * Returns a matrix raised to a power, {@latex.inline $\\mathbf{A}^3 = \\mathbf{A}\\mathbf{A}\\mathbf{A}$}.
+   * Returns a matrix raised to a power, $\mathbf{A}^3 = \mathbf{A}\mathbf{A}\mathbf{A}$.
    * @param m A square matrix, not null
    * @param p The power
    * @return The result 
