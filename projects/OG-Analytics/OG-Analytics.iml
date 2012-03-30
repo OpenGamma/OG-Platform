@@ -42,9 +42,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jarpack/jars/jarpack-0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/jplasma/jars/jplasma-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.netlib/netlib-java/jars/netlib-java-0.9.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/jars/LaTeXlet-1.11.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/jars/commons-math-2.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.dexy/json-doclet/jars/json-doclet-0.3.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.googlecode/json-simple/jars/json-simple-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC>
@@ -56,7 +54,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/colt/sources/colt-src-1.2.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/cern/parallelcolt/sources/parallelcolt-src-0.9.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/edu.emory.mathcs/jtransforms/sources/jtransforms-src-2.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/latexlet/latexlet/sources/LaTeXlet-src-1.11.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-math/sources/commons-math-src-2.1.jar!/" />
         </SOURCES>
       </library>
