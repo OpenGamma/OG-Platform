@@ -190,8 +190,8 @@ public class OpenGammaComponentServer {
     }
     fileName = FilenameUtils.removeExtension(fileName);
     String first = FilenameUtils.getName(FilenameUtils.getPathNoEndSeparator(fileName));
-    String second = StringUtils.substringBefore(FilenameUtils.getName(fileName), "-");
-    if (StringUtils.isEmpty(first) || first.equals(second)) {
+    String second = FilenameUtils.getName(fileName);
+    if (StringUtils.isEmpty(first) || first.equals(second) || second.startsWith(first + "-")) {
       return second;
     }
     return first + "-" + second;

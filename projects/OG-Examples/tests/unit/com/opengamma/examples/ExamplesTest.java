@@ -23,7 +23,7 @@ import com.opengamma.component.rest.RemoteComponentServer;
 @Test(singleThreaded = true)
 public class ExamplesTest {
 
-  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-example-test.properties";
+  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/example-test.properties";
 
   @BeforeMethod
   public void setUp() throws IOException {
