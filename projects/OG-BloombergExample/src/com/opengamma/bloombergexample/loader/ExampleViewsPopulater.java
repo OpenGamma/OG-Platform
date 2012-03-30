@@ -25,10 +25,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -71,6 +68,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     createSwapViewDefinition();
     createFXViewDefinition();
     createMultiCurrencySwapViewDefinition();
+    createEquityOptionViewDefinition();
     //createMixedPortfolioViewDefinition();
   }
 
@@ -92,6 +90,25 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private void createFXViewDefinition() {
     storeViewDefinition(getFXViewDefinition());
+  }
+  
+  private void createEquityOptionViewDefinition() {
+    storeViewDefinition(getEquityOptionViewDefinition(DemoEquityOptionCollarPortfolioLoader.PORTFOLIO_NAME));
+  }
+  
+  private ViewDefinition getEquityOptionViewDefinition(String portfolioName) {
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    equityViewDefinition.setDefaultCurrency(Currency.USD);
+    equityViewDefinition.setMaxFullCalculationPeriod(30000L);
+    equityViewDefinition.setMinFullCalculationPeriod(500L);
+    equityViewDefinition.setMinDeltaCalculationPeriod(500L);
+    equityViewDefinition.setMaxDeltaCalculationPeriod(30000L);
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());    
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());        
+    
+    return equityViewDefinition;
   }
 
   private ViewDefinition getMixedPortfolioViewDefinition() {
