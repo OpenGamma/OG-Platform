@@ -71,13 +71,13 @@ public class PortfolioTemplateCreationTool extends AbstractTool {
     Options options = super.createOptions(contextProvided);
 
     Option filenameOption = new Option(
-        FILE_NAME_OPT, "filename", true, "The path to the file to create and export to (CSV, XLS or ZIP)");
+        FILE_NAME_OPT, "filename", true, "The path to the file to create and export to (CSV or XLS)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
     
     Option assetClassOption = new Option(
         SECURITY_TYPE_OPT, "securitytype", true, 
-        "The security type to export (ignored if ZIP output file is specified)");
+        "The security type for which to generate a template");
     options.addOption(assetClassOption);
     
     return options;
