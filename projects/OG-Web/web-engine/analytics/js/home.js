@@ -421,7 +421,21 @@
         _liveResultsClient.resume();
       }
     });
-   
+    var positionFrame;
+    $('.og-js-positiongadget').live('click', function() {
+      var id = $(this).attr('data-posid').split('~').map(function (v) {return v.split('-')[1];}).join('~');
+      var iframe = '<iframe src="/jax/bundles/fm/prototype/gadget.ftl#/positions/' + id + '/trades=true"\
+          frameborder="0" scrolling="no" title="Position"></iframe>';
+      if (positionFrame) {
+        positionFrame.dialog('close');
+        positionFrame = null;
+      }
+      positionFrame = $(iframe).appendTo('body').dialog({
+          autoOpen: true, height: 345, width: 875, modal: false, resizable: false,
+          beforeClose: function () { $(this).remove(); positionFrame = null; }
+      }).css({height: '400px', width: '850px'});
+    });
+    
     _userConfig = new UserConfig();
     toggleSparklines(_userConfig.getSparklinesEnabled());
     disablePauseResumeButtons();

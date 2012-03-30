@@ -21,17 +21,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Abstract class for tools that sets up a tool context.
@@ -41,7 +41,7 @@ public abstract class AbstractExampleTool extends AbstractTool {
   /**
    * Example configuration for tools.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/bloombergexample.properties";
   
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractExampleTool.class);

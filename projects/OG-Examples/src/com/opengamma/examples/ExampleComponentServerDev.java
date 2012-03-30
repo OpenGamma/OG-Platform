@@ -36,7 +36,7 @@ public class ExampleComponentServerDev extends OpenGammaComponentServer {
       // if no command line arguments, then use default arguments suitable for development in an IDE
       // the first argument is for verbose startup, to aid understanding
       // the second argument defines the start of a chain of properties files providing the configuration
-      args = new String[] {"-v", "classpath:fullstack/fullstack-example-dev.properties"};
+      args = new String[] {"-v", "classpath:fullstack/example-dev.properties"};
     }
     new ExampleComponentServerDev().run(args);
   }
