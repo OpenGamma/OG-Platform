@@ -10,13 +10,13 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
-import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.money.Currency;
 
 /**

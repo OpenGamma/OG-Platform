@@ -11,6 +11,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -21,9 +24,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**

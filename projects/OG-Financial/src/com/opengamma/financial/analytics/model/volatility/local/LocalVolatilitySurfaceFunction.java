@@ -19,6 +19,10 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -31,10 +35,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.local.LocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 
 /**
  * 

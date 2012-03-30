@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**

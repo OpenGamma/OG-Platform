@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Max;
 
 /**

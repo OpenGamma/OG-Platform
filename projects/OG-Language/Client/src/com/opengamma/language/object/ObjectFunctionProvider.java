@@ -428,7 +428,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     if (n.startsWith("com.opengamma.financial.security.")) {
       return Categories.SECURITY;
     }
-    if (n.startsWith("com.opengamma.math.curve.")) {
+    if (n.startsWith("com.opengamma.analytics.math.curve.")) {
       return Categories.CURVE;
     }
     if (n.startsWith("com.opengamma.core.marketdatasnapshot.")) {

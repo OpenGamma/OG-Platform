@@ -10,18 +10,18 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.math.surface.ConstantDoublesSurface;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * 

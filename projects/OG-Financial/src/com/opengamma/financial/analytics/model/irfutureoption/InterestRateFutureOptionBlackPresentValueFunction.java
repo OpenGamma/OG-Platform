@@ -8,12 +8,12 @@ package com.opengamma.financial.analytics.model.irfutureoption;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueBlackCalculator;
-import com.opengamma.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 
 /**
  * 

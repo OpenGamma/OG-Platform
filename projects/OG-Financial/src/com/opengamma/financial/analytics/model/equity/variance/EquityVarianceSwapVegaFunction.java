@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -19,11 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
-import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
-import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.math.surface.NodalDoublesSurface;
 
 /**
  * 

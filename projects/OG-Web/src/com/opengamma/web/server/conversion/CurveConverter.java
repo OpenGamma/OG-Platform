@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.math.curve.DoublesCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.curve.NodalDoublesCurve;
 
 /**
  * 

@@ -22,6 +22,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
+import com.opengamma.analytics.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.function.ParameterizedFunction;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -40,19 +50,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.LastTimeCalculator;
-import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.function.ParameterizedFunction;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.money.Currency;
 
 /**

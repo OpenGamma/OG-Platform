@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.render;
 
-import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * Visitor pattern visitor.

@@ -13,12 +13,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
-import com.opengamma.math.interpolation.GridInterpolator2D;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.LinearExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
 
 /**
  * Holds Fudge builders for the interpolation model.

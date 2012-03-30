@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.ParallelArrayBinarySort;
+import com.opengamma.analytics.math.ParallelArrayBinarySort;
 
 /**
  * Sorts primitives without having to go through {@link ParallelArrayBinarySort}

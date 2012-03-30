@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
  * A Toeplitz (or diagonal constant matrix) is a matrix which has the form:

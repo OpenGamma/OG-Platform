@@ -9,8 +9,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
 
-import com.opengamma.math.function.Function;
-import com.opengamma.util.serialization.InvokedSerializedForm;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 
 /**
  * 

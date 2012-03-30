@@ -11,6 +11,9 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -33,9 +36,6 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 

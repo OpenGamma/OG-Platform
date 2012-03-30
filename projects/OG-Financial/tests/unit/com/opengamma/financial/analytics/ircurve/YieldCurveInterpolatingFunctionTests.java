@@ -8,9 +8,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.curve.NodalDoublesCurve;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 
 public class YieldCurveInterpolatingFunctionTests {
 

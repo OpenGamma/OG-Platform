@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.math.MathException;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * 

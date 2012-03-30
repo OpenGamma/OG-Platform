@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
  * 

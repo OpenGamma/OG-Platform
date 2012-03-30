@@ -8,6 +8,10 @@ package com.opengamma.financial.analytics.model.equity.variance;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -20,12 +24,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
-import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
-import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 
 /**

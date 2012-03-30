@@ -8,7 +8,7 @@ package com.opengamma.financial.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * 
