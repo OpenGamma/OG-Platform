@@ -12,12 +12,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalObjectsCurve;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.language.error.InvokeInvalidArgumentException;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.curve.NodalDoublesCurve;
-import com.opengamma.math.curve.NodalObjectsCurve;
-import com.opengamma.math.function.Function;
 
 /**
  * Tests the {@link GetCurveYValuesFunction} class.
