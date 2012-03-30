@@ -4,6 +4,8 @@
     <title>OpenGamma Analytics</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
+    <script src="/prototype/scripts/lib/js.ext.array.prototype.map.js"></script>
+
     <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.event.drag-2.0.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.json-2.2.js"></script>
@@ -82,6 +84,14 @@
       .cell-title {
         font-weight: bold;
         margin: 0 4px;
+      }
+
+      .og-js-positiongadget {
+        text-decoration: none;
+      }
+      
+      .og-js-positiongadget:hover {
+        text-decoration: underline;
       }
       
       .right {
