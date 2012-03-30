@@ -15,7 +15,9 @@ $.register_module({
                     <section class="OG-details-positions og-js-positions"></section>\
                     <section class="og-js-trades"></section>\
                 ');
-                common.gadgets.positions({id: args.id, selector: '.og-js-positions', editable: false, links: false});
+                common.gadgets.positions({
+                    id: args.id, selector: '.og-js-positions', editable: false, external_links: true
+                });
                 if (args.trades === 'true')
                     common.gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});
             },
