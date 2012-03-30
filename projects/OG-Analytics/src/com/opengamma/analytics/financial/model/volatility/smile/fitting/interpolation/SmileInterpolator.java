@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * from giving 100% weight to the left smile at the mid point of that fit, down to 0% at the mid point of the right fit.
  * @param <T> The type of the smile model data
  */
-public abstract class SmileInterpolator<T extends SmileModelData> {
+public abstract class SmileInterpolator<T extends SmileModelData> implements GeneralSmileInterpolator {
   /**
    * Random number generator with default seed
    */
@@ -52,7 +52,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
   private final VolatilityFunctionProvider<T> _model;
   private final WeightingFunction _weightingFunction;
 
-  public SmileInterpolator(final VolatilityFunctionProvider<T> model) {
+  public SmileInterpolator(VolatilityFunctionProvider<T> model) {
     ArgumentChecker.notNull(model, "model");
     _model = model;
     _weightingFunction = DEFAULT_WEIGHTING_FUNCTION;
@@ -68,12 +68,12 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
 
     final List<T> modelParameters = new ArrayList<T>(n);
 
-    final double[] errors = new double[n];
+    double[] errors = new double[n];
     Arrays.fill(errors, FIT_ERROR);
 
     final SmileModelFitter<T> globalFitter = getFitter(forward, strikes, expiry, impliedVols, errors);
     // DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
-    final BitSet gFixed = getGlobalFixedValues();
+    BitSet gFixed = getGlobalFixedValues();
     LeastSquareResultsWithTransform gBest = null;
     double chiSqr = Double.POSITIVE_INFINITY;
 
@@ -81,24 +81,22 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
     int tries = 0;
     int count = 0;
     while (chiSqr > 100.0 * n && count < 5) { //10bps average error
-      final DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
+      DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
       try {
-        final LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
+        LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
         if (glsRes.getChiSq() < chiSqr) {
           gBest = glsRes;
           chiSqr = gBest.getChiSq();
         }
         count++;
-      } catch (final MathException e) {
+      } catch (MathException e) {
       }
       tries++;
       if (tries > 20) {
         throw new MathException("Cannot fit data");
       }
     }
-    if (gBest == null) {
-      throw new MathException("Should never happen");
-    }
+
     if (n == 3) {
       if (gBest.getChiSq() / n > 1.0) {
         s_logger.warn("chi^2 on fit to ", +n + " points is " + gBest.getChiSq());
@@ -108,11 +106,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
       final BitSet lFixed = getLocalFixedValues();
       DoubleMatrix1D lStart = gBest.getModelParameters();
       for (int i = 0; i < n - 2; i++) {
-        final double[][] temp = getStrikesVolsAndErrors(i, strikes, impliedVols, errors);
-        final double[] tStrikes = temp[0];
-        final double[] tVols = temp[1];
-        final double[] tErrors = temp[2];
-        final SmileModelFitter<T> localFitter = getFitter(forward, tStrikes, expiry, tVols, tErrors);
+        double[][] temp = getStrikesVolsAndErrors(i, strikes, impliedVols, errors);
+        double[] tStrikes = temp[0];
+        double[] tVols = temp[1];
+        double[] tErrors = temp[2];
+        SmileModelFitter<T> localFitter = getFitter(forward, tStrikes, expiry, tVols, tErrors);
         LeastSquareResultsWithTransform lRes = localFitter.solve(lStart, lFixed);
         LeastSquareResultsWithTransform best = lRes;
 
@@ -155,7 +153,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
     tStrikes = Arrays.copyOfRange(strikes, index, index + 3);
     tVols = Arrays.copyOfRange(impliedVols, index, index + 3);
     tErrors = Arrays.copyOfRange(errors, index, index + 3);
-    final double[][] res = new double[][] {tStrikes, tVols, tErrors };
+    double[][] res = new double[][] {tStrikes, tVols, tErrors };
     return res;
   }
 
@@ -171,10 +169,10 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
    */
   protected static double[][] getStrikesVolsAndErrorsForAllPoints(final int index, final double[] strikes, final double[] impliedVols, final double[] errors) {
     final int n = errors.length;
-    final double[] lErrors = new double[n];
+    double[] lErrors = new double[n];
     Arrays.fill(lErrors, LARGE_ERROR);
     System.arraycopy(errors, index, lErrors, index, 3); //copy the original errors for the points we really want to fit
-    final double[][] res = new double[][] {strikes, impliedVols, lErrors };
+    double[][] res = new double[][] {strikes, impliedVols, lErrors };
     return res;
   }
 
@@ -202,11 +200,10 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
     final int n = strikes.length;
 
     return new Function1D<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike) {
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
-        final Function1D<T, Double> volFunc = _model.getVolatilityFunction(option, forward);
+        EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+        Function1D<T, Double> volFunc = _model.getVolatilityFunction(option, forward);
         final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
         if (index == 0) {
           return volFunc.evaluate(modelParams.get(0));
@@ -226,27 +223,27 @@ public abstract class SmileInterpolator<T extends SmileModelData> {
     };
   }
 
-  protected DoubleMatrix1D getPolynomialFit(final double forward, final double[] strikes, final double[] impliedVols) {
+  protected DoubleMatrix1D getPolynomialFit(double forward, double[] strikes, double[] impliedVols) {
     final int n = strikes.length;
-    final double[] x = new double[n];
+    double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = Math.log(strikes[i] / forward);
     }
 
-    final ParameterizedFunction<Double, DoubleMatrix1D, Double> func = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+    ParameterizedFunction<Double, DoubleMatrix1D, Double> func = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @Override
-      public Double evaluate(final Double x1, final DoubleMatrix1D parameters) {
-        final double a = parameters.getEntry(0);
-        final double b = parameters.getEntry(1);
-        final double c = parameters.getEntry(2);
+      public Double evaluate(Double x1, DoubleMatrix1D parameters) {
+        double a = parameters.getEntry(0);
+        double b = parameters.getEntry(1);
+        double c = parameters.getEntry(2);
         return a + b * x1 + c * x1 * x1;
       }
     };
 
     //TODO replace this with an explicit polynomial fitter
-    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    final LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(x), new DoubleMatrix1D(impliedVols), func, new DoubleMatrix1D(0.1, 0.0, 0.0));
-    final DoubleMatrix1D fitP = lsRes.getFitParameters();
+    NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(x), new DoubleMatrix1D(impliedVols), func, new DoubleMatrix1D(0.1, 0.0, 0.0));
+    DoubleMatrix1D fitP = lsRes.getFitParameters();
     return fitP;
   }
 
