@@ -13,6 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.greeks.Underlying;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.riskfactor.GreekDataBundle;
+import com.opengamma.analytics.financial.riskfactor.GreekToValueGreekConverter;
+import com.opengamma.analytics.financial.sensitivity.ValueGreek;
+import com.opengamma.analytics.financial.trade.OptionTradeData;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -28,16 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.Underlying;
-import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.riskfactor.GreekDataBundle;
-import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.sensitivity.ValueGreek;
-import com.opengamma.financial.trade.OptionTradeData;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**

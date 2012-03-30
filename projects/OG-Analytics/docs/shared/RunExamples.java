@@ -29,16 +29,16 @@ public class RunExamples {
     /// @export "class-names"
     public static String[] classNames() {
         return new String[] {
-            "com.opengamma.example.coupledfokkerplank.CoupledFokkerPlankExample",
-            "com.opengamma.example.curveconstruction.AnnuityExample",
-            "com.opengamma.example.curveconstruction.CashExample",
-            "com.opengamma.example.curveconstruction.CurveConstructionExample",
-            "com.opengamma.example.curveconstruction.CurveExample",
-            "com.opengamma.example.curveconstruction.FunctionExample",
-            "com.opengamma.example.curveconstruction.MatrixExample",
-            "com.opengamma.example.curveconstruction.YieldCurveExample",
-            "com.opengamma.example.sabrextrapolation.SabrExtrapolationExample",
-            "com.opengamma.example.timeseries.TimeSeriesExample"
+            "com.opengamma.analytics.example.coupledfokkerplank.CoupledFokkerPlankExample",
+            "com.opengamma.analytics.example.curveconstruction.AnnuityExample",
+            "com.opengamma.analytics.example.curveconstruction.CashExample",
+            "com.opengamma.analytics.example.curveconstruction.CurveConstructionExample",
+            "com.opengamma.analytics.example.curveconstruction.CurveExample",
+            "com.opengamma.analytics.example.curveconstruction.FunctionExample",
+            "com.opengamma.analytics.example.curveconstruction.MatrixExample",
+            "com.opengamma.analytics.example.curveconstruction.YieldCurveExample",
+            "com.opengamma.analytics.example.sabrextrapolation.SabrExtrapolationExample",
+            "com.opengamma.analytics.example.timeseries.TimeSeriesExample"
         };
     }
     /// @end

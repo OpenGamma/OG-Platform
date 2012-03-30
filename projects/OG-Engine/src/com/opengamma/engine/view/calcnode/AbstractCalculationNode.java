@@ -132,7 +132,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
         // litter the logs with stack traces; the inputs missing have also already been
         // written at INFO level
-        s_logger.warn("Unable to invoke {} due to missing inputs", jobItem);
+        s_logger.info("Unable to invoke {} due to missing inputs", jobItem);
         resultItem = new CalculationJobResultItem(jobItem, e);
       } catch (Throwable t) {
         s_logger.error("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception", t);
@@ -223,11 +223,6 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     // execute
     statistics.beginInvocation();
     final Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
-    for (ComputedValue result : results) {
-      if(result.getValue() == null){
-        System.out.println("null");
-      }
-    }
     if (results == null) {
       throw new NullPointerException("No results returned by invoker " + invoker);
     }

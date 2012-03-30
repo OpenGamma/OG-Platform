@@ -38,6 +38,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
@@ -89,7 +90,9 @@ public class JodaBeanRowParser extends RowParser {
     "securitylink",
     "trades",
     "attributes",
-    "gicscode"
+    "gicscode",
+    "parentpositionid",
+    "providerid"
   };
   
   /**
@@ -113,6 +116,7 @@ public class JodaBeanRowParser extends RowParser {
 
     // Force registration of various meta beans that might not have been loaded yet
     ManageablePosition.meta();
+    ManageableTrade.meta();
     Notional.meta();
     SwapLeg.meta();
     InterestRateLeg.meta();
@@ -135,9 +139,7 @@ public class JodaBeanRowParser extends RowParser {
     // Set column map
     _columns = recursiveGetColumnMap(_securityClass, "");
     _columns.putAll(recursiveGetColumnMap(ManageablePosition.class, "position:"));
-    
-    s_logger.info(securityName + " properties: " + _columns);
-
+    _columns.putAll(recursiveGetColumnMap(ManageableTrade.class, "trade:"));
   }
 
   /**
@@ -166,9 +168,14 @@ public class JodaBeanRowParser extends RowParser {
     
     ArgumentChecker.notNull(row, "row");
     
-    ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();
-    securities.add((ManageableSecurity) recursiveConstructBean(row, _securityClass, ""));
-    return securities.toArray(new ManageableSecurity[securities.size()]);
+    ManageableSecurity security = (ManageableSecurity) recursiveConstructBean(row, _securityClass, "");
+    if (security != null) {
+      ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();
+      securities.add(security);
+      return securities.toArray(new ManageableSecurity[securities.size()]);
+    } else {
+      return null;
+    }
   }
   
   @Override
@@ -178,10 +185,25 @@ public class JodaBeanRowParser extends RowParser {
     ArgumentChecker.notNull(security, "security");
     
     ManageablePosition result = (ManageablePosition) recursiveConstructBean(row, ManageablePosition.class, "position:");
-    result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+    if (result != null) {
+      result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+    }
     return result;
   }
 
+  @Override
+  public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
+
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(position, "position");
+    
+    ManageableTrade result = (ManageableTrade) recursiveConstructBean(row, ManageableTrade.class, "trade:");
+    if (result != null) {
+      result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+    }
+    return result;
+  }
   
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Export routines: construct row from security, position, trade
@@ -199,6 +221,11 @@ public class JodaBeanRowParser extends RowParser {
     return recursiveConstructRow(position, "position:");
   }
 
+  @Override
+  public Map<String, String> constructRow(ManageableTrade trade) {
+    ArgumentChecker.notNull(trade, "trade");
+    return recursiveConstructRow(trade, "trade:");
+  }
   
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Utility routines
@@ -307,7 +334,7 @@ public class JodaBeanRowParser extends RowParser {
               builder.set(metaProperty.name(), 
                   JodaBeanUtils.stringConverter().convertFromString(metaProperty.propertyType(), rawValue));
             } else {
-              s_logger.warn("Skipping empty or null value for " + prefix + metaProperty.name());
+              s_logger.info("Skipping empty or null value for " + prefix + metaProperty.name());
             }
           }
         }
@@ -317,7 +344,8 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      throw new OpenGammaRuntimeException("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      s_logger.error("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      return null;
     }
   }
   
@@ -351,7 +379,7 @@ public class JodaBeanRowParser extends RowParser {
           if (_columns.containsKey(prefix + metaProperty.name())) {
             result.put(prefix + metaProperty.name(), metaProperty.getString(bean));
           } else {
-            s_logger.warn("No matching column found for property " + prefix + metaProperty.name());
+            s_logger.info("No matching column found for property " + prefix + metaProperty.name());
           }
         }
       }

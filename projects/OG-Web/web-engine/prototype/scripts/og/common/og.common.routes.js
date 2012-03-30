@@ -43,6 +43,7 @@ $.register_module({
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common;
                     $('.OG-js-loading').hide();
+                    $('.OG-layout-admin-container, .OG-layout-analytics-container').css({'visibility': 'visible'});
                     common.layout = (({
                         'analytics.ftl': common.layout.analytics,
                         'analytics2.ftl': common.layout.analytics2,

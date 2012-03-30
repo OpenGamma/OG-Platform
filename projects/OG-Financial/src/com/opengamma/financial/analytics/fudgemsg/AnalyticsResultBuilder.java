@@ -19,8 +19,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;

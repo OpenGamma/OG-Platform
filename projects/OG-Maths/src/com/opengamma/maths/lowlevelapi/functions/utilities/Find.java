@@ -7,7 +7,7 @@ package com.opengamma.maths.lowlevelapi.functions.utilities;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.MathException;
+import com.opengamma.analytics.math.MathException;
 
 /**
  * Finds the indexes of values that satisfy a given condition.

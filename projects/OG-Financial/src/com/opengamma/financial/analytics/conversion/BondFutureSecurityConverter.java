@@ -11,10 +11,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;

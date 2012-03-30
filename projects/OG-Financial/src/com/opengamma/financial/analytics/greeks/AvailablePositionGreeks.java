@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.sensitivity.PositionGreek;
 
 /**
  * 
@@ -26,7 +26,7 @@ public class AvailablePositionGreeks {
     AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_DELTA, new PositionGreek(Greek.DELTA));
     AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_DELTA_BLEED, new PositionGreek(Greek.DELTA_BLEED));
     AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_STRIKE_DELTA, new PositionGreek(Greek.STRIKE_DELTA));
-    AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_DRIFTLESS_DELTA, new PositionGreek(Greek.DRIFTLESS_THETA));
+    AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_DRIFTLESS_THETA, new PositionGreek(Greek.DRIFTLESS_THETA));
 
     AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_GAMMA, new PositionGreek(Greek.GAMMA));
     AVAILABLE_POSITION_GREEKS.put(ValueRequirementNames.POSITION_GAMMA_P, new PositionGreek(Greek.GAMMA_P));

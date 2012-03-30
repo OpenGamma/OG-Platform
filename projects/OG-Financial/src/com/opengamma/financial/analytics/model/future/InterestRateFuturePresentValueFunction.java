@@ -8,11 +8,11 @@ package com.opengamma.financial.analytics.model.future;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
  * Present value function for interest rate futures.

@@ -15,6 +15,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -101,8 +102,9 @@ public class LiveDataDeltaCalculator {
       // due to market data changes affecting the function of the node.
       Pair<ValueRequirement, ValueSpecification> liveData = node.getRequiredMarketData();
       if (liveData != null) {
-        Object oldValue = _previousCache.getValue(liveData.getSecond());
-        Object newValue = _cache.getValue(liveData.getSecond());
+        // Market data is always in the shared cache
+        Object oldValue = _previousCache.getValue(liveData.getSecond(), CacheSelectHint.allShared());
+        Object newValue = _cache.getValue(liveData.getSecond(), CacheSelectHint.allShared());
         if (!ObjectUtils.equals(oldValue, newValue)) {
           hasChanged = true;
         }

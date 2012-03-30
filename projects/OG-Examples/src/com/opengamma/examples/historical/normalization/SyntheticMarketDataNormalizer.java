@@ -38,7 +38,7 @@ public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjust
       }
     }
     if (factor == 0) {
-      s_logger.warn("Unable to classify security - synthetic ticker {} unrecognised", ticker);
+      s_logger.debug("Unable to classify security - synthetic ticker {} unrecognised", ticker);
       return timeSeries;
     }
     if (factor == 1) {

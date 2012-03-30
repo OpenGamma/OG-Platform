@@ -12,11 +12,11 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.surface.Surface;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Holds Fudge builders for the volatility surface model.

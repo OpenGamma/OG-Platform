@@ -24,7 +24,7 @@ public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjust
 
   @Override
   public HistoricalTimeSeries adjust(final ExternalIdBundle securityIdBundle, final HistoricalTimeSeries timeSeries) {
-    final String ticker = securityIdBundle.getValue(SecurityUtils.OG_SYNTHETIC_TICKER);
+    final String ticker = securityIdBundle.getValue(SecurityUtils.BLOOMBERG_TICKER);
     
     if (ticker == null) {
       s_logger.warn("Unable to classify security - no synthetic ticker found in {}", securityIdBundle);
