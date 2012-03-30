@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.maths.lowlevelapi.linearalgebra.blas.BLAS1;
 
 /**

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import com.opengamma.math.function.Function;
-import com.opengamma.util.serialization.InvokedSerializedForm;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 
 /**
  * 

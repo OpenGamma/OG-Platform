@@ -10,13 +10,13 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
-import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

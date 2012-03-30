@@ -8,6 +8,10 @@ package com.opengamma.financial.analytics.model.forex;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
+import com.opengamma.analytics.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -15,10 +19,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
-import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 
 /**
  * 

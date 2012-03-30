@@ -12,8 +12,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.greeks.BucketedGreekResultCollection;
 
 /**
  * 

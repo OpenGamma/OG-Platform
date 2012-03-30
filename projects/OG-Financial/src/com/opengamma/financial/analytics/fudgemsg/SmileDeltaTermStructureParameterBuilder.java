@@ -11,8 +11,8 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 
 /**
  * 
