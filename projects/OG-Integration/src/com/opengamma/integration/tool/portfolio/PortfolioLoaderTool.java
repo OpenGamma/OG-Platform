@@ -8,6 +8,8 @@ package com.opengamma.integration.tool.portfolio;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
@@ -15,18 +17,15 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
-import com.opengamma.integration.copier.portfolio.rowparser.ExchangeTradedRowParser;
 import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
  * The portfolio loader tool
  */
-public class PortfolioLoaderTool extends AbstractIntegrationTool {
+public class PortfolioLoaderTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -41,7 +40,7 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
-  private static IntegrationToolContext s_context;
+  private static ToolContext s_context;
   
   //-------------------------------------------------------------------------
   /**
@@ -132,11 +131,11 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
         if (securityType == null) {
           throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename);
         } else {
-          if (securityType.equalsIgnoreCase("exchangetraded")) {
-            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));            
-          } else {
-            return new SingleSheetSimplePortfolioReader(filename, securityType);
-          }
+//          if (securityType.equalsIgnoreCase("exchangetraded")) {
+//            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));            
+//          } else {
+          return new SingleSheetSimplePortfolioReader(filename, securityType);
+//          }
         }
       
       case ZIP:

@@ -48,19 +48,22 @@
             header: "Value",
             typeFormatter: PrimitiveFormatter,
             nullValue: "null",
-            dynamic: true
+            dynamic: true,
+            width: 250
           },        
           {
             colId: 'function',
             header: "Function",
             typeFormatter: PrimitiveFormatter,
-            nullValue: "null"
+            nullValue: "null",
+            width: 200
           },
           {
             colId: 'properties',
             header: "Properties",
             typeFormatter: PrimitiveFormatter,
-            nullValue: ""
+            nullValue: "",
+            width: 400
           }
       ];
       var gridColumns = SlickGridHelper.makeGridColumns(self, [targetColumn], _columns, 150, _userConfig);

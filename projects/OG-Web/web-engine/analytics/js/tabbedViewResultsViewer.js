@@ -28,7 +28,7 @@
     
     function init() {
       var $mainContentContainer = $("<div class='ui-layout-center'></div>");
-      var $popupContainer = $("<div class='ui-layout-east'></div>");
+      var $popupContainer = $("<div class='ui-layout-south'></div>");
       _$popupList = $("<ul class='popup-list'></ul>");
       _$popupList.sortable({
         connectWith: _$popupList,
@@ -51,8 +51,8 @@
         center: {
           onresize: handleCenterResized
         },
-        east: {
-          size: 600,
+        south: {
+          size: 300,
           initClosed: true
         }
       });

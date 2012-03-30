@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.option;
 
+import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;

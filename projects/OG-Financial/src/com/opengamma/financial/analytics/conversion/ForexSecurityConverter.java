@@ -10,14 +10,14 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.forex.definition.ForexDefinition;
-import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
-import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
-import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.model.option.definition.Barrier;
-import com.opengamma.financial.model.option.definition.Barrier.KnockType;
-import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -164,12 +164,12 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     }
   }
 
-  private com.opengamma.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
+  private com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
     switch (type) {
       case UP:
-        return com.opengamma.financial.model.option.definition.Barrier.BarrierType.UP;
+        return com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType.UP;
       case DOWN:
-        return com.opengamma.financial.model.option.definition.Barrier.BarrierType.DOWN;
+        return com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType.DOWN;
       default:
         throw new OpenGammaRuntimeException("Should never happen");
     }

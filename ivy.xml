@@ -1,8 +1,6 @@
 <ivy-module version="2.0">
     <info organisation="com.opengamma" module="og-platform" status="integration"/>
     <dependencies>
-      <dependency org="latexlet" name="latexlet" rev="1.11"/>
-
       <!-- Dependencies required for javadoc creation -->
       <!-- Minimal set only works for Java 7+ 
       <dependency org="org.joda" name="joda-beans" rev="0.6"/>
@@ -12,6 +10,7 @@
       <dependency org="com.google.common" name="guava" rev="11.0.1"/>
       <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server"/>
       -->
+      <dependency org="com.googlecode" name="json-simple" rev="1.1.1"/>
       <dependency name="og-util" rev="latest.integration" />
     </dependencies>
 </ivy-module>

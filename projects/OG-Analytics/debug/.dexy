@@ -1,6 +1,0 @@
-{
-    "$globals" : {
-        "env" : { "CLASSPATH" : "../../../../lib/classpath.jar" }
-    },
-    "*.java|fn|java" : {}
-}

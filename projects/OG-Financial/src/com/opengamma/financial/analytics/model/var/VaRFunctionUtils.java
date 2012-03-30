@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 
 /**
  * 

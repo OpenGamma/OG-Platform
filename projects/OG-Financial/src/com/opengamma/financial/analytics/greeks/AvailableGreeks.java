@@ -10,9 +10,9 @@ import java.util.Set;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.greeks.Greek;
 import com.opengamma.util.ArgumentChecker;
 
 /**

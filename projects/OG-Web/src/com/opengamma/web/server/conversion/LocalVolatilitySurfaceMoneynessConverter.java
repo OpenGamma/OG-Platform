@@ -14,11 +14,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.math.MathException;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
  * 
