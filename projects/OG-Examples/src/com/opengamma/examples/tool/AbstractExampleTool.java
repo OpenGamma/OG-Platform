@@ -11,6 +11,7 @@ import com.opengamma.component.tool.AbstractTool;
  * Abstract class for tools that sets up a tool context.
  */
 public abstract class AbstractExampleTool extends AbstractTool {
+
   /**
    * Example configuration for tools.
    */
