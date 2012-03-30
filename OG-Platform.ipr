@@ -47,6 +47,7 @@
       <entry name="?*.txt" />
       <entry name="?*.csv" />
       <entry name="?*.ini" />
+      <entry name="?*.elsql" />
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
