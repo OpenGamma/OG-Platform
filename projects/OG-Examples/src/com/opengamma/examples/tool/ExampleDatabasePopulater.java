@@ -39,6 +39,11 @@ import com.opengamma.util.time.Tenor;
 public class ExampleDatabasePopulater extends AbstractExampleTool {
 
   /**
+   * The name of the multi-currency swap portfolio.
+   */
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+
+  /**
    * The currencies.
    */
   private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
@@ -193,7 +198,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   private void loadMultiCurrencySwapPortfolio() {
     final Log log = new Log("Creating example multi currency swap portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "MultiCurrency Swap Portfolio", "Swap", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
