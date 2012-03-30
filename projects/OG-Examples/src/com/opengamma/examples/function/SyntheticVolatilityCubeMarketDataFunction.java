@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.examples.volatility.cube.SyntheticSwaptionVolatilityCubeInstrumentProvider;
+import com.opengamma.examples.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
@@ -48,7 +48,7 @@ import com.opengamma.util.tuple.Triple;
  */
 public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction {
 
-  private static final SyntheticSwaptionVolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
+  private static final ExampleSwaptionVolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
 
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;

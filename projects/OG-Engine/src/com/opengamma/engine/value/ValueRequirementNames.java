@@ -65,6 +65,11 @@ public final class ValueRequirementNames {
    * The mark as of the previous close (e.g. equity price)
    */
   public static final String MARK = "Mark";
+  
+  /**
+   * The spot rate for currency pair
+   */
+  public static final String SPOT_RATE = "SpotRate";
 
   ///// Curves
 
@@ -987,5 +992,6 @@ public final class ValueRequirementNames {
    * The vomma of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
+  
 
 }

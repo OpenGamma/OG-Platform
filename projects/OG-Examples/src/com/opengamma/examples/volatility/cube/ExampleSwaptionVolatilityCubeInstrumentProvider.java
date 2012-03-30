@@ -8,8 +8,8 @@ package com.opengamma.examples.volatility.cube;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -18,6 +18,8 @@ import javax.time.calendar.Period;
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
@@ -32,9 +34,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Generates Synthetic instrument codes for volatilities given points.
+ * Generates Example instrument codes for volatilities given points.
  */
-public final class SyntheticSwaptionVolatilityCubeInstrumentProvider {
+public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
   
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
@@ -46,15 +48,53 @@ public final class SyntheticSwaptionVolatilityCubeInstrumentProvider {
   /**
    * Generates Example codes for volatilities given points.
    */
-  public static final SyntheticSwaptionVolatilityCubeInstrumentProvider INSTANCE = new SyntheticSwaptionVolatilityCubeInstrumentProvider();
+  public static final ExampleSwaptionVolatilityCubeInstrumentProvider INSTANCE = new ExampleSwaptionVolatilityCubeInstrumentProvider();
 
   private static final String TICKER_FILE = "SyntheticVolatilityCubeIdentifierLookupTable.csv";
+  
+//  private final Set<Currency> _currencies = ImmutableSet.of(Currency.CHF, 
+//      Currency.JPY, Currency.EUR, Currency.CZK, Currency.USD, Currency.GBP, Currency.NOK, Currency.DKK, Currency.SEK);
+  
+  private final Set<Currency> _currencies = ImmutableSet.of(Currency.USD);
+  
+  private final Set<Tenor> _swapTenors = ImmutableSet.of(Tenor.ofMonths(3), 
+      Tenor.ofYears(1), 
+      Tenor.ofYears(2), 
+      Tenor.ofYears(3), 
+      Tenor.ofYears(5), 
+      Tenor.ofYears(10), 
+      Tenor.ofYears(15), 
+      Tenor.ofYears(20), 
+      Tenor.ofYears(30));
+ 
+  private final Set<Tenor> _optionTenors = ImmutableSet.of(Tenor.ofMonths(1), 
+      Tenor.ofMonths(3),
+      Tenor.ofMonths(6),
+      Tenor.ofYears(1), 
+      Tenor.ofYears(2), 
+      Tenor.ofYears(3), 
+      Tenor.ofYears(4),
+      Tenor.ofYears(5), 
+      Tenor.ofYears(10), 
+      Tenor.ofYears(15), 
+      Tenor.ofYears(20), 
+      Tenor.ofYears(30));
+  
+  private final Set<Double> _relativeStrikes = ImmutableSet.of(20.0, 25.0, 50.0, 70.0, 75.0, 100.0, 200.0, 500.0);
+  
+  private final Map<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint = Maps.newHashMap();
 
-  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint;
-
-  private SyntheticSwaptionVolatilityCubeInstrumentProvider() {
-    //TODO not here
-    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>>();
+  private ExampleSwaptionVolatilityCubeInstrumentProvider() {
+//    for (Currency ccy : _currencies) {
+//      for (Tenor optionExpiry : _optionTenors) {
+//        for (Tenor swapTenor : _swapTenors) {
+//          for (Double relativeStrike : _relativeStrikes) {
+//            addPoint(ccy, optionExpiry, swapTenor, relativeStrike * -1, "%sSWAPTIONVOL%s%sN%s");
+//            addPoint(ccy, optionExpiry, swapTenor, relativeStrike, "%sSWAPTIONVOL%s%sP%s");
+//          }
+//        }
+//      }
+//    }
 
     final InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
@@ -111,6 +151,14 @@ public final class SyntheticSwaptionVolatilityCubeInstrumentProvider {
     } catch (final IOException e) {
       throw new OpenGammaRuntimeException("Unable to read from " + TICKER_FILE, e);
     }
+  }
+
+  private void addPoint(Currency ccy, Tenor optionExpiry, Tenor swapTenor, Double relativeStrike, String format) {
+    final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
+    String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
+    final ExternalId identifier = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker);
+    final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(ccy, point);
+    _idsByPoint.put(key, Sets.newHashSet(identifier));
   }
 
   private ExternalId getIdentifier(final String ticker) {
