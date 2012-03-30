@@ -15,7 +15,7 @@ public abstract class AbstractExampleTool extends AbstractTool {
   /**
    * Example configuration for tools.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-example.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/example.properties";
 
   @Override
   public boolean initAndRun(String[] args) {
