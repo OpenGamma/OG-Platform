@@ -86,7 +86,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadFRAPortfolio();
     loadLiborRawSecurities();
     loadMixedFXPortfolio();
-    loadMixedPortfolio();
+    loadMultiAssetPortfolio();
     loadViews();
   }
 
@@ -130,8 +130,8 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
 
   }
 
-  private void loadMixedPortfolio() {
-    final Log log = new Log("Creating example mixed portfolio");
+  private void loadMultiAssetPortfolio() {
+    final Log log = new Log("Creating example multi asset portfolio");
     try {
       ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
       mixedPortfolioLoader.run(getToolContext());

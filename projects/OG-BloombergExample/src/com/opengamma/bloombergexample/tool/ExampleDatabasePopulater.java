@@ -83,7 +83,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadVolSurfaceData();
     loadSwapPortfolio();
     loadFXPortfolio();
-    //loadMultiCurrencySwapPortfolio();
+    loadMultiCurrencySwapPortfolio();
     //loadLiborRawSecurities();
     //loadMixedPortfolio();
     loadViews();
