@@ -62,6 +62,11 @@ public class PortfolioSaverTool extends AbstractTool {
   protected void doRun() {     
     s_context = getToolContext();
 
+    // Construct portfolio reader
+    PortfolioReader portfolioReader = constructPortfolioReader(
+        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT)
+    );
+
     // Create portfolio writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
@@ -69,11 +74,6 @@ public class PortfolioSaverTool extends AbstractTool {
         getCommandLine().hasOption(WRITE_OPT)
     );
     
-    // Construct portfolio reader
-    PortfolioReader portfolioReader = constructPortfolioReader(
-        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT)
-    );
-
     // Construct portfolio copier
     PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
         
