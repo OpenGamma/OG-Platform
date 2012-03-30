@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.volatility.smile.fitting;
+package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
