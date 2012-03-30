@@ -11,9 +11,9 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.financial.forex.conversion.ForexDomesticPipsToPresentValueConverter;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.financial.forex.conversion.ForexDomesticPipsToPresentValueConverter;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

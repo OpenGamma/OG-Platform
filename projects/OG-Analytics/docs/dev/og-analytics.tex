@@ -2,15 +2,15 @@
 
 \chapter{Instruments}
 
-This chapter introduces financial instruments, which implement the << f.javadoc_href("com.opengamma.financial.interestrate.InstrumentDerivative") >> interface.
+This chapter introduces financial instruments, which implement the << f.javadoc_href("com.opengamma.analytics.financial.interestrate.InstrumentDerivative") >> interface.
 
-<% for class_name in sorted(d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.interestrate']['classes']['InstrumentDerivative'].implementers) -%>
+<% for class_name in sorted(d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.analytics.financial.interestrate']['classes']['InstrumentDerivative'].implementers) -%>
 \hyperref[sec:<< class_name >>]{<< class_name >>}
 
 <% endfor %>
 
 \section{Cash}
-<% set class_name = "com.opengamma.financial.interestrate.cash.derivative.Cash" -%>
+<% set class_name = "com.opengamma.analytics.financial.interestrate.cash.derivative.Cash" -%>
 \label{sec:<< class_name >>}
 <% set package_name, unqualified_class_name = f.split_package_class(class_name) -%>
 

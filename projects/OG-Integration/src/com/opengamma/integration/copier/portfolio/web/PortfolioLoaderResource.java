@@ -90,7 +90,7 @@ public class PortfolioLoaderResource {
                                   //@FormDataParam("portfolioName") String portfolioName,
                                   //@FormDataParam("dataField") String dataField
                                   //@FormDataParam("dataProvider") String dataProvider
-                                  ) throws IOException {
+  ) throws IOException {
     String dataField = getString(formData, "dataField");
     String dataProvider = getString(formData, "dataProvider");
     String portfolioName = getString(formData, "portfolioName");
@@ -149,8 +149,13 @@ public class PortfolioLoaderResource {
   private static SheetFormat getFormatForFileName(String fileName) {
     if (fileName.toLowerCase().endsWith("csv")) {
       return SheetFormat.CSV;
+    } else if (fileName.toLowerCase().endsWith("xls")) {
+      return SheetFormat.XLS;
+    } else if (fileName.toLowerCase().endsWith("xlsx")) {
+      return SheetFormat.XLSX;
     }
-    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Only CSV upload is suported").build();
+    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV " +
+                                                                                "files and Excel worksheets").build();
     throw new WebApplicationException(response);
   }
 

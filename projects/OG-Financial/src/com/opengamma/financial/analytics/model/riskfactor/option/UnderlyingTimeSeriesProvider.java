@@ -8,12 +8,12 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
+import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.greeks.AbstractGreekVisitor;
-import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;

@@ -9,6 +9,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.copier.portfolio.PortfolioCopier;
 import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
@@ -16,20 +18,17 @@ import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.rowparser.ExchangeTradedRowParser;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
  * The portfolio saver tool
  */
-public class PortfolioSaverTool extends AbstractIntegrationTool {
+public class PortfolioSaverTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -42,7 +41,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
-  private static IntegrationToolContext s_context;
+  private static ToolContext s_context;
   
   //-------------------------------------------------------------------------
   /**
@@ -102,11 +101,11 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
       }
        
       if (SheetFormat.of(filename) == SheetFormat.CSV || SheetFormat.of(filename) == SheetFormat.XLS) {
-        if (securityType.equalsIgnoreCase("exchangetraded")) {
-          return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
-        } else {
-          return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
-        }
+//        if (securityType.equalsIgnoreCase("exchangetraded")) {
+//          return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
+//        } else {
+        return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
+//        }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
         return new ZippedPortfolioWriter(filename);
       } else {

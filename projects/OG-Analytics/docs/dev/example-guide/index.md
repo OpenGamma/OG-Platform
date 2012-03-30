@@ -4,7 +4,7 @@
 
 This is a guide to writing Java examples for OpenGamma and making use of the output in documentation.
 
-{% set example_class = 'com.opengamma.example.timeseries.TimeSeriesExample' -%}
+{% set example_class = 'com.opengamma.analytics.example.timeseries.TimeSeriesExample' -%}
 
 Examples should be included in the main code base, in subpackages of `com.opengamma.example`. Here is one such example class, in package `{{ d['/shared/docs.sqlite3']["%s:package" % example_class] }}`:
 

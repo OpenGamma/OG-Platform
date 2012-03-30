@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -86,10 +86,9 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (int i = 1; i < 7; i++) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.ofYears(0), i, "DEFAULT"));
-    }
-    for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.ofMonths(6), "DEFAULT"));
+//    strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.ofMonths(9), "DEFAULT"));
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     return new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
@@ -151,9 +150,8 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ofMonths(i), "DEFAULT"));
     }
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8}) {
-      strips.add(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.ofMonths(0), i, "DEFAULT"));
-    }
+    strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.ofMonths(6), "DEFAULT"));
+    strips.add(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.ofMonths(9), "DEFAULT"));
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }

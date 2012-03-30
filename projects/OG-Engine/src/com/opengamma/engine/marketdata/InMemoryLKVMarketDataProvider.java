@@ -168,4 +168,12 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     }
   }
 
+  /**
+   * Gets the securitySource.
+   * @return the securitySource
+   */
+  protected SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+  
 }
