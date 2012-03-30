@@ -28,7 +28,7 @@ incorrect
    b. Under 'General' choose 'Preferences'
    c. Click 'Next'
  3. Click the 'Browse...' button
-   a. Navigate the file chooser to the OG-Platform/common/ folder and choose the file 
+   a. Navigate the file chooser to the OG-Platform/eclipse/ folder and choose the file 
       OpenGamma-Eclipse-Preferences.epf
    b. Click 'Finish'
  4. Turn off auto-builds until we've finished setting up
@@ -68,13 +68,13 @@ Recommended Extras for Contributors
    a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
       under 'Window->Preferences...')
    b. Under 'Java->Code Style->Code Templates' click on 'Import...'
-   c. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-CodeTemplates.xml'
+   c. Browse to OG-Platform/eclipse/ and choose 'OpenGamma-Java-Eclipse-CodeTemplates.xml'
    d. Click 'Open'
 2. Load the code formatter
    a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
       under 'Window->Preferences...')  
    b. Under 'Java->Code Style->Formatter' click on 'Import...'
-3. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-Formatter.xml'
+3. Browse to OG-Platform/eclipse/ and choose 'OpenGamma-Java-Eclipse-Formatter.xml'
    a. Click 'Open'
 4. Install more Eclipse plugins
    a. Install Spring IDE [http://springide.org/updatesite] (Core/Spring IDE), although make sure you
