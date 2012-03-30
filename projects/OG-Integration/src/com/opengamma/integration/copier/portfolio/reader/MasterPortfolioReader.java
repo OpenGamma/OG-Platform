@@ -13,6 +13,7 @@ import java.util.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
@@ -61,6 +62,9 @@ public class MasterPortfolioReader implements PortfolioReader {
     _securitySource = securitySource;   
     _portfolioDocument = openPortfolio(portfolioName);
     
+    if (_portfolioDocument == null) {
+      throw new OpenGammaRuntimeException("Portfolio " + portfolioName + " could not be opened");
+    }
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();
 
     List<ManageablePortfolioNode> rootNodeList = new ArrayList<ManageablePortfolioNode>(); 
@@ -149,12 +153,11 @@ public class MasterPortfolioReader implements PortfolioReader {
         
   private PortfolioDocument openPortfolio(String portfolioName) {
     
-    // Check to see whether the portfolio already exists
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
     portSearchRequest.setName(portfolioName);
     PortfolioSearchResult portSearchResult = _portfolioMaster.search(portSearchRequest);
     PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
-   
+    
     return portfolioDoc;
   }
 
