@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.forex;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -33,8 +34,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -42,8 +43,8 @@ import com.opengamma.util.money.Currency;
 public class ForexVisitors {
   private static final FinancialSecurityVisitor<Currency> s_callCurrencyInstance = new CallCurrencyVisitor();
   private static final FinancialSecurityVisitor<Currency> s_putCurrencyInstance = new PutCurrencyVisitor();
-  private static final FinancialSecurityVisitor<ExternalId> s_spotIdentifierInstance = new SpotIdentifierVisitor();
-  private static final FinancialSecurityVisitor<ExternalId> s_inverseSpotIdentifierInstance = new InverseSpotIdentifierVisitor();
+  private static final FinancialSecurityVisitor<ValueRequirement> s_spotIdentifierInstance = new SpotIdentifierVisitor();
+  private static final FinancialSecurityVisitor<ValueRequirement> s_inverseSpotIdentifierInstance = new InverseSpotIdentifierVisitor();
 
   public static FinancialSecurityVisitor<Currency> getCallCurrencyVisitor() {
     return s_callCurrencyInstance;
@@ -53,11 +54,11 @@ public class ForexVisitors {
     return s_putCurrencyInstance;
   }
 
-  public static FinancialSecurityVisitor<ExternalId> getSpotIdentifierVisitor() {
+  public static FinancialSecurityVisitor<ValueRequirement> getSpotIdentifierVisitor() {
     return s_spotIdentifierInstance;
   }
 
-  public static FinancialSecurityVisitor<ExternalId> getInverseSpotIdentifierVisitor() {
+  public static FinancialSecurityVisitor<ValueRequirement> getInverseSpotIdentifierVisitor() {
     return s_inverseSpotIdentifierInstance;
   }
 
@@ -323,330 +324,301 @@ public class ForexVisitors {
     }
   }
 
-  private static class SpotIdentifierVisitor implements FinancialSecurityVisitor<ExternalId> {
+  private static class SpotIdentifierVisitor implements FinancialSecurityVisitor<ValueRequirement> {
 
     public SpotIdentifierVisitor() {
     }
 
     @Override
-    public ExternalId visitBondSecurity(final BondSecurity security) {
+    public ValueRequirement visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCashSecurity(final CashSecurity security) {
+    public ValueRequirement visitCashSecurity(final CashSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquitySecurity(final EquitySecurity security) {
+    public ValueRequirement visitEquitySecurity(final EquitySecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFRASecurity(final FRASecurity security) {
+    public ValueRequirement visitFRASecurity(final FRASecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFutureSecurity(final FutureSecurity security) {
+    public ValueRequirement visitFutureSecurity(final FutureSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitSwapSecurity(final SwapSecurity security) {
+    public ValueRequirement visitSwapSecurity(final SwapSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+    public ValueRequirement visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
+    public ValueRequirement visitEquityOptionSecurity(final EquityOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
+    public ValueRequirement visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
+    public ValueRequirement visitFXOptionSecurity(final FXOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+    public ValueRequirement visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
+    public ValueRequirement visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+    public ValueRequirement visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+    public ValueRequirement visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+    public ValueRequirement visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
-
+    
     @Override
-    public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
+    public ValueRequirement visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+    public ValueRequirement visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
+    public ValueRequirement visitCapFloorSecurity(final CapFloorSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+    public ValueRequirement visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+    public ValueRequirement visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+    public ValueRequirement visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+    public ValueRequirement visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+    public ValueRequirement visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+    public ValueRequirement visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+    public ValueRequirement visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
   }
 
-  private static class InverseSpotIdentifierVisitor implements FinancialSecurityVisitor<ExternalId> {
+  private static ValueRequirement getSpotIdentifierRequirement(final Currency putCurrency, final Currency callCurrency) {
+    UnorderedCurrencyPair currencyPair;
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    } else {
+      currencyPair = UnorderedCurrencyPair.of(callCurrency, putCurrency);
+    }
+    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair);
+  }
+  
+  private static class InverseSpotIdentifierVisitor implements FinancialSecurityVisitor<ValueRequirement> {
 
     public InverseSpotIdentifierVisitor() {
     }
 
     @Override
-    public ExternalId visitBondSecurity(final BondSecurity security) {
+    public ValueRequirement visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCashSecurity(final CashSecurity security) {
+    public ValueRequirement visitCashSecurity(final CashSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquitySecurity(final EquitySecurity security) {
+    public ValueRequirement visitEquitySecurity(final EquitySecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFRASecurity(final FRASecurity security) {
+    public ValueRequirement visitFRASecurity(final FRASecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFutureSecurity(final FutureSecurity security) {
+    public ValueRequirement visitFutureSecurity(final FutureSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitSwapSecurity(final SwapSecurity security) {
+    public ValueRequirement visitSwapSecurity(final SwapSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+    public ValueRequirement visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
+    public ValueRequirement visitEquityOptionSecurity(final EquityOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
+    public ValueRequirement visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
+    public ValueRequirement visitFXOptionSecurity(final FXOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getInverseSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+    public ValueRequirement visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
+    public ValueRequirement visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+    public ValueRequirement visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+    public ValueRequirement visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+    public ValueRequirement visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getInverseSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
+    public ValueRequirement visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+    public ValueRequirement visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
+    public ValueRequirement visitCapFloorSecurity(final CapFloorSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+    public ValueRequirement visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+    public ValueRequirement visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+    public ValueRequirement visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getInverseSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+    public ValueRequirement visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
-      ExternalId bloomberg;
-      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
-      } else {
-        bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
-      }
-      return bloomberg;
+      return getInverseSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
-    public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+    public ValueRequirement visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+    public ValueRequirement visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+    public ValueRequirement visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
       throw new UnsupportedOperationException();
     }
-
+  }
+  
+  private static ValueRequirement getInverseSpotIdentifierRequirement(final Currency putCurrency, final Currency callCurrency) {
+    UnorderedCurrencyPair currencyPair;
+    if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    } else {
+      currencyPair = UnorderedCurrencyPair.of(callCurrency, putCurrency);
+    }
+    return new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair);
   }
 }

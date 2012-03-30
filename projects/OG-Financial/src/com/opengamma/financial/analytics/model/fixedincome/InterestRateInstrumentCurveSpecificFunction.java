@@ -135,9 +135,13 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
       return false;
     }
     if (security instanceof SwapSecurity) {
-      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
-      return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
-          || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+      try {
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
+            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+      } catch (OpenGammaRuntimeException ogre) {
+        return false;
+      }
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
   }

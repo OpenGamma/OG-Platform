@@ -47,6 +47,7 @@
       <entry name="?*.txt" />
       <entry name="?*.csv" />
       <entry name="?*.ini" />
+      <entry name="?*.elsql" />
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
@@ -260,8 +261,6 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Java" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Proto" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
