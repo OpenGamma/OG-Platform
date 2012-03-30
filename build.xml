@@ -366,7 +366,7 @@
   </target>
 
   <target name="clean-install">
-    <delete dir="${install.dir}" failonerror="false" />
+    <delete dir="${install.dir}/${install.name}" failonerror="false" />
     <subant target="clean" buildpath="Installer" />
   </target>
 
@@ -623,7 +623,7 @@
   <target name="install" depends="check-build-projects-file-for-user" description="install artifacts to directory specified by property (install.dir)">
     <fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
     <antcall inheritAll="false" target="install-impl">
-      <param name="install.dir" value="${install.dir}" />
+      <param name="install.dir" value="${install.dir}/${install.name}" />
     </antcall>
   </target>
 
