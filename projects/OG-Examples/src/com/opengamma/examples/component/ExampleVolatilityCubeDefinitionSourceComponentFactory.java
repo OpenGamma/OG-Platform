@@ -23,7 +23,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.examples.volatility.cube.SyntheticVolatilityCubeDefinitionSource;
+import com.opengamma.examples.volatility.cube.ExampleVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -56,7 +56,7 @@ public class ExampleVolatilityCubeDefinitionSourceComponentFactory extends Abstr
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(VolatilityCubeDefinitionSource.class, getClassifier());
     VolatilityCubeDefinitionSource base = new ConfigDBVolatilityCubeDefinitionSource(getConfigSource());
-    VolatilityCubeDefinitionSource bbg = new SyntheticVolatilityCubeDefinitionSource();
+    VolatilityCubeDefinitionSource bbg = new ExampleVolatilityCubeDefinitionSource();
     VolatilityCubeDefinitionSource combined = new AggregatingVolatilityCubeDefinitionSource(Arrays.asList(bbg, base));
     repo.registerComponent(info, combined);
     if (isPublishRest()) {
