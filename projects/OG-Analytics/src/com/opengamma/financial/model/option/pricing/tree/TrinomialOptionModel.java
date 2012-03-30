@@ -42,7 +42,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
     this(model, n, Math.min(5, n));
   }
 
-  public TrinomialOptionModel(TrinomialOptionModelDefinition<OptionDefinition, T> model, int n, int maxDepthToSave) {
+  public TrinomialOptionModel(final TrinomialOptionModelDefinition<OptionDefinition, T> model, final int n, final int maxDepthToSave) {
     Validate.notNull(model, "model");
     ArgumentChecker.notNegativeOrZero(n, "n");
     ArgumentChecker.notNegative(maxDepthToSave, "max. depth to save");
@@ -80,7 +80,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
   public Function1D<T, RecombiningTrinomialTree<DoublesPair>> getTreeGeneratingFunction(final OptionDefinition definition) {
     return new Function1D<T, RecombiningTrinomialTree<DoublesPair>>() {
 
-      @SuppressWarnings({"unchecked", "synthetic-access" })
+      @SuppressWarnings({"synthetic-access" })
       @Override
       public RecombiningTrinomialTree<DoublesPair> evaluate(final T data) {
         final DoublesPair[][] spotAndOptionPrices = new DoublesPair[_maxDepthToSave + 1][_maxWidthToSave];

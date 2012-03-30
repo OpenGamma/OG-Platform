@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calc;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -724,12 +725,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final Set<ValueRequirement> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions);
     if (!unusedMarketData.isEmpty()) {
       s_logger.debug("{} unused market data subscriptions: {}", unusedMarketData.size(), unusedMarketData);
-      removeMarketDataSubscriptions(unusedMarketData);
+      removeMarketDataSubscriptions(new ArrayList<ValueRequirement>(unusedMarketData));
     }
     final Set<ValueRequirement> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions);
     if (!newMarketData.isEmpty()) {
       s_logger.debug("{} new market data requirements: {}", newMarketData.size(), newMarketData);
-      addMarketDataSubscriptions(newMarketData);
+      addMarketDataSubscriptions(new HashSet<ValueRequirement>(newMarketData));
     }
   }
 
@@ -768,7 +769,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     removeMarketDataSubscriptions(_marketDataSubscriptions);
   }
 
-  private void removeMarketDataSubscriptions(final Set<ValueRequirement> unusedSubscriptions) {
+  private void removeMarketDataSubscriptions(final Collection<ValueRequirement> unusedSubscriptions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Removing {} market data subscriptions", unusedSubscriptions.size());
     getMarketDataProvider().unsubscribe(getViewDefinition().getMarketDataUser(), _marketDataSubscriptions);
     _marketDataSubscriptions.removeAll(unusedSubscriptions);

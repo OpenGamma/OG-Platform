@@ -33,24 +33,24 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     this(DEFAULT_SABR, beta);
   }
 
-  public SmileInterpolatorSABR(VolatilityFunctionProvider<SABRFormulaData> model) {
+  public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model) {
     super(model);
     _beta = DEFAULT_BETA;
     _externalBeta = false;
   }
 
-  public SmileInterpolatorSABR(VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {
+  public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {
     super(model);
     _beta = beta;
     _externalBeta = true;
   }
 
   @Override
-  protected DoubleMatrix1D getGlobalStart(double forward, double[] strikes, double expiry, double[] impliedVols) {
-    DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
-    double a = fitP.getEntry(0);
-    double b = fitP.getEntry(1);
-    double c = fitP.getEntry(2);
+  protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    final DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
+    final double a = fitP.getEntry(0);
+    final double b = fitP.getEntry(1);
+    final double c = fitP.getEntry(2);
 
     //TODO make better use of the polynomial fit information
     if (Math.abs(b) < 1e-3 && Math.abs(c) < 1e-3) { //almost flat smile
@@ -58,15 +58,14 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
         s_logger.warn("Smile almost flat. Cannot use beta = ", +_beta + " so extenal value ignored, and beta = 1.0 used");
       }
       return new DoubleMatrix1D(a, 1.0, 0.0, Math.max(0.0, 4 * c));
-    } else {
-      final double approxAlpha = a * Math.pow(forward, 1 - _beta);
-      return new DoubleMatrix1D(approxAlpha, _beta, 0.0, Math.max(0.0, 4 * c));
     }
+    final double approxAlpha = a * Math.pow(forward, 1 - _beta);
+    return new DoubleMatrix1D(approxAlpha, _beta, 0.0, Math.max(0.0, 4 * c));
   }
 
   @Override
   protected BitSet getGlobalFixedValues() {
-    BitSet res = new BitSet();
+    final BitSet res = new BitSet();
     if (_externalBeta) {
       res.set(1);
     }
@@ -75,18 +74,18 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
 
   @Override
   protected BitSet getLocalFixedValues() {
-    BitSet res = new BitSet();
+    final BitSet res = new BitSet();
     res.set(1); //beta is always fixed for local (3-point) fit
     return res;
   }
 
   @Override
-  protected SABRFormulaData toSmileModelData(DoubleMatrix1D modelParameters) {
+  protected SABRFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new SABRFormulaData(modelParameters.getData());
   }
 
   @Override
-  protected SmileModelFitter<SABRFormulaData> getFitter(double forward, double[] strikes, double expiry, double[] impliedVols, double[] errors) {
+  protected SmileModelFitter<SABRFormulaData> getFitter(final double forward, final double[] strikes, final double expiry, final double[] impliedVols, final double[] errors) {
     return new SABRModelFitter(forward, strikes, expiry, impliedVols, errors, getModel());
   }
 

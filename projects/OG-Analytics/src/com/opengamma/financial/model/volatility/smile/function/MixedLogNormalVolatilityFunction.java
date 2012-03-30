@@ -61,9 +61,10 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     final double expiry = option.getTimeToExpiry();
 
     return new Function1D<MixedLogNormalModelData, double[]>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public double[] evaluate(final MixedLogNormalModelData data) {
-        return getVolatilityAjoint(forward, strike, expiry, data);
+        return getVolatilityAdjoint(forward, strike, expiry, data);
       }
     };
   }
@@ -92,7 +93,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     return getModelAdjointFunctionByCallingSingleStrikes(forward, strikes, timeToExpiry);
   }
 
-  private double[] getVolatilityAjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data) {
+  private double[] getVolatilityAdjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data) {
 
     final int nParms = data.getNumberOfparameters();
     final boolean isCall = strike >= forward;
@@ -114,7 +115,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     final double delta = BlackFormulaRepository.delta(forward, strike, expiry, impVol, isCall);
     final double dualDelta = BlackFormulaRepository.dualDelta(forward, strike, expiry, impVol, isCall);
 
-    double[] res = new double[nParms + 3];
+    final double[] res = new double[nParms + 3];
     res[0] = impVol;
     double sum = 0;
     for (int i = 0; i < n; i++) {
@@ -128,7 +129,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     res[2] = (sum - dualDelta) / vega; //strikeBar
 
     //calculate the sensitivity to model parameters
-    double[] modelAjoint = getModelAjoint(forward, strike, expiry, data, deltas, vega);
+    final double[] modelAjoint = getModelAjoint(forward, strike, expiry, data, deltas, vega);
     System.arraycopy(modelAjoint, 0, res, 3, nParms);
 
     return res;
@@ -167,7 +168,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
       vegas[i] = BlackFormulaRepository.vega(f, strike, expiry, sigmas[i]);
     }
 
-    double[] res = new double[nParms];
+    final double[] res = new double[nParms];
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
       sum += w[i] * vegas[i];
@@ -181,7 +182,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
       res[i] = sum / vega;
     }
 
-    double[][] wJac = data.getWeightsJacobian();
+    final double[][] wJac = data.getWeightsJacobian();
     for (int i = 0; i < n - 1; i++) {
       sum = 0.0;
       for (int j = 0; j < n; j++) {
@@ -191,7 +192,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     }
 
     if (nParms > 2 * n - 1) {
-      double[][] fJac = data.getRelativeForwardsJacobian();
+      final double[][] fJac = data.getRelativeForwardsJacobian();
       for (int i = 0; i < n - 1; i++) {
         sum = 0.0;
         for (int j = 0; j < n; j++) {

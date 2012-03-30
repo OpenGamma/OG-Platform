@@ -28,11 +28,10 @@ public class BlackSwaptionSensitivityNodeCalculator {
    */
   public PresentValueBlackSwaptionSensitivity calculateNodeSensitivities(final PresentValueBlackSwaptionSensitivity sensitivities, final BlackSwaptionParameters parameters) {
     Validate.isTrue(parameters.getGeneratorSwap().equals(sensitivities.getGeneratorSwap()), "Sensitivities and parameters should refer to the same swap generator");
-    @SuppressWarnings("unchecked")
-    Map<Double, Interpolator1DDataBundle> volatilityData = (Map<Double, Interpolator1DDataBundle>) parameters.getVolatilitySurface().getInterpolatorData();
+    final Map<Double, Interpolator1DDataBundle> volatilityData = (Map<Double, Interpolator1DDataBundle>) parameters.getVolatilitySurface().getInterpolatorData();
     SurfaceValue volatilityNode = new SurfaceValue();
-    for (Entry<DoublesPair, Double> entry : sensitivities.getSensitivity().getMap().entrySet()) {
-      Map<DoublesPair, Double> weight = parameters.getVolatilitySurface().getInterpolator().getNodeSensitivitiesForValue(volatilityData, entry.getKey());
+    for (final Entry<DoublesPair, Double> entry : sensitivities.getSensitivity().getMap().entrySet()) {
+      final Map<DoublesPair, Double> weight = parameters.getVolatilitySurface().getInterpolator().getNodeSensitivitiesForValue(volatilityData, entry.getKey());
       volatilityNode = SurfaceValue.plus(volatilityNode, SurfaceValue.multiplyBy(SurfaceValue.from(weight), entry.getValue()));
     }
     return new PresentValueBlackSwaptionSensitivity(volatilityNode, parameters.getGeneratorSwap());

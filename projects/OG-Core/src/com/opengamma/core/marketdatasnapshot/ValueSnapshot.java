@@ -117,7 +117,7 @@ public class ValueSnapshot implements Serializable {
    */
   @Override
   public int hashCode() {
-    return Double.valueOf(getMarketValue()).hashCode() ^ ObjectUtils.hashCode(getOverrideValue());
+    return ObjectUtils.hashCode(getMarketValue()) ^ ObjectUtils.hashCode(getOverrideValue());
   }
 
   // TODO: externalize the Fudge representation to a builder

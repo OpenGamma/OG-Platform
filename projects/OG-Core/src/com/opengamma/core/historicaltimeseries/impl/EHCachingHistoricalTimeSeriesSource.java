@@ -65,6 +65,16 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+      return o instanceof MissHTS;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
   };
 
   private static final MissHTS MISS = new MissHTS();
@@ -161,7 +171,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     HistoricalTimeSeries hts = getFromDataCache(uniqueId);
     if (hts != null) {
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -217,7 +227,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeries hts;
     if (element != null) {
       hts = (HistoricalTimeSeries) element.getValue();
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -258,7 +268,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, identifierValidityDate, identifiers, dataSource, dataProvider, dataField);
     HistoricalTimeSeries hts = getFromDataCache(key);
     if (hts != null) {
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -352,7 +362,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeries hts;
     if (element != null) {
       hts = (HistoricalTimeSeries) element.getValue();
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -395,7 +405,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
     HistoricalTimeSeries hts = getFromDataCache(key);
     if (hts != null) {
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -549,7 +559,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     HistoricalTimeSeries hts;
     if (element != null) {
       hts = (HistoricalTimeSeries) element.getValue();
-      if (hts == MISS) {
+      if (MISS.equals(hts)) {
         hts = null;
       }
     } else {
@@ -589,7 +599,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       HistoricalTimeSeriesKey key = new HistoricalTimeSeriesKey(null, null, identifiers, dataSource, dataProvider, dataField);
       HistoricalTimeSeries hts = getFromDataCache(key);
       if (hts != null) {
-        if (hts != MISS) {
+        if (!MISS.equals(hts)) {
           hts = getSubSeries(hts, start, includeStart, end, includeEnd, null);
           result.put(identifiers, hts);
         } else {

@@ -24,7 +24,6 @@ import com.opengamma.util.time.DateUtils;
  * @param <S> Type of the option data bundle
  * @param <T> Type of the option definition
  */
-@SuppressWarnings("unchecked")
 public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<Double> {
   private static final double EPS = 1e-4; // TODO make this so it can be set
   private final Function1D<S, Double> _pricingFunction;

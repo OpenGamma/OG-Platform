@@ -164,7 +164,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final DoubleArrayList prices = new DoubleArrayList();
     final DoubleArrayList blackPrices = new DoubleArrayList();
     final DoubleArrayList absoluteDomesticPrice = new DoubleArrayList();
-    final DoubleArrayList absoluteForeignPrice = new DoubleArrayList();
+    //final DoubleArrayList absoluteForeignPrice = new DoubleArrayList();
     final DoubleArrayList bsDelta = new DoubleArrayList();
     final DoubleArrayList bsDualDelta = new DoubleArrayList();
     final DoubleArrayList bsGamma = new DoubleArrayList();
@@ -420,7 +420,6 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     result.put(BucketedGreekResultCollection.BUCKETED_VEGA, bucketedVega);
     return result;
   }
-
 
   private PDEFullResults1D runForwardPDESolver(final ForwardCurve forwardCurve, final LocalVolatilitySurface<?> localVolatility,
       final boolean isCall, final double theta, final double maxT, final double maxMoneyness, final int

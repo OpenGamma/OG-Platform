@@ -46,19 +46,20 @@ public class MatrixFieldFirstOrderDifferentiator implements Differentiator<Doubl
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D[]>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public DoubleMatrix2D[] evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix2D[] evaluate(final DoubleMatrix1D x) {
         Validate.notNull(x, "x");
         final int n = x.getNumberOfElements();
 
         final DoubleMatrix2D[] res = new DoubleMatrix2D[n];
         final double[] xData = x.getData();
         for (int i = 0; i < n; i++) {
-          double oldValue = xData[i];
+          final double oldValue = xData[i];
           xData[i] += _eps;
-          DoubleMatrix2D up = function.evaluate(x);
+          final DoubleMatrix2D up = function.evaluate(x);
           xData[i] -= _twoEps;
-          DoubleMatrix2D down = function.evaluate(x);
+          final DoubleMatrix2D down = function.evaluate(x);
           res[i] = (DoubleMatrix2D) MA.scale(MA.subtract(up, down), _oneOverTwpEps); //TODO have this in one operation
           xData[i] = oldValue;
         }
@@ -67,6 +68,7 @@ public class MatrixFieldFirstOrderDifferentiator implements Differentiator<Doubl
     };
   }
 
+  @Override
   public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(final Function1D<DoubleMatrix1D, DoubleMatrix2D> function, final Function1D<DoubleMatrix1D, Boolean> domain) {
     Validate.notNull(function);
     Validate.notNull(domain);
@@ -86,8 +88,8 @@ public class MatrixFieldFirstOrderDifferentiator implements Differentiator<Doubl
         final int n = x.getNumberOfElements();
         final double[] xData = x.getData();
         double oldValue;
-        DoubleMatrix2D[] y = new DoubleMatrix2D[3];
-        DoubleMatrix2D[] res = new DoubleMatrix2D[n];
+        final DoubleMatrix2D[] y = new DoubleMatrix2D[3];
+        final DoubleMatrix2D[] res = new DoubleMatrix2D[n];
         double[] w;
         for (int i = 0; i < n; i++) {
           oldValue = xData[i];
@@ -96,16 +98,15 @@ public class MatrixFieldFirstOrderDifferentiator implements Differentiator<Doubl
             xData[i] = oldValue - _twoEps;
             if (!domain.evaluate(x)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
-            } else {
-              y[0] = function.evaluate(x);
-              xData[i] = oldValue;
-              y[2] = function.evaluate(x);
-              xData[i] = oldValue - _eps;
-              y[1] = function.evaluate(x);
-              w = wBack;
             }
+            y[0] = function.evaluate(x);
+            xData[i] = oldValue;
+            y[2] = function.evaluate(x);
+            xData[i] = oldValue - _eps;
+            y[1] = function.evaluate(x);
+            w = wBack;
           } else {
-            DoubleMatrix2D temp = function.evaluate(x);
+            final DoubleMatrix2D temp = function.evaluate(x);
             xData[i] = oldValue - _eps;
             if (!domain.evaluate(x)) {
               y[1] = temp;

@@ -7,13 +7,14 @@ package com.opengamma.examples.tool;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
+import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -42,7 +43,9 @@ public class ExampleDatabasePopulaterTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
+      if (new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
+        fail();
+      }
       
       ToolContext toolContext = getToolContext();
       try {
@@ -77,7 +80,7 @@ public class ExampleDatabasePopulaterTest {
 
   private void assertMixedPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleMixedPortfolioLoader.PORTFOLIO_NAME);
+    assertPortfolio(portfolioMaster, ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME);
   }
 
   private void assertPortfolio(PortfolioMaster portfolioMaster, String portfolioName) {

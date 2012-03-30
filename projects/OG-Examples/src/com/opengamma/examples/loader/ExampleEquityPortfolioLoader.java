@@ -73,7 +73,7 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Equity Portfolio";
 
   //-------------------------------------------------------------------------
   /**

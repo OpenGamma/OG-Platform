@@ -31,6 +31,7 @@ public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionPr
     final double t = option.getTimeToExpiry();
     return new Function1D<SABRFormulaData, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public final Double evaluate(final SABRFormulaData data) {
         Validate.notNull(data, "data");

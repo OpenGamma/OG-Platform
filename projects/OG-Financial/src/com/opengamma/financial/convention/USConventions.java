@@ -210,8 +210,10 @@ public class USConventions {
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
       final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
+      final String sytheticID = "USDISDA10P" + tenorString;
       conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_ISDAFIX_USDLIBOR10_" + tenorString),
-          SecurityUtils.ricSecurityId("USDSFIX" + tenorString + "="), SecurityUtils.bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")), "USD_ISDAFIX_USDLIBOR10_" + tenorString,
+          SecurityUtils.ricSecurityId("USDSFIX" + tenorString + "="), SecurityUtils.bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index"), 
+          ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, sytheticID)), "USD_ISDAFIX_USDLIBOR10_" + tenorString,
           swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"),
           us, true, Period.ofYears(isdaFixTenor[looptenor]));
     }

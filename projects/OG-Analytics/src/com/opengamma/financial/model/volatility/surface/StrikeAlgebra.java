@@ -11,13 +11,11 @@ package com.opengamma.financial.model.volatility.surface;
  */
 public class StrikeAlgebra<T extends StrikeType> {
 
-  @SuppressWarnings("unchecked")
   public T add(final T a, final T b) {
     final double sum = a.value() + b.value();
     return (T) a.with(sum);
   }
 
-  @SuppressWarnings("unchecked")
   public T subtract(final T a, final T b) {
     final double diff = a.value() - b.value();
     return (T) a.with(diff);

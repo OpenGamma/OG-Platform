@@ -44,7 +44,7 @@ public class TopHatFunction extends Function1D<Double, Double> {
   }
 
   /**
-   * @param $x$ The argument of the function, not null. Must have $x_1 < x < x_2$
+   * @param x The argument of the function, not null. Must have $x_1 < x < x_2$
    * @return The value of the function
    */
   @Override
