@@ -260,8 +260,6 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Java" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Proto" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>
