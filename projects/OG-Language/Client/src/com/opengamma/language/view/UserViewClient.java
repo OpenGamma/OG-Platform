@@ -5,10 +5,21 @@
  */
 package com.opengamma.language.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.time.Instant;
+
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -19,16 +30,6 @@ import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.context.UserContext;
 import com.opengamma.livedata.UserPrincipal;
 
-import javax.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Represents a {@link ViewClient} managed within a user's context. Language binding specific data can be associated with
  * the object using {@link UserViewClientBinding}.
@@ -37,9 +38,28 @@ public final class UserViewClient implements UniqueIdentifiable {
 
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
-  private interface ViewResultListenerEvent {
+  private static final int ET_FINISH = 1;
+  private static final int ET_VIEWDEF = 2;
 
-    void callback(ViewResultListener listener);
+  private abstract class ViewResultListenerEvent {
+
+    private final int _type;
+
+    public abstract void callback(ViewResultListener listener);
+
+    public ViewResultListenerEvent(final int type) {
+      _type = type;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      return _type == ((ViewResultListenerEvent) o)._type;
+    }
+
+    @Override
+    public int hashCode() {
+      return _type;
+    }
 
   }
 
@@ -48,7 +68,7 @@ public final class UserViewClient implements UniqueIdentifiable {
   private final ViewClient _viewClient;
   private final ViewClientKey _viewClientKey;
   private final UniqueId _uniqueId;
-  private final List<ViewResultListenerEvent> _coreEvents = new LinkedList<ViewResultListenerEvent>();
+  private final Collection<ViewResultListenerEvent> _coreEvents = new LinkedList<ViewResultListenerEvent>();
   private volatile Map<Object, UserViewClientData> _data;
   private volatile ViewResultListener[] _listeners = EMPTY;
   private volatile boolean _attached;
@@ -91,14 +111,16 @@ public final class UserViewClient implements UniqueIdentifiable {
 
     @Override
     public void processCompleted() {
-      ViewResultListener[] listeners;
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_FINISH) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.processCompleted();
+        }
+      };
       synchronized (this) {
-        _coreEvents.add(new ViewResultListenerEvent() {
-          @Override
-          public void callback(final ViewResultListener listener) {
-            listener.processCompleted();
-          }
-        });
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
         listeners = _listeners;
       }
       for (ViewResultListener listener : listeners) {
@@ -108,14 +130,16 @@ public final class UserViewClient implements UniqueIdentifiable {
 
     @Override
     public void processTerminated(final boolean executionInterrupted) {
-      ViewResultListener[] listeners;
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_FINISH) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.processTerminated(executionInterrupted);
+        }
+      };
       synchronized (this) {
-        _coreEvents.add(new ViewResultListenerEvent() {
-          @Override
-          public void callback(final ViewResultListener listener) {
-            listener.processTerminated(executionInterrupted);
-          }
-        });
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
         listeners = _listeners;
       }
       for (ViewResultListener listener : listeners) {
@@ -125,14 +149,16 @@ public final class UserViewClient implements UniqueIdentifiable {
 
     @Override
     public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-      ViewResultListener[] listeners;
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.viewDefinitionCompilationFailed(valuationTime, exception);
+        }
+      };
       synchronized (this) {
-        _coreEvents.add(new ViewResultListenerEvent() {
-          @Override
-          public void callback(final ViewResultListener listener) {
-            listener.viewDefinitionCompilationFailed(valuationTime, exception);
-          }
-        });
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
         listeners = _listeners;
       }
       for (ViewResultListener listener : listeners) {
@@ -142,14 +168,16 @@ public final class UserViewClient implements UniqueIdentifiable {
 
     @Override
     public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      ViewResultListener[] listeners;
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+        }
+      };
       synchronized (this) {
-        _coreEvents.add(new ViewResultListenerEvent() {
-          @Override
-          public void callback(final ViewResultListener listener) {
-            listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
-          }
-        });
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
         listeners = _listeners;
       }
       for (ViewResultListener listener : listeners) {

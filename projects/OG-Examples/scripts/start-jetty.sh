@@ -32,4 +32,4 @@ $JAVA $JMX_OPTS $MEM_OPTS -cp $CLASSPATH \
   -Dlogback.configurationFile=jetty-logback.xml \
   -Dcommandmonitor.secret=OpenGamma -Dcommandmonitor.port=8079 \
   com.opengamma.component.OpenGammaComponentServer \
-  -q classpath:fullstack/fullstack-example-bin.properties
+  -q classpath:fullstack/example-bin.properties
