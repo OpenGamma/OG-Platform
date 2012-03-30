@@ -26,7 +26,6 @@ $.register_module({
             ui = common.util.ui,
             module = this, view, details_page,
             page_name = module.name.split('.').pop(),
-            get_quantities = og.common.search.get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
