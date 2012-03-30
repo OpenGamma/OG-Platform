@@ -15,8 +15,8 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
-import com.opengamma.examples.volatility.cube.SyntheticSwaptionVolatilityCubeInstrumentProvider;
-import com.opengamma.examples.volatility.cube.SyntheticVolatilityCubeDefinitionSource;
+import com.opengamma.examples.volatility.cube.ExampleSwaptionVolatilityCubeInstrumentProvider;
+import com.opengamma.examples.volatility.cube.ExampleVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.money.Currency;
@@ -43,9 +43,9 @@ public class ExampleCubeFunctionConfiguration extends SingletonFactoryBean<Repos
   }
 
   private void addSwaptionVolCubeFunction(final List<FunctionConfiguration> configs) {
-    final Set<Currency> volCubeCurrencies = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
+    final Set<Currency> volCubeCurrencies = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
     for (final Currency currency : volCubeCurrencies) {
-      addVolatilityCubeFunction(configs, currency.getCode(), SyntheticVolatilityCubeDefinitionSource.DEFINITION_NAME);
+      addVolatilityCubeFunction(configs, currency.getCode(), ExampleVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
   }
 

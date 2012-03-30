@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,7 +57,19 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
+    if (security instanceof SwapSecurity) {
+      final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+      if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
+            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
+        for (final String applicableCurrencyName : _applicableCurrencyNames) {
+          if (currencyName.equals(applicableCurrencyName)) {
+            return true;
+          }
+        }        
+      }
+    }
+    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {      
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
       for (final String applicableCurrencyName : _applicableCurrencyNames) {
         if (currencyName.equals(applicableCurrencyName)) {

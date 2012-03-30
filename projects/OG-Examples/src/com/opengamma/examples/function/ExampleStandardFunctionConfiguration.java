@@ -6,7 +6,6 @@
 package com.opengamma.examples.function;
 
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
-import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Modifier;
@@ -654,6 +653,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));
@@ -662,9 +662,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "PresentValue", SECONDARY, 
-        SECONDARY, "Interpolated", "DEFAULT", "USD", "EUR"));
+        SECONDARY, "Interpolated", SECONDARY, "USD", "EUR"));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "Interpolated", SECONDARY, 
-        SECONDARY, "PresentValue", "DEFAULT", "EUR", "USD"));
+        SECONDARY, "PresentValue", SECONDARY, "EUR", "USD"));
   }
 
   private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {

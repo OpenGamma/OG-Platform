@@ -9,6 +9,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 /**
@@ -30,5 +32,9 @@ public abstract class TimeCalculator {
       return time;
     }
     return -1.0 * ACT_ACT.getDayCountFraction(date2, date1);
+  }
+
+  public static double getTimeBetween(final LocalDate date1, final LocalDate date2) {
+    return getTimeBetween(date1.atStartOfDayInZone(TimeZone.UTC), date2.atStartOfDayInZone(TimeZone.UTC));
   }
 }

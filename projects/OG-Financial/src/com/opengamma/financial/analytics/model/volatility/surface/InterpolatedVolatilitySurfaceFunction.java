@@ -72,10 +72,12 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     final Double[] yData = volatilityData.getYs();
     final int n = xData.length;
     final int m = yData.length;
+    
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
         final Double vol = volatilityData.getVolatility(xData[i], yData[j]);
         if (vol != null && !CompareUtils.closeEquals(vol, 0)) {
+          //System.out.print("\n" + xData[i] + "," + yData[i] + "," + vol);
           x.add(xData[i]);
           y.add(yData[j]);
           sigma.add(vol);

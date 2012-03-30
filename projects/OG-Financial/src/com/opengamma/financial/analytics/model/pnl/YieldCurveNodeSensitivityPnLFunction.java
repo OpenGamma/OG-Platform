@@ -137,8 +137,12 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
       return false;
     }
     if (security instanceof SwapSecurity) {
-      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
-      return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      try {
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      } catch (OpenGammaRuntimeException ogre) {
+        return false;
+      }
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
   }

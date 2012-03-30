@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -55,6 +56,7 @@ public class ResultConverterCache {
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilityCubeData.class, new VolatilityCubeDataConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
+    registerConverter(VolatilitySurface.class, new VolatilitySurfaceConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
     registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
     registerConverter(LabelledMatrix3D.class, new LabelledMatrix3DConverter());
