@@ -109,6 +109,7 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.BloombergForexSpotRateMarketDataFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardDefaultPayCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction;
@@ -668,6 +669,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(BloombergForexSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));

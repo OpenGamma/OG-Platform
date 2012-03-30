@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,7 +41,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
@@ -225,9 +223,7 @@ public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends Abstrac
       curveCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     }
     final String surfaceName = surfaceNames.iterator().next();
-    final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier));
     requirements.add(getCurveRequirement(curveName, forwardCurveName, curveName, curveCalculationMethod, curveCurrency));
     requirements.add(getCurveRequirement(forwardCurveName, forwardCurveName, curveName, curveCalculationMethod, curveCurrency));
     requirements.add(getCurveSpecRequirement(curveCurrency, curveName));
