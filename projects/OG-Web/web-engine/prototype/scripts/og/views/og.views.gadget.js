@@ -6,32 +6,38 @@ $.register_module({
     name: 'og.views.gadget',
     dependencies: ['og.common', 'og.api'],
     obj: function () {
-        var module = this, view, common = og.common, routes = common.routes;
+        var module = this, view, common = og.common, routes = common.routes,
+            gadgets = common.gadgets, $content = $('#gadget_content');
         return view = {
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
-            root: function () {$('#gadget_content').html('No gadget was specified.');},
+            root: function () {$content.html('No gadget was specified.');},
             positions: function (args) {
-                $('#gadget_content').html('\
+                $content.html('\
                     <section class="OG-details-positions og-js-positions"></section>\
                     <section class="og-js-trades"></section>\
                 ');
-                common.gadgets.positions({
+                gadgets.positions({
                     id: args.id, selector: '.og-js-positions', editable: false, external_links: true
                 });
                 if (args.trades === 'true')
-                    common.gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});
+                    gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});
+            },
+            securities: function (args) {
+                $content.html('<section></section>');
+                gadgets.securities_identifiers({id: args.id, selector: '#gadget_content section'});
             },
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-gadget', datapoints_link: false};
-                $('#gadget_content').html('<section class="' + options.selector.substring(1) + '"></section>');
+                $content.html('<section class="' + options.selector.substring(1) + '"></section>');
                 if (args.id) options.id = args.id; else options.data = og.api.common.get_cache(args.key);
                 if (args.key) og.api.common.del_cache(args.key);
                 if (!options.data && !options.id) return $('#gadget_content').html('There is no data to load.');
-                common.gadgets.timeseries(options);
+                gadgets.timeseries(options);
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
+                securities: {route: '/securities/:id', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}
             }
         }
