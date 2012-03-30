@@ -14,7 +14,7 @@
 			</fileset>
 		</unzip>
 
-		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}/temp" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/bloombergexample-db" scriptdir="${basedir}/temp" catalog="og-financial" />
 		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${basedir}/temp" catalog="og-financial" />
 	</target>
 
