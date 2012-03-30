@@ -10,8 +10,8 @@ import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * 

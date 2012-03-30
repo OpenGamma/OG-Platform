@@ -43,7 +43,7 @@
             <bean class="org.eclipse.jetty.server.handler.RequestLogHandler">
               <property name="requestLog">
                 <bean class="org.eclipse.jetty.server.NCSARequestLog">
-                  <constructor-arg value="${opengamma.server.name}-requests-yyyy_mm_dd.log"/>
+                  <constructor-arg value="${jetty.log.dir}/${opengamma.server.name}-requests-yyyy_mm_dd.log"/>
                   <property name="extended" value="true"/>
                   <property name="append" value="true"/>
                   <property name="logLatency" value="true"/>

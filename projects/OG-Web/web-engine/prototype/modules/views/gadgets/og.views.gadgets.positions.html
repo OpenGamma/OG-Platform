@@ -4,13 +4,13 @@
   </thead>
   <tbody>
   <tr>
-    <td><a href=#/securities/${template_data.security_unique_id}>
+    <td>{{if show_links}}<a href=#/securities/${template_data.security_unique_id}>{{/if}}
      {{if template_data.security_name}}
         ${template_data.security_name}
      {{else}}
         (no value)
      {{/if}}
-    </a></td>
+    {{if show_links}}</a>{{/if}}</td>
     <td>
       <strong class="og-quantity"
         {{if editable}}data-og-editable="quantity" data-og-id="${template_data.object_id}"{{/if}}

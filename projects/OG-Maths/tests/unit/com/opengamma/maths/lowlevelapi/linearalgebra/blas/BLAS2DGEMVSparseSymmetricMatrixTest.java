@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.SparseSymmetricMatrix;
 import com.opengamma.maths.lowlevelapi.linearalgebra.blas.BLAS2;
 

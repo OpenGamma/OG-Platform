@@ -11,20 +11,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.DoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.surface.DoublesSurface;
-import com.opengamma.math.surface.Surface;
 
 /**
  * Converter for {@link VolatilitySurface} objects.
  * The difference between this form and VolatilitySurfaceData is that the latter
  * will often be full of repeated values. Here we compute the distinct set of axes values, 
- * then query the surface for the z values
+ * then query the surface for the z values.
  */
 public class VolatilitySurfaceConverter implements ResultConverter<VolatilitySurface> {
 
   @Override
+  /**
+   * Put together a map of results such that VolatilitySurfaceDetail.js can render it
+   * Required outputs: 
+   * <p>'xs' and 'ys' - String arrays for axes labels.
+   *  <p>'surface' - 2D double array with size matching xs and ys
+   */
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, VolatilitySurface value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
 
@@ -62,13 +68,13 @@ public class VolatilitySurfaceConverter implements ResultConverter<VolatilitySur
         for (int i = 0; i < xCount; i++) {
           xStrings[i] = uniqueXs.get(i).toString();
         }
-        result.put("xData", xStrings);
+        result.put("xs", xStrings);
         
         String[] ysStrings = new String[yCount];
         for (int i = 0; i < yCount; i++) {
           ysStrings[i] = uniqueYs.get(i).toString();
         }
-        result.put("yData", ysStrings);
+        result.put("ys", ysStrings);
         
         double[][] outputSurface = new double[yCount][xCount];
         boolean[][] missingValues = new boolean[yCount][xCount];

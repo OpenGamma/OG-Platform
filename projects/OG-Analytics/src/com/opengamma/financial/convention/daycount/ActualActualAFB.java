@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.daycount;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
-import com.opengamma.financial.schedule.ScheduleFactory;
+import com.opengamma.analytics.financial.schedule.ScheduleFactory;
 
 /**
  * The 'Actual/Actual AFB' day count.

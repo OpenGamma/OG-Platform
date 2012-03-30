@@ -15,16 +15,16 @@ Visit the developer website at http://developers.opengamma.com for more informat
 
 How to use the build system
 ---------------------------
+You need to make sure Apache Ant and Git are installed and working.
 
 If you've pulled the source code from GitHub
 --------------------------------------------
-As usual, all this assumes that ant is already in your path and that git is installed.
+If you're an OpenGamma customer paying for access to commerical components, you'll need to start by running:
 
   ant init
 
-will prompt you for a username and password.  If you are an OpenGamma customer, enter your login details here and
-you will be able to access the commercial component.  If you're looking at the pure open source release, just 
-press ENTER twice to use the defaults.
+which will prompt you for a username and password.  Enter your login details here and you will be able to access 
+the commercial component.  If you're looking at the pure open source release, you can skip the 'ant init' step.
 
   ant clone-or-pull
 

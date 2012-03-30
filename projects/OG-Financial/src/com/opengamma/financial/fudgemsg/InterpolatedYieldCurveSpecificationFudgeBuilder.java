@@ -18,10 +18,10 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.id.ExternalId;
-import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.util.money.Currency;
 
 /**
