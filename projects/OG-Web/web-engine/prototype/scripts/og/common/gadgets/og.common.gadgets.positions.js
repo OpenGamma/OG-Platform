@@ -13,7 +13,7 @@ $.register_module({
             /* timeseries */
             var selector = config.selector, get_values, timeseries, view = config.view,
                 editable = config.editable && !og.app.READ_ONLY, rest_options,
-                show_links = 'links' in config ? config.links : true,
+                external_links = 'external_links' in config ? config.external_links : false,
                 timeseries_options = {
                     colors: ['#42669a'],
                     series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
@@ -44,7 +44,7 @@ $.register_module({
                     timeseries_options.yaxis = get_values(result.data.timeseries.data);
                     $.plot($timeseries, [result.data.timeseries.data], timeseries_options);
                     $timeseries_extra.html(template_data.data_field.lang() + ': ' + template_data.data_source.lang());
-                    if (show_links) $(selector + ' .og-timeseries-container')
+                    if (!external_links) $(selector + ' .og-timeseries-container')
                         .hover(function () {$hover_msg.show();}, function () {$hover_msg.hide();})
                         .click(function (e) {
                             e.preventDefault();
@@ -59,10 +59,12 @@ $.register_module({
             $.when(api.rest.positions.get(rest_options), api.text({module: 'og.views.gadgets.positions'}))
                 .then(function (result, template) {
                     if (result.error) return view ? view.error(result.message) : alert(result.message);
-                    var $html = $.tmpl(template, $.extend(result.data, {editable: editable, show_links: show_links})),
+                    var $html = $.tmpl(template, $.extend(result.data, {
+                            editable: editable, external_links: external_links
+                        })),
                         cur_page = routes.current().page.substring(1),
                         link = function () {
-                            if (!show_links) return $(this).text();
+                            if (external_links) return $(this).text();
                             var url = routes.prefix() + routes.hash(og.views.positions.rules.load_item, {
                                 id: result.data.template_data.object_id
                             });

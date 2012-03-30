@@ -19,3 +19,4 @@ build.number
 test-output/
 *.iws
 *.ids
+/install/db/hsqldb/bloombergexample-db*

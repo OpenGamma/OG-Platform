@@ -26,6 +26,9 @@ public enum SheetFormat {
   UNKNOWN;
  
   public static SheetFormat of(String filename) {
+    if (filename.lastIndexOf('.') < 0) {
+      return SheetFormat.UNKNOWN;
+    }
     String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase().trim();
     if (extension.equals(".csv")) {
       return SheetFormat.CSV;

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bloombergexample.tool.ExampleDatabasePopulater;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -24,6 +25,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -67,6 +69,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   protected void doRun() {
     createEquityViewDefinition();
     createSwapViewDefinition();
+    createFXViewDefinition();
     //createMultiCurrencySwapViewDefinition();
     //createMixedPortfolioViewDefinition();
   }
@@ -85,6 +88,10 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private void createMixedPortfolioViewDefinition() {
     storeViewDefinition(getMixedPortfolioViewDefinition());
+  }
+
+  private void createFXViewDefinition() {
+    storeViewDefinition(getFXViewDefinition());
   }
 
   private ViewDefinition getMixedPortfolioViewDefinition() {
@@ -292,6 +299,31 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     viewDefinition.addViewCalculationConfiguration(nativeCurrencyCalc);
 
+    return viewDefinition;
+  }
+
+  private ViewDefinition getFXViewDefinition() {
+    UniqueId portfolioId = getPortfolioId(ExampleDatabasePopulater.EXAMPLE_FX_PORTFOLIO);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleDatabasePopulater.EXAMPLE_FX_PORTFOLIO + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXForwardSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA);
+
+    viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
   }
 

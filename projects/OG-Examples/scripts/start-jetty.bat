@@ -13,7 +13,7 @@ set JAVACMD=%JAVA_HOME%\bin\java.exe
 	-Dcommandmonitor.secret=OpenGamma ^
   -cp config;og-examples.jar;lib ^
   com.opengamma.component.OpenGammaComponentServer ^
-  config\fullstack\fullstack-example-bin.properties
+  config\fullstack\example-bin.properties
   
 REM PLAT-1527
 popd
