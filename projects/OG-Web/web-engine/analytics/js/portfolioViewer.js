@@ -139,7 +139,13 @@
       } else {
         html += "<span class='toggle'></span>";
       }
-      html += "<span class='cell-title'>" + value + "</span>";
+      html += "<span class='cell-title'>";
+      if (dataContext.posId) {
+        html += "<a href='#' class='og-js-positiongadget' data-posid='" + dataContext.posId + "'>" + value + "</a>";
+      } else {
+        html += value;
+      }
+      html += "</span>"
       return html;
     }
     
