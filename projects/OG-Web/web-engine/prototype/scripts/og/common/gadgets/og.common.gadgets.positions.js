@@ -63,8 +63,9 @@ $.register_module({
                         cur_page = routes.current().page.substring(1),
                         link = function () {
                             if (!show_links) return $(this).text();
-                            var url = routes.prefix() + 
-                                og.views.positions.rules.load({id: result.data.template_data.object_id});
+                            var url = routes.prefix() + routes.hash(og.views.positions.rules.load_item, {
+                                id: result.data.template_data.object_id
+                            });
                             return '<a href="' + url + '">' + $(this).text() + '</a>'
                         };
                         if (cur_page ===  'positions') $html.find('thead span').html(link);
