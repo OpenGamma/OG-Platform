@@ -4,7 +4,7 @@
   <property name="ai.input.file" value="${monolith.input.file}" />
   <import file="installer.xml" />
 
-  <mkdir dir="${dist.dir}" failonerror="false" />
+  <mkdir dir="${dist.dir}" />
 
   <!-- Find the available servers -->
   <fileset dir="${dist.dir}" id="servers.i386" includes="OpenGamma?Server-*-32-bit.msi" />
