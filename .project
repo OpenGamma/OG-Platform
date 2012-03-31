@@ -11,11 +11,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/ivy resolve.launch</value>
-				</dictionary>
-				<dictionary>
-					<key>incclean</key>
-					<value>true</value>
+					<value>&lt;project&gt;/.externalToolBuilders/ivy loader.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>
@@ -34,4 +30,3 @@
 		</filter>
 	</filteredResources>
 </projectDescription>
-
