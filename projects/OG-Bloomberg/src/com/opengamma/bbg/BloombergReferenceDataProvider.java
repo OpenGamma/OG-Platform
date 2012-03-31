@@ -47,7 +47,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class BloombergReferenceDataProvider extends AbstractBloombergDataProvider implements ReferenceDataProvider {
+public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataProvider implements ReferenceDataProvider {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergReferenceDataProvider.class);
   private static final String ERROR_MESSAGE_FORMAT = "{0}:{1}/{2} - {3}";

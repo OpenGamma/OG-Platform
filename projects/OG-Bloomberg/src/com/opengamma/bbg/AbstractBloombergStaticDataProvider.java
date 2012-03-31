@@ -32,7 +32,7 @@ import com.opengamma.util.TerminatableJob;
 /**
  * 
  */
-public abstract class AbstractBloombergDataProvider implements Lifecycle {
+public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   // Injected Inputs:
   private final SessionOptions _sessionOptions;
   //Runtime State:
@@ -46,7 +46,7 @@ public abstract class AbstractBloombergDataProvider implements Lifecycle {
   /**
    * @param sessionOptions Options for connecting to the Bloomberg Server API process
    */
-  public AbstractBloombergDataProvider(SessionOptions sessionOptions) {
+  public AbstractBloombergStaticDataProvider(SessionOptions sessionOptions) {
     ArgumentChecker.notNull(sessionOptions, "Session Options");
     ArgumentChecker.notNull(sessionOptions.getServerHost(), "Session Option Server Host");
     _sessionOptions = sessionOptions;

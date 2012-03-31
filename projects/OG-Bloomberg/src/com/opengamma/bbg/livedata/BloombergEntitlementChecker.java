@@ -23,7 +23,7 @@ import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
-import com.opengamma.bbg.AbstractBloombergDataProvider;
+import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
@@ -40,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * To understand what's going on this class, read Bloomberg Server API 3.0 Developer Guide, Chapter 7.
  * 
  */
-public class BloombergEntitlementChecker extends AbstractBloombergDataProvider implements LiveDataEntitlementChecker {
+public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProvider implements LiveDataEntitlementChecker {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEntitlementChecker.class);
   

@@ -64,7 +64,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Loads time-series from Bloomberg.
  */
-public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergDataProvider implements HistoricalTimeSeriesSource {
+public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStaticDataProvider implements HistoricalTimeSeriesSource {
 
   /**
    * Default start date for loading time-series
