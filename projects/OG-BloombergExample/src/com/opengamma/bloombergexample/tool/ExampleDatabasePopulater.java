@@ -5,6 +5,7 @@
  */
 package com.opengamma.bloombergexample.tool;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
@@ -86,7 +88,16 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadMultiCurrencySwapPortfolio();
     //loadLiborRawSecurities();
     //loadMixedPortfolio();
-    loadViews();
+    loadEquityOptionPortfolio();
+    loadViews();       
+  }
+  
+  private void loadEquityOptionPortfolio(){
+    DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();    
+    loader.setNumOptions(2);
+    loader.setNumMembers(8);
+    loader.setNumContracts(new BigDecimal(500));
+    loader.run(getToolContext());    
   }
 
   private void loadCurveNodeHistoricalData() {
