@@ -3123,7 +3123,7 @@
     <ROW FileKey="bloombergexample_database_create.bat" Component_="og_bloombergexample.jar" FileName="bloombergexample-database-create.bat" DirProperty="install_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_requests_" Component_="og_bloombergexample.jar" FileName="*-bloombergexample-requests*" DirProperty="Logs_Dir" InstallMode="2"/>
     <ROW FileKey="bloombergexample_run.properties" Component_="og_bloombergexample.jar" FileName="bloombergexample-run.properties" DirProperty="fullstack_Dir" InstallMode="2"/>
-    <ROW FileKey="bloombergexample_run.properties_1" Component_="AST4" FileName="bloombergexample-run.properties" DirProperty="toolcontext_Dir" InstallMode="2"/>
+    <ROW FileKey="bloombergexample_run.properties_1" Component_="og_bloombergexample.jar" FileName="bloombergexample-run.properties" DirProperty="toolcontext_Dir" InstallMode="2"/>
     <ROW FileKey="example.log_" Component_="og_examples.jar" FileName="example.log*" DirProperty="Logs_Dir" InstallMode="2"/>
     <ROW FileKey="example_database_create.bat" Component_="og_examples.jar" FileName="example-database-create.bat" DirProperty="install_Dir" InstallMode="2"/>
     <ROW FileKey="example_requests_" Component_="og_examples.jar" FileName="*-example-requests*" DirProperty="Logs_Dir" InstallMode="2"/>
