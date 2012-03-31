@@ -27,7 +27,6 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
@@ -70,8 +69,8 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
     addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
-    addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
-    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
+    addConfigFor(configs, ExampleEquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "SECONDARY"});
+    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
     configs.add(new StaticFunctionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class.getName()));
@@ -91,7 +90,7 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
       }
       configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
       return;
-    } else if (className.equals(EquityOptionVolatilitySurfaceDataFunction.class.getName())) {
+    } else if (className.equals(ExampleEquityOptionVolatilitySurfaceDataFunction.class.getName())) {
       if (params.length != 3) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());
