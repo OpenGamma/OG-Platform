@@ -1786,7 +1786,7 @@
     <ATTRIBUTE name="PrereqsOrder" value="A36DC7A_AF70_4CF0_B489_B30E0828F882 D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
-    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Installed" RefContent="G1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
+    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
     <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
