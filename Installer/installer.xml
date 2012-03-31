@@ -75,12 +75,12 @@
   <!-- execution hooks -->
 
   <target name="build-all" if="ai.present">
-    <parallel>
+    <!--<parallel>-->
       <antcall target="build-jvm-i386" inheritrefs="true" />
       <antcall target="build-jvm-x64" inheritrefs="true" />
       <antcall target="build-nojvm-i386" inheritrefs="true" />
       <antcall target="build-nojvm-x64" inheritrefs="true" />
-    </parallel>
+    <!--</parallel>-->
   </target>
 
   <target name="build" depends="create-build-file,set-build-number,build-all" />

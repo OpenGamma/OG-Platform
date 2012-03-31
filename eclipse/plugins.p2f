@@ -63,21 +63,7 @@
         <repository location='http://eclipse-cs.sf.net/update/'/>
       </repositories>
     </iu>
-    <iu id='org.eclipse.egit.mylyn.feature.group' name='EGit Mylyn' version='1.1.0.201109151100-r'>
-      <repositories size='3'>
-        <repository location='http://download.eclipse.org/releases/indigo'/>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-        <repository location='http://download.eclipse.org/releases/indigo/201202240900'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.egit.psf.feature.group' name='EGit Project Set Support' version='1.1.0.201109151100-r'>
-      <repositories size='3'>
-        <repository location='http://download.eclipse.org/releases/indigo'/>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-        <repository location='http://download.eclipse.org/releases/indigo/201202240900'/>
-      </repositories>
-    </iu>
-    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.3.0.20111017_2337'>
+    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.4.0.20120308_1617'>
       <repositories size='1'>
         <repository location='http://beust.com/eclipse'/>
       </repositories>

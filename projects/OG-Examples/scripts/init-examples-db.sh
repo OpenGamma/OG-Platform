@@ -26,6 +26,7 @@ done
 echo "### Creating empty database"
 
 $JAVA  -cp "$CLASSPATH" \
+  -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db \
   -database og-financial \
@@ -37,6 +38,7 @@ $JAVA  -cp "$CLASSPATH" \
   -dbscriptbasedir .
 
 $JAVA  -cp "$CLASSPATH" \
+  -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user \
   -database og-financial \

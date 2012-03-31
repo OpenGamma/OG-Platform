@@ -25,7 +25,7 @@
         <entry key="active-configuration" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="check-test-classes" value="false" />
         <entry key="location-0" value="CLASSPATH:/sun_checks.xml:The default CheckStyle rules." />
-        <entry key="location-1" value="FILE:$PROJECT_DIR$/common/checkstyle.xml:" />
+        <entry key="location-1" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="thirdparty-classpath" value="" />
       </map>
     </option>
@@ -47,6 +47,7 @@
       <entry name="?*.txt" />
       <entry name="?*.csv" />
       <entry name="?*.ini" />
+      <entry name="?*.elsql" />
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
@@ -237,15 +238,18 @@
       <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" filepath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" filepath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" filepath="$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" filepath="$PROJECT_DIR$/projects/OG-BloombergExample/OG-BloombergExample.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" filepath="$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" filepath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" filepath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" filepath="$PROJECT_DIR$/projects/OG-Financial/OG-Financial.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Integration/OG-Integration.iml" filepath="$PROJECT_DIR$/projects/OG-Integration/OG-Integration.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" filepath="$PROJECT_DIR$/projects/OG-Language/OG-Language.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" filepath="$PROJECT_DIR$/projects/OG-LiveData/OG-LiveData.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" filepath="$PROJECT_DIR$/projects/OG-Master/OG-Master.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" filepath="$PROJECT_DIR$/projects/OG-MasterDB/OG-MasterDB.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Maths/OG-Maths.iml" filepath="$PROJECT_DIR$/projects/OG-Maths/OG-Maths.iml" />
       <module fileurl="file://$PROJECT_DIR$/OG-Platform.iml" filepath="$PROJECT_DIR$/OG-Platform.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" filepath="$PROJECT_DIR$/projects/OG-Security/OG-Security.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" filepath="$PROJECT_DIR$/projects/OG-Util/OG-Util.iml" />
@@ -256,12 +260,10 @@
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
+    <output url="file://$PROJECT_DIR$/build" />
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Java" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/projects/Fudge-Proto" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
 </project>

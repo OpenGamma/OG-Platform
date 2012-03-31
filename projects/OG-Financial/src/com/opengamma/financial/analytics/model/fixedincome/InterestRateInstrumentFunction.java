@@ -52,6 +52,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * 
@@ -98,12 +99,22 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
     // doesn't break curves
     if (target.getSecurity() instanceof InterestRateFutureSecurity) {
       return false;
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
+    if (security instanceof SwapSecurity) {
+      try {
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
+            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+      } catch (OpenGammaRuntimeException ogre) {
+        return false;
+      }
+    }
+    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
   }
 
   @Override

@@ -101,7 +101,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
     addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
 //    addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
-//    addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
     addPortfolioNode(rootNode, getFXOptions(), "FX options", BigDecimal.ONE);
 //    addBondNode(rootNode);
     addPortfolioNode(rootNode, getSwaptions(), "Swaptions", BigDecimal.ONE);

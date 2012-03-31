@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.examples.generator.PortfolioGeneratorTool;
@@ -37,7 +40,8 @@ import com.opengamma.util.time.Tenor;
  * It is designed to run against the HSQLDB example database.
  */
 public class ExampleDatabasePopulater extends AbstractExampleTool {
-
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulater.class);
   /**
    * The name of the multi-currency swap portfolio.
    */
@@ -86,15 +90,15 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadFRAPortfolio();
     loadLiborRawSecurities();
     loadMixedFXPortfolio();
-    loadMixedPortfolio();
+    loadMultiAssetPortfolio();
     loadViews();
   }
 
   private void loadCurveAndSurfaceDefinitions() {
     ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
-    System.out.println("Creating curve and surface definitions");
+    s_logger.info("Creating curve and surface definitions");
     curveLoader.run(getToolContext());
-    System.out.println("Finished");
+    s_logger.info("Finished");
   }
 
   private void loadDefaultVolatilityCubeDefinition() {
@@ -104,7 +108,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     ConfigDocument<VolatilityCubeDefinition> doc = new ConfigDocument<VolatilityCubeDefinition>(VolatilityCubeDefinition.class);
     doc.setName("SECONDARY_USD");
     doc.setValue(createDefaultDefinition());
-    System.out.println("Populating vol cube defn " + doc.getName());
+    s_logger.info("Populating vol cube defn " + doc.getName());
     ConfigMasterUtils.storeByName(configMaster, doc);
     
     VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
@@ -115,12 +119,12 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     private final String _str;
 
     private Log(final String str) {
-      System.out.println(str);
+      s_logger.info(str);
       _str = str;
     }
 
     private void done() {
-      System.out.println(_str + " - finished");
+      s_logger.info(_str + " - finished");
     }
 
     private void fail(final RuntimeException e) {
@@ -130,8 +134,8 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
 
   }
 
-  private void loadMixedPortfolio() {
-    final Log log = new Log("Creating example mixed portfolio");
+  private void loadMultiAssetPortfolio() {
+    final Log log = new Log("Creating example multi asset portfolio");
     try {
       ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
       mixedPortfolioLoader.run(getToolContext());

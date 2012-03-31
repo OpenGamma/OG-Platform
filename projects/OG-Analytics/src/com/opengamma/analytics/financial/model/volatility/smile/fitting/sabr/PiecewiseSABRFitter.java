@@ -24,8 +24,9 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO use root finding rather than chi^2 for this
+ * @deprecated Please use SmileInterpolatorSABR
  */
+@Deprecated
 public class PiecewiseSABRFitter {
   private static final double DEFAULT_BETA = 0.9;
   private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();

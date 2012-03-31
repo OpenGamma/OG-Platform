@@ -41,13 +41,13 @@
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Language-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.thoughtworks.paranamer/paranamer/javadocs/paranamer-javadoc-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/com.thoughtworks.paranamer/paranamer/javadocs/paranamer-javadoc-2.3.jar!/" />
         </JAVADOC>
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.thoughtworks.paranamer/paranamer/sources/paranamer-src-2.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-cj/com.thoughtworks.paranamer/paranamer/sources/paranamer-src-2.3.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
