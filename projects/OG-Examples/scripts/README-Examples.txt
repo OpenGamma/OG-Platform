@@ -3,10 +3,10 @@ OpenGamma examples scripts
 ==========================
 These scripts are intended for use when OpenGamma is packaged up into a distribution.
 
- run - initialises the example and runs the server
  init-example-db - initialises the dummy HSQLDB database
- start-jetty - starts the server
- stop-jetty - stops the server
+ examples debug  - starts the server in the foreground and output logs to the terminal
+ examples start  - starts the server in the background (not supported in Windows)
+ examples stop   - stops the server (not supported in Windows)
 
 
 The scripts will not work when running from Eclipse or a simple Git checkout.
