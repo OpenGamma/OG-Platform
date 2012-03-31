@@ -111,7 +111,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void getSecurityType() throws Exception {
     String bbgEquitySecType = BBG_COMMON_STOCK_TYPE;
     String bbgEquityOptionSecType = BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
@@ -122,7 +121,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -136,7 +134,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquityByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -145,7 +142,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquitiesByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -157,7 +153,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquitiesByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -169,7 +164,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -178,14 +172,12 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void exchangeTradedFund() throws Exception {
     Security security = _securitySource.getSecurity(US_NATURAL_GAS_FUND.getExternalIdBundle());
     assertEquitySecurity(US_NATURAL_GAS_FUND, security);
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquitiesByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -197,7 +189,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquityByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -206,7 +197,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquitiesByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -218,14 +208,12 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionByBbgTicker() throws Exception {
     Security sec = _securitySource.getSecurity(EXPECTED_APVL_EQUITYOPTION_SEC.getExternalIdBundle());
     assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionsByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -237,7 +225,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionsByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -249,7 +236,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -258,7 +244,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -267,7 +252,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionsByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
@@ -279,8 +263,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
-  //note that this code will roll over in 18-12-2010, the test values need to change
   public void spxIndexOptionByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -289,8 +271,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
-  // note that this code will roll over in 18-12-2010, the test values need to change
   public void spxIndexOptionsByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
@@ -301,8 +281,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
   }
 
-  @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
+  @Test(groups={"bbgSecurityFutureTests"})
   public void agricultureFuture() throws Exception {
     Security wheat = _securitySource.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(wheat);
@@ -310,8 +289,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(EXPECTED_WHEAT_FUTURE_SEC, wheat);
   }
 
-  @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
+  @Test(groups={"bbgSecurityFutureTests"})
   public void equityFuture() throws Exception {
     Security spIndex = _securitySource.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(spIndex);
@@ -328,8 +306,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(EXPECTED_AUDUSD_FUTURE_SEC, audUsd);
   }
 
-  @Test
-  //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
+  @Test(groups={"bbgSecurityFutureTests"})
   public void euroBondFuture() throws Exception {
     ExternalIdBundle euroBund = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("RXA Comdty"));
     Security bond = _securitySource.getSecurity(euroBund);
@@ -371,8 +348,7 @@ public abstract class BloombergSecuritySourceTestCase {
     return toDay;
   }
 
-  @Test
-  //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
+  @Test(groups={"bbgSecurityFutureTests"})
   public void metalFuture() throws Exception {
     Security silverFuture = _securitySource.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
     assertNotNull(silverFuture);
@@ -380,8 +356,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(EXPECTED_SILVER_FUTURE, silverFuture);
   }
 
-  @Test
-  //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
+  @Test(groups={"bbgSecurityFutureTests"})
   public void energyFuture() throws Exception {
     Security ethanolFuture = _securitySource.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
     assertNotNull(ethanolFuture);
@@ -389,7 +364,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertEquals(EXPECTED_ETHANOL_FUTURE, ethanolFuture);
   }
 
-  @Test
+  @Test(groups={"bbgSecurityFutureTests"})
   public void interestRateFuture() throws Exception {
     Security euroDollar = _securitySource.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
     assertNotNull(euroDollar);
@@ -398,7 +373,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurity() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("INVALID"));
     Security sec = _securitySource.getSecurity(invalidKey);
@@ -406,7 +380,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurities() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("INVALID"));
     Collection<Security> securities = _securitySource.getSecurities(invalidKey);
@@ -415,7 +388,6 @@ public abstract class BloombergSecuritySourceTestCase {
   }
 
   @Test
-  // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void multiThreadedSecurityRequest() throws Exception {
 
     ExternalIdBundle apvKey = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
