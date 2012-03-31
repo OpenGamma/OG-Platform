@@ -15,6 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
@@ -31,7 +32,8 @@ import com.opengamma.util.ArgumentChecker;
  * . Normally the file is named {@code toolcontext.ini}.
  */
 public abstract class AbstractTool {
-
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractTool.class);
   /**
    * Default logback file.
    */
@@ -148,11 +150,11 @@ public abstract class AbstractTool {
   public final boolean run(String configResource) {
     try {
       ArgumentChecker.notNull(configResource, "configResourceLocation");
-      System.out.println("Starting " + getClass().getSimpleName());
+      s_logger.info("Starting " + getClass().getSimpleName());
       ToolContext toolContext = ToolContextUtils.getToolContext(configResource);
-      System.out.println("Running " + getClass().getSimpleName());
+      s_logger.info("Running " + getClass().getSimpleName());
       run(toolContext);
-      System.out.println("Finished " + getClass().getSimpleName());
+      s_logger.info("Finished " + getClass().getSimpleName());
       return true;
     } catch (Exception ex) {
       ex.printStackTrace();
