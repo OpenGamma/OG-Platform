@@ -1586,10 +1586,10 @@
     <ATTRIBUTE name="CurrentBuild" value="JVM64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ChainedPackageComponent">
-    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="66" InstallCondition="NOT Installed AND &amp;servers32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="66" InstallCondition="NOT Installed AND &amp;servers64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Tools.i386.msi" Order="3" Options="66" InstallCondition="NOT Installed AND &amp;clients32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Tools.x64.msi" Order="4" Options="66" InstallCondition="NOT Installed AND &amp;clients64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;servers32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;servers64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Tools.i386.msi" Order="3" Options="146" InstallCondition="NOT Installed AND &amp;clients32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Tools.x64.msi" Order="4" Options="146" InstallCondition="NOT Installed AND &amp;clients64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ChainedPackageFileComponent">
     <ROW FileId="OpenGamma_Server.i386.msi" ChainedPackage="OpenGamma_Server.i386.msi" Options="1" TargetPath="OpenGamma Server.i386.msi" Content="..\install\install\OpenGamma Server.i386.msi"/>
