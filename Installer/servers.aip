@@ -1674,7 +1674,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignOptions="0" SignTool="0"/>
+    <ROW TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignOptions="7" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FirewallExceptionComponent">
     <ROW FirewallException="Example_Server_32_bit" DisplayName="OpenGamma Example Server" Enabled="1" Scope="*" Condition="((?og_examples.i386.exe=2) AND ($og_examples.i386.exe=3))" Profiles="0" AppPath="[#og_examples.i386.exe]"/>
