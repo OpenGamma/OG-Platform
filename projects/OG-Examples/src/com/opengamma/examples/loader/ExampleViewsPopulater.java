@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -244,7 +246,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
     UniqueId portfolioId = getPortfolioId("MultiCurrency Swap Portfolio");
-    ViewDefinition viewDefinition = new ViewDefinition("Example MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
+    ViewDefinition viewDefinition = new ViewDefinition("MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -257,9 +259,14 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     for (Currency ccy : s_currencies) {
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
           ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get());
+      
+      defaultCalConfig.addSpecificRequirement(new ValueRequirement(
+          ValueRequirementNames.YIELD_CURVE,
+          ComputationTargetType.PRIMITIVE,
+          UniqueId.of("CurrencyISO", ccy.getCode()),
+          ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get()));
     }
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
-
     return viewDefinition;
   }
 
