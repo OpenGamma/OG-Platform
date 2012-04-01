@@ -94,6 +94,7 @@ debug() {
     RETVAL=6
     return
   fi
+  echo
   $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \
