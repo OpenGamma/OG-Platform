@@ -66,7 +66,7 @@ set_commandmonitor_opts() {
 }
 
 start() {
-  if [ $(which setsids 2>/dev/null ) ]; then 
+  if [ $(which setsid 2>/dev/null ) ]; then 
     SETSID=setsid
   else
     SETSID=
