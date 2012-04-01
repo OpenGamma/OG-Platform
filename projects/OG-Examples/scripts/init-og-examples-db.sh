@@ -14,7 +14,7 @@ else
   fi
 fi
 
-if [ "`basename $0`" = "init-examples-db.sh" ] ; then
+if [ "`basename $0`" = "init-og-examples-db.sh" ] ; then
   cd `dirname $0`/.. #PLAT-1527
 fi
 
