@@ -36,7 +36,7 @@ GOTO :exit
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing ^
   -Dlogback.configurationFile=%LOGBACK_CONFIG% ^
         -Dcommandmonitor.secret=OpenGamma ^
-  -cp config\*;%PROJECTJAR%;lib\* ^
+  -cp config;%PROJECTJAR%;lib\* ^
   com.opengamma.component.OpenGammaComponentServer ^
   %CONFIG%
 GOTO :exit
