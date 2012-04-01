@@ -20,11 +20,10 @@ set_java_cmd() {
 build_classpath() {
   _CLASSPATH=""
   #XXX find -printf isn't in POSIX
-  _JARS=$(find lib -follow -name "*.jar" -xtype f -printf %p: 2>/dev/null)
-  _ZIPS=$(find lib -follow -name "*.zip" -xtype f -printf %p: 2>/dev/null)
-  _CLASSPATH=${_JARS}${_ZIPS}
-  #Remove the trailing ":"
-  _CLASSPATH=${_CLASSPATH%:}
+  _CLASSPATH=config:og-examples.jar
+  for FILE in `ls -1 lib/*` ; do
+    _CLASSPATH=${_CLASSPATH}:$FILE
+  done
   echo "${_CLASSPATH}"
 }
 
