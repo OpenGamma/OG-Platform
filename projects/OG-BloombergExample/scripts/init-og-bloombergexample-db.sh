@@ -53,7 +53,8 @@ $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=bloombergexample-logback.xml \
-  com.opengamma.examples.tool.ExampleDatabasePopulater
+  com.opengamma.examples.tool.ExampleDatabasePopulater \
+  -c classpath:toolcontext/bloombergexample-bin.properties
 
 echo "### Completed"
 
