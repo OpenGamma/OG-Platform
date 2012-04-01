@@ -44,8 +44,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An implemention of {@link ReferenceDataProvider} that makes requests directly against
  * the Bloomberg Server API.
- *
- * @author kirk
  */
 public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataProvider implements ReferenceDataProvider {
   
