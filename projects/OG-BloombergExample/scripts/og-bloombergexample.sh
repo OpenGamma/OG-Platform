@@ -2,7 +2,11 @@
 
 BASENAME=${0##*/}                                                                                                               
 COMPONENT=${BASENAME%.sh}                                                                                                       
-BASEDIR="$(dirname $(dirname $(readlink -f $0)))"                                                                               
+# yuck, because readlink -f not available on OS X.
+cd $(dirname $0)/..
+
+BASEDIR=$(pwd) 
+
 SCRIPTDIR=${BASEDIR}/scripts
 PROJECT=og-bloombergexample
 PROJECTJAR=${PROJECT}.jar
