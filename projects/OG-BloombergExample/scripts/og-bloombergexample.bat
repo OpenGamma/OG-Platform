@@ -21,7 +21,7 @@ IF "%1"=="restart" goto :start
 IF "%1"=="reload" goto :start
 IF "%1"=="stop" ECHO Stop not supported
 IF "%1"=="status" ECHO Status not supported
-IF "%1"=="" ECHO Usage: %0 start|stop|restart|status|reload|debug
+IF "%1"=="" ECHO Usage: %0 start^|stop^|restart^|status^|reload^|debug
 GOTO :exit
 
 :nodb
