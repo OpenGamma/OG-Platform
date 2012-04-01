@@ -5,8 +5,6 @@
 		
 	<property file="config/server.properties"/>
 	
-	<property name="testng.exludedgroups" value="bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests"/>
-	
 	<available property="dbscript.create" value="${basedir}/create" file="${basedir}/create-db-common.sql" />
     <target name="dbscript-create-db-sql" if="dbscript.create">
             <subant target="create-db-sql-impl-2">
