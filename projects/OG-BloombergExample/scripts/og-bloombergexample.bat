@@ -9,6 +9,12 @@ set PROJECT=og-bloombergexample
 set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
 set CONFIG=config\fullstack\bloombergexample-bin.properties
+SETLOCAL EnableDelayedExpansion
+SET CLASSPATH="config;%PROJECTJAR%;lib\*
+ for %%i in (lib/*.zip) do (
+   set CLASSPATH=!CLASSPATH!;lib/%%i
+ )
+set CLASSPATH=!CLASSPATH!"
 
 IF NOT EXIST %BASEDIR%\install\db\hsqldb\bloombergexample-db.properties goto :nodb 
 
@@ -36,7 +42,7 @@ GOTO :exit
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing ^
   -Dlogback.configurationFile=%LOGBACK_CONFIG% ^
         -Dcommandmonitor.secret=OpenGamma ^
-  -cp config;%PROJECTJAR%;lib\* ^
+  -cp %CLASSPATH% ^
   com.opengamma.component.OpenGammaComponentServer ^
   %CONFIG%
 GOTO :exit
