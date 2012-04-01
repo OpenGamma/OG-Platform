@@ -49,6 +49,7 @@ GOTO :exit
 GOTO :exit
 
 :exit
+ENDLOCAL
 REM PLAT-1527
 POPD
 EXIT /B
