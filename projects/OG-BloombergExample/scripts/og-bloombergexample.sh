@@ -4,14 +4,16 @@ BASENAME=${0##*/}
 COMPONENT=${BASENAME%.sh}                                                                                                       
 BASEDIR="$(dirname $(dirname $(readlink -f $0)))"                                                                               
 SCRIPTDIR=${BASEDIR}/scripts
-PROJECT=og-examples
-PROJECTJAR=og-examples.jar
+PROJECT=og-bloombergexample
+PROJECTJAR=${PROJECT}.jar
 
 cd "${BASEDIR}" || exit 1
 
 if [ ! -d ${BASEDIR}/temp/hsqldb ]; then
-  echo HSQL database directory not found, invoking init-examples-db.sh script to create and populate database...
-  ${BASEDIR}/scripts/init-examples-db.sh
+  echo ERROR: The ${PROJECT} database could not be found.
+  echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
+  echo Exiting immediately...
+  exit
 fi
 
 . ${SCRIPTDIR}/componentserver-init-utils.sh
@@ -20,8 +22,8 @@ fi
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/example-bin.properties
-LOGBACK_CONFIG=examples-logback.xml
+CONFIG=classpath:fullstack/bloombergexample-bin.properties
+LOGBACK_CONFIG=jetty-logback.xml
 
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}
