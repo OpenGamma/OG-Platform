@@ -10,7 +10,7 @@ set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
 set CONFIG=config\fullstack\bloombergexample-bin.properties
 
-IF NOT EXIST %BASEDIR%\temp\hsqldb goto :nodb 
+IF NOT EXIST %BASEDIR%\install\db\hsqldb\bloombergexample-db.properties goto :nodb 
 
 IF "%JAVA_HOME%" == "" ECHO Warning: JAVA_HOME is not set
 SET JAVACMD=%JAVA_HOME%\bin\java.exe
@@ -25,7 +25,7 @@ IF "%1"=="" ECHO Usage: %0 start^|stop^|restart^|status^|reload^|debug
 GOTO :exit
 
 :nodb
-ECHO ERROR: The %PROJECT% database could not be found.
+ECHO The %PROJECT% database could not be found.
 ECHO Please run %SCRIPTDIR%\init-%PROJECT%-db.bat to create and populate the database.
 ECHO Exiting immediately...
 GOTO :exit

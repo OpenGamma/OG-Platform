@@ -9,8 +9,8 @@ PROJECTJAR=${PROJECT}.jar
 
 cd "${BASEDIR}" || exit 1
 
-if [ ! -d ${BASEDIR}/temp/hsqldb ]; then
-  echo ERROR: The ${PROJECT} database could not be found.
+if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
+  echo The ${PROJECT} database could not be found.
   echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
   echo Exiting immediately...
   exit
