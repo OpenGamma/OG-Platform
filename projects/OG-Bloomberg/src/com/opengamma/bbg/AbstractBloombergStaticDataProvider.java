@@ -32,21 +32,21 @@ import com.opengamma.util.TerminatableJob;
 /**
  * 
  */
-public abstract class BloombergDataProvider implements Lifecycle {
+public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   // Injected Inputs:
   private final SessionOptions _sessionOptions;
   //Runtime State:
   private Session _session;
   private final AtomicLong _nextCorrelationId = new AtomicLong(1L);
-  protected final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<CorrelationID, CorrelationID>();
-  protected final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<CorrelationID, BlockingQueue<Element>>();
+  private final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<CorrelationID, CorrelationID>();
+  private final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<CorrelationID, BlockingQueue<Element>>();
   private BloombergSessionEventProcessor _bbgEventProcessor;
   private Thread _thread;
 
   /**
    * @param sessionOptions Options for connecting to the Bloomberg Server API process
    */
-  public BloombergDataProvider(SessionOptions sessionOptions) {
+  public AbstractBloombergStaticDataProvider(SessionOptions sessionOptions) {
     ArgumentChecker.notNull(sessionOptions, "Session Options");
     ArgumentChecker.notNull(sessionOptions.getServerHost(), "Session Option Server Host");
     _sessionOptions = sessionOptions;
@@ -273,5 +273,12 @@ public abstract class BloombergDataProvider implements Lifecycle {
   }
 
   protected abstract Logger getLogger();
+  
+  protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
+    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
+    //clear correlation maps
+    _correlationIDMap.remove(cid);
+    return resultElements;
+  }
 
 }

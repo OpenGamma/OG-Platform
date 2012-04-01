@@ -465,32 +465,32 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
   }
 
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityOptionSecurity() {
     assertLoadAndSaveSecurity(makeAPVLEquityOptionSecurity());
   }
 
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquityIndexOptionSecurity() {
     assertLoadAndSaveSecurity(makeSPXIndexOptionSecurity());
   }
 
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testEquitySecurity() {
     assertLoadAndSaveSecurity(makeExpectedAAPLEquitySecurity());
   }
 
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testInterestRateFutureSecurity() {
     assertLoadAndSaveSecurity(makeInterestRateFuture());
   }
 
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testBondFutureSecurity() {
     assertLoadAndSaveSecurity(makeUSBondFuture());
   }
   
-  @Test
+  @Test(groups={"bbgSecurityLoaderTests"})
   public void testIRFutureOptionSecurity() {
     assertLoadAndSaveSecurity(makeEURODOLLARFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeLIBORFutureOptionSecurity());

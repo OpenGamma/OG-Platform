@@ -23,8 +23,8 @@ import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
+import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
 import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.bbg.BloombergDataProvider;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataResult;
@@ -40,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  * To understand what's going on this class, read Bloomberg Server API 3.0 Developer Guide, Chapter 7.
  * 
  */
-public class BloombergEntitlementChecker extends BloombergDataProvider implements LiveDataEntitlementChecker {
+public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProvider implements LiveDataEntitlementChecker {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEntitlementChecker.class);
   
@@ -171,10 +171,7 @@ public class BloombergEntitlementChecker extends BloombergDataProvider implement
       UserHandle userHandle = getSession().createUserHandle();
       
       CorrelationID cid = submitBloombergAuthorizationRequest(authorizationRequest, userHandle);
-      BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-      //clear correlation maps
-      _correlationIDMap.remove(cid);
-      
+      BlockingQueue<Element> resultElements = getResultElement(cid);
       if (resultElements == null || resultElements.isEmpty()) {
         s_logger.info("Unable to get authorization info from Bloomberg for {}", user);
         return null;
