@@ -65,6 +65,11 @@ set_commandmonitor_opts() {
 }
 
 start() {
+  if [ $(which setsid 2>/dev/null ) ]; then 
+    SETSID=setsid
+  else
+    SETSID=
+  fi
   RETVAL=0
   echo -n "Starting ${COMPONENT}"
   set_java_cmd
@@ -74,7 +79,7 @@ start() {
     RETVAL=6
     return
   fi
-  exec setsid $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
+  exec $SETSID $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \
   com.opengamma.component.OpenGammaComponentServer \
