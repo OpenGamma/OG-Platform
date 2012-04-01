@@ -55,3 +55,5 @@ $JAVA  -cp "$CLASSPATH" \
   -Dlogback.configurationFile=bloombergexample-logback.xml \
   com.opengamma.examples.tool.ExampleDatabasePopulater
 
+echo "### Completed"
+

@@ -41,5 +41,7 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.examples.tool.ExampleDatabasePopulater
 
+echo ### Completed
+
 REM PLAT-1527
 popd
