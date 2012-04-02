@@ -8,8 +8,6 @@ package com.opengamma.util.examples;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -23,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Utility Main method invoker
@@ -32,7 +29,7 @@ public class MainRunner {
   private static final Logger s_logger = LoggerFactory.getLogger(MainRunner.class);
   
   private List<String> _clazzes = Lists.newArrayList();
-  private Map<String, String> _args = Maps.newHashMap();
+  private List<String> _args = Lists.newArrayList();
   
   /**
    * Gets the clazzes.
@@ -55,7 +52,7 @@ public class MainRunner {
    * Gets the args.
    * @return the args
    */
-  public Map<String, String> getArgs() {
+  public List<String> getArgs() {
     return _args;
   }
 
@@ -63,24 +60,23 @@ public class MainRunner {
    * Sets the args.
    * @param args  the args
    */
-  public void setArgs(Map<String, String> args) {
+  public void setArgs(List<String> args) {
     _args.clear();
-    for (Entry<String, String> entry : args.entrySet()) {
-      _args.put(entry.getKey(), entry.getValue());
-    }
+    _args.addAll(args);
   }
   
   public void run() throws Exception {
+    s_logger.debug("args list {}", _args);
+    s_logger.debug("classes list {}", _clazzes);
+    int count = 0;
     for (String clazz : getClazzes()) {
       final Class<?> cls = Class.forName(clazz);
       final Method method = cls.getMethod("main", String[].class);
-      final String args = getArgs().get(clazz);
+      final String args = getArgs().get(count++);
       String[] params = args != null ? getParameters(args) : new String[] {};
       s_logger.info("invoking {} with parameter {}", clazz, Arrays.asList(params));
-//      System.out.println("invoking " + clazz + " with parameter " + Arrays.asList(params));
       method.invoke(null, (Object) params);
       s_logger.info("finished");
-//      System.out.println("finished");
     }
   }
 
@@ -119,7 +115,7 @@ public class MainRunner {
     }
     MainRunner examplesInitializer = new MainRunner();
     examplesInitializer.setClazzes(getClassList(line, num));
-    examplesInitializer.setArgs(getArgsMap(line, num));
+    examplesInitializer.setArgs(getArgsList(line, num));
     examplesInitializer.run();
   }
 
@@ -174,19 +170,15 @@ public class MainRunner {
     OptionBuilder.withLongOpt("num");
     OptionBuilder.withDescription("size of classes to start in order");
     OptionBuilder.hasArg();
-    OptionBuilder.withArgName("SIZE");
+    OptionBuilder.withArgName("size");
     OptionBuilder.isRequired(true);
     return OptionBuilder.create("n");
   }
 
-  private static Map<String, String> getArgsMap(CommandLine line, int num) {
-    Map<String, String> result = Maps.newHashMap();
+  private static List<String> getArgsList(CommandLine line, int num) {
+    List<String> result = Lists.newArrayList();
     for (int i = 0; i < num; i++) {
-      String args = line.getOptionValue("arg" + i);
-      if (args != null) {
-        String clazz = line.getOptionValue("class" + i);
-        result.put(clazz, args);
-      }
+      result.add(line.getOptionValue("arg" + i));
     }
     return result;
   }
@@ -199,8 +191,6 @@ public class MainRunner {
     return result;
   }
 
-  
-  
   public static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java " + MainRunner.class.getName(), options);
