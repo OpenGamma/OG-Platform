@@ -24,7 +24,7 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 /**
  * Test example database population
  */
-public class ExampleDatabasePopulaterTest {
+public class ExampleDatabasePopulatorTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/example.properties";
 
@@ -42,7 +42,7 @@ public class ExampleDatabasePopulaterTest {
   public void testPortfolioAndDataLoaded() throws Exception {
     DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
     
-    if (new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
+    if (new ExampleDatabasePopulator().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
       fail();
     }
     
@@ -78,7 +78,7 @@ public class ExampleDatabasePopulaterTest {
 
   private void assertMultiCurrencySwapPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleDatabasePopulater.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME);
+    assertPortfolio(portfolioMaster, ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME);
   }
 
   private void assertPortfolio(PortfolioMaster portfolioMaster, String portfolioName) {
