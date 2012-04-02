@@ -45,5 +45,6 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
 
 echo ### Completed
 
+ENDLOCAL
 REM PLAT-1527
 popd
