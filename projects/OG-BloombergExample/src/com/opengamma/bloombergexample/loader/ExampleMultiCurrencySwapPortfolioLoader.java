@@ -170,7 +170,6 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
     for (Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
       ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, swapArgs.getFirst(), swapArgs.getSecond(), swapArgs.getThird());
       externalIds.add(swapRateForMaturityIdentifier);
-      s_logger.info("LOADING TS: {}  --->  {}", swapRateForMaturityIdentifier);
     }
 
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
@@ -178,7 +177,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
     loader.setReload(true);
-    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", null, null);
+    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
   }
 
   private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {

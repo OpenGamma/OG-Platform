@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,11 +154,11 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     for (final EquitySecurity security : securities) {
       loader.addTimeSeries(new HashSet<ExternalId>() {{
         add(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
-      }}, "CMPL", "PX_LAST", null, null);
+      }}, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
-        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", null, null);
+        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
       }
     }
     System.out.println("Finished");
