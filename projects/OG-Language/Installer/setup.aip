@@ -1355,7 +1355,7 @@
     <ROW File="Warsaw" Component_="Amsterdam" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye"/>
     <ROW File="Warsaw_1" Component_="Amsterdam_1" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files\Java\jre6\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye_1"/>
     <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\Welcome.html" SelfReg="false" NextFile="awt.dll_1"/>
-    <ROW File="Welcome.html_1" Component_="COPYRIGHT_1" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre6\Welcome.html" SelfReg="false"/>
+    <ROW File="Welcome.html_1" Component_="COPYRIGHT_1" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre6\Welcome.html" SelfReg="false" NextFile="com.googlecode_json_simple_json_simple.jar"/>
     <ROW File="Whitehorse" Component_="Adak" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg"/>
     <ROW File="Whitehorse_1" Component_="Adak_1" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files\Java\jre6\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg_1"/>
     <ROW File="Winamac" Component_="Indianapolis" FileName="Winamac" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\America\Indiana\Winamac" SelfReg="false" NextFile="Inuvik"/>
@@ -1417,6 +1417,7 @@
     <ROW File="cmm.dll_1" Component_="cmm.dll_1" FileName="cmm.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre6\bin\cmm.dll" SelfReg="false" NextFile="dcpr.dll_1"/>
     <ROW File="com.beust_jcommander_jcommander.jar" Component_="jar" FileName="combeu~1.jar|com.beust-jcommander-jcommander.jar" Attributes="0" SourcePath="..\build\jar\com.beust-jcommander-jcommander.jar" SelfReg="false" NextFile="org.apache.commons_commons_io_commons_io.jar"/>
     <ROW File="com.google.common_guava_guava.jar" Component_="jar" FileName="comgoo~1.jar|com.google.common-guava-guava.jar" Attributes="0" SourcePath="..\build\jar\com.google.common-guava-guava.jar" SelfReg="false" NextFile="org.springframework_spring_spring_test.jar"/>
+    <ROW File="com.googlecode_json_simple_json_simple.jar" Component_="jar" FileName="comgoo~2.jar|com.googlecode-json-simple-json-simple.jar" Attributes="0" SourcePath="..\build\jar\com.googlecode-json-simple-json-simple.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_multipart_jersey_multipart.jar"/>
     <ROW File="com.jolbox_bonecp_bonecp.jar" Component_="jar" FileName="comjol~1.jar|com.jolbox-bonecp-bonecp.jar" Attributes="0" SourcePath="..\build\jar\com.jolbox-bonecp-bonecp.jar" SelfReg="false" NextFile="org.apache.poi_poi_poi.jar"/>
     <ROW File="com.opengamma_og_analytics_og_analytics.jar" Component_="jar" FileName="comope~8.jar|com.opengamma-og-analytics-og-analytics.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-analytics-og-analytics.jar" SelfReg="false" NextFile="org.apache.commons_commons_math_commons_math.jar"/>
     <ROW File="com.opengamma_og_core_og_core.jar" Component_="jar" FileName="comope~2.jar|com.opengamma-og-core-og-core.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-core-og-core.jar" SelfReg="false" NextFile="javax.mail_javamail_smtp.jar"/>
@@ -1432,6 +1433,7 @@
     <ROW File="com.sun.jersey_jersey_jersey_client.jar" Component_="jar" FileName="comsun~3.jar|com.sun.jersey-jersey-jersey-client.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-client.jar" SelfReg="false" NextFile="org.joda_joda_beans_joda_beans.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_core.jar" Component_="jar" FileName="comsun~2.jar|com.sun.jersey-jersey-jersey-core.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-core.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_zh_TW.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_server.jar" Component_="jar" FileName="comsun~1.jar|com.sun.jersey-jersey-jersey-server.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-server.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_ru.jar"/>
+    <ROW File="com.sun.jersey_jersey_multipart_jersey_multipart.jar" Component_="jar" FileName="comsun~4.jar|com.sun.jersey-jersey-multipart-jersey-multipart.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-multipart-jersey-multipart.jar" SelfReg="false" NextFile="org.jvnet_mimepull_mimepull.jar"/>
     <ROW File="com.thoughtworks.paranamer_paranamer_paranamer.jar" Component_="jar" FileName="comtho~1.jar|com.thoughtworks.paranamer-paranamer-paranamer.jar" Attributes="0" SourcePath="..\build\jar\com.thoughtworks.paranamer-paranamer-paranamer.jar" SelfReg="false" NextFile="org.springframework_spring_amqp_spring_amqp.jar"/>
     <ROW File="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar" Component_="jar" FileName="comyah~1.jar|com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" Attributes="0" SourcePath="..\build\jar\com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" SelfReg="false" NextFile="org.springframework_spring_spring_beans.jar"/>
     <ROW File="com_opengamma_language_Data.h" Component_="Connector" FileName="com_op~9.h|com_opengamma_language_Data.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_Data.h" SelfReg="false" NextFile="com_opengamma_language_definition_Definition.h"/>
@@ -1730,6 +1732,7 @@
     <ROW File="org.apache.derby_derby_derbytools.jar" Component_="jar" FileName="orgap~24.jar|org.apache.derby-derby-derbytools.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbytools.jar" SelfReg="false" NextFile="javax.mail_javamail_mail.jar"/>
     <ROW File="org.apache.httpcomponents_httpclient_httpclient.jar" Component_="jar" FileName="orgapa~3.jar|org.apache.httpcomponents-httpclient-httpclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpclient-httpclient.jar" SelfReg="false" NextFile="org.dom4j_dom4j_dom4j.jar"/>
     <ROW File="org.apache.httpcomponents_httpcore_httpcore.jar" Component_="jar" FileName="orgap~10.jar|org.apache.httpcomponents-httpcore-httpcore.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-httpcore.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar"/>
+    <ROW File="org.apache.httpcomponents_httpcore_nio_httpcore_nio.jar" Component_="jar" FileName="orgap~21.jar|org.apache.httpcomponents-httpcore-nio-httpcore-nio.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-nio-httpcore-nio.jar" SelfReg="false"/>
     <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false" NextFile="com_opengamma_language_livedata_Disconnect.h"/>
     <ROW File="org.apache.xbean_xbean_spring_xbean_spring.jar" Component_="jar" FileName="orgap~12.jar|org.apache.xbean-xbean-spring-xbean-spring.jar" Attributes="0" SourcePath="..\build\jar\org.apache.xbean-xbean-spring-xbean-spring.jar" SelfReg="false" NextFile="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar"/>
     <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
@@ -1743,6 +1746,7 @@
     <ROW File="org.joda_joda_beans_joda_beans.jar" Component_="jar" FileName="orgjod~1.jar|org.joda-joda-beans-joda-beans.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-beans-joda-beans.jar" SelfReg="false" NextFile="org.springframework_spring_security_spring_security_core.jar"/>
     <ROW File="org.joda_joda_convert_joda_convert.jar" Component_="jar" FileName="orgjod~2.jar|org.joda-joda-convert-joda-convert.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-convert-joda-convert.jar" SelfReg="false" NextFile="javax.el_juel_juel_impl.jar"/>
     <ROW File="org.json_json_json.jar" Component_="jar" FileName="orgjso~1.jar|org.json-json-json.jar" Attributes="0" SourcePath="..\build\jar\org.json-json-json.jar" SelfReg="false" NextFile="org.springframework_spring_spring_transaction.jar"/>
+    <ROW File="org.jvnet_mimepull_mimepull.jar" Component_="jar" FileName="orgjvn~1.jar|org.jvnet-mimepull-mimepull.jar" Attributes="0" SourcePath="..\build\jar\org.jvnet-mimepull-mimepull.jar" SelfReg="false" NextFile="org.apache.httpcomponents_httpcore_nio_httpcore_nio.jar"/>
     <ROW File="org.mindrot_jBCrypt_jBCrypt.jar" Component_="jar" FileName="orgmin~1.jar|org.mindrot-jBCrypt-jBCrypt.jar" Attributes="0" SourcePath="..\build\jar\org.mindrot-jBCrypt-jBCrypt.jar" SelfReg="false" NextFile="org.scannotation_scannotation_scannotation.jar"/>
     <ROW File="org.mongodb_java_driver_mongo.jar" Component_="jar" FileName="orgmon~1.jar|org.mongodb-java-driver-mongo.jar" Attributes="0" SourcePath="..\build\jar\org.mongodb-java-driver-mongo.jar" SelfReg="false" NextFile="org.aspectj_aspectj_aspectj_rt.jar"/>
     <ROW File="org.netlib_jarpack_jarpack.jar" Component_="jar" FileName="orgnet~3.jar|org.netlib-jarpack-jarpack.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jarpack-jarpack.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_de_DE.jar"/>
@@ -2089,8 +2093,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.url" Type="2"/>
-    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
-    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
+    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="2"/>
     <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="18"/>
   </COMPONENT>
@@ -2102,8 +2106,8 @@
     <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[x64_Dir]" Component_="Settings64"/>
     <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
     <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
-    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="Software\[Manufacturer]\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\[Manufacturer]\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
     <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
     <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
     <ROW Registry="exts" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="exts" Value="[ext_Dir]" Component_="Settings"/>
