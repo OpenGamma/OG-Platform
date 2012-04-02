@@ -30,8 +30,6 @@
     <property name="jetty.stopport" value="8079" />
     <property name="jetty.stopkey" value="OpenGamma" />
     <property name="jetty.config" value="standalone" />
-    <property name="jvm.xms" value="1024m" />
-    <property name="jvm.xmx" value="4096m" />
     <path id="jetty.start.path">
       <fileset dir="${lib.dir}/jar/org.eclipse/jetty">
         <include name="jetty-start-*.jar" />
@@ -59,10 +57,9 @@
       <jvmarg value="-Dlogback.configurationFile=com/opengamma/util/test/warn-logback.xml" />
       <jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
       <jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
-      <jvmarg value="-Xms${jvm.xms}" />
-      <jvmarg value="-Xmx${jvm.xmx}" />
-      <jvmarg value="-XX:PermSize=256m" />
-      <jvmarg value="-XX:MaxPermSize=256m" />
+      <jvmarg value="-Xms${jetty.initialheap}" />
+      <jvmarg value="-Xmx${jetty.maxheap}" />
+      <jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
       <arg value="-v" />
       <arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
     </java>
@@ -73,8 +70,9 @@
       <jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
       <jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
       <jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
-      <jvmarg value="-Xms${jvm.xms}" />
-      <jvmarg value="-Xmx${jvm.xmx}" />
+      <jvmarg value="-Xms${jetty.initialheap}" />
+      <jvmarg value="-Xmx${jetty.maxheap}" />
+      <jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
       <arg value="-v" />
       <arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
     </java>
@@ -95,10 +93,11 @@
   </target>
 
   <target name="init-database" depends="compile-src,jetty-stop" description="initialize example portfolio and view in database">
-    <java classname="com.opengamma.bloombergexample.tool.ExampleDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+    <java classname="com.opengamma.bloombergexample.tool.ExampleDatabasePopulator" classpathref="jetty.run.path" failonerror="true" fork="true">
       <jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
-      <jvmarg value="-Xms${jvm.xms}" />
-      <jvmarg value="-Xmx${jvm.xmx}" />
+      <jvmarg value="-Xms${jvm.initialheap}" />
+      <jvmarg value="-Xmx${jvm.maxheap}" />
+      <jvmarg value="-XX:MaxPermSize=${jvm.maxpermgen}" />
       <arg value="-c" />
       <arg value="classpath:toolcontext${file.separator}bloombergexample-dev.properties" />
     </java>

@@ -111,8 +111,6 @@
 		<property name="jetty.stopport" value="8079" />
 		<property name="jetty.stopkey" value="OpenGamma" />
 		<property name="jetty.config" value="standalone" />
-		<property name="jvm.xms" value="1024m" />
-		<property name="jvm.xmx" value="4096m" />
 		<path id="jetty.start.path">
 			<fileset dir="${lib.dir}/jar/org.eclipse/jetty">
 				<include name="jetty-start-*.jar" />
@@ -135,8 +133,9 @@
 			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
 			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
 			<jvmarg value="-Dopengamma.platform.os=posix" />
-			<jvmarg value="-Xms${jvm.xms}" />
-			<jvmarg value="-Xmx${jvm.xmx}" />
+			<jvmarg value="-Xms${jetty.initialheap}" />
+			<jvmarg value="-Xmx${jetty.maxheap}" />
+			<jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
 			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />
@@ -150,8 +149,9 @@
 			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
 			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
 			<jvmarg value="-Dopengamma.platform.os=posix" />
-			<jvmarg value="-Xms${jvm.xms}" />
-			<jvmarg value="-Xmx${jvm.xmx}" />
+			<jvmarg value="-Xms${jetty.initialheap}" />
+			<jvmarg value="-Xmx${jetty.maxheap}" />
+			<jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
 			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />

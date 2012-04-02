@@ -10,4 +10,5 @@
 .OG-form .og-id-cur label input,
 .OG-form .og-id-cur label select {
   width: 100%;
+  max-width: 500px;
 }
