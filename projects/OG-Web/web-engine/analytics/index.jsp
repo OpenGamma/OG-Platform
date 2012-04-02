@@ -4,6 +4,8 @@
     <title>OpenGamma Analytics</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 
+    <script src="/prototype/scripts/lib/js.ext.array.prototype.map.js"></script>
+
     <script type="text/javascript" src="/js/jquery/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.event.drag-2.0.min.js"></script>
     <script type="text/javascript" src="/js/jquery/jquery.json-2.2.js"></script>
@@ -51,6 +53,8 @@
     <script type="text/javascript" src="js/formatting/labelledMatrix1DDetail.js"></script>
     <script type="text/javascript" src="js/formatting/labelledMatrix2DFormatter.js"></script>
     <script type="text/javascript" src="js/formatting/labelledMatrix2DDetail.js"></script>
+    <script type="text/javascript" src="js/formatting/timeSeriesFormatter.js"></script>
+    <script type="text/javascript" src="js/formatting/timeSeriesDetail.js"></script>
     <script type="text/javascript" src="js/formatting/unknownTypeFormatter.js"></script>
     <script type="text/javascript" src="js/slickGridHelper.js"></script>
     <script type="text/javascript" src="js/popupManager.js"></script>
@@ -59,6 +63,10 @@
     <script type="text/javascript" src="js/depGraphViewer.js"></script>
     <script type="text/javascript" src="js/tabbedViewResultsViewer.js"></script>
     <script type="text/javascript" src="js/home.js"></script>
+    
+    <script src="/prototype/scripts/og/common/og.common.core.js"></script>
+    <script src="/prototype/scripts/og/og.dev.js"></script>
+    <script src="/prototype/scripts/og/api/og.api.common.js"></script>
 
     <script type="text/javascript">
       var config = {
@@ -76,6 +84,14 @@
       .cell-title {
         font-weight: bold;
         margin: 0 4px;
+      }
+
+      .og-js-positiongadget {
+        text-decoration: none;
+      }
+      
+      .og-js-positiongadget:hover {
+        text-decoration: underline;
       }
       
       .right {

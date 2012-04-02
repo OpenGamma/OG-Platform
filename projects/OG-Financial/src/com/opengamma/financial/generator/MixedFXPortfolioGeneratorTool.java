@@ -39,7 +39,7 @@ public class MixedFXPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
 
     @Override
     public PortfolioNode createPortfolioNode() {
-      final SimplePortfolioNode node = new SimplePortfolioNode("Stragegy " + _count);
+      final SimplePortfolioNode node = new SimplePortfolioNode("Strategy " + _count);
       final Bundle bundle = createBundle();
       add(node, createFXBarrierOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
       add(node, createFXDigitalOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));

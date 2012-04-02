@@ -10,11 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 

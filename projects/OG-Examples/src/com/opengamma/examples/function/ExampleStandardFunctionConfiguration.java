@@ -6,7 +6,6 @@
 package com.opengamma.examples.function;
 
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
-import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Modifier;
@@ -21,6 +20,12 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLSettings;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
+import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePricerFactory;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -214,7 +219,6 @@ import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
 import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
 import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
-import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.PortfolioNodeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.PositionCalcConfigDefaultPropertyFunction;
@@ -223,14 +227,9 @@ import com.opengamma.financial.property.PrimitiveCalcConfigDefaultPropertyFuncti
 import com.opengamma.financial.property.SecurityCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeDefaultPropertyFunction;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.financial.value.PortfolioNodeValueFunction;
 import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -616,10 +615,10 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
     functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class, SECONDARY));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, SECONDARY, "DEFAULT", EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class, SECONDARY, "DEFAULT",
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, SECONDARY, SECONDARY, EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class, SECONDARY, SECONDARY,
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, SECONDARY, "DEFAULT",
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, SECONDARY, SECONDARY,
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
   }
 
@@ -654,6 +653,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));
@@ -662,9 +662,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "PresentValue", SECONDARY, 
-        SECONDARY, "Interpolated", "DEFAULT", "USD", "EUR"));
+        SECONDARY, "Interpolated", SECONDARY, "USD", "EUR"));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "Interpolated", SECONDARY, 
-        SECONDARY, "PresentValue", "DEFAULT", "EUR", "USD"));
+        SECONDARY, "PresentValue", SECONDARY, "EUR", "USD"));
   }
 
   private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {

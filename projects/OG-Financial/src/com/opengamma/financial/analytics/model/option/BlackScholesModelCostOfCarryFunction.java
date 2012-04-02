@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -23,7 +24,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;

@@ -16,6 +16,11 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
+import com.opengamma.analytics.financial.schedule.Schedule;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
@@ -34,11 +39,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 

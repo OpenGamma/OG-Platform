@@ -13,10 +13,10 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
  * 

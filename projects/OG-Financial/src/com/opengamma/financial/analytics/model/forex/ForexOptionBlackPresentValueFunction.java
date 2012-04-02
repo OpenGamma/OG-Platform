@@ -8,12 +8,12 @@ package com.opengamma.financial.analytics.model.forex;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;

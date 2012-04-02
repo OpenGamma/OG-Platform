@@ -5,6 +5,7 @@
  */
 package com.opengamma.bloombergexample.tool;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
@@ -21,13 +23,16 @@ import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
+import com.opengamma.bloombergexample.generator.PortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.*;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
@@ -38,11 +43,12 @@ import com.opengamma.util.money.Currency;
  */
 public class ExampleDatabasePopulater extends AbstractExampleTool {
 
+  public static final String EXAMPLE_FX_PORTFOLIO = "Example FX Portfolio";
+
   /**
    * The currencies.
    */
   private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
-
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulater.class);
 
@@ -66,28 +72,32 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   private Set<ExternalIdBundle> _futuresExternalIds;
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   protected void doRun() {
+    Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "EURUSD Curncy"));
 
     loadCurveNodeHistoricalData();
-
     loadFutures(_futuresExternalIds);
-
     loadTimeSeriesRating();
-
     loadEquityPortfolio();
-
-    loadHistoricalData(_curveNodesExternalIds, _initialRateExternalIds);
-
+    loadHistoricalData(_curveNodesExternalIds, _initialRateExternalIds, eurUsdId);
+    loadVolSurfaceData();
     loadSwapPortfolio();
-
-    //loadMultiCurrencySwapPortfolio();
-
+    loadFXPortfolio();
+    loadMultiCurrencySwapPortfolio();
     //loadLiborRawSecurities();
-
     //loadMixedPortfolio();
-
-    loadViews();
+    loadEquityOptionPortfolio();
+    loadViews();       
+  }
+  
+  private void loadEquityOptionPortfolio(){
+    DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();    
+    loader.setNumOptions(2);
+    loader.setNumMembers(8);
+    loader.setNumContracts(new BigDecimal(500));
+    loader.run(getToolContext());    
   }
 
   private void loadCurveNodeHistoricalData() {
@@ -98,6 +108,10 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     _initialRateExternalIds = curveNodeHistoricalDataLoader.getInitialRateExternalIds();
     _futuresExternalIds = curveNodeHistoricalDataLoader.getFuturesExternalIds();
     System.out.println("Finished");
+  }
+
+  private void loadVolSurfaceData() {
+    FXOptionVolatilitySurfaceConfigPopulator.populateVolatilitySurfaceConfigMaster(getToolContext().getConfigMaster());
   }
 
   private void loadMixedPortfolio() {
@@ -141,8 +155,9 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
       }}, "CMPL", "PX_LAST", null, null);
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
-      if (externalIds.size() > 0)
+      if (externalIds.size() > 0) {
         loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", null, null);
+      }
     }
     System.out.println("Finished");
   }
@@ -165,6 +180,13 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     ExampleMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = new ExampleMultiCurrencySwapPortfolioLoader();
     System.out.println("Creating example multi currency swap portfolio");
     multiCurrSwapLoader.run(getToolContext());
+    System.out.println("Finished");
+  }
+
+  private void loadFXPortfolio() {
+    PortfolioGeneratorTool generator = new PortfolioGeneratorTool();
+    System.out.println("Creating FX portfolio");
+    generator.run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true);
     System.out.println("Finished");
   }
 

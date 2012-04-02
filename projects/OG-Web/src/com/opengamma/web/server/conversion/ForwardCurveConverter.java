@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.curve.FunctionalDoublesCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
 
 /**
  * 

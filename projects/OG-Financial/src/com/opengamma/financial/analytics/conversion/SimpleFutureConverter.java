@@ -9,6 +9,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFXFutureDefinition;
+import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleFutureDefinition;
+import com.opengamma.analytics.financial.simpleinstruments.definition.SimpleInstrumentDefinition;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -20,9 +23,6 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.simpleinstruments.definition.SimpleFXFutureDefinition;
-import com.opengamma.financial.simpleinstruments.definition.SimpleFutureDefinition;
-import com.opengamma.financial.simpleinstruments.definition.SimpleInstrumentDefinition;
 
 /**
  * 

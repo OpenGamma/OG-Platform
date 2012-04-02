@@ -15,7 +15,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -32,19 +38,11 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
-import com.opengamma.financial.forex.method.FXMatrix;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -84,7 +82,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
+    
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String putCurveName = desiredValue.getConstraint(PROPERTY_PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(PROPERTY_CALL_CURVE);
@@ -123,7 +121,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     }
     final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
+    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final Object spotObject = inputs.getValue(spotRequirement);
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot requirement " + spotRequirement);
@@ -209,8 +207,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final ValueRequirement putFundingCurve = getCurveRequirement(putCurveName, putForwardCurveName, putCurveName, putCurveCalculationMethod, putCurrency);
     final ValueRequirement callFundingCurve = getCurveRequirement(callCurveName, callForwardCurveName, callCurveName, callCurveCalculationMethod, callCurrency);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency);
-    final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
+    final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     return Sets.newHashSet(putFundingCurve, callFundingCurve, fxVolatilitySurface, spotRequirement);
   }
 

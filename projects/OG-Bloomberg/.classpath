@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="tests/classes" path="tests/unit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Fudge"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Engine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG LiveData"/>

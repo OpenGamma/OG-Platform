@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
  * The DenseMatrix class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.

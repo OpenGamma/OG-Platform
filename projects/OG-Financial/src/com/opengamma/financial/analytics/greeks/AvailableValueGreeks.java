@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.sensitivity.ValueGreek;
 
 /**
  * 

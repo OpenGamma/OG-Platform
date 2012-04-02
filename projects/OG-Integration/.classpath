@@ -4,7 +4,6 @@
 	<classpathentry kind="src" output="tests/classes" path="tests/unit"/>
 	<classpathentry kind="lib" path="config"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Fudge"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Security"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Financial"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Master DB"/>
@@ -16,7 +15,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Engine"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Master"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Fudge-Proto"/>
 	<classpathentry exported="true" kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Component"/>
 	<classpathentry kind="output" path="bin"/>

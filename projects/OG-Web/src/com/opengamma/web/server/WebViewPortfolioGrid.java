@@ -60,6 +60,7 @@ public class WebViewPortfolioGrid extends RequirementBasedWebViewGrid {
     
     if (targetType == ComputationTargetType.POSITION) {
       Position position = row.getPosition();
+      details.put("posId", position.getUniqueId());
       details.put("position", position.getSecurity().getName());
       details.put("quantity", position.getQuantity().signum() == 0 ? "0" : position.getQuantity().toPlainString());
     } else {

@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,8 +37,6 @@ import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySur
 import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 

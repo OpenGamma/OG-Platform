@@ -7,7 +7,7 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
  * SparseMatrix is a class to wrap the underlying sparse storage types.

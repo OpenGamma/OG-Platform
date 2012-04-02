@@ -15,6 +15,15 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -36,19 +45,10 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
-import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
-import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.time.TimeCalculator;
 
 /**
  * 

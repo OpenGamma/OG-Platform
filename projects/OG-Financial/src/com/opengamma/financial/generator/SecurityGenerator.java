@@ -24,6 +24,7 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -54,7 +55,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;

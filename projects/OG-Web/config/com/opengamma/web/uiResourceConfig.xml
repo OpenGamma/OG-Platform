@@ -234,7 +234,8 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
-	</bundle>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.securities_identifiers.js</fragment>
+  </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>

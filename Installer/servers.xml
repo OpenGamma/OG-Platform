@@ -42,6 +42,11 @@
 
   <!-- engine deployments -->
 
+  <target name="enable-user-database" unless="enabled.user.database">
+    <ai-enable feature-id="UserDatabase32" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="UserDatabase64" build-id="${ai.build.x64}" />
+  </target>
+
   <available property="enable.og.examples" file="${install.dir}/og-examples.jar" />
   <condition property="disable.og.examples">
     <isset property="disable.engine" />
@@ -51,8 +56,21 @@
     <ai-enable feature-id="og_examples32" build-id="${ai.build.i386}" />
     <ai-enable feature-id="og_examples64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
+    <antcall target="enable-user-database" inheritrefs="true" />
+    <property name="enabled.user.database" value="true" />
   </target>
-  <!-- TODO: the OG-Example style stack with Open Source Bloomberg support -->
+  <available property="enable.og.bloombergexample" file="${install.dir}/og-bloombergexample.jar" />
+  <condition property="disable.og.bloombergexample">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-og-bloombergexample" if="enable.og.bloombergexample" unless="disable.og.bloombergexample">
+    <ai-enable feature-id="og_bloombergexample" />
+    <ai-enable feature-id="og_bloombergexample32" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_bloombergexample64" build-id="${ai.build.x64}" />
+    <property name="at.least.one.feature" value="true" />
+    <antcall target="enable-user-database" inheritrefs="true" />
+    <property name="enabled.user.database" value="true" />
+  </target>
   <available property="enable.og.production" file="${install.dir}/og.production.jar" />
   <condition property="disable.og.production">
     <isset property="disable.engine" />
@@ -63,6 +81,8 @@
     <ai-enable feature-id="og_production32" build-id="${ai.build.i386}" />
     <ai-enable feature-id="og_production64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
+    <antcall target="enable-user-database" inheritrefs="true" />
+    <property name="enabled.user.database" value="true" />
   </target>
   <available property="enable.www" file="${install.dir}/web-engine/favicon.ico" />
   <condition property="disable.www">
@@ -72,7 +92,7 @@
     <ai-enable feature-id="www" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <target name="enable-engine" depends="enable-og-examples,enable-og-production,enable-www" />
+  <target name="enable-engine" depends="enable-og-examples,enable-og-bloombergexample,enable-og-production,enable-www" />
 
   <!-- general tasks -->
 

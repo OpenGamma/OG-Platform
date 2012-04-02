@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 
 /**

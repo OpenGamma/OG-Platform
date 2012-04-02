@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.server.conversion;
 
+import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.greeks.PDEResultCollection;
 
 /**
  * 

@@ -115,7 +115,7 @@ public class CombiningBloombergLiveDataServerTest {
     assertFalse(_unitTestingProvider.hadToRejectRequests()); // Necessary, since exceptions are expected from the live data service
   }
 
-  @Test
+  @Test(groups={"bbgSubscriptionTests"})
   public void testRealSubscribe() throws Exception {
     ExternalId strong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
     
@@ -138,7 +138,7 @@ public class CombiningBloombergLiveDataServerTest {
     assertEquals(allUpdates, stronUpdates);
   }
   
-  @Test
+  @Test(groups={"bbgSubscriptionTests"})
   public void testMixedSubscribe() throws Exception {
     ExternalId strong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
     ExternalId weak = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, "GBP Curncy");
@@ -176,8 +176,8 @@ public class CombiningBloombergLiveDataServerTest {
     assertEquals(1, weakUpdates.size());
     assertEquals(allUpdates.size(), weakUpdates.size() + stronUpdates.size());
   }
-  
-  @Test
+
+  @Test(groups={"bbgSubscriptionTests"})
   public void testBrokenSubscribe() throws Exception {
     ExternalId broken = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
     ExternalId working = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
@@ -295,7 +295,7 @@ public class CombiningBloombergLiveDataServerTest {
     return requestedSpecification;
   }
 
-  @Test
+  @Test(groups={"bbgSubscriptionTests"})
   public void testRepeatedSubscriptions_BBG_80() throws Exception {
     ExternalId broken = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
     ExternalId working = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");

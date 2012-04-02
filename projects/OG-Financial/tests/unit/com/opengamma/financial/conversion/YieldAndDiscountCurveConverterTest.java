@@ -12,10 +12,10 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * 

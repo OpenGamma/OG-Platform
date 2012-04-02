@@ -14,8 +14,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 

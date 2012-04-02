@@ -44,10 +44,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An implemention of {@link ReferenceDataProvider} that makes requests directly against
  * the Bloomberg Server API.
- *
- * @author kirk
  */
-public class BloombergReferenceDataProvider extends BloombergDataProvider implements ReferenceDataProvider {
+public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataProvider implements ReferenceDataProvider {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergReferenceDataProvider.class);
   private static final String ERROR_MESSAGE_FORMAT = "{0}:{1}/{2} - {3}";
@@ -102,9 +100,7 @@ public class BloombergReferenceDataProvider extends BloombergDataProvider implem
     s_logger.info("Requesting fields {} for securities {}", fields, securities);
     Request request = composeRequest(securities, fields);
     CorrelationID cid = submitBloombergRequest(request);
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    //clear correlation maps
-    _correlationIDMap.remove(cid);
+    BlockingQueue<Element> resultElements = getResultElement(cid);
     
     if (resultElements == null || resultElements.isEmpty()) {
       throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities);

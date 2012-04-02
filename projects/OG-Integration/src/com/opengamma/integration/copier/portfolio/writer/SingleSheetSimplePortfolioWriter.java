@@ -67,6 +67,10 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
     this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
   
+  public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType) {
+    this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType));
+  }
+
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
     ArgumentChecker.notNull(security, "security");

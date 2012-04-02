@@ -10,8 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.core.position.Trade;
-import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 
 /**

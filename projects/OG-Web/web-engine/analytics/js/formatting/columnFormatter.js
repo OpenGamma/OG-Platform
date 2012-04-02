@@ -52,7 +52,7 @@
                 offset: "-5 -4",
                 collision: "none"
               })
-              .button({ icons: { primary:'ui-icon-carat-1-s' }, text: false })
+              .button({ icons: { primary: formatter.customDetailIcon ? formatter.customDetailIcon : 'ui-icon-carat-1-s' }, text: false })
               .click(function(ui) {
                 ui.stopPropagation();
                 _viewer.popupManager.toggleDetail($cell, _columnStructure, formatter, rowId);
@@ -97,6 +97,8 @@
         return LabelledMatrix1DFormatter;
       case 'LABELLED_MATRIX_2D':
         return LabelledMatrix2DFormatter;
+      case 'TIME_SERIES':
+        return TimeSeriesFormatter;
       default:
         return UnknownTypeFormatter;
     }    

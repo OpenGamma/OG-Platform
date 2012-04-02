@@ -10,6 +10,11 @@ import java.util.Set;
 
 import javax.time.calendar.Clock;
 
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -25,11 +30,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 
