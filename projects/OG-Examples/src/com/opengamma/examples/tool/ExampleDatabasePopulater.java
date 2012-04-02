@@ -61,10 +61,8 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   public static void main(String[] args) { // CSIGNORE
     try {
       new ExampleDatabasePopulater().initAndRun(args);
-      System.exit(0);
     } catch (Exception e) {
       e.printStackTrace();
-      System.exit(1);
     }
   }
 
