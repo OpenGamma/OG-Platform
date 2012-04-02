@@ -40,6 +40,7 @@ output-long/
 /Setting-up-an-Eclipse-workspace.html
 test-output/
 /install/
+/OpenGamma/
 /build/
 LOCAL_STASH
 *.iws

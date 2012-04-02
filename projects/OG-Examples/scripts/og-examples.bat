@@ -19,8 +19,12 @@ set CLASSPATH=!CLASSPATH!"
 
 IF NOT EXIST %BASEDIR%\install\db\hsqldb\example-db.properties goto :nodb 
 
-IF "%JAVA_HOME%" == "" ECHO Warning: JAVA_HOME is not set
-SET JAVACMD=%JAVA_HOME%\bin\java.exe
+IF "%JAVA_HOME%" == "" (
+  ECHO Warning: JAVA_HOME is not set
+  SET JAVACMD=java.exe
+) ELSE (
+  SET JAVACMD=%JAVA_HOME%\bin\java.exe
+)
 
 IF "%1"=="start" goto :start
 IF "%1"=="debug" goto :start
