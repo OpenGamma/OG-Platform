@@ -2,12 +2,14 @@
 {
     "template_data": {
         "name": "${portfolio.name}",
+        "portfolio_name": "${portfolio.name}",
         "object_id": "${portfolio.uniqueId.objectId}",
         "version_id": "${portfolio.uniqueId.version}",
         <#if deleted>
         "deleted": "${portfolioDoc.versionToInstant}",
         </#if>
-        "node" : "${rootNode.uniqueId.objectId}"
+        "node" : "${rootNode.uniqueId.objectId}",
+        "path" : [{"name": "${portfolio.name}", "node": "${portfolio.uniqueId.objectId}", "version_id": "${portfolio.uniqueId.version}"}]
     },
     "portfolios": [
         <#list childNodes as item>{

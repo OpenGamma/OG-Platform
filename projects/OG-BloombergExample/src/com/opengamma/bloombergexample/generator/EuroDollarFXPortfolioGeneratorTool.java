@@ -35,7 +35,7 @@ public class EuroDollarFXPortfolioGeneratorTool extends MixedFXPortfolioGenerato
 
     /**
      * We don't want FX forwards in the generated portfolio so this always returns null.
-     * @return {@code null}
+     * @return null
      */
     @Override
     protected ManageableTrade createFXForwardSecurityTrade(Bundle bundle, BigDecimal quantity, SecurityPersister persister) {

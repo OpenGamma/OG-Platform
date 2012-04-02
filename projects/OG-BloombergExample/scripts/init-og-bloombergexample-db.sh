@@ -52,7 +52,7 @@ echo "### Adding Bloomberg example data"
 $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
-  com.opengamma.bloombergexample.tool.ExampleDatabasePopulater \
+  com.opengamma.bloombergexample.tool.ExampleDatabasePopulator \
   -l tofile-logback.xml \
   -c classpath:toolcontext/bloombergexample-bin.properties
 

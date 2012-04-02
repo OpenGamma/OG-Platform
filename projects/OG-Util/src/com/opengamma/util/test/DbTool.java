@@ -865,8 +865,6 @@ public class DbTool extends Task {
       usage(options);
       System.exit(-1);
     }
-
-    System.exit(0);
   }
 
 }
