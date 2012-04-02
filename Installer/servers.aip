@@ -3109,8 +3109,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
-    <ROW Registry="RuntimeLib" Root="-1" Key="Software\JavaSoft\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegistrySettings32"/>
-    <ROW Registry="RuntimeLib_1" Root="-1" Key="Software\JavaSoft\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_2]" Component_="RuntimeLib"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegistrySettings32"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_2]" Component_="RuntimeLib"/>
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
     <ROW Registry="og_bloombergexample" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="og_bloombergexample" Value="#1" Component_="og_bloombergexample"/>
     <ROW Registry="og_examples" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="og_examples" Value="#1" Component_="og_examples"/>

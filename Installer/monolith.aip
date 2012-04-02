@@ -149,7 +149,7 @@
     <ROW Component="RSupport32" ComponentId="{893BEB9B-473D-476A-B115-98E651D0754E}" Directory_="APPDIR" Attributes="4" KeyPath="RSupport32"/>
     <ROW Component="RSupport64" ComponentId="{C0914BBE-E710-425C-93A5-FE829E07E122}" Directory_="APPDIR" Attributes="4" KeyPath="RSupport64"/>
     <ROW Component="RuntimeLib" ComponentId="{51B40CF7-CD7A-43CD-8594-3BE0BBAA7734}" Directory_="APPDIR" Attributes="4" KeyPath="RuntimeLib"/>
-    <ROW Component="RuntimeLib_1" ComponentId="{5E2CBB15-6371-4A8E-BBE4-60335F04293B}" Directory_="APPDIR" Attributes="4" KeyPath="RuntimeLib_1"/>
+    <ROW Component="RuntimeLib_1" ComponentId="{5E2CBB15-6371-4A8E-BBE4-60335F04293B}" Directory_="APPDIR" Attributes="260" KeyPath="RuntimeLib_1"/>
     <ROW Component="alt_rt.jar" ComponentId="{0FBF2C7C-DE26-4BA7-904E-E7070352E3C6}" Directory_="lib_1_Dir" Attributes="0" KeyPath="alt_rt.jar" Type="0"/>
     <ROW Component="applet" ComponentId="{8473BEC1-3FF1-40ED-8EFB-C3F7B271272D}" Directory_="applet_Dir" Attributes="0"/>
     <ROW Component="applet_2" ComponentId="{FCB8E3C8-2B1D-4E0B-B920-9FB310010E15}" Directory_="applet_2_Dir" Attributes="0"/>
