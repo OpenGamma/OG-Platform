@@ -349,6 +349,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
+        if (_viewResultListenerFactory == null) {
+          throw new IllegalStateException("Batch mode requires a ViewResultListenerFactory");
+        }
         viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener());
       }
       

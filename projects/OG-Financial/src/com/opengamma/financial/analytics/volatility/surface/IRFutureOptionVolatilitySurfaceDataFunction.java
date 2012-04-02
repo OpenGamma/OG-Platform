@@ -20,6 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -38,9 +41,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
-import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.math.MathException;
-import com.opengamma.math.curve.NodalDoublesCurve;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -204,9 +205,11 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
             final double xVal = x.doubleValue();
             final double forward = futurePrices.getYValue(x.doubleValue());
             final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, t.doubleValue(), callAboveStrike / 100.);
-            xList.add(xVal);
-            yList.add(y / 100.);
-            volatilityValues.put(Pair.of(xVal, y / 100.), volatility);
+            if (!CompareUtils.closeEquals(volatility, 0.0)) {
+              xList.add(xVal);
+              yList.add(y / 100.0);
+              volatilityValues.put(Pair.of(xVal, y / 100.), volatility);
+            }
           } catch (final MathException e) {
             s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
           } catch (final IllegalArgumentException e) {

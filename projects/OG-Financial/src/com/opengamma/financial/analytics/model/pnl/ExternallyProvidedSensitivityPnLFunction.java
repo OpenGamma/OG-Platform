@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 
@@ -19,6 +18,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
+import com.opengamma.analytics.financial.schedule.Schedule;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
@@ -37,18 +42,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.RawSecurityUtils;
-import com.opengamma.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -63,13 +61,13 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
  */
 public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(ExternallyProvidedSensitivityPnLFunction.class);
-  
+
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
   private static final LocalDate MAGIC_DATE = LocalDate.of(2009, 06, 05);
-  
+
   private final String _resolutionKey;
 
   public ExternallyProvidedSensitivityPnLFunction(final String resolutionKey) {
@@ -103,14 +101,14 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = (Security) target.getPosition().getSecurity();
+    final Security security = target.getPosition().getSecurity();
     return RawSecurityUtils.isExternallyProvidedSensitivitiesSecurity(security);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    Set<ValueRequirement> sensitivityRequirements = getSensitivityRequirements(context.getSecuritySource(), security);
+    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+    final Set<ValueRequirement> sensitivityRequirements = getSensitivityRequirements(context.getSecuritySource(), security);
     return sensitivityRequirements;
   }
 
@@ -166,8 +164,8 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
       final HistoricalTimeSeriesSource historicalSource, final FunctionInputs inputs, final LocalDate startDate, final LocalDate now, final LocalDate[] schedule,
       final TimeSeriesSamplingFunction samplingFunction) {
     DoubleTimeSeries<?> pnlSeries = null;
-    List<FactorExposureData> factors = RawSecurityUtils.decodeFactorExposureData(secSource, security);
-    for (FactorExposureData factor : factors) {
+    final List<FactorExposureData> factors = RawSecurityUtils.decodeFactorExposureData(secSource, security);
+    for (final FactorExposureData factor : factors) {
       final ExternalIdBundle id = factor.getFactorExternalId().toBundle();
       final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", id, _resolutionKey, startDate, true, now, true);
       if (dbNodeTimeSeries == null || dbNodeTimeSeries.getTimeSeries().size() == 0) {
@@ -177,7 +175,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
-      Double sensitivity = (Double) inputs.getValue(getSensitivityRequirement(factor.getExposureExternalId()));
+      final Double sensitivity = (Double) inputs.getValue(getSensitivityRequirement(factor.getExposureExternalId()));
       if (sensitivity != null) {
         if (pnlSeries == null) {
           pnlSeries = nodeTimeSeries.multiply(sensitivity / 100d);
@@ -189,8 +187,8 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
       }
     }
     if (pnlSeries == null) {
-      List<LocalDate> dates = new ArrayList<LocalDate>();
-      List<Double> values = new ArrayList<Double>();
+      final List<LocalDate> dates = new ArrayList<LocalDate>();
+      final List<Double> values = new ArrayList<Double>();
       dates.add(MAGIC_DATE.minusDays(7));
       dates.add(MAGIC_DATE);
       values.add(0d);
@@ -200,28 +198,28 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     return pnlSeries;
   }
 
-  private double getNormalizationFactor(final StripInstrumentType type) {
-    switch(type) {
-      case TENOR_SWAP:
-        return 10000.;
-      case BASIS_SWAP:
-        return 10000.;
-      case OIS_SWAP:
-        return 10000.;
-      default:
-        return 100.;
-    }
-  }
-    
-  protected Set<ValueRequirement> getSensitivityRequirements(SecuritySource secSource, RawSecurity rawSecurity) {
-    Set<ValueRequirement> requirements = Sets.newHashSet();
-    Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
-    for (FactorExposureData exposureEntry : decodedSensitivities) {
+  //  private double getNormalizationFactor(final StripInstrumentType type) {
+  //    switch(type) {
+  //      case TENOR_SWAP:
+  //        return 10000.;
+  //      case BASIS_SWAP:
+  //        return 10000.;
+  //      case OIS_SWAP:
+  //        return 10000.;
+  //      default:
+  //        return 100.;
+  //    }
+  //  }
+
+  protected Set<ValueRequirement> getSensitivityRequirements(final SecuritySource secSource, final RawSecurity rawSecurity) {
+    final Set<ValueRequirement> requirements = Sets.newHashSet();
+    final Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
+    for (final FactorExposureData exposureEntry : decodedSensitivities) {
       requirements.add(getSensitivityRequirement(exposureEntry.getExposureExternalId()));
     }
     return requirements;
   }
-  
+
   protected ValueRequirement getSensitivityRequirement(final ExternalId externalId) {
     return new ValueRequirement(/*ExternalDataRequirementNames.SENSITIVITY*/"EXPOSURE", ComputationTargetType.PRIMITIVE, UniqueId.of(externalId.getScheme().getName(), externalId.getValue()));
   }

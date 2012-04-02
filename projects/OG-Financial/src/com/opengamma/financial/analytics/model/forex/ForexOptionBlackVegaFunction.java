@@ -10,19 +10,19 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
-import com.opengamma.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class ForexOptionBlackVegaFunction extends ForexOptionBlackFunction {
+public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
 
   public ForexOptionBlackVegaFunction() {

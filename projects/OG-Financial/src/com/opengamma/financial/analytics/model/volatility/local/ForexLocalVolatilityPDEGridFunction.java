@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,10 +37,6 @@ import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;

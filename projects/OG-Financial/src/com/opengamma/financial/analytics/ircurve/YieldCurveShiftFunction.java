@@ -12,6 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -26,7 +27,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
 
 /**

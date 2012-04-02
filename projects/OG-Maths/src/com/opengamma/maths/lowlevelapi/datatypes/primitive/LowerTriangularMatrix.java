@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
-import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
  * The LowerTriangular class is a very basic matrix storage class that implements methods to convert and store data in the Lower Triangle of a matrix.

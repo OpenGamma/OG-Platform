@@ -12,6 +12,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
@@ -22,7 +23,6 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.math.curve.Curve;
 
 /**
  * Returns a set of Y values for the given X values of a curve.

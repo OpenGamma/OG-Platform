@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.lowlevelapi.linearalgebra.blas.blas3kernelabstractions;
 
-import com.opengamma.math.matrix.Matrix;
+import com.opengamma.analytics.math.matrix.Matrix;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.MatrixPrimitive;
 
 /**

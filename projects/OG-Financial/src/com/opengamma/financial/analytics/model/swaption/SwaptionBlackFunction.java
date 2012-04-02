@@ -13,6 +13,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -34,18 +42,11 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
-import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -156,8 +157,8 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
+    requirements.add(getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
+    requirements.add(getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     return requirements;
   }
@@ -183,6 +184,24 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency).get();
+  }
+
+  private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
+    final ValueProperties.Builder properties;
+    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+          .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {

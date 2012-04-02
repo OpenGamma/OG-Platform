@@ -9,8 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.util.money.Currency;

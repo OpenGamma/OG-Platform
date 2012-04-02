@@ -15,16 +15,16 @@ Visit the developer website at http://developers.opengamma.com for more informat
 
 How to use the build system
 ---------------------------
+You need to make sure Apache Ant and Git are installed and working.
 
 If you've pulled the source code from GitHub
 --------------------------------------------
-As usual, all this assumes that ant is already in your path and that git is installed.
+If you're an OpenGamma customer paying for access to commerical components, you'll need to start by running:
 
   ant init
 
-will prompt you for a username and password.  If you are an OpenGamma customer, enter your login details here and
-you will be able to access the commercial component.  If you're looking at the pure open source release, just 
-press ENTER twice to use the defaults.
+which will prompt you for a username and password.  Enter your login details here and you will be able to access 
+the commercial component.  If you're looking at the pure open source release, you can skip the 'ant init' step.
 
   ant clone-or-pull
 
@@ -36,19 +36,43 @@ If you've just downloaded the source tarball or are using Git and have completed
 ------------------------------------------------------------------------------------------------
 To build and publish the results to your local repository (stored in ~/.ivy2), use:
 
-  ant publish-all-local
+  ant build
 
 to run the unit tests (after a publish-all-local) use:
 
   ant tests
 
-which will put the JUnitReportRunner output in tests/output/html.  To run the example engine template (which won't 
-actually do very much at all without some data in the databases and a data provider implementation of OpenGamma 
-LiveData, change directory to projects/OG-Examples and run:
+which will put the JUnitReportRunner output in tests/output/html.  To build and install the example engines run
 
-  ant jetty-debug
+  ant install
 
-wait for "END JETTY START" in the debug output and point your browser at http://localhost:8080.
+which will create a folder called OpenGamma/ in the root.  In there you'll find a scripts/ folder which contains
+
+  init-og-bloombergexample-db.sh          Create an example database using data from a local Bloomberg terminal
+  init-og-examples-db.sh                  Create an example database using fake data (if you don't have a terminal)
+  og-bloombergexample.sh                  Run the example engine with (start|stop|restart|status|reload|debug)
+                                          sourcing market data from your Bloomberg Terminal
+  og-examples.sh                          Run the example engine with (start|stop|restart|status|reload|debug)
+                                          sourcing market data from a simulated market data generator
+  time-series-updater.sh                  Updates historical time series to latest values
+  load-portfolio.sh                       Utility to load previously zipped group of CSV files into the database
+  save-portfolio.sh                       Utility to save an existing portfolio into a zip file containing CSVs
+  create-portfolio-template.sh            Creates template CSV files with headers for use with load-portfolio.sh
+
+Note you should only run the appropriate init script paired with the appropriate example script.  Running, e.g.
+init-og-examples-db.sh before running og-bloomberg-example.sh will cause the system to not operate correctly.
+
+So if you have a Bloomberg terminal, cd to the scripts directory and run:
+
+  init-og-bloombergexample-db.sh
+  og-bloombergexample.sh start
+
+otherwise if you want to use simulated data, instead run:
+
+  init-og-examples-db.sh
+  og-examples.sh start
+
+wait for the components to load and then point your browser at http://localhost:8080 to see the web user interface
 
 ant -p will give you all the targets available and they're pretty self explanatory.
 
@@ -69,9 +93,8 @@ Each project's build.xml includes the common.xml file in common/ which defines m
 further customization can be customized by simply overriding that task (for an example, see the javadocs task in 
 OG-Analytics/build.xml.
 
-common.xml also includes common/build.properties and tests.properties files.  All the database settings are 
-centralized in common/build.properties and common/tests.properties (except for 
-OG-Language/config/OpenGamma.properties).
+common.xml also includes common/build.properties and tests.properties files.  All the database settings are in
+the .properties files under config/ in the appropriate project (e.g. OG-Examples or OG-BloombergExample)
 
 More information
 ----------------

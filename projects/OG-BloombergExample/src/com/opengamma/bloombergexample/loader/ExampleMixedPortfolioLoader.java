@@ -17,6 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -79,8 +80,8 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   private static final String ID_SCHEME = "MIXED_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final ExternalId USDLIBOR3M = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
-
+  private static final ExternalId USDLIBOR3M = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
+  
   public static void main(String[] args) { //CSIGNORE
     new ExampleMixedPortfolioLoader().initAndRun(args);
     System.exit(0);
@@ -111,7 +112,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   private void addEquityNode(ManageablePortfolioNode rootNode) {
     final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Equity");
     
-    EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "DJX"), 
+    EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(SecurityUtils.bloombergTickerSecurityId("DJX Index"), 
         Currency.USD, 0.5, 1000000.0, true, 250.0, ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2012, 11, 1, 16, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), RegionUtils.currencyRegionId(Currency.USD), SimpleFrequency.DAILY);
@@ -128,7 +129,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
     
     EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPX"));
+        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), SecurityUtils.bloombergTickerSecurityId("SPX Index"));
     equityFuture.setName("S&P 500 FUTURE Dec12");
     equityFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPZ2"));
     storeFinancialSecurity(equityFuture);
@@ -327,7 +328,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.EUR, 20000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP6M"), 
+                                    SecurityUtils.bloombergTickerSecurityId("US0006M Index"), 
                                     FloatingRateType.IBOR));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap2.setName("Swap: pay 4% fixed vs 6m Euribor, start=1/5/2005, maturity=1/5/2030, notional=EUR 20MM");
@@ -349,7 +350,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.GBP, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GBPLIBORP6M"), 
+                                    SecurityUtils.bloombergTickerSecurityId("BP0006M Index"), 
                                     FloatingRateType.IBOR));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap3.setName("Swap: pay 3% fixed vs 6m Libor, start=1/5/2007, maturity=1/5/2020, notional=GBP 15MM");
@@ -371,7 +372,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.JPY, 100000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "JPYLIBORP6M"), 
+                                    SecurityUtils.bloombergTickerSecurityId("JY0006M Index"), 
                                     FloatingRateType.IBOR));
     swap4.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap4.setName("Swap: pay 2% fixed vs 6m Libor, start=1/5/2003, maturity=1/5/2028, notional=JPY 100MM");
@@ -459,7 +460,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.NZD, 55000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "NZDLIBORP6M"), 
+                                    SecurityUtils.bloombergTickerSecurityId("NZ0006M Index"), 
                                     FloatingRateType.IBOR));
     swap8.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap8.setName("Swap: pay 5% fixed vs 6m Libor, start=1/5/2010, maturity=1/5/2030, notional=NZD 55MM");
@@ -481,7 +482,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.DKK, 90000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "DKKLIBORP6M"), 
+                                    SecurityUtils.bloombergTickerSecurityId("CIBO06M Index"), 
                                     FloatingRateType.IBOR));
     swap9.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap9.setName("Swap: pay 5% fixed vs 6m Cibor, start=1/5/2010, maturity=1/5/2030, notional=DKK 90MM");

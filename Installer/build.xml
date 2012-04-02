@@ -15,20 +15,22 @@
   </target>
   
   <target name="build" description="Builds the installer packages in the dist sub-directory">
-    <parallel>
+    <!--<parallel>-->
       <antcall target="build-servers" inheritrefs="true">
         <param name="ai.build.file" value="${basedir}${file.separator}temp-servers.aip" />
       </antcall>
       <antcall target="build-clients" inheritrefs="true">
         <param name="ai.build.file" value="${basedir}${file.separator}temp-clients.aip" />
       </antcall>
-    </parallel>
+    <!--</parallel>-->
     <antcall target="build-monolith" inheritrefs="true" />
   </target>
 
   <target name="clean" description="Removes the generated installer artifacts">
     <delete dir="dist" failonerror="false" />
     <delete file="temp.aip" failonerror="false" />
+    <delete file="temp-servers.aip" failonerror="false" />
+    <delete file="temp-clients.aip" failonerror="false" />
     <delete dir="temp-cache" failonerror="false" />
   </target>
 

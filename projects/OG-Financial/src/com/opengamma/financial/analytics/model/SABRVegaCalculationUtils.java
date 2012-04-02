@@ -14,12 +14,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.math.interpolation.Interpolator2D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 

@@ -5,34 +5,27 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.QuietPortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
-import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.loadsave.sheet.SheetFormat;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
+import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
+import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 
 /**
  * The portfolio loader tool
  */
-public class PortfolioLoaderTool extends AbstractIntegrationTool {
+public class PortfolioLoaderTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -47,6 +40,8 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
+  private static ToolContext s_context;
+  
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -64,14 +59,11 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
    */
   @Override
   protected void doRun() {
-    IntegrationToolContext context = getToolContext();
+    s_context = getToolContext();
 
     // Create portfolio writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
-        context.getPortfolioMaster(), 
-        context.getPositionMaster(), 
-        context.getSecurityMaster(),
         getCommandLine().hasOption(WRITE_OPT),
         getCommandLine().hasOption(OVERWRITE_OPT)
     );
@@ -101,13 +93,12 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
     portfolioWriter.close();
   }
  
-  private static PortfolioWriter constructPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecurityMaster securityMaster, boolean write, boolean overwrite) {
+  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write, boolean overwrite) {
     if (write) {  
       if (overwrite) {
-        System.out.println("Write and overwrite options specified, will persist to OpenGamma masters"); 
+        System.out.println("Write and overwrite options specified, will persist to portfolio '" + portfolioName + "'"); 
       } else {
-        System.out.println("Write option specified, persisting to OpenGamma masters");
+        System.out.println("Write option specified, will persist to portfolio '" + portfolioName + "'");
 
       }
       // Check that the portfolio name was specified on the command line
@@ -117,9 +108,9 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
       return new MasterPortfolioWriter(
           portfolioName, 
-          portfolioMaster, 
-          positionMaster, 
-          securityMaster,
+          s_context.getPortfolioMaster(), 
+          s_context.getPositionMaster(), 
+          s_context.getSecurityMaster(),
           overwrite);
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
@@ -129,7 +120,7 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
     }  
   }
 
-  private PortfolioReader constructPortfolioReader(String filename, String securityClass) {
+  private PortfolioReader constructPortfolioReader(String filename, String securityType) {
 
     SheetFormat sheetFormat = SheetFormat.of(filename);
     switch (sheetFormat) {
@@ -137,16 +128,14 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
       case CSV:
       case XLS:
         // Check that the asset class was specified on the command line
-        if (securityClass == null) {
-          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+        if (securityType == null) {
+          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename);
         } else {
-          InputStream inputStream;
-          try {
-            inputStream = new BufferedInputStream(new FileInputStream(filename));
-          } catch (FileNotFoundException e) {
-            throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
-          }
-          return new SingleSheetSimplePortfolioReader(sheetFormat, inputStream, securityClass);
+//          if (securityType.equalsIgnoreCase("exchangetraded")) {
+//            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));            
+//          } else {
+          return new SingleSheetSimplePortfolioReader(filename, securityType);
+//          }
         }
       
       case ZIP:

@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.time.calendar.Clock;
 
+import com.opengamma.analytics.financial.model.option.definition.SkewKurtosisOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -17,8 +19,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 

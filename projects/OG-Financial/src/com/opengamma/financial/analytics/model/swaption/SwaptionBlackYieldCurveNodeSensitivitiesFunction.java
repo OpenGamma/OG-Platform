@@ -16,6 +16,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -44,21 +57,8 @@ import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
-import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
-import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -203,8 +203,8 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
+    requirements.add(getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
+    requirements.add(getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getCurveSpecRequirement(target, curveName));
     if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, curveCalculationMethod));
@@ -217,20 +217,49 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
   }
 
   private ValueProperties getResultProperties(final String currency) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).withAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency).withAny(ValuePropertyNames.CURVE).get();
+    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .withAny(ValuePropertyNames.CURVE).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, final String surfaceName,
       final String curveName) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency).with(ValuePropertyNames.CURVE, curveName).get();
+    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE, curveName).get();
+  }
+
+  private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
+    final ValueProperties.Builder properties;
+    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+          .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
-    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surface)
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }

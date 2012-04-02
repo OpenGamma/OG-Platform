@@ -16,7 +16,7 @@ import org.fudgemsg.types.IndicatorType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.serialization.InvokedSerializedForm;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 
 /**
  * Fudge builders for alternative serialized forms of objects.

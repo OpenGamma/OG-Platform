@@ -16,6 +16,12 @@ import javax.time.calendar.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
+import com.opengamma.analytics.financial.schedule.Schedule;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
@@ -41,16 +47,9 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.sensitivities.RawSecurityUtils;
-import com.opengamma.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -133,13 +132,17 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = (Security) target.getPosition().getSecurity();
+    final Security security = target.getPosition().getSecurity();
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
     if (security instanceof SwapSecurity) {
-      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
-      return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      try {
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      } catch (OpenGammaRuntimeException ogre) {
+        return false;
+      }
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
   }

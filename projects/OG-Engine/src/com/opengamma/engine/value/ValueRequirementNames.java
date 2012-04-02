@@ -38,23 +38,23 @@ public final class ValueRequirementNames {
   ///// Market Data
 
   /**
-   * Cost of carry for an equity or index option (i.e. continuously-compounded dividend yield).
+   * Cost of carry for an equity or index option (ie continuously-compounded dividend yield).
    */
   public static final String COST_OF_CARRY = "Cost Of Carry";
   /**
-   * TODO: single sentence description of DAILY_APPLIED_BETA
+   * The beta of a stock as of the previous close
    */
   public static final String DAILY_APPLIED_BETA = "Last Raw Beta";
   /**
-   * TODO: single sentence description of DAILY_MARKET_CAP
+   * The market cap as of the previous close
    */
   public static final String DAILY_MARKET_CAP = "Last Market Cap";
   /**
-   * TODO: single sentence description of DAILY_PRICE
+   * The market value as of the previous close
    */
   public static final String DAILY_PRICE = "Last Price";
   /**
-   * TODO: single sentence description of DAILY_VOLUME
+   * The daily volume as of the previous close
    */
   public static final String DAILY_VOLUME = "Last Volume";
   //  public static final String DAILY_VOLUME_AVG_5D = "Last Volume Avg 5D";
@@ -62,9 +62,14 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_VOLUME_AVG_20D = "Last Volume Avg 20D";
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
-   * TODO: single sentence description of MARK
+   * The mark as of the previous close (e.g. equity price)
    */
   public static final String MARK = "Mark";
+  
+  /**
+   * The spot rate for currency pair
+   */
+  public static final String SPOT_RATE = "SpotRate";
 
   ///// Curves
 
@@ -73,27 +78,27 @@ public final class ValueRequirementNames {
    */
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   /**
-   * TODO: single sentence description of FORWARD_CURVE
+   * Forward curve containing (time, forward rate) pairs.
    */
   public static final String FORWARD_CURVE = "ForwardCurve";
   /**
-   * TODO: single sentence description of FUTURE_PRICE_CURVE_DATA
+   * Curve containing (time, future price) pairs.
    */
   public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
   /**
-   * Curve containing (date, rate) pairs. 
+   * Curve containing (time, rate) pairs. 
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
-   * TODO: single sentence description of YIELD_CURVE_INTERPOLATED
+   * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
    */
   public static final String YIELD_CURVE_INTERPOLATED = "YieldCurveInterpolated";
   /**
-   * The Jacobian of a yield curve i.e. a matrix where each row is the sensitivity of an instrument used in yield curve construction to the nodal points of the curve.
+   * The Jacobian of a yield curve, that is a matrix where each row is the sensitivity of an instrument used in yield curve construction to the nodal points of the curve.
    */
   public static final String YIELD_CURVE_JACOBIAN = "YieldCurveJacobian";
   /**
-   * TODO: single sentence description of YIELD_CURVE_MARKET_DATA
+   * The raw market data that is used in yield curve construction.
    */
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";
   /**
@@ -108,23 +113,23 @@ public final class ValueRequirementNames {
   ///// Surfaces
 
   /**
-   * TODO: single sentence description of HESTON_SURFACES
+   * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those in the Heston model.
    */
   public static final String HESTON_SURFACES = "Heston Surfaces";
   /**
-   * TODO: single sentence description of INTERPOLATED_VOLATILITY_SURFACE
+   * Surface containing (x, y, volatility) triples that is constructed by directly interpolating market data.
    */
   public static final String INTERPOLATED_VOLATILITY_SURFACE = "InterpolatedVolatilitySurfaceData";
   /**
-   * TODO: single sentence description of PIECEWISE_SABR_VOL_SURFACE
+   * Surface containing (x, y, volatility) triples that is constructed by piecewise fitting the SABR model through the smiles.
    */
   public static final String PIECEWISE_SABR_VOL_SURFACE = "Piecewise SABR fitted surface";
   /**
-   * TODO: single sentence description of SABR_SURFACES
+   * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those used in the SABR model.
    */
   public static final String SABR_SURFACES = "SABR Surfaces";
   /**
-   * TODO: single sentence description of STANDARD_VOLATILITY_SURFACE_DATA
+   * Surface containing (x, y, volatility) triples that are the outer join of the values on the x and y axes. 
    */
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   /**
@@ -132,65 +137,65 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   /**
-   * Volatility surface metadata.
+   * Surface containing arrays of x, y, and volatility values for (x, y) pairs.
    */
   public static final String VOLATILITY_SURFACE_DATA = "VolatilitySurfaceData";
   /**
-   * TODO: single sentence description of VOLATILITY_SURFACE_FITTED_POINTS
+   * Result containing information about which points were used in a smile fit.
    */
   public static final String VOLATILITY_SURFACE_FITTED_POINTS = "Volatility Surface Fitted Points";
   /**
-   * TODO: single sentence description of VOLATILITY_SURFACE_SPECIFICATION
+   * A volatility surface specification
    */
   public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
 
   ///// Cubes
 
   /**
-   * TODO: single sentence description of STANDARD_VOLATILITY_CUBE_DATA
+   * Cube containing sets of (x, y, z, volatility) that are the outer join of the values on the x, y and z axes.  
    */
   public static final String STANDARD_VOLATILITY_CUBE_DATA = "StandardVolatilityCubeData";
   /**
-   * TODO: single sentence description of VOLATILITY_CUBE
+   * Cube containing sets of (x, y, z, volatility) 
    */
   public static final String VOLATILITY_CUBE = "VolatilityCube";
   /**
-   * TODO: single sentence description of VOLATILITY_CUBE_DEFN
+   * A volatility cube definition
    */
   public static final String VOLATILITY_CUBE_DEFN = "VolatilityCubeDefinition";
   /**
-   * TODO: single sentence description of VOLATILITY_CUBE_FITTED_POINTS
+   * Result containing information about which points were used in a smile fit.
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
   /**
-   * TODO: single sentence description of VOLATILITY_CUBE_MARKET_DATA
+   * The set of market data that is used in constructing a cube.
    */
   public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
   /**
-   * TODO: single sentence description of VOLATILITY_CUBE_SPEC
+   * A volatility cube specification.
    */
   public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
 
   ///// Pricing
 
   /**
-   * TODO: single sentence description of CREDIT_SENSITIVITIES
+   * The credit sensitivities of an instrument
    */
   public static final String CREDIT_SENSITIVITIES = "Credit Sensitivities";
   /**
-   * TODO: single sentence description of CS01
+   * The change in the value of an instrument if the credit curve is moved by 1 basis point.
    */
   public static final String CS01 = "CS01";
   /**
-   * TODO: single sentence description of DIVIDEND_YIELD
+   * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
   /**
-   * TODO: single sentence description of DV01
+   * The change in the dollar value of an instrument if a yield curve is moved by one basis point. 
    */
   public static final String DV01 = "DV01";
   /**
-   * TODO: single sentence description of EXTERNAL_SENSITIVITIES
+   * Sensitivities that are externally provided, not calculated by OpenGamma functions
    */
   public static final String EXTERNAL_SENSITIVITIES = "External Sensitivities";
   /**
@@ -218,11 +223,11 @@ public final class ValueRequirementNames {
    */
   public static final String PV01 = "PV01";
   /**
-   * TODO: single sentence description of SECURITY_MARKET_PRICE
+   * The market price of a security,
    */
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
   /**
-   * TODO: single sentence description of SECURITY_IMPLIED_VOLATILITY
+   * The implied volatility of a security.
    */
   public static final String SECURITY_IMPLIED_VOLATLITY = "Security Implied Volatility";
   /**
@@ -249,7 +254,7 @@ public final class ValueRequirementNames {
    */
   public static final String DELTA_BLEED = "DeltaBleed";
   /**
-   * TODO: single sentence description of DRIFTLESS_THETA
+   * The driftless theta of an option (the time decay of an option without considering the drift of the underlying or interest rates).
    */
   public static final String DRIFTLESS_THETA = "DriftlessTheta";
   /**
@@ -257,11 +262,11 @@ public final class ValueRequirementNames {
    */
   public static final String DVANNA_DVOL = "dVanna_dVol";
   /**
-   * TODO: single sentence description of DZETA_DVOL
+   * First order derivative of the in-the-money probability (zeta) with respect to the volatility.
    */
   public static final String DZETA_DVOL = "dZeta_dVol";
   /**
-   * TODO: single sentence description of ELASTICITY
+   * The sensitivity in percent to a percent change in the underlying.
    */
   public static final String ELASTICITY = "Elasticity";
   /**
@@ -281,7 +286,7 @@ public final class ValueRequirementNames {
    */
   public static final String GAMMA_P_BLEED = "GammaPBleed";
   /**
-   * TODO: single sentence description of PHI
+   * The first order derivative with respect to the yield
    */
   public static final String PHI = "Phi";
   /**
@@ -297,19 +302,19 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_DELTA_BLEED = "PositionDeltaBleed";
   /**
-   * TODO: single sentence description of POSITION_DRIFTLESS_THETA
+   * The aggregate driftless theta of an option (the time decay of an option without considering the drift of the underlying or interest rates).
    */
-  public static final String POSITION_DRIFTLESS_DELTA = "PositionDriftlessTheta";
+  public static final String POSITION_DRIFTLESS_THETA = "PositionDriftlessTheta";
   /**
    * Aggregate second order derivative of delta with respect to the volatility. 
    */
   public static final String POSITION_DVANNA_DVOL = "PositiondVanna_dVol";
   /**
-   * TODO: single sentence description of POSITION_DZETA_DVOL
+   * Aggregate first order derivative of the in-the-money probability (zeta) with respect to the volatility.
    */
   public static final String POSITION_DZETA_DVOL = "PositiondZeta_dVol";
   /**
-   * TODO: single sentence description of POSITION_ELASTICITY
+   * The aggregate sensitivity in percent to a percent change in the underlying.
    */
   public static final String POSITION_ELASTICITY = "PositionElasticity";
   /**
@@ -329,7 +334,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_GAMMA_P_BLEED = "PositionGammaPBleed";
   /**
-   * TODO: single sentence description of POSITION_PHI
+   * The aggregate first order derivative with respect to the yield
    */
   public static final String POSITION_PHI = "PositionPhi";
   /**
@@ -401,19 +406,19 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VOMMA_P = "PositionVommaP";
   /**
-   * TODO: single sentence description of POSITION_ZETA
+   * The aggregate in-the-money probability of an option.
    */
   public static final String POSITION_ZETA = "PositionZeta";
   /**
-   * TODO: single sentence description of POSITION_ZETA_BLEED
+   * The aggregate of the time derivative of the in-the-money probability of an option.
    */
   public static final String POSITION_ZETA_BLEED = "PositionZetaBleed";
   /**
-   * TODO: single sentence description of POSITION_ZOMMA
+   * The aggregate of the time derivative of the gamma of an option.
    */
   public static final String POSITION_ZOMMA = "PositionZomma";
   /**
-   * TODO: single sentence description of POSITION_ZOMMA_P
+   * The aggregate of the time derivative of the percentage gamma of an option.
    */
   public static final String POSITION_ZOMMA_P = "PositionZommaP";
   /**
@@ -445,135 +450,135 @@ public final class ValueRequirementNames {
    */
   public static final String ULTIMA = "Ultima";
   /**
-   * The currency specific carry rho of an option (first order derivative of price with respect to the cost of carry).
+   * The amount by which the value of a portfolio would change due to carry rho.
    */
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
-   * The currency specific delta of an option (first order derivative of price with respect to the spot). 
+   * The amount by which the value of a portfolio would change due to delta. 
    */
   public static final String VALUE_DELTA = "ValueDelta";
   /**
-   * The currency specific delta bleed of an option (derivative of the delta with respect to the spot and time). 
+   * The amount by which the value of a portfolio would change due to delta bleed. 
    */
   public static final String VALUE_DELTA_BLEED = "ValueDeltaBleed";
   /**
-   * TODO: single sentence description of VALUE_DRIFTLESS_THETA
+   * The amount by which the value of a portfolio would change due to driftless theta.
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
   /**
-   * Currency specific second order derivative of delta with respect to the volatility. 
+   * The amount by which the value of a portfolio would change due to dVannadVol. 
    */
   public static final String VALUE_DVANNA_DVOL = "ValuedVanna_dVol";
   /**
-   * TODO: single sentence description of VALUE_DZETA_DVOL
+   * The amount by which the value of a portfolio would change due to dZetadVol.
    */
   public static final String VALUE_DZETA_DVOL = "ValuedZeta_dVol";
   /**
-   * TODO: single sentence description of VALUE_ELASTICITY
+   * The amount by which the value of a portfolio would change due to elasticity.
    */
   public static final String VALUE_ELASTICITY = "ValueElasticity";
   /**
-   * The currency specific gamma of an option (second order derivative of price with respect to the spot). 
+   * The amount by which the value of a portfolio would change due to gamma. 
    */
   public static final String VALUE_GAMMA = "ValueGamma";
   /**
-   * The currency specific gamma bleed of an option (derivative of the gamma with respect to time). 
+   * The amount by which the value of a portfolio would change due to gamma bleed. 
    */
   public static final String VALUE_GAMMA_BLEED = "ValueGammaBleed";
   /**
-   * The currency specific percentage gamma of an option.
+   * The amount by which the value of a portfolio would change due to percentage gamma.
    */
   public static final String VALUE_GAMMA_P = "ValueGammaP";
   /**
-   * The currency specific percentage gamma bleed. 
+   * The amount by which the value of a portfolio would change due to gamma bleed. 
    */
   public static final String VALUE_GAMMA_P_BLEED = "ValueGammaPBleed";
   /**
-   * TODO: single sentence description of VALUE_PHI
+   * The amount by which the value of a portfolio would change due to phi.
    */
   public static final String VALUE_PHI = "ValuePhi";
   /**
-   * The currency specific rho of an option (first order derivative of price with respect to the interest rate). 
+   * The amount by which the value of a portfolio would change due to rho. 
    */
   public static final String VALUE_RHO = "ValueRho";
   /**
-   * The currency specific speed of an option (third order derivative of price with respect to the spot).
+   * The amount by which the value of a portfolio would change due to speed.
    */
   public static final String VALUE_SPEED = "ValueSpeed";
   /**
-   * The currency specific percentage speed.
+   * The amount by which the value of a portfolio would change due to percentage speed.
    */
   public static final String VALUE_SPEED_P = "ValueSpeedP";
   /**
-   * The currency specific strike delta of an option (first order derivative of price with respect to the strike). 
+   * The amount by which the value of a portfolio would change due to strike delta. 
    */
   public static final String VALUE_STRIKE_DELTA = "ValueStrikeDelta";
   /**
-   * The currency specific strike gamma of an option (second order derivative of price with respect to the strike).
+   * The amount by which the value of a portfolio would change due to strike gamma.
    */
   public static final String VALUE_STRIKE_GAMMA = "ValueStrikeGamma";
   /**
-   * The currency specific theta of an option (first order derivative of price with respect to time).
+   * The amount by which the value of a portfolio would change due to theta.
    */
   public static final String VALUE_THETA = "ValueTheta";
   /**
-   * The currency specific ultima of an option (third order derivative of price with respect to the volatility).
+   * The amount by which the value of a portfolio would change due to ultima.
    */
   public static final String VALUE_ULTIMA = "ValueUltima";
   /**
-   * The currency specific vanna of an option (first order derivative of delta with respect to the volatility).
+   * The amount by which the value of a portfolio would change due to vanna.
    */
   public static final String VALUE_VANNA = "ValueVanna";
   /**
-   * The currency specific ultima of an option (third order derivative of price with respect to the variance).
+   * The amount by which the value of a portfolio would change due to variance ultima.
    */
   public static final String VALUE_VARIANCE_ULTIMA = "ValueVarianceUltima";
   /**
-   * The currency specific variance vanna of an option (first order derivative of delta with respect to the variance).
+   * The amount by which the value of a portfolio would change due to variance vanna.
    */
   public static final String VALUE_VARIANCE_VANNA = "ValueVarianceVanna";
   /**
-   * The currency specific variance vega of an option (first order derivative of price with respect to the variance).
+   * The amount by which the value of a portfolio would change due to variance vega.
    */
   public static final String VALUE_VARIANCE_VEGA = "ValueVarianceVega";
   /**
-   * The currency specific variance vomma of an option (second order derivative of price with respect to the variance). 
+   * The amount by which the value of a portfolio would change due to variance vomma.
    */
   public static final String VALUE_VARIANCE_VOMMA = "ValueVarianceVomma";
   /**
-   * The currency specific vega of an option (first order derivative of price with respect to the volatility).
+   * The amount by which the value of a portfolio would change due to vega.
    */
   public static final String VALUE_VEGA = "ValueVega";
   /**
-   * The currency specific vega bleed of an option (derivative of the vega with respect to time).
+   * The amount by which the value of a portfolio would change due to vega bleed.
    */
   public static final String VALUE_VEGA_BLEED = "ValueVegaBleed";
   /**
-   * The currency specific percentage vega of an option. 
+   * The amount by which the value of a portfolio would change due to percentage vega.
    */
   public static final String VALUE_VEGA_P = "ValueVegaP";
   /**
-   * The currency specific vomma of an option (second order derivative of price with respect to the volatility).
+   * The amount by which the value of a portfolio would change due to vomma.
    */
   public static final String VALUE_VOMMA = "ValueVomma";
   /**
-   * The currency specific percentage vomma of an option. 
+   * The amount by which the value of a portfolio would change due to percentage vomma.
    */
   public static final String VALUE_VOMMA_P = "ValueVommaP";
   /**
-   * TODO: single sentence description of VALUE_ZETA
+   * The amount by which the value of a portfolio would change due to zeta.
    */
   public static final String VALUE_ZETA = "ValueZeta";
   /**
-   * TODO: single sentence description of VALUE_ZETA_BLEED
+   * The amount by which the value of a portfolio would change due to zeta bleed.
    */
   public static final String VALUE_ZETA_BLEED = "ValueZetaBleed";
   /**
-   * TODO: single sentence description of VALUE_ZOMMA
+   * The amount by which the value of a portfolio would change due to zomma.
    */
   public static final String VALUE_ZOMMA = "ValueZomma";
   /**
-   * TODO: single sentence description of VALUE_ZOMMA_P
+   * The amount by which the value of a portfolio would change due to percentage zomma. 
    */
   public static final String VALUE_ZOMMA_P = "ValueZommaP";
   /**
@@ -605,7 +610,7 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_BLEED = "VegaBleed";
   /**
-   * TODO: single sentence descripton of VEGA_MATRIX
+   * The bucketed vega of a security for a (expiry, delta) volatility surface. 
    */
   public static final String VEGA_MATRIX = "Vega Matrix";
   /**
@@ -613,11 +618,11 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
-   * TODO: single sentence descripton of VEGA_QUOTE_CUBE
+   * The bucketed vega of a security to the market data volatility cube.
    */
   public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";
   /**
-   * TODO: single sentence descripton of VEGA_QUOTE_MATRIX
+   * The bucketed vega of a security to the market data volatility surface.
    */
   public static final String VEGA_QUOTE_MATRIX = "Vega Quote Matrix";
   /**
@@ -629,26 +634,26 @@ public final class ValueRequirementNames {
    */
   public static final String VOMMA_P = "VommaP";
   /**
-   * TODO: single sentence description of ZETA
+   * The in-the-money probability of an option
    */
   public static final String ZETA = "Zeta";
   /**
-   * TODO: single sentence description of ZETA_BLEED
+   * The time derivative of the in-the-money probability of an option.
    */
   public static final String ZETA_BLEED = "ZetaBleed";
   /**
-   * TODO: single sentence description of ZOMMA
+   * The time derivative of the gamma of an option.
    */
   public static final String ZOMMA = "Zomma";
   /**
-   * TODO: single sentence description of ZOMMA_P
+   * The time derivative of the percentage gamma of an option.
    */
   public static final String ZOMMA_P = "ZommaP";
 
   ///// Series Analysis
 
   /**
-   * TODO: single sentence description of DAILY_PNL
+   * The daily profit and loss of a security
    */
   public static final String DAILY_PNL = "Daily PnL";
   /**
@@ -812,7 +817,7 @@ public final class ValueRequirementNames {
    */
   public static final String CONVEXITY = "Convexity";
   /**
-   * TODO: single sentence description of CURRENT_YIELD
+   * The current yield of a bond
    */
   public static final String CURRENT_YIELD = "Current Yield";
   /**
@@ -844,7 +849,7 @@ public final class ValueRequirementNames {
    */
   public static final String MARKET_YTM = "Market Yield To Maturity";
   /**
-   * TODO: single sentence description of MODIFIED_DURATION
+   * The modified duration of a bond.
    */
   public static final String MODIFIED_DURATION = "Modified Duration";
   /**
@@ -875,121 +880,118 @@ public final class ValueRequirementNames {
   ///// Fixed Income
 
   /**
-   * TODO: single sentence description of FORWARD
+   * The forward price of a security
    */
   public static final String FORWARD = "Forward";
   /**
-   * TODO: single sentence description of PAR_RATE_CURVE_SENSITIVITY
+   * The sensitivity of the par rate of a cash-flow instrument to a shift of 100 percent in the (named) yield curve. 
    */
   public static final String PAR_RATE_CURVE_SENSITIVITY = "Par Rate Curve Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_COUPON_SENSITIVITY
+   * The sensitivity of the present value to the value of any fixed coupons of a cash-flow instrument.
    */
   public static final String PRESENT_VALUE_COUPON_SENSITIVITY = "Present Value Coupon Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_CURVE_SENSITIVITY
+   * The sensitivity of the present value to points on the yield curve at every point a cash-flow instrument has sensitivity.
    */
   public static final String PRESENT_VALUE_CURVE_SENSITIVITY = "Present Value Curve Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_SABR_ALPHA_SENSITIVITY
+   * The sensitivity of the present value of an instrument to the alpha parameter of the SABR model.
    */
   public static final String PRESENT_VALUE_SABR_ALPHA_SENSITIVITY = "Present Value SABR Alpha Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_SABR_BETA_SENSITIVITY
+   * The sensitivity of the present value of an instrument to the beta parameter of the SABR model.
    */
   public static final String PRESENT_VALUE_SABR_BETA_SENSITIVITY = "Present Value SABR Beta Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_SABR_RHO_SENSITIVITY
+   * The sensitivity of the present value of an instrument to the rho parameter of the SABR model.
    */
   public static final String PRESENT_VALUE_SABR_RHO_SENSITIVITY = "Present Value SABR Rho Sensitivity";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_SABR_NU_SENSITIVITY
+   * The sensitivity of the present value of an instrument to the nu parameter of the SABR model.
    */
   public static final String PRESENT_VALUE_SABR_NU_SENSITIVITY = "Present Value SABR Nu Sensitivity";
 
   ///// FX
   /**
-   * TODO: single sentence description of FX_CURRENCY_EXPOSURE
+   * The currency exposure of a FX instrument
    */
   public static final String FX_CURRENCY_EXPOSURE = "FX Currency Exposure";
   /**
-   * TODO: single sentence description of FX_CURVE_SENSITIVITIES
+   * The sensitivities of the present value of a FX instrument to the curves to which it is sensitive.
    */
   public static final String FX_CURVE_SENSITIVITIES = "FX Curve Sensitivities";
   /**
-   * TODO: single sentence description of FX_PRESENT_VALUE
+   * The present value in both currencies of a FX instrument.
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
-  /**
-   * TODO: single sentence description of FX_VOLATILITY_SENSITIVITIES
-   */
-  public static final String FX_VOLATILITY_SENSITIVITIES = "FX Volatility Sensitivities";
 
   ///// Local Volatility
   //TODO this set of names might be too specific
   /**
-   * TODO: single sentence description of BLACK_VOLATILITY_GRID_PRICE
+   * Result containing the Black price of an option at each of the points at the option maturity on a PDE grid.
    */
   public static final String BLACK_VOLATILITY_GRID_PRICE = "Black Price";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_DELTA
+   * The forward delta of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_DELTA = "Forward Delta (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_DOMESTIC_PRICE
+   * The domestic price of a FX instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_DOMESTIC_PRICE = "Domestic Price (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_DUAL_DELTA
+   * The dual delta of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_DUAL_DELTA = "Dual Delta (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_DUAL_GAMMA
+   * The dual gamma of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_DUAL_GAMMA = "Dual Gamma (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_FOREX_PV_QUOTES
+   * The pips present value of a FX instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_FOREX_PV_QUOTES = "Forex PV Quotes";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_FULL_PDE_GRID
+   * The full PDE grid generated when calibrating a local volatility surface.
    */
   public static final String LOCAL_VOLATILITY_FULL_PDE_GRID = "Full PDE Grid (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_GAMMA
+   * The forward gamma of an instrument calculated using local volatility PDE methods.
    */
   public static final String LOCAL_VOLATILITY_GAMMA = "Forward Gamma (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_GRID_IMPLIED_VOL
+   * Result containing the equivalent Black volatilities of an option at each of the points at the option maturity on a PDE grid.
    */
   public static final String LOCAL_VOLATILITY_GRID_IMPLIED_VOL = "Implied Vol (LV Black Equivalent)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_GRID_PRICE
+   * Result containing the price calculated using local volatility of an option at each of the points at the option maturity on a PDE grid.
    */
   public static final String LOCAL_VOLATILITY_GRID_PRICE = "Price (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_PDE_BUCKETED_VEGA
+   * Result containing the bucketed vega of an option calculated using a PDE and local volatility
    */
   public static final String LOCAL_VOLATILITY_PDE_BUCKETED_VEGA = "PDE Bucketed Vega (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_PDE_GREEKS
+   * Result containing the greeks of an option calculated using a PDE and local volatility
    */
   public static final String LOCAL_VOLATILITY_PDE_GREEKS = "PDE Greeks (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_SURFACE
+   * Surface containing (x, y, volatility) triples calculated using the Dupire local volatility method.
    */
   public static final String LOCAL_VOLATILITY_SURFACE = "Local Volatility Surface";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_VANNA
+   * The vanna of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VANNA = "Forward Vanna (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_VEGA
+   * The vega of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VEGA = "Forward Vega (LV)";
   /**
-   * TODO: single sentence description of LOCAL_VOLATILITY_VOMMA
+   * The vomma of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
+  
 
 }

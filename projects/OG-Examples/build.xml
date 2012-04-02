@@ -7,7 +7,7 @@
 	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
 	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 
-	<target name="new-hsqldb" depends="jetty-stop, resolve" description="creates a new hsql database">
+	<target name="new-hsqldb" depends="jetty-stop" description="creates a new hsql database">
 		<unzip dest="${basedir}/temp" overwrite="true">
 			<fileset dir="${sql.dir}">
 				<include name="*.zip" />
@@ -62,7 +62,7 @@
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}example-dev.properties" />
 		</java>
 	</target>
 
@@ -74,7 +74,7 @@
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}example-dev.properties" />
 		</java>
 	</target>
 
@@ -136,5 +136,5 @@
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
-	
+
 </project>

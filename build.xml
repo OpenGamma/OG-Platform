@@ -218,7 +218,7 @@
     <replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
     <replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
   </target>
-  <target name="dist-source" depends="clone-or-pull,clean,dist-name,eclipse-readme"
+  <target name="dist-source" depends="clean,dist-name,eclipse-readme"
       description="builds a single source distribution zipfile">
     <mkdir dir="${dist.dir}" />
     <tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
@@ -315,6 +315,17 @@
     </copy>
   </target>
 
+  <target name="dist-install" depends="dist-name,install">
+    <mkdir dir="${dist.dir}" />
+    <tar destfile="${dist.dir}/${dist.platform.prefix}binary-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset uid="0" gid="0" dir="${install.dir}" includes="${install.name}/**" excludes="${install.name}/**/*.sh" />
+      <tarfileset uid="0" gid="0" dir="${install.dir}" includes="${install.name}/**/*.sh" filemode="755" />
+    </tar>
+    <zip destfile="${dist.dir}/${dist.platform.prefix}binary-${module.version.target}.zip">
+      <fileset dir="${install.dir}" includes="${install.name}/**" />
+    </zip>
+  </target>
+
   <!-- ================================================================== -->
   <target name="tests-individual-reports" depends="buildlist"
     description="run tests for all projects with separate reports">
@@ -366,7 +377,8 @@
   </target>
 
   <target name="clean-install">
-    <delete dir="${install.dir}" failonerror="false" />
+    <property name="install.dir.full" value="${install.dir}/${install.name}" />
+    <delete dir="${install.dir}/${install.name}" failonerror="false" />
     <subant target="clean" buildpath="Installer" />
   </target>
 
@@ -455,13 +467,19 @@
     <mkdir dir="${docs.dir}/temp-src" />
     <copy toDir="${docs.dir}/temp-src">
       <fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Bloomberg/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-BloombergExample/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Component/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Integration/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Language/Client/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Maths/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
@@ -469,11 +487,8 @@
     <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
       doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
-      header="${javadoc-all.header}"
+      header="${javadoc-all.header}" failonerror="Yes"
       maxmemory="2G">
-      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
       <link href="http://download.oracle.com/javase/6/docs/api/" />
       <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
       <link href="http://threeten.sourceforge.net/apidocs/" />
@@ -620,12 +635,12 @@
   <target name="install" depends="check-build-projects-file-for-user" description="install artifacts to directory specified by property (install.dir)">
     <fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
     <antcall inheritAll="false" target="install-impl">
-      <param name="install.dir" value="${install.dir}" />
+      <param name="install.dir.full" value="${install.dir}/${install.name}" />
     </antcall>
   </target>
 
-  <target name="install-impl" depends="clean-install, clean-projects, clone-or-pull, publish-all-local">
-    <mkdir dir="${install.dir}" />
+  <target name="install-impl" depends="clean-install, clean-projects, publish-all-local">
+    <mkdir dir="${install.dir.full}" />
     <property file="${common.dir}/deploy.properties"/>
     <subant target="install" antfile="build.xml">
       <path>
@@ -633,10 +648,10 @@
       </path>
       <property name="og.build.invoked" value="true" />
       <property name="ivy.new.revision" value="${module.version.target}" />
-      <property name="install.dir" value="${install.dir}" />
+      <property name="install.dir" value="${install.dir.full}" />
     </subant>
   </target>
-  
+
   <target name="clean-src"/>
 
 </project>

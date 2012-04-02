@@ -4,12 +4,17 @@
   </thead>
   <tbody>
   <tr>
-    <td><a href=#/securities/${template_data.security_unique_id}>
-     {{if template_data.security_name}}
+    <td>
+      {{if external_links}}
+        <a href="./admin.ftl#/securities/${template_data.security_unique_id}" target="_blank">
+      {{else}}
+        <a href="#/securities/${template_data.security_unique_id}">
+      {{/if}}
+      {{if template_data.security_name}}
         ${template_data.security_name}
-     {{else}}
+      {{else}}
         (no value)
-     {{/if}}
+      {{/if}}
     </a></td>
     <td>
       <strong class="og-quantity"

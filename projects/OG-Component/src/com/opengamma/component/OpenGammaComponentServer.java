@@ -177,6 +177,9 @@ public class OpenGammaComponentServer {
   //-------------------------------------------------------------------------
   /**
    * Extracts the server name.
+   * <p>
+   * This examines the first part of the file name and the last directory,
+   * merging these with a dash.
    * 
    * @param fileName  the name to extract from, not null
    * @return the server name, not null
@@ -186,12 +189,12 @@ public class OpenGammaComponentServer {
       fileName = StringUtils.substringAfter(fileName, ":");
     }
     fileName = FilenameUtils.removeExtension(fileName);
-    fileName = FilenameUtils.getPathNoEndSeparator(fileName);
-    String name = FilenameUtils.getName(fileName);
-    if (name.length() == 0) {
-      name = StringUtils.substringBefore(fileName, "-");
+    String first = FilenameUtils.getName(FilenameUtils.getPathNoEndSeparator(fileName));
+    String second = FilenameUtils.getName(fileName);
+    if (StringUtils.isEmpty(first) || first.equals(second) || second.startsWith(first + "-")) {
+      return second;
     }
-    return name;
+    return first + "-" + second;
   }
 
   /**

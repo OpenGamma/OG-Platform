@@ -16,19 +16,24 @@ It's very important you follow the steps below exactly in the order specified, o
 incorrect
 
  1. Make sure you install, as a minimum: Eclipse itself, the IvyDE plugin and the Checkstyle plugin.
-   a. Install Eclipse [http://www.eclipse.org], we recommend the 'Classic' bundle, and then create a 
-      fresh workspace created in a location separate from your source tree.
-      Note: The .project files we use only work with the latest Helios stable release of Eclipse.
-   b. Install IvyDE|http://ant.apache.org/ivy/ivyde/download.cgi] (required)
-   c. Install Eclipse-CS [http://eclipse-cs.sourceforge.net/downloads.html] (optional, but 
-      recommended)
-   d. Install TestNG plug-in [http://testng.org/doc/download.html] (optional, but recommended)
+   Choose one of:
+     * Using the new plugins.p2f file to auto-install the required plug-ins
+       a. 
+     * Install the required plug-ins manually
+       a. Install Eclipse [http://www.eclipse.org], we recommend the 'Classic' bundle, and then 
+          create a fresh workspace created in a location separate from your source tree.
+          Note: The .project files we use only work with the latest Indigo stable release of 
+                Eclipse.
+       b. Install IvyDE|http://ant.apache.org/ivy/ivyde/download.cgi] (required)
+       c. Install Eclipse-CS [http://eclipse-cs.sourceforge.net/downloads.html] (optional, but 
+          recommended)
+       d. Install TestNG plug-in [http://testng.org/doc/download.html] (optional, but recommended)
  2. Import the default preferences
    a. Go to 'File->Import'
    b. Under 'General' choose 'Preferences'
    c. Click 'Next'
  3. Click the 'Browse...' button
-   a. Navigate the file chooser to the OG-Platform/common/ folder and choose the file 
+   a. Navigate the file chooser to the OG-Platform/eclipse/ folder and choose the file 
       OpenGamma-Eclipse-Preferences.epf
    b. Click 'Finish'
  4. Turn off auto-builds until we've finished setting up
@@ -53,7 +58,8 @@ incorrect
    a. Go to 'Project->Build Automatically' to check the 'Build Automatically' menu entry
 10. Quit Eclipse and Restart (Do Not Just Use 'File->Restart')
     Note: It will take several minutes of building, but eventually show all projects error free.  If
-    you have not run a command line build it may take even longer to download all the artifacts.
+    you have not run a command line build it may take even longer to download all the artifacts. 
+    You should get a coffee at this point.
    a. If there is an error shown in the 'OG-Engine' project
       i. Find the source files (PutRequest.java and GetRequest.java are the culprits) in the package
          explorer
@@ -68,13 +74,13 @@ Recommended Extras for Contributors
    a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
       under 'Window->Preferences...')
    b. Under 'Java->Code Style->Code Templates' click on 'Import...'
-   c. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-CodeTemplates.xml'
+   c. Browse to OG-Platform/eclipse/ and choose 'OpenGamma-Java-Eclipse-CodeTemplates.xml'
    d. Click 'Open'
 2. Load the code formatter
    a. Go to Global Preferences (on the Mac it's 'Eclipse->Preferences..' and on Windows/Linux it's 
       under 'Window->Preferences...')  
    b. Under 'Java->Code Style->Formatter' click on 'Import...'
-3. Browse to OG-Platform/common/ and choose 'OpenGamma-Java-Eclipse-Formatter.xml'
+3. Browse to OG-Platform/eclipse/ and choose 'OpenGamma-Java-Eclipse-Formatter.xml'
    a. Click 'Open'
 4. Install more Eclipse plugins
    a. Install Spring IDE [http://springide.org/updatesite] (Core/Spring IDE), although make sure you
@@ -82,12 +88,13 @@ Recommended Extras for Contributors
 
 Tips if you have problems
 -------------------------
-* Make sure you have the latest Eclipse (Helios at the time of writing).  The settings files don't 
+* Make sure you have the latest Eclipse (Indigo at the time of writing).  The settings files don't 
   work with Galileo properly: specifically, if you get an error about 'path fragments', that is 
   because you're trying to use Galileo.
 * Eclipse doesn't always refresh things when you think it will.  Try highlighting all projects, 
   right-clicking and choose 'Refresh' on the menu
-* Sometimes IvyDE needs a kick to resolve/refresh artifacts
+* Sometimes IvyDE needs a kick to resolve/refresh artifacts, there's a button on the task bar for
+  refreshing
 * Running command line unit tests can occasionally conflict with a running copy of Eclipse, in which
   case a workaround is to shut down Eclipse while you run tests
 * If you have the Spring plug-in installed, turn off spring file validation

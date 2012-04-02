@@ -8,31 +8,27 @@ package com.opengamma.integration.tool.portfolio;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.QuietPortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
-import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
-import com.opengamma.integration.loadsave.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
-import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
-import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.SingleSheetPortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.ZippedPortfolioWriter;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
-import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.PositionMaster;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.copier.portfolio.PortfolioCopier;
+import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
+import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
+import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 
 /**
  * The portfolio saver tool
  */
-public class PortfolioSaverTool extends AbstractIntegrationTool {
+public class PortfolioSaverTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -45,6 +41,8 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
+  private static ToolContext s_context;
+  
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -62,23 +60,20 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
    */
   @Override 
   protected void doRun() {     
-    IntegrationToolContext context = getToolContext();
+    s_context = getToolContext();
+
+    // Construct portfolio reader
+    PortfolioReader portfolioReader = constructPortfolioReader(
+        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT)
+    );
 
     // Create portfolio writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValues(SECURITY_TYPE_OPT),
+        getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
         getCommandLine().hasOption(WRITE_OPT)
     );
     
-    // Construct portfolio reader
-    PortfolioReader portfolioReader = constructPortfolioReader(
-        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT),
-        context.getPortfolioMaster(), 
-        context.getPositionMaster(), 
-        context.getSecuritySource()
-    );
-
     // Construct portfolio copier
     PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
         
@@ -98,20 +93,20 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
     portfolioWriter.close();
   }
   
-  private static PortfolioWriter constructPortfolioWriter(String filename, String[] securityTypes, boolean write) {
+  private static PortfolioWriter constructPortfolioWriter(String filename, String securityType, boolean write) {
     if (write) {  
       // Check that the file name was specified on the command line
       if (filename == null) {
         throw new OpenGammaRuntimeException("File name omitted, cannot export to file");
       }
        
-      String extension = filename.substring(filename.lastIndexOf('.'));
-
-      if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-        return new SingleSheetPortfolioWriter(filename, securityTypes);
-      // Multi-asset ZIP file extension
-      } else if (extension.equalsIgnoreCase(".zip")) {
-        // Create zipped multi-asset class loader
+      if (SheetFormat.of(filename) == SheetFormat.CSV || SheetFormat.of(filename) == SheetFormat.XLS) {
+//        if (securityType.equalsIgnoreCase("exchangetraded")) {
+//          return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
+//        } else {
+        return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
+//        }
+      } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
         return new ZippedPortfolioWriter(filename);
       } else {
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
@@ -123,9 +118,12 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
     }
   }
 
-  private static PortfolioReader constructPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecuritySource securitySource) {
-    return new MasterPortfolioReader(portfolioName, portfolioMaster, positionMaster, securitySource);
+  private static PortfolioReader constructPortfolioReader(String portfolioName) {
+    return new MasterPortfolioReader(
+        portfolioName, s_context.getPortfolioMaster(), 
+        s_context.getPositionMaster(), 
+        s_context.getSecuritySource()
+    );
   }
 
   @Override
@@ -149,7 +147,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
        
     Option assetClassOption = new Option(
         SECURITY_TYPE_OPT, "securitytype", true, 
-        "The security type(s) to export (ignored if ZIP output file is specified)");
+        "The security type to export (ignored if ZIP output file is specified)");
     options.addOption(assetClassOption);
     
     Option verboseOption = new Option(

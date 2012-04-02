@@ -14,8 +14,8 @@ import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.loadsave.sheet.SheetFormat;
-import com.opengamma.integration.loadsave.timeseries.TimeSeriesLoader;
+import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
 
 /**
  * The timeseries loader tool

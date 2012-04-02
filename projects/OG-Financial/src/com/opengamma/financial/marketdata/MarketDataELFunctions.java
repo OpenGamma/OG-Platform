@@ -6,14 +6,14 @@
 package com.opengamma.financial.marketdata;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.StandardCurrencyPairs;
 import com.opengamma.util.tuple.Pair;

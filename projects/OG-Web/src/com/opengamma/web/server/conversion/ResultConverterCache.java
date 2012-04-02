@@ -11,21 +11,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
-import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.math.curve.DoublesCurve;
+import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Manages a set of converters and provides access to the most appropriate converter for a given type.
@@ -34,10 +37,9 @@ public class ResultConverterCache {
 
   private final DoubleConverter _doubleConverter;
   private final ResultConverter<Object> _genericConverter;
-  private final Map<Class<?>, ResultConverter<?>> _converterMap;
+  private final ClassMap<ResultConverter<?>> _converterMap;
 
   private final Map<String, ResultConverter<?>> _valueNameConverterCache = new ConcurrentHashMap<String, ResultConverter<?>>();
-  private final Map<Class<?>, ResultConverter<?>> _typedConverterCache = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
 
   public ResultConverterCache(FudgeContext fudgeContext) {
     _genericConverter = new ToStringConverter();
@@ -45,7 +47,7 @@ public class ResultConverterCache {
     ResultConverter<Object> primitiveConverter = new PrimitiveConverter();
 
     // Add standard custom converters here
-    _converterMap = new ConcurrentHashMap<Class<?>, ResultConverter<?>>();
+    _converterMap = new ClassMap<ResultConverter<?>>();
     registerConverter(Boolean.class, primitiveConverter);
     registerConverter(String.class, primitiveConverter);
     registerConverter(Double.class, _doubleConverter);
@@ -54,6 +56,7 @@ public class ResultConverterCache {
     registerConverter(YieldCurve.class, new YieldCurveConverter());
     registerConverter(VolatilityCubeData.class, new VolatilityCubeDataConverter());
     registerConverter(VolatilitySurfaceData.class, new VolatilitySurfaceDataConverter());
+    registerConverter(VolatilitySurface.class, new VolatilitySurfaceConverter());
     registerConverter(LabelledMatrix1D.class, new LabelledMatrix1DConverter());
     registerConverter(LabelledMatrix2D.class, new LabelledMatrix2DConverter());
     registerConverter(LabelledMatrix3D.class, new LabelledMatrix3DConverter());
@@ -65,6 +68,7 @@ public class ResultConverterCache {
     registerConverter(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessConverter());
     registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
     registerConverter(DoublesCurve.class, new CurveConverter());
+    registerConverter(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesConverter());
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {
@@ -83,19 +87,11 @@ public class ResultConverterCache {
 
   @SuppressWarnings("unchecked")
   public <T> ResultConverter<? super T> getConverterForType(Class<T> type) {
-    ResultConverter<?> converter = _typedConverterCache.get(type);
+    ResultConverter<? super T> converter = (ResultConverter<? super T>) _converterMap.get(type);
     if (converter == null) {
-      Class<?> searchType = type;
-      while (converter == null && searchType != null) {
-        converter = _converterMap.get(searchType);
-        searchType = searchType.getSuperclass();
-      }
-      if (converter == null) {
-        converter = _genericConverter;
-      }
-      _typedConverterCache.put(type, converter);
+      return _genericConverter;
     }
-    return (ResultConverter<? super T>) converter;
+    return converter;
   }
 
   @SuppressWarnings("unchecked")

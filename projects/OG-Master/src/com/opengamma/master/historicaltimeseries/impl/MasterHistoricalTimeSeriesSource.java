@@ -12,6 +12,8 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
@@ -45,6 +47,8 @@ import com.opengamma.util.tuple.Pair;
 public class MasterHistoricalTimeSeriesSource
     extends AbstractMasterSource<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster>
     implements HistoricalTimeSeriesSource {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalTimeSeriesSource.class);
 
   /**
    * The resolver.
@@ -431,6 +435,8 @@ public class MasterHistoricalTimeSeriesSource
     }
     HistoricalTimeSeriesResolutionResult resolutionResult = getResolver().resolve(identifierBundle, identifierValidityDate, null, null, dataField, resolutionKey);
     if (resolutionResult == null) {
+      String message = String.format("Unable to resolve hts using resolutionKey[%s] dataField[%s] bundle[%s] date[%s]", resolutionKey, dataField, identifierBundle, identifierValidityDate);
+      s_logger.debug(message);
       return null;
     }
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId(), start, end, maxPoints);

@@ -12,6 +12,11 @@ import java.util.Set;
 import javax.time.InstantProvider;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.NodalDoublesCurve;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -26,11 +31,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.curve.NodalDoublesCurve;
-import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.money.Currency;
 
 /**

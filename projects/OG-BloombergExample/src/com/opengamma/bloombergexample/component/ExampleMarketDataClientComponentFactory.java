@@ -49,8 +49,7 @@ import com.opengamma.util.jms.JmsConnector;
  */
 @BeanDefinition
 public class ExampleMarketDataClientComponentFactory extends AbstractComponentFactory {
-
-  private static final String HISTORICAL_SOURCE_PREFIX = "Historical data";
+  
   private static final String BLOOMBERG_LIVE_SOURCE_NAME = "Live market data (Bloomberg)";
   
   /**
@@ -104,13 +103,7 @@ public class ExampleMarketDataClientComponentFactory extends AbstractComponentFa
   }
   
   protected NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(ComponentRepository repo) {
-    InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
-
-    LocalDate historicalDate = LocalDate.of(2011, 10, 14);
-    MarketDataSpecification historicalSpec = new FixedHistoricalMarketDataSpecification(historicalDate);
-    DateTimeFormatter dateDisplayFormatter = new DateTimeFormatterBuilder().appendPattern("dd MMMM yyyy").toFormatter();
-    String historicalSourceName = HISTORICAL_SOURCE_PREFIX + " (" + historicalDate.toString(dateDisplayFormatter) + ")";
-    specRepository.addSpecification(historicalSourceName, historicalSpec);
+    InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();   
     
     LiveMarketDataSpecification bbgSpec = new LiveMarketDataSpecification(BLOOMBERG_LIVE_SOURCE_NAME);
     specRepository.addSpecification(BLOOMBERG_LIVE_SOURCE_NAME, bbgSpec);

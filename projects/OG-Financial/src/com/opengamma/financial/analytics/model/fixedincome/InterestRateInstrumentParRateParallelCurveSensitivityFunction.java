@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.ParRateParallelSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.ParRateParallelSensitivityCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
  * 
