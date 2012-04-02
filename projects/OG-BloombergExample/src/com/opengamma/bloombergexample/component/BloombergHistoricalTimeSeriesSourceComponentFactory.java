@@ -8,7 +8,12 @@ package com.opengamma.bloombergexample.component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.joda.beans.*;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -19,10 +24,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 
 /**
  * Component factory for the bloomberg reference data provider
@@ -37,13 +38,13 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
   private String _classifier;
 
   /**
-   * Bloomber session options
+   * Bloomberg session options
    */
   @PropertyDefinition(validate = "notNull")
   private String _serverHost;
 
   /**
-   * Bloomber session options
+   * Bloomberg session options
    */
   @PropertyDefinition(validate = "notNull")
   private int _serverPort;
@@ -166,7 +167,7 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
 
   //-----------------------------------------------------------------------
   /**
-   * Gets bloomber session options
+   * Gets bloomberg session options
    * @return the value of the property, not null
    */
   public String getServerHost() {
@@ -174,7 +175,7 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
   }
 
   /**
-   * Sets bloomber session options
+   * Sets bloomberg session options
    * @param serverHost  the new value of the property, not null
    */
   public void setServerHost(String serverHost) {
@@ -192,7 +193,7 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
 
   //-----------------------------------------------------------------------
   /**
-   * Gets bloomber session options
+   * Gets bloomberg session options
    * @return the value of the property, not null
    */
   public int getServerPort() {
@@ -200,7 +201,7 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
   }
 
   /**
-   * Sets bloomber session options
+   * Sets bloomberg session options
    * @param serverPort  the new value of the property, not null
    */
   public void setServerPort(int serverPort) {

@@ -42,8 +42,8 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
 "%JAVACMD%" -cp "%CLASSPATH%" ^
   -Xms1024M ^
   -Xmx1024M ^
-  -Dlogback.configurationFile=jetty-logback.xml ^
-  com.opengamma.bloombergexample.tool.ExampleDatabasePopulater ^
+  com.opengamma.bloombergexample.tool.ExampleDatabasePopulator ^
+  -l tofile-logback.xml ^
   -c classpath:toolcontext/bloombergexample-bin.properties
 
 echo ### Completed

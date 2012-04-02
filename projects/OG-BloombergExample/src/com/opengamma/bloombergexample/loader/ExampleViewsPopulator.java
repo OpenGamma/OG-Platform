@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bloombergexample.tool.ExampleDatabasePopulater;
+import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.bloombergexample.tool.ExampleDatabasePopulator;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -17,7 +18,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -25,7 +25,11 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -40,14 +44,14 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class ExampleViewsPopulater extends AbstractExampleTool {
+public class ExampleViewsPopulator extends AbstractExampleTool {
 
   private static final String FORWARD_3M = "FORWARD_3M";
   private static final String FORWARD_6M = "FORWARD_6M";
   private static final String FUNDING = "FUNDING";
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
 
   //-------------------------------------------------------------------------
   /**
@@ -57,7 +61,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    new ExampleViewsPopulater().initAndRun(args);
+    new ExampleViewsPopulator().initAndRun(args);
     System.exit(0);
   }
 
@@ -302,17 +306,17 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     defaultCalc.setDefaultProperties(defaultProperties);
     
     ValueProperties fundingCurveSpecificProperties = ValueProperties.with("Curve", FUNDING).get();
-    ValueProperties _3MforwardCurveSpecificProperties = ValueProperties.with("Curve", FORWARD_3M).get();
-    ValueProperties _6MforwardCurveSpecificProperties = ValueProperties.with("Curve", FORWARD_6M).get();
+    ValueProperties forwardCurve3MSpecificProperties = ValueProperties.with("Curve", FORWARD_3M).get();
+    ValueProperties forwardCurve6MSpecificProperties = ValueProperties.with("Curve", FORWARD_6M).get();
     
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, fundingCurveSpecificProperties);
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, _3MforwardCurveSpecificProperties);
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, _6MforwardCurveSpecificProperties);
+    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, forwardCurve3MSpecificProperties);
+    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, forwardCurve6MSpecificProperties);
 
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, fundingCurveSpecificProperties);
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, _3MforwardCurveSpecificProperties);
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, _6MforwardCurveSpecificProperties);
+    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, forwardCurve3MSpecificProperties);
+    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, forwardCurve6MSpecificProperties);
     for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
       defaultCalc.addSpecificRequirement(new ValueRequirement(
         ValueRequirementNames.YIELD_CURVE,
@@ -326,8 +330,8 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   }
 
   private ViewDefinition getFXViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleDatabasePopulater.EXAMPLE_FX_PORTFOLIO);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleDatabasePopulater.EXAMPLE_FX_PORTFOLIO + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(ExampleDatabasePopulator.EXAMPLE_FX_PORTFOLIO);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleDatabasePopulator.EXAMPLE_FX_PORTFOLIO + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
