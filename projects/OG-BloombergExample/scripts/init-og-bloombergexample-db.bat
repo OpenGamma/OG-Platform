@@ -39,7 +39,10 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Xms1024M ^
   -Xmx1024M ^
   -Dlogback.configurationFile=jetty-logback.xml ^
-  com.opengamma.examples.tool.ExampleDatabasePopulater
+  com.opengamma.bloombergexample.tool.ExampleDatabasePopulater ^
+  -c classpath:toolcontext/bloombergexample-bin.properties
+
+echo ### Completed
 
 REM PLAT-1527
 popd

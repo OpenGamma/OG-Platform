@@ -2,16 +2,22 @@
 
 BASENAME=${0##*/}                                                                                                               
 COMPONENT=${BASENAME%.sh}                                                                                                       
-BASEDIR="$(dirname $(dirname $(readlink -f $0)))"                                                                               
+# yuck, because readlink -f not available on OS X.
+cd $(dirname $0)/..
+
+BASEDIR=$(pwd) 
+
 SCRIPTDIR=${BASEDIR}/scripts
 PROJECT=og-bloombergexample
-PROJECTJAR=og-bloombergexample.jar
+PROJECTJAR=${PROJECT}.jar
 
 cd "${BASEDIR}" || exit 1
 
-if [ ! -d ${BASEDIR}/temp/hsqldb ]; then
-  echo HSQL database directory not found, invoking init-bloombergexample-db.sh script to create and populate database...
-  ${BASEDIR}/scripts/init-bloombergexample-db.sh
+if [ ! -f ${BASEDIR}/install/db/hsqldb/bloombergexample-db.properties ]; then
+  echo The ${PROJECT} database could not be found.
+  echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
+  echo Exiting immediately...
+  exit
 fi
 
 . ${SCRIPTDIR}/componentserver-init-utils.sh
@@ -21,7 +27,7 @@ load_default_config
 
 # Component specific default configs
 CONFIG=classpath:fullstack/bloombergexample-bin.properties
-LOGBACK_CONFIG=bloombergexample-logback.xml
+LOGBACK_CONFIG=jetty-logback.xml
 
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}

@@ -14,11 +14,11 @@ else
   fi
 fi
 
-if [ "`basename $0`" = "init-examples-db.sh" ] ; then
+if [ "`basename $0`" = "init-og-bloombergexample-db.sh" ] ; then
   cd `dirname $0`/.. #PLAT-1527
 fi
 
-CLASSPATH=config:og-examples.jar
+CLASSPATH=config:og-bloombergexample.jar
 for FILE in `ls -1 lib/*` ; do
   CLASSPATH=$CLASSPATH:$FILE
 done
@@ -26,9 +26,8 @@ done
 echo "### Creating empty database"
 
 $JAVA  -cp "$CLASSPATH" \
-  -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
-  -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db \
+  -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/bloombergexample-db \
   -database og-financial \
   -user "OpenGamma" \
   -password "OpenGamma" \
@@ -38,7 +37,6 @@ $JAVA  -cp "$CLASSPATH" \
   -dbscriptbasedir .
 
 $JAVA  -cp "$CLASSPATH" \
-  -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user \
   -database og-financial \
@@ -49,10 +47,14 @@ $JAVA  -cp "$CLASSPATH" \
   -createtables true \
   -dbscriptbasedir .
 
-echo "### Adding example data"
+echo "### Adding Bloomberg example data"
 
 $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
-  -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.examples.tool.ExampleDatabasePopulater
+  -Dlogback.configurationFile=bloombergexample-logback.xml \
+  com.opengamma.bloombergexample.tool.ExampleDatabasePopulater \
+  -c classpath:toolcontext/bloombergexample-bin.properties
+
+echo "### Completed"
+
