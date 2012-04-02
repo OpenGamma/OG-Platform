@@ -138,7 +138,7 @@ $.register_module({
                             $('.OG-layout-admin-details-north').empty();
                         }
                         // Identifiers
-                        $('.OG-layout-admin-details-center .og-js-identifiers').html(
+                        $('.OG-layout-admin-details-center .og-js-identifiers tbody').html(
                             json_id.reduce(function (acc, cur) {
                                 return acc + '<tr><td>[0]</td><td>[1]</td><td>[2]</td><td>[3]</td></tr>'
                                      .replace('[0]', cur.scheme.lang())
@@ -146,7 +146,8 @@ $.register_module({
                                      .replace('[2]', cur.date.start)
                                      .replace('[3]', cur.date.end);
                             }, '')
-                        );
+                        ).end().find('.OG-table').tablesorter();
+                        $('.OG-layout-admin-details-center .og-js-identifiers').tablesorter();
                         // Plot
                         common.gadgets.timeseries({
                             selector: '.OG-timeseries-gadget',
