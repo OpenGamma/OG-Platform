@@ -8,15 +8,9 @@ package com.opengamma.bloombergexample.tool;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Set;
-
-<<<<<<< HEAD
 import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-=======
->>>>>>> c3d2a265bcfb8d60e66320364dfcedee4b66bb52
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
