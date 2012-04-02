@@ -490,7 +490,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
       }
     }
     ExternalIdBundle searchBundle = idBundle.withoutScheme(SecurityUtils.ISIN); // For things which move country, e.g. ISIN(VALE5 BZ Equity) == ISIN(RIODF US Equity)
-    Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader().addTimeSeries(searchBundle.getExternalIds(), "CMPL", "PX_LAST", null, null);
+    Map<ExternalId, UniqueId> timeSeries = getToolContext().getHistoricalTimeSeriesLoader().addTimeSeries(searchBundle.getExternalIds(), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
     if (timeSeries.size() != 1) {
       throw new OpenGammaRuntimeException("Failed to load time series " + idBundle + " " + timeSeries);
     }
