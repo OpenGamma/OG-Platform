@@ -187,7 +187,8 @@ $.register_module({
                     };
                     data_arr.forEach(function (val, i) {
                         $(slick_tmpl).tmpl({
-                            time: (!meta ? init_ob_time : val.label).toLowerCase().replace(/_/g, ' '),
+                            time: (Object.keys(meta).length ? val.label : init_ob_time)
+                                .toLowerCase().replace(/_/g, ' '),
                             index: i,
                             color: colors_arr[i],
                             source: data_arr[i].data_source,
