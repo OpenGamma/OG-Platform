@@ -19,8 +19,11 @@
     <ROW Property="UpgradeCode" Value="{539AA424-1C4B-4B71-B78D-9FCC8FA9AAAB}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME#MsiBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="arch" Value="?" MultiBuildValue="NoJVM32:i386#NoJVM64:x64#JVM32:i386#JVM64:x64"/>
     <ROW Property="jre.id32" Value="OG-Platform"/>
     <ROW Property="jre.id64" Value="OG-Platform"/>
+    <ROW Property="jre.v32" Value="1.6"/>
+    <ROW Property="jre.v64" Value="1.6"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -1603,8 +1606,8 @@
     <ROW ChainedPackage="OG_Language.x64.msi" Order="4" Options="146" InstallCondition="NOT Installed AND &amp;og_language64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.i386.msi" Order="5" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.x64.msi" Order="6" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;servers32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;servers64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;servers32=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;servers64=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ChainedPackageFileComponent">
     <ROW FileId="OG_Language.i386.msi" ChainedPackage="OG_Language.i386.msi" Options="1" TargetPath="OG-Language.i386.msi" Content="..\install\install\OG-Language.i386.msi"/>
@@ -1650,6 +1653,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="Windowing.exe" SourcePath="Utils\ReleaseWin32\Windowing.exe"/>
+    <ROW Name="Windowing.exe_1" SourcePath="Utils\Releasex64\Windowing.exe"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="chainersupport.dll" SourcePath="&lt;AI_CUSTACTS&gt;chainersupport.dll"/>
     <ROW Name="msichainer.exe" SourcePath="&lt;AI_CUSTACTS&gt;msichainer.exe"/>
@@ -1721,6 +1726,8 @@
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+    <ROW Action="Windowing.i386.exe" Type="2" Source="Windowing.exe"/>
+    <ROW Action="Windowing.x64.exe" Type="2" Source="Windowing.exe_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEmbeddedChainerComponent">
     <ROW MsiEmbeddedChainer="msichainer.exe" Condition="VersionMsi &gt;= &quot;4.05&quot;" CommandLine="[AI_CHAINER_CMD_LINE]" Source="msichainer.exe" Type="2"/>
@@ -1740,12 +1747,14 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_AppSearchEx" Sequence="101"/>
     <ROW Action="AI_InstallPrerequisite" Sequence="1283"/>
     <ROW Action="AI_InstallPostPrerequisite" Sequence="1301"/>
     <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
     <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
+    <ROW Action="Windowing.i386.exe" Condition="arch=&quot;i386&quot;" Sequence="52"/>
+    <ROW Action="Windowing.x64.exe" Condition="arch=&quot;x64&quot;" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="JRE_EMBEDDED_32 OR JRE_NATIVE_32" Description="A 32-bit Java runtime environment is required." Builds="NoJVM32"/>
