@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +60,6 @@ public class PortfolioDeleteTool extends AbstractTool {
   @Override
   protected void doRun() {    
     PortfolioSearchRequest portfolioSearchRequest = new PortfolioSearchRequest();
-
-    if (!getCommandLine().hasOption(PORTFOLIO_NAMES_OPT) && !getCommandLine().hasOption(PORTFOLIO_IDS_OPT)) {
-      s_logger.error("At least one of -" + PORTFOLIO_NAMES_OPT + " or -" + PORTFOLIO_IDS_OPT + " must be specified.");
-      return;
-    }
     
     if (getCommandLine().hasOption(PORTFOLIO_NAMES_OPT)) {
       portfolioSearchRequest.setName(
@@ -118,12 +114,19 @@ public class PortfolioDeleteTool extends AbstractTool {
     
     Option portfolioNamesOption = new Option(
         PORTFOLIO_NAMES_OPT, "names", true, "Regular expression to match portfolio names");    
-    options.addOption(portfolioNamesOption);
+//    options.addOption(portfolioNamesOption);
     
     Option deletePortfolioIdsOption = new Option(
         PORTFOLIO_IDS_OPT, "portfolioid", true, "Portfolio IDs to match");
-    options.addOption(deletePortfolioIdsOption);
+//    options.addOption(deletePortfolioIdsOption);
 
+    OptionGroup group = new OptionGroup();
+    group.addOption(deletePortfolioIdsOption);
+    group.addOption(portfolioNamesOption);
+    group.setRequired(true);
+    
+    options.addOptionGroup(group);
+    
     Option deletePositionsOption = new Option(
         DELETE_POSITIONS_OPT, "delpositions", false, "Match/delete positions referenced in matching portfolios");
     options.addOption(deletePositionsOption);
