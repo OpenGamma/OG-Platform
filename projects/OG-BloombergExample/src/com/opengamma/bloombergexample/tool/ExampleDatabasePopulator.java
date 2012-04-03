@@ -7,11 +7,7 @@ package com.opengamma.bloombergexample.tool;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -24,7 +20,15 @@ import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.generator.PortfolioGeneratorTool;
-import com.opengamma.bloombergexample.loader.*;
+import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
+import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleMixedPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleSwapPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
+import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
+import com.opengamma.bloombergexample.loader.PortfolioLoaderHelper;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -32,7 +36,6 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
@@ -41,16 +44,17 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class ExampleDatabasePopulater extends AbstractExampleTool {
+public class ExampleDatabasePopulator extends AbstractExampleTool {
 
+  /**
+   * The name of the generated example FX portfolio.
+   */
   public static final String EXAMPLE_FX_PORTFOLIO = "Example FX Portfolio";
-
+  
   /**
    * The currencies.
    */
   private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulater.class);
 
   //-------------------------------------------------------------------------
 
@@ -61,7 +65,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    new ExampleDatabasePopulater().initAndRun(args);
+    new ExampleDatabasePopulator().initAndRun(args);
     System.exit(0);
   }
 
@@ -150,9 +154,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {
-      loader.addTimeSeries(new HashSet<ExternalId>() {{
-        add(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
-      }}, "CMPL", "PX_LAST", null, null);
+      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", null, null);
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
@@ -197,7 +199,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   }
 
   private void loadViews() {
-    ExampleViewsPopulater populator = new ExampleViewsPopulater();
+    ExampleViewsPopulator populator = new ExampleViewsPopulator();
     System.out.println("Creating example view definitions");
     populator.run(getToolContext());
     System.out.println("Finished");

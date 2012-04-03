@@ -33,11 +33,9 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
