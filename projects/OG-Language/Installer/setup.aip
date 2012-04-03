@@ -2095,8 +2095,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.url" Type="2"/>
-    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
-    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
+    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="2"/>
     <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="18"/>
   </COMPONENT>
@@ -2112,8 +2112,8 @@
     <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[x64_Dir]" Component_="Settings64"/>
     <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
     <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="Software\[Manufacturer]\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
-    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\[Manufacturer]\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="Software\OpenGammaLtd\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\OpenGammaLtd\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
     <ROW Registry="RuntimeLib_2" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v64]" Name="RuntimeLib" Value="[jre_1_Dir]bin\server\jvm.dll" Component_="JavaSoft64"/>
     <ROW Registry="RuntimeLib_3" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v32]" Name="RuntimeLib" Value="[jre_Dir]bin\client\jvm.dll" Component_="JavaSoft32"/>
     <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>

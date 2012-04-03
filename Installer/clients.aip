@@ -1762,20 +1762,20 @@
     <ROW Signature_="AppSearchSign_5" Root="2" Key="SOFTWARE\R-core\R64" Name="InstallPath" Type="18"/>
     <ROW Signature_="AppSearchSign_6" Root="2" Key="SOFTWARE\Microsoft\Office\12.0\Excel\InstallRoot" Name="Path" Type="2"/>
     <ROW Signature_="AppSearchSign_7" Root="2" Key="SOFTWARE\Microsoft\Office\14.0\Excel\InstallRoot" Name="Path" Type="18"/>
-    <ROW Signature_="AppSearchSign_8" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Type="2"/>
-    <ROW Signature_="AppSearchSign_9" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_8" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Type="2"/>
+    <ROW Signature_="AppSearchSign_9" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Type="18"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="A36DC7A_AF70_4CF0_B489_B30E0828F882" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="A36DC7A_AF70_4CF0_B489_B30E0828F882" Value="1" Component_="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
     <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
     <ROW Registry="JavaHome" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v64]" Name="JavaHome" Value="[jre64_Dir]" Component_="JavaSoft64"/>
     <ROW Registry="JavaHome_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v32]" Name="JavaHome" Value="[jre32_Dir]" Component_="JavaSoft32"/>
-    <ROW Registry="LanguageIntegration64" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="LanguageIntegration64" Value="#1" Component_="LanguageIntegration64"/>
+    <ROW Registry="LanguageIntegration64" Root="-1" Key="Software\OpenGammaLtd\[ProductName]" Name="LanguageIntegration64" Value="#1" Component_="LanguageIntegration64"/>
     <ROW Registry="MicroVersion" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v64]" Name="MicroVersion" Value="0" Component_="JavaSoft64"/>
     <ROW Registry="MicroVersion_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v32]" Name="MicroVersion" Value="0" Component_="JavaSoft32"/>
-    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="LanguageIntegration32" Value="#1" Component_="LanguageIntegration32"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
-    <ROW Registry="RuntimeLib_1" Root="2" Key="SOFTWARE\[Manufacturer]\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
+    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductName]" Name="LanguageIntegration32" Value="#1" Component_="LanguageIntegration32"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
     <ROW Registry="RuntimeLib_2" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v64]" Name="RuntimeLib" Value="[jre64_Dir]bin\server\jvm.dll" Component_="JavaSoft64"/>
     <ROW Registry="RuntimeLib_3" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v32]" Name="RuntimeLib" Value="[jre32_Dir]bin\client\jvm.dll" Component_="JavaSoft32"/>
     <ROW Registry="jre.v32_" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\[jre.v32]" Name="+" Component_="JavaSoft32"/>
