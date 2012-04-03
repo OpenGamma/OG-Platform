@@ -11,17 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitter;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.PiecewiseSABRSurfaceFitter;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -50,7 +45,7 @@ public class PiecewiseSABRSurfaceFitterTest {
   // private static final double[] FORWARDS;
   //  private static final double SPOT = 1.34;
   //  private static double DRIFT = 0.05;
-  private static final ForwardCurve FORWARD_CURVE;
+
   @SuppressWarnings("unused")
   private static final String[] TENORS = new String[] {"1W", "2W", "3W", "1M", "3M", "6M", "9M", "1Y", "5Y", "10Y" };
   private static final double[] EXPIRIES = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
@@ -62,59 +57,60 @@ public class PiecewiseSABRSurfaceFitterTest {
   //  private static final double[] ATM;
   // private static final double[][] RR;
   //private static final double[][] BUTT;
-  private static final double[][] STRIKES;
-  private static final double[][] VOLS;
-  private static final int N;
+  //  private static final double[][] STRIKES;
+  //  private static final double[][] VOLS;
+  private static final int N = EXPIRIES.length;
 
-  private static final PiecewiseSABRSurfaceFitter SURFACE_FITTER;
+  private static final SmileSurfaceDataBundle MARKET_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, BUTT, true, EXTRAPOLATOR_1D);
+
+  private static final VolatilitySurfaceInterpolator SURFACE_FITTER = new VolatilitySurfaceInterpolator();
   private static final LocalVolatilityPDEGreekCalculator CAL;
 
   static {
+    //
+    //    //  FORWARDS = new double[N];
+    //    // Arrays.fill(FORWARDS, 1.0);
+    //    //    ATM = new double[N];
+    //    //    Arrays.fill(ATM, 0.3);
+    //    // RR = new double[2][N];
+    //    //  BUTT = new double[2][N];
+    //
+    //    STRIKES = new double[N][];
+    //    VOLS = new double[N][];
+    //    for (int i = 0; i < N; i++) {
+    //      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
+    //      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
+    //          new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
+    //      STRIKES[i] = cal.getStrike(FORWARDS[i]);
+    //      VOLS[i] = cal.getVolatility();
+    //    }
 
-    N = EXPIRIES.length;
-    //  FORWARDS = new double[N];
-    // Arrays.fill(FORWARDS, 1.0);
-    //    ATM = new double[N];
-    //    Arrays.fill(ATM, 0.3);
-    // RR = new double[2][N];
-    //  BUTT = new double[2][N];
-
-    STRIKES = new double[N][];
-    VOLS = new double[N][];
-    for (int i = 0; i < N; i++) {
-      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
-      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
-          new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
-      STRIKES[i] = cal.getStrike(FORWARDS[i]);
-      VOLS[i] = cal.getVolatility();
-    }
-
-    FORWARD_CURVE = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, FORWARDS, EXTRAPOLATOR_1D));
-    SURFACE_FITTER = new PiecewiseSABRSurfaceFitter(DELTAS, FORWARDS, EXPIRIES, ATM, RR, BUTT);
-    CAL = new LocalVolatilityPDEGreekCalculator(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, true);
+    CAL = new LocalVolatilityPDEGreekCalculator(MARKET_DATA.getForwardCurve(), EXPIRIES, MARKET_DATA.getStrikes(), MARKET_DATA.getVolatilities(), true);
   }
 
   //For each expiry, print the expiry and the strikes and implied volatilities
   @Test
       (enabled = false)
       public void printMarketData() {
+    double[][] strikes = MARKET_DATA.getStrikes();
+    double[][] vols = MARKET_DATA.getVolatilities();
 
     for (int i = 0; i < N; i++) {
       System.out.println(EXPIRIES[i]);
     }
     System.out.print("\n");
     for (int i = 0; i < N; i++) {
-      final int m = STRIKES[i].length;
+      final int m = strikes[i].length;
       for (int j = 0; j < m; j++) {
-        System.out.print(STRIKES[i][j] + "\t");
+        System.out.print(strikes[i][j] + "\t");
       }
       System.out.print("\n");
     }
     System.out.print("\n");
     for (int i = 0; i < N; i++) {
-      final int m = STRIKES[i].length;
+      final int m = strikes[i].length;
       for (int j = 0; j < m; j++) {
-        System.out.print(VOLS[i][j] + "\t");
+        System.out.print(vols[i][j] + "\t");
       }
       System.out.print("\n");
     }
@@ -122,47 +118,68 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
   @Test
-      (enabled = false)
-      public void fitMarketData() {
-    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
-    @SuppressWarnings("unchecked")
-    final Function1D<Double, Double>[] smiles = new Function1D[N];
-    //  final PiecewiseSABRFitter[] fitters = new PiecewiseSABRFitter[N];
+  // (enabled = false)
+  public void fitMarketData() {
+    double lambda = 0.05;
+    Function1D<Double, Double>[] smiles = SURFACE_FITTER.getIndependentSmileFits(MARKET_DATA);
     System.out.println("Fitted smiles by strike");
     System.out.print("\t");
     for (int j = 0; j < 100; j++) {
-      final double k = 0.5 + j * 4.5 / 99.;
-      System.out.print(k + "\t");
+      final double m = 0.7 + j * 0.7 / 99.;
+      System.out.print(m + "\t");
     }
     System.out.print("\n");
     for (int i = 0; i < N; i++) {
-      smiles[i] = fitter.getVolatilityFunction(FORWARDS[i], STRIKES[i], EXPIRIES[i], VOLS[i]);
+      double f = FORWARDS[i];
       System.out.print(EXPIRIES[i] + "\t");
       for (int j = 0; j < 100; j++) {
-        final double k = 0.5 + j * 4.5 / 99.;
+        final double m = 0.7 + j * 0.7 / 99.;
+        double k = m * f;
         final double vol = smiles[i].evaluate(k);
         System.out.print(vol + "\t");
       }
       System.out.print("\n");
     }
     System.out.print("\n");
-    System.out.println("Fitted smiles by delta");
+
+    System.out.println("Fitted smiles by proxy delta");
     System.out.print("\t");
     for (int j = 0; j < 100; j++) {
-      final double d = 0.001 + j * 0.998 / 99.;
+      final double d = -2.5 + j * 5.0 / 99.;
       System.out.print(d + "\t");
     }
     System.out.print("\n");
     for (int i = 0; i < N; i++) {
+      double f = FORWARDS[i];
+      double rootT = Math.sqrt(EXPIRIES[i] + lambda);
       System.out.print(EXPIRIES[i] + "\t");
       for (int j = 0; j < 100; j++) {
-        final double d = 0.05 + j * 0.9 / 99.;
-        final Function1D<Double, Double> func = getStrikeForDeltaFunction(FORWARDS[i], EXPIRIES[i], true, smiles[i]);
-        final double vol = smiles[i].evaluate(func.evaluate(d));
+        final double d = -2.5 + j * 5.0 / 99.;
+        double k = Math.exp(d * rootT) * f;
+        final double vol = smiles[i].evaluate(k);
         System.out.print(vol + "\t");
       }
       System.out.print("\n");
     }
+    System.out.print("\n");
+
+    //    System.out.println("Fitted smiles by delta");
+    //    System.out.print("\t");
+    //    for (int j = 0; j < 100; j++) {
+    //      final double d = 0.001 + j * 0.998 / 99.;
+    //      System.out.print(d + "\t");
+    //    }
+    //    System.out.print("\n");
+    //    for (int i = 0; i < N; i++) {
+    //      System.out.print(EXPIRIES[i] + "\t");
+    //      for (int j = 0; j < 100; j++) {
+    //        final double d = 0.05 + j * 0.9 / 99.;
+    //        final Function1D<Double, Double> func = getStrikeForDeltaFunction(FORWARDS[i], EXPIRIES[i], true, smiles[i]);
+    //        final double vol = smiles[i].evaluate(func.evaluate(d));
+    //        System.out.print(vol + "\t");
+    //      }
+    //      System.out.print("\n");
+    //    }
 
   }
 
@@ -170,73 +187,58 @@ public class PiecewiseSABRSurfaceFitterTest {
    * Print the fitted implied vol surface and the derived implied vol
    */
   @Test
-      (enabled = false)
-      public void printSurface() {
-    final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, true, true);
-    PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.2, 3.0, 200, 100);
+  // (enabled = false)
+  public void printSurface() {
+    final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getVolatilitySurface(MARKET_DATA);
+    PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 0.25, 0.7, 1.5, 200, 100);
     final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
-    PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.2, 3.0, 200, 100);
+    PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 0.25, 0.7, 1.5, 200, 100);
 
   }
-
-  //  @Test
-  //  public void testRinging() {
-  //    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true, false, LAMBDA);
-  //    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(surface, FORWARD_CURVE);
-  //    double vol = lv.getVolatility(EXPIRIES[8], 1.5);
-  //    System.out.println(vol);
-  //    //    double atm = FORWARDS[8];
-  //    //    for (int i = 0; i < 21; i++) {
-  //    //      double k = atm * (0.95 + 0.1 * i / 20.);
-  //    //      double vol = lv.getVolatility(EXPIRIES[8], k);
-  //    //      System.out.println(k + "\t" + vol);
-  //    //    }
-  //  }
 
   /**
    * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/(1+lambda*sqrt(t))
    */
   @Test
-      (enabled = false)
-      public void printDeltaProxySurface() {
+  //  (enabled = false)
+  public void printDeltaProxySurface() {
     final double xMin = -0.5;
     final double xMax = 0.5;
-    final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, true, true);
-    final Surface<Double, Double, Double> moneyNessSurface = toDeltaProxySurface(surface);
-    PDEUtilityTools.printSurface("moneyness surface", moneyNessSurface, 0, 10, xMin, xMax, 200, 100);
+    final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getVolatilitySurface(MARKET_DATA);
+    final Surface<Double, Double, Double> moneynessSurface = toDeltaProxySurface(surface);
+    PDEUtilityTools.printSurface("moneyness surface", moneynessSurface, 0, 10, xMin, xMax, 200, 100);
 
-    final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
-
-    final Surface<Double, Double, Double> lvMoneyNessSurface = toDeltaProxySurface(lv);
-    PDEUtilityTools.printSurface("LV moneyness surface", lvMoneyNessSurface, 0.0, 10, xMin, xMax, 200, 100);
+    //    final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
+    //    final Surface<Double, Double, Double> lvMoneynessSurface = toDeltaProxySurface(lv);
+    //    PDEUtilityTools.printSurface("LV moneyness surface", lvMoneynessSurface, 0.0, 10, xMin, xMax, 200, 100);
   }
 
   @Test
-      (enabled = false)
-      public void runPDESolver() {
+  //  (enabled = false)
+  public void runPDESolver() {
     final PrintStream ps = System.out;
     CAL.runPDESolver(ps);
   }
 
   @Test
-      (enabled = false)
-      public void runBackwardsPDESolver() {
+  //  (enabled = false)
+  public void runBackwardsPDESolver() {
     final PrintStream ps = System.out;
     CAL.runBackwardsPDESolver(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
 
   @Test
-      (enabled = false)
-      public void bucketedVega() {
+  // (enabled = false)
+  public void bucketedVega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     CAL.bucketedVegaForwardPDE(ps, option);
-    //   CAL.bucketedVegaBackwardsPDE(ps, option);
+    CAL.bucketedVegaBackwardsPDE(ps, option);
   }
 
   @Test
-      (enabled = false)
-      public void deltaAndGamma() {
+  //w (enabled = false)
+  public void deltaAndGamma() {
     final PrintStream ps = System.out;
     CAL.deltaAndGamma(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
@@ -287,6 +289,8 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   private Surface<Double, Double, Double> toDeltaProxySurface(final LocalVolatilitySurface<?> lv) {
 
+    final ForwardCurve fc = MARKET_DATA.getForwardCurve();
+
     final Function<Double, Double> func = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -294,7 +298,7 @@ public class PiecewiseSABRSurfaceFitterTest {
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
-        final double f = FORWARD_CURVE.getForward(t);
+        final double f = fc.getForward(t);
         final double k = f * Math.exp(-x * Math.sqrt(t));
         return lv.getVolatility(t, k);
       }
@@ -305,6 +309,8 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   private Surface<Double, Double, Double> toDeltaProxySurface(final BlackVolatilitySurface<?> lv) {
 
+    final ForwardCurve fc = MARKET_DATA.getForwardCurve();
+
     final Function<Double, Double> func = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -312,7 +318,7 @@ public class PiecewiseSABRSurfaceFitterTest {
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
-        final double f = FORWARD_CURVE.getForward(t);
+        final double f = fc.getForward(t);
         final double k = f * Math.exp(-x * Math.sqrt(t));
         return lv.getVolatility(t, k);
       }

@@ -80,7 +80,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final double[] expiries = data.getExpiries();
     //    final double[][] strikes = data.getStrikes();
     //    final double[][] impliedVols = data.getVolatilities();
-    final boolean isCall = data.isCallData();
+    final boolean isCall = true; //TODO have this as an option  data.isCallData();
     return runPDESolver(forwardCurve, localVolatility, expiries, isCall);
   }
 
@@ -89,7 +89,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(localVolatility, "local volatility surface");
     final ForwardCurve forwardCurve = data.getForwardCurve();
-    final boolean isCall = data.isCallData();
+    final boolean isCall = true; //TODO have this as an option  data.isCallData();
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       strikeLocalVolatility = (LocalVolatilitySurfaceStrike) localVolatility;
@@ -356,7 +356,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
   private BucketedGreekResultCollection bucketedVega(final LocalVolatilitySurfaceStrike localVolatility, final SmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
     final double[] expiries = data.getExpiries();
     final ForwardCurve forwardCurve = data.getForwardCurve();
-    final boolean isCall = data.isCallData();
+    final boolean isCall = true; //TODO have this as an option  data.isCallData();
 
     final double[][] strikes = data.getStrikes();
     final int nExpiries = expiries.length;
