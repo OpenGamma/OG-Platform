@@ -93,7 +93,7 @@
 	</target>
 
 	<target name="init-database" depends="compile-src,jetty-stop" description="initialize example portfolio and view in database">
-		<java classname="com.opengamma.examples.tool.ExampleDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+		<java classname="com.opengamma.examples.tool.ExampleDatabasePopulator" classpathref="jetty.run.path" failonerror="true" fork="true">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-Xms${jvm.initialheap}" />
 			<jvmarg value="-Xmx${jvm.maxheap}" />

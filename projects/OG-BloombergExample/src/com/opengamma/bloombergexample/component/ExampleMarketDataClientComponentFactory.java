@@ -8,10 +8,6 @@ package com.opengamma.bloombergexample.component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -36,9 +32,7 @@ import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProvider;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;

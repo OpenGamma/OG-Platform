@@ -24,7 +24,7 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 /**
  * Test example database population
  */
-public class ExampleDatabasePopulaterTest {
+public class ExampleDatabasePopulatorTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/bloombergexample.properties";
   
@@ -43,7 +43,7 @@ public class ExampleDatabasePopulaterTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
+      new ExampleDatabasePopulator().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
       
       ToolContext toolContext = getToolContext();
       try {

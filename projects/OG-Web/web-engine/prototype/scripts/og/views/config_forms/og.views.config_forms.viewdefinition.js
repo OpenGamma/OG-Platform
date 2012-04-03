@@ -179,6 +179,21 @@ $.register_module({
                         }},
                         {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
                             $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
+                        }},
+                        {type: 'click', selector: form_id + ' .og-js-viewdef-tab', handler: function (e) {
+                            e.preventDefault();
+                            var $target = $(e.target),
+                                $tab = $target.is('.og-js-viewdef-tab') ? $target
+                                    : $target.parents('.og-js-viewdef-tab:first'),
+                                active_cl = '.og-active', tab_cl = '.og-js-viewdef-tab',
+                                is_active = $target.is(active_cl) || $target.parent(active_cl).length,
+                                index, active_idx;
+                            index = $(form_id + ' ' + tab_cl).index($tab);
+                            [0, 1, 2, 3].forEach(function (idx) {
+                                $(form_id + ' .og-js-viewdef-' + idx)[idx === index ? 'show' : 'hide']();
+                            });
+                            $(form_id + ' .og-js-viewdef-tab').removeClass('og-active');
+                            $tab.addClass('og-active');
                         }}
                     ]
                 }),

@@ -1,0 +1,14 @@
+<project name="Utils" default="compile">
+
+  <property name="common.dir" value="${basedir}/../../common" />
+  <import file="${common.dir}/cpp.xml" />
+  
+  <target name="compile" depends="cpp-present-msvc" if="cpp.present">
+    <subant buildpath="Wait for Startup" target="compile">
+      <property name="common.dir" value="${common.dir}" />
+      <property name="build.dir" value="${basedir}" />
+      <property name="cpp.headers.present.msvc" value="true" />
+    </subant>
+  </target>
+
+</project>
