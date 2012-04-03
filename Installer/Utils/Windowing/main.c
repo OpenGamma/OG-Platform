@@ -38,9 +38,12 @@ static BOOL CALLBACK _enumWindows (HWND hwnd, LPARAM lpei) {
 	return TRUE;
 }
 
-static BOOL _promoteWindows (DWORD dwProcess, DWORD dwPseudoChild) {
+static BOOL _promoteWindows (DWORD dwProcess, DWORD dwPseudoChild, DWORD dwLoop) {
 	struct _enumInfo ei;
 	HANDLE hSnapshot;
+	if (dwProcess == dwLoop) {
+		return FALSE;
+	}
 	ei.bMinimize = FALSE;
 	ei.dwProcess = dwProcess;
 	ei.nFound = 0;
@@ -52,13 +55,13 @@ static BOOL _promoteWindows (DWORD dwProcess, DWORD dwPseudoChild) {
 		if (Process32First (hSnapshot, &pe32)) {
 			do {
 				if ((pe32.th32ParentProcessID == ei.dwProcess) && (pe32.th32ProcessID > 0)) {
-					if (_promoteWindows (pe32.th32ProcessID, 0)) {
+					if (_promoteWindows (pe32.th32ProcessID, 0, dwLoop)) {
 						ei.bMinimize = TRUE;
 					}
 				}
 			} while (Process32Next (hSnapshot, &pe32));
 			if (dwPseudoChild > 0) {
-				if (_promoteWindows (dwPseudoChild, 0)) {
+				if (_promoteWindows (dwPseudoChild, 0, dwProcess)) {
 					ei.bMinimize = TRUE;
 				}
 			}
@@ -95,7 +98,7 @@ int _tmain (int argc, const TCHAR **argv) {
 		HANDLE hParent = OpenProcess (PROCESS_QUERY_INFORMATION | SYNCHRONIZE, FALSE, dwParent);
 		if (hParent != INVALID_HANDLE_VALUE) {
 			do {
-				_promoteWindows (dwParent, _protectedMsiExec ());
+				_promoteWindows (dwParent, _protectedMsiExec (), 0);
 			} while (WaitForSingleObject (hParent, 1500) == WAIT_TIMEOUT);
 			CloseHandle (hParent);
 		}

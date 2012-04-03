@@ -1602,8 +1602,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.ChainedPackageComponent">
     <ROW ChainedPackage="OG_Excel.i386.msi" Order="5" Options="146" InstallCondition="NOT Installed AND &amp;og_excel32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_Excel.x64.msi" Order="6" Options="146" InstallCondition="NOT Installed AND &amp;og_excel64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OG_Language.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;og_language32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OG_Language.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;og_language64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OG_Language.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;og_language32=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OG_Language.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;og_language64=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.i386.msi" Order="3" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.x64.msi" Order="4" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
   </COMPONENT>
