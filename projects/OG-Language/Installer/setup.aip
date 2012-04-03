@@ -20,8 +20,11 @@
     <ROW Property="UpgradeCode" Value="{98DEC07C-8C4F-4775-B835-8AF302783200}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="arch" Value="?" MultiBuildValue="NoJVM32:i386#NoJVM64:x64#JVM32:i386#JVM64:x64"/>
     <ROW Property="jre.id32" Value="OG-Language"/>
     <ROW Property="jre.id64" Value="OG-Language"/>
+    <ROW Property="jre.v32" Value="1.6"/>
+    <ROW Property="jre.v64" Value="1.6"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
@@ -160,6 +163,8 @@
     <ROW Component="GMT_1" ComponentId="{2A46D322-30D3-4E7B-862B-92A520576A82}" Directory_="Etc_1_Dir" Attributes="0" KeyPath="GMT_16" Type="0"/>
     <ROW Component="Indianapolis" ComponentId="{C63B3B6C-5E36-41BA-A58D-D29A8C88FD70}" Directory_="Indiana_Dir" Attributes="0" KeyPath="Indianapolis" Type="0"/>
     <ROW Component="Indianapolis_1" ComponentId="{AB7995F9-A8E1-4FC0-8A30-F705D2835B82}" Directory_="Indiana_1_Dir" Attributes="0" KeyPath="Indianapolis_1" Type="0"/>
+    <ROW Component="JavaSoft32" ComponentId="{C8027ACB-729C-4235-9F04-5A66116F69A4}" Directory_="APPDIR" Attributes="4" Condition="NOT JRE_32_NATIVE" KeyPath="jre.v32_"/>
+    <ROW Component="JavaSoft64" ComponentId="{C2CF5D98-C983-4099-B0AD-AE43A90F9472}" Directory_="APPDIR" Attributes="260" Condition="NOT JRE_64_NATIVE" KeyPath="JavaHome"/>
     <ROW Component="JdbcOdbc.dll" ComponentId="{53B68AB4-32C1-4909-9B1D-CBFB074B0EF4}" Directory_="bin_Dir" Attributes="0" KeyPath="JdbcOdbc.dll"/>
     <ROW Component="JdbcOdbc.dll_1" ComponentId="{2AF1B8FD-6E1C-41B4-B841-FB99A8F14E66}" Directory_="bin_1_Dir" Attributes="256" KeyPath="JdbcOdbc.dll_1"/>
     <ROW Component="Louisville" ComponentId="{768E66ED-21C0-4851-953C-16C80F2A1715}" Directory_="Kentucky_Dir" Attributes="0" KeyPath="Louisville" Type="0"/>
@@ -377,8 +382,8 @@
     <ROW Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882" Title="Visual C++ Runtime" Description="Visual C++ 2010 Redistributable x86" Display="0" Level="1" Attributes="16" Components="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
     <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="Settings Settings64 StartMenu log"/>
     <ROW Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9" Title="Visual C++ Runtime" Description="Visual C++ 2010 Redistributable x64" Display="0" Level="4" Attributes="16" Options="32" Components="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
-    <ROW Feature="JRE32" Title="JRE Bundle" Description="This feature contains the JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4 Abidjan Adak Adelaide Aden Amsterdam Antananarivo Apia Azores Beulah Buenos_Aires CET CIEXYZ.pf COPYRIGHT Casey GMT Indianapolis JdbcOdbc.dll Louisville LucidaBrightDemiBold.ttf New_Value RuntimeLib applet applet_1 awt.dll axbridge.dll blacklist calendars.properties chrome.manifest classes.jsa cmm.dll cursors.properties dcpr.dll deploy.dll deployJava1.dll dnsns.jar dt_shmem.dll dt_socket.dll eula.dll ffjcext.zip fontmanager.dll hpi.dll hprof.dll indicim.jar instrument.dll ioser12.dll j2pcsc.dll j2pkcs11.dll jaas_nt.dll java.dll java.exe java_crw_demo.dll java_rmi.exe javacpl.exe javaw.exe javaws.exe jawt.dll jbroker.exe jdk_header.png jdwp.dll jkernel.dll jli.dll jmxremote.access jp2iexp.dll jp2launcher.exe jp2native.dll jp2ssv.dll jpeg.dll jpicom.dll jpiexp.dll jpinscp.dll jpioji.dll jpishare.dll jqs.conf jqs.exe jqs_plugin.dll jqsnotify.exe jsound.dll jsoundds.dll jvm.cfg jvm.dll keytool.exe kinit.exe klist.exe ktab.exe lzma.dll management.dll mlib_image.dll msvcr71.dll msvcr71.dll_1 msvcrt.dll net.dll nio.dll npdeployJava1.dll npdeployJava1.dll_1 npjp2.dll npjpi160_31.dll npoji610.dll npt.dll orbd.exe overlay.js pack200.exe policytool.exe regutils.dll rmi.dll rmid.exe rmiregistry.exe servertool.exe soundbank.gm splashscreen.dll ssv.dll ssvagent.exe sunmscapi.dll tnameserv.exe unicows.dll unpack.dll unpack200.exe verify.dll w2k_lsa_auth.dll wsdetect.dll zip.dll" Builds="JVM32"/>
-    <ROW Feature="JRE64" Title="JRE Bundle" Description="This feature contains the 64-bit JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4_1 Abidjan_1 Adak_1 Adelaide_1 Aden_1 Amsterdam_1 Antananarivo_1 Apia_1 Azores_1 Beulah_1 Buenos_Aires_1 CET_1 CIEXYZ.pf_1 COPYRIGHT_1 Casey_1 GMT_1 Indianapolis_1 JdbcOdbc.dll_1 Louisville_1 LucidaBrightDemiBold.ttf_1 RuntimeLib_1 alt_rt.jar awt.dll_1 blacklist_1 classes.jsa_1 cmm.dll_1 cursors.properties_1 dcpr.dll_1 deploy.dll_1 deployJava1.dll_1 dnsns.jar_1 dt_shmem.dll_1 dt_socket.dll_1 eula.dll_1 ffjcext.zip_1 fontmanager.dll_1 hpi.dll_1 hprof.dll_1 indicim.jar_1 instrument.dll_1 ioser12.dll_1 j2pcsc.dll_1 jaas_nt.dll_1 java.dll_1 java.exe_1 java_crw_demo.dll_1 java_rmi.exe_1 javacpl.exe_1 javaw.exe_1 javaws.exe_1 jawt.dll_1 jbroker.exe_1 jdk_header.png_1 jdwp.dll_1 jli.dll_1 jmxremote.access_1 jp2iexp.dll_1 jp2launcher.exe_1 jp2native.dll_1 jp2ssv.dll_1 jpeg.dll_1 jsound.dll_1 jvm.cfg_1 jvm.dll_1 jvmDLL keytool.exe_1 kinit.exe_1 klist.exe_1 ktab.exe_1 management.dll_1 mlib_image.dll_1 msvcrt.dll_1 msvcrt.dll_2 net.dll_1 nio.dll_1 npdeployJava1.dll_2 npdeployJava1.dll_3 npjp2.dll_1 npt.dll_1 orbd.exe_1 pack200.exe_1 policytool.exe_1 regutils.dll_1 rmi.dll_1 rmid.exe_1 rmiregistry.exe_1 servertool.exe_1 soundbank.gm_1 splashscreen.dll_1 ssv.dll_1 ssvagent.exe_1 tnameserv.exe_1 unpack.dll_1 unpack200.exe_1 verify.dll_1 w2k_lsa_auth.dll_1 wsdetect.dll_1 zip.dll_1" Builds="JVM64"/>
+    <ROW Feature="JRE32" Title="JRE Bundle" Description="This feature contains the JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4 Abidjan Adak Adelaide Aden Amsterdam Antananarivo Apia Azores Beulah Buenos_Aires CET CIEXYZ.pf COPYRIGHT Casey GMT Indianapolis JavaSoft32 JdbcOdbc.dll Louisville LucidaBrightDemiBold.ttf New_Value RuntimeLib applet applet_1 awt.dll axbridge.dll blacklist calendars.properties chrome.manifest classes.jsa cmm.dll cursors.properties dcpr.dll deploy.dll deployJava1.dll dnsns.jar dt_shmem.dll dt_socket.dll eula.dll ffjcext.zip fontmanager.dll hpi.dll hprof.dll indicim.jar instrument.dll ioser12.dll j2pcsc.dll j2pkcs11.dll jaas_nt.dll java.dll java.exe java_crw_demo.dll java_rmi.exe javacpl.exe javaw.exe javaws.exe jawt.dll jbroker.exe jdk_header.png jdwp.dll jkernel.dll jli.dll jmxremote.access jp2iexp.dll jp2launcher.exe jp2native.dll jp2ssv.dll jpeg.dll jpicom.dll jpiexp.dll jpinscp.dll jpioji.dll jpishare.dll jqs.conf jqs.exe jqs_plugin.dll jqsnotify.exe jsound.dll jsoundds.dll jvm.cfg jvm.dll keytool.exe kinit.exe klist.exe ktab.exe lzma.dll management.dll mlib_image.dll msvcr71.dll msvcr71.dll_1 msvcrt.dll net.dll nio.dll npdeployJava1.dll npdeployJava1.dll_1 npjp2.dll npjpi160_31.dll npoji610.dll npt.dll orbd.exe overlay.js pack200.exe policytool.exe regutils.dll rmi.dll rmid.exe rmiregistry.exe servertool.exe soundbank.gm splashscreen.dll ssv.dll ssvagent.exe sunmscapi.dll tnameserv.exe unicows.dll unpack.dll unpack200.exe verify.dll w2k_lsa_auth.dll wsdetect.dll zip.dll" Builds="JVM32"/>
+    <ROW Feature="JRE64" Title="JRE Bundle" Description="This feature contains the 64-bit JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4_1 Abidjan_1 Adak_1 Adelaide_1 Aden_1 Amsterdam_1 Antananarivo_1 Apia_1 Azores_1 Beulah_1 Buenos_Aires_1 CET_1 CIEXYZ.pf_1 COPYRIGHT_1 Casey_1 GMT_1 Indianapolis_1 JavaSoft64 JdbcOdbc.dll_1 Louisville_1 LucidaBrightDemiBold.ttf_1 RuntimeLib_1 alt_rt.jar awt.dll_1 blacklist_1 classes.jsa_1 cmm.dll_1 cursors.properties_1 dcpr.dll_1 deploy.dll_1 deployJava1.dll_1 dnsns.jar_1 dt_shmem.dll_1 dt_socket.dll_1 eula.dll_1 ffjcext.zip_1 fontmanager.dll_1 hpi.dll_1 hprof.dll_1 indicim.jar_1 instrument.dll_1 ioser12.dll_1 j2pcsc.dll_1 jaas_nt.dll_1 java.dll_1 java.exe_1 java_crw_demo.dll_1 java_rmi.exe_1 javacpl.exe_1 javaw.exe_1 javaws.exe_1 jawt.dll_1 jbroker.exe_1 jdk_header.png_1 jdwp.dll_1 jli.dll_1 jmxremote.access_1 jp2iexp.dll_1 jp2launcher.exe_1 jp2native.dll_1 jp2ssv.dll_1 jpeg.dll_1 jsound.dll_1 jvm.cfg_1 jvm.dll_1 jvmDLL keytool.exe_1 kinit.exe_1 klist.exe_1 ktab.exe_1 management.dll_1 mlib_image.dll_1 msvcrt.dll_1 msvcrt.dll_2 net.dll_1 nio.dll_1 npdeployJava1.dll_2 npdeployJava1.dll_3 npjp2.dll_1 npt.dll_1 orbd.exe_1 pack200.exe_1 policytool.exe_1 regutils.dll_1 rmi.dll_1 rmid.exe_1 rmiregistry.exe_1 servertool.exe_1 soundbank.gm_1 splashscreen.dll_1 ssv.dll_1 ssvagent.exe_1 tnameserv.exe_1 unpack.dll_1 unpack200.exe_1 verify.dll_1 w2k_lsa_auth.dll_1 wsdetect.dll_1 zip.dll_1" Builds="JVM64"/>
     <ROW Feature="Java" Title="Core Components" Description="Java libraries and components" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="client.jar jar og_language.xml"/>
     <ROW Feature="client_32" Feature_Parent="core_32" Title="32-bit Client SDK" Description="Support for 32 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector.lib Service.lib lib lib_32"/>
     <ROW Feature="client_64" Feature_Parent="core_64" Title="64-bit Client SDK" Description="Support for 64 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector.lib_1 Service.lib_1 lib_1 lib_64"/>
@@ -387,7 +392,7 @@
     <ROW Feature="headers" Title="Client SDK" Description="Header files for API clients" Display="7" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector Service Util include32 include64"/>
     <ROW Feature="service_32" Feature_Parent="core_32" Title="32-bit Server" Description="32 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_32" Builds="NoJVM32;JVM32"/>
     <ROW Feature="service_64" Feature_Parent="core_64" Title="64-bit Server" Description="64 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_64" Builds="NoJVM64;JVM64"/>
-    <ATTRIBUTE name="CurrentFeature" value="core_32"/>
+    <ATTRIBUTE name="CurrentFeature" value="Config"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="AST4" Component_="AST4" FileName="AST4" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\SystemV\AST4" SelfReg="false" NextFile="AST4ADT"/>
@@ -1355,7 +1360,7 @@
     <ROW File="Warsaw" Component_="Amsterdam" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye"/>
     <ROW File="Warsaw_1" Component_="Amsterdam_1" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files\Java\jre6\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye_1"/>
     <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\Welcome.html" SelfReg="false" NextFile="awt.dll_1"/>
-    <ROW File="Welcome.html_1" Component_="COPYRIGHT_1" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre6\Welcome.html" SelfReg="false"/>
+    <ROW File="Welcome.html_1" Component_="COPYRIGHT_1" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre6\Welcome.html" SelfReg="false" NextFile="com.googlecode_json_simple_json_simple.jar"/>
     <ROW File="Whitehorse" Component_="Adak" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg"/>
     <ROW File="Whitehorse_1" Component_="Adak_1" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files\Java\jre6\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg_1"/>
     <ROW File="Winamac" Component_="Indianapolis" FileName="Winamac" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\America\Indiana\Winamac" SelfReg="false" NextFile="Inuvik"/>
@@ -1417,6 +1422,7 @@
     <ROW File="cmm.dll_1" Component_="cmm.dll_1" FileName="cmm.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre6\bin\cmm.dll" SelfReg="false" NextFile="dcpr.dll_1"/>
     <ROW File="com.beust_jcommander_jcommander.jar" Component_="jar" FileName="combeu~1.jar|com.beust-jcommander-jcommander.jar" Attributes="0" SourcePath="..\build\jar\com.beust-jcommander-jcommander.jar" SelfReg="false" NextFile="org.apache.commons_commons_io_commons_io.jar"/>
     <ROW File="com.google.common_guava_guava.jar" Component_="jar" FileName="comgoo~1.jar|com.google.common-guava-guava.jar" Attributes="0" SourcePath="..\build\jar\com.google.common-guava-guava.jar" SelfReg="false" NextFile="org.springframework_spring_spring_test.jar"/>
+    <ROW File="com.googlecode_json_simple_json_simple.jar" Component_="jar" FileName="comgoo~2.jar|com.googlecode-json-simple-json-simple.jar" Attributes="0" SourcePath="..\build\jar\com.googlecode-json-simple-json-simple.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_multipart_jersey_multipart.jar"/>
     <ROW File="com.jolbox_bonecp_bonecp.jar" Component_="jar" FileName="comjol~1.jar|com.jolbox-bonecp-bonecp.jar" Attributes="0" SourcePath="..\build\jar\com.jolbox-bonecp-bonecp.jar" SelfReg="false" NextFile="org.apache.poi_poi_poi.jar"/>
     <ROW File="com.opengamma_og_analytics_og_analytics.jar" Component_="jar" FileName="comope~8.jar|com.opengamma-og-analytics-og-analytics.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-analytics-og-analytics.jar" SelfReg="false" NextFile="org.apache.commons_commons_math_commons_math.jar"/>
     <ROW File="com.opengamma_og_core_og_core.jar" Component_="jar" FileName="comope~2.jar|com.opengamma-og-core-og-core.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-core-og-core.jar" SelfReg="false" NextFile="javax.mail_javamail_smtp.jar"/>
@@ -1432,6 +1438,7 @@
     <ROW File="com.sun.jersey_jersey_jersey_client.jar" Component_="jar" FileName="comsun~3.jar|com.sun.jersey-jersey-jersey-client.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-client.jar" SelfReg="false" NextFile="org.joda_joda_beans_joda_beans.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_core.jar" Component_="jar" FileName="comsun~2.jar|com.sun.jersey-jersey-jersey-core.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-core.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_zh_TW.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_server.jar" Component_="jar" FileName="comsun~1.jar|com.sun.jersey-jersey-jersey-server.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-server.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_ru.jar"/>
+    <ROW File="com.sun.jersey_jersey_multipart_jersey_multipart.jar" Component_="jar" FileName="comsun~4.jar|com.sun.jersey-jersey-multipart-jersey-multipart.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-multipart-jersey-multipart.jar" SelfReg="false" NextFile="org.jvnet_mimepull_mimepull.jar"/>
     <ROW File="com.thoughtworks.paranamer_paranamer_paranamer.jar" Component_="jar" FileName="comtho~1.jar|com.thoughtworks.paranamer-paranamer-paranamer.jar" Attributes="0" SourcePath="..\build\jar\com.thoughtworks.paranamer-paranamer-paranamer.jar" SelfReg="false" NextFile="org.springframework_spring_amqp_spring_amqp.jar"/>
     <ROW File="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar" Component_="jar" FileName="comyah~1.jar|com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" Attributes="0" SourcePath="..\build\jar\com.yahoo.platform.yui-yuicompressor-yuicompressor.jar" SelfReg="false" NextFile="org.springframework_spring_spring_beans.jar"/>
     <ROW File="com_opengamma_language_Data.h" Component_="Connector" FileName="com_op~9.h|com_opengamma_language_Data.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_Data.h" SelfReg="false" NextFile="com_opengamma_language_definition_Definition.h"/>
@@ -1730,6 +1737,7 @@
     <ROW File="org.apache.derby_derby_derbytools.jar" Component_="jar" FileName="orgap~24.jar|org.apache.derby-derby-derbytools.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbytools.jar" SelfReg="false" NextFile="javax.mail_javamail_mail.jar"/>
     <ROW File="org.apache.httpcomponents_httpclient_httpclient.jar" Component_="jar" FileName="orgapa~3.jar|org.apache.httpcomponents-httpclient-httpclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpclient-httpclient.jar" SelfReg="false" NextFile="org.dom4j_dom4j_dom4j.jar"/>
     <ROW File="org.apache.httpcomponents_httpcore_httpcore.jar" Component_="jar" FileName="orgap~10.jar|org.apache.httpcomponents-httpcore-httpcore.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-httpcore.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar"/>
+    <ROW File="org.apache.httpcomponents_httpcore_nio_httpcore_nio.jar" Component_="jar" FileName="orgap~21.jar|org.apache.httpcomponents-httpcore-nio-httpcore-nio.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-nio-httpcore-nio.jar" SelfReg="false"/>
     <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false" NextFile="com_opengamma_language_livedata_Disconnect.h"/>
     <ROW File="org.apache.xbean_xbean_spring_xbean_spring.jar" Component_="jar" FileName="orgap~12.jar|org.apache.xbean-xbean-spring-xbean-spring.jar" Attributes="0" SourcePath="..\build\jar\org.apache.xbean-xbean-spring-xbean-spring.jar" SelfReg="false" NextFile="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar"/>
     <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
@@ -1743,6 +1751,7 @@
     <ROW File="org.joda_joda_beans_joda_beans.jar" Component_="jar" FileName="orgjod~1.jar|org.joda-joda-beans-joda-beans.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-beans-joda-beans.jar" SelfReg="false" NextFile="org.springframework_spring_security_spring_security_core.jar"/>
     <ROW File="org.joda_joda_convert_joda_convert.jar" Component_="jar" FileName="orgjod~2.jar|org.joda-joda-convert-joda-convert.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-convert-joda-convert.jar" SelfReg="false" NextFile="javax.el_juel_juel_impl.jar"/>
     <ROW File="org.json_json_json.jar" Component_="jar" FileName="orgjso~1.jar|org.json-json-json.jar" Attributes="0" SourcePath="..\build\jar\org.json-json-json.jar" SelfReg="false" NextFile="org.springframework_spring_spring_transaction.jar"/>
+    <ROW File="org.jvnet_mimepull_mimepull.jar" Component_="jar" FileName="orgjvn~1.jar|org.jvnet-mimepull-mimepull.jar" Attributes="0" SourcePath="..\build\jar\org.jvnet-mimepull-mimepull.jar" SelfReg="false" NextFile="org.apache.httpcomponents_httpcore_nio_httpcore_nio.jar"/>
     <ROW File="org.mindrot_jBCrypt_jBCrypt.jar" Component_="jar" FileName="orgmin~1.jar|org.mindrot-jBCrypt-jBCrypt.jar" Attributes="0" SourcePath="..\build\jar\org.mindrot-jBCrypt-jBCrypt.jar" SelfReg="false" NextFile="org.scannotation_scannotation_scannotation.jar"/>
     <ROW File="org.mongodb_java_driver_mongo.jar" Component_="jar" FileName="orgmon~1.jar|org.mongodb-java-driver-mongo.jar" Attributes="0" SourcePath="..\build\jar\org.mongodb-java-driver-mongo.jar" SelfReg="false" NextFile="org.aspectj_aspectj_aspectj_rt.jar"/>
     <ROW File="org.netlib_jarpack_jarpack.jar" Component_="jar" FileName="orgnet~3.jar|org.netlib-jarpack-jarpack.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jarpack-jarpack.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_de_DE.jar"/>
@@ -1930,6 +1939,8 @@
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="ResourceCleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ResourceCleaner.dll"/>
     <ROW Name="TxtUpdater.dll" SourcePath="&lt;AI_CUSTACTS&gt;TxtUpdater.dll"/>
+    <ROW Name="Windowing.exe" SourcePath="..\..\..\Installer\Utils\Releasex64\Windowing.exe"/>
+    <ROW Name="Windowing.exe_1" SourcePath="..\..\..\Installer\Utils\ReleaseWin32\Windowing.exe"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="opengamma_banner.bmp" SourcePath="opengamma-banner.bmp"/>
     <ROW Name="opengamma_dialog.bmp" SourcePath="opengamma-dialog.bmp"/>
@@ -2040,6 +2051,8 @@
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+    <ROW Action="Windowing.i386.exe" Type="2" Source="Windowing.exe_1"/>
+    <ROW Action="Windowing.x64.exe" Type="2" Source="Windowing.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDialogComponent">
     <ROW Dialog="ConfigurationUrl" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
@@ -2072,7 +2085,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
-    <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="746"/>
     <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="747"/>
     <ROW Action="AI_AppSearchEx" Sequence="102"/>
@@ -2081,6 +2094,8 @@
     <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
     <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
     <ROW Action="ExistingConfigurationURL_UI" Condition="OPENGAMMA.CONFIGURATION.URL" Sequence="101"/>
+    <ROW Action="Windowing.x64.exe" Condition="arch=&quot;x64&quot;" Sequence="52"/>
+    <ROW Action="Windowing.i386.exe" Condition="arch=&quot;i386&quot;" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="JRE_32_EMBEDDED OR JRE_32_NATIVE" Description="An existing 32-bit Java 1.6 installation is required" Builds="NoJVM32"/>
@@ -2089,21 +2104,27 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\OpenGammaLtd\LanguageIntegration" Name="jvmProperty.opengamma.configuration.url" Type="2"/>
-    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
-    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="2"/>
+    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\OpenGammaLtd\Java Runtime Environment\OG-Platform" Name="RuntimeLib" Type="18"/>
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="2"/>
     <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="18"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="A36DC7A_AF70_4CF0_B489_B30E0828F882" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="A36DC7A_AF70_4CF0_B489_B30E0828F882" Value="1" Component_="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
     <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ROW Registry="JavaHome" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v64]" Name="JavaHome" Value="[jre_1_Dir]" Component_="JavaSoft64"/>
+    <ROW Registry="JavaHome_1" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v32]" Name="JavaHome" Value="[jre_Dir]" Component_="JavaSoft32"/>
+    <ROW Registry="MicroVersion" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v64]" Name="MicroVersion" Value="0" Component_="JavaSoft64"/>
+    <ROW Registry="MicroVersion_1" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v32]" Name="MicroVersion" Value="0" Component_="JavaSoft32"/>
     <ROW Registry="New_Value" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmDLL" Value="[#jvm.dll]" Component_="New_Value"/>
     <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[i386_1_Dir]" Component_="Settings"/>
     <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[x64_Dir]" Component_="Settings64"/>
     <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
     <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
-    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="Software\OpenGammaLtd\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="Software\OpenGammaLtd\Java Runtime Environment\[jre.id64]" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RuntimeLib_1"/>
+    <ROW Registry="RuntimeLib_2" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v64]" Name="RuntimeLib" Value="[jre_1_Dir]bin\server\jvm.dll" Component_="JavaSoft64"/>
+    <ROW Registry="RuntimeLib_3" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v32]" Name="RuntimeLib" Value="[jre_Dir]bin\client\jvm.dll" Component_="JavaSoft32"/>
     <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
     <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
     <ROW Registry="exts" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="exts" Value="[ext_Dir]" Component_="Settings"/>
@@ -2112,6 +2133,7 @@
     <ROW Registry="include_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="include" Value="[include_Dir]" Component_="include64"/>
     <ROW Registry="jars" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jars" Value="[ProductName__Dir]" Component_="Settings"/>
     <ROW Registry="jars_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jars" Value="[ProductName__Dir]" Component_="Settings64"/>
+    <ROW Registry="jre.v32_" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.v32]" Name="+" Component_="JavaSoft32"/>
     <ROW Registry="jvmDLL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmDLL" Value="[#jvm.dll_1]" Component_="jvmDLL"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings64"/>
