@@ -16,6 +16,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +82,39 @@ public class MainRunner {
   }
 
   private String[] getParameters(String args) {
+    s_logger.debug("processing args [{}]", args);
     args = StringUtils.trimToNull(args);
-//    StringUtils.replaceChars(args, "'", "\"");    
-    return StringUtils.split(args);
+    final String[] tokens = StringUtils.split(args);
+    String[] result = null;
+    if (tokens != null) {
+      List<String> argList = Lists.newArrayList();
+      StringBuilder strBuilder = new StringBuilder();
+      for (String token : tokens) {
+        if (token.startsWith("'")) {
+          strBuilder.append(token);
+        } else if (token.endsWith("'")) {
+          if (strBuilder.length() != 0) {
+            strBuilder.append(" ").append(token);
+            argList.add(strBuilder.substring(1, strBuilder.length() - 1));
+          } else {
+            argList.add(token);
+          }
+          strBuilder = new StringBuilder();
+        } else {
+          if (strBuilder.length() == 0) {
+            argList.add(token);
+          } else {
+            strBuilder.append(" ").append(token);
+          }
+        }
+      }
+      if (strBuilder.length() != 0) {
+        argList.addAll(Arrays.asList(StringUtils.split(strBuilder.toString())));
+      }
+      result = argList.toArray(new String[] {});
+    }
+    s_logger.debug("processed args {}", ArrayUtils.toString(result));
+    return result;
   }
 
   /**
@@ -91,7 +122,7 @@ public class MainRunner {
    * @throws Exception 
    */
   public static void main(String[] args) throws Exception { //CSIGNORE    
-    s_logger.debug("processing args : {}" + Arrays.asList(args));
+    s_logger.debug("processing args : {}", ArrayUtils.toString(args));
     if (args == null || args.length == 0) {
       s_logger.debug("command args is required");
       return;
@@ -113,10 +144,10 @@ public class MainRunner {
       usage(options);
       System.exit(-1);
     }
-    MainRunner examplesInitializer = new MainRunner();
-    examplesInitializer.setClazzes(getClassList(line, num));
-    examplesInitializer.setArgs(getArgsList(line, num));
-    examplesInitializer.run();
+    MainRunner mainRunner = new MainRunner();
+    mainRunner.setClazzes(getClassList(line, num));
+    mainRunner.setArgs(getArgsList(line, num));
+    mainRunner.run();
   }
 
   private static int getClassSize(String[] args) {
