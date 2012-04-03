@@ -18,9 +18,9 @@
     <ROW Property="ProductVersion" Value="0.9.0"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{98DEC07C-8C4F-4775-B835-8AF302783200}"/>
+    <ROW Property="WINDOWING" Value="none" MultiBuildValue="NoJVM32:i386#NoJVM64:x64#JVM32:i386#JVM64:x64"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
-    <ROW Property="arch" Value="?" MultiBuildValue="NoJVM32:i386#NoJVM64:x64#JVM32:i386#JVM64:x64"/>
     <ROW Property="jre.id32" Value="OG-Language"/>
     <ROW Property="jre.id64" Value="OG-Language"/>
     <ROW Property="jre.v32" Value="1.6"/>
@@ -2094,8 +2094,8 @@
     <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
     <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
     <ROW Action="ExistingConfigurationURL_UI" Condition="OPENGAMMA.CONFIGURATION.URL" Sequence="101"/>
-    <ROW Action="Windowing.x64.exe" Condition="arch=&quot;x64&quot;" Sequence="52"/>
-    <ROW Action="Windowing.i386.exe" Condition="arch=&quot;i386&quot;" Sequence="51"/>
+    <ROW Action="Windowing.x64.exe" Condition="WINDOWING=&quot;x64&quot;" Sequence="52"/>
+    <ROW Action="Windowing.i386.exe" Condition="WINDOWING=&quot;i386&quot;" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="JRE_32_EMBEDDED OR JRE_32_NATIVE" Description="An existing 32-bit Java 1.6 installation is required" Builds="NoJVM32"/>
