@@ -5,7 +5,9 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.*;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_PROVIDER_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DATA_SOURCE_NAME;
+import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
 import java.util.ArrayList;
 import java.util.List;

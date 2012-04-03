@@ -113,6 +113,7 @@ $.register_module({
                     update: view.update,
                     id: args.id,
                     version: args.version && args.version !== '*' ? args.version : void 0,
+                    cache_for: 5000,
                     loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 };
                 api.rest.securities.get(rest_options).pipe(function (result) {
@@ -132,16 +133,13 @@ $.register_module({
                                     This security has been deleted\
                                 </section>\
                             ',
-                            $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
+                            $html = $.tmpl(template, json.template_data);
                         $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
                         $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
-                        if (!Object.keys(json_id)[0]) $('.OG-layout-admin-details-center .og-js-identifiers')
-                            .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
-                        else for (id in json_id) {
-                            if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
-                                '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                            $('.OG-layout-admin-details-center .og-js-identifiers').html(html.join(''));
-                        }
+                        og.common.gadgets.securities_identifiers({
+                            selector: '.og-js-identifiers',
+                            id: rest_options.id
+                        });
                         (function () {
                             if (json.template_data['underlyingOid']) {
                                 var id = json.template_data['underlyingOid'],
@@ -210,7 +208,7 @@ $.register_module({
                     'default': {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
@@ -220,7 +218,7 @@ $.register_module({
                     active: {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},

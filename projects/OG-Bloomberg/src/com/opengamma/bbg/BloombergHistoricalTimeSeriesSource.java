@@ -64,7 +64,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Loads time-series from Bloomberg.
  */
-public class BloombergHistoricalTimeSeriesSource extends BloombergDataProvider implements HistoricalTimeSeriesSource {
+public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStaticDataProvider implements HistoricalTimeSeriesSource {
 
   /**
    * Default start date for loading time-series
@@ -184,9 +184,7 @@ public class BloombergHistoricalTimeSeriesSource extends BloombergDataProvider i
 
   private LocalDateDoubleTimeSeries processRequest(String identifier, Request request, String field) {
     CorrelationID cid = submitBloombergRequest(request);
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    //clear correlation maps
-    _correlationIDMap.remove(cid);
+    BlockingQueue<Element> resultElements = getResultElement(cid);
     
     if (resultElements == null || resultElements.isEmpty()) {
       s_logger.info("Unable to get HistoricalTimeSeries for {}", identifier);
@@ -495,9 +493,7 @@ public class BloombergHistoricalTimeSeriesSource extends BloombergDataProvider i
     
     _statistics.gotFields(bbgSecDomainMap.keySet(), Collections.singleton(dataField));
     CorrelationID cid = submitBloombergRequest(request);
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    _correlationIDMap.remove(cid);
-    
+    BlockingQueue<Element> resultElements = getResultElement(cid);
     if (resultElements == null || resultElements.isEmpty()) {
       s_logger.warn("Unable to get historical data for {}", identifierSet);
       return null;

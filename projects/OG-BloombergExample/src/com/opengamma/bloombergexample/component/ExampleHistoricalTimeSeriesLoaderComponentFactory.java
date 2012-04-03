@@ -18,11 +18,15 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.bbg.BloombergIdentifierProvider;
+import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.bloombergexample.marketdata.MockTimeSeriesLoader;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 
 /**
  * Component factory that instantiates the time-series loader.
@@ -36,11 +40,29 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
 
+  /**
+   * The historical timeSeries source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+
+  /**
+   * The historical timeSeries master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+
+  /**
+   * The reference data provider.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ReferenceDataProvider _referenceDataProvider;
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    HistoricalTimeSeriesLoader htsLoader = new MockTimeSeriesLoader();
-    
+    HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalLoader(getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesSource(), new BloombergIdentifierProvider(getReferenceDataProvider()));
+
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, getClassifier());
     repo.registerComponent(info, htsLoader);
   }
@@ -68,6 +90,12 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
+      case 358729161:  // historicalTimeSeriesSource
+        return getHistoricalTimeSeriesSource();
+      case 173967376:  // historicalTimeSeriesMaster
+        return getHistoricalTimeSeriesMaster();
+      case -1788671322:  // referenceDataProvider
+        return getReferenceDataProvider();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -78,6 +106,15 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
+      case 358729161:  // historicalTimeSeriesSource
+        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+        return;
+      case 173967376:  // historicalTimeSeriesMaster
+        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+        return;
+      case -1788671322:  // referenceDataProvider
+        setReferenceDataProvider((ReferenceDataProvider) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -85,6 +122,9 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
+    JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
     super.validate();
   }
 
@@ -96,6 +136,9 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
     if (obj != null && obj.getClass() == this.getClass()) {
       ExampleHistoricalTimeSeriesLoaderComponentFactory other = (ExampleHistoricalTimeSeriesLoaderComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
           super.equals(obj);
     }
     return false;
@@ -105,6 +148,9 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
     return hash ^ super.hashCode();
   }
 
@@ -136,6 +182,84 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the historical timeSeries source.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _historicalTimeSeriesSource;
+  }
+
+  /**
+   * Sets the historical timeSeries source.
+   * @param historicalTimeSeriesSource  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    this._historicalTimeSeriesSource = historicalTimeSeriesSource;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesSource} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+    return metaBean().historicalTimeSeriesSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the historical timeSeries master.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    return _historicalTimeSeriesMaster;
+  }
+
+  /**
+   * Sets the historical timeSeries master.
+   * @param historicalTimeSeriesMaster  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
+    JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    this._historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesMaster} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+    return metaBean().historicalTimeSeriesMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the reference data provider.
+   * @return the value of the property, not null
+   */
+  public ReferenceDataProvider getReferenceDataProvider() {
+    return _referenceDataProvider;
+  }
+
+  /**
+   * Sets the reference data provider.
+   * @param referenceDataProvider  the new value of the property, not null
+   */
+  public void setReferenceDataProvider(ReferenceDataProvider referenceDataProvider) {
+    JodaBeanUtils.notNull(referenceDataProvider, "referenceDataProvider");
+    this._referenceDataProvider = referenceDataProvider;
+  }
+
+  /**
+   * Gets the the {@code referenceDataProvider} property.
+   * @return the property, not null
+   */
+  public final Property<ReferenceDataProvider> referenceDataProvider() {
+    return metaBean().referenceDataProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ExampleHistoricalTimeSeriesLoaderComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -150,11 +274,29 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ExampleHistoricalTimeSeriesLoaderComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesSource", ExampleHistoricalTimeSeriesLoaderComponentFactory.class, HistoricalTimeSeriesSource.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesMaster", ExampleHistoricalTimeSeriesLoaderComponentFactory.class, HistoricalTimeSeriesMaster.class);
+    /**
+     * The meta-property for the {@code referenceDataProvider} property.
+     */
+    private final MetaProperty<ReferenceDataProvider> _referenceDataProvider = DirectMetaProperty.ofReadWrite(
+        this, "referenceDataProvider", ExampleHistoricalTimeSeriesLoaderComponentFactory.class, ReferenceDataProvider.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier");
+        "classifier",
+        "historicalTimeSeriesSource",
+        "historicalTimeSeriesMaster",
+        "referenceDataProvider");
 
     /**
      * Restricted constructor.
@@ -167,6 +309,12 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
+        case 358729161:  // historicalTimeSeriesSource
+          return _historicalTimeSeriesSource;
+        case 173967376:  // historicalTimeSeriesMaster
+          return _historicalTimeSeriesMaster;
+        case -1788671322:  // referenceDataProvider
+          return _referenceDataProvider;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -193,6 +341,30 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractC
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+      return _historicalTimeSeriesSource;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+      return _historicalTimeSeriesMaster;
+    }
+
+    /**
+     * The meta-property for the {@code referenceDataProvider} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ReferenceDataProvider> referenceDataProvider() {
+      return _referenceDataProvider;
     }
 
   }

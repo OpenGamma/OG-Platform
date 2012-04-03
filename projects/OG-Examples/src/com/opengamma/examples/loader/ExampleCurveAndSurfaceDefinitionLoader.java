@@ -6,6 +6,7 @@
 package com.opengamma.examples.loader;
 
 import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.examples.volatility.surface.ExampleEquityOptionSurfaceConfigPopulator;
 import com.opengamma.examples.volatility.surface.ExampleFXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
@@ -33,6 +34,7 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractExampleTool 
     new EquityOptionSurfaceConfigPopulator(configMaster);
     new VolatilityCubeConfigPopulator(configMaster);
     new FXForwardCurveConfigPopulator(configMaster);
+    new ExampleEquityOptionSurfaceConfigPopulator(configMaster);
   }
   
   //-------------------------------------------------------------------------
