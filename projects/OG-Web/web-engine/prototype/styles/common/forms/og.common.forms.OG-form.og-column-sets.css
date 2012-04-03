@@ -3,9 +3,7 @@
  * @license See distribution for license
  */
 
-.OG-form .og-column-sets {
-  width: 800px;
-}
+.OG-form .og-column-sets {}
 
 .OG-form .og-column-sets p {
   margin: 15px 0 20px 0;

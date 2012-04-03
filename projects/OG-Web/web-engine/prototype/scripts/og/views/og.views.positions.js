@@ -26,7 +26,6 @@ $.register_module({
             ui = common.util.ui,
             module = this, view, details_page,
             page_name = module.name.split('.').pop(),
-            get_quantities = og.common.search.get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -166,7 +165,7 @@ $.register_module({
                     'default': {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
@@ -176,7 +175,7 @@ $.register_module({
                     active: {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},

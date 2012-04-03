@@ -36,11 +36,11 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class ExampleViewsPopulater extends AbstractExampleTool {
+public class ExampleViewsPopulator extends AbstractExampleTool {
 
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
   
   private static final Currency[] s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.NZD, Currency.DKK};
 
@@ -52,7 +52,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    new ExampleViewsPopulater().initAndRun(args);
+    new ExampleViewsPopulator().initAndRun(args);
     System.exit(0);
   }
 
