@@ -1606,8 +1606,8 @@
     <ROW ChainedPackage="OG_Language.x64.msi" Order="4" Options="146" InstallCondition="NOT Installed AND &amp;og_language64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.i386.msi" Order="5" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
     <ROW ChainedPackage="OG_RStats.x64.msi" Order="6" Options="146" InstallCondition="NOT Installed AND &amp;og_rstats64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;servers32=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
-    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;servers64=3" RemoveCondition="REMOVE=&quot;ALL&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.i386.msi" Order="1" Options="146" InstallCondition="NOT Installed AND &amp;servers32=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
+    <ROW ChainedPackage="OpenGamma_Server.x64.msi" Order="2" Options="146" InstallCondition="NOT Installed AND &amp;servers64=3" InstallCmdLine="WINDOWING=&quot;&quot;" MaintenanceCmdLine="WINDOWING=&quot;&quot;" RemoveCondition="REMOVE=&quot;ALL&quot;" RemoveCmdLine="WINDOWING=&quot;&quot;" Builds="MsiBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.ChainedPackageFileComponent">
     <ROW FileId="OG_Language.i386.msi" ChainedPackage="OG_Language.i386.msi" Options="1" TargetPath="OG-Language.i386.msi" Content="..\install\install\OG-Language.i386.msi"/>

@@ -26,6 +26,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,11 +146,15 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
   protected void doRun() {
     InputStream inputStream = ExampleSwapPortfolioLoader.class.getResourceAsStream("example-swap-portfolio.csv");  
     if (inputStream != null) {
-      Collection<SwapSecurity> swaps = parseSwaps(inputStream);
-      if (swaps.size() == 0) {
-        throw new OpenGammaRuntimeException("No (valid) swaps were found in the specified file.");
+      try {
+        Collection<SwapSecurity> swaps = parseSwaps(inputStream);
+        if (swaps.size() == 0) {
+          throw new OpenGammaRuntimeException("No (valid) swaps were found in the specified file.");
+        }
+        persistToPortfolio(swaps, PORTFOLIO_NAME);
+      } finally {
+        IOUtils.closeQuietly(inputStream);
       }
-      persistToPortfolio(swaps, PORTFOLIO_NAME);
     }
   }
 
@@ -206,7 +211,7 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
       throw new OpenGammaRuntimeException("File '" + inputStream + "' could not be found");
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("An error occurred while reading file '" + inputStream + "'");
-    }
+    } 
     
     StringBuilder sb = new StringBuilder();
     sb.append("Parsed ").append(swaps.size()).append(" swaps:\n");
