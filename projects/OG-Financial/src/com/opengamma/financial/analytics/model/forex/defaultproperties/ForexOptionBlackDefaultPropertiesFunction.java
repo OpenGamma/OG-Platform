@@ -35,6 +35,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ValueRequirementNames.VEGA_MATRIX,
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
+    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final String _putCurveName;

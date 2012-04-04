@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -33,8 +32,7 @@ public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOption
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
     Validate.isTrue(result.getCurrencies().size() == 1, "Only one currency");
-    final Currency ccy = result.getCurrencies().iterator().next();
-    return Collections.singleton(new ComputedValue(spec, result.getSensitivity(ccy)));
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 
 }
