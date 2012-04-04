@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,11 @@ public class StandardCurrencyPairs {
   
   static {
     InputStream is = StandardCurrencyPairs.class.getClassLoader().getResourceAsStream("com/opengamma/util/money/standard-currency-pairs.csv");
-    parseCSV("standard-currency-pairs.csv", is);
+    try {
+      parseCSV("standard-currency-pairs.csv", is);
+    } finally {
+      IOUtils.closeQuietly(is);
+    }
   }
   
   private static void parseCSV(String filename, InputStream is) {

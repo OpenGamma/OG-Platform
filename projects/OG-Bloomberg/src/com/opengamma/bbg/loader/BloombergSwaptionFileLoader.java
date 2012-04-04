@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +53,11 @@ public class BloombergSwaptionFileLoader {
    * @param args command line params
    */
   public static void main(String[] args) {  // CSIGNORE
+    CSVReader csvReader = null;
+    CSVWriter csvWriter = null;
     try {
-      BufferedReader in = new BufferedReader(new FileReader(args[0]));
-      BufferedWriter out = new BufferedWriter(new FileWriter(args[1]));
-      CSVReader csvReader = new CSVReader(in);
-      CSVWriter csvWriter = new CSVWriter(out);
+      csvReader = new CSVReader(new BufferedReader(new FileReader(args[0])));
+      csvWriter = new CSVWriter(new BufferedWriter(new FileWriter(args[1])));
       String[] line;
       Pattern pattern = Pattern.compile("^(\\w\\w\\w).*?(\\d+)(M|Y)(\\d+)(M|Y)\\s*?(PY|RC)\\s*?(.*)$");
       BloombergReferenceDataProvider rawBbgRefDataProvider = getBloombergSecurityFileLoader();
@@ -86,6 +87,9 @@ public class BloombergSwaptionFileLoader {
       }
     } catch (IOException ioe) {
       s_logger.error("Error while reading file", ioe);
+    } finally {
+      IOUtils.closeQuietly(csvReader);
+      IOUtils.closeQuietly(csvWriter);
     }
   }
 
