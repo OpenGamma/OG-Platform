@@ -14,18 +14,23 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A dummy portfolio writer, which pretty-prints information instead of persisting
- * TODO implement portfolio tree methods
  */
-public class DummyPortfolioWriter implements PortfolioWriter {
+public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
 
   private String[] _currentPath = new String[] {};
+  private boolean _prettyPrint;
+  
+  public PrettyPrintingPortfolioWriter(boolean prettyPrint) {
+    _prettyPrint = prettyPrint;
+  }
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
-    
-    System.out.println("Security: " + security.toString());
+    if (_prettyPrint) {
+      System.out.println("Security: " + security.toString());
+    }
     return security;
   }
 
@@ -33,19 +38,24 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   public ManageablePosition writePosition(ManageablePosition position) {
     
     ArgumentChecker.notNull(position, "position");
-    
-    System.out.println("Position: " + position.toString());
+    if (_prettyPrint) {
+      System.out.println("Position: " + position.toString());
+    }
     return position;
   }
 
   @Override
   public void flush() {
-    System.out.println("Flushed writer");
+    if (_prettyPrint) {
+      System.out.println("Flushed writer");
+    }
   }
 
   @Override
   public void close() {
-    System.out.println("Closed writer");
+    if (_prettyPrint) {
+      System.out.println("Closed writer");
+    }
   }
 
   @Override
@@ -53,8 +63,9 @@ public class DummyPortfolioWriter implements PortfolioWriter {
     
     ArgumentChecker.notNull(newPath, "newPath");
     _currentPath = newPath;
-    
-    System.out.println("Set path to: " + StringUtils.arrayToDelimitedString(newPath, "/"));
+    if (_prettyPrint) {
+      System.out.println("Set path to: " + StringUtils.arrayToDelimitedString(newPath, "/"));
+    }
   }
 
   @Override

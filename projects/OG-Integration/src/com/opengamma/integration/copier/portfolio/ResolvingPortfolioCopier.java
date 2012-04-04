@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
- * A simple portfolio copier that copies positions from readers to the specified writer.
+ * A portfolio copier that copies positions/securities from readers to the specified writer while resolving time-series.
  */
 public class ResolvingPortfolioCopier implements PortfolioCopier {
 

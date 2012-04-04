@@ -114,7 +114,7 @@ static void _paintWindow (HWND hwnd) {
 	do {
 		hdc = BeginPaint (hwnd, &ps);
 		if (!hdc) break;
-		hf = CreateFont (GetSystemMetrics (SM_CYMENUSIZE), 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT ("MS Shell Dlg"));
+		hf = CreateFont ((GetSystemMetrics (SM_CYMENUSIZE) * 8) / 10, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT ("MS Shell Dlg"));
 		if (!hf) break;
 		SelectObject (hdc, hf);
 		if (g_pszStatus) {
@@ -220,7 +220,7 @@ static int _startWinsock () {
 	return WSAStartup (0x0002, &wsa);
 }
 
-static DWORD WINAPI _waitForStartup (LPVOID lpv) {
+static DWORD WINAPI _waitForStartup (LPVOID reserved) {
 	static TCHAR szStatus[256] = TEXT ("");
 	SC_HANDLE hSCM = NULL;
 	SC_HANDLE hService = NULL;
@@ -277,6 +277,8 @@ static DWORD WINAPI _waitForStartup (LPVOID lpv) {
 	if (nWinsock == 0) WSACleanup ();
 	if (hSCM) CloseServiceHandle (hSCM);
 	if (hService) CloseServiceHandle (hService);
+	BringWindowToTop (g_hwnd);
+	SetWindowPos (g_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	PostMessage (g_hwnd, WM_USER, 0, (LPARAM)(szStatus[0] ? szStatus : NULL));
 	return 0;
 }
