@@ -9,7 +9,7 @@ $.register_module({
         return {
             admin: function () {return {
                 main: $('.OG-layout-admin-container').layout({
-                    defaults: {enableCursorHotkey: false},
+                    defaults: {enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize'},
                     north:    {spacing_open: 0, size: 43, paneClass: 'OG-layout-admin-masthead'},
                     south:    {spacing_open: 0, size: 36, paneClass: 'OG-layout-admin-footer'},
                     east:     {spacing_closed: 0, initClosed: true}, // Not used
@@ -17,7 +17,7 @@ $.register_module({
                     center:   {paneClass: 'ui-layout-details'}
                 }),
                 inner: $('.ui-layout-details').layout({
-                    defaults: {enableCursorHotkey: false},
+                    defaults: {enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize'},
                     north: { // used for deleted view message
                         paneSelector: '.OG-layout-admin-details-north', paneClass: 'OG-layout-admin-details-north',
                         size: 50, initClosed: true, spacing_closed: 0, spacing_open: 0
@@ -43,14 +43,14 @@ $.register_module({
             };},
             analytics2: function () {return {
                 main: $('.OG-layout-analytics-container').layout({
-                    defaults: {enableCursorHotkey: false},
+                    defaults: {enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize'},
                     north: {spacing_open: 0, paneClass: 'OG-layout-analytics-masthead', size: 43},
                     south: {spacing_open: 0, paneClass: 'OG-layout-analytics-footer', size: 20},
                     east: {spacing_closed: 0, initClosed: false, paneClass: 'OG-layout-analytics-dock', size: 350},
                     center: {paneClass: 'OG-layout-analytics2'}
                 }),
                 inner: $('.OG-layout-analytics2').layout({
-                    defaults: {enableCursorHotkey: false},
+                    defaults: {enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize'},
                     south: { // dep graph
                         paneSelector: '.OG-layout-analytics-south', paneClass: 'OG-layout-analytics-south',
                         size: '25%', initClosed: false, spacing_closed: 0
