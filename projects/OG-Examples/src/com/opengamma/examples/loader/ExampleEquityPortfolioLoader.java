@@ -20,6 +20,7 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -202,6 +203,8 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
       throw new OpenGammaRuntimeException("File '" + inputStream + "' could not be found");
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("An error occurred while reading file '" + inputStream + "'");
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
     
     StringBuilder sb = new StringBuilder();
