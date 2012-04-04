@@ -125,6 +125,7 @@ import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCur
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackVegaMatrixFunction;
@@ -676,6 +677,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaQuoteMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", 
         "FORWARD_6M", "PresentValue", "DEFAULT", "USD", "EUR"));
