@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.common.gadgets.manager',
     dependencies: [],
     obj: function () {
-        var manager, collector, gadgets = [];
-        setTimeout((collector = function () {return manager.clean(), setTimeout(collector, interval);}), 5 * 60 * 1000);
+        var manager, collector, gadgets = [], interval = 5 * 60 * 1000;
+        setTimeout((collector = function () {return manager.clean(), setTimeout(collector, interval);}), interval);
         $(function () {if (!og.views.common.layout) return $(window).on('resize', manager.resize);});
         return manager = {
             clean: function () {return gadgets = gadgets.filter(function (gadget) {return gadget.alive();});},
