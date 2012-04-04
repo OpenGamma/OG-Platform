@@ -3,12 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
 import java.util.Set;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
@@ -17,6 +15,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -31,7 +30,7 @@ public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOption
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
-    Validate.isTrue(result.getCurrencies().size() == 1, "Only one currency");
+    ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }
 
