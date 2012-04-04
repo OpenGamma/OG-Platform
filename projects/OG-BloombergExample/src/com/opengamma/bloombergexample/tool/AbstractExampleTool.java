@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,8 @@ public abstract class AbstractExampleTool extends AbstractTool {
       throw new OpenGammaRuntimeException("File '" + inputStream + "' could not be found");
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("An error occurred while reading file '" + inputStream + "'");
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
 
     StringBuilder sb = new StringBuilder();

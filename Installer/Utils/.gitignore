@@ -1,0 +1,11 @@
+/*/*.aps
+/Utils.suo
+/*/*.vcxproj.user
+/*/DebugWin32/
+/*/ReleaseWin32/
+/*/Debugx64/
+/*/Releasex64/
+/DebugWin32/
+/ReleaseWin32/
+/Debugx64/
+/Releasex64/
