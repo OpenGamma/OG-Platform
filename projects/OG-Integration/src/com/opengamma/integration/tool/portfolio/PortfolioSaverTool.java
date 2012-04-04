@@ -19,7 +19,7 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
-import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
@@ -114,7 +114,7 @@ public class PortfolioSaverTool extends AbstractTool {
 
     } else {      
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new DummyPortfolioWriter();
+      return new PrettyPrintingPortfolioWriter(true);
     }
   }
 

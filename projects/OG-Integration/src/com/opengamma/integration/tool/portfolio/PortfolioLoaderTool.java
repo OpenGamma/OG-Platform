@@ -17,7 +17,7 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
@@ -116,7 +116,7 @@ public class PortfolioLoaderTool extends AbstractTool {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
 
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new DummyPortfolioWriter();         
+      return new PrettyPrintingPortfolioWriter(true);         
     }  
   }
 
