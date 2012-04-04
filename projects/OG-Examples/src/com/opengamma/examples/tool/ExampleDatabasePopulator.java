@@ -22,7 +22,7 @@ import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
-import com.opengamma.examples.loader.ExampleViewsPopulater;
+import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
@@ -39,9 +39,9 @@ import com.opengamma.util.time.Tenor;
  * <p>
  * It is designed to run against the HSQLDB example database.
  */
-public class ExampleDatabasePopulater extends AbstractExampleTool {
+public class ExampleDatabasePopulator extends AbstractExampleTool {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The name of the multi-currency swap portfolio.
    */
@@ -60,7 +60,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
    */
   public static void main(String[] args) { // CSIGNORE
     try {
-      new ExampleDatabasePopulater().initAndRun(args);
+      new ExampleDatabasePopulator().initAndRun(args);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -310,7 +310,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   private void loadViews() {
     final Log log = new Log("Creating example view definitions");
     try {
-      final ExampleViewsPopulater populator = new ExampleViewsPopulater();
+      final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
       log.done();
     } catch (RuntimeException t) {

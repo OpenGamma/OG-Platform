@@ -13,8 +13,12 @@
   <target name="build-monolith" unless="disable.monolith">
     <subant buildpath="." antfile="monolith.xml" inheritall="true" target="build" />
   </target>
+
+  <target name="build-utils">
+    <subant buildpath="Utils" />
+  </target>
   
-  <target name="build" description="Builds the installer packages in the dist sub-directory">
+  <target name="build" depends="build-utils" description="Builds the installer packages in the dist sub-directory">
     <!--<parallel>-->
       <antcall target="build-servers" inheritrefs="true">
         <param name="ai.build.file" value="${basedir}${file.separator}temp-servers.aip" />

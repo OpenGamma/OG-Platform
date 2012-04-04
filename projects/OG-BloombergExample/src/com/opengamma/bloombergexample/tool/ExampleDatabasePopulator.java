@@ -8,7 +8,9 @@ package com.opengamma.bloombergexample.tool;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Set;
-
+import javax.time.calendar.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -154,11 +156,11 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {
-      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", null, null);
+      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
-        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", null, null);
+        loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
       }
     }
     System.out.println("Finished");

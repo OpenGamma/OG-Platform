@@ -73,11 +73,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     final double pv = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0);
-    // Start test
-    //    final double dM2 = -Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
-    //    final int omega2 = optionForex.isCall() ? -1 : 1;
-    //    final double pv2 = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM2) * (optionForex.isLong() ? 1.0 : -1.0);
-    // End test
     final CurrencyAmount priceCurrency = CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), pv);
     return MultipleCurrencyAmount.of(priceCurrency);
   }
