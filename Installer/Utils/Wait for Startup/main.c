@@ -271,13 +271,14 @@ static DWORD WINAPI _waitForStartup (LPVOID reserved) {
 			if (_socketConnect ()) {
 				break;
 			}
-			BringWindowToTop (g_hwnd);
 			Sleep (1000);
 		} while (!*szStatus);
 	} while (FALSE);
 	if (nWinsock == 0) WSACleanup ();
 	if (hSCM) CloseServiceHandle (hSCM);
 	if (hService) CloseServiceHandle (hService);
+	BringWindowToTop (g_hwnd);
+	SetWindowPos (g_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	PostMessage (g_hwnd, WM_USER, 0, (LPARAM)(szStatus[0] ? szStatus : NULL));
 	return 0;
 }
