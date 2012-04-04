@@ -86,6 +86,24 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
+   * Computes the implied Black volatility of the vanilla option.
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return volatility;
+  }
+
+  /**
    * Computes the currency exposure of the vanilla option with the Black function and a volatility from a volatility surface. The exposure is computed in both option currencies.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
@@ -181,6 +199,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivity.
    */
+  @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
@@ -209,8 +228,6 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(),
         (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());
     // Implementation note: The strike should be in the same currency order as the input data.
-    //    final Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
-    //    result.put(point, volatilitySensitivityValue);
     SurfaceValue result = SurfaceValue.from(point, volatilitySensitivityValue);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex()
         .getCurrency2(), result);
