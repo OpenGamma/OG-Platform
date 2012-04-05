@@ -15,8 +15,8 @@ $.register_module({
         return function (config) {
             var selector = config.selector, total_width = config.width, total_height = config.height;
             $.when(css_tmpl(), header_tmpl(), container_tmpl()).then(function (css_tmpl, header_tmpl, container_tmpl) {
-                var gen_rows, gen_head, gen_data, gen_css, viewport, header, width, columns,
-                    data = new og.analytics.Data, id = '#analytics_grid_' + counter++, col_css;
+                var alive, resize, gen_rows, gen_head, gen_data, gen_css, header, width, columns,
+                    data = new og.analytics.Data, id = '#analytics_grid_' + counter++, col_css, $style;
                 if (!templates) templates = {
                     css: Handlebars.compile(css_tmpl),
                     header: Handlebars.compile(header_tmpl),
@@ -63,9 +63,9 @@ $.register_module({
                     });
                 };
                 load_css = function (css) {
-                    var $style = $('<style type="text/css" />').appendTo($('head'));
-                    if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
-                    else $style[0].appendChild(document.createTextNode(css));
+                    $style = $('<style type="text/css" />').appendTo($('head'));
+                    if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
+                    $style[0].appendChild(document.createTextNode(css));
                 };
                 col_css = function (columns, col_offset) {
                     var partial_width = 0, total_width = columns.reduce(function (acc, val) {
@@ -82,7 +82,7 @@ $.register_module({
                         return css;
                     })
                 };
-                data.init(function (result) {
+                initialize = function (result) {
                     columns = result;
                     header = {height: '51'}; // Stub
                     width = (function (columns) { // width of fixed and scrollable column areas
@@ -91,8 +91,7 @@ $.register_module({
                             scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
                         };
                     })(columns);
-                    viewport = {width: total_width - width.fixed, height: total_height};
-                    var css_data = {
+                    var viewport = {width: total_width - width.fixed, height: total_height}, css_data = {
                         id: id,
                         height: viewport.height,
                         viewport_width: viewport.width,
@@ -114,12 +113,19 @@ $.register_module({
                     $(id + ' .OG-g-b-scroll').html(gen_rows(false));
                     $(id + ' .OG-g-h-fixed').html(gen_head(columns.fixed));
                     $(id + ' .OG-g-h-scroll').html(gen_head(columns.scroll, columns.fixed.length));
-                    var scroll_len = columns.scroll.length;
-                    var fixed_num = columns.fixed.length;
+                    og.common.gadgets.manager.register({
+                        alive: function () {
+                            var alive = !!$(id).length;
+                            if (!alive && $style) $style.remove();
+                            return alive;
+                        },
+                        resize: function () {console.log('grid resize');}
+                    });
                     setInterval(function () {
                       $(id + ' .OG-g-b-scroll').html(gen_rows(false));
                     }, 30000);
-                });
+                };
+                data.init(initialize);
             });
         };
     }
