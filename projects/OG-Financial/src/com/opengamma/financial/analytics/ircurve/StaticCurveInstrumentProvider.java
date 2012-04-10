@@ -15,39 +15,47 @@ import com.opengamma.util.time.Tenor;
  * This should be pulled from the configuration.
  */
 public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
-  private ExternalId _identifier;
-  
-  public StaticCurveInstrumentProvider(ExternalId identifier) {
+  private final ExternalId _identifier;
+
+  public StaticCurveInstrumentProvider(final ExternalId identifier) {
     _identifier = identifier;
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
     return _identifier;
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
     throw new OpenGammaRuntimeException("futures not supported by this class");
   }
-  
+
   @Override
-  public boolean equals(Object o) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
+    if (isPeriodicZeroDeposit) {
+      return _identifier;
+    }
+    throw new OpenGammaRuntimeException("Flag indicating periodic zero deposit was false");
+  }
+
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof StaticCurveInstrumentProvider)) {
       return false;
     }
-    StaticCurveInstrumentProvider other = (StaticCurveInstrumentProvider) o;
+    final StaticCurveInstrumentProvider other = (StaticCurveInstrumentProvider) o;
     return _identifier.equals(other._identifier);
   }
-  
+
   @Override
   public int hashCode() {
     return _identifier.hashCode();
   }
-  
+
   @Override
   public String toString() {
     return "StaticCurveInstrumentProvider[" + _identifier.toString() + "]";

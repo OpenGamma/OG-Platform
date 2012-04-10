@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.defaultproperties;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -22,8 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-//TODO don't like the split between pay and receive
-public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropertyFunction {
+public class ForexForwardDefaultPayCurveNamesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -32,7 +32,7 @@ public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropert
   private final String _curveCalculationMethod;
   private final String[] _applicableCurrencyNames;
 
-  public ForexForwardDefaultReceiveCurveNamesFunction(final String curveName, final String curveCalculationMethod, final String... applicableCurrencyNames) {
+  public ForexForwardDefaultPayCurveNamesFunction(final String curveName, final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
@@ -50,7 +50,7 @@ public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropert
     }
     final FXForwardSecurity fxForward = (FXForwardSecurity) security;
     for (final String currencyName : _applicableCurrencyNames) {
-      if (currencyName.equals(fxForward.getReceiveCurrency().getCode())) {
+      if (currencyName.equals(fxForward.getPayCurrency().getCode())) {
         return true;
       }
     }
@@ -60,17 +60,17 @@ public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropert
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.RECEIVE_CURVE);
-      defaults.addValuePropertyName(valueName, ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.PAY_CURVE);
+      defaults.addValuePropertyName(valueName, ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE.equals(propertyName)) {
       return Collections.singleton(_curveName);
     }
-    if (ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+    if (ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_curveCalculationMethod);
     }
     return null;

@@ -14,8 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -35,6 +35,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ValueRequirementNames.VEGA_MATRIX,
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
+    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final String _putCurveName;
