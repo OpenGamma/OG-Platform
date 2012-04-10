@@ -3,38 +3,33 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * 
  */
-public class ForexOptionBlackPresentValueFunction extends ForexOptionBlackSingleValuedFunction {
-  private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
+public class ForexOptionBlackCurrencyExposureFunction extends ForexOptionBlackSingleValuedFunction {
+  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  public ForexOptionBlackCurrencyExposureFunction() {
+    super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
-    ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
-    final CurrencyAmount ca = result.getCurrencyAmounts()[0];
-    final double amount = ca.getAmount();
-    return Collections.singleton(new ComputedValue(spec, amount));
+    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
-
 }

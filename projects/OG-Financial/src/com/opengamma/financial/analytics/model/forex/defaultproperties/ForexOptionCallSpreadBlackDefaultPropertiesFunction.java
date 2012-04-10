@@ -16,18 +16,17 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -36,6 +35,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
+    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final String _putCurveName;
@@ -47,9 +47,10 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
   private final String _surfaceName;
   private final String _putCurrency;
   private final String _callCurrency;
+  private final String _spread;
 
-  public ForexOptionBlackDefaultPropertiesFunction(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String putCurrency, final String callCurrency) {
+  public ForexOptionCallSpreadBlackDefaultPropertiesFunction(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String putCurrency, final String callCurrency, final String spread) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(putCurveName, "put curve name");
     ArgumentChecker.notNull(putForwardCurveName, "put forward curve name");
@@ -60,6 +61,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ArgumentChecker.notNull(surfaceName, "surface name");
     ArgumentChecker.notNull(putCurrency, "put currency");
     ArgumentChecker.notNull(callCurrency, "call currency");
+    ArgumentChecker.notNull(spread, "spread");
     _putCurveName = putCurveName;
     _putForwardCurveName = putForwardCurveName;
     _putCurveCalculationMethod = putCurveCalculationMethod;
@@ -69,6 +71,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     _surfaceName = surfaceName;
     _putCurrency = putCurrency;
     _callCurrency = callCurrency;
+    _spread = spread;
   }
 
   @Override
@@ -80,7 +83,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (!(security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity)) {
+    if (!(security instanceof FXDigitalOptionSecurity)) {
       return false;
     }
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
@@ -97,6 +100,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_CURVE);
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
     }
   }
@@ -120,6 +124,9 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     }
     if (ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_putCurveCalculationMethod);
+    }
+    if (ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE.equals(propertyName)) {
+      return Collections.singleton(_spread);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
