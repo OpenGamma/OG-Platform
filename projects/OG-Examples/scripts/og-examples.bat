@@ -43,7 +43,7 @@ GOTO :exit
 
 :start
 "%JAVACMD%" ^
-  -Xms1024m -Xmx3072m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC ^
+  -Xms512m -Xmx1024m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC ^
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing ^
   -Dlogback.configurationFile=%LOGBACK_CONFIG% ^
         -Dcommandmonitor.secret=OpenGamma ^
