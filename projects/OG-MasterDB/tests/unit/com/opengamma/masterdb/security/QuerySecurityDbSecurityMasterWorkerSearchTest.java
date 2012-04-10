@@ -137,6 +137,59 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   }
 
   //-------------------------------------------------------------------------
+
+  @Test
+  public void test_search_scheme() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setExternalIdValue("A");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(2, test.getDocuments().size());
+    assert101(test.getDocuments().get(0));
+    assert102(test.getDocuments().get(1));
+  }
+    
+  @Test
+  public void test_search_scheme_case() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setExternalIdScheme("gh");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_scheme_noMatch() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setExternalIdScheme("FooBar");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(0, test.getDocuments().size());
+  }
+  
+  @Test
+  public void test_search_scheme_wildcard() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setExternalIdScheme("G*");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+  
+  @Test
+  public void test_search_scheme_wildcardCase() {
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.setExternalIdScheme("g*");
+    SecuritySearchResult test = _secMaster.search(request);
+    
+    assertEquals(1, test.getDocuments().size());
+    assert102(test.getDocuments().get(0));
+  }
+
+  //-------------------------------------------------------------------------
+
   @Test
   public void test_search_name_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
