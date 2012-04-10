@@ -21,21 +21,19 @@ import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensi
 import com.opengamma.analytics.financial.forex.calculator.PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalCallSpreadBlackMethod;
-import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -59,7 +57,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final FXMatrix FX_MATRIX = TestsDataSetsForex.fxMatrix();
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
-  private static final SmileDeltaTermStructureParameter SMILE_TERM = TestsDataSetsForex.smile(REFERENCE_DATE);
+  private static final SmileDeltaTermStructureParameter SMILE_TERM = TestsDataSetsForex.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParameter SMILE_TERM_FLAT = TestsDataSetsForex.smileFlat(REFERENCE_DATE);
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
@@ -113,6 +111,28 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     MultipleCurrencyAmount pvM = METHOD_VANILLA_BLACK.presentValue(vanillaM, SMILE_BUNDLE);
     MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     MultipleCurrencyAmount pvComputed = METHOD_DIGITAL_SPREAD.presentValue(FOREX_CALL_OPTION, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the present value with an explicit computation.
+   */
+  public void presentValueDoubleQuadratic() {
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final SmileDeltaTermStructureParameter smileTerm = TestsDataSetsForex.smile3points(REFERENCE_DATE, interpolator);
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, smileTerm, Pair.of(EUR, USD));
+    double strikeM = STRIKE * (1 - STANDARD_SPREAD);
+    double strikeP = STRIKE * (1 + STANDARD_SPREAD);
+    Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
+    Forex forexP = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeP));
+    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_CALL_OPTION.getExpirationTime(), IS_CALL, IS_LONG);
+    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_CALL_OPTION.getExpirationTime(), IS_CALL, IS_LONG);
+    MultipleCurrencyAmount pvP = METHOD_VANILLA_BLACK.presentValue(vanillaP, smileBundle);
+    MultipleCurrencyAmount pvM = METHOD_VANILLA_BLACK.presentValue(vanillaM, smileBundle);
+    MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    MultipleCurrencyAmount pvComputed = METHOD_DIGITAL_SPREAD.presentValue(FOREX_CALL_OPTION, smileBundle);
     assertEquals("Forex Digital option: call spread method - present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PRICE);
   }
 
@@ -315,6 +335,63 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator(STANDARD_SPREAD);
     PresentValueForexBlackVolatilitySensitivity pvbvCalculator = calculator.visit(FOREX_CALL_OPTION, SMILE_BUNDLE);
     assertTrue("Forex Digital option: call spread method - present value volatility sensitivity", PresentValueForexBlackVolatilitySensitivity.compare(pvbvMethod, pvbvCalculator, TOLERANCE_DELTA));
+  }
+
+  @Test(enabled = false)
+  /**
+   * Analyzes the profile for digital options.
+   */
+  public void profile() {
+
+    //    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+    //        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final SmileDeltaTermStructureParameter smileTerm = TestsDataSetsForex.smile3points(REFERENCE_DATE, interpolator);
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, smileTerm, Pair.of(EUR, USD));
+
+    int nbStrike = 100;
+    double range = 0.40; // Spot = 1.40
+    double shift = 2 * range / nbStrike;
+    double[] strike = new double[nbStrike + 1];
+    ForexOptionDigital[] forexOptionDigital = new ForexOptionDigital[nbStrike + 1];
+    ForexOptionVanilla[] forexOptionVanilla = new ForexOptionVanilla[nbStrike + 1];
+    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
+      strike[loopstrike] = SPOT - range + loopstrike * shift;
+      ForexDefinition forexDefinitonUSD = ForexDefinition.fromAmounts(EUR, USD, OPTION_EXP_DATE, -NOTIONAL / strike[loopstrike], NOTIONAL);
+      ForexDefinition forexDefinitonEUR = ForexDefinition.fromAmounts(EUR, USD, OPTION_EXP_DATE, -1.0, strike[loopstrike]);
+      new ForexDefinition(EUR, USD, OPTION_PAY_DATE, NOTIONAL, strike[loopstrike]);
+      ForexOptionDigitalDefinition forexOptionDigitalDefiniton = new ForexOptionDigitalDefinition(forexDefinitonUSD, OPTION_EXP_DATE, IS_CALL, IS_LONG);
+      ForexOptionVanillaDefinition forexOptionVanillaDefiniton = new ForexOptionVanillaDefinition(forexDefinitonEUR, OPTION_EXP_DATE, IS_CALL, IS_LONG);
+      forexOptionDigital[loopstrike] = forexOptionDigitalDefiniton.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      forexOptionVanilla[loopstrike] = forexOptionVanillaDefiniton.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    }
+    double[] pvDigitalSpread = new double[nbStrike + 1];
+    double[] pvDigitalBlack = new double[nbStrike + 1];
+    double[] pvVanillaBlack = new double[nbStrike + 1];
+    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
+      pvDigitalSpread[loopstrike] = METHOD_DIGITAL_SPREAD.presentValue(forexOptionDigital[loopstrike], smileBundle).getAmount(USD);
+      pvDigitalBlack[loopstrike] = METHOD_DIGITAL_BLACK.presentValue(forexOptionDigital[loopstrike], smileBundle).getAmount(USD);
+      pvVanillaBlack[loopstrike] = METHOD_VANILLA_BLACK.presentValue(forexOptionVanilla[loopstrike], smileBundle).getAmount(USD);
+    }
+
+    final double dfDomestic = smileBundle.getCurve(forexOptionDigital[0].getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(
+        forexOptionDigital[0].getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smileBundle.getCurve(forexOptionDigital[0].getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(
+        forexOptionDigital[0].getUnderlyingForex().getPaymentTime());
+    final double forward = SPOT * dfForeign / dfDomestic;
+    double[] volBlack = new double[nbStrike + 1];
+    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
+      volBlack[loopstrike] = smileBundle.getVolatility(EUR, USD, forexOptionDigital[loopstrike].getExpirationTime(), strike[loopstrike], forward);
+    }
+    double[] density = new double[nbStrike - 1];
+    for (int loopstrike = 0; loopstrike < nbStrike - 1; loopstrike++) {
+      density[loopstrike] = (pvVanillaBlack[loopstrike + 2] + pvVanillaBlack[loopstrike] - 2 * pvVanillaBlack[loopstrike + 1]) / (shift * shift);
+    }
+    //
+    //    double test = 0.0;
+    //    test++;
+
   }
 
 }

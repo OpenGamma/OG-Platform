@@ -69,8 +69,11 @@ public class CurveSpecificationBuilderConfiguration {
    * @param swap6MInstrumentProviders a map of tenor to instrument providers for 6M swap curve instruments where 6M is the floating tenor
    * @param swap3MInstrumentProviders a map of tenor to instrument providers for 3M swap curve instruments where 3M is the floating tenor
    * @param basisSwapInstrumentProviders a map of tenor to instrument providers for basis swap instruments
-   * @param tenorSwapInstrumentProviders a map of tenor swap to instrument providers for tenor swap curve
-   * @param oisSwapInstrumentProviders a map of OIS swap to instrument providers for OIS swap curve instruments
+   * @param tenorSwapInstrumentProviders a map of tenor to instrument providers for tenor swap curve
+   * @param oisSwapInstrumentProviders a map of tenor to instrument providers for OIS swap curve instruments
+   * @param simpleZeroDepositInstrumentProviders a map of tenor to simple zero deposit instruments
+   * @param periodicZeroDepositInstrumentProviders a map of tenor to periodic zero deposit instruments
+   * @param continuousZeroDepositInstrumentProviders a map of tenor to continuous zero deposit instruments
    */
   public CurveSpecificationBuilderConfiguration(final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders,
@@ -315,11 +318,15 @@ public class CurveSpecificationBuilderConfiguration {
    * @return the identifier of the security to use
    */
   public ExternalId getPeriodicZeroDepositSecurity(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear) {
+    if (_periodicZeroDepositInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get periodic zero deposit instrument provider");
+    }
     final CurveInstrumentProvider mapper = _periodicZeroDepositInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, periodsPerYear, true);
+    } else {
+      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
     }
-    throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
   }
 
   /**
@@ -343,6 +350,9 @@ public class CurveSpecificationBuilderConfiguration {
    * @return the identifier of the security to use
    */
   public ExternalId getFutureSecurity(final LocalDate curveDate, final Tenor tenor, final int numberQuarterlyFuturesFromTenor) {
+    if (_futureInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get future instrument provider");
+    }
     final CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);
