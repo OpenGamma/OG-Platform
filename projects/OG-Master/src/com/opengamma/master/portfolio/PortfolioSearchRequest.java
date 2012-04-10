@@ -159,6 +159,9 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
       return false;
     }
     final PortfolioDocument document = (PortfolioDocument) obj;
+    if (getVisibility().getVisibilityLevel() < document.getVisibility().getVisibilityLevel()) {
+      return false;
+    }
     final ManageablePortfolio portfolio = document.getPortfolio();
     if (getPortfolioObjectIds() != null && getPortfolioObjectIds().contains(document.getObjectId()) == false) {
       return false;
