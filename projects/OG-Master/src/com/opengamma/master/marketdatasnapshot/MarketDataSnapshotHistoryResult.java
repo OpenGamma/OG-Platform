@@ -40,7 +40,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance from a collection of documents.
    * 
    * @param coll  the collection of documents to add, not null
    */
@@ -54,7 +54,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
    * 
    * @return the snapshots, not null
    */
-  public List<ManageableMarketDataSnapshot> getSnapshot() {
+  public List<ManageableMarketDataSnapshot> getSnapshots() {
     List<ManageableMarketDataSnapshot> result = new ArrayList<ManageableMarketDataSnapshot>();
     if (getDocuments() != null) {
       for (MarketDataSnapshotDocument doc : getDocuments()) {
@@ -80,7 +80,7 @@ public class MarketDataSnapshotHistoryResult extends AbstractHistoryResult<Marke
    * Thus, this method implies an assumption about uniqueness of the queried snapshot.
    * 
    * @return the matching snapshot, not null
-   * @throws IllegalStateException if no holiday was found
+   * @throws IllegalStateException if no snapshot was found
    */
   public ManageableMarketDataSnapshot getSingleSnapshot() {
     if (getDocuments().size() != 1) {

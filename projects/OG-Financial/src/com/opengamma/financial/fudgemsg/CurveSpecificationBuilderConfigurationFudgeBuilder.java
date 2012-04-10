@@ -29,7 +29,7 @@ import com.opengamma.util.time.Tenor;
  */
 @FudgeBuilderFor(CurveSpecificationBuilderConfiguration.class)
 public class CurveSpecificationBuilderConfigurationFudgeBuilder implements FudgeBuilder<CurveSpecificationBuilderConfiguration> {
-  
+
   private static final String CASH = "cashInstrumentProviders";
   private static final String FRA = "fraInstrumentProviders";
   private static final String FRA_3M = "fra3MInstrumentProviders";
@@ -47,6 +47,9 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
   private static final String BASIS_SWAP = "basisSwapInstrumentProviders";
   private static final String TENOR_SWAP = "tenorSwapInstrumentProviders";
   private static final String OIS_SWAP = "oisSwapInstrumentProviders";
+  private static final String SIMPLE_ZERO_DEPOSIT = "simpleZeroDepositInstrumentProviders";
+  private static final String PERIODIC_ZERO_DEPOSIT = "periodicZeroDepositInstrumentProviders";
+  private static final String CONTINUOUS_ZERO_DEPOSIT = "continuousZeroDepositInstrumentProviders";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CurveSpecificationBuilderConfiguration object) {
@@ -169,6 +172,30 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
         serializer.addToMessage(oisSwapInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
       }
       message.add(OIS_SWAP, oisSwapInstrumentProvidersMessage);
+    }
+
+    if (object.getSimpleZeroDepositInstrumentProviders() != null) {
+      final MutableFudgeMsg simpleZeroDepositInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getSimpleZeroDepositInstrumentProviders().entrySet()) {
+        serializer.addToMessage(simpleZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(SIMPLE_ZERO_DEPOSIT, simpleZeroDepositInstrumentProvidersMessage);
+    }
+
+    if (object.getPeriodicZeroDepositInstrumentProviders() != null) {
+      final MutableFudgeMsg periodicZeroDepositInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getPeriodicZeroDepositInstrumentProviders().entrySet()) {
+        serializer.addToMessage(periodicZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(PERIODIC_ZERO_DEPOSIT, periodicZeroDepositInstrumentProvidersMessage);
+    }
+
+    if (object.getContinuousZeroDepositInstrumentProviders() != null) {
+      final MutableFudgeMsg continuousZeroDepositInstrumentProvidersMessage = serializer.newMessage();
+      for (final Entry<Tenor, CurveInstrumentProvider> entry : object.getContinuousZeroDepositInstrumentProviders().entrySet()) {
+        serializer.addToMessage(continuousZeroDepositInstrumentProvidersMessage, entry.getKey().getPeriod().toString(), null, entry.getValue());
+      }
+      message.add(CONTINUOUS_ZERO_DEPOSIT, continuousZeroDepositInstrumentProvidersMessage);
     }
 
     return message;
@@ -346,8 +373,35 @@ public class CurveSpecificationBuilderConfigurationFudgeBuilder implements Fudge
       }
     }
 
+    Map<Tenor, CurveInstrumentProvider> simpleZeroDepositInstrumentProviders = null;
+    if (message.hasField(SIMPLE_ZERO_DEPOSIT)) {
+      final FudgeMsg simpleZeroDepositInstrumentProvidersMessage = message.getMessage(SIMPLE_ZERO_DEPOSIT);
+      simpleZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      for (final FudgeField field : simpleZeroDepositInstrumentProvidersMessage.getAllFields()) {
+        simpleZeroDepositInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    Map<Tenor, CurveInstrumentProvider> periodicZeroDepositInstrumentProviders = null;
+    if (message.hasField(PERIODIC_ZERO_DEPOSIT)) {
+      final FudgeMsg periodicZeroDepositInstrumentProvidersMessage = message.getMessage(PERIODIC_ZERO_DEPOSIT);
+      periodicZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      for (final FudgeField field : periodicZeroDepositInstrumentProvidersMessage.getAllFields()) {
+        periodicZeroDepositInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
+    Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders = null;
+    if (message.hasField(CONTINUOUS_ZERO_DEPOSIT)) {
+      final FudgeMsg continuousZeroDepositInstrumentProvidersMessage = message.getMessage(CONTINUOUS_ZERO_DEPOSIT);
+      continuousZeroDepositInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+      for (final FudgeField field : continuousZeroDepositInstrumentProvidersMessage.getAllFields()) {
+        continuousZeroDepositInstrumentProviders.put(new Tenor(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+      }
+    }
+
     return new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders, liborInstrumentProviders, euriborInstrumentProviders,
         cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders, swap3MInstrumentProviders, basisSwapInstrumentProviders,
-        tenorSwapInstrumentProviders, oisSwapInstrumentProviders);
+        tenorSwapInstrumentProviders, oisSwapInstrumentProviders, simpleZeroDepositInstrumentProviders, periodicZeroDepositInstrumentProviders, continuousZeroDepositInstrumentProviders);
   }
 }

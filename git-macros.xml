@@ -37,12 +37,7 @@
 		<attribute name="dest" />
 		<sequential>
 			<echo message="pulling @{dest} ------------------------------" />
-			<git command="pull" dir="@{dest}">
-				<args>
-					<arg value="origin"/>
-					<arg value="master"/>
-				</args>
-			</git>
+			<git command="pull" dir="@{dest}"/>
 		</sequential>
         </macrodef>
 

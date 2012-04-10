@@ -20,7 +20,9 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -75,7 +77,7 @@ import com.opengamma.util.tuple.Pair;
       }
     }
   }
-  
+
   @FudgeBuilderFor(MultipleCurrencyInterestRateCurveSensitivity.class)
   public static final class MultipleCurrencyInterestRateCurveSensitivityBuilder extends AbstractFudgeBuilder<MultipleCurrencyInterestRateCurveSensitivity> {
     private static final String CURRENCY_FIELD_NAME = "Currencies";
@@ -104,6 +106,47 @@ import com.opengamma.util.tuple.Pair;
       for (final Currency ccy : currencies) {
         serializer.addToMessage(message, CURRENCY_FIELD_NAME, null, ccy);
         serializer.addToMessage(message, SENSITIVITIES_FIELD_NAME, null, object.getSensitivity(ccy));
+      }
+    }
+  }
+
+  @FudgeBuilderFor(PresentValueForexBlackVolatilitySensitivity.class)
+  public static final class PresentValueForexBlackVolatilitySensitivityBuilder extends AbstractFudgeBuilder<PresentValueForexBlackVolatilitySensitivity> {
+    private static final String FIRST_CURRENCY_FIELD_NAME = "firstCurrency";
+    private static final String SECOND_CURRENCY_FIELD_NAME = "secondCurrency";
+    private static final String TIME_FIELD_NAME = "time";
+    private static final String STRIKE_FIELD_NAME = "strike";
+    private static final String VEGA_FIELD_NAME = "vega";
+    private static final String VEGA_ENTRY_NAME = "vegaEntry";
+
+    @Override
+    public PresentValueForexBlackVolatilitySensitivity buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Currency firstCurrency = Currency.of(message.getString(FIRST_CURRENCY_FIELD_NAME));
+      final Currency secondCurrency = Currency.of(message.getString(SECOND_CURRENCY_FIELD_NAME));
+      final SurfaceValue vega = new SurfaceValue();
+      final List<FudgeField> vegaEntryFields = message.getAllByName(VEGA_ENTRY_NAME);
+      for (int i = 0; i < vegaEntryFields.size(); i++) {
+        final double time = ((FudgeMsg) vegaEntryFields.get(i).getValue()).getDouble(TIME_FIELD_NAME);
+        final double strike = ((FudgeMsg) vegaEntryFields.get(i).getValue()).getDouble(STRIKE_FIELD_NAME);
+        final Double vegaValue = ((FudgeMsg) vegaEntryFields.get(i).getValue()).getDouble(VEGA_FIELD_NAME);
+        vega.add(DoublesPair.of(time, strike), vegaValue);
+      }
+      return new PresentValueForexBlackVolatilitySensitivity(firstCurrency, secondCurrency, vega);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PresentValueForexBlackVolatilitySensitivity object) {
+      final Pair<Currency, Currency> currencies = object.getCurrencyPair();
+      message.add(FIRST_CURRENCY_FIELD_NAME, currencies.getFirst().getCode());
+      message.add(SECOND_CURRENCY_FIELD_NAME, currencies.getSecond().getCode());
+      final SurfaceValue vegas = object.getVega();
+      final HashMap<DoublesPair, Double> map = vegas.getMap();
+      for (final Map.Entry<DoublesPair, Double> entry : map.entrySet()) {
+        final MutableFudgeMsg perEntryMessage = serializer.newMessage();
+        perEntryMessage.add(TIME_FIELD_NAME, entry.getKey().first);
+        perEntryMessage.add(STRIKE_FIELD_NAME, entry.getKey().second);
+        perEntryMessage.add(VEGA_FIELD_NAME, entry.getValue());
+        message.add(VEGA_ENTRY_NAME, null, perEntryMessage);
       }
     }
   }

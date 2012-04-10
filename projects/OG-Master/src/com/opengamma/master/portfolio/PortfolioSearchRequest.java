@@ -166,7 +166,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     if (getPortfolioObjectIds() != null && getPortfolioObjectIds().contains(document.getObjectId()) == false) {
       return false;
     }
-    if (getNodeObjectIds() != null && portfolio.getRootNode().matchesAny(getNodeObjectIds()) == false) {
+    if (getNodeObjectIds() != null && portfolio.getRootNode().matchesAnyNode(getNodeObjectIds()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), portfolio.getName()) == false) {

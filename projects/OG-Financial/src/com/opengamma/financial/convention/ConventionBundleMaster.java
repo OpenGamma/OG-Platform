@@ -74,4 +74,6 @@ public interface ConventionBundleMaster {
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, boolean isCashSettled);
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, ExternalIdBundle capmRiskFreeRate, ExternalIdBundle capmMarket);
+  
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount);
 }
