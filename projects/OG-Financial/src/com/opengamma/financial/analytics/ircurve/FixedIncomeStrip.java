@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -16,6 +15,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -29,6 +29,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
   private final int _nthFutureFromTenor;
+  private final int _periodsPerYear;
 
   /**
    * Creates a strip for non-future, non-FRA and non-swap instruments.
@@ -38,13 +39,15 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    * @param conventionName  the name of the yield curve specification builder configuration
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final String conventionName) {
-    Validate.notNull(instrumentType, "InstrumentType");
-    Validate.isTrue(instrumentType != StripInstrumentType.FUTURE);
-    Validate.notNull(curveNodePointTime, "Tenor");
-    Validate.notNull(conventionName, "ConventionName");
+    ArgumentChecker.notNull(instrumentType, "InstrumentType");
+    ArgumentChecker.isTrue(instrumentType != StripInstrumentType.FUTURE, "Cannot handle futures in this constructor");
+    ArgumentChecker.isTrue(instrumentType != StripInstrumentType.PERIODIC_ZERO_DEPOSIT, "Cannot handle periodic zero deposits in this constructor");
+    ArgumentChecker.notNull(curveNodePointTime, "Tenor");
+    ArgumentChecker.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
     _curveNodePointTime = curveNodePointTime;
     _nthFutureFromTenor = 0;
+    _periodsPerYear = 0;
     _conventionName = conventionName;
   }
 
@@ -58,13 +61,28 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    *   e.g. 3 (tenor = 1YR) => 3rd quarterly future after curveDate +  1YR.
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final int nthFutureFromTenor, final String conventionName) {
-    Validate.isTrue(instrumentType == StripInstrumentType.FUTURE);
-    Validate.notNull(curveNodePointTime, "Tenor");
-    Validate.isTrue(nthFutureFromTenor > 0);
-    Validate.notNull(conventionName, "ConventionName");
+    ArgumentChecker.isTrue(instrumentType == StripInstrumentType.FUTURE, "Strip type for this constructor must be a future");
+    ArgumentChecker.notNull(curveNodePointTime, "Tenor");
+    ArgumentChecker.isTrue(nthFutureFromTenor > 0, "Number of future must be greater than zero");
+    ArgumentChecker.notNull(conventionName, "ConventionName");
     _instrumentType = instrumentType;
     _curveNodePointTime = curveNodePointTime;
     _nthFutureFromTenor = nthFutureFromTenor;
+    _conventionName = conventionName;
+    _periodsPerYear = 0;
+  }
+
+  public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final int periodsPerYear, final boolean isPeriodicZeroDepositStrip,
+      final String conventionName) {
+    ArgumentChecker.isTrue(instrumentType == StripInstrumentType.PERIODIC_ZERO_DEPOSIT, "Strip type for this constructor must be a periodic zero deposit");
+    ArgumentChecker.isTrue(isPeriodicZeroDepositStrip, "Must have flag indicating periodic zero deposit set to true");
+    ArgumentChecker.notNull(curveNodePointTime, "Tenor");
+    ArgumentChecker.isTrue(periodsPerYear > 0, "Number of periods per year must be greater than zero");
+    ArgumentChecker.notNull(conventionName, "ConventionName");
+    _instrumentType = instrumentType;
+    _curveNodePointTime = curveNodePointTime;
+    _periodsPerYear = periodsPerYear;
+    _nthFutureFromTenor = 0;
     _conventionName = conventionName;
   }
 
@@ -102,6 +120,19 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
+   * Get the periods per year of a periodic zero deposit security
+   * 
+   * @return the number of periods per year
+   * @throws IllegalStateException if called on a non-periodic zero deposit strip
+   */
+  public int getPeriodsPerYear() {
+    if (_instrumentType != StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+      throw new IllegalStateException("Cannot get number of periods per year for a non-periodic zero deposit strip " + toString());
+    }
+    return _periodsPerYear;
+  }
+
+  /**
    * Gets the name of the convention used to resolve this strip definition into a security.
    * 
    * @return the name, not null
@@ -134,6 +165,9 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     if (getInstrumentType() == StripInstrumentType.FUTURE) {
       result = getNumberOfFuturesAfterTenor() - other.getNumberOfFuturesAfterTenor();
     }
+    if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+      result = getPeriodsPerYear() - other.getPeriodsPerYear();
+    }
     return result;
   }
 
@@ -148,6 +182,9 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
           && _instrumentType == other._instrumentType;
       if (getInstrumentType() == StripInstrumentType.FUTURE) {
         return result && _nthFutureFromTenor == other._nthFutureFromTenor;
+      }
+      if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+        return result && _periodsPerYear == other._periodsPerYear;
       }
       return result;
     }
@@ -171,6 +208,11 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     if (getInstrumentType() == StripInstrumentType.FUTURE) {
       sb.append("future number after tenor=");
       sb.append(getNumberOfFuturesAfterTenor());
+      sb.append(", ");
+    }
+    if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+      sb.append("periods per year=");
+      sb.append(getPeriodsPerYear());
       sb.append(", ");
     }
     sb.append("convention name=");
