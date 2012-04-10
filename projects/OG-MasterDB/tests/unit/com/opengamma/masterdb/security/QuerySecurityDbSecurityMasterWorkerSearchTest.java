@@ -365,7 +365,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_oneKey_Any_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalId(ExternalId.of("G", "HI"));
+    request.addExternalId(ExternalId.of("GH", "HI"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -397,7 +397,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_twoKeys_EF_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalIds(ExternalId.of("E", "F"), ExternalId.of("G", "HI"));
+    request.addExternalIds(ExternalId.of("E", "F"), ExternalId.of("GH", "HI"));
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -456,7 +456,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_oneKey_All_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalId(ExternalId.of("G", "HI"));
+    request.addExternalId(ExternalId.of("GH", "HI"));
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -524,7 +524,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_threeKeys_All_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI"));
+    request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("GH", "HI"));
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
@@ -580,7 +580,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_threeKeys_Exact_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI"));
+    request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("GH", "HI"));
     request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
