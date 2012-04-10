@@ -77,7 +77,8 @@ public class HistoricalTimeSeriesWriter {
   
   //-------------------------------------------------------------------------
   /**
-   * Adds or updates a time-series in the master.
+   * Adds or updates a time-series in the master.  Can be a sub-set of the data points present and will not 'erase' 
+   * points that are missing, only supplement them.
    * 
    * @param description  a description of the time-series for display purposes, not null
    * @param dataSource  the data source, not null

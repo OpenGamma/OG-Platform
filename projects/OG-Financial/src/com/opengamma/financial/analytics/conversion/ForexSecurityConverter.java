@@ -67,16 +67,14 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime settlementDate = fxDigitalOptionSecurity.getSettlementDate();
     final boolean isLong = fxDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      final double fxRate = callAmount / putAmount;
-      underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
-      // REVIEW: jim 6-Feb-2012 -- take account of NDF!
-      return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong);
+    final Currency payCurrency = fxDigitalOptionSecurity.getPaymentCurrency();
+    final boolean isCall = !callCurrency.equals(payCurrency);
+    if (isCall) {
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, -callAmount, putAmount);
+    } else {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, -putAmount, callAmount);
     }
-    final double fxRate = putAmount / callAmount;
-    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
-    // REVIEW: jim 6-Feb-2012 -- take account of NDF!
-    return new ForexOptionDigitalDefinition(underlying, expiry, true, isLong);
+    return new ForexOptionDigitalDefinition(underlying, expiry, isCall, isLong);
   }
 
   @Override
@@ -90,6 +88,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime settlementDate = fxNDFDigitalOptionSecurity.getSettlementDate();
     final boolean isLong = fxNDFDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
+    // TODO: Review this part (see digital options)
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);

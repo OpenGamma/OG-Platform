@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.forward;
 
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -20,11 +20,11 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardCurrencyExposureFunction extends ForexForwardFunction {
-  private static final CurrencyExposureForexCalculator CALCULATOR = CurrencyExposureForexCalculator.getInstance();
+public class ForexForwardPresentValueFunction extends ForexForwardFunction {
+  private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
 
-  public ForexForwardCurrencyExposureFunction() {
-    super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+  public ForexForwardPresentValueFunction() {
+    super(ValueRequirementNames.FX_PRESENT_VALUE);
   }
 
   @Override

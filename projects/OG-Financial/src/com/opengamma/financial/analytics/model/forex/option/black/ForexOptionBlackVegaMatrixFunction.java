@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.text.DecimalFormat;
 import java.util.Collections;

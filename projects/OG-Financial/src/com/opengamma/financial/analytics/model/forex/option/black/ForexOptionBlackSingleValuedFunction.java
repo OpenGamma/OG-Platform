@@ -3,13 +3,15 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.option.black;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -31,8 +33,7 @@ public abstract class ForexOptionBlackSingleValuedFunction extends ForexOptionBl
         .withAny(PROPERTY_CALL_CURVE)
         .withAny(PROPERTY_CALL_FORWARD_CURVE)
         .withAny(PROPERTY_CALL_CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+        .withAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   @Override
@@ -52,6 +53,9 @@ public abstract class ForexOptionBlackSingleValuedFunction extends ForexOptionBl
 
   protected static String getResultCurrency(final ComputationTarget target) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    if (security instanceof FXDigitalOptionSecurity) {
+      return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
+    }
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     Currency ccy;
