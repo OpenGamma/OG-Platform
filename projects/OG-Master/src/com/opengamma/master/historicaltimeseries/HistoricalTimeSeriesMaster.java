@@ -24,6 +24,12 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * This separation provides the optimal storage scheme for the data.
  * It is necessary, as the versioning of the time-series data points is distinct
  * from the versioning of the information.
+ * </p>
+ * <p>
+ * For more user friendly wrappers to this master see below:
+ * </p> 
+ * @see com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource
+ * @see com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesWriter 
  */
 @PublicSPI
 public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument>, ChangeProvider {
