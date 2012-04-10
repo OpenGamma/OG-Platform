@@ -103,7 +103,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
         3, "E", "F");
     template.update("INSERT INTO sec_idkey VALUES (?,?,?)",
-        4, "G", "HI");
+        4, "GH", "HI");
 //  security_id bigint not null,
 //  idkey_id bigint not null,
     template.update("INSERT INTO sec_security2idkey VALUES (?,?)",
@@ -179,7 +179,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends DbTest {
     assertEquals(uniqueId, security.getUniqueId());
     assertEquals("TestSecurity102", security.getName());
     assertEquals("EQUITY", security.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "HI")), security.getExternalIdBundle());
+    assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("GH", "HI")), security.getExternalIdBundle());
   }
 
   protected void assert201(final SecurityDocument test) {
