@@ -141,7 +141,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_scheme() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setExternalIdValue("A");
+    request.setExternalIdScheme("A");
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
