@@ -43,6 +43,10 @@ public enum StripInstrumentType {
   CIBOR,
   /** Stibor */
   STIBOR,
-  /** Zero deposit strip */
-  ZERO_DEPOSIT
+  /** Simple zero deposit strip */
+  SIMPLE_ZERO_DEPOSIT,
+  /** Periodic zero deposit strip */
+  PERIODIC_ZERO_DEPOSIT,
+  /** Continuous zero deposit strip */
+  CONTINUOUS_ZERO_DEPOSIT
 }
