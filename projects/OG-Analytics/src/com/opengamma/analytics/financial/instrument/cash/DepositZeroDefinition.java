@@ -157,7 +157,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   @Override
   public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.isTrue(!date.isAfter(_endDate), "date is after end date");
-    final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
+    final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
     if (startTime < 0) {
       return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate,
           _interestAmount, yieldCurveNames[0]);

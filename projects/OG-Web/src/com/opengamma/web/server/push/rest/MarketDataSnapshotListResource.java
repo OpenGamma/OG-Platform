@@ -46,7 +46,7 @@ public class MarketDataSnapshotListResource {
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setIncludeData(false);
     MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
-    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getMarketDataSnapshots();
+    List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getSnapshots();
 
     Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
     for (ManageableMarketDataSnapshot snapshot : snapshots) {

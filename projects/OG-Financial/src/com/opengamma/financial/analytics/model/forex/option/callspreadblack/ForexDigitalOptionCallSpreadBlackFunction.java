@@ -3,7 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
+
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_CALL_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_PUT_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,9 +22,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -38,11 +45,10 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -51,25 +57,15 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class ForexDigitalOptionCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
-  public static final String BLACK_METHOD = "BlackMethod";
-  /** The put curve property */
-  public static final String PROPERTY_PUT_CURVE = "PutCurve";
-  /** The advisory forward put curve property */
-  public static final String PROPERTY_PUT_FORWARD_CURVE = "PutForwardCurve";
-  /** The property for the calculation method for the put currency curves */
-  public static final String PROPERTY_PUT_CURVE_CALCULATION_METHOD = "PutCurveCalculationMethod";
-  /** The call curve property */
-  public static final String PROPERTY_CALL_CURVE = "CallCurve";
-  /** The advisory forward call curve property */
-  public static final String PROPERTY_CALL_FORWARD_CURVE = "CallForwardCurve";
-  /** The property for the calculation method for the call currency curves */
-  public static final String PROPERTY_CALL_CURVE_CALCULATION_METHOD = "CallCurveCalculationMethod";
+  public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
+  /** The name of the property that sets the value of the call spread */
+  public static final String PROPERTY_CALL_SPREAD_VALUE = "CallSpreadValue";
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexOptionBlackFunction(final String valueRequirementName) {
+  public ForexDigitalOptionCallSpreadBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
@@ -78,11 +74,10 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<?> definition = security.accept(VISITOR);
+    final FXDigitalOptionSecurity security = (FXDigitalOptionSecurity) target.getSecurity();
+    final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String putCurveName = desiredValue.getConstraint(PROPERTY_PUT_CURVE);
     final String callCurveName = desiredValue.getConstraint(PROPERTY_CALL_CURVE);
@@ -91,6 +86,8 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final String callForwardCurveName = desiredValue.getConstraint(PROPERTY_CALL_FORWARD_CURVE);
     final String putCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_PUT_CURVE_CALCULATION_METHOD);
     final String callCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+    final String spread = desiredValue.getConstraint(PROPERTY_CALL_SPREAD_VALUE);
+    final double spreadValue = Double.parseDouble(spread);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
@@ -119,7 +116,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
-    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
+    final ForexOptionDigital fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final Object spotObject = inputs.getValue(spotRequirement);
@@ -138,10 +135,10 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final SmileDeltaTermStructureParameter smiles = (SmileDeltaTermStructureParameter) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final ValueProperties.Builder properties = getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName, callForwardCurveName,
-        callCurveCalculationMethod, surfaceName, target);
+        callCurveCalculationMethod, surfaceName, spread, target);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
-    return getResult(fxOption, smileBundle, spec);
+    return getResult(fxOption, spreadValue, smileBundle, spec);
   }
 
   @Override
@@ -154,7 +151,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity || target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXDigitalOptionSecurity;
   }
 
   @Override
@@ -195,6 +192,10 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     if (callCurveCalculationMethods == null || callCurveCalculationMethods.size() != 1) {
       return null;
     }
+    final Set<String> spreads = constraints.getValues(PROPERTY_CALL_SPREAD_VALUE);
+    if (spreads == null || spreads.size() != 1) {
+      return null;
+    }
     final String putCurveName = putCurveNames.iterator().next();
     final String callCurveName = callCurveNames.iterator().next();
     final String putForwardCurveName = putForwardCurveNames.iterator().next();
@@ -214,9 +215,9 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   protected abstract ValueProperties.Builder getResultProperties(final ComputationTarget target);
 
   protected abstract ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final ComputationTarget target);
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String spread, final ComputationTarget target);
 
-  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final ForexOptionDigital fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec);
 
   protected static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;

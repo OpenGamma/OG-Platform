@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTr
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
@@ -163,7 +164,7 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitCouponIborFixed(CouponIborFixed payment) {
+  public Double visitCouponIborFixed(final CouponIborFixed payment) {
     return visitFixedCouponPayment(payment);
   }
 
@@ -185,5 +186,10 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   @Override
   public Double visitBondIborTransaction(final BondIborTransaction bond) {
     return visit(bond.getBondStandard());
+  }
+
+  @Override
+  public Double visitDepositZero(final DepositZero deposit) {
+    return deposit.getEndTime();
   }
 }

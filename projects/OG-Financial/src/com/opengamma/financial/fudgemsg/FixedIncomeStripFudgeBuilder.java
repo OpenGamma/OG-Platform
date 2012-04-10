@@ -25,6 +25,7 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
   private static final String TENOR = "tenor";
   private static final String CONVENTION_NAME = "conventionName";
   private static final String NUM_FUTURES = "numFutures";
+  private static final String PERIODS_PER_YEAR = "periodsPerYear";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedIncomeStrip object) {
@@ -34,6 +35,9 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
     serializer.addToMessage(message, TENOR, null, object.getCurveNodePointTime());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add(NUM_FUTURES, object.getNumberOfFuturesAfterTenor());
+    }
+    if (object.getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+      message.add(PERIODS_PER_YEAR, object.getPeriodsPerYear());
     }
     return message;
   }
@@ -46,6 +50,9 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
     if (type == StripInstrumentType.FUTURE) {
       final int numFutures = message.getInt(NUM_FUTURES);
       return new FixedIncomeStrip(type, tenor, numFutures, conventionName);
+    } else if (type == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+      final int periodsPerYear = message.getInt(PERIODS_PER_YEAR);
+      return new FixedIncomeStrip(type, tenor, periodsPerYear, true, conventionName);
     } else {
       return new FixedIncomeStrip(type, tenor, conventionName);
     }

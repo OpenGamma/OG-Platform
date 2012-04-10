@@ -26,8 +26,8 @@ done
 echo "### Creating empty database"
 
 $JAVA  -cp "$CLASSPATH" \
-  -Xms1024M \
-  -Xmx4096M \
+  -Xms512M \
+  -Xmx1024M \
   -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.util.examples.MainRunner \
   -n 3 \

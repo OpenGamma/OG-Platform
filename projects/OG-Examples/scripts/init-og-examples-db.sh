@@ -52,8 +52,8 @@ $JAVA  -cp "$CLASSPATH" \
 echo "### Adding example data"
 
 $JAVA  -cp "$CLASSPATH" \
-  -Xms1024M \
-  -Xmx4096M \
+  -Xms512M \
+  -Xmx1024M \
   -Dlogback.configurationFile=jetty-logback.xml \
   com.opengamma.examples.tool.ExampleDatabasePopulator
 
