@@ -154,6 +154,7 @@ private:
 			} else {
 				LOGDEBUG (TEXT ("No default JVM installed"));
 			}
+			// TODO: remove these when we go to 1.1.x; they are a legacy from the 1.0.x installer
 			// Try the version bundled with OG-Language
 			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Language"));
 			if (pszPath) {

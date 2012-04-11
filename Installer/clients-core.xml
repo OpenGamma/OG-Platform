@@ -5,59 +5,78 @@
   <condition property="disable.og.excel">
     <isset property="disable.language" />
   </condition>
-  <available property="enable.og.excel.i386" file="${install.dir}/install/OG-Excel.i386.msi" />
+  <available property="enable.og.excel.core" file="${install.dir}/install/OG-Excel-Core.msm" />
+  <condition property="disable.og.excel.core">
+    <isset property="disable.og.excel" />
+  </condition>
+  <target name="enable-og-excel-core" if="enable.og.excel.core" unless="disable.og.excel.core">
+    <ai-enable feature-id="og_excel" />
+    <property name="at.least.one.feature" value="true" />
+  </target>
+  <available property="enable.og.excel.i386" file="${install.dir}/install/OG-Excel-i386.msm" />
   <condition property="disable.og.excel.i386">
     <isset property="disable.og.excel" />
   </condition>
   <target name="enable-og-excel-i386" if="enable.og.excel.i386" unless="disable.og.excel.i386">
-    <ai-enable feature-id="og_excel32" build-id="${ai.build.i386}" />
-    <ai-enable-chain chain-id="OG_Excel.i386.msi" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_excel_32" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <available property="enable.og.excel.x64" file="${install.dir}/install/OG-Excel.x64.msi" />
+  <available property="enable.og.excel.x64" file="${install.dir}/install/OG-Excel-x64.msm" />
   <condition property="disable.og.excel.x64">
     <isset property="disable.og.excel" />
   </condition>
   <target name="enable-og-excel-x64" if="enable.og.excel.x64" unless="disable.og.excel.x64">
-    <ai-enable feature-id="og_excel64" build-id="${ai.build.x64}" />
-    <ai-enable-chain chain-id="OG_Excel.x64.msi" build-id="${ai.build.x64}" />
+    <ai-enable feature-id="og_excel_64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <target name="enable-og-excel" depends="enable-og-excel-i386,enable-og-excel-x64" />
+  <target name="enable-og-excel" depends="enable-og-excel-core,enable-og-excel-i386,enable-og-excel-x64" />
 
   <condition property="disable.og.language">
     <isset property="disable.language" />
   </condition>
-  <available property="enable.og.language.i386" file="${install.dir}/install/OG-Language.i386.msi" />
+  <available property="enable.og.language.core" file="${install.dir}/install/OG-Language-Core.msm" />
+  <condition property="disable.og.language.core">
+    <isset property="disable.og.language" />
+  </condition>
+  <target name="enable-og-language-core" if="enable.og.language.core" unless="disable.og.language.core">
+    <ai-enable feature-id="og_language_core" />
+    <property name="at.least.one.feature" value="true" />
+  </target>
+  <available property="enable.og.language.i386" file="${install.dir}/install/OG-Language-i386.msm" />
   <condition property="disable.og.language.i386">
     <isset property="disable.og.language" />
   </condition>
   <target name="enable-og-language-i386" if="enable.og.language.i386" unless="disable.og.language.i386">
-    <ai-enable feature-id="og_language32" build-id="${ai.build.i386}" />
-    <ai-enable-chain chain-id="OG_Language.i386.msi" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_language_32" build-id="${ai.build.i386}" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <available property="enable.og.language.x64" file="${install.dir}/install/OG-Language.x64.msi" />
+  <available property="enable.og.language.sdk" file="${install.dir}/install/OG-Language-SDK.msm" />
+  <condition property="disable.og.language.sdk">
+    <isset property="disable.og.language" />
+  </condition>
+  <target name="enable-og-language-sdk" if="enable.og.language.sdk" unless="disable.og.language.sdk">
+    <ai-enable feature-id="og_language_sdk" />
+    <property name="at.least.one.feature" value="true" />
+  </target>
+  <available property="enable.og.language.x64" file="${install.dir}/install/OG-Language-x64.msm" />
   <condition property="disable.og.language.x64">
     <isset property="disable.og.language" />
   </condition>
   <target name="enable-og-language-x64" if="enable.og.language.x64" unless="disable.og.language.x64">
-    <ai-enable feature-id="og_language64" build-id="${ai.build.x64}" />
-    <ai-enable-chain chain-id="OG_Language.x64.msi" build-id="${ai.build.x64}" />
+    <ai-enable feature-id="og_language_64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <target name="enable-og-language" depends="enable-og-language-i386,enable-og-language-x64" />
+  <target name="enable-og-language" depends="enable-og-language-core,enable-og-language-i386,enable-og-language-sdk,enable-og-language-x64" />
 
   <condition property="disable.og.python">
     <isset property="disable.language" />
   </condition>
-  <available property="enable.og.python.i386" file="${install.dir}/install/OG-Python.i386.msi" />
+  <available property="enable.og.python.i386" file="${install.dir}/install/OG-Python.i386.msm" />
   <condition property="disable.og.python.i386">
     <isset property="disable.og.python" />
   </condition>
   <target name="enable-og-python-i386" if="enable.og.python.i386" unless="disable.og.python.i386">
-    <ai-enable feature-id="og_python32" build-id="${ai.build.i386}" />
-    <ai-enable-chain chain-id="OG_Python.i386.msi" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_python_32" build-id="${ai.build.i386}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.og.python.x64" file="${install.dir}/install/OG-Python.x64.msi" />
@@ -65,8 +84,7 @@
     <isset property="disable.og.python" />
   </condition>
   <target name="enable-og-python-x64" if="enable.og.python.x64" unless="disable.og.python.x64">
-    <ai-enable feature-id="og_python64" build-id="${ai.build.x64}" />
-    <ai-enable-chain chain-id="OG_Python.x64.msi" build-id="${ai.build.x64}" />
+    <ai-enable feature-id="og_python_64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <target name="enable-og-python" depends="enable-og-python-i386,enable-og-python-x64" />
@@ -74,25 +92,11 @@
   <condition property="disable.og.rstats">
     <isset property="disable.language" />
   </condition>
-  <available property="enable.og.rstats.i386" file="${install.dir}/install/OG-RStats.i386.msi" />
-  <condition property="disable.og.rstats.i386">
-    <isset property="disable.og.rstats" />
-  </condition>
-  <target name="enable-og-rstats-i386" if="enable.og.rstats.i386" unless="disable.og.rstats.i386">
-    <ai-enable feature-id="og_rstats32" build-id="${ai.build.i386}" />
-    <ai-enable-chain chain-id="OG_RStats.i386.msi" build-id="${ai.build.i386}" />
+  <available property="enable.og.rstats" file="${install.dir}/install/OG-RStats.msm" />
+  <target name="enable-og-rstats" if="enable.og.rstats" unless="disable.og.rstats">
+    <ai-enable feature-id="og_rstats" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <available property="enable.og.rstats.x64" file="${install.dir}/install/OG-RStats.x64.msi" />
-  <condition property="disable.og.rstats.x64">
-    <isset property="disable.og.rstats" />
-  </condition>
-  <target name="enable-og-rstats-x64" if="enable.og.rstats.x64" unless="disable.og.rstats.x64">
-    <ai-enable feature-id="og_rstats64" build-id="${ai.build.x64}" />
-    <ai-enable-chain chain-id="OG_RStats.x64.msi" build-id="${ai.build.x64}" />
-    <property name="at.least.one.feature" value="true" />
-  </target>
-  <target name="enable-og-rstats" depends="enable-og-rstats-i386,enable-og-rstats-x64" />
 
   <target name="enable-language" depends="enable-og-excel,enable-og-language,enable-og-python,enable-og-rstats" />
 

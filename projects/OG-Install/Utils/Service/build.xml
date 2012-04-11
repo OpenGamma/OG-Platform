@@ -1,4 +1,4 @@
-<project name="Windowing">
+<project name="Service">
 
   <import file="${common.dir}/cpp.xml" />
   

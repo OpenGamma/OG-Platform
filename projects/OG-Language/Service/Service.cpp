@@ -363,12 +363,33 @@ void ServiceConfigure () {
 		LOGERROR (TEXT ("Couldn't create JVM"));
 		return;
 	}
-	g_poJVM->Configure ();
+	bool bRestart = g_poJVM->Configure ();
 	delete g_poJVM;
 	g_poJVM = NULL;
+	if (bRestart) {
+		CSettings oSettings;
 #ifdef _WIN32
-	// TODO: if installed as a service, restart it
+		PCTSTR pszServiceName = oSettings.GetServiceName ();
+		SC_HANDLE hSCM = OpenSCManager (NULL, NULL, GENERIC_READ);
+		if (hSCM) {
+			SC_HANDLE hService = OpenService (hSCM, pszServiceName, SERVICE_STOP);
+			if (hService) {
+				SERVICE_STATUS ss;
+				if (ControlService (hService, SERVICE_CONTROL_STOP, &ss)) {
+					LOGINFO (TEXT ("Stopped service ") << pszServiceName);
+				} else {
+					LOGWARN (TEXT ("Couldn't stop ") << pszServiceName << TEXT (", error ") << GetLastError ());
+				}
+				CloseServiceHandle (hService);
+			} else {
+				LOGWARN (TEXT ("Couldn't open ") << pszServiceName << TEXT (" service to restart"));
+			}
+			CloseServiceHandle (hSCM);
+		} else {
+			LOGWARN (TEXT ("Couldn't connect to service manager, error ") << GetLastError ());
+		}
 #else /* ifdef _WIN32 */
-	// TODO: kill the service runner process
+		// TODO: kill the service runner process
 #endif /* ifdef _WIN32 */
+	}
 }
