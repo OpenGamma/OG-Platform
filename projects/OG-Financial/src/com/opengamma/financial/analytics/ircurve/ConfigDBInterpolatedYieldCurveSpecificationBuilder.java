@@ -70,7 +70,7 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
         case FUTURE:
           identifier = builderConfig.getFutureSecurity(curveDate, strip.getCurveNodePointTime(), strip.getNumberOfFuturesAfterTenor());
           break;
-        case LIBOR: //TODO is this right? It seems that we should have a generic IBOR strip. We will need to think about how we deal with *ibor providers 
+        case LIBOR: //TODO is this right? It seems that we should have a generic IBOR strip. We will need to think about how we deal with *ibor providers
           identifier = builderConfig.getLiborSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         case EURIBOR:
@@ -103,6 +103,15 @@ public class ConfigDBInterpolatedYieldCurveSpecificationBuilder implements Inter
           break;
         case OIS_SWAP:
           identifier = builderConfig.getOISSwapSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case SIMPLE_ZERO_DEPOSIT:
+          identifier = builderConfig.getSimpleZeroDepositSecurity(curveDate, strip.getCurveNodePointTime());
+          break;
+        case PERIODIC_ZERO_DEPOSIT:
+          identifier = builderConfig.getPeriodicZeroDepositSecurity(curveDate, strip.getCurveNodePointTime(), strip.getPeriodsPerYear());
+          break;
+        case CONTINUOUS_ZERO_DEPOSIT:
+          identifier = builderConfig.getContinuousZeroDepositSecurity(curveDate, strip.getCurveNodePointTime());
           break;
         default:
           throw new OpenGammaRuntimeException("Unhandled type of instrument in curve definition " + strip.getInstrumentType());

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -69,6 +70,7 @@ public class ResultConverterCache {
     registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
     registerConverter(DoublesCurve.class, new CurveConverter());
     registerConverter(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesConverter());
+    registerConverter(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueVolatilitySensitivityConverter(_doubleConverter));
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {

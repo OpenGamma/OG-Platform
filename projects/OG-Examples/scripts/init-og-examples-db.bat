@@ -42,7 +42,7 @@ set CLASSPATH=og-examples.jar;lib\*;config
 FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
 
 "%JAVACMD%" -cp "%CLASSPATH%" ^
-  -Xms1024M ^
+  -Xms512M ^
   -Xmx1024M ^
   -Dlogback.configurationFile=jetty-logback.xml ^
   com.opengamma.examples.tool.ExampleDatabasePopulator

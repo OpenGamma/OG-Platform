@@ -16,4 +16,5 @@ import com.opengamma.util.time.Tenor;
 public interface CurveInstrumentProvider {
   ExternalId getInstrument(LocalDate curveDate, Tenor tenor);
   ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor);
+  ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int periodsPerYear, boolean isPeriodicZeroDeposit);
 }

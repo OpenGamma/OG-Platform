@@ -16,6 +16,7 @@ import java.util.Random;
 
 import javax.time.calendar.LocalDate;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +67,9 @@ public class SimulatedHistoricalDataGenerator {
   }
 
   private static void readFinishValues(Map<Pair<ExternalId, String>, Double> finishValues) {
+    CSVReader reader = null;
     try {
-      CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
+      reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
       // Read header row
       @SuppressWarnings("unused")
       String[] headers = reader.readNext();
@@ -93,7 +95,9 @@ public class SimulatedHistoricalDataGenerator {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
-    }    
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
   }
 
   public static ManageableHistoricalTimeSeriesInfo getSimulatedTimeSeriesInfo(final String dataField, final ExternalId identifier) {

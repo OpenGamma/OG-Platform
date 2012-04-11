@@ -50,11 +50,11 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the returned marketDataSnapshots from within the documents.
+   * Gets the returned snapshots from within the documents.
    * 
-   * @return the marketDataSnapshots, not null
+   * @return the snapshots, not null
    */
-  public List<ManageableMarketDataSnapshot> getMarketDataSnapshots() {
+  public List<ManageableMarketDataSnapshot> getSnapshots() {
     List<ManageableMarketDataSnapshot> result = new ArrayList<ManageableMarketDataSnapshot>();
     if (getDocuments() != null) {
       for (MarketDataSnapshotDocument doc : getDocuments()) {
@@ -65,24 +65,24 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
   }
 
   /**
-   * Gets the first marketDataSnapshot, or null if no documents.
+   * Gets the first snapshot, or null if no documents.
    * 
-   * @return the first marketDataSnapshot, null if none
+   * @return the first snapshot, null if none
    */
-  public ManageableMarketDataSnapshot getFirstMarketDataSnapshot() {
-    return getDocuments().size() > 0 ? getDocuments().get(0).getSnapshot()  : null;
+  public ManageableMarketDataSnapshot getFirstSnapshot() {
+    return getDocuments().size() > 0 ? getDocuments().get(0).getSnapshot() : null;
   }
 
   /**
    * Gets the single result expected from a query.
    * <p>
    * This throws an exception if more than 1 result is actually available.
-   * Thus, this method implies an assumption about uniqueness of the queried marketDataSnapshot.
+   * Thus, this method implies an assumption about uniqueness of the queried snapshot.
    * 
-   * @return the matching marketDataSnapshot, not null
-   * @throws IllegalStateException if no marketDataSnapshot was found
+   * @return the matching snapshot, not null
+   * @throws IllegalStateException if no snapshot was found
    */
-  public ManageableMarketDataSnapshot getSingleMarketDataSnapshot() {
+  public ManageableMarketDataSnapshot getSingleSnapshot() {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {

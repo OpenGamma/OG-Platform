@@ -6,14 +6,8 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -51,6 +45,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, forwardCurveName, fundingCurveName };
       case OIS_SWAP:
         return new String[] {fundingCurveName, fundingCurveName };
+      case PERIODIC_ZERO_DEPOSIT:
+        return new String[] {fundingCurveName };
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in funding curve instrument list");
     }
@@ -84,6 +80,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, fundingCurveName, forwardCurveName };
       case OIS_SWAP:
         return new String[] {fundingCurveName, fundingCurveName };
+      case PERIODIC_ZERO_DEPOSIT:
+        return new String[] {forwardCurveName };
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in forward curve instrument list");
     }
@@ -119,31 +117,6 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
     }
-  }
-
-  /**
-   * @param security the security
-   * @param fundingCurveName the funding curve name
-   * @param forwardCurveName the forward curve name
-   * @param properties the properties builder
-   * @deprecated Don't want to be passing curve names around like this
-   * @return the built properties
-   */
-  @Deprecated
-  public static ValueProperties getValuePropertiesForSecurity(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName, final Builder properties) {
-    final String[] curveNames = getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
-    final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    for (final String name : curveNames) {
-      if (name.equals(fundingCurveName)) {
-        properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
-      }
-      if (name.equals(forwardCurveName)) {
-        properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName);
-      }
-    }
-    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
-    properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode());
-    return properties.get();
   }
 
 }

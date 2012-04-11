@@ -925,6 +925,13 @@ public final class ValueRequirementNames {
    * The present value in both currencies of a FX instrument.
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
+  
+  
+  /**
+   * The value vega of a digital option that is priced using call spread replication
+   */
+  //TODO too specific? Only in here because we can't add the outputs for digital options (which has two in this case) and normal value vega
+  public static final String CALL_SPREAD_VALUE_VEGA = "Call Spread Value Vega";
 
   ///// Local Volatility
   //TODO this set of names might be too specific

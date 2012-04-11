@@ -56,4 +56,9 @@ opengamma.engine.host=${opengamma.engine.host}
 
   <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
+  <target name="installer" depends="installer-utils,core.installer" />
+  <target name="installer-utils">
+    <subant buildpath="${solution.dir}/../../Installer/Utils" />
+  </target>
+
 </project>

@@ -25,9 +25,9 @@ import com.opengamma.util.time.Tenor;
 public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentProvider {
 
   private static BiMap<MonthOfYear, Character> s_monthCode;
-  private String _futurePrefix;
-  private String _marketSector;
-  
+  private final String _futurePrefix;
+  private final String _marketSector;
+
   static {
     s_monthCode = HashBiMap.create();
     s_monthCode.put(MonthOfYear.JANUARY, 'F');
@@ -44,40 +44,45 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     s_monthCode.put(MonthOfYear.DECEMBER, 'Z');
   }
 
-  public BloombergFutureCurveInstrumentProvider(String futurePrefix, String marketSector) {
+  public BloombergFutureCurveInstrumentProvider(final String futurePrefix, final String marketSector) {
     _futurePrefix = futurePrefix;
     _marketSector = marketSector;
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
     throw new OpenGammaRuntimeException("Only futures supported");
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
+    throw new OpenGammaRuntimeException("Only futures supported");
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
     return createQuarterlyIRFutureStrips(curveDate, tenor, numQuarterlyFuturesFromTenor, _futurePrefix, " " + _marketSector);
   }
-    
+
   private static final DateAdjuster s_nextExpiryAdjuster = new NextExpiryAdjuster();
-    
-  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER; 
-  
-  private ExternalId createQuarterlyIRFutureStrips(LocalDate curveDate, Tenor tenor, int numQuartlyFuturesFromTenor, String prefix, String postfix) {
-    LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
+
+  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER;
+
+  private ExternalId createQuarterlyIRFutureStrips(final LocalDate curveDate, final Tenor tenor, final int numQuartlyFuturesFromTenor, final String prefix, final String postfix) {
+    final LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
     LocalDate futureExpiryDate = curveFutureStartDate.with(s_nextExpiryAdjuster);
     for (int i = 1; i < numQuartlyFuturesFromTenor; i++) {
       futureExpiryDate = futureExpiryDate.plusDays(7); // get us clear of expiry, shouldn't be necessary.
       futureExpiryDate = futureExpiryDate.with(s_nextExpiryAdjuster);
     }
-    StringBuilder futureCode = new StringBuilder();
+    final StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);
     futureCode.append(s_monthCode.get(futureExpiryDate.getMonthOfYear()));
-    LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
+    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     if (futureExpiryDate.isBefore(today.minus(Period.ofMonths(3)))) {
-      int yearsNum = futureExpiryDate.getYear() % 100;
+      final int yearsNum = futureExpiryDate.getYear() % 100;
       if (yearsNum < 10) {
-        futureCode.append("0"); // so we get '09' rather than '9'  
+        futureCode.append("0"); // so we get '09' rather than '9'
       }
       futureCode.append(Integer.toString(yearsNum));
     } else {
@@ -86,28 +91,30 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     futureCode.append(postfix);
     return ExternalId.of(SCHEME, futureCode.toString());
   }
-  
+
   // for serialisation only
   public String getFuturePrefix() {
     return _futurePrefix;
   }
-  
-  // for serialisation only  
+
+  // for serialisation only
   public String getMarketSector() {
     return _marketSector;
   }
 
-  public boolean equals(Object o) {
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof BloombergFutureCurveInstrumentProvider)) {
       return false;
     }
-    BloombergFutureCurveInstrumentProvider other = (BloombergFutureCurveInstrumentProvider) o;
+    final BloombergFutureCurveInstrumentProvider other = (BloombergFutureCurveInstrumentProvider) o;
     return getFuturePrefix().equals(other.getFuturePrefix()) && getMarketSector().equals(other.getMarketSector());
   }
-  
+
+  @Override
   public int hashCode() {
     return getFuturePrefix().hashCode() ^ getMarketSector().hashCode() * (2 ^ 16);
   }

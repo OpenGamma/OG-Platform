@@ -60,13 +60,13 @@ public class DepositZero implements InstrumentDerivative {
    * @param endTime The end time.
    * @param initialAmount The initial amount. Usually is equal to the notional or 0 if the amount has been paid in the past. Should be of the same sign as notional.
    * @param notional The notional.
-   * @param paymentAccrualFactor The accural factor (or year fraction).
+   * @param paymentAccrualFactor The accrual factor (or year fraction).
    * @param rate The interest rate and its composition type.
    * @param interestAmount  The interest amount to be paid at end date.
    * @param discountingCurveName The discounting curve name.
    */
-  public DepositZero(final Currency currency, double startTime, double endTime, double initialAmount, double notional, double paymentAccrualFactor,
-      final InterestRate rate, double interestAmount, final String discountingCurveName) {
+  public DepositZero(final Currency currency, final double startTime, final double endTime, final double initialAmount, final double notional, final double paymentAccrualFactor,
+      final InterestRate rate, final double interestAmount, final String discountingCurveName) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(rate, "Rate");
     ArgumentChecker.notNull(discountingCurveName, "Curve name");
@@ -90,7 +90,7 @@ public class DepositZero implements InstrumentDerivative {
   }
 
   /**
-   * Gets the deposit start time. 
+   * Gets the deposit start time.
    * @return The time.
    */
   public double getStartTime() {
@@ -154,18 +154,18 @@ public class DepositZero implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitDepositZero(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitDepositZero(this);
   }
 
   @Override
   public String toString() {
-    return "DepositZero " + _currency + " [" + _startTime + " - " + _endTime + "] - notional: " + _notional + " - rate: " + _rate;
+    return "DepositZero " + _currency + " [" + _startTime + ", " + _endTime + "], notional: " + _notional + ", rate: " + _rate;
   }
 
   @Override
@@ -192,7 +192,7 @@ public class DepositZero implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -202,7 +202,7 @@ public class DepositZero implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositZero other = (DepositZero) obj;
+    final DepositZero other = (DepositZero) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
