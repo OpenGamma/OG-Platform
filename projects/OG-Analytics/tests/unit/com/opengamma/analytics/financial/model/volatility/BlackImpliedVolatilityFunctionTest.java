@@ -106,7 +106,7 @@ public class BlackImpliedVolatilityFunctionTest {
       double vol = SABR.getVolatility(new EuropeanVanillaOption(k, T, true), FORWARD, SABR_DATA);
       double price = BlackFormulaRepository.price(FORWARD, k, T, vol, isCall);
       double impVol = BlackFormulaRepository.impliedVolatility(price, FORWARD, k, T, isCall);
-      System.out.println(k + "\t" + price + "\t" + vol + "\t" + impVol);
+      //  System.out.println(k + "\t" + price + "\t" + vol + "\t" + impVol);
       assertEquals(vol, impVol, 1e-3);
     }
 
