@@ -19,10 +19,11 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -58,7 +59,10 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
     final String surfaceName = desiredValue.getConstraint(SURFACE);
     final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
-    final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
+    //TODO R White testing using spline rather than SABR - this should be an option
+    final GeneralSmileInterpolator smileInterpolator = new SmileInterpolatorSpline();
+    final VolatilitySurfaceInterpolator surfaceFitter = new VolatilitySurfaceInterpolator(smileInterpolator, useLogTime, useIntegratedVariance, useLogValue);
+    //  final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
     final SmileSurfaceDataBundle data = getData(inputs, getVolatilityDataRequirement(target, surfaceName), getForwardCurveRequirement(target, curveCalculationMethodName, forwardCurveName));
     final BlackVolatilitySurface<?> impliedVolatilitySurface = surfaceFitter.getVolatilitySurface(data);
     final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, curveCalculationMethodName,

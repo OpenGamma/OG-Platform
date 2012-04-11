@@ -15,6 +15,7 @@ import static com.opengamma.financial.analytics.model.forex.option.black.ForexOp
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -41,12 +42,17 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .withAny(PROPERTY_CALL_FORWARD_CURVE)
         .withAny(PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(PROPERTY_CALL_SPREAD_VALUE)
-        .withAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String spread, final ComputationTarget target) {
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String spread,
+      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final ComputationTarget target) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
         .with(PROPERTY_PUT_CURVE, putCurveName)
@@ -57,6 +63,9 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .with(PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_CALL_SPREAD_VALUE, spread)
+        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 

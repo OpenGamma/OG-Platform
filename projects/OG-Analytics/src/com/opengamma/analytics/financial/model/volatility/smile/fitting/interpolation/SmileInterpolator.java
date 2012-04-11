@@ -52,10 +52,17 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   private final VolatilityFunctionProvider<T> _model;
   private final WeightingFunction _weightingFunction;
 
-  public SmileInterpolator(VolatilityFunctionProvider<T> model) {
+  public SmileInterpolator(final VolatilityFunctionProvider<T> model) {
     ArgumentChecker.notNull(model, "model");
     _model = model;
     _weightingFunction = DEFAULT_WEIGHTING_FUNCTION;
+  }
+
+  public SmileInterpolator(final VolatilityFunctionProvider<T> model, final WeightingFunction weightFunction) {
+    ArgumentChecker.notNull(model, "model");
+    ArgumentChecker.notNull(weightFunction, "weightFunction");
+    _model = model;
+    _weightingFunction = weightFunction;
   }
 
   public List<T> getFittedModelParameters(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {

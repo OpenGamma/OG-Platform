@@ -46,9 +46,14 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
+    final ZeroDepositConverter zeroDepositConverter = new ZeroDepositConverter(conventionSource);
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .cashSecurityVisitor(cashConverter)
+        .fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter)
-        .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
+        .futureSecurityVisitor(futureConverter)
+        .bondSecurityVisitor(bondConverter)
+        .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
     _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);
