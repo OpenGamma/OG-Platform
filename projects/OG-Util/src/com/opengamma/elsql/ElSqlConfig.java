@@ -40,6 +40,10 @@ public class ElSqlConfig {
    * A constant for the config needed for Vertica.
    */
   public static final ElSqlConfig VERTICA = new ElSqlConfig("Vertica");
+  /**
+   * A constant for the config needed for SQL Server.
+   */
+  public static final ElSqlConfig SQLSERVER = new ElSqlConfig("SQLServer");
 
   /**
    * The descriptive name.
