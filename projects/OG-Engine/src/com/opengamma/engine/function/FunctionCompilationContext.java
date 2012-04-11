@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -28,6 +29,10 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link PositionSource} should be bound.
+   */
+  public static final String POSITION_SOURCE_NAME = "positionSource";
   /**
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
@@ -99,6 +104,24 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setSecuritySource(SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
+  }
+  
+  /**
+   * Gets the source of positions.
+   * 
+   * @return the source of positions, null if not in the context
+   */
+  public PositionSource getPositionSource() {
+    return (PositionSource) get(POSITION_SOURCE_NAME);
+  }
+  
+  /**
+   * Sets the source of positions.
+   * 
+   * @param positionSource  the source of positions to bind
+   */
+  public void setPositionSource(PositionSource positionSource) {
+    put(POSITION_SOURCE_NAME, positionSource);
   }
 
   /**
