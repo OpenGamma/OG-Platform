@@ -85,7 +85,6 @@ public class BloombergIRFutureUtils {
     } else {
       futureCode.append(Integer.toString(futureExpiry.getYear() % 10));
     }
-    futureCode.append(" ");
     return futureCode.toString();
   }
   /**

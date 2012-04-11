@@ -92,9 +92,6 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     ticker.append(strike > _useCallAboveStrike ? "C " : "P ");// TODO REVIEW CASE
     ticker.append(FORMATTER.format(strike));
     ticker.append(" ");
-
-    
-    
     ticker.append(_postfix);
     return ExternalId.of(SCHEME, ticker.toString());
   }

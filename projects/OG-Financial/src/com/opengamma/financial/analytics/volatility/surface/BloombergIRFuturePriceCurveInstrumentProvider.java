@@ -8,14 +8,12 @@ package com.opengamma.financial.analytics.volatility.surface;
 import java.text.DecimalFormat;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.util.OpenGammaClock;
 
 /**
  *  Provider of Interest Rate Future Instrument ID's.
@@ -80,23 +78,8 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
   public ExternalId getInstrument(final Number futureNumber, final LocalDate curveDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futurePrefix);
-    
-    // Year convention for historical data is specific to the _futurePrefix 
-    LocalDate twoDigitYearSwitch; 
-    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    switch(BloombergIRFutureUtils.IRFuturePrefix.valueOf(_futurePrefix.trim())) {
-      case ED:
-        // Quarterly Eurodollar expiries trade for a decade. They begin just after the previous one expires
-        // To accomodate 1-digit years for active contracts, the expired one changes immediately
-        twoDigitYearSwitch = today.minus(Period.ofDays(2)); 
-        break;
-      default:
-        twoDigitYearSwitch = today.minus(Period.ofMonths(11));
-        break;
-    } 
-    final String monthYearCode = BloombergIRFutureUtils.getQuarterlyExpiryMonthYearCode(futureNumber.intValue(), curveDate, twoDigitYearSwitch);
-    ticker.append(monthYearCode);
-    
+    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue(), curveDate));
+    ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(ExternalScheme.of(_tickerScheme), ticker.toString());
   }
