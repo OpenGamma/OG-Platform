@@ -27,6 +27,7 @@ public class BloombergIRFuturePriceCurveInstrumentProviderFudgeBuilder implement
     message.add("futurePrefix", object.getFuturePrefix());
     message.add("postfix", object.getPostfix());
     message.add("dataFieldName", object.getDataFieldName());
+    message.add("tickerScheme", object.getTickerScheme());
     return message;
   }
 
@@ -34,6 +35,7 @@ public class BloombergIRFuturePriceCurveInstrumentProviderFudgeBuilder implement
   public BloombergIRFuturePriceCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return new BloombergIRFuturePriceCurveInstrumentProvider(message.getString("futurePrefix"),
                                                              message.getString("postfix"),
-                                                             message.getString("dataFieldName"));
+                                                             message.getString("dataFieldName"),
+                                                             message.getString("tickerScheme"));
   }
 }
