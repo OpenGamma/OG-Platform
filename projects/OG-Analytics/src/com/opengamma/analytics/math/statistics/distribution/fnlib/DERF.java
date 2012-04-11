@@ -3,12 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.maths.lowlevelapi.slatec.fnlib;
-
-import com.opengamma.analytics.math.statistics.distribution.fnlib.DCSEVL;
-import com.opengamma.analytics.math.statistics.distribution.fnlib.DERFC;
-import com.opengamma.analytics.math.statistics.distribution.fnlib.INITDS;
-import com.opengamma.maths.lowlevelapi.linearalgebra.blas.auxiliary.D1MACH;
+package com.opengamma.analytics.math.statistics.distribution.fnlib;
 
 /**
  * DERF(X) provides the ability to calculate the error function at position 'x'. 
@@ -17,8 +12,8 @@ import com.opengamma.maths.lowlevelapi.linearalgebra.blas.auxiliary.D1MACH;
  * See http://www.netlib.org/slatec/fnlib/derf.f
  */
 public class DERF {
-  static final double[] ERFCS = {
-      -0.49046121234691808039984544033376e-1,
+  static final double[] ERFCS = {//CSOFF
+  -0.49046121234691808039984544033376e-1,
       -0.14226120510371364237824741899631e+0,
       +0.10035582187599795575754676712933e-1,
       -0.57687646997674847650827025509167e-3,
@@ -39,6 +34,7 @@ public class DERF {
       +0.86550114699637626197333333333333e-28,
       -0.10788925177498064213333333333333e-29,
       +0.12811883993017002666666666666666e-31
+      //CSON
   };
 
   static final double SQRTPI = 1.77245385090551602729816748334115;

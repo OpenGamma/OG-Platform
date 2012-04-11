@@ -9,6 +9,7 @@ package com.opengamma.analytics.financial.model.volatility.local;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
@@ -175,6 +176,7 @@ public class DupireLocalVolatilityCalculator {
     }
     throw new IllegalArgumentException();
   }
+
   /**
    * Get the local volatility in the case where the option price is a function of the forward price
    * @param impliedVolatilitySurface The Black implied volatility surface
@@ -269,6 +271,96 @@ public class DupireLocalVolatilityCalculator {
     };
 
     return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
+  }
+
+  public LocalVolatilitySurfaceMoneyness getLocalVolatilityDebug(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
+
+    final Function<Double, Double> locVol = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        Validate.isTrue(t >= 0, "negative t");
+        Validate.isTrue(m >= 0, "negative m");
+
+        final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
+
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
+        final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+        final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+
+        double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        double theta = bTheta + vega * divT;
+        double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
+        double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
+        double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
+        double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
+        return Math.sqrt(2 * theta / dens) / m;
+      }
+
+    };
+
+    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
+  }
+
+  public Surface<Double, Double, Double> getTheta(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
+
+    final Function<Double, Double> theta = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        Validate.isTrue(t >= 0, "negative t");
+        Validate.isTrue(m >= 0, "negative m");
+
+        final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
+
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
+
+        double bTheta = -BlackFormulaRepository.theta(1.0, m, t, vol);
+        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        return bTheta + vega * divT;
+      }
+    };
+
+    return FunctionalDoublesSurface.from(theta);
+  }
+
+  public Surface<Double, Double, Double> getDensity(final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface) {
+
+    final Function<Double, Double> density = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        Validate.isTrue(t >= 0, "negative t");
+        Validate.isTrue(m >= 0, "negative m");
+
+        final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
+
+        final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+        final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+
+        double dg = BlackFormulaRepository.dualGamma(1.0, m, t, vol);
+        double vanna = BlackFormulaRepository.dualVanna(1.0, m, t, vol);
+        double vega = BlackFormulaRepository.vega(1.0, m, t, vol);
+        double vomma = BlackFormulaRepository.vomma(1.0, m, t, vol);
+        double dens = dg + 2 * vanna * divM + +vomma * divM * divM + vega * divM2;
+        return dens;
+      }
+    };
+
+    return FunctionalDoublesSurface.from(density);
   }
 
   private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid) {

@@ -35,10 +35,11 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -103,9 +104,12 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Can only use forward PDE; should never ask for this direction: " + pdeDirection);
     }
     final DupireLocalVolatilityCalculator localVolatilityCalculator = new DupireLocalVolatilityCalculator(h);
-    final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
+    //TODO R White testing using spline rather than SABR - this should be an option
+    final GeneralSmileInterpolator smileInterpolator = new SmileInterpolatorSpline();
+    final VolatilitySurfaceInterpolator surfaceFitter = new VolatilitySurfaceInterpolator(smileInterpolator, useLogTime, useIntegratedVariance, useLogValue);
+    //final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
     final LocalVolatilityForwardPDEGreekCalculator<?> calculator = new LocalVolatilityForwardPDEGreekCalculator<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
-        (MoneynessPiecewiseSABRSurfaceFitter) surfaceFitter, localVolatilityCalculator, maxMoneyness);
+        /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, maxMoneyness);
     final ValueSpecification spec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
         hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
         timeGridBunchingName, spaceGridBunchingName, maxMoneynessName, pdeDirection);
