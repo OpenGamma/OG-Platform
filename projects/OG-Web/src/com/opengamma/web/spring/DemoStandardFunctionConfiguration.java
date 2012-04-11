@@ -116,10 +116,7 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.BloombergForexSpotRateMarketDataFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPayCurveNamesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultReceiveCurveNamesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexOptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardPresentValueCurveSensitivityFunction;
@@ -127,12 +124,12 @@ import com.opengamma.financial.analytics.model.forex.forward.ForexForwardPresent
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackPV01Function;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
@@ -676,7 +673,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaQuoteMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", 
@@ -690,16 +687,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesFunction.class, "FUNDING", "PresentValue", "USD", "EUR", "GBP", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesFunction.class, "FUNDING", "PresentValue", "USD", "EUR", "GBP", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "FORWARD_3M", "FUNDING", "PresentValue", "USD", "AUD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "FORWARD_6M", "FUNDING", "PresentValue", "EUR", "GBP", "JPY"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "FORWARD_3M", "FUNDING", "PresentValue", "USD", "AUD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "FORWARD_6M", "FUNDING", "PresentValue", "EUR", "GBP", "JPY"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_3M", "PresentValue", "EUR", "USD"));
   }
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {

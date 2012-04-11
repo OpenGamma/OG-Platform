@@ -20,10 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOptionBlackSingleValuedFunction {
+public class ForexOptionBlackPresentValueCurveSensitivityFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
-  public ForexOptionPresentValueCurveSensitivityFunction() {
+  public ForexOptionBlackPresentValueCurveSensitivityFunction() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 

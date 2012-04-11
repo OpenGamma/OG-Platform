@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
-public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwardFunction {
+public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwardMultiValuedFunction {
   private static final PresentValueCurveSensitivityForexCalculator CALCULATOR = PresentValueCurveSensitivityForexCalculator.getInstance();
 
   public ForexForwardPresentValueCurveSensitivityFunction() {
