@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.statistics.distribution.fnlib.DERFC;
+
 /**
  * Tests DERFC
  */

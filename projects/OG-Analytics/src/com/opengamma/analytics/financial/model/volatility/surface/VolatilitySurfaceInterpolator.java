@@ -10,7 +10,7 @@ import static com.opengamma.analytics.math.FunctionUtils.square;
 import java.util.Arrays;
 
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.math.function.Function;
@@ -20,28 +20,99 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class VolatilitySurfaceInterpolator {
 
-  private static final GeneralSmileInterpolator DEFAULT_SMILE_INTERPOLATOR = new SmileInterpolatorSABR();
+  //TODO Set this back to SmileInterpolatorSABR() once a full fudge build is in place 
+  private static final GeneralSmileInterpolator DEFAULT_SMILE_INTERPOLATOR = new SmileInterpolatorSpline(); // new SmileInterpolatorSABR();
   private static final Interpolator1D DEFAULT_TIME_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final boolean USE_LOG_TIME = true;
   private static final boolean USE_INTEGRATED_VARIANCE = true;
+  private static final boolean USE_LOG_VALUE = true;
 
   private final GeneralSmileInterpolator _smileInterpolator;
   private final Interpolator1D _timeInterpolator;
   private final boolean _useLogTime;
+  private final boolean _useLogValue;
   private final boolean _useIntegratedVariance;
 
   public VolatilitySurfaceInterpolator() {
     _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
     _timeInterpolator = DEFAULT_TIME_INTERPOLATOR;
     _useLogTime = USE_LOG_TIME;
+    _useLogValue = USE_LOG_VALUE;
     _useIntegratedVariance = USE_INTEGRATED_VARIANCE;
+  }
+
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator) {
+    ArgumentChecker.notNull(smileInterpolator, "null smile interpolator");
+    _smileInterpolator = smileInterpolator;
+    _timeInterpolator = DEFAULT_TIME_INTERPOLATOR;
+    _useLogTime = USE_LOG_TIME;
+    _useLogValue = USE_LOG_VALUE;
+    _useIntegratedVariance = USE_INTEGRATED_VARIANCE;
+  }
+
+  public VolatilitySurfaceInterpolator(final Interpolator1D timeInterpolator) {
+    ArgumentChecker.notNull(timeInterpolator, "null time interpolator");
+    _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
+    _timeInterpolator = timeInterpolator;
+    _useLogTime = USE_LOG_TIME;
+    _useLogValue = USE_LOG_VALUE;
+    _useIntegratedVariance = USE_INTEGRATED_VARIANCE;
+  }
+
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final Interpolator1D timeInterpolator) {
+    ArgumentChecker.notNull(smileInterpolator, "null smile interpolator");
+    ArgumentChecker.notNull(timeInterpolator, "null time interpolator");
+    _smileInterpolator = smileInterpolator;
+    _timeInterpolator = timeInterpolator;
+    _useLogTime = USE_LOG_TIME;
+    _useLogValue = USE_LOG_VALUE;
+    _useIntegratedVariance = USE_INTEGRATED_VARIANCE;
+  }
+
+  public VolatilitySurfaceInterpolator(final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
+    _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
+    _timeInterpolator = DEFAULT_TIME_INTERPOLATOR;
+    _useLogTime = useLogTime;
+    _useIntegratedVariance = useIntegratedVariance;
+    _useLogValue = useLogValue;
+  }
+
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
+    ArgumentChecker.notNull(smileInterpolator, "null smile interpolator");
+    _smileInterpolator = smileInterpolator;
+    _timeInterpolator = DEFAULT_TIME_INTERPOLATOR;
+    _useLogTime = useLogTime;
+    _useIntegratedVariance = useIntegratedVariance;
+    _useLogValue = useLogValue;
+  }
+
+  public VolatilitySurfaceInterpolator(final Interpolator1D timeInterpolator, final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
+    ArgumentChecker.notNull(timeInterpolator, "null time interpolator");
+    _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
+    _timeInterpolator = timeInterpolator;
+    _useLogTime = useLogTime;
+    _useIntegratedVariance = useIntegratedVariance;
+    _useLogValue = useLogValue;
+  }
+
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final Interpolator1D timeInterpolator, final boolean useLogTime, final boolean useIntegratedVariance,
+      final boolean useLogValue) {
+    ArgumentChecker.notNull(smileInterpolator, "null smile interpolator");
+    ArgumentChecker.notNull(timeInterpolator, "null time interpolator");
+    _smileInterpolator = smileInterpolator;
+    _timeInterpolator = timeInterpolator;
+    _useLogTime = useLogTime;
+    _useIntegratedVariance = useIntegratedVariance;
+    _useLogValue = useLogValue;
   }
 
   //TODO add constructors to set options 
@@ -149,6 +220,10 @@ public class VolatilitySurfaceInterpolator {
         }
 
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(VolatilitySurfaceInterpolator.this, "getVolatilitySurface", marketData);
+      }
     };
 
     return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve());
@@ -158,6 +233,68 @@ public class VolatilitySurfaceInterpolator {
   public BlackVolatilitySurfaceMoneyness getBumpedVolatilitySurface(final SmileSurfaceDataBundle marketData, final int expiryIndex, final int strikeIndex, final double amount) {
     SmileSurfaceDataBundle bumpedData = marketData.withBumpedPoint(expiryIndex, strikeIndex, amount);
     return getVolatilitySurface(bumpedData);
+  }
+
+  public boolean useLogTime() {
+    return _useLogTime;
+  }
+
+  public boolean useIntegratedVariance() {
+    return _useIntegratedVariance;
+  }
+
+  public boolean useLogValue() {
+    return _useLogValue;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_smileInterpolator == null) ? 0 : _smileInterpolator.hashCode());
+    result = prime * result + ((_timeInterpolator == null) ? 0 : _timeInterpolator.hashCode());
+    result = prime * result + (_useIntegratedVariance ? 1231 : 1237);
+    result = prime * result + (_useLogTime ? 1231 : 1237);
+    result = prime * result + (_useLogValue ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    VolatilitySurfaceInterpolator other = (VolatilitySurfaceInterpolator) obj;
+    if (_smileInterpolator == null) {
+      if (other._smileInterpolator != null) {
+        return false;
+      }
+    } else if (!_smileInterpolator.equals(other._smileInterpolator)) {
+      return false;
+    }
+    if (_timeInterpolator == null) {
+      if (other._timeInterpolator != null) {
+        return false;
+      }
+    } else if (!_timeInterpolator.equals(other._timeInterpolator)) {
+      return false;
+    }
+    if (_useIntegratedVariance != other._useIntegratedVariance) {
+      return false;
+    }
+    if (_useLogTime != other._useLogTime) {
+      return false;
+    }
+    if (_useLogValue != other._useLogValue) {
+      return false;
+    }
+    return true;
   }
 
   //  private void checkMoneyness() {

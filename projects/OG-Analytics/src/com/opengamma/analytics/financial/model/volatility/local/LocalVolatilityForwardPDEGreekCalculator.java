@@ -26,13 +26,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
@@ -49,13 +49,14 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
   private final int _spaceSteps;
   private final double _timeGridBunching;
   private final double _spaceGridBunching;
-  private final PiecewiseSABRSurfaceFitter1<T> _surfaceFitter;
+  private final VolatilitySurfaceInterpolator _surfaceFitter;
+  // private final PiecewiseSABRSurfaceFitter1<T> _surfaceFitter;
   private final DupireLocalVolatilityCalculator _localVolatilityCalculator;
   private final double _maxMoneyness;
 
   //TODO remove surface fitter and local volatility calculator from here and put in a bundle with the local volatility surface
   public LocalVolatilityForwardPDEGreekCalculator(final double theta, final int timeSteps, final int spaceSteps,
-      final double timeGridBunching, final double spaceGridBunching, final PiecewiseSABRSurfaceFitter1<T> surfaceFitter,
+      final double timeGridBunching, final double spaceGridBunching, final VolatilitySurfaceInterpolator surfaceFitter, /*final PiecewiseSABRSurfaceFitter1<T> surfaceFitter,*/
       final DupireLocalVolatilityCalculator localVolatilityCalculator, final double maxMoneyness) {
     ArgumentChecker.isTrue(theta >= 0 && theta <= 1, "Theta must be >= 0 and <= 1; have {}", theta);
     ArgumentChecker.isTrue(timeSteps > 0, "Number of time steps must be greater than 0; have {}", timeSteps);

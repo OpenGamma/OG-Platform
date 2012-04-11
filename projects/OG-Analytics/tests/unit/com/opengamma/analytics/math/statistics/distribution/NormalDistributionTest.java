@@ -26,10 +26,11 @@ public class NormalDistributionTest extends ProbabilityDistributionTestCase {
     new NormalDistribution(0, 1, null);
   }
 
-  @Test(enabled = false)
-  public void printTest() {
+  @Test
+      (enabled = false)
+      public void printTest() {
     for (int i = 0; i < 201; i++) {
-      double x = -8.5 + 1.0 * i / 200.;
+      double x = -40 + 30 * i / 200.;
       double y = NORMAL.getCDF(x);
       System.out.println(x + "\t" + y);
     }
