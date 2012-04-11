@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -33,6 +34,16 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     this(DEFAULT_SABR, beta);
   }
 
+  public SmileInterpolatorSABR(final double beta, final WeightingFunction weightFunction) {
+    this(DEFAULT_SABR, beta, weightFunction);
+  }
+
+  public SmileInterpolatorSABR(final WeightingFunction weightFunction) {
+    super(DEFAULT_SABR, weightFunction);
+    _beta = DEFAULT_BETA;
+    _externalBeta = false;
+  }
+
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model) {
     super(model);
     _beta = DEFAULT_BETA;
@@ -41,6 +52,14 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
 
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {
     super(model);
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
+    _beta = beta;
+    _externalBeta = true;
+  }
+
+  public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta, final WeightingFunction weightFunction) {
+    super(model, weightFunction);
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
     _beta = beta;
     _externalBeta = true;
   }
