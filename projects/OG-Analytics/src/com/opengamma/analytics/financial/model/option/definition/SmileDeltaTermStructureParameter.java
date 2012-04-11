@@ -47,9 +47,9 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * Constructor from volatility term structure. The default interpolator is used to interpolate in the strike dimension. The default interpolator is linear with flat extrapolation.
    * @param volatilityTerm The volatility description at the different expiration.
    */
-  //  public SmileDeltaTermStructureParameter(final SmileDeltaParameter[] volatilityTerm) {
-  //    this(volatilityTerm, DEFAULT_INTERPOLATOR);
-  //  }
+  public SmileDeltaTermStructureParameter(final SmileDeltaParameter[] volatilityTerm) {
+    this(volatilityTerm, DEFAULT_INTERPOLATOR);
+  }
 
   /**
    * Constructor from volatility term structure.
