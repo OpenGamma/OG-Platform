@@ -199,7 +199,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public void setSecurityMaster(final SecurityMaster securityMaster) {
     _securityMaster = securityMaster;
   }
-
+  
   public String getCurrencyCurveName() {
     return _currencyCurveName;
   }

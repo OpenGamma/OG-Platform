@@ -18,18 +18,18 @@ import com.opengamma.util.time.Tenor;
  * This should be pulled from the configuration.
  */
 public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrumentProvider {
-  private Currency _ccy;
-  private StripInstrumentType _type;
+  private final Currency _ccy;
+  private final StripInstrumentType _type;
   private StripInstrumentType _idType;
-  private ExternalScheme _scheme;
-  public SyntheticIdentifierCurveInstrumentProvider(Currency ccy, StripInstrumentType type, ExternalScheme scheme) {
+  private final ExternalScheme _scheme;
+  public SyntheticIdentifierCurveInstrumentProvider(final Currency ccy, final StripInstrumentType type, final ExternalScheme scheme) {
     Validate.notNull(ccy, "currency");
     Validate.notNull(type, "instrument type");
     Validate.notNull(scheme, "generated identifier scheme");
     _ccy = ccy;
     _type = type;
     _scheme = scheme;
-    
+
     switch (type) {
       case SWAP_3M:
       case SWAP_6M:
@@ -44,44 +44,51 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
         break;
     }
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
     return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + tenor.getPeriod().toString());
   }
-  
+
   @Override
-  public ExternalId getInstrument(LocalDate curveDate, Tenor tenor, int numQuarterlyFuturesFromTenor) {
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
     return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + tenor.getPeriod().toString());
   }
-  
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
+    throw new UnsupportedOperationException();
+  }
+
   public Currency getCurrency() {
     return _ccy;
   }
-  
+
   public StripInstrumentType getType() {
     return _type;
   }
-  
+
   public ExternalScheme getScheme() {
     return _scheme;
   }
-  
-  public boolean equals(Object o) {
+
+  @Override
+  public boolean equals(final Object o) {
     if (o == null) {
       return false;
     }
     if (!(o instanceof SyntheticIdentifierCurveInstrumentProvider)) {
       return false;
     }
-    SyntheticIdentifierCurveInstrumentProvider other = (SyntheticIdentifierCurveInstrumentProvider) o;
+    final SyntheticIdentifierCurveInstrumentProvider other = (SyntheticIdentifierCurveInstrumentProvider) o;
     return _ccy.equals(other._ccy) &&
-           _type.equals(other._type) &&
-           _scheme.equals(other._scheme);
+        _type.equals(other._type) &&
+        _scheme.equals(other._scheme);
   }
-  
+
+  @Override
   public int hashCode() {
     return _ccy.hashCode() ^ (_type.hashCode() * 64);
   }
-  
+
 }

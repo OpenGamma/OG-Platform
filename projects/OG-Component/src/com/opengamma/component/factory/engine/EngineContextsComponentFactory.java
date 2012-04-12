@@ -133,6 +133,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
     context.setSecuritySource(getSecuritySource());
+    context.setPositionSource(getPositionSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     
     ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
@@ -157,6 +158,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
+    context.setPositionSource(getPositionSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     
     ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());

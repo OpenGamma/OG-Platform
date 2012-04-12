@@ -52,7 +52,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
   }
 
   /**
-   * Get the number of the quarterly IR futures after the tenor to choose.  
+   * Get the number of the quarterly IR futures after the tenor to choose.
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
    * @return number of futures after the tenor
    */
@@ -60,7 +60,17 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
     return _strip.getNumberOfFuturesAfterTenor();
   }
 
-  public FixedIncomeStripWithIdentifier(FixedIncomeStrip strip, final ExternalId security) {
+  /**
+   * Get the periods per year of a periodic zero deposit security
+   * 
+   * @return the number of periods per year
+   * @throws IllegalStateException if called on a non-periodic zero deposit strip
+   */
+  public int getPeriodsPerYear() {
+    return _strip.getPeriodsPerYear();
+  }
+
+  public FixedIncomeStripWithIdentifier(final FixedIncomeStrip strip, final ExternalId security) {
     Validate.notNull(strip);
     Validate.notNull(security);
     _strip = strip;
@@ -75,7 +85,7 @@ public class FixedIncomeStripWithIdentifier implements Comparable<FixedIncomeStr
     if (obj instanceof FixedIncomeStripWithIdentifier) {
       final FixedIncomeStripWithIdentifier other = (FixedIncomeStripWithIdentifier) obj;
       return ObjectUtils.equals(_strip, other._strip) &&
-             ObjectUtils.equals(_security, other._security);
+          ObjectUtils.equals(_security, other._security);
     }
     return false;
   }

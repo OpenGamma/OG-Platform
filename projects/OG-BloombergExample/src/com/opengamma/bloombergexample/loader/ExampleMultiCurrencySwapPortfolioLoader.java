@@ -37,7 +37,12 @@ import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfig
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.security.swap.*;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
@@ -170,7 +175,6 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
     for (Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
       ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, swapArgs.getFirst(), swapArgs.getSecond(), swapArgs.getThird());
       externalIds.add(swapRateForMaturityIdentifier);
-      s_logger.info("LOADING TS: {}  --->  {}", swapRateForMaturityIdentifier);
     }
 
     BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
@@ -178,7 +182,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
       ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
       new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
     loader.setReload(true);
-    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", null, null);
+    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
   }
 
   private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {
@@ -251,7 +255,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
     }
 
-    HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
+    HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST",
+        swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }

@@ -13,18 +13,26 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
  */
 public class BloombergForexSpotRateMarketDataFunction extends AbstractForexSpotRateMarketDataFunction {
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(desiredValue.getTargetSpecification().getUniqueId());
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, 
-        SecurityUtils.bloombergTickerSecurityId(currencyPair.getFirstCurrency().getCode() + currencyPair.getSecondCurrency().getCode() + " Curncy"));
+    final ValueRequirement spotRequirement;
+    // Implementation note: the currency pair order in FX is given by FXUtils.
+    if (FXUtils.isInBaseQuoteOrder(currencyPair.getFirstCurrency(), currencyPair.getSecondCurrency())) {
+      spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, SecurityUtils.bloombergTickerSecurityId(currencyPair.getFirstCurrency().getCode()
+          + currencyPair.getSecondCurrency().getCode() + " Curncy"));
+    } else {
+      spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, SecurityUtils.bloombergTickerSecurityId(currencyPair.getSecondCurrency().getCode()
+          + currencyPair.getFirstCurrency().getCode() + " Curncy"));
+    }
     return ImmutableSet.of(spotRequirement);
   }
 

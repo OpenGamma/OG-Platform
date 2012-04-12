@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -50,8 +51,9 @@ public class SimulatedMarketDataGenerator implements Runnable, Lifecycle {
   }
   
   public void readInitialValues(Resource initialValuesFile) {
+    CSVReader reader = null;
     try {
-      CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(initialValuesFile.getInputStream())));
+      reader = new CSVReader(new BufferedReader(new InputStreamReader(initialValuesFile.getInputStream())));
       // Read header row
       @SuppressWarnings("unused")
       String[] headers = reader.readNext();
@@ -79,7 +81,9 @@ public class SimulatedMarketDataGenerator implements Runnable, Lifecycle {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
-    }    
+    } finally {
+      IOUtils.closeQuietly(reader);
+    }
   }
   
   @Override

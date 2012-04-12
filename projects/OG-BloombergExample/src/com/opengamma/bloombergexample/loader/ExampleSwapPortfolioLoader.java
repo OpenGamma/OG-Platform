@@ -27,17 +27,16 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergConstants;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -148,11 +147,15 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
   protected void doRun() {
     InputStream inputStream = ExampleSwapPortfolioLoader.class.getResourceAsStream("example-swap-portfolio.csv");  
     if (inputStream != null) {
-      Collection<SwapSecurity> swaps = parseSwaps(inputStream);
-      if (swaps.size() == 0) {
-        throw new OpenGammaRuntimeException("No (valid) swaps were found in the specified file.");
+      try {
+        Collection<SwapSecurity> swaps = parseSwaps(inputStream);
+        if (swaps.size() == 0) {
+          throw new OpenGammaRuntimeException("No (valid) swaps were found in the specified file.");
+        }
+        persistToPortfolio(swaps, PORTFOLIO_NAME);
+      } finally {
+        IOUtils.closeQuietly(inputStream);
       }
-      persistToPortfolio(swaps, PORTFOLIO_NAME);
     }
   }
 

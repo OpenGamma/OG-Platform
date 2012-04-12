@@ -20,11 +20,10 @@ set_java_cmd() {
 build_classpath() {
   _CLASSPATH=""
   #XXX find -printf isn't in POSIX
-  _JARS=$(find lib -follow -name "*.jar" -xtype f -printf %p: 2>/dev/null)
-  _ZIPS=$(find lib -follow -name "*.zip" -xtype f -printf %p: 2>/dev/null)
-  _CLASSPATH=${_JARS}${_ZIPS}
-  #Remove the trailing ":"
-  _CLASSPATH=${_CLASSPATH%:}
+  _CLASSPATH=config:og-examples.jar
+  for FILE in `ls -1 lib/*` ; do
+    _CLASSPATH=${_CLASSPATH}:$FILE
+  done
   echo "${_CLASSPATH}"
 }
 
@@ -47,7 +46,7 @@ load_component_config() {
 
   PIDFILE=${PIDFILE:-${_COMPONENT}.pid}
   LOGFILE=${LOGFILE:-${_COMPONENT}-console.log}
-  MEM_OPTS=${MEM_OPTS:--Xms4096m -Xmx4096m}
+  MEM_OPTS=${MEM_OPTS:--Xms512m -Xmx1024m -XX:MaxPermSize=256m}
   GC_OPTS=${GC_OPTS:--XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing}
   EXTRA_JVM_OPTS=${EXTRA_JVM_OPTS:-""}
   LOGBACK_CONFIG=${LOGBACK_CONFIG:-engine-logback.xml}
@@ -66,6 +65,11 @@ set_commandmonitor_opts() {
 }
 
 start() {
+  if [ $(which setsid 2>/dev/null ) ]; then 
+    SETSID=setsid
+  else
+    SETSID=
+  fi
   RETVAL=0
   echo -n "Starting ${COMPONENT}"
   set_java_cmd
@@ -75,7 +79,7 @@ start() {
     RETVAL=6
     return
   fi
-  exec setsid $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
+  exec $SETSID $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \
   com.opengamma.component.OpenGammaComponentServer \
@@ -94,6 +98,7 @@ debug() {
     RETVAL=6
     return
   fi
+  echo
   $JAVA_CMD $MEM_OPTS $EXTRA_JVM_OPTS $COMMANDMONITOR_OPTS \
   -Dlogback.configurationFile=$LOGBACK_CONFIG \
   -cp $CLASSPATH \

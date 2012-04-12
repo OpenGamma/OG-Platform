@@ -5,6 +5,7 @@
 .OG-form .og-results-model-def .og-c1 {
   float: left;
   width: 40%;
+  max-width: 200px;
 }
 
 .OG-form .og-results-model-def .og-c2 {

@@ -315,6 +315,17 @@
     </copy>
   </target>
 
+  <target name="dist-install" depends="dist-name,install">
+    <mkdir dir="${dist.dir}" />
+    <tar destfile="${dist.dir}/${dist.platform.prefix}binary-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset uid="0" gid="0" dir="${install.dir}" includes="${install.name}/**" excludes="${install.name}/**/*.sh" />
+      <tarfileset uid="0" gid="0" dir="${install.dir}" includes="${install.name}/**/*.sh" filemode="755" />
+    </tar>
+    <zip destfile="${dist.dir}/${dist.platform.prefix}binary-${module.version.target}.zip">
+      <fileset dir="${install.dir}" includes="${install.name}/**" />
+    </zip>
+  </target>
+
   <!-- ================================================================== -->
   <target name="tests-individual-reports" depends="buildlist"
     description="run tests for all projects with separate reports">
@@ -640,7 +651,7 @@
       <property name="install.dir" value="${install.dir.full}" />
     </subant>
   </target>
-  
+
   <target name="clean-src"/>
 
 </project>

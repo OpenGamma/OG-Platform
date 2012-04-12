@@ -9,8 +9,9 @@ import java.util.Set;
 
 
 /**
- * 
- * @author kirk
+ * Provides reference data for security from a data provider like Bloomberg.
+ * <p>
+ * The reference data provider is a service for searching security fields from Bloomberg.
  */
 public interface ReferenceDataProvider {
 

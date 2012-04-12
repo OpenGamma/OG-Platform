@@ -7,16 +7,31 @@ package com.opengamma.analytics.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.LinearWeightingFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class DoubleQuadraticInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
+  private static final WeightingFunction DEFAULT_WEIGHT_FUNCTION = LinearWeightingFunction.getInstance();
+
+  private final WeightingFunction _weightFunction;
+
+  public DoubleQuadraticInterpolator1D() {
+    _weightFunction = DEFAULT_WEIGHT_FUNCTION;
+  }
+
+  public DoubleQuadraticInterpolator1D(final WeightingFunction weightFunction) {
+    ArgumentChecker.notNull(weightFunction, "null weight function");
+    _weightFunction = weightFunction;
+  }
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
@@ -42,7 +57,8 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
     }
     final RealPolynomialFunction1D quadratic1 = quadraticData.getQuadratic(low - 1);
     final RealPolynomialFunction1D quadratic2 = quadraticData.getQuadratic(high - 1);
-    final double w = (xData[high] - value) / (xData[high] - xData[low]);
+    final double w = _weightFunction.getWeight((xData[high] - value) / (xData[high] - xData[low]));
+    //final double w = (xData[high] - value) / (xData[high] - xData[low]);
     final double res = w * quadratic1.evaluate(value - xData[low]) + (1 - w) * quadratic2.evaluate(value - xData[high]);
     return res;
   }
@@ -75,7 +91,8 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
     }
     final double[] temp1 = getQuadraticSensitivities(xData, value, low);
     final double[] temp2 = getQuadraticSensitivities(xData, value, high);
-    final double w = (xData[high] - value) / (xData[high] - xData[low]);
+    final double w = _weightFunction.getWeight((xData[high] - value) / (xData[high] - xData[low]));
+    // final double w = (xData[high] - value) / (xData[high] - xData[low]);
     result[low - 1] = w * temp1[0];
     result[low] = w * temp1[1] + (1 - w) * temp2[0];
     result[high] = w * temp1[2] + (1 - w) * temp2[1];

@@ -19,6 +19,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import org.apache.commons.io.IOUtils;
 import org.mockito.stubbing.OngoingStubbing;
 import org.testng.annotations.Test;
 
@@ -182,8 +183,9 @@ public class TimeSeriesLoaderTest {
     String readId = "";
     List<LocalDate> dates = new ArrayList<LocalDate>();
     List<Double> values = new ArrayList<Double>();
+    CSVReader csvReader = null;
     try {
-      CSVReader csvReader = new CSVReader(new FileReader(FILENAME));
+      csvReader = new CSVReader(new FileReader(FILENAME));
       csvReader.readNext(); // discard header row
       String[] row;
       while ((row = csvReader.readNext()) != null) {
@@ -195,6 +197,8 @@ public class TimeSeriesLoaderTest {
     } catch (Throwable ex) {
       // TODO Auto-generated catch block
       ex.printStackTrace();
+    } finally {
+      IOUtils.closeQuietly(csvReader);
     }
     LocalDateDoubleTimeSeries compareDataPoints = new ListLocalDateDoubleTimeSeries(dates, values);
 

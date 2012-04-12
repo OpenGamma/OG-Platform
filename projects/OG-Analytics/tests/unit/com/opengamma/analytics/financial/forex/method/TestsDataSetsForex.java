@@ -11,13 +11,13 @@ import java.util.Map;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -76,24 +76,49 @@ public class TestsDataSetsForex {
   private static final double SPOT = 1.40;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
   private static final double[] ATM = {0.185, 0.18, 0.17, 0.16, 0.16};
-  private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
-  private static final double[][] STRANGLE = new double[][] { {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
+
+  private static final double[] DELTA_2 = new double[] {0.10, 0.25};
+  private static final double[][] RISK_REVERSAL_2 = new double[][] { {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
+  private static final double[][] STRANGLE_2 = new double[][] { {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
+
+  private static final double[] DELTA_1 = new double[] {0.25};
+  private static final double[][] RISK_REVERSAL_1 = new double[][] { {-0.0060}, {-0.0070}, {-0.0080}, {-0.0090}, {-0.0090}};
+  private static final double[][] STRANGLE_1 = new double[][] { {0.0110}, {0.0120}, {0.0130}, {0.0140}, {0.0140}};
 
   private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
-  public static SmileDeltaTermStructureParameter smile(final ZonedDateTime referenceDate) {
+  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2);
   }
 
-  public static SmileDeltaTermStructureParameter smile(final ZonedDateTime referenceDate, final double shift) {
+  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
+    final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
+    double[] timeToExpiry = new double[NB_EXP];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
+      timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
+    }
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2, interpolator);
+  }
+
+  public static SmileDeltaTermStructureParameter smile3points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
+    final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
+    double[] timeToExpiry = new double[NB_EXP];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
+      timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
+    }
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_1, ATM, RISK_REVERSAL_1, STRANGLE_1, interpolator);
+  }
+
+  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate, final double shift) {
     double[] atmShift = ATM.clone();
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
@@ -102,7 +127,7 @@ public class TestsDataSetsForex {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA, atmShift, RISK_REVERSAL, STRANGLE);
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, atmShift, RISK_REVERSAL_2, STRANGLE_2);
   }
 
   public static SmileDeltaTermStructureParameter smileFlat(final ZonedDateTime referenceDate) {
@@ -112,7 +137,7 @@ public class TestsDataSetsForex {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }
 
   public static FXMatrix fxMatrix() {

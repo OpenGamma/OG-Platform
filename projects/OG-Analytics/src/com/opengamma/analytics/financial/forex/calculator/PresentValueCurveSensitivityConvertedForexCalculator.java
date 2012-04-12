@@ -64,7 +64,7 @@ public class PresentValueCurveSensitivityConvertedForexCalculator extends Abstra
     for (final Currency ccy : pvcsMulti.getCurrencies()) {
       final InterestRateCurveSensitivity pvcs = pvcsMulti.getSensitivity(ccy);
       for (final String curve : pvcs.getCurves()) {
-        if (curvesCcy.getCcyMap().get(curve) == ccy) { // Identical currencies: no changes
+        if (curvesCcy.getCcyMap().get(curve).equals(ccy)) { // Identical currencies: no changes
           result = result.plus(curve, pvcs.getSensitivities().get(curve));
         } else { // Different currencies: exchange rate multiplication.
           ArgumentChecker.isTrue(curves instanceof YieldCurveWithFXBundle, "FX Conversion can be operated only if exchange rates are available.");

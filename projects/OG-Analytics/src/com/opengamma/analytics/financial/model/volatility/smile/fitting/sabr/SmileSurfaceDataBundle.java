@@ -13,6 +13,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class SmileSurfaceDataBundle {
 
+  public abstract int getNumExpiries();
+
   public abstract double[] getExpiries();
 
   public abstract double[][] getStrikes();
@@ -23,7 +25,7 @@ public abstract class SmileSurfaceDataBundle {
 
   public abstract ForwardCurve getForwardCurve();
 
-  public abstract boolean isCallData();
+  //  public abstract boolean isCallData();
 
   public abstract SmileSurfaceDataBundle withBumpedPoint(int expiryIndex, int strikeIndex, double amount);
 

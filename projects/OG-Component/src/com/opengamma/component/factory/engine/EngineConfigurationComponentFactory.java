@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -63,6 +64,9 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
         if (instance instanceof CalcNodeSocketConfiguration) {
           targetValue = instance;
         } else {
+          if (info.getUri() == null) {
+            throw new OpenGammaRuntimeException("Unable to add component to configuration as it has not been published by REST: " + valueStr);
+          }
           targetValue = new UriEndPointDescriptionProvider(info.getUri().toString());
         }
       }

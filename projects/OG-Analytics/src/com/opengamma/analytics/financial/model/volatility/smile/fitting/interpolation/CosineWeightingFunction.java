@@ -5,8 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
-
-
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -23,7 +22,7 @@ public final class CosineWeightingFunction extends WeightingFunction {
 
   @Override
   public double getWeight(final double y) {
-
+    ArgumentChecker.isInRangeInclusive(0, 1, y);
     final double cos = Math.cos(Math.PI / 2 * y);
     return cos * cos;
   }

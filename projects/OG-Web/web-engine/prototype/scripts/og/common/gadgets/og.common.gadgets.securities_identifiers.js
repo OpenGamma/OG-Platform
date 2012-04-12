@@ -4,28 +4,26 @@
  */
 $.register_module({
     name: 'og.common.gadgets.securities_identifiers',
-    dependencies: ['og.common.util.ui.dialog'],
+    dependencies: [],
     obj: function () {
-        var ui = og.common.util.ui, api = og.api, dependencies = ['id'];
+        var api = og.api, dependencies = ['id'], template, empty = ''.lang(),
+            prefix = 'securities_identifiers_', counter = 1;
         return function (config) {
-            var version = config.version !== '*' ? config.version : void 0,
-                height = config.height || 400, selector = config.selector,
-                tbody = '.og-js-gadgets-securities-identifiers';
-            handler = function (result, template) {
-                var identifiers = result.data.identifiers, id, html = [];
-                $(selector).html(template);
-                if (!Object.keys(identifiers)[0])
-                    $(tbody).html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
-                else for (id in identifiers) {
-                    if (identifiers.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
-                        '<span></td><td>', identifiers[id].replace(id + '-', ''), '</td></tr>');
-                    $(tbody).html(html.join(''));
-                }
+            var height = config.height || 150, render, version = config.version !== '*' ? config.version : void 0;
+            render = function (result, html_template) {
+                var ids = result.data.identifiers, keys = Object.keys(ids), alive = prefix + counter++, data = {
+                    alive: alive, empty: empty,
+                    ids: keys.map(function (key) {return {key: key.lang(), value: ids[key].replace(key + '-', '')};})
+                };
+                $(config.selector).html((template || (template = Handlebars.compile(html_template)))(data))
+                    .find('table').awesometable({height: height});
+                og.common.gadgets.manager
+                    .register({alive: function () {return !!$('.' + alive).length;}, resize: $.noop});
             };
             $.when(
                 api.rest.securities.get({dependencies: dependencies, id: config.id, cache_for: 500, version: version}),
-                api.text({module: 'og.views.gadgets.securities_identifiers'})
-            ).then(handler);
+                api.text({module: 'og.views.gadgets.securities_identifiers_tash'})
+            ).then(render);
         };
     }
 });
