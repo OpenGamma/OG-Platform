@@ -42,12 +42,8 @@ public class SabrExtrapolationExample {
         BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
         BlackFunctionData blackData = new BlackFunctionData(FORWARD, 1.0, 0.0);
 
-        // @export "data-file"
-        File data_file = new File("../dexy--smile-multi-mu-data.txt");
-        PrintStream data_stream = new PrintStream(data_file);
-        data_stream.println("Mu\tPrice\tStrike\tImpliedVolPct");
+        out.println("Mu\tPrice\tStrike\tImpliedVolPct");
 
-        // @export "loop"
         for (int i = 0; i < MU_VALUES.length; i++) {
             mu = MU_VALUES[i];
             sabrExtra = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, mu);
@@ -57,11 +53,9 @@ public class SabrExtrapolationExample {
                 EuropeanVanillaOption option = new EuropeanVanillaOption(strike, TIME_TO_EXPIRY, true);
                 price = sabrExtra.price(option);
                 impliedVolatilityPct = implied.getImpliedVolatility(blackData, option, price) * 100;
-                data_stream.format("%4.0f\t%1.10f\t%1.10f\t%1.10f%n", mu, price, strike, impliedVolatilityPct);
+                out.format("%4.0f\t%1.10f\t%1.10f\t%1.10f%n", mu, price, strike, impliedVolatilityPct);
             }
         }
-        // @export "save-data"
-        data_stream.close();
     }
 
     public static void main(String[] args) throws Exception {

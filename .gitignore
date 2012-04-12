@@ -45,3 +45,4 @@ test-output/
 LOCAL_STASH
 *.iws
 *.ids
+docs.sqlite3

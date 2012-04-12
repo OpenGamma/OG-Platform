@@ -52,7 +52,7 @@
 
 %\printclassoptions
 
-<% for row in d['/shared/docs.sqlite3'].kv_query("com.opengamma.analytics.financial.covariance%") -%>
+<% for row in d['/shared/docs.sqlite3'].storage().query("com.opengamma.analytics.financial.covariance%") -%>
 
 <% if row[0].endswith(":comment-text") -%>
 \newpage
