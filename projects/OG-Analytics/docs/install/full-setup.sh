@@ -6,10 +6,12 @@ sudo apt-get install -y --force-yes default-jdk
 sudo apt-get install -y --force-yes git
 sudo apt-get install -y --force-yes r-base-core
 sudo apt-get install -y --force-yes python-pip
-sudo apt-get install -y --force-yes liblog4cxx10
+sudo apt-get install -y --force-yes liblog4cxx10-dev
+sudo apt-get install -y --force-yes libgcj12-dev 
 
 # install ant
 sudo apt-get install -y --force-yes ant
+# TODO try apt-get install ant-contrib  and see if that works better
 # ant-contrib for cpptasks
 wget http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip
 unzip ant-contrib-1.0b3-bin.zip 
@@ -37,6 +39,8 @@ cd ..
 cd /mnt # More room here.
 mkdir work
 cd work
+
+sudo cp -r /usr/include/apr-1.0 /usr/include/apr-1
 
 # Install Fudge Messaging 
 sudo apt-get install -y --force-yes libtool
