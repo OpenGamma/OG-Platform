@@ -8,7 +8,6 @@ package com.opengamma.master.holiday.impl;
 import java.net.URI;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -63,18 +62,16 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
+  @GET
   @Path("metaData")
   public Response metaData(@Context UriInfo uriInfo) {
     HolidayMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, HolidayMetaDataRequest.class);
     HolidayMetaDataResult result = getHolidayMaster().metaData(request);
     return responseOkFudge(result);
-  }
-
-  @HEAD
-  @Path("holidays")
-  public Response status() {
-    // simple HEAD to quickly return, avoiding loading the whole database
-    return responseOk();
   }
 
   @POST

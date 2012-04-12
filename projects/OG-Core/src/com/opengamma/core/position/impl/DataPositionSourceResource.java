@@ -11,8 +11,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -59,6 +61,11 @@ public class DataPositionSourceResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @GET
   @Path("portfolios/{portfolioId}")
   public Response getPortfolio(

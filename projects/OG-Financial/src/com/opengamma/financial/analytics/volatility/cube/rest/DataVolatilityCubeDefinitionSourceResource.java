@@ -12,8 +12,10 @@ import javax.time.InstantProvider;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -56,6 +58,11 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @GET
   @Path("definitions/searchSingle")
   public Response searchSingle(
