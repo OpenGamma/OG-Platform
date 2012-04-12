@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.minimization.SumToOne;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,13 +29,14 @@ public class MixedLogNormalModelData implements SmileModelData {
   //where sigma_0 is the lowest volatility state, and the volatility of state i, sigma_i = sigma_{i-1} + deltaSigma_i, so the volatility states are strictly increasing
   //(with  deltaSigma_i > 0). The angles theta encode the weights (via the SumToOne class) and the angles phi encode the partial forwards (if they are used). Therefore, there
   //are 3n-2 free parameters (or 2n-1 in the case that the partial forwards are all fixed to one)
-  private double[] _parameters;
+  private final double[] _parameters;
 
   public MixedLogNormalModelData(final double[] parameters) {
     this(parameters, true);
   }
 
   public MixedLogNormalModelData(final double[] parameters, final boolean useShiftedMeans) {
+    ArgumentChecker.notNull(parameters, "parameters");
     _nParams = parameters.length;
     _shiftedMeans = useShiftedMeans;
     int n;
@@ -77,7 +76,7 @@ public class MixedLogNormalModelData implements SmileModelData {
     _w = _sto.transform(temp);
     if (useShiftedMeans) {
       temp = Arrays.copyOfRange(_parameters, 2 * n - 1, 3 * n - 2);
-      double[] a = _sto.transform(temp);
+      final double[] a = _sto.transform(temp);
       _f = new double[n];
       for (int i = 0; i < n; i++) {
         if (_w[i] > 0) {
@@ -93,20 +92,20 @@ public class MixedLogNormalModelData implements SmileModelData {
   }
 
   public MixedLogNormalModelData(final double[] weights, final double[] sigmas) {
+    ArgumentChecker.notNull(sigmas, "null sigmas");
+    ArgumentChecker.notNull(weights, "null weights");
     _shiftedMeans = false;
-    Validate.notNull(sigmas, "null sigmas");
-    Validate.notNull(weights, "null weights");
     final int n = sigmas.length;
     _nNorms = n;
-    Validate.isTrue(n == weights.length, "Weights not the same length as sigmas");
-    Validate.isTrue(n > 0, "no weights");
+    ArgumentChecker.isTrue(n == weights.length, "Weights not the same length as sigmas");
+    ArgumentChecker.isTrue(n > 0, "no weights");
     double sum = 0.0;
     for (int i = 0; i < n; i++) {
-      Validate.isTrue(sigmas[i] > 0.0, "zero or negative sigma");
-      Validate.isTrue(weights[i] >= 0.0, "negative weight");
+      ArgumentChecker.isTrue(sigmas[i] > 0.0, "zero or negative sigma");
+      ArgumentChecker.isTrue(weights[i] >= 0.0, "negative weight");
       sum += weights[i];
     }
-    Validate.isTrue(Math.abs(sum - 1.0) < TOL, "Weights do not sum to 1.0");
+    ArgumentChecker.isTrue(Math.abs(sum - 1.0) < TOL, "Weights do not sum to 1.0");
     _nParams = 2 * n - 1;
     _sigmas = sigmas;
     _w = weights;
@@ -117,37 +116,37 @@ public class MixedLogNormalModelData implements SmileModelData {
     _parameters = new double[_nParams];
     _parameters[0] = sigmas[0];
     for (int i = 1; i < n; i++) {
-      double temp = sigmas[i] - sigmas[i - 1];
-      Validate.isTrue(temp >= 0, "sigmas must be increasing"); //TODO drop this and parallel sort into increasing order
+      final double temp = sigmas[i] - sigmas[i - 1];
+      ArgumentChecker.isTrue(temp >= 0, "sigmas must be increasing"); //TODO drop this and parallel sort into increasing order
       _parameters[i] = temp;
     }
-    double[] theta = _sto.inverseTransform(weights);
+    final double[] theta = _sto.inverseTransform(weights);
     System.arraycopy(theta, 0, _parameters, n, n - 1);
   }
 
   public MixedLogNormalModelData(final double[] weights, final double[] sigmas, final double[] relativePartialForwards) {
     _shiftedMeans = true;
-    Validate.notNull(sigmas, "null sigmas");
-    Validate.notNull(weights, "null weights");
+    ArgumentChecker.notNull(sigmas, "null sigmas");
+    ArgumentChecker.notNull(weights, "null weights");
     final int n = sigmas.length;
     _nNorms = n;
-    Validate.isTrue(n == weights.length, "Weights not the same length as sigmas");
-    Validate.isTrue(n == relativePartialForwards.length, "Partial forwards not the same length as sigmas");
-    Validate.isTrue(n > 0, "no weights");
+    ArgumentChecker.isTrue(n == weights.length, "Weights not the same length as sigmas");
+    ArgumentChecker.isTrue(n == relativePartialForwards.length, "Partial forwards not the same length as sigmas");
+    ArgumentChecker.isTrue(n > 0, "no weights");
     double sum = 0.0;
     double sumF = 0.0;
-    double[] a = new double[n];
+    final double[] a = new double[n];
     for (int i = 0; i < n; i++) {
-      Validate.isTrue(sigmas[i] > 0.0, "zero or negative sigma");
-      Validate.isTrue(weights[i] >= 0.0, "negative weight");
-      Validate.isTrue(relativePartialForwards[i] > 0.0, "zero of negative partial forward");
+      ArgumentChecker.isTrue(sigmas[i] > 0.0, "zero or negative sigma");
+      ArgumentChecker.isTrue(weights[i] >= 0.0, "negative weight");
+      ArgumentChecker.isTrue(relativePartialForwards[i] > 0.0, "zero of negative partial forward");
       sum += weights[i];
-      double temp = weights[i] * relativePartialForwards[i];
+      final double temp = weights[i] * relativePartialForwards[i];
       sumF += temp;
       a[i] = temp;
     }
-    Validate.isTrue(Math.abs(sum - 1.0) < TOL, "Weights do not sum to 1.0");
-    Validate.isTrue(Math.abs(sumF - 1.0) < TOL, "Weighted partial forwards do not sum to forward");
+    ArgumentChecker.isTrue(Math.abs(sum - 1.0) < TOL, "Weights do not sum to 1.0");
+    ArgumentChecker.isTrue(Math.abs(sumF - 1.0) < TOL, "Weighted partial forwards do not sum to forward");
     _sigmas = sigmas;
     _w = weights;
     _f = relativePartialForwards;
@@ -157,19 +156,19 @@ public class MixedLogNormalModelData implements SmileModelData {
     _parameters = new double[_nParams];
     _parameters[0] = sigmas[0];
     for (int i = 1; i < n; i++) {
-      double temp = sigmas[i] - sigmas[i - 1];
-      Validate.isTrue(temp >= 0, "sigmas must be increasing"); //TODO drop this and parallel sort into increasing order
+      final double temp = sigmas[i] - sigmas[i - 1];
+      ArgumentChecker.isTrue(temp >= 0, "sigmas must be increasing"); //TODO drop this and parallel sort into increasing order
       _parameters[i] = temp;
     }
-    double[] theta = _sto.inverseTransform(weights);
+    final double[] theta = _sto.inverseTransform(weights);
     System.arraycopy(theta, 0, _parameters, n, n - 1);
 
-    double[] phi = _sto.inverseTransform(a);
+    final double[] phi = _sto.inverseTransform(a);
     System.arraycopy(phi, 0, _parameters, 2 * n - 1, n - 1);
   }
 
   @Override
-  public boolean isAllowed(int index, double value) {
+  public boolean isAllowed(final int index, final double value) {
     if (index < _nNorms) {
       return value >= 0.0;
     }
@@ -193,7 +192,7 @@ public class MixedLogNormalModelData implements SmileModelData {
    * @return the n by n-1 Jacobian, where n is the number of normals
    */
   public double[][] getWeightsJacobian() {
-    double[] temp = Arrays.copyOfRange(_parameters, _nNorms, 2 * _nNorms - 1);
+    final double[] temp = Arrays.copyOfRange(_parameters, _nNorms, 2 * _nNorms - 1);
     return _sto.jacobian(temp);
   }
 
@@ -206,7 +205,7 @@ public class MixedLogNormalModelData implements SmileModelData {
     if (!_shiftedMeans) {
       throw new IllegalArgumentException("This model does not used shifted means, therefore no Jacobian exists");
     }
-    double[] temp = Arrays.copyOfRange(_parameters, 2 * _nNorms - 1, 3 * _nNorms - 2);
+    final double[] temp = Arrays.copyOfRange(_parameters, 2 * _nNorms - 1, 3 * _nNorms - 2);
     return _sto.jacobian(temp);
   }
 
@@ -216,7 +215,7 @@ public class MixedLogNormalModelData implements SmileModelData {
   }
 
   @Override
-  public double getParameter(int index) {
+  public double getParameter(final int index) {
     final double temp = _parameters[index];
     if (temp >= 0 && temp <= Math.PI / 2) {
       return temp;
@@ -225,8 +224,8 @@ public class MixedLogNormalModelData implements SmileModelData {
   }
 
   @Override
-  public SmileModelData with(int index, double value) {
-    double[] temp = new double[_nParams];
+  public SmileModelData with(final int index, final double value) {
+    final double[] temp = new double[_nParams];
     System.arraycopy(_parameters, 0, temp, 0, _nParams);
     temp[index] = value;
     return new MixedLogNormalModelData(temp, _shiftedMeans);
@@ -238,7 +237,7 @@ public class MixedLogNormalModelData implements SmileModelData {
       x = -x;
     }
     if (x > Math.PI / 2) {
-      int p = (int) (x / Math.PI);
+      final int p = (int) (x / Math.PI);
       x -= p * Math.PI;
       if (x > Math.PI / 2) {
         x = -x + Math.PI;
@@ -259,7 +258,7 @@ public class MixedLogNormalModelData implements SmileModelData {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -269,7 +268,7 @@ public class MixedLogNormalModelData implements SmileModelData {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    MixedLogNormalModelData other = (MixedLogNormalModelData) obj;
+    final MixedLogNormalModelData other = (MixedLogNormalModelData) obj;
     if (_shiftedMeans && !Arrays.equals(_f, other._f)) {
       return false;
     }

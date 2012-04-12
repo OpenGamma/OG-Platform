@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final double FIT_ERROR = 1e-4; //1bps
   private static final double LARGE_ERROR = 0.1;
-  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();
+  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION;
 
   /**
    * The logger
@@ -53,9 +54,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   private final WeightingFunction _weightingFunction;
 
   public SmileInterpolator(final VolatilityFunctionProvider<T> model) {
-    ArgumentChecker.notNull(model, "model");
-    _model = model;
-    _weightingFunction = DEFAULT_WEIGHTING_FUNCTION;
+    this(model, DEFAULT_WEIGHTING_FUNCTION);
   }
 
   public SmileInterpolator(final VolatilityFunctionProvider<T> model, final WeightingFunction weightFunction) {
@@ -75,12 +74,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
 
     final List<T> modelParameters = new ArrayList<T>(n);
 
-    double[] errors = new double[n];
+    final double[] errors = new double[n];
     Arrays.fill(errors, FIT_ERROR);
 
     final SmileModelFitter<T> globalFitter = getFitter(forward, strikes, expiry, impliedVols, errors);
-    // DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
-    BitSet gFixed = getGlobalFixedValues();
+    final BitSet gFixed = getGlobalFixedValues();
     LeastSquareResultsWithTransform gBest = null;
     double chiSqr = Double.POSITIVE_INFINITY;
 
@@ -88,22 +86,24 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     int tries = 0;
     int count = 0;
     while (chiSqr > 100.0 * n && count < 5) { //10bps average error
-      DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
+      final DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
       try {
-        LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
+        final LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
         if (glsRes.getChiSq() < chiSqr) {
           gBest = glsRes;
           chiSqr = gBest.getChiSq();
         }
         count++;
-      } catch (MathException e) {
+      } catch (final MathException e) {
       }
       tries++;
       if (tries > 20) {
         throw new MathException("Cannot fit data");
       }
     }
-
+    if (gBest == null) {
+      throw new IllegalStateException("Global estimate was null; should never happen");
+    }
     if (n == 3) {
       if (gBest.getChiSq() / n > 1.0) {
         s_logger.warn("chi^2 on fit to ", +n + " points is " + gBest.getChiSq());
@@ -113,11 +113,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
       final BitSet lFixed = getLocalFixedValues();
       DoubleMatrix1D lStart = gBest.getModelParameters();
       for (int i = 0; i < n - 2; i++) {
-        double[][] temp = getStrikesVolsAndErrors(i, strikes, impliedVols, errors);
-        double[] tStrikes = temp[0];
-        double[] tVols = temp[1];
-        double[] tErrors = temp[2];
-        SmileModelFitter<T> localFitter = getFitter(forward, tStrikes, expiry, tVols, tErrors);
+        final double[][] temp = getStrikesVolsAndErrors(i, strikes, impliedVols, errors);
+        final double[] tStrikes = temp[0];
+        final double[] tVols = temp[1];
+        final double[] tErrors = temp[2];
+        final SmileModelFitter<T> localFitter = getFitter(forward, tStrikes, expiry, tVols, tErrors);
         LeastSquareResultsWithTransform lRes = localFitter.solve(lStart, lFixed);
         LeastSquareResultsWithTransform best = lRes;
 
@@ -140,6 +140,14 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     return modelParameters;
   }
 
+  public VolatilityFunctionProvider<T> getModel() {
+    return _model;
+  }
+
+  public WeightingFunction getWeightingFunction() {
+    return _weightingFunction;
+  }
+
   protected double[][] getStrikesVolsAndErrors(final int index, final double[] strikes, final double[] impliedVols, final double[] errors) {
     return getStrikesVolsAndErrorsForThreePoints(index, strikes, impliedVols, errors);
   }
@@ -154,13 +162,16 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
    * @return array containing the 3 strikes, vols and errors
    */
   protected static double[][] getStrikesVolsAndErrorsForThreePoints(final int index, final double[] strikes, final double[] impliedVols, final double[] errors) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "implied vols");
+    ArgumentChecker.notNull(errors, "errors");
     double[] tStrikes = new double[3];
     double[] tVols = new double[3];
     double[] tErrors = new double[3];
     tStrikes = Arrays.copyOfRange(strikes, index, index + 3);
     tVols = Arrays.copyOfRange(impliedVols, index, index + 3);
     tErrors = Arrays.copyOfRange(errors, index, index + 3);
-    double[][] res = new double[][] {tStrikes, tVols, tErrors };
+    final double[][] res = new double[][] {tStrikes, tVols, tErrors };
     return res;
   }
 
@@ -175,11 +186,14 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
    * @return array containing the 3 strikes, vols and errors
    */
   protected static double[][] getStrikesVolsAndErrorsForAllPoints(final int index, final double[] strikes, final double[] impliedVols, final double[] errors) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "implied vols");
+    ArgumentChecker.notNull(errors, "errors");
     final int n = errors.length;
-    double[] lErrors = new double[n];
+    final double[] lErrors = new double[n];
     Arrays.fill(lErrors, LARGE_ERROR);
     System.arraycopy(errors, index, lErrors, index, 3); //copy the original errors for the points we really want to fit
-    double[][] res = new double[][] {strikes, impliedVols, lErrors };
+    final double[][] res = new double[][] {strikes, impliedVols, lErrors };
     return res;
   }
 
@@ -197,10 +211,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
 
   protected abstract SmileModelFitter<T> getFitter(final double forward, final double[] strikes, final double expiry, final double[] impliedVols, final double[] errors);
 
-  public VolatilityFunctionProvider<T> getModel() {
-    return _model;
-  }
-
+  @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
 
     final List<T> modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
@@ -209,8 +220,8 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
-        EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
-        Function1D<T, Double> volFunc = _model.getVolatilityFunction(option, forward);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+        final Function1D<T, Double> volFunc = _model.getVolatilityFunction(option, forward);
         final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
         if (index == 0) {
           return volFunc.evaluate(modelParams.get(0));
@@ -230,27 +241,27 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     };
   }
 
-  protected DoubleMatrix1D getPolynomialFit(double forward, double[] strikes, double[] impliedVols) {
+  protected DoubleMatrix1D getPolynomialFit(final double forward, final double[] strikes, final double[] impliedVols) {
     final int n = strikes.length;
-    double[] x = new double[n];
+    final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = Math.log(strikes[i] / forward);
     }
 
-    ParameterizedFunction<Double, DoubleMatrix1D, Double> func = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
+    final ParameterizedFunction<Double, DoubleMatrix1D, Double> func = new ParameterizedFunction<Double, DoubleMatrix1D, Double>() {
       @Override
-      public Double evaluate(Double x1, DoubleMatrix1D parameters) {
-        double a = parameters.getEntry(0);
-        double b = parameters.getEntry(1);
-        double c = parameters.getEntry(2);
+      public Double evaluate(final Double x1, final DoubleMatrix1D parameters) {
+        final double a = parameters.getEntry(0);
+        final double b = parameters.getEntry(1);
+        final double c = parameters.getEntry(2);
         return a + b * x1 + c * x1 * x1;
       }
     };
 
     //TODO replace this with an explicit polynomial fitter
-    NonLinearLeastSquare ls = new NonLinearLeastSquare();
-    LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(x), new DoubleMatrix1D(impliedVols), func, new DoubleMatrix1D(0.1, 0.0, 0.0));
-    DoubleMatrix1D fitP = lsRes.getFitParameters();
+    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
+    final LeastSquareResults lsRes = ls.solve(new DoubleMatrix1D(x), new DoubleMatrix1D(impliedVols), func, new DoubleMatrix1D(0.1, 0.0, 0.0));
+    final DoubleMatrix1D fitP = lsRes.getFitParameters();
     return fitP;
   }
 
@@ -260,6 +271,36 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
       ArgumentChecker.isTrue(strikes[i] > strikes[i - 1],
           "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
     }
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _model.hashCode();
+    result = prime * result + _weightingFunction.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileInterpolator<?> other = (SmileInterpolator<?>) obj;
+    if (!ObjectUtils.equals(_model, other._model)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_weightingFunction, other._weightingFunction)) {
+      return false;
+    }
+    return true;
   }
 
 }

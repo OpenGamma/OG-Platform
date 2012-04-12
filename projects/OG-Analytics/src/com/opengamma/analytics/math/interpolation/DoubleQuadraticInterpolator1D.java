@@ -7,8 +7,8 @@ package com.opengamma.analytics.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.LinearWeightingFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DoubleQuadraticInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
-  private static final WeightingFunction DEFAULT_WEIGHT_FUNCTION = LinearWeightingFunction.getInstance();
+  private static final WeightingFunction DEFAULT_WEIGHT_FUNCTION = WeightingFunctionFactory.LINEAR_WEIGHTING_FUNCTION;
 
   private final WeightingFunction _weightFunction;
 
@@ -38,7 +38,7 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     Validate.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle);
-    Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
+    final Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size() - 1;
@@ -67,7 +67,7 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle);
-    Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
+    final Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
     final int low = quadraticData.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = quadraticData.size();
