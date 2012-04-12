@@ -1,9 +1,12 @@
 {
-    "*.java|fn|java": {
-        "env": {
-            "CLASSPATH": "/mnt/work/sqlite4java-282/sqlite4java.jar:/mnt/work/OG-Platform/projects/OG-Examples/lib/classpath.jar:/mnt/work/OG-Platform/projects/OG-Analytics/build/og-analytics.jar"
-        }
+    "$variables": {
+        "CLASSPATH": "/mnt/work/bcel-5.2/bcel-5.2.jar:/mnt/work/sqlite4java-282/sqlite4java.jar:/mnt/work/OG-Platform/projects/OG-Examples/lib/classpath.jar:/mnt/work/OG-Platform/projects/OG-Analytics/build/og-analytics.jar:/mnt/work/OG-Platform/lib/classpath.jar",
+        "OG_VERSION": "1.0.0",
+        "SITE_PATH": "/docs-static/"
     },
+    "RunExamples.java|fn|java": {},
+    "RunExamples.java|javac": {},
+    "ParseExamples.java|fn|java": { "inputs" : ["RunExamples.java|javac"] },
     "*.java|idio": {},
     "*.sqlite3": {}
 }
