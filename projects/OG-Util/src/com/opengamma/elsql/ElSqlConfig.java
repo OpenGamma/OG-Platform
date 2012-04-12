@@ -40,10 +40,6 @@ public class ElSqlConfig {
    * A constant for the config needed for Vertica.
    */
   public static final ElSqlConfig VERTICA = new ElSqlConfig("Vertica");
-  /**
-   * A constant for the config needed for SQL Server.
-   */
-  public static final ElSqlConfig SQLSERVER = new ElSqlConfig("SQLServer");
 
   /**
    * The descriptive name.
@@ -229,7 +225,8 @@ public class ElSqlConfig {
     @Override
     public String addPaging(String selectToPage, int offset, int fetchLimit) {
       if (fetchLimit == 0 && offset == 0) {
-        return selectToPage;
+        // SQL Server needs a SELECT TOP with ORDER BY in an inner query, otherwise it complains
+        return selectToPage.replaceFirst("SELECT ", "SELECT TOP " + Integer.MAX_VALUE + " ");
       }
       int start = offset + 1;
       int end = offset + fetchLimit;
