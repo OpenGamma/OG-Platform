@@ -51,7 +51,7 @@ public class CoupledFiniteDifference {
 
   public PDEResults1D[] solve(final CoupledPDEDataBundle pdeData1, final CoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
       final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2,
-      final Surface<Double, Double, Double> freeBoundary) {
+      @SuppressWarnings("unused") final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");
 

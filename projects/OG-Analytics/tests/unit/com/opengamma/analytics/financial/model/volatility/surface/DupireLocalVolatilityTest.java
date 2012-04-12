@@ -28,13 +28,6 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
-import com.opengamma.analytics.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -240,6 +233,7 @@ public class DupireLocalVolatilityTest {
   @Test(enabled = false)
   public void volTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
+    @SuppressWarnings("deprecation")
     final LocalVolatilitySurfaceStrike locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
     double t;
     double f;

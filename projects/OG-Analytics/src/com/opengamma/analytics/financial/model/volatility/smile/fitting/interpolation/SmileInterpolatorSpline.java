@@ -21,12 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
   private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D(SineWeightingFunction.getInstance());
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
-  //  private static final VectorRootFinder ROOTFINDER = new BroydenVectorRootFinder();
-  //  private static final NonLinearParameterTransforms TRANSFORMS;
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
   private final Interpolator1D _interpolator;
-  private final WeightingFunction _weightFunction = SineWeightingFunction.getInstance();
+
+  // private final WeightingFunction _weightFunction = SineWeightingFunction.getInstance();
 
   public SmileInterpolatorSpline() {
     _interpolator = DEFAULT_INTERPOLATOR;
@@ -36,12 +35,6 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     ArgumentChecker.notNull(interpolator, "null interpolator");
     _interpolator = interpolator;
   }
-
-  //  static {
-  //    final ParameterLimitsTransform a = new NullTransform();
-  //    final ParameterLimitsTransform b = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
-  //    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b }, new BitSet());
-  //  }
 
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
     final int n = strikes.length;
@@ -78,12 +71,6 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
     double gradL = dSigmaDx.evaluate(kL);
     double gradH = dSigmaDx.evaluate(kH);
-    //
-    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> f1 = getDifferenceFunc(forward, kL, expiry, volL, gradL);
-    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> f2 = getDifferenceFunc(forward, kH, expiry, volH, gradH);
-    //
-    //    final double[] res1 = TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(f1, TRANSFORMS.transform(new DoubleMatrix1D(0.0, volL)))).getData();
-    //    final double[] res2 = TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(f2, TRANSFORMS.transform(new DoubleMatrix1D(0.0, volH)))).getData();
 
     final double[] res1 = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, volL, gradL, expiry);
     final double[] res2 = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);
@@ -130,35 +117,5 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     //      }
     //    };
   }
-
-  //  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getDifferenceFunc(final double forward, final double strike, final double expiry, final double targetVol, final double targetDvol) {
-  //    return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-  //      @Override
-  //      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-  //        DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-  //        double mu = y.getEntry(0);
-  //        double theta = y.getEntry(1);
-  //        double vol = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, mu, theta);
-  //        double dvol = ShiftedLogNormalTailExtrapolation.dVdK(forward, strike, expiry, mu, theta); //TODO wasteful as vol is found twice
-  //        return new DoubleMatrix1D(vol - targetVol, forward * (dvol - targetDvol));
-  //      }
-  //    };
-  //  }
-  //
-  //  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getDifferenceFunc2(final double forward, final double[] strikes, final double expiry, final double[] targetVols) {
-  //
-  //    return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-  //      @Override
-  //      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-  //        DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
-  //        double mu = y.getEntry(0);
-  //        double theta = y.getEntry(1);
-  //
-  //        double vol1 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strikes[0], expiry, mu, theta);
-  //        double vol2 = ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strikes[1], expiry, mu, theta);
-  //        return new DoubleMatrix1D(vol1 - targetVols[0], vol2 - targetVols[1]);
-  //      }
-  //    };
-  //  }
 
 }
