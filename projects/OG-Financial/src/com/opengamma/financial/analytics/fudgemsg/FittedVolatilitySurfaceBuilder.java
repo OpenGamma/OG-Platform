@@ -14,7 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 
 /**
  * 
@@ -22,28 +21,6 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 /* package */final class FittedVolatilitySurfaceBuilder {
 
   private FittedVolatilitySurfaceBuilder() {
-  }
-
-  @FudgeBuilderFor(VolatilitySurfaceInterpolator.class)
-  public static final class VolatilitySurfaceInterpolatorBuilder extends AbstractFudgeBuilder<VolatilitySurfaceInterpolator> {
-    private static final String LOG_TIME_FIELD_NAME = "logTimeField";
-    private static final String INTEGRATED_VARIANCE_FIELD_NAME = "integratedVarianceField";
-    private static final String LOG_VALUE_FIELD_NAME = "logValueField";
-
-    @Override
-    public VolatilitySurfaceInterpolator buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final boolean useLogTime = message.getBoolean(LOG_TIME_FIELD_NAME);
-      final boolean useIntegratedVariance = message.getBoolean(INTEGRATED_VARIANCE_FIELD_NAME);
-      final boolean useLogValue = message.getBoolean(LOG_VALUE_FIELD_NAME);
-      return new VolatilitySurfaceInterpolator(useLogTime, useIntegratedVariance, useLogValue);
-    }
-
-    @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final VolatilitySurfaceInterpolator object) {
-      message.add(LOG_TIME_FIELD_NAME, null, object.useLogTime());
-      message.add(INTEGRATED_VARIANCE_FIELD_NAME, null, object.useIntegratedVariance());
-      message.add(LOG_VALUE_FIELD_NAME, null, object.useLogValue());
-    }
   }
 
   @FudgeBuilderFor(StandardSmileSurfaceDataBundle.class)
