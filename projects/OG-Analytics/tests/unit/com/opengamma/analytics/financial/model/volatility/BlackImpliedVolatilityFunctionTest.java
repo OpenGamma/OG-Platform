@@ -78,7 +78,7 @@ public class BlackImpliedVolatilityFunctionTest {
 
       double price = BlackFormulaRepository.price(FORWARD, k, T, SIGMA, isCall);
       double impVol = BlackFormulaRepository.impliedVolatility(price, FORWARD, k, T, isCall);
-      double impPrice = BlackFormulaRepository.price(FORWARD, k, T, impVol, isCall);
+      //    double impPrice = BlackFormulaRepository.price(FORWARD, k, T, impVol, isCall);
       //    System.out.println(k + "\t" + price + "\t" + impPrice + "\t" + impVol);
       assertEquals(SIGMA, impVol, 1e-6);
     }

@@ -63,11 +63,8 @@ public class DataConfigMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path("metaData")
-  public Response metaData(@Context UriInfo uriInfo) {
-    ConfigMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, ConfigMetaDataRequest.class);
-    ConfigMetaDataResult result = getConfigMaster().metaData(request);
-    return responseOkFudge(result);
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
   }
 
   @HEAD
@@ -75,6 +72,14 @@ public class DataConfigMasterResource extends AbstractDataResource {
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return responseOk();
+  }
+
+  @GET
+  @Path("metaData")
+  public Response metaData(@Context UriInfo uriInfo) {
+    ConfigMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, ConfigMetaDataRequest.class);
+    ConfigMetaDataResult result = getConfigMaster().metaData(request);
+    return responseOkFudge(result);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>

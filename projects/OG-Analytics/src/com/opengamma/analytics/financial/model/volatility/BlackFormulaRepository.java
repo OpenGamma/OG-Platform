@@ -341,16 +341,16 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    if (price == intrinsicPrice) {
-      return 0.0;
-    }
-    ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
-
-    if (isCall) {
-      Validate.isTrue(price < forward, "call price must be less than forward");
-    } else {
-      Validate.isTrue(price < strike, "put price must be less than strike");
-    }
+    //    if (price == intrinsicPrice) {
+    //      return 0.0;
+    //    }
+    //  ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
+    //
+    //    if (isCall) {
+    //      Validate.isTrue(price < forward, "call price must be less than forward");
+    //    } else {
+    //      Validate.isTrue(price < strike, "put price must be less than strike");
+    //    }
 
     final double targetPrice = price - intrinsicPrice;
     double sigmaGuess = 0.3;
@@ -374,6 +374,8 @@ public abstract class BlackFormulaRepository {
       return 0;
     }
     ArgumentChecker.isTrue(otmPrice > 0.0, "negative OTM price of {} given", otmPrice);
+    ArgumentChecker.isTrue(otmPrice < Math.min(forward, strike), "otmPrice of {} exceeded upper bound of {}", otmPrice, Math.min(forward, strike));
+    ArgumentChecker.isTrue(volGuess > 0.0, "negative volGuess");
 
     if (forward == strike) {
       return NORMAL.getInverseCDF(0.5 * (otmPrice / forward + 1)) * 2 / Math.sqrt(timeToExpiry);
@@ -385,7 +387,7 @@ public abstract class BlackFormulaRepository {
     double upperSigma;
 
     try {
-      final double[] temp = bracketRoot(otmPrice, forward, strike, timeToExpiry, isCall, volGuess, 0.1);
+      final double[] temp = bracketRoot(otmPrice, forward, strike, timeToExpiry, isCall, volGuess, Math.min(volGuess, 0.1));
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {

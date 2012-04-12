@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -111,9 +110,8 @@ public class ThetaMethodFiniteDifferenceTest {
     int priceSteps = 100;
     double lowerMoneyness = 0.4;
     double upperMoneyness = 3.0;
-    double priceTol = 1e-3;
     boolean print = false; // set to false before pushing
-    TESTER.testAmericanPrice(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, priceTol, print);
+    TESTER.testAmericanPrice(SOLVER, timeSteps, priceSteps, lowerMoneyness, upperMoneyness, print);
   }
 
 }
