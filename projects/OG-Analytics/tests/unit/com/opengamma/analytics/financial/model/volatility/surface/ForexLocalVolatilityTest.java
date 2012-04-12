@@ -143,7 +143,7 @@ public class ForexLocalVolatilityTest {
       System.out.print(EXPIRIES[i] + "\t");
       for (int j = 0; j < 100; j++) {
         final double m = 0.3 + j * 2.7 / 99.;
-        double k = m;// * f;
+        double k = m * f;
         final double vol = smiles[i].evaluate(k);
         System.out.print(vol + "\t");
       }
@@ -263,65 +263,7 @@ public class ForexLocalVolatilityTest {
       }
     };
 
-    Function<Double, Double> densityFuncSemiFD = new Function<Double, Double>() {
-      final double eps = 1e-4;
-
-      @Override
-      public Double evaluate(Double... x) {
-        final double t = x[0];
-        double k = x[1];
-
-        Function1D<Double, Double> smile = new Function1D<Double, Double>() {
-          @Override
-          public Double evaluate(Double k) {
-            return sabr.getVolatility(1.0, k, t, alpha, beta, rho, nu);
-          }
-        };
-
-        double vol = smile.evaluate(k);
-        double volUp = smile.evaluate(k + eps);
-        double volDown = smile.evaluate(k - eps);
-        double dSigmadK = (volUp - volDown) / 2 / eps;
-        double d2SigmadK2 = (volUp + volDown - 2 * vol) / eps / eps;
-        double dg = BlackFormulaRepository.dualGamma(1.0, k, t, vol);
-        double vanna = BlackFormulaRepository.dualVanna(1.0, k, t, vol);
-        double vega = BlackFormulaRepository.vega(1.0, k, t, vol);
-        double vomma = BlackFormulaRepository.vomma(1.0, k, t, vol);
-        double dens = dg + 2 * vanna * dSigmadK + vomma * dSigmadK * dSigmadK + vega * d2SigmadK2;
-
-        return dens;
-      }
-    };
-
-    Function<Double, Double> densityFuncFullyFD = new Function<Double, Double>() {
-      final double eps = 1e-4;
-
-      @Override
-      public Double evaluate(Double... x) {
-        final double t = x[0];
-        double k = x[1];
-
-        Function1D<Double, Double> priceFunc = new Function1D<Double, Double>() {
-          @Override
-          public Double evaluate(Double k) {
-            double vol = sabr.getVolatility(1.0, k, t, alpha, beta, rho, nu);
-            return BlackFormulaRepository.price(1.0, k, t, vol, true);
-          }
-        };
-
-        double price = priceFunc.evaluate(k);
-        double priceUp = priceFunc.evaluate(k + eps);
-        double priceDown = priceFunc.evaluate(k - eps);
-
-        double dens = (priceUp + priceDown - 2 * price) / eps / eps;
-
-        return dens;
-      }
-    };
-
     FunctionalDoublesSurface density = FunctionalDoublesSurface.from(densityFunc);
-    FunctionalDoublesSurface density2 = FunctionalDoublesSurface.from(densityFuncSemiFD);
-    FunctionalDoublesSurface density3 = FunctionalDoublesSurface.from(densityFuncFullyFD);
     PDEUtilityTools.printSurface("density surface", density, 0.01, 10, 0.01, 5.0, 200, 100);
 
   }
@@ -430,6 +372,7 @@ public class ForexLocalVolatilityTest {
     CAL.vega(ps, option);
   }
 
+  @SuppressWarnings("unused")
   private Function1D<Double, Double> getStrikeForDeltaFunction(final double forward, final double expiry, final boolean isCall,
       final Function1D<Double, Double> volFunc) {
     final BracketRoot bracketer = new BracketRoot();
@@ -456,6 +399,7 @@ public class ForexLocalVolatilityTest {
     };
   }
 
+  @SuppressWarnings("unused")
   private Surface<Double, Double, Double> toDeltaProxySurface(final LocalVolatilitySurface<?> lv) {
 
     final ForwardCurve fc = MARKET_DATA.getForwardCurve();

@@ -13,8 +13,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
@@ -62,6 +64,11 @@ public class DataHolidaySourceResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @GET
   @Path("holidays/{holidayId}")
   public Response get(

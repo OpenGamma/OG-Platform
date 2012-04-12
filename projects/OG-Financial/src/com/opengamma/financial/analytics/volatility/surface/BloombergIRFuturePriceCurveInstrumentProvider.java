@@ -7,52 +7,50 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.text.DecimalFormat;
 
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.util.OpenGammaClock;
 
 /**
- * 
+ *  Provider of Interest Rate Future Instrument ID's.
+ *  Tied closely to BloombergIRFutureInstrumentProviderUtils.
  */
 public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
-  private static BiMap<MonthOfYear, Character> s_monthCode;
-  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
-
-  static {
-    s_monthCode = HashBiMap.create();
-    s_monthCode.put(MonthOfYear.JANUARY, 'F');
-    s_monthCode.put(MonthOfYear.FEBRUARY, 'G');
-    s_monthCode.put(MonthOfYear.MARCH, 'H');
-    s_monthCode.put(MonthOfYear.APRIL, 'J');
-    s_monthCode.put(MonthOfYear.MAY, 'K');
-    s_monthCode.put(MonthOfYear.JUNE, 'M');
-    s_monthCode.put(MonthOfYear.JULY, 'N');
-    s_monthCode.put(MonthOfYear.AUGUST, 'Q');
-    s_monthCode.put(MonthOfYear.SEPTEMBER, 'U');
-    s_monthCode.put(MonthOfYear.OCTOBER, 'V');
-    s_monthCode.put(MonthOfYear.NOVEMBER, 'X');
-    s_monthCode.put(MonthOfYear.DECEMBER, 'Z');
-    FORMATTER.setMinimumFractionDigits(3);
-  }
+  static { FORMATTER.setMinimumFractionDigits(3); }
 
   private final String _futurePrefix;
   private final String _postfix;
-  private final String _dataFieldName; // expecting MarketDataRequirementNames.MARKET_PRICE
+  private final String _dataFieldName;
+  private final String _tickerScheme;
 
+  /**
+   * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
+   * @param postfix Generally, "Comdty" 
+   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_PRICE
+   * @param tickerScheme Expecting BLOOMBERG_TICKER_WEAK or BLOOMBERG_TICKER
+   */
+  public BloombergIRFuturePriceCurveInstrumentProvider(final String futurePrefix, final String postfix, final String dataFieldName, String tickerScheme) {
+    Validate.notNull(futurePrefix, "future option prefix");
+    Validate.notNull(postfix, "postfix");
+    Validate.notNull(dataFieldName, "data field name");
+    Validate.notNull(tickerScheme, "tickerScheme was null. Try BLOOMBERG_TICKER_WEAK or BLOOMBERG_TICKER");
+    _futurePrefix = futurePrefix;
+    _postfix = postfix;
+    _dataFieldName = dataFieldName;
+    _tickerScheme = tickerScheme;
+  }
+
+  /** If a 4th argument is not provided, constructor uses BLOOMBERG_TICKER_WEAK as its ExternalScheme 
+   * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
+   * @param postfix Generally, "Comdty" 
+   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_PRICE 
+   */
   public BloombergIRFuturePriceCurveInstrumentProvider(final String futurePrefix, final String postfix, final String dataFieldName) {
     Validate.notNull(futurePrefix, "future option prefix");
     Validate.notNull(postfix, "postfix");
@@ -60,6 +58,7 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
     _futurePrefix = futurePrefix;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
+    _tickerScheme = "BLOOMBERG_TICKER_WEAK";
   }
 
   @Override
@@ -68,33 +67,21 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
   }
 
   @Override
-  public ExternalId getInstrument(final Number futureNumber, final LocalDate surfaceDate) {
+  /**
+   * Provides ExternalID for Bloomberg ticker, eg EDZ3 Comdty,
+   * given a reference date and an integer offset, the n'th subsequent future
+   * The format is _futurePrefix + month + year + _postfix
+   * 
+   * @param futureNumber n'th future following curve date
+   * @param curveDate date of curve validity; valuation date
+   */
+  public ExternalId getInstrument(final Number futureNumber, final LocalDate curveDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futurePrefix);
-    ticker.append(createQuarterlyFutures(futureNumber.intValue(), surfaceDate));
+    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue(), curveDate));
+    ticker.append(" ");
     ticker.append(_postfix);
-    return ExternalId.of(SCHEME, ticker.toString());
-  }
-
-  private String createQuarterlyFutures(final int futureNumber, final LocalDate surfaceDate) {
-    LocalDate futureExpiry = surfaceDate.with(NEXT_EXPIRY_ADJUSTER);
-    final StringBuilder futureCode = new StringBuilder();
-    for (int i = 1; i < futureNumber; i++) {
-      futureExpiry = (futureExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
-    }
-    futureCode.append(s_monthCode.get(futureExpiry.getMonthOfYear()));
-    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    if (futureExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
-      final int yearsNum = futureExpiry.getYear() % 100;
-      if (yearsNum < 10) {
-        futureCode.append("0"); // so we get '09' rather than '9'  
-      }
-      futureCode.append(Integer.toString(yearsNum));
-    } else {
-      futureCode.append(Integer.toString(futureExpiry.getYear() % 10));
-    }
-    futureCode.append(" ");
-    return futureCode.toString();
+    return ExternalId.of(ExternalScheme.of(_tickerScheme), ticker.toString());
   }
 
   public String getFuturePrefix() {
@@ -105,6 +92,11 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
     return _postfix;
   }
 
+  @Override
+  public String getTickerScheme() {
+    return _tickerScheme;
+  }
+  
   @Override
   public String getDataFieldName() {
     return _dataFieldName;

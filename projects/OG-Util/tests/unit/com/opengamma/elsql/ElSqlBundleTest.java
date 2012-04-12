@@ -272,6 +272,19 @@ public class ElSqlBundleTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_paging_specifiedVars() {
+    List<String> lines = Arrays.asList(
+        "@NAME(Test1)",
+        "  @PAGING(:offset, :fetch)",
+        "    SELECT * FROM foo ORDER BY bar "
+    );
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
+    MapSqlParameterSource paramSource = new MapSqlParameterSource("offset", 7).addValue("fetch", 3);
+    String sql1 = bundle.getSql("Test1", paramSource);
+    assertEquals("SELECT * FROM foo ORDER BY bar OFFSET 7 ROWS FETCH NEXT 3 ROWS ONLY ", sql1);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_fetch_defaultVar() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",

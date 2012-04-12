@@ -10,8 +10,10 @@ import java.net.URI;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -54,6 +56,11 @@ public class DataCurrencyPairsSourceResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @GET
   @Path("currencyPairs/{name}")
   public Response getPairs(@PathParam("name") String name) {

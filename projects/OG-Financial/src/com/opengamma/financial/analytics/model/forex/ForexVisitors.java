@@ -407,10 +407,12 @@ public class ForexVisitors {
       final Currency callCurrency = security.getCallCurrency();
       return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
-    
+
     @Override
     public ValueRequirement visitFXForwardSecurity(final FXForwardSecurity security) {
-      throw new UnsupportedOperationException();
+      final Currency payCurrency = security.getPayCurrency();
+      final Currency receiveCurrency = security.getReceiveCurrency();
+      return getSpotIdentifierRequirement(payCurrency, receiveCurrency);
     }
 
     @Override
@@ -472,7 +474,7 @@ public class ForexVisitors {
     }
     return new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair);
   }
-  
+
   private static class InverseSpotIdentifierVisitor implements FinancialSecurityVisitor<ValueRequirement> {
 
     public InverseSpotIdentifierVisitor() {
@@ -611,7 +613,7 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
   }
-  
+
   private static ValueRequirement getInverseSpotIdentifierRequirement(final Currency putCurrency, final Currency callCurrency) {
     UnorderedCurrencyPair currencyPair;
     if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {

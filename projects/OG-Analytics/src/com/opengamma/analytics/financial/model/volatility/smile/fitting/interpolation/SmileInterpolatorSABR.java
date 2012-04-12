@@ -50,6 +50,10 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     _externalBeta = false;
   }
 
+  public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final WeightingFunction weightFunction) {
+    this(model, DEFAULT_BETA, weightFunction);
+  }
+
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {
     super(model);
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0.0, 1.0, beta), "beta value of {} not in range 0 to 1", beta);
@@ -64,6 +68,14 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     _externalBeta = true;
   }
 
+  public double getBeta() {
+    return _beta;
+  }
+
+  public boolean useExternalBeta() {
+    return _externalBeta;
+  }
+
   @Override
   protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
     final DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
@@ -73,7 +85,7 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
 
     //TODO make better use of the polynomial fit information
 
-    if (a <= 0.0) { //negative ATM vol - can get this if fit points are far from ATM 
+    if (a <= 0.0) { //negative ATM vol - can get this if fit points are far from ATM
       double sum = 0;
       final int n = strikes.length;
       for (int i = 0; i < n; i++) {
@@ -116,6 +128,38 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
   @Override
   protected SmileModelFitter<SABRFormulaData> getFitter(final double forward, final double[] strikes, final double expiry, final double[] impliedVols, final double[] errors) {
     return new SABRModelFitter(forward, strikes, expiry, impliedVols, errors, getModel());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_beta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_externalBeta ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileInterpolatorSABR other = (SmileInterpolatorSABR) obj;
+    if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
+      return false;
+    }
+    if (_externalBeta != other._externalBeta) {
+      return false;
+    }
+    return true;
   }
 
 }

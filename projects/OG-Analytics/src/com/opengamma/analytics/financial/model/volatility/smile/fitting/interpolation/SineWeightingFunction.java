@@ -8,8 +8,9 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO this belongs with interpolators
+ * 
  */
+// TODO this belongs with interpolators
 public final class SineWeightingFunction extends WeightingFunction {
   private static final SineWeightingFunction s_instance = new SineWeightingFunction();
 

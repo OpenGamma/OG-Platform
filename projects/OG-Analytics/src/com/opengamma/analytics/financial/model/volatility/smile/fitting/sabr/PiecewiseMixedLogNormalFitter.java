@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SineWeightingFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;
@@ -36,10 +36,10 @@ public class PiecewiseMixedLogNormalFitter {
   //  private static final ParameterLimitsTransform PHI_TRANSFORM = new NullTransform(); // new DoubleRangeLimitTransform(0.0, Math.PI / 2);
   //  private static final NonLinearParameterTransforms TRANSFORM = new UncoupledParameterTransforms(new DoubleMatrix1D(4, 0.0),
   //      new ParameterLimitsTransform[] {VOL_TRANSFORM, DVOL_TRANSFORM, THETA_TRANSFORM, PHI_TRANSFORM }, new BitSet());
-  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();
+  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION;
 
   private static final Logger s_logger = LoggerFactory.getLogger(PiecewiseSABRFitterRootFinder.class);
-  private static final MixedLogNormalVolatilityFunction MODEL = new MixedLogNormalVolatilityFunction();
+  private static final MixedLogNormalVolatilityFunction MODEL = MixedLogNormalVolatilityFunction.getInstance();
   private final WeightingFunction _weightingFunction;
   private final boolean _globalBetaSearch;
 

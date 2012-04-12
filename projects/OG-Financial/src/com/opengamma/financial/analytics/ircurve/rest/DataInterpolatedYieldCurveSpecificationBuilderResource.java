@@ -8,11 +8,14 @@ package com.opengamma.financial.analytics.ircurve.rest;
 import java.net.URI;
 
 import javax.time.calendar.LocalDate;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
@@ -54,6 +57,11 @@ public class DataInterpolatedYieldCurveSpecificationBuilderResource extends Abst
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @POST
   @Path("builder/{date}")
   public Response buildCurve(

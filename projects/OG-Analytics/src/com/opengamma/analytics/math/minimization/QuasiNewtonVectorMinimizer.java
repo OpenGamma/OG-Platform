@@ -70,7 +70,7 @@ public class QuasiNewtonVectorMinimizer implements MinimizerWithGradient<Functio
     data.setX(startPosition);
     data.setG0(y * y);
     data.setGrad(grad.evaluate(startPosition));
-    data.setInverseHessianEsimate(getInitializedMatrix(function, startPosition));
+    data.setInverseHessianEsimate(getInitializedMatrix(startPosition));
 
     if (!getNextPosition(function, grad, data)) {
       throw new MathException("Cannot work with this starting position. Please choose another point");
@@ -81,13 +81,13 @@ public class QuasiNewtonVectorMinimizer implements MinimizerWithGradient<Functio
 
     while (!isConverged(data)) {
       if ((resetCount) % RESET_FREQ == 0) {
-        data.setInverseHessianEsimate(getInitializedMatrix(function, startPosition));
+        data.setInverseHessianEsimate(getInitializedMatrix(startPosition));
         resetCount = 1;
       } else {
         _hessainUpdater.update(data);
       }
       if (!getNextPosition(function, grad, data)) {
-        data.setInverseHessianEsimate(getInitializedMatrix(function, startPosition));
+        data.setInverseHessianEsimate(getInitializedMatrix(startPosition));
         resetCount = 1;
         if (!getNextPosition(function, grad, data)) {
           throw new MathException("Failed to converge in backtracking");
@@ -102,7 +102,7 @@ public class QuasiNewtonVectorMinimizer implements MinimizerWithGradient<Functio
     return data.getX();
   }
 
-  private DoubleMatrix2D getInitializedMatrix(final Function1D<DoubleMatrix1D, Double> function, final DoubleMatrix1D startPosition) {
+  private DoubleMatrix2D getInitializedMatrix(final DoubleMatrix1D startPosition) {
     return DoubleMatrixUtils.getIdentityMatrix2D(startPosition.getNumberOfElements());
   }
 

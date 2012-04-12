@@ -32,7 +32,8 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY,
     ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.VALUE_THETA};
   private final String _curveCalculationMethod;
   private final String _forwardCurve;
   private final String _fundingCurve;
@@ -61,15 +62,15 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
-            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
+          || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
         for (final String applicableCurrencyName : _applicableCurrencyNames) {
           if (currencyName.equals(applicableCurrencyName)) {
             return true;
           }
-        }        
+        }
       }
     }
-    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {      
+    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
       for (final String applicableCurrencyName : _applicableCurrencyNames) {
         if (currencyName.equals(applicableCurrencyName)) {

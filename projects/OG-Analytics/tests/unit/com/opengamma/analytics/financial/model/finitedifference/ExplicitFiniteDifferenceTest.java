@@ -7,13 +7,10 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.analytics.financial.model.finitedifference.ExplicitFiniteDifference;
-
+@SuppressWarnings("deprecation")
 public class ExplicitFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();
-  @SuppressWarnings("deprecation")
   private static final ConvectionDiffusionPDESolver SOLVER = new ExplicitFiniteDifference();
 
   @Test

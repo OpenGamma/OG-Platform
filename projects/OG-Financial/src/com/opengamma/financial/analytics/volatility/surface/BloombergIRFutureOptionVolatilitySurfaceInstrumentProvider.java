@@ -77,17 +77,31 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   }
 
   @Override
+  /**
+   * Provides ExternalID for Bloomberg ticker, eg EDZ3C  99.250 Comdty,
+   * given a reference date and an integer offset, the n'th subsequent future
+   * The format is _futurePrefix + month + year + _postfix
+   * 
+   * @param futureNumber n'th future following curve date
+   * @param curveDate date of curve validity; valuation date
+   */
   public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futureOptionPrefix);
-    ticker.append(createQuarterlyFutureOptions(futureOptionNumber.intValue(), strike, surfaceDate));
+    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutureOptions(_futureOptionPrefix, futureOptionNumber.intValue(), surfaceDate));
+    ticker.append(strike > _useCallAboveStrike ? "C " : "P ");// TODO REVIEW CASE
+    ticker.append(FORMATTER.format(strike));
+    ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(SCHEME, ticker.toString());
   }
 
   private String createQuarterlyFutureOptions(final int futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
-    LocalDate futureOptionExpiry = surfaceDate.with(NEXT_EXPIRY_ADJUSTER);
+    
     final StringBuilder futureOptionCode = new StringBuilder();
+    
+    LocalDate futureOptionExpiry = surfaceDate.with(NEXT_EXPIRY_ADJUSTER);
+    
     for (int i = 1; i < futureOptionNumber; i++) {
       futureOptionExpiry = (futureOptionExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
     }

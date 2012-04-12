@@ -713,32 +713,6 @@ public class LocalVolatilityPDEGreekCalculator {
     return res;
   }
 
-  private PDEFullResults1D runForwardPDESolverDebug(final ForwardCurve forwardCurve, final LocalVolatilitySurfaceStrike localVolatility,
-      final boolean isCall, final double theta, final double maxT, final double maxK, final int
-      nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreK) {
-
-    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(0, 0, forwardCurve.getSpot(), isCall, localVolatility);
-    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
-
-    BoundaryCondition lower;
-    BoundaryCondition upper;
-    if (isCall) {
-      //call option with strike zero is worth the forward, while a put is worthless
-      lower = new DirichletBoundaryCondition(forwardCurve.getSpot(), 0.0);
-      upper = new DirichletBoundaryCondition(0.0, maxK);
-    } else {
-      lower = new DirichletBoundaryCondition(0.0, 0.0);
-      upper = new NeumannBoundaryCondition(1.0, maxK, false);
-    }
-
-    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, maxT, nTimeSteps, timeMeshLambda);
-    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxK, centreK, nStrikeSteps, strikeMeshBunching);
-    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
-    return res;
-  }
-
   /**
    * Runs a backwards PDE (i.e the initial condition is at t = expiry, and the final solution is a t = 0) on a grid of time and forward, F(t,T), points
    * for an option with a given strike under a local volatility model

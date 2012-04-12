@@ -106,7 +106,7 @@ public class MarkovChain {
     return price;
   }
 
-  public double[] getMoments(final double t, final double[] sigmas) {
+  public double[] getMoments(@SuppressWarnings("unused") final double t, final double[] sigmas) {
     double sum1 = 0;
     double sum2 = 0;
     double sum3 = 0;
@@ -123,7 +123,7 @@ public class MarkovChain {
     final double m3 = (sum3 - 3 * m1 * sum2 + 2 * n * m1 * m1 * m1) / n;
 
     //System.out.println("MC m1: " + m1 + " m2: " + m2 + " m3: " + m3);
-    return new double[] {m1, m2, m3};
+    return new double[] {m1, m2, m3 };
   }
 
   public double[] simulate(final double timeToExpiry, final int n) {
