@@ -47,6 +47,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
@@ -430,8 +431,8 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final double gammaRelative = METHOD_OPTION.gammaRelative(forexOption, SMILE_BUNDLE);
     double gammaExpected = gammaRelative * notional;
-    final double gammaComputed = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE);
-    assertEquals("Forex: relative gamma", 1.0, gammaExpected / gammaComputed, TOLERANCE_PRICE);
+    final CurrencyAmount gammaComputed = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE);
+    assertEquals("Forex: relative gamma", 1.0, gammaExpected / gammaComputed.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test

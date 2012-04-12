@@ -24,6 +24,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -89,12 +90,14 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   /**
    * Computes the implied Black volatility of the vanilla option.
    * @param optionForex The Forex option.
-   * @param smile The curve and smile data.
+   * @param curves The yield curve bundle.
    * @return The implied volatility.
    */
-  public double impliedVolatility(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public double impliedVolatility(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
     Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
@@ -185,12 +188,15 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   /**
    * Computes the gamma of the Forex option. The relative gamma is the second oder derivative of the pv.
    * @param optionForex The Forex option.
-   * @param smile The curve and smile data.
+   * @param curves The yield curve bundle.
    * @return The gamma.
    */
-  public double gamma(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
     final double gammaRelative = gammaRelative(optionForex, smile);
-    return gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
   /**
