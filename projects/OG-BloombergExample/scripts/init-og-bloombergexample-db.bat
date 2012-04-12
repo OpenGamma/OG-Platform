@@ -40,7 +40,7 @@ set CLASSPATH=og-bloombergexample.jar;lib\*;config
 FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
 
 "%JAVACMD%" -cp "%CLASSPATH%" ^
-  -Xms1024M ^
+  -Xms512M ^
   -Xmx1024M ^
   com.opengamma.bloombergexample.tool.ExampleDatabasePopulator ^
   -l tofile-logback.xml ^

@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 
 /**
  * 
@@ -22,7 +23,8 @@ public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilde
   private static final String T_DATA_FIELD_NAME = "Time data";
   private static final String DELTA_DATA_FIELD_NAME = "Delta data";
   private static final String VOLATILITY_DATA_FIELD_NAME = "Volatility data";
-  
+  private static final String INTERPOLATOR_NAME = "Interpolator";
+
   @Override
   public SmileDeltaTermStructureParameter buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final double[] t = deserializer.fieldValueToObject(double[].class, message.getByName(T_DATA_FIELD_NAME));
@@ -33,12 +35,13 @@ public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilde
     for (int i = 0; i < n; i++) {
       smiles[i] = new SmileDeltaParameter(t[i], delta[i], volatility[i]);
     }
-    return new SmileDeltaTermStructureParameter(smiles);
+    final Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_NAME));
+    return new SmileDeltaTermStructureParameter(smiles, interpolator);
   }
 
   @Override
   protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SmileDeltaTermStructureParameter object) {
-    final SmileDeltaParameter[] smiles = object.getVolatilityTerm();    
+    final SmileDeltaParameter[] smiles = object.getVolatilityTerm();
     final int n = smiles.length;
     final double[] t = new double[n];
     final double[][] delta = new double[n][];
@@ -51,6 +54,7 @@ public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilde
     serializer.addToMessage(message, T_DATA_FIELD_NAME, null, t);
     serializer.addToMessage(message, DELTA_DATA_FIELD_NAME, null, delta);
     serializer.addToMessage(message, VOLATILITY_DATA_FIELD_NAME, null, volatility);
+    serializer.addToMessage(message, INTERPOLATOR_NAME, null, object.getInterpolator());
   }
 
 }

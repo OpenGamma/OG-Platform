@@ -2,6 +2,5 @@
     "*.jpg" : {},
     "*.png" : {},
     "*.md|jinjajit|markdown|ws" : {"allinputs" : true },
-    "_template.html" : {},
-    "$variables" : { "SITE_PATH" : "/docs-static/", "OG_VERSION" : "1.0.0" }
+    "_template.html" : {}
 }

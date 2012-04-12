@@ -7,9 +7,19 @@ $.register_module({
     dependencies: ['og.api.rest'],
     obj: function () {
         return function (config) {
-            var data = this;
-            data.init = function (handler) {
-                handler({
+            var data = this, data_handler, initialize, events = {init: null, data: null};
+            data_handler = function (result) {
+                if (!events.data) return;
+                var matrix = [], rows = 60;
+                while (rows--) matrix.push(function (cols, row) {
+                    while (cols--) row.push(Math.random() * 1000);
+                    return row;
+                }(19, []));
+                events.data(matrix);
+                setTimeout(data_handler, 5000);
+            };
+            initialize = function () {
+                events.init({
                     'fixed': [
                         {name: 'Fixed 1', width: 250},
                         {name: 'Fixed 2', width: 100}
@@ -34,6 +44,11 @@ $.register_module({
                         {name: 'Column 19', width: 100}
                     ]
                 });
+                data_handler();
+            };
+            data.on = function (name, handler) {
+                if (name in events) events[name] = handler;
+                if (name === 'init') initialize();
             };
         };
     }

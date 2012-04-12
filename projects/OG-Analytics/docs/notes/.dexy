@@ -1,0 +1,4 @@
+{
+    "*.tex|jinjajit|latex" : { "allinputs" : true },
+    "*.bib" : { "final" : false}
+}

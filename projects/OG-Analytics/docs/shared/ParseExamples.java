@@ -53,7 +53,7 @@ class ParseExamples {
                 File f;
                 FileWriter file;
 
-                f = new File("../dexy--depends.json");
+                f = new File("dexy--depends.json");
                 file = new FileWriter(f);
                 classesUsed.writeJSONString(file);
                 file.close();

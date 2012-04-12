@@ -45,9 +45,10 @@ public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSin
 
   @Override
   protected ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final ComputationTarget target) {
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
+      final String rightExtrapolatorName, final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName,
-        callForwardCurveName, callCurveCalculationMethod, surfaceName, target);
+        callForwardCurveName, callCurveCalculationMethod, surfaceName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
     properties.with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
     return properties;
   }

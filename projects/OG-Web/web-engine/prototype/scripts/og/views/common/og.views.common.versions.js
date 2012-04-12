@@ -15,21 +15,25 @@ $.register_module({
             load: function () {
                 versions.setup();
                 var ui = og.common.util.ui, routes = og.common.routes, cur = routes.current();
-                if (!routes.current().args.id) {versions.clear()}
+                if (!routes.current().args.id) versions.clear();
                 og.api.rest[cur.page.substring(1)].get({
                     id: cur.args.id, version: '*',
                     handler: function (result) {
-                        var args = routes.current().args, page = routes.current().page.substring(1), $list,
-                            table_header = '<div class="og-container"><table>' +
+                        var args = routes.current().args, page = routes.current().page.substring(1),
+                            view = og.views[page], $list, table_header = '<div class="og-container"><table>' +
                                 '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
                             table_footer = '</table></div>';
+                        if (result.error) {
+                            view.error(result.message);
+                            return routes.go(routes.hash(view.rules.load_item, args, {del: ['version']}));
+                        }
                         $list = $(result.data.data.reduce(function (acc, val, idx) {
                             var arr = val.split('|'), ver = routes.current().args.version,
                                 cur = !idx ? '<span>&nbsp;Latest</span>' : '',
                                 sel = ver === arr[0] || cur && ver === '*' ? ' class="og-selected"' : '',
                                 extras = {add: {version: cur ? '*' : arr[0]}, del: ['node']};
                             return acc + '<tr' + sel + '><td><a class="og-js-live-anchor" href="' +
-                                routes.prefix() + routes.hash(og.views[page].rules.load_item, args, extras) + '">' +
+                                routes.prefix() + routes.hash(view.rules.load_item, args, extras) + '">' +
                                 arr[0] + '</a>' + cur + '</td><td>' + arr[1] + '</td><td>' +
                                 og.common.util.date(arr[2]) + '</td></tr>';
                         }, table_header) + table_footer)

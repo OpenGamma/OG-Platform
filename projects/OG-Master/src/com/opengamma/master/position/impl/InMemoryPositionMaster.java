@@ -46,15 +46,15 @@ public class InMemoryPositionMaster implements PositionMaster {
   public static final String DEFAULT_OID_SCHEME = "MemPos";
 
   /**
-   * A cache of position by identifier.
+   * A cache of positions by identifier.
    */
   private final ConcurrentMap<ObjectId, PositionDocument> _storePositions = new ConcurrentHashMap<ObjectId, PositionDocument>();
   /**
-   * A cache of time-series points by identifier.
+   * A cache of trades by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageableTrade> _storeTrades = new ConcurrentHashMap<ObjectId, ManageableTrade>();
   /**
-   * The supplied of identifiers.
+   * The supplier of identifiers.
    */
   private final Supplier<ObjectId> _objectIdSupplier;
   /**
@@ -143,8 +143,8 @@ public class InMemoryPositionMaster implements PositionMaster {
   private void setDocumentID(final PositionDocument document, final PositionDocument clonedDoc, final UniqueId uniqueId) {
     document.getPosition().setUniqueId(uniqueId);
     clonedDoc.getPosition().setUniqueId(uniqueId);
-    clonedDoc.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
+    clonedDoc.setUniqueId(uniqueId);
   }
 
   private void storeTrades(List<ManageableTrade> clonedTrades, List<ManageableTrade> trades, UniqueId parentPositionId) {
@@ -214,9 +214,12 @@ public class InMemoryPositionMaster implements PositionMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    if (_storePositions.remove(uniqueId.getObjectId()) == null) {
+    PositionDocument storedDocument = _storePositions.remove(uniqueId.getObjectId());
+    if (storedDocument == null) {
       throw new DataNotFoundException("Position not found: " + uniqueId);
     }
+    removeTrades(storedDocument.getPosition().getTrades());
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   @Override

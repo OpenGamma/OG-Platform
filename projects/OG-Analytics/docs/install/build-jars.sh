@@ -2,6 +2,6 @@ dexy reset
 cd ../../..
 
 ### @export "ant"
-ant clean
+ant clean-all
 ant clone-or-pull
 ant build

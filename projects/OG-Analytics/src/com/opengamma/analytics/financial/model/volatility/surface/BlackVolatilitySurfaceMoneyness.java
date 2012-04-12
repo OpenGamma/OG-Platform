@@ -12,7 +12,7 @@ import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 
 /**
- *  * A surface that contains the Black (implied) volatility  as a function of time to maturity and moneyness, m, defined
+ *  A surface that contains the Black (implied) volatility  as a function of time to maturity and moneyness, m, defined
  *  as m = k/F(T), where k is the strike and F(T) is the forward for expiry at time T
  */
 public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Moneyness> {
@@ -87,7 +87,5 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
   public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
     return visitor.visitMoneyness(this);
   }
-
-
 
 }

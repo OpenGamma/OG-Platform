@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
@@ -45,12 +46,16 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
   private final String _callForwardCurveName;
   private final String _callCurveCalculationMethod;
   private final String _surfaceName;
+  private final String _interpolatorName;
+  private final String _leftExtrapolatorName;
+  private final String _rightExtrapolatorName;
   private final String _putCurrency;
   private final String _callCurrency;
   private final String _spread;
 
   public ForexOptionCallSpreadBlackDefaultPropertiesFunction(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String putCurrency, final String callCurrency, final String spread) {
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
+      final String rightExtrapolatorName, final String putCurrency, final String callCurrency, final String spread) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(putCurveName, "put curve name");
     ArgumentChecker.notNull(putForwardCurveName, "put forward curve name");
@@ -59,6 +64,9 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
     ArgumentChecker.notNull(putForwardCurveName, "call forward curve name");
     ArgumentChecker.notNull(callCurveCalculationMethod, "call curve calculation method");
     ArgumentChecker.notNull(surfaceName, "surface name");
+    ArgumentChecker.notNull(interpolatorName, "interpolator name");
+    ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
+    ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(putCurrency, "put currency");
     ArgumentChecker.notNull(callCurrency, "call currency");
     ArgumentChecker.notNull(spread, "spread");
@@ -69,6 +77,9 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
     _callForwardCurveName = callForwardCurveName;
     _callCurveCalculationMethod = callCurveCalculationMethod;
     _surfaceName = surfaceName;
+    _interpolatorName = interpolatorName;
+    _leftExtrapolatorName = leftExtrapolatorName;
+    _rightExtrapolatorName = rightExtrapolatorName;
     _putCurrency = putCurrency;
     _callCurrency = callCurrency;
     _spread = spread;
@@ -102,6 +113,9 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     }
   }
 
@@ -130,6 +144,15 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
+    }
+    if (InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_interpolatorName);
+    }
+    if (InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_leftExtrapolatorName);
+    }
+    if (InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_rightExtrapolatorName);
     }
     return null;
   }
