@@ -21,4 +21,6 @@ public interface FuturePriceCurveInstrumentProvider<X> {
   ExternalId getInstrument(X xAxis, LocalDate curveDate);
 
   String getDataFieldName();
+  
+  String getTickerScheme();
 }

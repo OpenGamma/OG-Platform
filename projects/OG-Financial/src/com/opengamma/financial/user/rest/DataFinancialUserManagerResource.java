@@ -7,9 +7,13 @@ package com.opengamma.financial.user.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.user.FinancialUser;
 import com.opengamma.financial.user.FinancialUserManager;
@@ -50,6 +54,11 @@ public class DataFinancialUserManagerResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @Path("users/{userName}")
   public DataFinancialUserResource findUser(@PathParam("userName") String userName) {
     ArgumentChecker.notNull(userName, "userName");

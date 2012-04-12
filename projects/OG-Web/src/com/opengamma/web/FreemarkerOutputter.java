@@ -98,6 +98,7 @@ public class FreemarkerOutputter {
   public FreemarkerOutputter(final ServletContext servletContext) {
     ArgumentChecker.notNull(servletContext, "servletContext");
     _configuration = (Configuration) servletContext.getAttribute(FREEMARKER_CONFIGURATION);
+    ArgumentChecker.notNull(_configuration, "Freemarker configuration");
   }
 
   /**

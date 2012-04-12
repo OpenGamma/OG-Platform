@@ -5,17 +5,17 @@
  */
 package com.opengamma.analytics.financial.equity.variance.definition;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * A Variance Swap is a forward contract on the realized variance of an underlying security. 
@@ -74,7 +74,7 @@ public class VarianceSwapDefinition {
     _currency = currency;
     _calendar = calendar;
     // Determine the number of observations expected as of trade inception.
-    _nObsExpected = countGoodDays(_obsEndDate);
+    _nObsExpected = countGoodDays(_obsEndDate.toLocalDate());
 
     _annualizationFactor = annualizationFactor;
 
@@ -88,14 +88,14 @@ public class VarianceSwapDefinition {
   /**
    * Given start date, frequency and calendar, count number of good business days up to and including upToThisDate.
    * This is only given a calendar, hence will not be aware if there was a market disruption, hence it provides an expected number
-   * @param upToThiDate up to and including upToThisDate
+   * @param upToAndIncludingThisDate up to and including upToThisDate
    * @return number of business days between _obsStartDate and upToThisDate inclusive, spaced at _obsFreq 
    */
-  private int countGoodDays(ZonedDateTime upToThiDate) {
+  private int countGoodDays(LocalDate upToAndIncludingThisDate) {
     int nGood = 0;
-    ZonedDateTime date = _obsStartDate;
-    while (!date.isAfter(_obsEndDate)) {
-      if (_calendar.isWorkingDay(date.toLocalDate())) {
+    LocalDate date = _obsStartDate.toLocalDate();
+    while (!date.isAfter(upToAndIncludingThisDate)) {
+      if (_calendar.isWorkingDay(date)) {
         nGood++;
       }
       date = date.plus(_obsFreq.getPeriod());
@@ -132,14 +132,14 @@ public class VarianceSwapDefinition {
     double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
     double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
     double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
-    
+
     Validate.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
     DoubleTimeSeries<LocalDate> realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
     double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nObsDisrupted = countGoodDays(valueDate) - observations.length;
+    final int nObsDisrupted = countGoodDays(valueDate.toLocalDate()) - observations.length;
     Validate.isTrue(nObsDisrupted >= 0, "Somehow we have more observations than we have good business days", nObsDisrupted);
-    
+
     return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement,
                                               _varStrike, _varNotional, _currency, _annualizationFactor,
                                               _nObsExpected, nObsDisrupted, observations, observationWeights);

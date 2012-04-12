@@ -7,6 +7,7 @@ package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -58,6 +59,11 @@ public class DataPositionMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @HEAD
   @Path("positions")
   public Response status() {

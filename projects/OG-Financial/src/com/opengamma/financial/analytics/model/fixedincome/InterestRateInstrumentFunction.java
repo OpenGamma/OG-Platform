@@ -89,6 +89,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
+  protected FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> getVisitor() {
+    return _visitor;
+  }
+
+  protected FixedIncomeConverterDataProvider getConverter() {
+    return _definitionConverter;
+  }
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;
@@ -110,7 +118,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
         return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
             || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
-      } catch (OpenGammaRuntimeException ogre) {
+      } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
     }
@@ -120,11 +128,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .with(ValuePropertyNames.CURRENCY, currency);
+    final ValueProperties.Builder properties = getResultProperties(currency);
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
@@ -185,13 +189,27 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
   }
 
-  protected ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
-      final String currency) {
-    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties()
+  protected ValueProperties.Builder getResultProperties(final String currency) {
+    final ValueProperties.Builder properties = createValueProperties()
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURRENCY, currency);
+    return properties;
+  }
+
+  protected ValueProperties.Builder getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod) {
+    final ValueProperties.Builder properties = createValueProperties()
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-        .with(ValuePropertyNames.CURRENCY, currency).get());
+        .with(ValuePropertyNames.CURRENCY, currency);
+    return properties;
+  }
+
+  protected ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
+      final String currency) {
+    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(currency, forwardCurveName, fundingCurveName, curveCalculationMethod).get());
   }
 
   protected static YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName,

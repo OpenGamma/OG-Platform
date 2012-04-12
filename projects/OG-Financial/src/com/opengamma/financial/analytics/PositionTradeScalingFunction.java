@@ -36,7 +36,6 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
 import com.opengamma.util.money.Currency;
@@ -86,12 +85,10 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
         ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD,
         ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD,
         ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE,
+        ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE,
+        ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE,
         ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD,
-        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD,
-        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_PAY_FORWARD_CURVE_NAME,
-        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_PAY_FUNDING_CURVE_NAME,
-        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_RECEIVE_FORWARD_CURVE_NAME,
-        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_RECEIVE_FUNDING_CURVE_NAME);
+        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
   }
 
   @Override

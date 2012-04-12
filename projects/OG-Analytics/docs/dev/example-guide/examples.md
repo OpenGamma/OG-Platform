@@ -2,9 +2,9 @@ This document automatically displays source code and output of all examples run 
 
 [TOC]
 
-{% for k in d['/shared/docs.sqlite3'].kv_keys() -%}
-{% if k.startswith("com.opengamma.example") and k.endswith("(PrintStream):source") -%}
-## {{ k }}
+{% for k in d['/shared/docs.sqlite3'].kv_storage().keys() -%}
+{% if "example" in k and k.startswith("com.opengamma") and k.endswith("(PrintStream):source") -%}
+### {{ k }}
 {{ highlight(d['/shared/docs.sqlite3'][ k ], 'java') }}
 
 {% set class_name = k.split(":")[0] -%}
