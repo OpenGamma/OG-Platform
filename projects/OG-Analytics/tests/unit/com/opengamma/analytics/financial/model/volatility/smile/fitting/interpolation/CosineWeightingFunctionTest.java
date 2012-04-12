@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.CosineWeightingFunction;
-
 /**
  * 
  */
@@ -18,7 +16,7 @@ public class CosineWeightingFunctionTest extends WeightingFunctionTestCase {
 
   @Override
   protected CosineWeightingFunction getInstance() {
-    return CosineWeightingFunction.getInstance();
+    return WeightingFunctionFactory.COSINE_WEIGHTING_FUNCTION;
   }
 
   @Test
