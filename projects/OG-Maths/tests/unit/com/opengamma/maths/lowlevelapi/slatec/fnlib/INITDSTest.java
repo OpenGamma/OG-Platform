@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.statistics.distribution.fnlib.INITDS;
 import com.opengamma.maths.commonapi.exceptions.MathsExceptionIllegalArgument;
 
 /**

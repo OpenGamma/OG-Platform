@@ -195,6 +195,34 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
+   * The forward (i.e. driftless) theta
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The forward gamma
+   */
+  @ExternalFunction
+  public static double theta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (forward == 0 || strike == 0.0) {
+      return 0.0;
+    }
+    final double rootT = Math.sqrt(timeToExpiry);
+    final double sigmaRootT = lognormalVol * rootT;
+    if (sigmaRootT == 0.0) {
+      if (forward != strike) {
+        return 0.0;
+      }
+      //The gamma is infinite in this case
+      return Double.POSITIVE_INFINITY;
+    }
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+
+    return -forward * NORMAL.getPDF(d1) * lognormalVol / 2 / rootT;
+  }
+
+  /**
    * The forward vega of an option, i.e. the sensitivity of the option's forward price wrt the implied volatility (which is just the the spot vega
    * divide by the the numeraire)
    * @param forward The forward value of the underlying
@@ -251,6 +279,31 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
+   * The driftless dual vanna of an option, i.e. second order derivative of the option value, once to the strike and once to volatility.
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The forward dual vanna
+   */
+  @ExternalFunction
+  public static double dualVanna(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    if (forward == 0.0 || strike == 0.0) {
+      return 0.0;
+    }
+    final double rootT = Math.sqrt(timeToExpiry);
+    final double sigmaRootT = lognormalVol * rootT;
+
+    if (sigmaRootT < SMALL || strike < SMALL) {
+      return 0.0;
+    }
+
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double d2 = d1 - sigmaRootT;
+    return NORMAL.getPDF(d2) * d1 / lognormalVol;
+  }
+
+  /**
    * The driftless vomma of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
@@ -288,6 +341,9 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
+    if (price == intrinsicPrice) {
+      return 0.0;
+    }
     ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
 
     if (isCall) {
@@ -296,27 +352,55 @@ public abstract class BlackFormulaRepository {
       Validate.isTrue(price < strike, "put price must be less than strike");
     }
 
-    double sigma = 0.3;
+    final double targetPrice = price - intrinsicPrice;
+    double sigmaGuess = 0.3;
+
+    return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
+  }
+
+  /**
+   * Get the log-normal (Black) implied volatility of an out-the-money European option starting from an initial guess 
+   * @param otmPrice The <b>forward</b> price - i.e. the market price divided by the numeraire (i.e. the zero bond p(0,T) for the T-forward measure)
+   * <b>Note</b> This MUST be an OTM price - i.e. a call price for strike >= forward and a put price otherwise 
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param volGuess a guess of the implied volatility 
+   * @return log-normal (Black) implied volatility
+   */
+  @ExternalFunction
+  public static double impliedVolatility(final double otmPrice, final double forward, final double strike, final double timeToExpiry, final double volGuess) {
+    if (otmPrice == 0) {
+      return 0;
+    }
+    ArgumentChecker.isTrue(otmPrice > 0.0, "negative OTM price of {} given", otmPrice);
+
+    if (forward == strike) {
+      return NORMAL.getInverseCDF(0.5 * (otmPrice / forward + 1)) * 2 / Math.sqrt(timeToExpiry);
+    }
+
+    boolean isCall = strike >= forward;
+
     double lowerSigma;
     double upperSigma;
 
     try {
-      final double[] temp = bracketRoot(price, forward, strike, timeToExpiry, isCall, sigma, 0.1);
+      final double[] temp = bracketRoot(otmPrice, forward, strike, timeToExpiry, isCall, volGuess, 0.1);
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + price + ", forward: " + forward + ", strike: " +
+      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " +
           strike + ", timeToExpiry: " + timeToExpiry + ", " + (isCall ? "Call" : "put"));
     }
-
+    double sigma = (lowerSigma + upperSigma) / 2.0;
     final double maxChange = 0.5;
 
     double[] pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
     //TODO check if this is ever called
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-      return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
+      return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
     }
-    double diff = pnv[0] - price;
+    double diff = pnv[0] / otmPrice - 1.0;
     boolean above = diff > 0;
     if (above) {
       upperSigma = sigma;
@@ -324,30 +408,24 @@ public abstract class BlackFormulaRepository {
       lowerSigma = sigma;
     }
 
-    double trialChange = -diff / pnv[1];
+    double trialChange = -diff * otmPrice / pnv[1];
     double actChange;
     if (trialChange > 0.0) {
       actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
     } else {
       actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
     }
-    //
-    //    double sign = Math.signum(trialChange);
-    //    trialChange = sign * Math.min(maxChange, Math.abs(trialChange));
-    //    if (trialChange > 0 && trialChange > sigma) {
-    //      trialChange = sigma;
-    //    }
+
     int count = 0;
     while (Math.abs(actChange) > VOL_TOL) {
       sigma += actChange;
-
       pnv = priceAndVega(forward, strike, timeToExpiry, sigma, isCall);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-        return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
+        return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
       }
 
-      diff = pnv[0] - price;
+      diff = pnv[0] / otmPrice - 1.0;
       above = diff > 0;
       if (above) {
         upperSigma = sigma;
@@ -355,20 +433,15 @@ public abstract class BlackFormulaRepository {
         lowerSigma = sigma;
       }
 
-      trialChange = -diff / pnv[1];
+      trialChange = -diff * otmPrice / pnv[1];
       if (trialChange > 0.0) {
         actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
       } else {
         actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
       }
 
-      //      sign = Math.signum(trialChange);
-      //      trialChange = sign * Math.min(maxChange, Math.abs(trialChange));
-      //      if (trialChange > 0 && trialChange > sigma) {
-      //        trialChange = sigma;
-      //      }
       if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(price, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
+        return solveByBisection(otmPrice, forward, strike, timeToExpiry, isCall, lowerSigma, upperSigma);
       }
     }
     return sigma;
@@ -495,10 +568,9 @@ public abstract class BlackFormulaRepository {
   private static double[] bracketRoot(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double sigma, final double change) {
     final BracketRoot bracketer = new BracketRoot();
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-
       @Override
       public Double evaluate(final Double volatility) {
-        return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
+        return price(forward, strike, expiry, volatility, isCall) / forwardPrice - 1.0;
       }
     };
     return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0, Double.POSITIVE_INFINITY);
@@ -507,12 +579,13 @@ public abstract class BlackFormulaRepository {
   private static double solveByBisection(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double lowerSigma,
       final double upperSigma) {
     //    final BracketRoot bracketer = new BracketRoot();
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-6); //0.01bps accuracy
+    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
       public Double evaluate(final Double volatility) {
-        return price(forward, strike, expiry, volatility, isCall) - forwardPrice;
+        double trialPrice = price(forward, strike, expiry, volatility, isCall);
+        return trialPrice / forwardPrice - 1.0;
       }
     };
     // final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change));

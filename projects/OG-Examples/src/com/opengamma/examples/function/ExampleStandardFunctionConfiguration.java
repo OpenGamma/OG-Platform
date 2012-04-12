@@ -662,9 +662,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "PresentValue", SECONDARY, 
-        SECONDARY, "Interpolated", SECONDARY, "USD", "EUR"));
+        SECONDARY, "Interpolated", SECONDARY, "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "USD", "EUR"));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "Interpolated", SECONDARY, 
-        SECONDARY, "PresentValue", SECONDARY, "EUR", "USD"));
+        SECONDARY, "PresentValue", SECONDARY, "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "EUR", "USD"));
   }
 
   private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {

@@ -26,8 +26,8 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
   private final int _nExpiries;
   private final boolean _isCallData;
 
-  public StandardSmileSurfaceDataBundle(final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols, final boolean isCallData,
-      final Interpolator1D forwardCurveInterpolator) {
+  public StandardSmileSurfaceDataBundle(final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols,
+      final boolean isCallData, final Interpolator1D forwardCurveInterpolator) {
     ArgumentChecker.notNull(forwards, "forwards");
     ArgumentChecker.notNull(expiries, "expiries");
     ArgumentChecker.notNull(strikes, "strikes");
@@ -68,8 +68,13 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     _expiries = expiries;
     _strikes = strikes;
     _impliedVols = impliedVols;
-    _isCallData = isCallData;
     _forwardCurve = forwardCurve;
+    _isCallData = isCallData;
+  }
+
+  @Override
+  public int getNumExpiries() {
+    return _nExpiries;
   }
 
   @Override
@@ -98,11 +103,6 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
   }
 
   @Override
-  public boolean isCallData() {
-    return _isCallData;
-  }
-
-  @Override
   public SmileSurfaceDataBundle withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, _nExpiries, expiryIndex), "Invalid index for expiry; {}", expiryIndex);
     final double[][] strikes = getStrikes();
@@ -114,7 +114,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
       System.arraycopy(_impliedVols[i], 0, vols[i], 0, nStrikes);
     }
     vols[expiryIndex][strikeIndex] += amount;
-    return new StandardSmileSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
+    return new StandardSmileSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, _isCallData);
   }
 
   @Override
@@ -123,7 +123,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     int result = 1;
     result = prime * result + _forwardCurve.hashCode();
     result = prime * result + Arrays.deepHashCode(_impliedVols);
-    result = prime * result + (_isCallData ? 1231 : 1237);
+
     result = prime * result + Arrays.deepHashCode(_strikes);
     result = prime * result + Arrays.hashCode(_expiries);
     return result;
@@ -155,9 +155,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
         return false;
       }
     }
-    if (_isCallData != other._isCallData) {
-      return false;
-    }
+
     return true;
   }
 }

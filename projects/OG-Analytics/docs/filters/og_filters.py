@@ -1,7 +1,7 @@
-from dexy.filters.templating_filters import JinjaFilter
+from dexy.filters.templating_filters import JinjaJustInTimeFilter
 
-class OpenGammaFilter(JinjaFilter):
-    ALIASES = ['ogjinja']
+class OpenGammaFilter(JinjaJustInTimeFilter):
+    ALIASES = ['jinjajit']
 
     def split_package_class(self, class_name):
         package_name = ".".join(class_name.split(".")[0:-1])

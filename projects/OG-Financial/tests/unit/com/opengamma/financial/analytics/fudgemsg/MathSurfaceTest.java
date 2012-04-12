@@ -10,9 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -44,10 +44,10 @@ public class MathSurfaceTest extends AnalyticsTestBase {
   public void testInterpolatedSurface() {
     final LinearInterpolator1D linear = new LinearInterpolator1D();
     final GridInterpolator2D interpolator = new GridInterpolator2D(linear, linear);
-    Surface<Double, Double, Double> s1 = InterpolatedDoublesSurface.from(new double[] {1, 2, 3, 4}, new double[] {4, 5, 6, 7}, new double[] {8, 9, 10, 11}, interpolator);
+    Surface<Double, Double, Double> s1 = InterpolatedDoublesSurface.from(new double[] {1, 2, 3, 4 }, new double[] {4, 5, 6, 7 }, new double[] {8, 9, 10, 11 }, interpolator);
     Surface<Double, Double, Double> s2 = cycleObject(Surface.class, s1);
     assertEquals(s1, s2);
-    s1 = InterpolatedDoublesSurface.from(new double[] {1, 2, 3, 4}, new double[] {4, 5, 6, 7}, new double[] {8, 9, 10, 11}, interpolator, "NAME");
+    s1 = InterpolatedDoublesSurface.from(new double[] {1, 2, 3, 4 }, new double[] {4, 5, 6, 7 }, new double[] {8, 9, 10, 11 }, interpolator, "NAME");
     s2 = cycleObject(Surface.class, s1);
     assertEquals(s1, s2);
   }
@@ -84,11 +84,12 @@ public class MathSurfaceTest extends AnalyticsTestBase {
 
   @Test
   public void testFunctionalSurface3() {
-    final StandardSmileSurfaceDataBundle data = new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4}, new double[] {4, 5, 6, 7},
-        new double[][] {new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}},
-        new double[][] {new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}}, true,
+    final StandardSmileSurfaceDataBundle data = new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4 }, new double[] {4, 5, 6, 7 },
+        new double[][] {new double[] {1, 2, 3, 4 }, new double[] {1, 2, 3, 4 }, new double[] {1, 2, 3, 4 }, new double[] {1, 2, 3, 4 } },
+        new double[][] {new double[] {0.1, 0.1, 0.1, 0.1 }, new double[] {0.1, 0.1, 0.1, 0.1 }, new double[] {0.1, 0.1, 0.1, 0.1 }, new double[] {0.1, 0.1, 0.1, 0.1 } }, true,
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR));
-    final BlackVolatilitySurfaceMoneyness s1 = new MoneynessPiecewiseSABRSurfaceFitter(true, true, true).getVolatilitySurface(data);
+    //  final BlackVolatilitySurfaceMoneyness s1 = new MoneynessPiecewiseSABRSurfaceFitter(true, true, true).getVolatilitySurface(data);
+    final BlackVolatilitySurface<?> s1 = new VolatilitySurfaceInterpolator(true, true, true).getVolatilitySurface(data);
     @SuppressWarnings("unchecked")
     final Surface<Double, Double, Double> s2 = cycleObject(Surface.class, s1.getSurface());
     assertSurfaceEquals(s1.getSurface(), s2);

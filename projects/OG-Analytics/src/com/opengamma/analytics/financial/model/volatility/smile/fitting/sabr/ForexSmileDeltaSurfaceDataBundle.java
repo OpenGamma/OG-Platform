@@ -12,7 +12,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,10 +25,11 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
   private final double[][] _vols;
   private final ForwardCurve _forwardCurve;
   private final int _nExpiries;
+
   private final boolean _isCallData;
 
   public ForexSmileDeltaSurfaceDataBundle(final double[] forwards, final double[] expiries, final double[] deltas, final double[] atms, final double[][] riskReversals,
-      final double[][] strangle, final boolean isCallData, final Interpolator1D interpolator) {
+      final double[][] strangle, final boolean isCallData, final CombinedInterpolatorExtrapolator interpolator) {
     ArgumentChecker.notNull(deltas, "delta");
     ArgumentChecker.notNull(forwards, "forwards");
     ArgumentChecker.notNull(expiries, "expiries");
@@ -120,11 +121,16 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
     _expiries = expiries;
     _strikes = strikes;
     _vols = vols;
-    _isCallData = isCallData;
     _forwards = new double[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
       _forwards[i] = forwardCurve.getForward(expiries[i]);
     }
+    _isCallData = isCallData;
+  }
+
+  @Override
+  public int getNumExpiries() {
+    return _nExpiries;
   }
 
   @Override
@@ -153,11 +159,6 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
   }
 
   @Override
-  public boolean isCallData() {
-    return _isCallData;
-  }
-
-  @Override
   public SmileSurfaceDataBundle withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, _nExpiries, expiryIndex), "Invalid index for expiry; {}", expiryIndex);
     final double[][] strikes = getStrikes();
@@ -169,7 +170,7 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
       System.arraycopy(_vols[i], 0, vols[i], 0, nStrikes);
     }
     vols[expiryIndex][strikeIndex] += amount;
-    return new ForexSmileDeltaSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
+    return new ForexSmileDeltaSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, _isCallData);
   }
 
   @Override
@@ -178,7 +179,6 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
     int result = 1;
     result = prime * result + _forwardCurve.hashCode();
     result = prime * result + Arrays.deepHashCode(_vols);
-    result = prime * result + (_isCallData ? 1231 : 1237);
     result = prime * result + Arrays.deepHashCode(_strikes);
     result = prime * result + Arrays.hashCode(_expiries);
     return result;
@@ -210,9 +210,7 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
         return false;
       }
     }
-    if (_isCallData != other._isCallData) {
-      return false;
-    }
+
     return true;
   }
 }
