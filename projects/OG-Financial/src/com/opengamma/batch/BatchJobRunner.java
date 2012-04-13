@@ -256,8 +256,8 @@ public class BatchJobRunner {
 
     options.addOption("view", true, "View name in configuration database. You must specify this.");
 
-    options.addOption("engineURI", true, "URI to remote OG engine - for example 'http://localhost:8080/jax/data/viewProcessors/Vp~0/'. You must specify this.");
-    options.addOption("brokerURL", true, "URL to activeMQ broker - for example 'tcp://activemq.hq.opengamma.com:61616'. You must specify this.");
+    options.addOption("engineURI", true, "URI to remote OG engine - for example 'http://localhost:8080/jax/components/ViewProcessor/main'. You must specify this.");
+    options.addOption("brokerURL", true, "URL to activeMQ broker - for example 'tcp://localhost:61616'. You must specify this.");
 
     //options.addOption("viewTime", true, "Time at which view should be loaded. HH:mm[:ss]. Default - system clock.");
     //    options.addOption("snapshotObservationTime", true, "Observation time of LiveData snapshot to use - for example, LDN_CLOSE. Default - same as observationTime.");

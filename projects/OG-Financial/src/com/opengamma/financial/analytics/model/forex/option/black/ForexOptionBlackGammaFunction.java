@@ -8,29 +8,33 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.GammaValueBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * 
+ * The function to compute the Gamma of Forex options in the Black model.
  */
-public class ForexOptionBlackCurrencyExposureFunction extends ForexOptionBlackMultiValuedFunction {
+public class ForexOptionBlackGammaFunction extends ForexOptionBlackSingleValuedFunction {
 
-  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
+  /**
+   * The calculator to compute the gamma value.
+   */
+  private static final GammaValueBlackForexCalculator CALCULATOR = GammaValueBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackCurrencyExposureFunction() {
-    super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+  public ForexOptionBlackGammaFunction() {
+    super(ValueRequirementNames.VALUE_GAMMA);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    final CurrencyAmount result = CALCULATOR.visit(fxOption, data);
+    final double gammaValue = result.getAmount();
+    return Collections.singleton(new ComputedValue(spec, gammaValue));
   }
+
 }
