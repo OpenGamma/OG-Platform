@@ -3,16 +3,16 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local;
+package com.opengamma.financial.analytics.model.volatility.local.old;
 
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.INTEGRATED_VARIANCE;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LINEAR_TIME;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LINEAR_Y;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LOG_TIME;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LOG_Y;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.MONEYNESS;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.STRIKE;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.VOLATILITY;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.INTEGRATED_VARIANCE;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LINEAR_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LINEAR_Y;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LOG_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.LOG_Y;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.MONEYNESS;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.STRIKE;
+import static com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames.VOLATILITY;
 
 import com.opengamma.OpenGammaRuntimeException;
 

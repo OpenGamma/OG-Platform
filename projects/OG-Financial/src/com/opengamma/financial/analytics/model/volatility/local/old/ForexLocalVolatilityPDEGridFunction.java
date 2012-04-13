@@ -3,15 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local;
+package com.opengamma.financial.analytics.model.volatility.local.old;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.lang.reflect.Array;
@@ -19,16 +12,20 @@ import java.util.Arrays;
 import java.util.TreeSet;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -38,6 +35,13 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -46,65 +50,52 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexPiecewiseSABRSurfaceFunction.class);
+public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilityPDEGridFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexLocalVolatilityPDEGridFunction.class);
 
-  @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  public ForexLocalVolatilityPDEGridFunction() {
+    super(InstrumentTypeProperties.FOREX);
   }
 
   @Override
-  protected ValueProperties getResultProperties() {
-    return createValueProperties()
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .withAny(SURFACE)
-        .withAny(PROPERTY_SURFACE_TYPE)
-        .withAny(PROPERTY_X_AXIS)
-        .withAny(PROPERTY_Y_AXIS)
-        .withAny(PROPERTY_Y_AXIS_TYPE)
-        .withAny(CURVE_CALCULATION_METHOD)
-        .withAny(CURVE).get();
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof FXOptionSecurity;
   }
 
   @Override
-  protected ValueProperties getResultProperties(final String surfaceName, final String forwardCurveCalculationMethod, final String forwardCurveName) {
-    return createValueProperties()
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SURFACE, surfaceName)
-        .withAny(PROPERTY_SURFACE_TYPE)
-        .withAny(PROPERTY_X_AXIS)
-        .withAny(PROPERTY_Y_AXIS)
-        .withAny(PROPERTY_Y_AXIS_TYPE)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(CURVE, forwardCurveName).get();
+  protected UniqueId getUniqueIdForUnderlyings(final ComputationTarget target) {
+    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    return UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId();
   }
 
   @Override
-  protected ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
-      final String forwardCurveCalculationMethod, final String forwardCurveName) {
-    return createValueProperties()
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SURFACE, surfaceName)
-        .with(PROPERTY_SURFACE_TYPE, surfaceType)
-        .with(PROPERTY_X_AXIS, xAxis)
-        .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(CURVE, forwardCurveName).get();
+  protected EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date) {
+    final FXOptionSecurity fxOption = (FXOptionSecurity) security;
+    final Currency putCurrency = fxOption.getPutCurrency();
+    final Currency callCurrency = fxOption.getCallCurrency();
+    double strike;
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      strike = fxOption.getCallAmount() / fxOption.getPutAmount();
+    } else {
+      strike = fxOption.getPutAmount() / fxOption.getCallAmount();
+    }
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double t = actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
+    return new EuropeanVanillaOption(strike, t, true); //TODO this shouldn't be hard coded to a call
   }
 
   @Override
-  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        ValueProperties.builder()
+  protected ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final UniqueId id) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, ComputationTargetType.PRIMITIVE,
+        id,
+        ValueProperties
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, SurfacePropertyNames.VOLATILITY_QUOTE).get());
-    return volDataRequirement;
   }
 
+  //TODO
   @Override
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs, final ValueRequirement volDataRequirement, final ValueRequirement forwardCurveRequirement) {
     final Object volatilitySurfaceObject = inputs.getValue(volDataRequirement);

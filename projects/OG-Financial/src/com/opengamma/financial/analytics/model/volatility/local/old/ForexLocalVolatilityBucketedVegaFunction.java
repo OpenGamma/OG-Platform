@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.local;
+package com.opengamma.financial.analytics.model.volatility.local.old;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -15,16 +15,17 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * 
  */
-public class ForexLocalVolatilityFullPDEFunction extends ForexLocalVolatilityPDEGridFunction {
+public class ForexLocalVolatilityBucketedVegaFunction extends ForexLocalVolatilityPDEGridFunction {
 
   @Override
-  protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface,
-      final ForwardCurve forwardCurve, final SmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
-    return calculator.solve(data, localVolatilitySurface);
+  protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface, final ForwardCurve forwardCurve,
+      final SmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
+    return calculator.getBucketedVega(data, localVolatilitySurface, option);
   }
 
   @Override
   protected String getResultName() {
-    return ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID;
+    return ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA;
   }
+
 }
