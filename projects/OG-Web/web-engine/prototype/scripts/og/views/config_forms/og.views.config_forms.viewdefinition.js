@@ -595,7 +595,6 @@ $.register_module({
                                         } else {
                                             active_idx = $(form_id + ' ' + tab_cl)
 												.index($(form_id + ' ' + tab_cl + active_cl));
-											debugger;
                                             if (!~active_idx) return;
                                             set = $.extend(true, {}, form.compile().data[SETS][active_idx]);
                                             set.name = 'Cloned ' + set.name;
