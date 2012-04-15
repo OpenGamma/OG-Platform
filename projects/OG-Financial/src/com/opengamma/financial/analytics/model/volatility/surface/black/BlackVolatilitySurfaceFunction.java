@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
@@ -15,7 +15,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -32,7 +32,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 
 /**
- * 
+ *
  */
 public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -49,7 +49,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     final VolatilitySurfaceInterpolator surfaceInterpolator = (VolatilitySurfaceInterpolator) interpolatorObject;
     final SmileSurfaceDataBundle data = getData(inputs, getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits()),
         getForwardCurveRequirement(target, curveCalculationMethodName, forwardCurveName));
-    final BlackVolatilitySurface<?> impliedVolatilitySurface = surfaceInterpolator.getVolatilitySurface(data);
+    final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = surfaceInterpolator.getVolatilitySurface(data);
     final ValueProperties properties = getResultProperties(desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, impliedVolatilitySurface));
@@ -111,7 +111,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
 
   private ValueRequirement getInterpolatorRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, target.toSpecification(),
-        BlackVolatilitySurfaceUtils.getVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
+        BlackVolatilitySurfaceUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
 
   private ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName, final String instrumentType,

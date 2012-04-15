@@ -1,14 +1,17 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
 /**
- * 
+ *
  */
 public class BlackVolatilitySurfacePropertyNamesAndValues {
+  // Property name for the Black volatility surface calculation method
+  public static final String BLACK_SURFACE_METHOD = "BlackSurfaceMethod";
+
   // Properties and names for the time axis
   public static final String PROPERTY_TIME_AXIS = "TimeAxis";
   public static final String LOG_TIME = "LogTime";
