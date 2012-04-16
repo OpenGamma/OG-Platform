@@ -1,0 +1,25 @@
+<project name="Merge Modules">
+
+  <target name="clean">
+    <delete failonerror="false" includeemptydirs="true">
+      <fileset dir="${basedir}">
+        <include name="*.msm" />
+        <include name="*-cache/*" />
+        <include name="*-cache" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="compile">
+    <!-- TODO: compile the merge modules -->
+  </target>
+
+  <target name="dist-publish">
+    <zip destfile="${dist.dir}/MSM.zip">
+      <fileset dir="${basedir}">
+        <include name="*.msm" />
+      </fileset>
+    </zip>
+  </target>
+
+</project>
