@@ -290,12 +290,24 @@ public class BlackVolatilitySurfaceUtils {
   }
 
   public static ValueProperties.Builder addAllBlackSurfaceProperties(final ValueProperties properties, final String instrumentType, final ValueRequirement desiredValue) {
-    return addBlackSurfaceProperties(addVolatilityInterpolatorProperties(properties, desiredValue).get(), instrumentType);
+    return addBlackSurfaceProperties(addVolatilityInterpolatorProperties(properties, desiredValue).get(), instrumentType, desiredValue);
   }
 
   public static Set<ValueRequirement> ensureAllBlackSurfaceProperties(final ValueProperties constraints) {
     Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
     if (requirements == null) {
+      return null;
+    }
+    final Set<String> curveNames = constraints.getValues(CURVE);
+    if (curveNames == null || curveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> curveCalculationMethods = constraints.getValues(CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = constraints.getValues(SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
     final String smileInterpolationMethod = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR).iterator().next();
