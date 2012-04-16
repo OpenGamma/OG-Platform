@@ -74,12 +74,14 @@
 .OG-versions .ui-layout-header {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKtra2SjDA+iFNdXf0cLADjgNiMyByQAACIGw2tx0FNhwAAAABJRU5ErkJggg==);
   background-color: #fffdf2;
+  margin: 1px;
 }
 
 .OG-versions .ui-layout-content {
   overflow: scroll;
   overflow-x: auto;
   overflow-y: scroll;
+  margin: 1px;
 }
 
 .OG-versions th {

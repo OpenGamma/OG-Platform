@@ -2,6 +2,8 @@
     padding: 10px;
     position: relative;
     overflow: auto;
+    margin-right: 1px;
+    margin-bottom: 1px;
 }
 
 /*

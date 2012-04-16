@@ -13,7 +13,7 @@ $.register_module({
                     north:    {spacing_open: 0, size: 43, paneClass: 'OG-layout-admin-masthead'},
                     south:    {spacing_open: 0, size: 36, paneClass: 'OG-layout-admin-footer'},
                     east:     {spacing_closed: 0, initClosed: true}, // Not used
-                    west:     {size: '33%', paneClass: 'OG-layout-admin-search'},
+                    west:     {spacing_open: 7, size: '33%', paneClass: 'OG-layout-admin-search'},
                     center:   {paneClass: 'ui-layout-details'}
                 }),
                 inner: $('.ui-layout-details').layout({
@@ -24,7 +24,7 @@ $.register_module({
                     },
                     south: { // versions / sync etc
                         paneSelector: '.OG-layout-admin-details-south', paneClass: 'OG-layout-admin-details-south',
-                        size: '50%', initClosed: true, spacing_closed: 0,
+                        size: '50%', initClosed: true, spacing_closed: 0, spacing_open: 7,
                         onopen_start: function () {$('.OG-layout-admin-details-south').empty();}
                     },
                     center: {
