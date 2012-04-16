@@ -13,9 +13,6 @@ import com.opengamma.analytics.financial.model.finitedifference.applications.PDE
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
@@ -28,8 +25,6 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 
@@ -48,9 +43,6 @@ public class ForexLocalVolatilityTest {
 
   private static final double[] DELTAS = new double[] {0.15, 0.25 };
   private static final double[] FORWARDS = new double[] {1.34, 1.35, 1.36, 1.38, 1.4, 1.43, 1.45, 1.48, 1.5, 1.52 };
-  // private static final double[] FORWARDS;
-  //  private static final double SPOT = 1.34;
-  //  private static double DRIFT = 0.05;
 
   @SuppressWarnings("unused")
   private static final String[] TENORS = new String[] {"1W", "2W", "3W", "1M", "3M", "6M", "9M", "1Y", "5Y", "10Y" };
@@ -60,11 +52,6 @@ public class ForexLocalVolatilityTest {
     {-0.012025, -0.02015, -0.026, -0.0314, -0.0377, -0.03905, -0.0396, -0.0402, -0.02085, -0.015175 } };
   private static final double[][] BUTT = new double[][] { {0.00665, 0.00725, 0.00835, 0.009075, 0.013175, 0.01505, 0.01565, 0.0163, 0.009275, 0.007075, },
     {0.002725, 0.00335, 0.0038, 0.004, 0.0056, 0.0061, 0.00615, 0.00635, 0.00385, 0.002575 } };
-  //  private static final double[] ATM;
-  //  private static final double[][] RR;
-  //  private static final double[][] BUTT;
-  //  private static final double[][] STRIKES;
-  //  private static final double[][] VOLS;
   private static final int N = EXPIRIES.length;
 
   private static final SmileSurfaceDataBundle MARKET_DATA;
@@ -72,28 +59,6 @@ public class ForexLocalVolatilityTest {
   private static final LocalVolatilityPDEGreekCalculator CAL;
 
   static {
-    //
-    //    FORWARDS = new double[N];
-    //    double drift = 0.1;
-    //    for (int i = 0; i < N; i++) {
-    //      FORWARDS[i] = 100 * Math.exp(EXPIRIES[i] * drift);
-    //    }
-
-    //    ATM = new double[N];
-    //    Arrays.fill(ATM, 0.3);
-    //    RR = new double[2][N];
-    //    BUTT = new double[2][N];
-    //
-    //    STRIKES = new double[N][];
-    //    VOLS = new double[N][];
-    //    for (int i = 0; i < N; i++) {
-    //      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
-    //      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
-    //          new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
-    //      STRIKES[i] = cal.getStrike(FORWARDS[i]);
-    //      VOLS[i] = cal.getVolatility();
-    //    }
-
     MARKET_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, BUTT, true, EXTRAPOLATOR_1D);
     CAL = new LocalVolatilityPDEGreekCalculator(MARKET_DATA.getForwardCurve(), EXPIRIES, MARKET_DATA.getStrikes(), MARKET_DATA.getVolatilities(), true);
   }
@@ -374,58 +339,9 @@ public class ForexLocalVolatilityTest {
     CAL.vega(ps, option);
   }
 
-  @SuppressWarnings("unused")
-  private Function1D<Double, Double> getStrikeForDeltaFunction(final double forward, final double expiry, final boolean isCall,
-      final Function1D<Double, Double> volFunc) {
-    final BracketRoot bracketer = new BracketRoot();
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(1e-8);
-
-    return new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double delta) {
-
-        final Function1D<Double, Double> deltaFunc = new Function1D<Double, Double>() {
-
-          @Override
-          public Double evaluate(final Double strike) {
-            final double vol = volFunc.evaluate(strike);
-            final double deltaTry = BlackFormulaRepository.delta(forward, strike, expiry, vol, isCall);
-            return deltaTry - delta;
-          }
-        };
-
-        final double[] brackets = bracketer.getBracketedPoints(deltaFunc, 0.5, 1.5, 0, 5);
-        return rootFinder.getRoot(deltaFunc, brackets[0], brackets[1]);
-      }
-    };
-  }
-
-  @SuppressWarnings("unused")
-  private Surface<Double, Double, Double> toDeltaProxySurface(final LocalVolatilitySurface<?> lv) {
-
-    final ForwardCurve fc = MARKET_DATA.getForwardCurve();
-
-    final Function<Double, Double> func = new Function<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... tx) {
-        final double t = tx[0];
-        final double x = tx[1];
-        final double f = fc.getForward(t);
-        final double k = f * Math.exp(-x * Math.sqrt(t));
-        return lv.getVolatility(t, k);
-      }
-    };
-
-    return FunctionalDoublesSurface.from(func);
-  }
 
   private Surface<Double, Double, Double> toDeltaProxySurface(final BlackVolatilitySurface<?> lv) {
-
     final ForwardCurve fc = MARKET_DATA.getForwardCurve();
-
     final Function<Double, Double> func = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -438,7 +354,6 @@ public class ForexLocalVolatilityTest {
         return lv.getVolatility(t, k);
       }
     };
-
     return FunctionalDoublesSurface.from(func);
   }
 }
