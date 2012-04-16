@@ -39,7 +39,7 @@ public class LocalVolatilitySurfaceUtils {
   public static ValueProperties.Builder addDupireLocalVolatilitySurfaceProperties(final ValueProperties properties, final String instrumentType, final String blackSmileInterpolator,
       final ValueRequirement desiredValue) {
     final String eps = desiredValue.getConstraint(PROPERTY_DERIVATIVE_EPS);
-    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(properties, instrumentType, blackSmileInterpolator);
+    final ValueProperties.Builder blackSurfaceProperties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(properties, instrumentType, desiredValue);
     return blackSurfaceProperties.with(PROPERTY_DERIVATIVE_EPS, eps);
   }
 }

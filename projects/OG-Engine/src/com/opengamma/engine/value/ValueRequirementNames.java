@@ -994,7 +994,7 @@ public final class ValueRequirementNames {
   /**
    * Surface containing (x, y, volatility) triples calculated using the Dupire local volatility method.
    */
-  public static final String LOCAL_VOLATILITY_SURFACE = "Local Volatility Surface";
+  public static final String LOCAL_VOLATILITY_SURFACE = "LocalVolatilitySurface";
   /**
    * The vanna of an instrument calculated using local volatility and PDE methods.
    */
