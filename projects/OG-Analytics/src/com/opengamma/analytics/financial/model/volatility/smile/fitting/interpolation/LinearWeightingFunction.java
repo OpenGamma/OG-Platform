@@ -10,6 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
+// TODO this belongs with interpolators
 public final class LinearWeightingFunction extends WeightingFunction {
   private static final LinearWeightingFunction s_instance = new LinearWeightingFunction();
 

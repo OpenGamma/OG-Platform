@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SineWeightingFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -27,9 +27,9 @@ import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.analytics.math.minimization.NonLinearTransformFunction;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.ArgumentChecker;
@@ -46,7 +46,7 @@ public class PiecewiseSABRFitterRootFinder {
       new ParameterLimitsTransform[] {ALPHA_TRANSFORM, RHO_TRANSFORM, NU_TRANSFORM }, new BitSet());
 
   private static final double DEFAULT_BETA = 0.9;
-  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();
+  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION;
 
   private static final Logger s_logger = LoggerFactory.getLogger(PiecewiseSABRFitterRootFinder.class);
   private static final VolatilityFunctionProvider<SABRFormulaData> MODEL = new SABRHaganVolatilityFunction();

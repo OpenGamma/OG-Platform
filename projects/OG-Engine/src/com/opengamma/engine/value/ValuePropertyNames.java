@@ -115,7 +115,7 @@ public final class ValuePropertyNames {
   public static final String SURFACE = "Surface";
 
   /**
-   * The symbolic name of the calculation method used to produce a curve (par rate or present value)
+   * The symbolic name of the calculation method used to produce a curve
    */
   public static final String CURVE_CALCULATION_METHOD = "CurveCalculationMethod";
   
@@ -123,6 +123,11 @@ public final class ValuePropertyNames {
    * A general name for a property describing how a value was calculated
    */
   public static final String CALCULATION_METHOD = "CalculationMethod";
+  
+  /**
+   * A general name for a property describing how a surface was calculated
+   */
+  public static final String SURFACE_CALCULATION_METHOD = "SurfaceCalculationMethod";
   
   /**
    * A general name for a property describing how volatility smiles were modelled (e.g. Heston, SABR)

@@ -44,23 +44,38 @@ public class ShiftedLogNormalTailExtrapolation {
   public static double impliedVolatility(final double forward, final double strike, final double timeToExpiry, final double mu, final double theta) {
     boolean isCall = strike >= forward;
 
-    double c = Math.log(strike / forward);
-    double a = timeToExpiry / 2;
-    double b = (-c + mu - theta * theta * timeToExpiry / 2) / theta;
-    double arg = b * b - 4 * a * c;
-    if (arg < 0) {
-      throw new MathException("cannot solve for sigma");
+    if (strike == 0) {
+      return theta;
     }
-    double root = Math.sqrt(arg);
-
-    double volGuess = isCall ? (-b - root) / 2 / a : (-b + root) / 2 / a;
 
     double p = price(forward, strike, timeToExpiry, isCall, mu, theta);
     if (p <= 0.0) {
+      double c = Math.log(strike / forward);
+      double a = timeToExpiry / 2;
+      double b = (-c + mu - theta * theta * timeToExpiry / 2) / theta;
+      double arg = b * b - 4 * a * c;
+      if (arg < 0) {
+        throw new MathException("cannot solve for sigma");
+      }
+      double root = Math.sqrt(arg);
+      double volGuess = isCall ? (-b - root) / 2 / a : (-b + root) / 2 / a;
+      return volGuess;
+    }
+    if (!isCall && p >= strike) {
+      double c = Math.log(strike / forward);
+      double a = timeToExpiry / 2;
+      double b = (c + mu - theta * theta * timeToExpiry / 2) / theta;
+      double arg = b * b - 4 * a * c;
+      if (arg < 0) {
+        throw new MathException("cannot solve for sigma");
+      }
+      double root = Math.sqrt(arg);
+      double volGuess = isCall ? (-b - root) / 2 / a : (-b + root) / 2 / a;
       return volGuess;
     }
 
-    return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, volGuess);
+    // return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, volGuess);
+    return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, isCall);
   }
 
   /**

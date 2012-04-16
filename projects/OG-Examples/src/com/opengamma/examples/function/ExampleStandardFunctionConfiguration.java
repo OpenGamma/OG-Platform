@@ -115,22 +115,19 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPayCurveNamesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultReceiveCurveNamesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexOptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
@@ -189,21 +186,21 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRFunctio
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
-import com.opengamma.financial.analytics.model.volatility.local.BlackVolatilitySurfaceDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityBucketedVegaFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityFullPDEFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGreekFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGridGreeksFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEGreekDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEGridPresentValueFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPresentValueFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForexPiecewiseSABRSurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames;
-import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.BlackVolatilitySurfaceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityBucketedVegaFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityFullPDEFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityGreekFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityGridGreeksFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEGreekDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEGridPresentValueFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEPresentValueFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEPriceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEPriceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexPiecewiseSABRSurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilityPDEValuePropertyNames;
+import com.opengamma.financial.analytics.model.volatility.local.old.LocalVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction;
@@ -659,7 +656,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaQuoteMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "PresentValue", SECONDARY, 
         SECONDARY, "Interpolated", SECONDARY, "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "USD", "EUR"));
@@ -672,16 +669,38 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesFunction.class, SECONDARY, "PresentValue", USD, "EUR", "GBP", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesFunction.class, SECONDARY, "PresentValue", USD, "EUR", "GBP", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        SECONDARY, SECONDARY, "PresentValue", USD, "AUD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        SECONDARY, SECONDARY, "PresentValue", "EUR", "GBP", "JPY"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        SECONDARY, SECONDARY, "PresentValue", USD, "AUD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        SECONDARY, SECONDARY, "PresentValue", "EUR", "GBP", "JPY"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "EUR", "USD"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "USD", "GBP"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "GBP", "USD"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "USD", "JPY"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "JPY", "USD"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "USD", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "CHF", "USD"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "EUR", "GBP"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "GBP", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "EUR", "JPY"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "JPY", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "EUR", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "GBP", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "JPY", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY", 
+        "PresentValue", "CHF", "JPY"));
   }
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {

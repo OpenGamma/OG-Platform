@@ -21,7 +21,8 @@ import com.opengamma.util.money.Currency;
 public class FuturePriceCurveSpecificationFudgeEncodingTest extends FinancialTestBase {
   private static final String NAME = "SN";
   private static final Currency UID = Currency.USD;
-  private static final FuturePriceCurveInstrumentProvider<?> PROVIDER = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
+  private static final FuturePriceCurveInstrumentProvider<?> PROVIDER = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", 
+      MarketDataRequirementNames.MARKET_VALUE,"BLOOMBERG_TICKER_WEAK");
 
   @Test
   public void testCycle() {

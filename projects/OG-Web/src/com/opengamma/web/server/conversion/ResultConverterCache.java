@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;

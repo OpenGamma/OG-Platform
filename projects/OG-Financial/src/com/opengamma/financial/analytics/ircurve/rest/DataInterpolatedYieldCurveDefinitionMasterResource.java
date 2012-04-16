@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -56,6 +57,11 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @HEAD
   @Path("definitions")
   public Response status() {

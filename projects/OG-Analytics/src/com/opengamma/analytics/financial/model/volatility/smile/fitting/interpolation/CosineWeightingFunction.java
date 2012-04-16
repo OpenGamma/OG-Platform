@@ -10,6 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
+// TODO this belongs with interpolators
 public final class CosineWeightingFunction extends WeightingFunction {
   private static final CosineWeightingFunction s_instance = new CosineWeightingFunction();
 
