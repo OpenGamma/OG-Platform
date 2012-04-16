@@ -1,3 +1,3 @@
-{% for k in d['/shared/docs.sqlite3'].kv_keys() -%}
+{% for k in d['/shared/docs.sqlite3'].kv_storage().keys() -%}
 {{ k }}
 {% endfor -%}

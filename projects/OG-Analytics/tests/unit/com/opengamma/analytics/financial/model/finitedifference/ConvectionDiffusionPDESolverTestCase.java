@@ -14,17 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.FixedSecondDerivativeBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -82,7 +71,6 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static final ConvectionDiffusionPDEDataBundle LN_DATA;
   private static final ConvectionDiffusionPDEDataBundle BETA_DATA;
 
-
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;
   private static Set<Greek> GREEKS;
@@ -130,7 +118,6 @@ public class ConvectionDiffusionPDESolverTestCase {
         return 0.0;
       }
     };
-    
 
     LOWER = new DirichletBoundaryCondition(spotZeroPrice, 0.0);
     // UPPER = new NeumannBoundaryCondition(upper1stDev, 5 * FORWARD, ISCALL);
@@ -158,7 +145,6 @@ public class ConvectionDiffusionPDESolverTestCase {
     LN_LOWER = new DirichletBoundaryCondition(logSpotZeroPrice, logGridLow);
     LN_UPPER = new DirichletBoundaryCondition(0.0, logGridHi); // put only
 
-
     final Function<Double, Double> payoff = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -173,9 +159,7 @@ public class ConvectionDiffusionPDESolverTestCase {
 
     };
 
-
     AMERICAN_PAYOFF = FunctionalDoublesSurface.from(payoff);
-
 
     DATA = PDE_DATA_PROVIDER.getBackwardsBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
     LN_DATA = PDE_DATA_PROVIDER.getBackwardsLogBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
@@ -413,8 +397,7 @@ public class ConvectionDiffusionPDESolverTestCase {
     }
   }
 
-  public void testAmericanPrice(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int priceSteps, final double lowerMoneyness, final double upperMoneyness, final double printTol,
-      final boolean print) {
+  public void testAmericanPrice(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int priceSteps, final double lowerMoneyness, final double upperMoneyness, final boolean print) {
 
     final AmericanVanillaOptionDefinition option = new AmericanVanillaOptionDefinition(FORWARD, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), false);
     final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model = new BjerksundStenslandModel();

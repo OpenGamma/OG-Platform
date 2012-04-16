@@ -1,6 +1,6 @@
 The SabrExtrapolationExample class generates data which we use to create SMILE graphs.
 
-{{ d['SabrExtrapolationExample.java|pyg'] }}
+{{ highlight(d['/shared/docs.sqlite3']['com.opengamma.analytics.example.sabrextrapolation.SabrExtrapolationExample:generateSabrData(PrintStream):source'], 'java') }}
 
 Here is the R code which generates the graphs:
 

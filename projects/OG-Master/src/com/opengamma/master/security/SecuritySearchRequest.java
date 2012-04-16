@@ -66,6 +66,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private String _externalIdValue;
   /**
+   * The external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   */
+  @PropertyDefinition
+  private String _externalIdScheme;
+  /**
    * The security name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
@@ -246,6 +252,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return getExternalIdSearch();
       case 2072311499:  // externalIdValue
         return getExternalIdValue();
+      case -267027573:  // externalIdScheme
+        return getExternalIdScheme();
       case 3373707:  // name
         return getName();
       case 808245914:  // securityType
@@ -270,6 +278,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         return;
       case 2072311499:  // externalIdValue
         setExternalIdValue((String) newValue);
+        return;
+      case -267027573:  // externalIdScheme
+        setExternalIdScheme((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
@@ -303,6 +314,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
           JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
@@ -318,6 +330,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
@@ -407,6 +420,34 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    */
   public final Property<String> externalIdValue() {
     return metaBean().externalIdValue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @return the value of the property
+   */
+  public String getExternalIdScheme() {
+    return _externalIdScheme;
+  }
+
+  /**
+   * Sets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @param externalIdScheme  the new value of the property
+   */
+  public void setExternalIdScheme(String externalIdScheme) {
+    this._externalIdScheme = externalIdScheme;
+  }
+
+  /**
+   * Gets the the {@code externalIdScheme} property.
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @return the property, not null
+   */
+  public final Property<String> externalIdScheme() {
+    return metaBean().externalIdScheme().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -546,6 +587,11 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
         this, "externalIdValue", SecuritySearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code externalIdScheme} property.
+     */
+    private final MetaProperty<String> _externalIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "externalIdScheme", SecuritySearchRequest.class, String.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
@@ -573,6 +619,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         "objectIds",
         "externalIdSearch",
         "externalIdValue",
+        "externalIdScheme",
         "name",
         "securityType",
         "sortOrder",
@@ -593,6 +640,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           return _externalIdSearch;
         case 2072311499:  // externalIdValue
           return _externalIdValue;
+        case -267027573:  // externalIdScheme
+          return _externalIdScheme;
         case 3373707:  // name
           return _name;
         case 808245914:  // securityType
@@ -643,6 +692,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> externalIdValue() {
       return _externalIdValue;
+    }
+
+    /**
+     * The meta-property for the {@code externalIdScheme} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> externalIdScheme() {
+      return _externalIdScheme;
     }
 
     /**

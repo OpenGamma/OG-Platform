@@ -16,8 +16,6 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
@@ -41,8 +39,8 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   static {
-    double[] vols = new double[] {0.2, 0.7, 1.0 };
-    double[] w = new double[] {0.8, 0.08, 0.12 };
+    final double[] vols = new double[] {0.2, 0.7, 1.0 };
+    final double[] w = new double[] {0.8, 0.08, 0.12 };
     //    double[] f = new double[] {1.0, Double.NaN, 0.5 };
     //    double temp = w[0] * f[0] + w[2] * f[2];
     //    f[1] = (1.0 - temp) / w[1];
@@ -69,29 +67,29 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
     final double[] strikes = new double[] {700, 782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534, 2000 };
     final double[] vols = new double[] {0.311, 0.311, 0.298, 0.267, 0.271, 0.276, 0.276 };
     final int n = vols.length;
-    double[] errors = new double[n];
+    final double[] errors = new double[n];
     Arrays.fill(errors, 1e-4);
     errors[0] = 1e5;
     errors[n - 1] = 1e5;
-    MixedLogNormalVolatilityFunction model = new MixedLogNormalVolatilityFunction();
+    final MixedLogNormalVolatilityFunction model = getModel();
 
-    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(forward, strikes, expiry, vols, errors, model, 3, true);
+    final MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(forward, strikes, expiry, vols, errors, model, 3, true);
 
     double bestChi2 = Double.POSITIVE_INFINITY;
     LeastSquareResultsWithTransform best = null;
     final int tries = 10;
     int fails = 0;
     for (int i = 0; i < tries; i++) {
-      DoubleMatrix1D start = getRandomStart();
+      final DoubleMatrix1D start = getRandomStart();
       try {
-        LeastSquareResultsWithTransform res = fitter.solve(start);
+        final LeastSquareResultsWithTransform res = fitter.solve(start);
         if (res.getChiSq() < bestChi2) {
           bestChi2 = res.getChiSq();
           best = res;
         }
-      } catch (MathException e) {
+      } catch (final MathException e) {
         fails++;
-      } catch (IllegalArgumentException e) {
+      } catch (final IllegalArgumentException e) {
         System.out.print(e.toString());
         System.out.println(start);
       }
@@ -101,13 +99,13 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
     // DoubleMatrix1D start = new DoubleMatrix1D(0.1653806454982462, 0.2981998932366687, 1.298321083180569, 0.16115590666749585);
     //  best = fitter.solve(start);
     System.out.println(best.toString());
-    MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
+    final MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
     System.out.println(data.toString());
     for (int i = 0; i < 200; i++) {
       final double k = 500 + 1700 * i / 199.;
 
-      EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
-      double vol = model.getVolatility(option, forward, data);
+      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
+      final double vol = model.getVolatility(option, forward, data);
       System.out.println(k + "\t" + vol);
     }
 
@@ -128,14 +126,14 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   private DoubleMatrix1D getRandomStart() {
-    double theta1 = Math.PI / 2 * RANDOM.nextDouble();
-    double theta2 = Math.PI / 2 * RANDOM.nextDouble();
+    final double theta1 = Math.PI / 2 * RANDOM.nextDouble();
+    final double theta2 = Math.PI / 2 * RANDOM.nextDouble();
     return new DoubleMatrix1D(0.5 * RANDOM.nextDouble(), 0.5 * RANDOM.nextDouble(), 0.5 * RANDOM.nextDouble(), theta1, theta2, theta1, theta2);
   }
 
   @Override
   MixedLogNormalVolatilityFunction getModel() {
-    return new MixedLogNormalVolatilityFunction();
+    return MixedLogNormalVolatilityFunction.getInstance();
   }
 
   @Override
@@ -144,8 +142,8 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   @Override
-  SmileModelFitter<MixedLogNormalModelData> getFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error,
-      VolatilityFunctionProvider<MixedLogNormalModelData> model) {
+  SmileModelFitter<MixedLogNormalModelData> getFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols, final double[] error,
+      final VolatilityFunctionProvider<MixedLogNormalModelData> model) {
     return new MixedLogNormalModelFitter(forward, strikes, timeToExpiry, impliedVols, error, model, N, USE_SHIFTED_MEANS);
   }
 
@@ -157,7 +155,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   @Override
   double[] getRandomStartValues() {
     final int n = USE_SHIFTED_MEANS ? 3 * N - 2 : 2 * N - 1;
-    double[] res = new double[n];
+    final double[] res = new double[n];
     res[0] = 0.1 + 0.3 * RANDOM.nextDouble();
     for (int i = 1; i < N; i++) {
       res[i] = 0.5 * RANDOM.nextDouble();
@@ -179,10 +177,10 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   @Override
-  public DoubleMatrix1D toStandardForm(DoubleMatrix1D from) {
+  public DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
     final int n = from.getNumberOfElements();
-    double[] temp = new double[n];
-    double[] f = from.getData();
+    final double[] temp = new double[n];
+    final double[] f = from.getData();
     System.arraycopy(f, 0, temp, 0, N);
     for (int i = N; i < 2 * N - 1; i++) {
       temp[i] = toZeroToPiByTwo(f[i]);
@@ -201,7 +199,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
       x = -x;
     }
     if (x > Math.PI / 2) {
-      int p = (int) (x / Math.PI);
+      final int p = (int) (x / Math.PI);
       x -= p * Math.PI;
       if (x > Math.PI / 2) {
         x = -x + Math.PI;

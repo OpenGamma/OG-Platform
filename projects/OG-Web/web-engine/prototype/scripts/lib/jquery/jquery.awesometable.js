@@ -19,7 +19,7 @@
             return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
         })();
         if (!$self.parent().parent().hasClass('js-awesometable')) { // initialize
-            if ($self.height() - $self.find('thead').height() <= options.height) return;
+            if ($self.height() - $self.find('thead').height() <= options.height) return $self;
             $self.css('margin-top', '-1px'); // compensate for thead height being 1px
             $self.wrap('<div />').parent().css({height: options.height + 'px', overflow: 'auto'})
                 .wrap('<div class="js-awesometable"></div>').css({width: $self.width() + scrollbar_width + 'px'});

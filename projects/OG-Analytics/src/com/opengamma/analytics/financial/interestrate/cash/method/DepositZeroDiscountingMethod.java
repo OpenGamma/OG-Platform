@@ -56,14 +56,14 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
   public CurrencyAmount presentValue(final DepositZero deposit, final YieldCurveBundle curves) {
     Validate.notNull(deposit);
     Validate.notNull(curves);
-    double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
-    double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
-    double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
+    final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
+    final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
+    final double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
     return CurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof DepositZero, "Cash");
     return presentValue((DepositZero) instrument, curves);
   }
@@ -77,12 +77,12 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final DepositZero deposit, final YieldCurveBundle curves) {
     Validate.notNull(deposit);
     Validate.notNull(curves);
-    double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
-    double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
+    final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
+    final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
-    double dfStartBar = -deposit.getInitialAmount() * pvBar;
+    final double pvBar = 1.0;
+    final double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
+    final double dfStartBar = -deposit.getInitialAmount() * pvBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
@@ -92,7 +92,7 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
   }
 
   /**
-   * Computes the deposit fair rate given the start and end time and the accrual factor. 
+   * Computes the deposit fair rate given the start and end time and the accrual factor.
    * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
    * @param deposit The deposit.
    * @param curves The curves.
@@ -108,7 +108,7 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
   }
 
   /**
-   * Computes the deposit fair rate curve sensitivity. 
+   * Computes the deposit fair rate curve sensitivity.
    * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
    * @param deposit The deposit.
    * @param curves The curves.

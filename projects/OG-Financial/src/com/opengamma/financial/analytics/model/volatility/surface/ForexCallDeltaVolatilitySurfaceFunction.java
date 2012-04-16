@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
@@ -48,7 +51,11 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final String surfaceName = desiredValues.iterator().next().getConstraint(ValuePropertyNames.SURFACE);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final ValueRequirement surfaceRequirement = getDataRequirement(surfaceName, target);
     final Object volatilitySurfaceObject = inputs.getValue(surfaceRequirement);
     if (volatilitySurfaceObject == null) {
@@ -93,10 +100,14 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
       }
       smile[i] = new SmileDeltaParameter(t, deltas.toDoubleArray(), volatilities.toDoubleArray());
     }
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile, interpolator);
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName);
     if (shifts != null) {
       resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts);
     }
@@ -119,9 +130,22 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
       throw new OpenGammaRuntimeException("Need one surface name; have " + surfaceNames);
+    }
+    final Set<String> interpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    if (interpolatorNames == null || interpolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     return Collections.<ValueRequirement>singleton(getDataRequirement(surfaceName, target));
@@ -131,7 +155,10 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder resultProperties = createValueProperties()
         .withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (context.getViewCalculationConfiguration() != null) {
       final Set<String> shifts = context.getViewCalculationConfiguration().getDefaultProperties().getValues(DefaultVolatilitySurfaceShiftFunction.VOLATILITY_SURFACE_SHIFT);
       if ((shifts != null) && (shifts.size() == 1)) {

@@ -98,7 +98,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
   /**
    * The default genearted portfolio name.
    */
-  public static final String PORTFOLIO_NAME = "ExampleEquityOptionPortfolio";
+  public static final String PORTFOLIO_NAME = "Example Equity Option Portfolio";
 
   private static Map<String, String> getIndexToExchangeMap() {
     Map<String, String> ret = new HashMap<String, String>();

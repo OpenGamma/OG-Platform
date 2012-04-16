@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.

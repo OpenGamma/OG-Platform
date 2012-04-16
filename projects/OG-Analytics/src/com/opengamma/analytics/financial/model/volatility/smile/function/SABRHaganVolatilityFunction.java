@@ -29,7 +29,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
    */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganVolatilityFunction.class);
 
-  private static final double CUTOFF_MONEYNESS = 1e-6;
+  private static final double CUTOFF_MONEYNESS = 1e-12; //changed from 1e-6 on 3/3/2012 R white
   private static final double SMALL_Z = 1e-6;
   private static final double LARGE_NEG_Z = -1e6;
   private static final double LARGE_POS_Z = 1e8;

@@ -28,12 +28,12 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class CurveSpecificationBuilderConfiguration {
-  
+
   /**
    * The names of the curve instrument providers, currently used in CurveSpecificationBuilderConfiguration fudge messages and Web UI
    */
   public static final List<String> s_curveSpecNames = getCurveSpecBuilderConfigurationNames();
-  
+
   private final Map<Tenor, CurveInstrumentProvider> _cashInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _fra3MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _fra6MInstrumentProviders;
@@ -49,6 +49,12 @@ public class CurveSpecificationBuilderConfiguration {
   private final Map<Tenor, CurveInstrumentProvider> _stiborInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _ciborInstrumentProviders;
 
+  private final Map<Tenor, CurveInstrumentProvider> _simpleZeroDepositInstrumentProviders;
+
+  private final Map<Tenor, CurveInstrumentProvider> _periodicZeroDepositInstrumentProviders;
+
+  private final Map<Tenor, CurveInstrumentProvider> _continuousZeroDepositInstrumentProviders;
+
   /**
    * A curve specification builder configuration for a particular currency
    * @param cashInstrumentProviders a map of tenor to instrument providers for Cash curve instrument e.g. (StaticCurveInstrumentProvider)
@@ -63,8 +69,11 @@ public class CurveSpecificationBuilderConfiguration {
    * @param swap6MInstrumentProviders a map of tenor to instrument providers for 6M swap curve instruments where 6M is the floating tenor
    * @param swap3MInstrumentProviders a map of tenor to instrument providers for 3M swap curve instruments where 3M is the floating tenor
    * @param basisSwapInstrumentProviders a map of tenor to instrument providers for basis swap instruments
-   * @param tenorSwapInstrumentProviders a map of tenor swap to instrument providers for tenor swap curve 
-   * @param oisSwapInstrumentProviders a map of OIS swap to instrument providers for OIS swap curve instruments
+   * @param tenorSwapInstrumentProviders a map of tenor to instrument providers for tenor swap curve
+   * @param oisSwapInstrumentProviders a map of tenor to instrument providers for OIS swap curve instruments
+   * @param simpleZeroDepositInstrumentProviders a map of tenor to simple zero deposit instruments
+   * @param periodicZeroDepositInstrumentProviders a map of tenor to periodic zero deposit instruments
+   * @param continuousZeroDepositInstrumentProviders a map of tenor to continuous zero deposit instruments
    */
   public CurveSpecificationBuilderConfiguration(final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders,
@@ -72,7 +81,9 @@ public class CurveSpecificationBuilderConfiguration {
       final Map<Tenor, CurveInstrumentProvider> ciborInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> stiborInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> futureInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> swap6MInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
-      final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders) {
+      final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders,
+      final Map<Tenor, CurveInstrumentProvider> simpleZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> periodicZeroDepositInstrumentProviders,
+      final Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders) {
     _cashInstrumentProviders = cashInstrumentProviders;
     _fra3MInstrumentProviders = fra3MInstrumentProviders;
     _fra6MInstrumentProviders = fra6MInstrumentProviders;
@@ -87,16 +98,19 @@ public class CurveSpecificationBuilderConfiguration {
     _basisSwapInstrumentProviders = basisSwapInstrumentProviders;
     _tenorSwapInstrumentProviders = tenorSwapInstrumentProviders;
     _oisSwapInstrumentProviders = oisSwapInstrumentProviders;
+    _simpleZeroDepositInstrumentProviders = simpleZeroDepositInstrumentProviders;
+    _periodicZeroDepositInstrumentProviders = periodicZeroDepositInstrumentProviders;
+    _continuousZeroDepositInstrumentProviders = continuousZeroDepositInstrumentProviders;
   }
-  
+
   private static List<String> getCurveSpecBuilderConfigurationNames() {
     final List<String> list = new ArrayList<String>();
-    for (Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
+    for (final Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
       if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
         field.setAccessible(true);
         try {
           list.add((String) field.get(null));
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
           // Ignore
         }
       }
@@ -128,7 +142,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a 3M FRA security identifier for a curve node point 
+   * Build a 3M FRA security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -141,7 +155,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a 6M FRA security identifier for a curve node point 
+   * Build a 6M FRA security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -154,7 +168,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Swap security identifier for a curve node point 
+   * Build a Swap security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -167,7 +181,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a 3M swap security identifier for a curve node point 
+   * Build a 3M swap security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -219,7 +233,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Libor security identifier for a curve node point 
+   * Build a Libor security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -232,7 +246,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Euribor security identifier for a curve node point 
+   * Build a Euribor security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -245,7 +259,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a CDOR security identifier for a curve node point 
+   * Build a CDOR security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -258,7 +272,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Cibor security identifier for a curve node point 
+   * Build a Cibor security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -271,7 +285,7 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Stibor security identifier for a curve node point 
+   * Build a Stibor security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
    * @return the identifier of the security to use
@@ -284,13 +298,61 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
-   * Build a Future security identifier for a curve node point 
+   * Build a simple zero deposit security identifier for a curve node point
    * @param curveDate the date of the start of the curve
    * @param tenor the time into the curve for this security
-   * @param numberQuarterlyFuturesFromTenor the number of quarterly IR futures to traverse from (curveDate + tenor) 
+   * @return the identifier of the security to use
+   */
+  public ExternalId getSimpleZeroDepositSecurity(final LocalDate curveDate, final Tenor tenor) {
+    if (_simpleZeroDepositInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get simple zero deposit instrument provider");
+    }
+    return getStaticSecurity(_simpleZeroDepositInstrumentProviders, curveDate, tenor);
+  }
+
+  /**
+   * Build a periodic zero deposit security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @param periodsPerYear the periods per year
+   * @return the identifier of the security to use
+   */
+  public ExternalId getPeriodicZeroDepositSecurity(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear) {
+    if (_periodicZeroDepositInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get periodic zero deposit instrument provider");
+    }
+    final CurveInstrumentProvider mapper = _periodicZeroDepositInstrumentProviders.get(tenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, tenor, periodsPerYear, true);
+    } else {
+      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
+    }
+  }
+
+  /**
+   * Build a continuous security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return the identifier of the security to use
+   */
+  public ExternalId getContinuousZeroDepositSecurity(final LocalDate curveDate, final Tenor tenor) {
+    if (_continuousZeroDepositInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get continuous zero deposit instrument provider");
+    }
+    return getStaticSecurity(_continuousZeroDepositInstrumentProviders, curveDate, tenor);
+  }
+
+  /**
+   * Build a Future security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @param numberQuarterlyFuturesFromTenor the number of quarterly IR futures to traverse from (curveDate + tenor)
    * @return the identifier of the security to use
    */
   public ExternalId getFutureSecurity(final LocalDate curveDate, final Tenor tenor, final int numberQuarterlyFuturesFromTenor) {
+    if (_futureInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get future instrument provider");
+    }
     final CurveInstrumentProvider mapper = _futureInstrumentProviders.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);
@@ -410,14 +472,38 @@ public class CurveSpecificationBuilderConfiguration {
   public Map<Tenor, CurveInstrumentProvider> getOISSwapInstrumentProviders() {
     return _oisSwapInstrumentProviders;
   }
-  
+
+  /**
+   * Gets the simpleZeroDepositInstrumentProviders for serialisation
+   * @return the simpleZeroDepositInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getSimpleZeroDepositInstrumentProviders() {
+    return _simpleZeroDepositInstrumentProviders;
+  }
+
+  /**
+   * Gets the periodicZeroDepositInstrumentProviders for serialisation
+   * @return the periodicZeroDepositInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getPeriodicZeroDepositInstrumentProviders() {
+    return _periodicZeroDepositInstrumentProviders;
+  }
+
+  /**
+   * Gets the continuousZeroDepositInstrumentProviders for serialisation
+   * @return the continuousZeroDepositInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getContinuousZeroDepositInstrumentProviders() {
+    return _continuousZeroDepositInstrumentProviders;
+  }
+
   /**
    * Get all available tenors
    * 
    * @return the sorted tenors
    */
   public SortedSet<Tenor> getAllTenors() {
-    SortedSet<Tenor> allTenors = new TreeSet<Tenor>();
+    final SortedSet<Tenor> allTenors = new TreeSet<Tenor>();
     if (getBasisSwapInstrumentProviders() != null) {
       allTenors.addAll(getBasisSwapInstrumentProviders().keySet());
     }
@@ -460,6 +546,15 @@ public class CurveSpecificationBuilderConfiguration {
     if (getTenorSwapInstrumentProviders() != null) {
       allTenors.addAll(getTenorSwapInstrumentProviders().keySet());
     }
+    if (getSimpleZeroDepositInstrumentProviders() != null) {
+      allTenors.addAll(getSimpleZeroDepositInstrumentProviders().keySet());
+    }
+    if (getPeriodicZeroDepositInstrumentProviders() != null) {
+      allTenors.addAll(getPeriodicZeroDepositInstrumentProviders().keySet());
+    }
+    if (getContinuousZeroDepositInstrumentProviders() != null) {
+      allTenors.addAll(getContinuousZeroDepositInstrumentProviders().keySet());
+    }
     return allTenors;
   }
 
@@ -472,14 +567,23 @@ public class CurveSpecificationBuilderConfiguration {
       return false;
     }
     final CurveSpecificationBuilderConfiguration other = (CurveSpecificationBuilderConfiguration) o;
-    return (ObjectUtils.equals(getCashInstrumentProviders(), other.getCashInstrumentProviders()) && ObjectUtils.equals(getFra3MInstrumentProviders(), other.getFra3MInstrumentProviders())
-        && ObjectUtils.equals(getFra6MInstrumentProviders(), other.getFra6MInstrumentProviders()) && ObjectUtils.equals(getFutureInstrumentProviders(), other.getFutureInstrumentProviders())
-        && ObjectUtils.equals(getLiborInstrumentProviders(), other.getLiborInstrumentProviders()) && ObjectUtils.equals(getEuriborInstrumentProviders(), other.getEuriborInstrumentProviders())
-        && ObjectUtils.equals(getCiborInstrumentProviders(), other.getCiborInstrumentProviders()) && ObjectUtils.equals(getStiborInstrumentProviders(), other.getStiborInstrumentProviders())
-        && ObjectUtils.equals(getCDORInstrumentProviders(), other.getCDORInstrumentProviders()) && ObjectUtils.equals(getSwap6MInstrumentProviders(), other.getSwap6MInstrumentProviders())
-        && ObjectUtils.equals(getSwap3MInstrumentProviders(), other.getSwap3MInstrumentProviders()) && ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders()) 
-        && ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders())) 
-        && ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders());
+    return (ObjectUtils.equals(getCashInstrumentProviders(), other.getCashInstrumentProviders())
+        && ObjectUtils.equals(getFra3MInstrumentProviders(), other.getFra3MInstrumentProviders())
+        && ObjectUtils.equals(getFra6MInstrumentProviders(), other.getFra6MInstrumentProviders())
+        && ObjectUtils.equals(getFutureInstrumentProviders(), other.getFutureInstrumentProviders())
+        && ObjectUtils.equals(getLiborInstrumentProviders(), other.getLiborInstrumentProviders())
+        && ObjectUtils.equals(getEuriborInstrumentProviders(), other.getEuriborInstrumentProviders())
+        && ObjectUtils.equals(getCiborInstrumentProviders(), other.getCiborInstrumentProviders())
+        && ObjectUtils.equals(getStiborInstrumentProviders(), other.getStiborInstrumentProviders())
+        && ObjectUtils.equals(getCDORInstrumentProviders(), other.getCDORInstrumentProviders())
+        && ObjectUtils.equals(getSwap6MInstrumentProviders(), other.getSwap6MInstrumentProviders())
+        && ObjectUtils.equals(getSwap3MInstrumentProviders(), other.getSwap3MInstrumentProviders())
+        && ObjectUtils.equals(getBasisSwapInstrumentProviders(), other.getBasisSwapInstrumentProviders())
+        && ObjectUtils.equals(getTenorSwapInstrumentProviders(), other.getTenorSwapInstrumentProviders()))
+        && ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders())
+        && ObjectUtils.equals(getSimpleZeroDepositInstrumentProviders(), other.getSimpleZeroDepositInstrumentProviders())
+        && ObjectUtils.equals(getPeriodicZeroDepositInstrumentProviders(), other.getPeriodicZeroDepositInstrumentProviders())
+        && ObjectUtils.equals(getContinuousZeroDepositInstrumentProviders(), other.getContinuousZeroDepositInstrumentProviders());
   }
 
   @Override

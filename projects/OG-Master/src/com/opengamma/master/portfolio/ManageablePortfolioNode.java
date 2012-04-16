@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -120,16 +121,35 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   /**
    * Checks if any node object identifier matches one in the specified list.
    * 
-   * @param objectIds  the object identifiers to match against, not null
+   * @param nodeObjectIds  the object identifiers to match against, not null
    * @return true if at least one identifier matches
    */
-  public boolean matchesAny(List<ObjectId> objectIds) {
-    ArgumentChecker.notNull(objectIds, "objectIds");
-    if (objectIds.contains(getUniqueId().getObjectId())) {
+  public boolean matchesAnyNode(List<ObjectId> nodeObjectIds) {
+    ArgumentChecker.notNull(nodeObjectIds, "objectIds");
+    if (nodeObjectIds.contains(getUniqueId().getObjectId())) {
       return true;
     }
     for (ManageablePortfolioNode childNode : getChildNodes()) {
-      if (childNode.matchesAny(objectIds)) {
+      if (childNode.matchesAnyNode(nodeObjectIds)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if any position object identifier matches one in the specified list.
+   * 
+   * @param positionObjectIds  the position object identifiers to match against, not null
+   * @return true if at least one identifier matches
+   */
+  public boolean matchesAnyPosition(List<ObjectId> positionObjectIds) {
+    ArgumentChecker.notNull(positionObjectIds, "positionObjectIds");
+    if (CollectionUtils.containsAny(positionObjectIds, getPositionIds())) {
+      return true;
+    }
+    for (ManageablePortfolioNode childNode : getChildNodes()) {
+      if (childNode.matchesAnyPosition(positionObjectIds)) {
         return true;
       }
     }

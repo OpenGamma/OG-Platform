@@ -10,11 +10,14 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * 
  */
-public class SmileDeltaTermStructureParameterBuilderTest extends AnalyticsTestBase {  
+public class SmileDeltaTermStructureParameterBuilderTest extends AnalyticsTestBase {
 
   @Test
   public void test() {
@@ -23,7 +26,11 @@ public class SmileDeltaTermStructureParameterBuilderTest extends AnalyticsTestBa
     final double[] delta = new double[] {0.10, 0.25};
     final double[][] rr = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}};
     final double[][] strangle = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}};
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(t, delta, atm, rr, strangle);
+    SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(t, delta, atm, rr, strangle);
+    assertEquals(smiles, cycleObject(SmileDeltaTermStructureParameter.class, smiles));
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    smiles = new SmileDeltaTermStructureParameter(t, delta, atm, rr, strangle, interpolator);
     assertEquals(smiles, cycleObject(SmileDeltaTermStructureParameter.class, smiles));
   }
 }

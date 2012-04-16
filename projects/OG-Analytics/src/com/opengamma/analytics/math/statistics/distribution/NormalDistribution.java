@@ -14,6 +14,8 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 import cern.jet.stat.Probability;
 
+import com.opengamma.analytics.math.statistics.distribution.fnlib.DERFC;
+
 /**
  * The normal distribution is a continuous probability distribution with probability density function
  * $$
@@ -29,6 +31,7 @@ import cern.jet.stat.Probability;
  * <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/Normal.html">Colt</a> implementation of the normal distribution.
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
+  private static final double ROOT2 = Math.sqrt(2);
   private static final double XMIN = -7.6; //-7.6
   private static final double DELTA = 0.6; //0.05
 
@@ -73,21 +76,23 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   public double getCDF(final Double x) {
     Validate.notNull(x);
 
-    if (x <= XMIN) {
-      return tailApprox(x);
-    }
-    if (x < XMIN + DELTA) {
-      // smooth the two approximations together
-      final double a = tailApprox(x);
-      final double b = _normal.cdf(x);
-      final double w = weight(x);
-      final double temp = w * a + (1 - w) * b;
-      return temp;
-    }
-    if (x > -(XMIN + DELTA)) {
-      return 1.0 - getCDF(-x);
-    }
-    return _normal.cdf(x);
+    return DERFC.getErfc(-x / ROOT2) / 2;
+
+    //    if (x <= XMIN) {
+    //      return tailApprox(x);
+    //    }
+    //    if (x < XMIN + DELTA) {
+    //      // smooth the two approximations together
+    //      final double a = tailApprox(x);
+    //      final double b = _normal.cdf(x);
+    //      final double w = weight(x);
+    //      final double temp = w * a + (1 - w) * b;
+    //      return temp;
+    //    }
+    //    if (x > -(XMIN + DELTA)) {
+    //      return 1.0 - getCDF(-x);
+    //    }
+    //    return _normal.cdf(x);
   }
 
   private double tailApprox(final double x) {
@@ -101,13 +106,6 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
       return 0.0;
     } else {
       return (XMIN + DELTA - x) / DELTA;
-      //      if (x < XMIN + DELTA / 2) {
-      //        double temp = (x - XMIN) / DELTA;
-      //        return 1.0 - 2.0 * temp * temp;
-      //      } else {
-      //        double temp = (x - XMIN - DELTA) / DELTA;
-      //        return 2.0 * temp * temp;
-      //      }
     }
   }
 

@@ -1,14 +1,19 @@
-graph_data_file <- function(data_filename, graph_filename, ...) {
-    cat("name and dims of", data_filename, scan(data_filename, n=1, sep="\n", what=character()), "\n")
+library("rjson")
 
-    # TODO parse these numbers from file...
-    nx <- 150
-    ny <- 50
+graph_data <- function(data_source, data_name, graph_filename, ...) {
+    # Set up a textConnection so we can use 'scan'
+    raw_data = data_source[[data_name]]
+    data_conn <- textConnection(raw_data)
 
-    x <- as.vector(na.omit(scan(data_filename, sep="\t", skip=1, n=nx+1)))
+    # The row of x values starts with \t implying an empty first slot, but we
+    # skip this with na.omit so are left with the ySteps+1 values.
+    x <- as.vector(na.omit(scan(data_conn, sep="\t", skip=1, nlines=1)))
+    nx = length(x) + 1 
 
-    data <- scan(data_filename, sep="\t", skip=2)
-    m <- matrix(data, nx+1, ny)
+    # We have already read first 2 rows, this scans the remaining rows.
+    data <- scan(data_conn, sep="\t")
+    ny <- length(data)/nx
+    m <- matrix(data, nx, ny) 
 
     y <- m[1,]
     z <- m[-1,]
@@ -18,15 +23,20 @@ graph_data_file <- function(data_filename, graph_filename, ...) {
     dev.off()
 }
 
-graph_data_file(
-        "dexy--state-1-density.txt",
-        "dexy--state-1-plot.png",
-        col="purple", phi=0
-        )
+json_data = fromJSON(file="../../../shared/example-output.json")$com.opengamma.analytics.example.coupledfokkerplank.CoupledFokkerPlankExample$runCoupledFokkerPlank
+example_output = fromJSON(json_data)
 
-graph_data_file(
-        "dexy--state-2-density.txt",
-        "dexy--state-2-plot.png",
-        col="green", phi=15, theta=5
-        )
+graph_data(
+           example_output,
+           "state_1_data",
+           "dexy--state-1-plot.png",
+           col="purple", phi=0
+           )
+
+graph_data(
+           example_output,
+           "state_2_data",
+           "dexy--state-2-plot.png",
+           col="green", phi=15, theta=5
+           )
 
