@@ -419,7 +419,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
-    //addLocalVolatilityCalculatorsOld(functionConfigs);
+    addLocalVolatilityCalculatorsOld(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
 
