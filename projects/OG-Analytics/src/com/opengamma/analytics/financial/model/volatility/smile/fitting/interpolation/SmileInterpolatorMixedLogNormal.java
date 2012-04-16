@@ -13,25 +13,21 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLo
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class SmileInterpolatorMixedLogNormal extends SmileInterpolator<MixedLogNormalModelData> {
-  private static final VolatilityFunctionProvider<MixedLogNormalModelData> MODEL = new MixedLogNormalVolatilityFunction();
+  private static final VolatilityFunctionProvider<MixedLogNormalModelData> MODEL = MixedLogNormalVolatilityFunction.getInstance();
 
-  /**
-   * @param model
-   */
   public SmileInterpolatorMixedLogNormal() {
     super(MODEL);
   }
 
-  //  @Override
-  //  protected double[][] getStrikesVolsAndErrors(final int index, final double[] strikes, final double[] impliedVols, final double[] errors) {
-  //    return getStrikesVolsAndErrorsForThreePoints(index, strikes, impliedVols, errors)
-  //    //return getStrikesVolsAndErrorsForAllPoints(index, strikes, impliedVols, errors);
-  //  }
+  public SmileInterpolatorMixedLogNormal(final WeightingFunction weightingFunction) {
+    super(MODEL, weightingFunction);
+  }
 
   @Override
   protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
@@ -58,6 +54,7 @@ public class SmileInterpolatorMixedLogNormal extends SmileInterpolator<MixedLogN
 
   @Override
   protected MixedLogNormalModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "model parameters");
     return new MixedLogNormalModelData(modelParameters.getData());
   }
 

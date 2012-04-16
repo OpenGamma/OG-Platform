@@ -46,7 +46,7 @@ load_component_config() {
 
   PIDFILE=${PIDFILE:-${_COMPONENT}.pid}
   LOGFILE=${LOGFILE:-${_COMPONENT}-console.log}
-  MEM_OPTS=${MEM_OPTS:--Xms4096m -Xmx4096m -XX:MaxPermSize=256m}
+  MEM_OPTS=${MEM_OPTS:--Xms768m -Xmx1280m -XX:MaxPermSize=256m}
   GC_OPTS=${GC_OPTS:--XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing}
   EXTRA_JVM_OPTS=${EXTRA_JVM_OPTS:-""}
   LOGBACK_CONFIG=${LOGBACK_CONFIG:-engine-logback.xml}

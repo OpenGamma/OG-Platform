@@ -394,7 +394,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         marketValues[i] = marketValue;
       }
       derivatives.add(derivative);
-      initialRatesGuess[i] = 0.01;
+      initialRatesGuess[i] = marketValues[i];
       nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
       i++;
     }
@@ -491,7 +491,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         marketValues[i] = marketValue;
       }
       derivatives.add(derivative);
-      initialRatesGuess[i] = marketValue;
+      initialRatesGuess[i] = marketValues[i];
       i++;
       fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
       fundingIndex++;

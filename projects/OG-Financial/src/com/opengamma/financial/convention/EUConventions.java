@@ -223,25 +223,31 @@ public class EUConventions {
     // TODO: Add all ISDA fixing
     final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     // ISDA fixing Euribor 10.00 Frankfurt
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXA1Y=")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXA1Y="), 
+        SecurityUtils.bloombergTickerSecurityId("EIISDA01 Index")),
         "EUR_ISDAFIX_EURIBOR10_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2,
         ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true, Period.ofYears(1));
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
+      final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXA" + tenorString + "=")),
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXA" + tenorString + "="), 
+          SecurityUtils.bloombergTickerSecurityId("EIISDA" + tenorStringBbg + " Index")),
           "EUR_ISDAFIX_EURIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
           ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true, Period.ofYears(isdaFixTenor[looptenor]));
     }
     // ISDA fixing Euro Libor 10.00 London
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXB1Y=")), "EUR_ISDAFIX_EUROLIBOR10_1Y",
+        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXB1Y="), 
+            SecurityUtils.bloombergTickerSecurityId("ELISDA01 Index")), "EUR_ISDAFIX_EUROLIBOR10_1Y",
         swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"),
         eu, true);
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
+      final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXB" + tenorString + "=")),
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXB" + tenorString + "="), 
+              SecurityUtils.bloombergTickerSecurityId("ELISDA" + tenorStringBbg + " Index")),
           "EUR_ISDAFIX_EUROLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
           ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }

@@ -50,14 +50,14 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     this(Currency.of(currency), curveDefinitionName);
   }
 
-  public YieldCurveMarketDataFunction(Currency currency, String curveDefinitionName) {
+  public YieldCurveMarketDataFunction(final Currency currency, final String curveDefinitionName) {
     _helper = new YieldCurveFunctionHelper(currency, curveDefinitionName);
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     _helper.init(context, this);
-    
+
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getCurrency());
     _marketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, currencySpec,
         createValueProperties().with(ValuePropertyNames.CURVE, _helper.getCurveName()).get());
@@ -77,15 +77,15 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-        ComputationTarget target, Set<ValueRequirement> desiredValues) {
-      SnapshotDataBundle map = buildMarketDataMap(inputs);
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+        final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      final SnapshotDataBundle map = buildMarketDataMap(inputs);
       return Sets.newHashSet(new ComputedValue(_marketDataResult, map));
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-        ValueRequirement desiredValue) {
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+        final ValueRequirement desiredValue) {
       if (canApplyTo(context, target)) {
         return _requirements;
       }
@@ -93,7 +93,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       return _results;
     }
 
@@ -103,7 +103,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _helper.canApplyTo(target);
     }
 
@@ -124,20 +124,20 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
       final ComputationTargetSpecification targetSpecification = value.getSpecification().getTargetSpecification();
       marketDataMap.put(targetSpecification.getUniqueId(), (Double) value.getValue());
     }
-    SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
+    final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
     snapshotDataBundle.setDataPoints(marketDataMap);
     return snapshotDataBundle;
   }
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
     try {
-      Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+      final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
       return new CompiledImpl(compile.getFirst(), compile.getSecond(), buildRequirements(compile.getThird(), context));
-    } catch (OpenGammaRuntimeException ogre) {
+    } catch (final OpenGammaRuntimeException ogre) {
       s_logger.error("Function {} calculating {} on {} couldn't compile, rethrowing...", new Object[] {getShortName(), _helper.getCurveName(), _helper.getCurrency() });
       throw ogre;
     }
-    
+
   }
 }

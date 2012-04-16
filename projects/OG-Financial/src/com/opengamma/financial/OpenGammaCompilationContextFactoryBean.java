@@ -138,6 +138,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     OpenGammaCompilationContext.setHolidaySource(context, _holidaySource);
     OpenGammaCompilationContext.setExchangeSource(context, _exchangeSource);
     context.setSecuritySource(getSecuritySource());
+    context.setPositionSource(getPositionSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
   }
 

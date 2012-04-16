@@ -80,7 +80,7 @@ public class YieldCurveFunctionHelper {
     final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC);
     final LocalDate curveDate = atInstantZDT.toLocalDate();
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
-    Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant());
+    final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant());
     return new Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.withTime(0, 0) : null, expiry, specification);
   }
 
@@ -117,7 +117,7 @@ public class YieldCurveFunctionHelper {
     }
     // useEOD is set if there are futures but not the first after a tenor that we can calculate the expiry from
     return useEOD ? eod : null;
-    */
+     */
   }
 
   public boolean canApplyTo(final ComputationTarget target) {
@@ -126,11 +126,11 @@ public class YieldCurveFunctionHelper {
     }
     return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
   }
-  
+
   public Currency getCurrency() {
     return _currency;
   }
-  
+
   public String getCurveName() {
     return _curveName;
   }
@@ -153,7 +153,7 @@ public class YieldCurveFunctionHelper {
   public static Map<ExternalId, Double> buildMarketDataMap(final SnapshotDataBundle marketDataBundle) {
     final Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
     final HashMap<ExternalId, Double> ret = new HashMap<ExternalId, Double>();
-    for (Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
+    for (final Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
       final UniqueId uid = entry.getKey();
       final ExternalId identifier = getIdentifier(uid);
       ret.put(identifier, entry.getValue());
@@ -161,8 +161,8 @@ public class YieldCurveFunctionHelper {
     return ret;
   }
 
-  private static ExternalId getIdentifier(UniqueId uid) {
-    ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
+  private static ExternalId getIdentifier(final UniqueId uid) {
+    final ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
     return identifier;
   }
 

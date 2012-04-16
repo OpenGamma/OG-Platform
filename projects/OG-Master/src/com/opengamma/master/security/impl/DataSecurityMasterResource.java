@@ -63,11 +63,8 @@ public class DataSecurityMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path("metaData")
-  public Response metaData(@Context UriInfo uriInfo) {
-    SecurityMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, SecurityMetaDataRequest.class);
-    SecurityMetaDataResult result = getSecurityMaster().metaData(request);
-    return responseOkFudge(result);
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
   }
 
   @HEAD
@@ -75,6 +72,14 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return responseOk();
+  }
+
+  @GET
+  @Path("metaData")
+  public Response metaData(@Context UriInfo uriInfo) {
+    SecurityMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, SecurityMetaDataRequest.class);
+    SecurityMetaDataResult result = getSecurityMaster().metaData(request);
+    return responseOkFudge(result);
   }
 
   @POST

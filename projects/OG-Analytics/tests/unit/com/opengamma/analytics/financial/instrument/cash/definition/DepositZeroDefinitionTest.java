@@ -88,7 +88,7 @@ public class DepositZeroDefinitionTest {
     assertEquals("DepositZeroDefinition: getter", RATE, DEPOSIT_DEFINITION.getRate());
     assertEquals("DepositZeroDefinition: getter", EUR, DEPOSIT_DEFINITION.getCurrency());
     assertEquals("DepositZeroDefinition: getter", DEPOSIT_AF, DEPOSIT_DEFINITION.getPaymentAccrualFactor());
-    final double interestAmount = 1.0 / RATE.getDiscountFactor(DEPOSIT_AF) * NOTIONAL;
+    final double interestAmount = (1.0 / RATE.getDiscountFactor(DEPOSIT_AF) - 1) * NOTIONAL;
     assertEquals("DepositZeroDefinition: getter", interestAmount, DEPOSIT_DEFINITION.getInterestAmount());
   }
 
@@ -135,8 +135,7 @@ public class DepositZeroDefinitionTest {
     final DepositZero converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE,
-        DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
+    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
     assertEquals("DepositZeroDefinition: toDerivative", expected, converted);
   }
 
@@ -149,8 +148,7 @@ public class DepositZeroDefinitionTest {
     final DepositZero converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE,
-        DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
+    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
     assertEquals("DepositZeroDefinition: toDerivative", expected, converted);
   }
 
@@ -163,8 +161,7 @@ public class DepositZeroDefinitionTest {
     final DepositZero converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE,
-        DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
+    final DepositZero expected = new DepositZero(EUR, startTime, endTime, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
     assertEquals("DepositZeroDefinition: toDerivative", expected, converted);
   }
 
@@ -177,8 +174,7 @@ public class DepositZeroDefinitionTest {
     final DepositZero converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final double startTime = 0;
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositZero expected = new DepositZero(EUR, startTime, endTime, 0.0, NOTIONAL, DEPOSIT_AF, RATE,
-        DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
+    final DepositZero expected = new DepositZero(EUR, startTime, endTime, 0.0, NOTIONAL, DEPOSIT_AF, RATE, DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
     assertEquals("DepositZeroDefinition: toDerivative", expected, converted);
   }
 
@@ -191,8 +187,7 @@ public class DepositZeroDefinitionTest {
     final DepositZero converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
     final double startTime = 0;
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositZero expected = new DepositZero(EUR, startTime, endTime, 0.0, NOTIONAL, DEPOSIT_AF, RATE,
-        DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
+    final DepositZero expected = new DepositZero(EUR, startTime, endTime, 0.0, NOTIONAL, DEPOSIT_AF, RATE, DEPOSIT_DEFINITION.getInterestAmount(), CURVE_NAME);
     assertEquals("DepositZeroDefinition: toDerivative", expected, converted);
   }
 

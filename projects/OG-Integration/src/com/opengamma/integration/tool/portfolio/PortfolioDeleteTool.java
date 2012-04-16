@@ -113,7 +113,7 @@ public class PortfolioDeleteTool extends AbstractTool {
     Options options = super.createOptions(contextProvided);
     
     Option portfolioNamesOption = new Option(
-        PORTFOLIO_NAMES_OPT, "names", true, "Regular expression to match portfolio names");    
+        PORTFOLIO_NAMES_OPT, "name", true, "Regular expression to match portfolio names");    
 //    options.addOption(portfolioNamesOption);
     
     Option deletePortfolioIdsOption = new Option(

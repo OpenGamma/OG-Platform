@@ -187,7 +187,7 @@ $.register_module({
                                     : $target.parents('.og-js-viewdef-tab:first'),
                                 active_cl = '.og-active', tab_cl = '.og-js-viewdef-tab',
                                 is_active = $target.is(active_cl) || $target.parent(active_cl).length,
-                                index, active_idx;
+                                index;
                             index = $(form_id + ' ' + tab_cl).index($tab);
                             [0, 1, 2, 3].forEach(function (idx) {
                                 $(form_id + ' .og-js-viewdef-' + idx)[idx === index ? 'show' : 'hide']();
@@ -358,7 +358,7 @@ $.register_module({
                                                         col_idx = $(form_id + ' ' + tab_cl)
                                                             .index($(form_id + ' ' + tab_cl + active_cl));
                                                         set_idx = $(form_id + ' .og-js-colset-tab')
-                                                            .index($(form_id + ' ' + active_cl));
+                                                            .index($(form_id + ' .og-js-colset-tab' + active_cl));
                                                         if (!~col_idx) return;
                                                         col = $.extend(true, {},
                                                             form.compile().data[SETS][set_idx][COLS][col_idx]
@@ -593,7 +593,8 @@ $.register_module({
                                             set = {name: 'Set ' + (master[SETS].length + 1)}
                                             set[DEFP] = {};
                                         } else {
-                                            active_idx = $(form_id + ' ' + tab_cl).index($(form_id + ' ' + active_cl));
+                                            active_idx = $(form_id + ' ' + tab_cl)
+												.index($(form_id + ' ' + tab_cl + active_cl));
                                             if (!~active_idx) return;
                                             set = $.extend(true, {}, form.compile().data[SETS][active_idx]);
                                             set.name = 'Cloned ' + set.name;

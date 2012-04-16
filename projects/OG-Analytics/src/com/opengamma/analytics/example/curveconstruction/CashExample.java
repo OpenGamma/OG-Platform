@@ -1,6 +1,5 @@
 package com.opengamma.analytics.example.curveconstruction;
 
-// @export "imports"
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -11,7 +10,6 @@ import com.opengamma.util.money.Currency;
 import java.io.PrintStream;
 
 public class CashExample {
-    // @export cashDemo
     public static Currency ccy = Currency.EUR;
     public static double t = 1.0;
     public static double notional = 10000.0;
@@ -26,7 +24,6 @@ public class CashExample {
         out.println(loan.getInterestAmount());
     }
 
-    // @export "yieldCurveBundle"
     public static YieldCurveBundle getBundle() {
         YieldCurveBundle bundle = new YieldCurveBundle();
         ConstantDoublesCurve curve = new ConstantDoublesCurve(y);
@@ -35,7 +32,6 @@ public class CashExample {
         return bundle;
     }
 
-    // @export "parRateDemo"
     public static void parRateDemo(PrintStream out) {
         Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
         YieldCurveBundle bundle = getBundle();
@@ -45,7 +41,6 @@ public class CashExample {
         out.println(parRate);
     }
 
-    // @export "presentValueDemo"
     public static void presentValueDemo(PrintStream out) {
         Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
         YieldCurveBundle bundle = getBundle();
