@@ -29,7 +29,7 @@
   </target>
 
   <target name="dist-publish-impl">
-    <zip destfile="${dist.file}">
+    <zip destfile="${dist.file}" whenempty="create">
       <fileset dir="${config}">
         <include name="*.exe" />
         <include name="*.dll" />
@@ -38,6 +38,8 @@
   </target>
 
   <target name="dist-publish">
+    <mkdir dir="ReleaseWin32" />
+    <mkdir dir="Releasex64" />
     <antcall target="dist-publish-impl">
       <param name="config" value="ReleaseWin32" />
       <param name="dist.file" value="${dist.dir}/Util32.zip" />
