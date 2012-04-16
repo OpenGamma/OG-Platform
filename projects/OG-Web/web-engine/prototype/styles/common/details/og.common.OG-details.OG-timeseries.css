@@ -74,7 +74,6 @@
 .OG-timeseries-gadget .og-timeseries-plot {
   position: relative;
   margin-left: -6px;
-  width: 800px;
 }
 
 .OG-timeseries-gadget .og-js-p1-crop {
@@ -118,7 +117,7 @@
   margin: 30px 0 0 15px;
   position: absolute;
   top: -27px;
-  right: -5px;
+  right: 79px;
   background: #fff;
 }
 
@@ -150,7 +149,7 @@
   width: 20px;
   position: absolute;
   top: 256px;
-  left: 800px;
+  right: 62px;
   z-index: 1;
 }
 
@@ -171,9 +170,8 @@
 .OG-timeseries-gadget .og-data-points {
   overflow: hidden;
   overflow-x: auto;
-  display: inline-block;
+  display: block;
   position: relative;
-  width: 800px;
   margin-bottom: 30px
 }
 
@@ -186,13 +184,16 @@
 }
 
 .OG-timeseries-gadget .og-container {
-  min-width: 800px;
   white-space: nowrap;
-  display: inline-block;
-  height: 365px;
+  display: block;
+  height: 375px;
   overflow: hidden;
-  margin-bottom: -5px;
+  overflow-x: auto;
   background-color: #fff;
+}
+
+.OG-timeseries-gadget .og-container > div {
+  display: inline-block;
 }
 
 .OG-timeseries-gadget .og-data-series {
@@ -211,6 +212,7 @@
   height: 29px;
   display: block;
   background-color: #fff;
+  position: relative;
 }
 
 .OG-timeseries-gadget .og-data-series footer {
@@ -232,7 +234,7 @@
   top: 7px;
 }
 
-.OG-timeseries-gadget .og-data-points .og-js-timeseries-csv {
+.OG-timeseries-gadget .og-data-points .og-icon-download {
   font-size: 10px;
   position: absolute;
   right: 12px;
