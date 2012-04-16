@@ -103,6 +103,7 @@ public class PortfolioHtsResolverTool extends AbstractIntegrationTool {
     
     Option portfolioNameOption = new Option(
         PORTFOLIO_NAME_OPT, "name", true, "The name of the OpenGamma portfolio for which to resolve time series");
+    portfolioNameOption.setRequired(true);
     options.addOption(portfolioNameOption);
     
     Option writeOption = new Option(
