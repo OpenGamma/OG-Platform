@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.volatility.surface;
+package com.opengamma.analytics.financial.model.volatility.local;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -29,9 +29,10 @@ import com.opengamma.analytics.financial.model.finitedifference.applications.PDE
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
@@ -231,7 +232,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
     ps.println("Result of running Forward PDE solver - this gives you a grid of prices at expiries and strikes for a spot " +
         "and forward curve. Dual delta and gamma are calculated by finite difference on the PDE grid. Spot delta and " +
-        "gamma are calculated by ");
+    "gamma are calculated by ");
     ps.println("Strike\tVol\tBS Delta\tDelta\tBS Dual Delta\tDual Delta\tBS Gamma\tGamma\tBS Dual Gamma\tDual Gamma\tsurface delta\tsurface gamma\t surface cross gamma\tmodel dg");
     for (int i = 0; i < n; i++) {
       final double m = pdeRes.getSpaceValue(i);
@@ -269,7 +270,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
     //Now run the backwards solver and get delta and gamma off the grid
     ps.println("Result of running backwards PDE solver - this gives you a set of prices at different spot levels for a" +
-        " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
+    " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
     ps.println("Spot\tVol\tBS Delta\tDelta\tBS Gamma\tGamma");
 
     PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, expiry, maxForward,
@@ -301,7 +302,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final double w = (f2 - forward) / (f2 - f1);
     ps.println("True forward: " + forward + ", grid forward: " + actForward);
     ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
-        " is calculated from finite difference on the grid");
+    " is calculated from finite difference on the grid");
     ps.println("Strike\tVol\tDelta\tGamma");
     for (int i = 0; i < 100; i++) {
       final double k = forward * (0.3 + 2.7 * i / 99.0);
@@ -328,7 +329,7 @@ public class LocalVolatilityPDEGreekCalculator {
    * @param shift the fraction shift to the forward
    */
   public void smileDynamic(final PrintStream ps, final double expiry, final double shift) {
-    ForwardCurve forwardCurve = _marketData.getForwardCurve();
+    final ForwardCurve forwardCurve = _marketData.getForwardCurve();
     smileDynamic(ps, expiry, _localVolatilityStrike, forwardCurve);
     smileDynamic(ps, expiry, _localVolatilityStrike, forwardCurve.withFractionalShift(shift));
   }
@@ -373,7 +374,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final double w = (f2 - forward) / (f2 - f1);
 
     ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
-        " is calculated from finite difference on the grid");
+    " is calculated from finite difference on the grid");
     ps.println("Strike\tVol\tDelta\tGamma");
     for (int i = 0; i < 100; i++) {
       final double k = forward * (0.3 + 2.7 * i / 99.0);
@@ -732,7 +733,7 @@ public class LocalVolatilityPDEGreekCalculator {
   private PDEResults1D runBackwardsPDESolver(final double strike, final LocalVolatilitySurfaceStrike localVolatility, final boolean isCall,
       final double theta, final double expiry, final double maxFwd, final int
       nTimeNodes, final int nFwdNodes, final double timeMeshLambda, final double spotMeshBunching, final double fwdNodeCentre) {
-    ForwardCurve forwardCurve = _marketData.getForwardCurve();
+    final ForwardCurve forwardCurve = _marketData.getForwardCurve();
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
     final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);

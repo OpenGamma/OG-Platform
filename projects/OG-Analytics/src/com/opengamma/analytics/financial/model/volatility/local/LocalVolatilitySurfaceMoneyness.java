@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.volatility.surface;
+package com.opengamma.analytics.financial.model.volatility.local;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**

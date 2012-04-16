@@ -8,6 +8,6 @@ package com.opengamma.analytics.financial.model.volatility.local;
 /**
  * 
  */
-public class LocalVolatilityForwardPDEGreekCalculator {
+public class LocalVolatilityForwardPDEPriceCalculator {
 
 }

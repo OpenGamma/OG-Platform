@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.model.volatility.surface;
+package com.opengamma.analytics.financial.model.volatility.local;
 
 import org.apache.commons.lang.Validate;
 
