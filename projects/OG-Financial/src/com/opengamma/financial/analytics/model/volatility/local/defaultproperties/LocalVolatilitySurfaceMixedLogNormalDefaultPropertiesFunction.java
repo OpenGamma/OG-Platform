@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
+package com.opengamma.financial.analytics.model.volatility.local.defaultproperties;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,14 +18,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class BlackVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction extends BlackVolatilitySurfaceDefaultPropertiesFunction {
+public class LocalVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction extends LocalVolatilitySurfaceDefaultPropertiesFunction {
   private final String _weightingFunction;
 
-  public BlackVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public LocalVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
-      final String weightingFunction) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName,
-        forwardCurveCalculationMethod, surfaceName);
+      final String eps, final String weightingFunction) {
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName, eps);
     ArgumentChecker.notNull(weightingFunction, "weighting function");
     _weightingFunction = weightingFunction;
   }
@@ -33,7 +32,7 @@ public class BlackVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction exten
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    defaults.addValuePropertyName(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
+    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
   }
 
   @Override

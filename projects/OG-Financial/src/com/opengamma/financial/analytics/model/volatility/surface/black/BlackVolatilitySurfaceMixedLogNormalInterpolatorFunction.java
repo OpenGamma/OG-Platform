@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * 
  */
-public class BlackVolatilitySurfaceMixedLogNormalInterpolatedFunction extends BlackVolatilitySurfaceInterpolatorFunction {
+public class BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction extends BlackVolatilitySurfaceInterpolatorFunction {
 
   @Override
   protected Set<ValueRequirement> getSpecificRequirements(final ValueProperties constraints) {

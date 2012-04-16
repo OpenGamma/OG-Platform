@@ -33,7 +33,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator1;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
@@ -108,7 +108,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final GeneralSmileInterpolator smileInterpolator = new SmileInterpolatorSpline();
     final VolatilitySurfaceInterpolator surfaceFitter = new VolatilitySurfaceInterpolator(smileInterpolator, useLogTime, useIntegratedVariance, useLogValue);
     //final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
-    final LocalVolatilityForwardPDEGreekCalculator<?> calculator = new LocalVolatilityForwardPDEGreekCalculator<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
+    final LocalVolatilityForwardPDEGreekCalculator1<?> calculator = new LocalVolatilityForwardPDEGreekCalculator1<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
         /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, maxMoneyness);
     final ValueSpecification spec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
         hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
@@ -302,7 +302,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
   //TODO shouldn't need to do this - write a fudge builder for the data bundle and have it as an input
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs, final ValueRequirement volDataRequirement, final ValueRequirement forwardCurveRequirement);
 
-  protected abstract Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface,
+  protected abstract Object getResult(final LocalVolatilityForwardPDEGreekCalculator1<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface,
       final ForwardCurve forwardCurve, final SmileSurfaceDataBundle data, final EuropeanVanillaOption option);
 
   protected abstract String getResultName();
