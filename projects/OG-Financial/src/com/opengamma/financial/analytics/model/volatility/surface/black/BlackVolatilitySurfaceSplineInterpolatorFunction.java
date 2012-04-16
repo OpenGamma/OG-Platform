@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 /**
  * 
  */
-public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends BlackVolatilitySurfaceInterpolatorFunction {
+public class BlackVolatilitySurfaceSplineInterpolatorFunction extends BlackVolatilitySurfaceInterpolatorFunction {
 
   @Override
   protected Set<ValueRequirement> getSpecificRequirements(final ValueProperties constraints) {

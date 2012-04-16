@@ -130,10 +130,6 @@ public class BlackVolatilitySurfaceUtils {
     if (timeRightExtrapolatorNames == null || timeRightExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> smileInterpolatorNames = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR);
-    if (smileInterpolatorNames == null || smileInterpolatorNames.size() != 1) {
-      return null;
-    }
     return Collections.emptySet();
   }
 
@@ -151,10 +147,14 @@ public class BlackVolatilitySurfaceUtils {
     return addCommonVolatilityInterpolatorProperties(properties.copy()
         .with(PROPERTY_SPLINE_INTERPOLATOR, interpolatorName)
         .with(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
-        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get(), SPLINE);
+        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get(), desiredValue, SPLINE);
   }
 
   public static Set<ValueRequirement> ensureSplineVolatilityInterpolatorProperties(final ValueProperties constraints) {
+    final Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
+    if (requirements == null) {
+      return null;
+    }
     final Set<String> interpolatorNames = constraints.getValues(PROPERTY_SPLINE_INTERPOLATOR);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
@@ -210,10 +210,14 @@ public class BlackVolatilitySurfaceUtils {
         .with(PROPERTY_SABR_MODEL, model)
         .with(PROPERTY_SABR_WEIGHTING_FUNCTION, weightingFunction)
         .with(PROPERTY_SABR_USE_EXTERNAL_BETA, useExternalBeta)
-        .with(PROPERTY_SABR_EXTERNAL_BETA, externalBeta).get(), SABR); // TODO optional?
+        .with(PROPERTY_SABR_EXTERNAL_BETA, externalBeta).get(), desiredValue, SABR); // TODO optional?
   }
 
   public static Set<ValueRequirement> ensureSABRVolatilityInterpolatorProperties(final ValueProperties constraints) {
+    final Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
+    if (requirements == null) {
+      return null;
+    }
     final Set<String> modelNames = constraints.getValues(PROPERTY_SABR_MODEL);
     if (modelNames == null || modelNames.size() != 1) {
       return null;
@@ -230,7 +234,7 @@ public class BlackVolatilitySurfaceUtils {
     if (externalBetaNames == null || externalBetaNames.size() != 1) {
       return null;
     }
-    return Collections.emptySet();
+    return requirements;
   }
 
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {

@@ -815,10 +815,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     commonForexBlackSurfaceProperties.add("DEFAULT");
     final List<String> forexBlackSurfaceMixedLogNormalProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
     forexBlackSurfaceMixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
+    List<String> forexBlackSurfaceSABRProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
+    forexBlackSurfaceSABRProperties.add(VolatilityFunctionFactory.HAGAN);
+    forexBlackSurfaceSABRProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
+    forexBlackSurfaceSABRProperties.add("false");
+    forexBlackSurfaceSABRProperties.add("0.5");
+    List<String> forexBlackSurfaceSplineProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
+    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    forexBlackSurfaceSplineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaultPropertiesFunction.class.getName(), mixedLogNormalProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorDefaultPropertiesFunction.class.getName(), sabrProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorDefaultPropertiesFunction.class.getName(), splineProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction.class.getName(), forexBlackSurfaceMixedLogNormalProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaultPropertiesFunction.class.getName(), forexBlackSurfaceSABRProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaultPropertiesFunction.class.getName(), forexBlackSurfaceSplineProperties));
   }
   
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
