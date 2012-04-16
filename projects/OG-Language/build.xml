@@ -32,6 +32,11 @@
     <zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
+    <zip destfile="${dist.dir}/${ant.project.name}-msm.zip" whenempty="create">
+      <fileset dir="${build.dir}">
+        <include name="*.msm" />
+      </fileset>
+    </zip>
     <delete dir="${dist.dir}/bin" />
     <delete dir="${dist.dir}/include" />
     <delete dir="${dist.dir}/lib" />
@@ -56,9 +61,12 @@ opengamma.engine.host=${opengamma.engine.host}
 
   <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
-  <target name="installer" depends="installer-utils,core.installer" />
-  <target name="installer-utils">
-    <subant buildpath="${solution.dir}/../../Installer/Utils" />
+  <target name="installer-impl">
+    <installer-make file="Installer/ClientSDK.aip" />
+    <installer-make file="Installer/Core.aip" />
+    <installer-make file="Installer/Service32.aip" />
+    <installer-make file="Installer/Service64.aip" />
+    <installer-make build-id="${ai.build.all}" />
   </target>
 
 </project>

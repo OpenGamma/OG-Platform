@@ -6,7 +6,7 @@
 
   <!-- localised configuration -->
 
-  <target name="create-temp">
+  <target name="create-temp" depends="ai-present">
     <copy file="${ai.input.file}" tofile="${ai.build.file}" overwrite="true" />
   </target>
 
@@ -14,7 +14,7 @@
 
   <target name="create-build-file" depends="create-temp,enable-all" />
 
-  <target name="set-build-number" depends="module-build-number,ai-present" if="ai.present" unless="disable.build.all">
+  <target name="set-build-number" depends="module-build-number" if="ai.present" unless="disable.build.all">
     <ai-set-version version="${module.version.msi}.${module.build.number}" />
   </target>
 
