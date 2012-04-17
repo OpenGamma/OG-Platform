@@ -28,6 +28,12 @@
     "book.tex|jinjajit|latex": {
         "allinputs": true
     },
+    "_*.tex" : {},
+    "og_docs_yield_curve_maths.tex|hd|ft|jinjajit|latex": {
+        "allinputs": true,
+        "header" : "_article_header.tex",
+        "footer" : "_article_footer.tex"
+    },
     "index.txt|jinjajit": {
         "allinputs": true
     },

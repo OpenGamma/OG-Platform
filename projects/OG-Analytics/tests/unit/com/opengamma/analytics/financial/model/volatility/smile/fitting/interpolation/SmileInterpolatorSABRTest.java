@@ -13,12 +13,13 @@ import org.testng.annotations.Test;
 public class SmileInterpolatorSABRTest extends SmileInterpolatorTestCase {
 
   private static final double BETA = 0.75;
-  private static final double FORWARD = 1172.011012;
-  private static final double EXPIRY = 1.5;
-  private static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534 };
-  private static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276 };
 
   private static final GeneralSmileInterpolator INTERPOLATOR = new SmileInterpolatorSABR();
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullInterpolator() {
+    new SmileInterpolatorSABR(null, BETA, WeightingFunctionFactory.LINEAR_WEIGHTING_FUNCTION);
+  }
 
   @Override
   public GeneralSmileInterpolator getSmileInterpolator() {
@@ -40,6 +41,7 @@ public class SmileInterpolatorSABRTest extends SmileInterpolatorTestCase {
     new SmileInterpolatorSABR(BETA, null);
   }
 
+  @Override
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullStrikes() {
     INTERPOLATOR.getVolatilityFunction(FORWARD, null, EXPIRY, VOLS);

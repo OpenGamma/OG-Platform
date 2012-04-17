@@ -56,6 +56,11 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
+  @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
   @HEAD
   @Path("functioncosts")
   public Response status() {

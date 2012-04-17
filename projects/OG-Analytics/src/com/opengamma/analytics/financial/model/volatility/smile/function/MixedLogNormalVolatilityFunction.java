@@ -5,32 +5,41 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider<MixedLogNormalModelData> {
+public final class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider<MixedLogNormalModelData> {
+  private static final MixedLogNormalVolatilityFunction INSTANCE = new MixedLogNormalVolatilityFunction();
+
+  public static MixedLogNormalVolatilityFunction getInstance() {
+    return INSTANCE;
+  }
+
+  private MixedLogNormalVolatilityFunction() {
+  }
 
   @Override
   public Function1D<MixedLogNormalModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
-    Validate.notNull(option, "option");
-    Validate.isTrue(forward >= 0.0, "forward must be greater than zero");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.isTrue(forward >= 0.0, "forward must be greater than zero");
 
     return new Function1D<MixedLogNormalModelData, Double>() {
       @Override
-      public final Double evaluate(final MixedLogNormalModelData data) {
-        Validate.notNull(data, "data");
+      public Double evaluate(final MixedLogNormalModelData data) {
+        ArgumentChecker.notNull(data, "data");
         return getVolatility(option, forward, data);
       }
     };
   }
 
   public double getVolatility(final EuropeanVanillaOption option, final double forward, final MixedLogNormalModelData data) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
     final double price = getPrice(option, forward, data);
     final double t = option.getTimeToExpiry();
     final double k = option.getStrike();
@@ -56,7 +65,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
 
   @Override
   public Function1D<MixedLogNormalModelData, double[]> getVolatilityAdjointFunction(final EuropeanVanillaOption option, final double forward) {
-    Validate.notNull(option, "option");
+    ArgumentChecker.notNull(option, "option");
     final double strike = option.getStrike();
     final double expiry = option.getTimeToExpiry();
 
@@ -76,7 +85,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
 
   @Override
   public Function1D<MixedLogNormalModelData, double[]> getModelAdjointFunction(final EuropeanVanillaOption option, final double forward) {
-    Validate.notNull(option, "option");
+    ArgumentChecker.notNull(option, "option");
     final double strike = option.getStrike();
     final double expiry = option.getTimeToExpiry();
 

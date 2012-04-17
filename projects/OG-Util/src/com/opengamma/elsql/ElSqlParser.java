@@ -46,6 +46,10 @@ final class ElSqlParser {
    */
   private static final Pattern INCLUDE_PATTERN = Pattern.compile("[@]INCLUDE[(]([:]?[A-Za-z0-9_]+)[)](.*)");
   /**
+   * The regex for @PAGING(offsetVariable,fetchVariable)
+   */
+  private static final Pattern PAGING_PATTERN = Pattern.compile("[@]PAGING[(][:]([A-Za-z0-9_]+)[ ]?[,][ ]?[:]([A-Za-z0-9_]+)[)](.*)");
+  /**
    * The regex for @OFFSETFETCH(offsetVariable,fetchVariable)
    */
   private static final Pattern OFFSET_FETCH_PATTERN = Pattern.compile("[@]OFFSETFETCH[(][:]([A-Za-z0-9_]+)[ ]?[,][ ]?[:]([A-Za-z0-9_]+)[)](.*)");
@@ -130,6 +134,18 @@ final class ElSqlParser {
         
       } else if (indent < 0) {
         throw new IllegalArgumentException("Invalid fragment found at root level, only @NAME is permitted: " + line);
+        
+      } else if (trimmed.startsWith("@PAGING")) {
+        Matcher pagingMatcher = PAGING_PATTERN.matcher(trimmed);
+        if (pagingMatcher.matches() == false) {
+          throw new IllegalArgumentException("@PAGING found with invalid format: " + line);
+        }
+        PagingSqlFragment whereFragment = new PagingSqlFragment(pagingMatcher.group(1), pagingMatcher.group(2));
+        parseContainerSection(whereFragment, lineIterator, line.indent());
+        if (whereFragment.getFragments().size() == 0) {
+          throw new IllegalArgumentException("@PAGING found with no subsequent indented lines: " + line);
+        }
+        container.addFragment(whereFragment);
         
       } else if (trimmed.startsWith("@WHERE")) {
         if (trimmed.equals("@WHERE") == false) {

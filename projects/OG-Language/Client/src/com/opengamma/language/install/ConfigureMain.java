@@ -6,8 +6,6 @@
 
 package com.opengamma.language.install;
 
-import javax.swing.JOptionPane;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -50,13 +48,12 @@ public class ConfigureMain implements Runnable {
     if (urlOriginal != null) {
       dialog.setUrl(urlOriginal);
     }
+    dialog.setAlwaysOnTop(true);
     dialog.setVisible(true);
     final String urlNew = dialog.getUrl();
     if (urlNew != null) {
       if (!StringUtils.equals(urlOriginal, urlNew)) {
         setProperty("opengamma.configuration.url", urlNew);
-        // TODO: temporary measure - the code in the service wrapper should manage the restart
-        JOptionPane.showMessageDialog(null, "The OG-Language service needs to be restarted for the change to take effect.", "OpenGamma Language Integration Service", JOptionPane.INFORMATION_MESSAGE);
       }
     }
   }

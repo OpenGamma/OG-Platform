@@ -6,24 +6,26 @@
 package com.opengamma.financial.analytics.model.forex.option.black;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * 
+ * The function calculating the total Black volatility sensitivity. 
  */
 public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFunction {
-  private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
+
+  /**
+   * The relevant calculator.
+   */
+  private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
 
   public ForexOptionBlackVegaFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
@@ -32,12 +34,8 @@ public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFu
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(fxOption, data);
-    final Map<DoublesPair, Double> vega = result.getVega().getMap();
-    if (vega.size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting only one value for vega; have " + vega);
-    }
-    final double vegaValue = vega.values().iterator().next();
-    return Collections.singleton(new ComputedValue(spec, vegaValue));
+    final CurrencyAmount vegaValue = result.toSingleValue();
+    return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
   }
 
 }

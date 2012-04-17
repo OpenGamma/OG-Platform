@@ -291,7 +291,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
   public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final double[] timeGrid, final double[] xGrid, final double[] yGrid, final BoundaryCondition2D xLowerBoundary,
       final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary,
-      final Cube<Double, Double, Double, Double> freeBoundary) {
+      @SuppressWarnings("unused") final Cube<Double, Double, Double, Double> freeBoundary) {
 
     Validate.notNull(pdeData, "pde data");
     final int tNodes = timeGrid.length;
