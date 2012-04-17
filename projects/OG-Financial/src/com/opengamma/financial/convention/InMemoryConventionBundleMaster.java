@@ -236,6 +236,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     return add(bundle, convention);
   }
 
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, null, null, 0);
+    return add(bundle, convention);
+  }
+  
   @Override
   public ConventionBundleDocument getConventionBundle(final UniqueId uniqueId) {
     return new ConventionBundleDocument(_mapper.get(uniqueId));

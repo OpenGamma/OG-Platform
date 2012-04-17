@@ -6,6 +6,7 @@
 package com.opengamma.master.historicaltimeseries;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,15 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
    * Creates an instance.
    */
   public HistoricalTimeSeriesInfoSearchResult() {
+  }
+
+  /**
+   * Creates an instance from a collection of documents.
+   * 
+   * @param coll  the collection of documents to add, not null
+   */
+  public HistoricalTimeSeriesInfoSearchResult(Collection<HistoricalTimeSeriesInfoDocument> coll) {
+    super(coll);
   }
 
   //-------------------------------------------------------------------------
@@ -72,7 +82,7 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
    * @return the matching exchange, not null
    * @throws IllegalStateException if no series was found
    */
-  public ManageableHistoricalTimeSeriesInfo getSingleSeries() {
+  public ManageableHistoricalTimeSeriesInfo getSingleInfo() {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {

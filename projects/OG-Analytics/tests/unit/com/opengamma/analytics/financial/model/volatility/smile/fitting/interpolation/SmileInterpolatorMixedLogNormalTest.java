@@ -5,7 +5,10 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
+import org.testng.annotations.Test;
 /**
  * 
  */
@@ -18,4 +21,15 @@ public class SmileInterpolatorMixedLogNormalTest extends SmileInterpolatorTestCa
     return INTERPOLATOR;
   }
 
+  @Test
+  public void testEqualsHashCode() {
+    GeneralSmileInterpolator other = new SmileInterpolatorMixedLogNormal();
+    assertEquals(INTERPOLATOR, other);
+    assertEquals(INTERPOLATOR.hashCode(), other.hashCode());
+    other = new SmileInterpolatorMixedLogNormal(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION);
+    assertEquals(INTERPOLATOR, other);
+    assertEquals(INTERPOLATOR.hashCode(), other.hashCode());
+    other = new SmileInterpolatorMixedLogNormal(WeightingFunctionFactory.LINEAR_WEIGHTING_FUNCTION);
+    assertFalse(INTERPOLATOR.equals(other));
+  }
 }

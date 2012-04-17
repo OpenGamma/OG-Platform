@@ -1,8 +1,12 @@
 ### @export "libraries"
 library(lattice)
+library(rjson)
 
 ### @export "read-data"
-data = read.table("dexy--smile-multi-mu-data.txt", header=TRUE)
+all_examples = fromJSON(file="../../../shared/example-output.json")
+sabr_data = all_examples$com.opengamma.analytics.example.sabrextrapolation.SabrExtrapolationExample$generateSabrData
+data_conn <- textConnection(sabr_data)
+data = read.table(data_conn, header=TRUE)
 data$Mu <- as.factor(data$Mu)
 
 ### @export "extract-data-by-mu"

@@ -63,8 +63,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param paymentAccrualFactor The accrual factor (or year fraction).
    * @param rate The interest rate and its composition type.
    */
-  public DepositZeroDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate,
-      final double notional, final double paymentAccrualFactor, final InterestRate rate) {
+  public DepositZeroDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double paymentAccrualFactor, final InterestRate rate) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(endDate, "End date");
@@ -75,7 +74,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
     _notional = notional;
     _paymentAccrualFactor = paymentAccrualFactor;
     _rate = rate;
-    _interestAmount = 1.0 / rate.getDiscountFactor(paymentAccrualFactor) * notional;
+    _interestAmount = (1.0 / rate.getDiscountFactor(paymentAccrualFactor) - 1.0) * notional;
   }
 
   /**
@@ -87,8 +86,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param rate The interest rate and its composition type.
    * @return The deposit.
    */
-  public static DepositZeroDefinition from(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate,
-      final DayCount daycount, final InterestRate rate) {
+  public static DepositZeroDefinition from(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final DayCount daycount, final InterestRate rate) {
     ArgumentChecker.notNull(daycount, "day count");
     return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate), rate);
   }
@@ -157,13 +155,11 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   @Override
   public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.isTrue(!date.isAfter(_endDate), "date is after end date");
-    final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
+    final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
     if (startTime < 0) {
-      return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate,
-          _interestAmount, yieldCurveNames[0]);
+      return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
     }
-    return new DepositZero(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _notional, _paymentAccrualFactor, _rate,
-        _interestAmount, yieldCurveNames[0]);
+    return new DepositZero(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
   }
 
   @Override

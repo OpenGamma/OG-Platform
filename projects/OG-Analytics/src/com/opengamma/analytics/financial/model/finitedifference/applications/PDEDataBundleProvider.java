@@ -13,10 +13,10 @@ import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvecti
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceConverter;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;

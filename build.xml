@@ -189,7 +189,10 @@
     </zip>
   </target>
   <target name="dist-archive" depends="dist-targz,dist-zip" />
-  <target name="source-dist-dep">
+  <target name="check-ivy-xml">
+    <available file="ivy.xml" property="ivy.xml.present" />
+  </target>
+  <target name="source-dist-dep" depends="check-ivy-xml" if="ivy.xml.present">
     <ivy:resolve haltonfailure="false" />
     <ivy:retrieve  pattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"
         ivypattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/ivy.xml"

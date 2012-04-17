@@ -58,7 +58,7 @@ final class OffsetFetchSqlFragment extends ContainerSqlFragment {
     } else if (StringUtils.containsOnly(_fetchVariable, "0123456789")) {
       fetchLimit = Integer.parseInt(_fetchVariable);
     }
-    buf.append(bundle.getConfig().getPaging(offset, fetchLimit));
+    buf.append(bundle.getConfig().getPaging(offset, fetchLimit == Integer.MAX_VALUE ? 0 : fetchLimit));
   }
 
   //-------------------------------------------------------------------------

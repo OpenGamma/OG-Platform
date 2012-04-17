@@ -12,8 +12,6 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseMixedLogNormalFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
@@ -31,11 +29,11 @@ public class PiecewiseMixLogNormalFitterTest {
   private static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534 };
   private static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276 };
   private static final PiecewiseMixedLogNormalFitter FITTER = new PiecewiseMixedLogNormalFitter();
-  private static final MixedLogNormalVolatilityFunction MODEL = new MixedLogNormalVolatilityFunction();
+  private static final MixedLogNormalVolatilityFunction MODEL = MixedLogNormalVolatilityFunction.getInstance();
 
   @Test
-      (enabled = false)
-      public void test() {
+  (enabled = false)
+  public void test() {
 
     final MixedLogNormalModelData[] modelParms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, VOLS);
     final int n = modelParms.length;
@@ -53,8 +51,8 @@ public class PiecewiseMixLogNormalFitterTest {
   }
 
   @Test
-      (enabled = false)
-      public void bumpTest() {
+  (enabled = false)
+  public void bumpTest() {
     final double bump = 1e-2;
     final int index = 1;
     final double[] vols = Arrays.copyOf(VOLS, VOLS.length);
@@ -74,8 +72,8 @@ public class PiecewiseMixLogNormalFitterTest {
   }
 
   @Test
-      (enabled = false)
-      public void FlatTest() {
+  (enabled = false)
+  public void FlatTest() {
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);

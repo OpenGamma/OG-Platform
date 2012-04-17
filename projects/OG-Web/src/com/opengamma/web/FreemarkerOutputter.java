@@ -27,6 +27,14 @@ import freemarker.template.TemplateScalarModel;
 /**
  * Main class that groups functionality for outputting to Freemarker.
  * <p>
+ * Freemarker is a template engine that allows Jaa objects to be easily converted to text.
+ * The Freemarker system is controlled by a {@link Configuration configuration class}.
+ * <p>
+ * The configuration is typically managed within the {@link ServletContext}.
+ * The application initialization should call {@link #createConfiguration()}
+ * followed by {@link #init(ServletContext, Configuration)} to setup the servlet context.
+ * This can then be used by subclasses of {@link AbstractPerRequestWebResource}.
+ * <p>
  * An instance of this class is intended to be used from multiple threads,
  * however thread-safety is not enforced.
  */
@@ -47,6 +55,10 @@ public class FreemarkerOutputter {
    * <p>
    * This creates the {@link Configuration Freemarker configuration} which must be customised
    * with a template loader. Callers must then invoke {@link #init(ServletContext, Configuration)}.
+   * <p>
+   * The configuration uses UTF-8, a default locale of English, localized lookup and
+   * always includes the file "common/base.ftl".
+   * A model is added that converts nulls to empty strings
    * 
    * @return the standard Freemarker configuration, not null
    */
@@ -78,20 +90,27 @@ public class FreemarkerOutputter {
   //-------------------------------------------------------------------------
   /**
    * Creates the resource.
+   * <p>
+   * This constructor extracts the Freemarker configuration from the {@code ServletContext}.
    * 
    * @param servletContext  the servlet context, not null
    */
-  FreemarkerOutputter(final ServletContext servletContext) {
+  public FreemarkerOutputter(final ServletContext servletContext) {
     ArgumentChecker.notNull(servletContext, "servletContext");
     _configuration = (Configuration) servletContext.getAttribute(FREEMARKER_CONFIGURATION);
+    ArgumentChecker.notNull(_configuration, "Freemarker configuration");
   }
 
   /**
    * Creates the resource.
+   * <p>
+   * This constructor allows the Freemarker configuration to be directly passed in.
+   * It is recommended to use the {@code ServletContext} constructor to allow the configuration
+   * to be managed in the context.
    * 
    * @param configuration  the configuration, not null
    */
-  FreemarkerOutputter(final Configuration configuration) {
+  public FreemarkerOutputter(final Configuration configuration) {
     ArgumentChecker.notNull(configuration, "configuration");
     _configuration = configuration;
   }
@@ -108,6 +127,13 @@ public class FreemarkerOutputter {
 
   /**
    * Creates a new Freemarker root data map.
+   * <p>
+   * This creates a new data object to be passed to Freemarker with some standard keys:
+   * <ul>
+   * <li>now - the current date-time using {@link OpenGammaClock}
+   * <li>timeFormatter - a formatter that outputs the time as HH:mm:ss
+   * <li>offsetFormatter - a formatter that outputs the time-zone offset
+   * </ul>
    * 
    * @return the root data map, not null
    */
@@ -121,9 +147,13 @@ public class FreemarkerOutputter {
 
   /**
    * Creates a Freemarker template.
+   * <p>
+   * This converts a template name, which may include a file system path, into a
+   * configured {@code Template} object.
    * 
    * @param templateName  the template name, not null
    * @return the template, not null
+   * @throws RuntimeException if an error occurs
    */
   public Template createTemplate(final String templateName) {
     try {
@@ -133,12 +163,21 @@ public class FreemarkerOutputter {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Builds the Freemarker template creating the output string.
+   * <p>
+   * The following keys are added to the data if it is a {@code Map} or {@code FlexiBean}:
+   * <ul>
+   * <li>freemarkerTemplateName - the template name
+   * <li>freemarkerLocale - the locale of the template
+   * <li>freemarkerVersion - the version of the Freemarker configuration
+   * </ul>
    * 
    * @param templateName  the template name, not null
    * @param data  the root data to merge, not null
    * @return the template, not null
+   * @throws RuntimeException if an error occurs
    */
   public String build(final String templateName, final Object data) {
     return build(createTemplate(templateName), data);
@@ -146,10 +185,18 @@ public class FreemarkerOutputter {
 
   /**
    * Builds the Freemarker template creating the output string.
+   * <p>
+   * The following keys are added to the data if it is a {@code Map} or {@code FlexiBean}:
+   * <ul>
+   * <li>freemarkerTemplateName - the template name
+   * <li>freemarkerLocale - the locale of the template
+   * <li>freemarkerVersion - the version of the Freemarker configuration
+   * </ul>
    * 
    * @param template  the template, not null
    * @param data  the root data to merge, not null
    * @return the template, not null
+   * @throws RuntimeException if an error occurs
    */
   @SuppressWarnings("unchecked")
   public String build(final Template template, final Object data) {

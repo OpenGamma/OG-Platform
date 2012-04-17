@@ -120,6 +120,11 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
+  public Response getHateaos(@Context UriInfo uriInfo) {
+    return hateoasResponse(uriInfo);
+  }
+
+  @GET
   @Path(PATH_NAME)
   public Response getName() {
     return responseOk(_viewProcessor.getName());

@@ -15,9 +15,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
-import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
@@ -31,7 +28,7 @@ public class MixedLogNormalVolatilityModelTest {
   private static final MixedLogNormalModelData LARGE_SYSTEM;
   private static final double FORWARD = 0.05;
   private static final double T = 0.6;
-  private static final MixedLogNormalVolatilityFunction VOL_FUNC = new MixedLogNormalVolatilityFunction();
+  private static final MixedLogNormalVolatilityFunction VOL_FUNC = MixedLogNormalVolatilityFunction.getInstance();
   private static final VolatilityFunctionProvider<MixedLogNormalModelData> FD_VOL_FUNC = new VolatilityFunctionProvider<MixedLogNormalModelData>() {
 
     @SuppressWarnings("synthetic-access")

@@ -27,11 +27,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
 
 /**
- * Test {@link InMemoryHolidayMaster}.
+ * Tests {@link InMemoryPositionMaster}.
  */
 @Test
 public class InMemoryPositionMasterTest {

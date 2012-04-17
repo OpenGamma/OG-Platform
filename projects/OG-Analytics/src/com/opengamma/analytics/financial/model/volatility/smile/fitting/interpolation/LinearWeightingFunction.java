@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
-
-
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
+// TODO this belongs with interpolators
 public final class LinearWeightingFunction extends WeightingFunction {
   private static final LinearWeightingFunction s_instance = new LinearWeightingFunction();
 
@@ -23,6 +23,7 @@ public final class LinearWeightingFunction extends WeightingFunction {
 
   @Override
   public double getWeight(final double y) {
+    ArgumentChecker.isInRangeInclusive(0, 1, y);
     return y;
   }
 }

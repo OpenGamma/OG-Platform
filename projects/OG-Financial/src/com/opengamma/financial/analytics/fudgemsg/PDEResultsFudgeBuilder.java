@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPresentValueResultCollection;
+import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEPresentValueResultCollection;
 
 /**
  * 

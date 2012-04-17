@@ -21,8 +21,9 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * @deprecated Please use HestonModelFitter instead
  */
+@Deprecated
 public class HestonFourierSmileFitter extends HestonFFTSmileFitter {
 
   private static final FourierPricer FOURIER_PRICER = new FourierPricer();

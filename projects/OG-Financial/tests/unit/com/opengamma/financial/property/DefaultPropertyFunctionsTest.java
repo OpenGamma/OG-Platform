@@ -342,7 +342,9 @@ public class DefaultPropertyFunctionsTest {
   private FunctionCompilationContext createFunctionCompilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     final SecuritySource securities = createSecuritySource();
-    context.setPortfolioStructure(new PortfolioStructure(createPositionSource(securities)));
+    PositionSource positionSource = createPositionSource(securities);
+    context.setPortfolioStructure(new PortfolioStructure(positionSource));
+    context.setPositionSource(positionSource);
     context.setSecuritySource(securities);
     return context;
   }

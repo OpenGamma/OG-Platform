@@ -63,13 +63,15 @@
         build-id  the identifier of the build, or multiple identifiers separated
                   by semi-colons, defaults to ai.build.all
         file      the path to the project file, defaults to ai.build.file
+        dir       directory to execute in (all resources taken relative to this)
   -->
   <macrodef name="ai-build">
     <attribute name="build-id" default="${ai.build.all}" />
     <attribute name="file" default="${ai.build.file}" />
+    <attribute name="dir" default="." />
     <sequential>
       <echo message="Building @{build-id}" />
-      <exec executable="${ai.command}">
+      <exec executable="${ai.command}" dir="@{dir}">
         <arg value="/build" />
         <arg value="@{file}" />
         <arg value="-buildslist" />
