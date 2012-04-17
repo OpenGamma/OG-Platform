@@ -49,17 +49,24 @@
     <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
   </target>
 
+  <target name="dist-publish" depends="common.dist-publish,compile-msm" />
+
   <macrodef name="installer-make">
     <attribute name="file" default="${ai.build.file}" />
     <attribute name="build-id" default="DefaultBuild" />
+    <attribute name="dir" default="Installer" />
     <sequential>
       <ai-set-version version="${module.version.msi}.${module.build.number}" file="@{file}" />
-      <ai-build file="@{file}" build-id="@{build-id}"/>
+      <ai-build file="@{file}" build-id="@{build-id}" dir="@{dir}" />
     </sequential>
   </macrodef>
   <target name="installer-impl" />
+  <target name="compile-msm-impl" />
   <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
     <antcall target="installer-impl" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="compile-msm" depends="ai-present,module-build-number" if="ai.present">
+    <antcall target="compile-msm-impl" inheritall="true" inheritrefs="true" />
   </target>
 
   <target name="install-copy" depends="installer" if="install.dir">
