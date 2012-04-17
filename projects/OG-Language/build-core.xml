@@ -16,6 +16,11 @@
 
   <target name="resolve" depends="common-ivy.resolve">
     <subant genericantfile="${common.dir}/cpp.xml" target="unpack-resolve" buildpath="${basedir}" inheritall="true" />
+    <unzip dest="${lib.dir}/msm" overwrite="false">
+      <fileset dir="${lib.dir}/msm">
+        <include name="**/*.zip" />
+      </fileset>
+    </unzip>
   </target>
 
   <target name="fudge-proto" depends="common.fudge-proto">
@@ -44,30 +49,32 @@
     <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
   </target>
 
-  <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
-    <ai-set-version version="${module.version.msi}.${module.build.number}" />
-    <ai-build />
-  </target>
+  <target name="dist-publish" depends="common.dist-publish,compile-msm" />
 
-  <macrodef name="installer-copy">
-    <attribute name="display-configuration" />
-    <attribute name="internal-configuration" />
+  <macrodef name="installer-make">
+    <attribute name="file" default="${ai.build.file}" />
+    <attribute name="build-id" default="DefaultBuild" />
+    <attribute name="dir" default="Installer" />
     <sequential>
-      <copy todir="${install.dir}/install">
-        <fileset dir="${dist.dir}">
-          <include name="*-@{display-configuration}.exe" />
-          <include name="*-@{display-configuration}.msi" />
-          <exclude name="*-with-jvm-*" />
-        </fileset>
-        <regexpmapper from="^(.*)-\d+\.\d+\.\d+-@{display-configuration}(.*)$$" to="\1.@{internal-configuration}\2" />
-      </copy>
+      <ai-set-version version="${module.version.msi}.${module.build.number}" file="@{dir}${file.separator}@{file}" />
+      <ai-build file="@{file}" build-id="@{build-id}" dir="@{dir}" />
     </sequential>
   </macrodef>
+  <target name="installer-impl" />
+  <target name="compile-msm-impl" />
+  <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
+    <antcall target="installer-impl" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="compile-msm" depends="ai-present,module-build-number" if="ai.present">
+    <antcall target="compile-msm-impl" inheritall="true" inheritrefs="true" />
+  </target>
 
   <target name="install-copy" depends="installer" if="install.dir">
-    <mkdir dir="${install.dir}/install" />
-    <installer-copy display-configuration="32-bit" internal-configuration="i386" />
-    <installer-copy display-configuration="64-bit" internal-configuration="x64" />
+    <copy todir="${install.dir}/install">
+      <fileset dir="${build.dir}">
+        <include name="*.msm" />
+      </fileset>
+    </copy>
   </target>
   <target name="install" depends="install-copy" />
 

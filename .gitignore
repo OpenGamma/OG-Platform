@@ -13,6 +13,7 @@ common/deploy.properties
 !/projects/OG-Engine
 !/projects/OG-Examples
 !/projects/OG-Financial
+!/projects/OG-Install
 !/projects/OG-Integration
 !/projects/OG-Language
 !/projects/OG-LiveData
