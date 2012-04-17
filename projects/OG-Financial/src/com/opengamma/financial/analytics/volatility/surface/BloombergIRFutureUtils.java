@@ -10,6 +10,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.Period;
 
+import org.apache.commons.lang.Validate;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
@@ -32,6 +34,8 @@ public class BloombergIRFutureUtils {
     ED,
     /** EUR, Euro Euribor,  3-month, LIF */
     ER,
+    /** JPY, Euroyen, 3-month, SGX */
+    EF,
     /** AUD, 90 day Bankers' Acceptance, 3-month, SFE */
     IR,
     /** GBP, Short Sterling, 3-month, LIF */
@@ -68,6 +72,7 @@ public class BloombergIRFutureUtils {
    * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
    */
   public static final String getQuarterlyExpiryMonthYearCode(final int nthFuture, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
+    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
     LocalDate futureExpiry = valuationDate.with(NEXT_EXPIRY_ADJUSTER);
     final StringBuilder futureCode = new StringBuilder();
     for (int i = 1; i < nthFuture; i++) {
