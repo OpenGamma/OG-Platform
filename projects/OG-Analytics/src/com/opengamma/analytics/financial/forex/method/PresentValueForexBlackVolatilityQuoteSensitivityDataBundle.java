@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing the present value sensitivity to a Forex currency pair quoted volatility parameters (ATM, RR, Strangle).
  */
-public class PresentValueVolatilityQuoteSensitivityDataBundle {
+public class PresentValueForexBlackVolatilityQuoteSensitivityDataBundle {
 
   /**
    * The currency pair.
@@ -36,7 +36,7 @@ public class PresentValueVolatilityQuoteSensitivityDataBundle {
    * @param delta The deltas for the vega matrix, not null
    * @param vega The initial sensitivity, not null
    */
-  public PresentValueVolatilityQuoteSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final double[] expiries, final double[] delta, final double[][] vega) {
+  public PresentValueForexBlackVolatilityQuoteSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final double[] expiries, final double[] delta, final double[][] vega) {
     Validate.notNull(ccy1, "currency 1");
     Validate.notNull(ccy2, "currency 2");
     Validate.notNull(expiries, "expiries");
@@ -96,7 +96,7 @@ public class PresentValueVolatilityQuoteSensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PresentValueVolatilityQuoteSensitivityDataBundle other = (PresentValueVolatilityQuoteSensitivityDataBundle) obj;
+    final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle other = (PresentValueForexBlackVolatilityQuoteSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }

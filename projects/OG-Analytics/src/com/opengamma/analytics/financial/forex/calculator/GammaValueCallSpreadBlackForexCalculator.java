@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,14 +7,14 @@ package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalCallSpreadBlackMethod;
-import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculator of the volatility sensitivity for Forex digital options using vanilla call spread with Black formula for underlying vanilla.
+ * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives using a call spread approach.
  */
-public class PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueForexBlackVolatilitySensitivity> {
+public class GammaValueCallSpreadBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The methods used by the different instruments.
@@ -25,13 +25,13 @@ public class PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator ext
    * Private constructor.
    * @param spread The relative spread used in the call-spread pricing. The call spread strikes are (for an original strike K), K*(1-spread) and K*(1+spread).
    */
-  public PresentValueVolatilitySensitivityCallSpreadBlackForexCalculator(final double spread) {
+  public GammaValueCallSpreadBlackForexCalculator(final double spread) {
     _methodFxOptionDigital = new ForexOptionDigitalCallSpreadBlackMethod(spread);
   }
 
   @Override
-  public PresentValueForexBlackVolatilitySensitivity visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
-    return _methodFxOptionDigital.presentValueVolatilitySensitivity(derivative, data);
+  public CurrencyAmount visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    return _methodFxOptionDigital.gamma(derivative, data);
   }
 
 }

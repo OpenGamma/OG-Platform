@@ -188,6 +188,7 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionBlackDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionBlackImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.swaption.SwaptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionBlackVolatilitySensitivityFunction;
@@ -797,6 +798,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionBlackDefaultPropertiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD")));
   }
   
