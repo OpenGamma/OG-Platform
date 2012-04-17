@@ -75,7 +75,7 @@ $.register_module({
                     plot_selector = selector + ' .og-plot-header',
                     $legend, panning, hover_pos = null,
                     reset_options,
-                    build_menu, load_plots, empty_plots, update_legend, rescale_yaxis,
+                    build_menu, load_plots, empty_plots, update_legend, rescale_yaxis, resize,
                     calculate_y_values, load_data_points, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive})).css({position: 'relative'});
                 $(plot_selector)
@@ -434,15 +434,16 @@ $.register_module({
                     }());
                 };
                 build_menu();
+                resize = function () {
+                    var width = $(selector).width() - 19; // 19 is the scrollbar width
+                    $(selector).find('.og-js-p1, .og-js-p1-crop, .og-js-p2, .og-js-p2-crop').width(width + 'px');
+                    $(selector).find('.og-flot-xaxis, .og-flot-top').width((width - 84) + 'px');
+                    load_plots();
+                };
                 og.common.gadgets.manager.register({
-                    alive: function () {return !!$('.' + alive).length;},
-                    resize: function () {
-                        var width = $(selector).width() - 19; // 19 is the scrollbar width
-                        $(selector).find('.og-js-p1, .og-js-p1-crop, .og-js-p2, .og-js-p2-crop').width(width + 'px');
-                        $(selector).find('.og-flot-xaxis, .og-flot-top').width((width - 84) + 'px');
-                        load_plots();
-                    }
+                    alive: function () {return !!$('.' + alive).length;}, resize: resize
                 });
+                resize();
             };
             $.when(
                 api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),

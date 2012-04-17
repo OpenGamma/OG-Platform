@@ -20,7 +20,6 @@
         })();
         if (!$self.parent().parent().hasClass('js-awesometable')) { // initialize
             if ($self.height() - $self.find('thead').height() <= options.height) return $self;
-            $self.css('margin-top', '-1px'); // compensate for thead height being 1px
             $self.wrap('<div />').parent().css({height: options.height + 'px', overflow: 'auto'})
                 .wrap('<div class="js-awesometable"></div>').css({width: $self.width() + scrollbar_width + 'px'});
             ($dup = $self.clone()).find('tbody').remove();
@@ -33,7 +32,9 @@
         }
         $self.find('thead tr').hide().parent().find('tr:last').show(); // if multiple header rows, use last only
         // cascade header click
-        $dup.find('tr:last th').click(function () {$($self.find('tr:last-child th')[$(this).index()]).click();});
+        if ($dup) $dup.find('tr:last th').on('click', function () {
+            $($self.find('tr:last-child th')[$(this).index()]).click();
+        });
         // resize the new header to mimic original
         (function () {
             var len = $self.find('th').length, $dup = $('.js-awesometable > table th'),
@@ -54,6 +55,7 @@
             if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
             else $style[0].appendChild(document.createTextNode(css));
         }());
+        $self.css('margin-top', '-' + $self.find('thead').height() * 2 + 'px'); // compensate for thead height
         return $self;
     };
 })(jQuery);

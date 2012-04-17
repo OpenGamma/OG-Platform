@@ -1,6 +1,6 @@
 <table class="OG-table">
   <thead>
-    <tr><th colspan="3"><span>${template_data.name}</span></th></tr>
+    <tr><th colspan="3"><span><em>${template_data.name}</em></span></th></tr>
   </thead>
   <tbody>
   <tr>
@@ -30,7 +30,7 @@
     <tbody class="og-js-identifiers">
       {{if securities[0]}}
         {{each securities}}
-          <tr><td><span>${$value.scheme.lang()}</span></td><td>${$value.value.lang()}</td></tr>
+          <tr><td><span><em>${$value.scheme.lang()}</em></span></td><td>${$value.value.lang()}</td></tr>
         {{/each}}
       {{else}}
         <tr><td colspan="2">(no value)</td></tr>

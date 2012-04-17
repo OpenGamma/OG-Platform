@@ -184,7 +184,9 @@ $.register_module({
                 // but don't redirect so history will still work
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 api.rest.positions.get({id: position, update: view.update, cache_for: 500, dependencies: ['position']});
-                gadgets.positions({id: position, selector: '.og-js-details-positions', editable: false, view: view});
+                gadgets.positions({
+                    id: position, selector: '.og-js-details-positions', editable: false, view: view, external_links: true
+                });
                 gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };
             render_position_rows = function (selector, json) {
