@@ -51,7 +51,9 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
   }
 
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final WeightingFunction weightFunction) {
-    this(model, DEFAULT_BETA, weightFunction);
+    super(model, weightFunction);
+    _beta = DEFAULT_BETA;
+    _externalBeta = false;
   }
 
   public SmileInterpolatorSABR(final VolatilityFunctionProvider<SABRFormulaData> model, final double beta) {

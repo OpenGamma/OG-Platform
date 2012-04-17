@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
@@ -25,7 +25,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
 
@@ -148,8 +148,6 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     @Override
     protected ValueProperties getResultProperties() {
       final ValueProperties properties = createValueProperties().get();
-      final Object temp = BlackVolatilitySurfaceUtils.addBlackSurfaceProperties(
-          BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties).get(), getInstrumentType()).get();
       return BlackVolatilitySurfaceUtils.addBlackSurfaceProperties(
           BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties).get(), getInstrumentType()).get();
     }
@@ -157,8 +155,6 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     @Override
     protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
       final ValueProperties properties = createValueProperties().get();
-      final Object temp = BlackVolatilitySurfaceUtils.addBlackSurfaceProperties(
-          BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue).get(), getInstrumentType(), desiredValue).get();
       return BlackVolatilitySurfaceUtils.addBlackSurfaceProperties(
           BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue).get(), getInstrumentType(), desiredValue).get();
     }

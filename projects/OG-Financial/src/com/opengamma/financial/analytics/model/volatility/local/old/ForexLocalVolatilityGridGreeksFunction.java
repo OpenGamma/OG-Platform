@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.volatility.local.old;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityForwardPDEGreekCalculator1;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 public class ForexLocalVolatilityGridGreeksFunction extends ForexLocalVolatilityPDEGridFunction {
 
   @Override
-  protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface, final ForwardCurve forwardCurve,
+  protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator1<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface, final ForwardCurve forwardCurve,
       final SmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
     return calculator.getGridGreeks(data, localVolatilitySurface, option);
   }

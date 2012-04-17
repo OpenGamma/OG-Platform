@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
@@ -38,11 +38,12 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 
 /**
- * 
+ *
  */
 public class BlackVolatilitySurfaceUtils {
 
@@ -129,10 +130,6 @@ public class BlackVolatilitySurfaceUtils {
     if (timeRightExtrapolatorNames == null || timeRightExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> smileInterpolatorNames = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR);
-    if (smileInterpolatorNames == null || smileInterpolatorNames.size() != 1) {
-      return null;
-    }
     return Collections.emptySet();
   }
 
@@ -150,10 +147,14 @@ public class BlackVolatilitySurfaceUtils {
     return addCommonVolatilityInterpolatorProperties(properties.copy()
         .with(PROPERTY_SPLINE_INTERPOLATOR, interpolatorName)
         .with(PROPERTY_SPLINE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
-        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get(), SPLINE);
+        .with(PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get(), desiredValue, SPLINE);
   }
 
   public static Set<ValueRequirement> ensureSplineVolatilityInterpolatorProperties(final ValueProperties constraints) {
+    final Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
+    if (requirements == null) {
+      return null;
+    }
     final Set<String> interpolatorNames = constraints.getValues(PROPERTY_SPLINE_INTERPOLATOR);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
@@ -209,10 +210,14 @@ public class BlackVolatilitySurfaceUtils {
         .with(PROPERTY_SABR_MODEL, model)
         .with(PROPERTY_SABR_WEIGHTING_FUNCTION, weightingFunction)
         .with(PROPERTY_SABR_USE_EXTERNAL_BETA, useExternalBeta)
-        .with(PROPERTY_SABR_EXTERNAL_BETA, externalBeta).get(), SABR); // TODO optional?
+        .with(PROPERTY_SABR_EXTERNAL_BETA, externalBeta).get(), desiredValue, SABR); // TODO optional?
   }
 
   public static Set<ValueRequirement> ensureSABRVolatilityInterpolatorProperties(final ValueProperties constraints) {
+    final Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
+    if (requirements == null) {
+      return null;
+    }
     final Set<String> modelNames = constraints.getValues(PROPERTY_SABR_MODEL);
     if (modelNames == null || modelNames.size() != 1) {
       return null;
@@ -229,11 +234,39 @@ public class BlackVolatilitySurfaceUtils {
     if (externalBetaNames == null || externalBetaNames.size() != 1) {
       return null;
     }
-    return Collections.emptySet();
+    return requirements;
+  }
+
+  public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
+    final String smileInterpolator = desiredValue.getConstraint(PROPERTY_SMILE_INTERPOLATOR);
+    if (smileInterpolator.equals(SPLINE)) {
+      return BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue);
+    }
+    if (smileInterpolator.equals(SABR)) {
+      return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue);
+    }
+    if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
+      return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue);
+    }
+    throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
+  }
+
+  public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final String smileInterpolator) {
+    if (smileInterpolator.equals(SPLINE)) {
+      return BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(properties);
+    }
+    if (smileInterpolator.equals(SABR)) {
+      return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(properties);
+    }
+    if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
+      return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties);
+    }
+    throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
   }
 
   public static ValueProperties.Builder addBlackSurfaceProperties(final ValueProperties properties, final String instrumentType) {
     return properties.copy()
+        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, BlackVolatilitySurfacePropertyNamesAndValues.BLACK_SURFACE_METHOD)
         .withAny(SURFACE)
         .withAny(CURVE_CALCULATION_METHOD)
         .withAny(CURVE)
@@ -245,24 +278,58 @@ public class BlackVolatilitySurfaceUtils {
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
     final String curve = desiredValue.getConstraint(CURVE);
     return properties.copy()
+        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, BlackVolatilitySurfacePropertyNamesAndValues.BLACK_SURFACE_METHOD)
         .with(SURFACE, surface)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, curve)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType);
   }
 
-  public static ValueProperties.Builder getVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
-    final String smileInterpolator = desiredValue.getConstraint(PROPERTY_SMILE_INTERPOLATOR);
-    if (smileInterpolator.equals(SPLINE)) {
-      return BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue);
+  public static ValueProperties.Builder addAllBlackSurfaceProperties(final ValueProperties properties, final String instrumentType, final String smileInterpolator) {
+    return addBlackSurfaceProperties(addVolatilityInterpolatorProperties(properties, smileInterpolator).get(), instrumentType);
+  }
+
+  public static ValueProperties.Builder addAllBlackSurfaceProperties(final ValueProperties properties, final String instrumentType, final ValueRequirement desiredValue) {
+    return addBlackSurfaceProperties(addVolatilityInterpolatorProperties(properties, desiredValue).get(), instrumentType, desiredValue);
+  }
+
+  public static Set<ValueRequirement> ensureAllBlackSurfaceProperties(final ValueProperties constraints) {
+    Set<ValueRequirement> requirements = ensureCommonVolatilityInterpolatorProperties(constraints);
+    if (requirements == null) {
+      return null;
     }
-    if (smileInterpolator.equals(SABR)) {
-      return BlackVolatilitySurfaceUtils.addSABRVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue);
+    final Set<String> curveNames = constraints.getValues(CURVE);
+    if (curveNames == null || curveNames.size() != 1) {
+      return null;
     }
-    if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
-      return BlackVolatilitySurfaceUtils.addMixedLogNormalVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue);
+    final Set<String> curveCalculationMethods = constraints.getValues(CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+      return null;
     }
-    throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
+    final Set<String> surfaceNames = constraints.getValues(SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final String smileInterpolationMethod = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR).iterator().next();
+    if (smileInterpolationMethod.equals(SPLINE)) {
+      requirements = ensureSplineVolatilityInterpolatorProperties(constraints);
+      if (requirements == null) {
+        return null;
+      }
+    } else if (smileInterpolationMethod.equals(SABR)) {
+      requirements = ensureSABRVolatilityInterpolatorProperties(constraints);
+      if (requirements == null) {
+        return null;
+      }
+    } else if (smileInterpolationMethod.equals(MIXED_LOG_NORMAL)) {
+      requirements = ensureMixedLogNormalVolatilityInterpolatorProperties(constraints);
+      if (requirements == null) {
+        return null;
+      }
+    } else {
+      throw new OpenGammaRuntimeException("Did not recognise smile interpolation type " + smileInterpolationMethod);
+    }
+    return requirements;
   }
 
 }
