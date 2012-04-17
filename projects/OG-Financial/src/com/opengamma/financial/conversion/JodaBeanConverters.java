@@ -18,6 +18,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
@@ -61,6 +63,7 @@ public final class JodaBeanConverters {
     stringConvert.register(ExerciseType.class, new ExerciseTypeConverter());
     stringConvert.register(Notional.class, new NotionalConverter());
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
+    stringConvert.register(YieldConvention.class, new YieldConventionConverter());
   }
   
   /**
@@ -258,6 +261,20 @@ public final class JodaBeanConverters {
     @Override
     public BusinessDayConvention convertFromString(Class<? extends BusinessDayConvention> cls, String str) {
       return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(str);
+    }
+    
+  }
+
+  private static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
+
+    @Override
+    public String convertToString(YieldConvention object) {
+      return object.getConventionName();
+    }
+
+    @Override
+    public YieldConvention convertFromString(Class<? extends YieldConvention> cls, String str) {
+      return YieldConventionFactory.INSTANCE.getYieldConvention(str);
     }
     
   }
