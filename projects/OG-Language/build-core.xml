@@ -56,7 +56,7 @@
     <attribute name="build-id" default="DefaultBuild" />
     <attribute name="dir" default="Installer" />
     <sequential>
-      <ai-set-version version="${module.version.msi}.${module.build.number}" file="@{file}" />
+      <ai-set-version version="${module.version.msi}.${module.build.number}" file="@{dir}${file.separator}@{file}" />
       <ai-build file="@{file}" build-id="@{build-id}" dir="@{dir}" />
     </sequential>
   </macrodef>
