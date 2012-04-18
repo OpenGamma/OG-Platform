@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 import org.apache.commons.lang.Validate;
 
 /**
- * Holds the result of the PDE solver on the final time slice only 
+ * Holds the result of the PDE solver on the final time slice only
  */
 public class PDETerminalResults1D implements PDEResults1D {
 
@@ -88,4 +88,7 @@ public class PDETerminalResults1D implements PDEResults1D {
     return _grid;
   }
 
+  public double[] getFinalTimePrices() {
+    return _f;
+  }
 }

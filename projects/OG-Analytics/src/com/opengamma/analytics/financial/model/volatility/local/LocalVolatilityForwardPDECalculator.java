@@ -7,81 +7,54 @@ package com.opengamma.analytics.financial.model.volatility.local;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
 
 /**
  * 
  */
-public class LocalVolatilityForwardPDECalculator {
-  private final PDEDataBundleProvider _provider;
-  private final ThetaMethodFiniteDifference _solver;
+public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalculator {
+  //TODO add max moneyness multiplier
+  private static final double MAX_MONEYNESS = 3.5;
   private final int _nTimeSteps;
-  private final int _nYSteps;
+  private final int _nSpaceSteps;
   private final double _timeMeshLambda;
-  private final double _yMeshBunching;
+  private final double _spaceMeshBunching;
 
-  public LocalVolatilityForwardPDECalculator(final double theta, final int nTimeSteps, final int nYSteps, final double timeMeshLambda, final double yMeshBunching) {
+  public LocalVolatilityForwardPDECalculator(final double theta, final int nTimeSteps, final int nSpaceSteps, final double timeMeshLambda, final double spaceMeshBunching) {
+    super(theta);
     _nTimeSteps = nTimeSteps;
-    _nYSteps = nYSteps;
+    _nSpaceSteps = nSpaceSteps;
     _timeMeshLambda = timeMeshLambda;
-    _yMeshBunching = yMeshBunching;
-    _provider = new PDEDataBundleProvider();
-    _solver = new ThetaMethodFiniteDifference(theta, true);
+    _spaceMeshBunching = spaceMeshBunching;
   }
 
-  public PDEFullResults1D runForwardPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve,
-      final StandardSmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
-    final BoundaryCondition lower;
-    final BoundaryCondition upper;
+  @Override
+  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option) {
     final boolean isCall = option.isCall();
-    final double maxTime = data.getExpiries()[data.getNumExpiries() - 1];
-    final double maxMoneyness = 3.5;
-    if (isCall) {
-      //call option with strike zero is worth the forward, while a put is worthless
-      lower = new DirichletBoundaryCondition(1.0, 0.0);
-      upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
-    } else {
-      lower = new DirichletBoundaryCondition(0.0, 0.0);
-      upper = new NeumannBoundaryCondition(1.0, maxMoneyness, false);
-    }
-    final ExponentialMeshing timeMesh = new ExponentialMeshing(0.0, maxTime, _nTimeSteps, _timeMeshLambda);
-    final HyperbolicMeshing spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1, _nYSteps, _yMeshBunching);
-    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final ConvectionDiffusionPDEDataBundle db = _provider.getForwardLocalVol(localVolatility, isCall);
-    final PDEFullResults1D res = (PDEFullResults1D) _solver.solve(db, grid, lower, upper);
-    return res;
+    final double expiry = option.getTimeToExpiry();
+    final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(MAX_MONEYNESS));
+    final BoundaryCondition lower = getLowerBoundaryCondition(option);
+    final BoundaryCondition upper = getUpperBoundaryCondition(option, MAX_MONEYNESS);
+    final ConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, isCall);
+    return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
   }
 
-  public PDEFullResults1D runForwardPDESolver(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve,
-      final StandardSmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
-    final BoundaryCondition lower;
-    final BoundaryCondition upper;
-    final boolean isCall = option.isCall();
-    final double maxTime = data.getExpiries()[data.getNumExpiries() - 1];
-    final double maxMoneyness = 3.5;
-    if (isCall) {
-      //call option with strike zero is worth the forward, while a put is worthless
-      lower = new DirichletBoundaryCondition(1.0, 0.0);
-      upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
-    } else {
-      lower = new DirichletBoundaryCondition(0.0, 0.0);
-      upper = new NeumannBoundaryCondition(1.0, maxMoneyness, false);
-    }
-    final ExponentialMeshing timeMesh = new ExponentialMeshing(0.0, maxTime, _nTimeSteps, _timeMeshLambda);
-    final HyperbolicMeshing spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1, _nYSteps, _yMeshBunching);
-    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final ConvectionDiffusionPDEDataBundle db = _provider.getForwardLocalVol(localVolatility, forwardCurve, isCall);
-    final PDEFullResults1D res = (PDEFullResults1D) _solver.solve(db, grid, lower, upper);
-    return res;
+  @Override
+  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option) {
+    return runPDESolver(LocalVolatilitySurfaceConverter.toMoneynessSurface(localVolatility, forwardCurve), forwardCurve, option);
+  }
+
+  private MeshingFunction getTimeMesh(final double maxTime) {
+    return new ExponentialMeshing(0.0, maxTime, _nTimeSteps, _timeMeshLambda);
+  }
+
+  private MeshingFunction getSpaceMesh(final double maxSpace) {
+    return new HyperbolicMeshing(0.0, maxSpace, 1, _nSpaceSteps, _spaceMeshBunching);
   }
 }

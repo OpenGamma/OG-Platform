@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
+public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private final String _timeAxis;
   private final String _yAxis;
   private final String _volatilityTransform;
@@ -32,7 +32,7 @@ public abstract class BlackVolatilitySurfaceDefaultPropertiesFunction extends De
   private final String _forwardCurveCalculationMethod;
   private final String _surfaceName;
 
-  public BlackVolatilitySurfaceDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(timeAxis, "time axis");

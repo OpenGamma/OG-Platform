@@ -42,7 +42,7 @@ public class GammaValueBlackForexCalculator extends AbstractInstrumentDerivative
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONVANILLA.gamma(derivative, data);
+    return METHOD_FXOPTIONVANILLA.gamma(derivative, data, true);
   }
 
 }

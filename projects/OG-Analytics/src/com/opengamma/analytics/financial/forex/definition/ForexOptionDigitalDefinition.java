@@ -21,8 +21,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * Class describing a digital foreign exchange European option. 
  * The implied strike is the absolute value of ratio of the domestic currency (currency 2) amount and the foreign currency amount (currency1).
- * When the option is a call, it pays the absolute value of the domestic currency amount when the spot rate is above the strike and nothing otherwise.
- * When the option is a put, it pays the absolute value of the domestic currency amount when the spot rate is below the strike and nothing otherwise.
+ * When the option is a call, it pays the absolute value of the payment currency amount when the spot rate is above the strike and nothing otherwise.
+ * When the option is a put, it pays the absolute value of the payment currency amount when the spot rate is below the strike and nothing otherwise.
  */
 public class ForexOptionDigitalDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
@@ -42,11 +42,15 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    * The long (true) / short (false) flag.
    */
   private final boolean _isLong;
+  /**
+   * The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
+   */
+  private final boolean _payDomestic;
 
   // TODO: review description. Should we store the strike explicitly?
 
   /**
-   * Constructor from the details.
+   * Constructor from the details. The default payment currency is domestic/currency 2.
    * @param forex The underlying Forex transaction.
    * @param expirationDate The expiration date (and time) of the option.
    * @param isCall The call (true) / put (false) flag.
@@ -60,6 +64,26 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
     _expirationDate = expirationDate;
     _isCall = isCall;
     _isLong = isLong;
+    _payDomestic = true;
+  }
+
+  /**
+   * Constructor from the details. The default payment currency is domestic/currency 2.
+   * @param forex The underlying Forex transaction.
+   * @param expirationDate The expiration date (and time) of the option.
+   * @param isCall The call (true) / put (false) flag.
+   * @param isLong The long (true) / short (false) flag.
+   * @param payDomestic The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
+   */
+  public ForexOptionDigitalDefinition(final ForexDefinition forex, final ZonedDateTime expirationDate, final boolean isCall, boolean isLong, boolean payDomestic) {
+    Validate.notNull(forex, "Underlying forex");
+    Validate.notNull(expirationDate, "Expiration date");
+    Validate.isTrue(!expirationDate.isAfter(forex.getExchangeDate()), "Expiration should be before payment.");
+    _underlyingForex = forex;
+    _expirationDate = expirationDate;
+    _isCall = isCall;
+    _isLong = isLong;
+    _payDomestic = payDomestic;
   }
 
   /**
@@ -95,6 +119,14 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
   }
 
   /**
+   * Gets the flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
+   * @return The payment currency flag.
+   */
+  public boolean payDomestic() {
+    return _payDomestic;
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -104,7 +136,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
     final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
-    return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong);
+    return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong, _payDomestic);
   }
 
   /**
@@ -130,6 +162,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
     result = prime * result + _expirationDate.hashCode();
     result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + (_isLong ? 1231 : 1237);
+    result = prime * result + (_payDomestic ? 1231 : 1237);
     result = prime * result + _underlyingForex.hashCode();
     return result;
   }
@@ -153,6 +186,9 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (_payDomestic != other._payDomestic) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingForex, other._underlyingForex)) {
