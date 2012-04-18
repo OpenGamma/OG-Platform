@@ -30,7 +30,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for accessing available outputs from a portfolio
@@ -134,7 +133,7 @@ public class DataAvailablePortfolioOutputsResource extends AbstractDataResource 
 
   @Path("{timestamp}")
   public Instance timestamp(@PathParam("timestamp") String timestamp) {
-    Instant instant = DateUtils.parseInstant(timestamp);
+    Instant instant = Instant.parse(timestamp);
     return new Instance(getProvider(), getFudgeContext(), instant);
   }
 

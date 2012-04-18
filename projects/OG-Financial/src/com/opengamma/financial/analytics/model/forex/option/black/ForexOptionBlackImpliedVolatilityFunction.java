@@ -16,10 +16,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Function to compute the implied volatility for Forex options in the Black model.
  */
 public class ForexOptionBlackImpliedVolatilityFunction extends ForexOptionBlackMultiValuedFunction {
 
+  /**
+   * The related calculator.
+   */
   private static final ImpliedVolatilityBlackForexCalculator CALCULATOR = ImpliedVolatilityBlackForexCalculator.getInstance();
 
   public ForexOptionBlackImpliedVolatilityFunction() {

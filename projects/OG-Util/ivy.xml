@@ -28,7 +28,7 @@
     <dependency org="javax.servlet" name="servletapi" rev="2.5"/>
     <dependency org="javax.servlet" name="jstl" rev="1.2"/>
     <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
-    <dependency org="javax.time" name="jsr-310-ri" rev="0.6.3"/>
+    <dependency org="javax.time" name="jsr-310-ri" rev="0.6.4"/>
     <dependency org="javax.jms" name="jms" rev="1.1"/>
     <dependency org="org.apache.activemq" name="activemq" rev="5.3.0" conf="*->core"/>
     <dependency org="com.google.common" name="guava" rev="11.0.1"/>

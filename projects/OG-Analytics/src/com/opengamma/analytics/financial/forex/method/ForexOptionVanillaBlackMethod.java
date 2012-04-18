@@ -169,9 +169,10 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * Computes the relative gamma of the Forex option. The relative gamma is the second oder derivative of the pv relative to the option notional.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public double gammaRelative(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public double gammaRelative(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile, boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -181,21 +182,27 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double gamma = dfForeign * BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign;
+    final double gammaDirect = BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * (dfForeign * dfForeign) / dfDomestic * sign;
+    if (directQuote) {
+      return gammaDirect;
+    }
+    final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
+    final double gamma = (gammaDirect * spot + 2 * deltaDirect) * spot * spot * spot;
     return gamma;
   }
 
   /**
-   * Computes the gamma of the Forex option. The relative gamma is the second oder derivative of the pv.
+   * Computes the gamma of the Forex option. The gamma is the second oder derivative of the pv.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final YieldCurveBundle curves, boolean directQuote) {
     ArgumentChecker.notNull(curves, "Curves");
     ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
-    final double gammaRelative = gammaRelative(optionForex, smile);
+    final double gammaRelative = gammaRelative(optionForex, smile, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
@@ -273,7 +280,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * @param smile The curve and smile data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueVolatilitySensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -300,10 +307,10 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionVanilla, "Vanilla Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
-    return presentValueVolatilitySensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
+    return presentValueBlackVolatilitySensitivity((ForexOptionVanilla) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
   /**
@@ -313,11 +320,11 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * @param smile The curve and smile data.
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueVolatilityNodeSensitivityDataBundle presentValueVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueVolatilitySensitivity(optionForex, smile); // In ccy2
+    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smile); // In ccy2
     final double[][] nodeWeight = new double[smile.getSmile().getNumberExpiration()][smile.getSmile().getNumberStrike()];
     final double df = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -332,8 +339,8 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
         vega[loopexp][loopstrike] = nodeWeight[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(point);
       }
     }
-    return new PresentValueVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile.getSmile()
-        .getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getDeltaFull()), new DoubleMatrix2D(vega));
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionForex.getUnderlyingForex().getCurrency1(), optionForex.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(smile
+        .getSmile().getTimeToExpiration()), new DoubleMatrix1D(smile.getSmile().getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
 }

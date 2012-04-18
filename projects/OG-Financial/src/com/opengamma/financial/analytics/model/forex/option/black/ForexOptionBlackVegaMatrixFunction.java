@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexVegaSensitivityCalculator;
-import com.opengamma.analytics.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
  * 
  */
 public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackSingleValuedFunction {
-  private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
+  private static final PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
   public ForexOptionBlackVegaMatrixFunction() {
@@ -31,7 +31,7 @@ public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackSingleVa
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();

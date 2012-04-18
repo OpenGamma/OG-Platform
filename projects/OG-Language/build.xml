@@ -21,7 +21,7 @@
     <pathelement path="${solution.dir}/ConnectorTest" />
   </path>
 
-  <target name="dist-publish" depends="common.dist-publish">
+  <target name="dist-publish" depends="core.dist-publish">
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${dist.dir}/bin" />
     <mkdir dir="${dist.dir}/include" />
@@ -61,11 +61,13 @@ opengamma.engine.host=${opengamma.engine.host}
 
   <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
+  <target name="compile-msm-impl">
+    <installer-make file="ClientSDK.aip" />
+    <installer-make file="Core.aip" />
+    <installer-make file="Service32.aip" />
+    <installer-make file="Service64.aip" />
+  </target>
   <target name="installer-impl">
-    <installer-make file="Installer/ClientSDK.aip" />
-    <installer-make file="Installer/Core.aip" />
-    <installer-make file="Installer/Service32.aip" />
-    <installer-make file="Installer/Service64.aip" />
     <installer-make build-id="${ai.build.all}" />
   </target>
 

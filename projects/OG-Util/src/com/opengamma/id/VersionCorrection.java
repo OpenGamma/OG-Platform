@@ -165,7 +165,7 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
       return null;
     } else {
       try {
-        return DateUtils.parseInstant(instantStr);
+        return Instant.parse(instantStr);
       } catch (CalendricalException ex) {
         throw new IllegalArgumentException(ex);
       }

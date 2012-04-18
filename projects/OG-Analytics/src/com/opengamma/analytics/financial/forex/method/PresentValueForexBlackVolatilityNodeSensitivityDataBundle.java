@@ -17,7 +17,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class describing the present value sensitivity to a Forex currency pair volatility grid.
  */
-public class PresentValueVolatilityNodeSensitivityDataBundle {
+public class PresentValueForexBlackVolatilityNodeSensitivityDataBundle {
 
   /**
    * The currency pair.
@@ -37,7 +37,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
    * @param numberExpiry The number of expiries, not negative
    * @param numberDelta The number of deltas, not negative
    */
-  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final int numberExpiry, final int numberDelta) {
+  public PresentValueForexBlackVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final int numberExpiry, final int numberDelta) {
     Validate.notNull(ccy1, "currency 1");
     Validate.notNull(ccy2, "currency 2");
     Validate.isTrue(numberExpiry >= 0);
@@ -56,7 +56,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
    * @param delta The deltas for the vega matrix, not null
    * @param vega The initial sensitivity, not null
    */
-  public PresentValueVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix1D expiries, final DoubleMatrix1D delta, final DoubleMatrix2D vega) {
+  public PresentValueForexBlackVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix1D expiries, final DoubleMatrix1D delta, final DoubleMatrix2D vega) {
     Validate.notNull(ccy1, "currency 1");
     Validate.notNull(ccy2, "currency 2");
     Validate.notNull(expiries, "expiries");
@@ -95,11 +95,35 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
   }
 
   /**
+   * Compare two sensitivities with a given tolerance. Return "true" if the currency pairs are the same and all the sensitivities are within the tolerance.
+   * @param value1 The first sensitivity.
+   * @param value2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return The comparison flag.
+   */
+  public static boolean compare(final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value1, final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value2, double tolerance) {
+    if (!value1._currencyPair.equals(value2._currencyPair)) {
+      return false;
+    }
+    if ((value1._expiries.getNumberOfElements() != value2._expiries.getNumberOfElements()) || (value1._delta.getNumberOfElements() != value2._delta.getNumberOfElements())) {
+      return false;
+    }
+    for (int loopexp = 0; loopexp < value1._expiries.getNumberOfElements(); loopexp++) {
+      for (int loopdel = 0; loopdel < value1._delta.getNumberOfElements(); loopdel++) {
+        if (value1._vega.getEntry(loopexp, loopdel) - value2._vega.getEntry(loopexp, loopdel) > tolerance) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
    * Computes the volatility sensitivities with respect to quoted data (ATM, RR, strangle) related to the (strike) node sensitivity.
    * @return The volatility quote sensitivities. The sensitivity figures are in the same currency as the node sensitivity.
    * The first dimension is the expiration and the second dimension the quotes: ATM, Risk Reversal, Strangle.
    */
-  public PresentValueVolatilityQuoteSensitivityDataBundle quoteSensitivity() {
+  public PresentValueForexBlackVolatilityQuoteSensitivityDataBundle quoteSensitivity() {
     double[][] vegaStrike = getVega().getData();
     int nbStrike = vegaStrike[0].length;
     double[][] result = new double[vegaStrike.length][nbStrike];
@@ -112,7 +136,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
         result[loopexp][0] += vegaStrike[loopexp][loopstrike] + vegaStrike[loopexp][nbStrike - 1 - loopstrike];
       }
     }
-    return new PresentValueVolatilityQuoteSensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), _expiries.getData(), _delta.getData(), result);
+    return new PresentValueForexBlackVolatilityQuoteSensitivityDataBundle(_currencyPair.getFirst(), _currencyPair.getSecond(), _expiries.getData(), _delta.getData(), result);
   }
 
   //TODO Add possibility to add a sensitivity?
@@ -139,7 +163,7 @@ public class PresentValueVolatilityNodeSensitivityDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PresentValueVolatilityNodeSensitivityDataBundle other = (PresentValueVolatilityNodeSensitivityDataBundle) obj;
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle other = (PresentValueForexBlackVolatilityNodeSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_currencyPair, other._currencyPair)) {
       return false;
     }
