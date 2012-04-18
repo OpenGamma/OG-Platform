@@ -497,6 +497,17 @@
       <link href="http://threeten.sourceforge.net/apidocs/" />
       <link href="http://joda-beans.sourceforge.net/apidocs/" />
     </javadoc>
+    <!-- process javadocs to a sqlite file for Dexy --> 
+    <delete file="${projects.dir}/OG-Analytics/docs/shared/docs.sqlite3" />
+    <javadoc
+        sourcepath="${docs.dir}/temp-src"
+        destdir="${projects.dir}/OG-Analytics/docs/shared/docs.sqlite3"
+        classpathref="lib.path.id"
+        failonerror="Yes"
+        doclet="it.dexy.doclet.DexyDoclet"
+        docletpathref="lib.path.id"
+    >
+    </javadoc>
     <delete dir="${docs.dir}/temp-src"/>
   </target>
 
