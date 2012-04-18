@@ -1,0 +1,3 @@
+{
+    "*.R|rdoc" : { "rdoc" : { "ext" : "sqlite3" }}
+}

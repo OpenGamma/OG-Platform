@@ -157,14 +157,14 @@
 
 -- ==========================================================================
 @NAME(SearchInner)
-  SELECT
-    pos_position.id AS id
-  FROM
-    pos_position
-  @INCLUDE(SearchWhere)
-  ORDER BY
-    oid
-  @OFFSETFETCH(:paging_offset,:paging_fetch)
+  @PAGING(:paging_offset,:paging_fetch)
+    SELECT
+      pos_position.id AS id
+    FROM
+      pos_position
+    @INCLUDE(SearchWhere)
+    ORDER BY
+      oid
 
 
 -- ==========================================================================
@@ -352,15 +352,15 @@
 
 -- ==========================================================================
 @NAME(HistoryInner)
-  SELECT
-    id
-  FROM
-    pos_position
-  @INCLUDE(HistoryWhere)
-  ORDER BY
-    ver_from_instant DESC,
-    corr_from_instant DESC
-  @OFFSETFETCH(:paging_offset,:paging_fetch)
+  @PAGING(:paging_offset,:paging_fetch)
+    SELECT
+      id
+    FROM
+      pos_position
+    @INCLUDE(HistoryWhere)
+    ORDER BY
+      ver_from_instant DESC,
+      corr_from_instant DESC
 
 
 -- ==========================================================================

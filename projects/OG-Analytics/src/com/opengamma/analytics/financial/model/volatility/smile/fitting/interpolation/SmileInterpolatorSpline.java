@@ -19,14 +19,12 @@ import com.opengamma.util.ArgumentChecker;
  * the end point.
  */
 public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
-  private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D(SineWeightingFunction.getInstance());
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
   private final Interpolator1D _interpolator;
 
   public SmileInterpolatorSpline() {
-    _interpolator = DEFAULT_INTERPOLATOR;
   }
 
   public SmileInterpolatorSpline(final Interpolator1D interpolator) {
@@ -37,7 +35,6 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
     final int n = strikes.length;
-    ArgumentChecker.isTrue(impliedVols.length == n, "#strikes does not mach #vols");
     final double kL = strikes[0];
     final double kH = strikes[n - 1];
     ArgumentChecker.isTrue(kL <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", kL, forward);
@@ -87,6 +84,33 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
 
+  }
+
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _interpolator.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final SmileInterpolatorSpline other = (SmileInterpolatorSpline) obj;
+    return ObjectUtils.equals(_interpolator, other._interpolator);
   }
 
 }

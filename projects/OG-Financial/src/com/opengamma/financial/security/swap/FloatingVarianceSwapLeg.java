@@ -43,7 +43,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   private Frequency _monitoringFrequency;
   /**
    * The annualization factor.
-    */
+   */
   @PropertyDefinition
   private Double _annualizationFactor;
 
@@ -51,7 +51,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
    * Creates an instance.
    * 
    * @param dayCount The day count convention, not null
-   * @param frequency The frequency, not null
+   * @param paymentFrequency The payment frequency, not null
    * @param regionId The region ID, not null
    * @param businessDayConvention The business day convention, not null
    * @param notional The notional, not null
@@ -60,16 +60,16 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
    * @param monitoringFrequency The monitoring frequency
    * @param annualizationFactor The annualization factor
    */
-  public FloatingVarianceSwapLeg(DayCount dayCount,
-                                 Frequency frequency,
-                                 ExternalId regionId,
-                                 BusinessDayConvention businessDayConvention,
-                                 Notional notional,
-                                 boolean eom,
-                                 ExternalId underlyingId,
-                                 Frequency monitoringFrequency,
-                                 Double annualizationFactor) {
-    super(dayCount, frequency, regionId, businessDayConvention, notional, eom);
+  public FloatingVarianceSwapLeg(final DayCount dayCount,
+      final Frequency paymentFrequency,
+      final ExternalId regionId,
+      final BusinessDayConvention businessDayConvention,
+      final Notional notional,
+      final boolean eom,
+      final ExternalId underlyingId,
+      final Frequency monitoringFrequency,
+      final Double annualizationFactor) {
+    super(dayCount, paymentFrequency, regionId, businessDayConvention, notional, eom);
     setUnderlyingId(underlyingId);
     setMonitoringFrequency(monitoringFrequency);
     setAnnualizationFactor(annualizationFactor);
@@ -82,7 +82,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   @Override
-  public <T> T accept(SwapLegVisitor<T> visitor) {
+  public <T> T accept(final SwapLegVisitor<T> visitor) {
     return visitor.visitFloatingVarianceSwapLeg(this);
   }
 

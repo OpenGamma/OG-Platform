@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.analytics.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;

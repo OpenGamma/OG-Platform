@@ -21,7 +21,7 @@
     <pathelement path="${solution.dir}/ConnectorTest" />
   </path>
 
-  <target name="dist-publish" depends="common.dist-publish">
+  <target name="dist-publish" depends="core.dist-publish">
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${dist.dir}/bin" />
     <mkdir dir="${dist.dir}/include" />
@@ -32,6 +32,11 @@
     <zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
+    <zip destfile="${dist.dir}/${ant.project.name}-msm.zip" whenempty="create">
+      <fileset dir="${build.dir}">
+        <include name="*.msm" />
+      </fileset>
+    </zip>
     <delete dir="${dist.dir}/bin" />
     <delete dir="${dist.dir}/include" />
     <delete dir="${dist.dir}/lib" />
@@ -56,9 +61,14 @@ opengamma.engine.host=${opengamma.engine.host}
 
   <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
-  <target name="installer" depends="installer-utils,core.installer" />
-  <target name="installer-utils">
-    <subant buildpath="${solution.dir}/../../Installer/Utils" />
+  <target name="compile-msm-impl">
+    <installer-make file="ClientSDK.aip" />
+    <installer-make file="Core.aip" />
+    <installer-make file="Service32.aip" />
+    <installer-make file="Service64.aip" />
+  </target>
+  <target name="installer-impl">
+    <installer-make build-id="${ai.build.all}" />
   </target>
 
 </project>

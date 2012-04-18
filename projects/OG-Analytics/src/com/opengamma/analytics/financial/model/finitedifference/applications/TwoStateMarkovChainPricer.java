@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**

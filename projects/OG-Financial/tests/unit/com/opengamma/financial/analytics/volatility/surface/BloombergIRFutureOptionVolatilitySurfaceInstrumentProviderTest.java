@@ -31,7 +31,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
     new String[] {"EDH3P 96.000 Comdty", "EDH3P 97.250 Comdty", "EDH3C 98.500 Comdty", "EDH3C 99.750 Comdty"},
     new String[] {"EDZ3P 96.000 Comdty", "EDZ3P 97.250 Comdty", "EDZ3C 98.500 Comdty", "EDZ3C 99.750 Comdty"}};
 
-  private static final String[][] EXPIRED_RESULTS = new String[][] {new String[] {"EDU11P 96.000 Comdty", "EDU11P 97.250 Comdty", "EDU11C 98.500 Comdty", "EDU11C 99.750 Comdty"},
+  private static final String[][] EXPIRED_RESULTS = new String[][] {new String[] {"EDU1P 96.000 Comdty", "EDU1P 97.250 Comdty", "EDU1C 98.500 Comdty", "EDU1C 99.750 Comdty"},
     new String[] {"EDH13P 96.000 Comdty", "EDH13P 97.250 Comdty", "EDH13C 98.500 Comdty", "EDH13C 99.750 Comdty"},
     new String[] {"EDZ13P 96.000 Comdty", "EDZ13P 97.250 Comdty", "EDZ13C 98.500 Comdty", "EDZ13C 99.750 Comdty"}};
 

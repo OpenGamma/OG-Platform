@@ -124,6 +124,14 @@ public final class ValueRequirementNames {
    * Surface containing (x, y, volatility) triples that is constructed by piecewise fitting the SABR model through the smiles.
    */
   public static final String PIECEWISE_SABR_VOL_SURFACE = "Piecewise SABR fitted surface";
+  /** 
+   * Interpolator for Black volatility surfaces
+   */
+  public static final String BLACK_VOLATILITY_SURFACE_INTERPOLATOR = "BlackVolatilitySurfaceInterpolator";
+  /** 
+   * Surface containing (x, y, Black volatility) triples  
+   */
+  public static final String BLACK_VOLATILITY_SURFACE = "BlackVolatilitySurface";
   /**
    * Set of data containing surfaces of (x, y, parameter) triples, where the parameters are those used in the SABR model.
    */
@@ -986,7 +994,7 @@ public final class ValueRequirementNames {
   /**
    * Surface containing (x, y, volatility) triples calculated using the Dupire local volatility method.
    */
-  public static final String LOCAL_VOLATILITY_SURFACE = "Local Volatility Surface";
+  public static final String LOCAL_VOLATILITY_SURFACE = "LocalVolatilitySurface";
   /**
    * The vanna of an instrument calculated using local volatility and PDE methods.
    */

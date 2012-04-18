@@ -62,6 +62,14 @@ public class PresentValueForexBlackVolatilitySensitivity {
   }
 
   /**
+   * Gets the number of elements in the sensitivity.
+   * @return The number of elements.
+   */
+  public int getNumberOfElements() {
+    return _vega.getNumberOfElements();
+  }
+
+  /**
    * Return a new volatility sensitivity by adding another sensitivity. 
    * @param other The Black volatility sensitivity. Not null.
    * @return The new sensitivity.

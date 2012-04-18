@@ -9,8 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.LinearWeightingFunction;
-
 /**
  * 
  */
@@ -18,7 +16,7 @@ public class LinearWeightingFunctionTest extends WeightingFunctionTestCase {
 
   @Override
   protected LinearWeightingFunction getInstance() {
-    return LinearWeightingFunction.getInstance();
+    return WeightingFunctionFactory.LINEAR_WEIGHTING_FUNCTION;
   }
 
   @Test
