@@ -3,6 +3,7 @@
  * 
  * Please see distribution for license.
  */
+package com.opengamma.analytics.financial.model.volatility.local;
 
 import java.io.PrintStream;
 
@@ -10,18 +11,22 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearExtrapolator1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 
@@ -62,6 +67,8 @@ public class ForexLocalVolatilityTest {
   private static final VolatilitySurfaceInterpolator SURFACE_FITTER = new VolatilitySurfaceInterpolator(/*new SmileInterpolatorSpline()*/);
   private static final LocalVolatilityPDEGreekCalculator CAL;
 
+  private static final DupireLocalVolatilityCalculator DUPIRE = new DupireLocalVolatilityCalculator();
+
   static {
     //    Arrays.fill(ATM, 0.3);
     //    RR = new double[2][N];
@@ -84,8 +91,8 @@ public class ForexLocalVolatilityTest {
 
   //For each expiry, print the expiry and the strikes and implied volatilities
   @Test
-  (enabled = false)
-  public void printMarketData() {
+      (enabled = false)
+      public void printMarketData() {
     final double[][] strikes = MARKET_DATA.getStrikes();
     final double[][] vols = MARKET_DATA.getVolatilities();
 
@@ -112,8 +119,8 @@ public class ForexLocalVolatilityTest {
 
   //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
   @Test
-  (enabled = false)
-  public void fitMarketData() {
+      (enabled = false)
+      public void fitMarketData() {
     final double lambda = 0.05;
     final Function1D<Double, Double>[] smiles = SURFACE_FITTER.getIndependentSmileFits(MARKET_DATA);
 
@@ -184,8 +191,8 @@ public class ForexLocalVolatilityTest {
    * Print the fitted implied vol surface and the derived implied vol
    */
   @Test
-  (enabled = false)
-  public void printSurface() {
+      (enabled = false)
+      public void printSurface() {
     final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getVolatilitySurface(MARKET_DATA);
     PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 7. / 365, 0.95, 1.05, 200, 100);
     //    Surface<Double, Double, Double> dens = DUPIRE.getDensity(surface);
@@ -258,8 +265,8 @@ public class ForexLocalVolatilityTest {
    * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/(1+lambda*sqrt(t))
    */
   @Test
-  (enabled = false)
-  public void printDeltaProxySurface() {
+      (enabled = false)
+      public void printDeltaProxySurface() {
     final double xMin = -0.5;
     final double xMax = 0.5;
     final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getVolatilitySurface(MARKET_DATA);
@@ -286,15 +293,15 @@ public class ForexLocalVolatilityTest {
   }
 
   @Test
-  (enabled = false)
-  public void runBackwardsPDESolver() {
+      (enabled = false)
+      public void runBackwardsPDESolver() {
     final PrintStream ps = System.out;
     CAL.runBackwardsPDESolver(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
 
   @Test
-  (enabled = false)
-  public void bucketedVega() {
+      (enabled = false)
+      public void bucketedVega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     CAL.bucketedVegaForwardPDE(ps, option);
@@ -302,8 +309,8 @@ public class ForexLocalVolatilityTest {
   }
 
   @Test
-  (enabled = false)
-  public void deltaAndGamma() {
+      (enabled = false)
+      public void deltaAndGamma() {
     final PrintStream ps = System.out;
     CAL.deltaAndGamma(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
@@ -312,8 +319,8 @@ public class ForexLocalVolatilityTest {
    * uses a pathological local volatility surface to debug problems with forward pde greek calculations
    */
   @Test
-  (enabled = false)
-  public void debugDeltaAndGamma() {
+      (enabled = false)
+      public void debugDeltaAndGamma() {
     final PrintStream ps = System.out;
 
     final double lVol = 0.20;
@@ -348,8 +355,8 @@ public class ForexLocalVolatilityTest {
   }
 
   @Test
-  (enabled = false)
-  public void smileDynamic() {
+      (enabled = false)
+      public void smileDynamic() {
     final PrintStream ps = System.out;
     CAL.smileDynamic(ps, EXAMPLE_EXPIRY, 0.1);
   }
@@ -358,8 +365,8 @@ public class ForexLocalVolatilityTest {
    * print out vega based greeks
    */
   @Test
-  (enabled = false)
-  public void vega() {
+      (enabled = false)
+      public void vega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     CAL.vega(ps, option);

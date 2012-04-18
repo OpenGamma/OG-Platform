@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
@@ -19,12 +21,14 @@ import com.opengamma.util.ArgumentChecker;
  * the end point.
  */
 public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
+  private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
   private final Interpolator1D _interpolator;
 
   public SmileInterpolatorSpline() {
+    this(DEFAULT_INTERPOLATOR);
   }
 
   public SmileInterpolatorSpline(final Interpolator1D interpolator) {
@@ -34,7 +38,10 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "implied vols");
     final int n = strikes.length;
+    ArgumentChecker.isTrue(impliedVols.length == n, "#strikes {} does not match #vols {}", n, impliedVols.length);
     final double kL = strikes[0];
     final double kH = strikes[n - 1];
     ArgumentChecker.isTrue(kL <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", kL, forward);
