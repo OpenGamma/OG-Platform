@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class BlackVolatilitySurfaceSplineInterpolatorDefaultPropertiesFunction extends BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunction {
+public class BlackVolatilitySurfaceSplineInterpolatorDefaults extends BlackVolatilitySurfaceInterpolatorDefaults {
   private final String _splineInterpolator;
   private final String _splineLeftExtrapolator;
   private final String _splineRightExtrapolator;
 
-  public BlackVolatilitySurfaceSplineInterpolatorDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceSplineInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String splineInterpolator, final String splineLeftExtrapolator, final String splineRightExtrapolator) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     ArgumentChecker.notNull(splineInterpolator, "spline interpolator");
