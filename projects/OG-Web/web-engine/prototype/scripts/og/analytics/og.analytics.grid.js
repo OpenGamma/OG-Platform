@@ -6,64 +6,68 @@ $.register_module({
     name: 'og.analytics.grid',
     dependencies: ['og.api.text', 'og.analytics.Data'],
     obj: function () {
-        var module = this, api_text = og.api.text, counter = 1,
+        var module = this, api_text = og.api.text, counter = 1, compile = Handlebars.compile,
             css_tmpl = api_text.partial({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
             header_tmpl = api_text.partial({module: 'og.analytics.grid.header_tash'}),
             container_tmpl = api_text.partial({module: 'og.analytics.grid.container_tash'}),
-            templates = null,
-            scrollbar_size = 19;
+            templates = null, col_css,
+            scrollbar_size = 19, header_height = 49, row_height = 18;
+        col_css = function (id, columns, col_offset) {
+            var partial_width = 0, total_width = columns.reduce(function (acc, val) {
+                return +val.width + acc;
+            }, 0);
+            return columns.map(function (val, idx) {
+                var width = +val.width, css = {
+                    prefix: id, selector: 'c' + (idx + (col_offset || 0)),
+                    left: partial_width, right: total_width - partial_width - width
+                };
+                return (partial_width += width), css;
+            });
+        };
         return function (config) {
-            var selector = config.selector, total_width = config.width, total_height = config.height;
+            var selector = config.selector, id = '#analytics_grid_' + counter++,
+                total_width = config.width, total_height = config.height,
+                viewport_height = 5000, absolute_scroll = false, visible_rows,
+                scroll_observer, viewport = {}, $style, load_css, meta;
+            load_css = function (css) {
+                $style = $('<style type="text/css" />').appendTo($('head'));
+                if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
+                $style[0].appendChild(document.createTextNode(css));
+            };
+            scroll_observer = function (event) { // sync scroll
+                $(id + ' .OG-g-b-fixed').scrollTop(this.scrollTop);
+                $(id + ' .OG-g-h-scroll').scrollLeft(this.scrollLeft);
+                if (absolute_scroll) return;
+                // set viewport here
+            };
             $.when(css_tmpl(), header_tmpl(), container_tmpl()).then(function (css_tmpl, header_tmpl, container_tmpl) {
                 var alive, resize, render_rows, render_cols,
-                    dataman = new og.analytics.Data, id = '#analytics_grid_' + counter++, col_css, $style;
+                    dataman = new og.analytics.Data;
                 if (!templates) templates = {
-                    css: Handlebars.compile(css_tmpl),
-                    header: Handlebars.compile(header_tmpl),
-                    container: Handlebars.compile(container_tmpl)
+                    css: compile(css_tmpl), header: compile(header_tmpl), container: compile(container_tmpl)
                 };
-                load_css = function (css) {
-                    $style = $('<style type="text/css" />').appendTo($('head'));
-                    if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
-                    $style[0].appendChild(document.createTextNode(css));
-                };
-                col_css = function (columns, col_offset) {
-                    var partial_width = 0, total_width = columns.reduce(function (acc, val) {
-                        return +val.width + acc;
-                    }, 0);
-                    col_offset = col_offset || 0;
-                    return columns.map(function (val, idx) {
-                        var width = +val.width, css = {
-                            prefix: id,
-                            selector: 'c' + (idx + col_offset),
-                            left: partial_width, right: total_width - partial_width - width
-                        };
-                        partial_width += width;
-                        return css;
-                    })
-                };
-                render_cols = function (columns) {
-                    var width = columns.width, gen_cols = function (columns, start_at) {
+                render_cols = function () {
+                    var width = meta.columns.width, gen_cols = function (column_set, start_at) {
                         return templates.header({
                             width: start_at ? width.scroll : width.fixed,
                             padding_right: start_at ? scrollbar_size : 0,
-                            cols: columns.reduce(function (acc, val, idx) {
+                            cols: column_set.reduce(function (acc, val, idx) {
                                 return acc + '<div class="OG-g-h-col c' + (idx + (start_at || 0)) + '">' + val.name +
                                     '</div>';
                             }, '')
                         });
                     };
-                    $(id + ' .OG-g-h-fixed').html(gen_cols(columns.fixed));
-                    $(id + ' .OG-g-h-scroll').html(gen_cols(columns.scroll, columns.fixed.length));
+                    $(id + ' .OG-g-h-fixed').html(gen_cols(meta.columns.fixed));
+                    $(id + ' .OG-g-h-scroll').html(gen_cols(meta.columns.scroll, meta.columns.fixed.length));
                 };
-                render_rows = function (columns, data) {
+                render_rows = function (data) {
                     var gen_rows = function (fixed) {
-                        var html, col_from = fixed ? 0 : columns.fixed.length, height = data.length * 20,
+                        var html, columns = meta.columns, col_from = fixed ? 0 : columns.fixed.length,
                             col_to = fixed ? columns.fixed.length : columns.fixed.length + columns.scroll.length,
-                            start = '<div class="OG-g-rows" style="height: ' + (height + (fixed ? scrollbar_size : 0))
-                                + 'px">';
+                            start = '<div class="OG-g-rows" style="height: ' +
+                                (viewport_height + (fixed ? scrollbar_size : 0)) + 'px">';
                         html = data.reduce(function (acc, row, idx) {
-                            acc.push('<div class="OG-g-row r'+ idx +'" style="top: ' + (idx * 20) + 'px">');
+                            acc.push('<div class="OG-g-row r'+ idx +'" style="top: ' + (idx * row_height) + 'px">');
                             acc.push.apply(acc, row.slice(col_from, col_to).reduce(function (acc, val, idx) {
                                 return acc.concat('<div class="OG-g-cell c' + (col_from + idx) + '">' + val + '</div>');
                             }, []));
@@ -76,36 +80,35 @@ $.register_module({
                     $(id + ' .OG-g-b-fixed').html(gen_rows(true));
                     $(id + ' .OG-g-b-scroll').html(gen_rows(false));
                 };
-                initialize = function (columns) {
-                    var header = {height: '51'}; // Stub
+                initialize = function (metadata) {
+                    var columns = metadata.columns;
+                    meta = metadata; // set instance-wide reference
+                    absolute_scroll = meta.rows <= 500;
+                    visible_rows = Math.ceil((total_height - header_height) / row_height);
                     columns.width = (function () { // width of fixed and scrollable column areas
                         return {
                             fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
                             scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
                         };
                     })();
-                    var viewport = {width: total_width - columns.width.fixed, height: total_height}, css_data = {
+                    load_css(templates.css({
                         id: id,
-                        height: viewport.height,
-                        viewport_width: viewport.width,
+                        height: total_height - header_height,
+                        header_height: header_height,
+                        viewport_width: total_width - columns.width.fixed,
                         scroll_width: columns.width.scroll,
-                        header_height: header.height,
                         fixed_width: columns.width.fixed,
-                        columns: col_css(columns.fixed)
-                            .concat(col_css(columns.scroll, columns.fixed.length))
-                    };
-                    load_css(templates.css(css_data));
-                    $(selector).html(templates.container({
-                        id: id.substring(1), height: viewport.height, width: total_width
+                        columns: col_css(id, columns.fixed)
+                            .concat(col_css(id, columns.scroll, columns.fixed.length))
                     }));
-                    $(id + ' .OG-g-b-scroll').scroll(function (e) { // sync scroll
-                        $(id + ' .OG-g-b-fixed').scrollTop(e.target.scrollTop);
-                        $(id + ' .OG-g-h-scroll').scrollLeft(e.target.scrollLeft);
-                    });
-                    render_cols(columns);
-                    dataman.on('data', render_rows.partial(columns));
+                    $(selector)
+                        .html(templates.container({id: id.substring(1), height: total_height, width: total_width}));
+                    $(id + ' .OG-g-b-scroll').scroll(scroll_observer);
+                    render_cols();
+                    dataman.viewport({rows: [0, Math.min(meta.rows, 2 * visible_rows)]});
+                    dataman.on('data', render_rows);
                     og.common.gadgets.manager.register({
-                        alive: function () {return !!$(id).length ? true : !$style.remove();},
+                        alive: function () {return $(id).length ? true : !$style.remove();},
                         resize: function () {console.log('grid resize');}
                     });
                 };
