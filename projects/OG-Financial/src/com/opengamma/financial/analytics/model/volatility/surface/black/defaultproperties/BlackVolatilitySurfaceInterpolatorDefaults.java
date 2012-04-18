@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunction extends DefaultPropertyFunction {
+public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends DefaultPropertyFunction {
   private final String _timeAxis;
   private final String _yAxis;
   private final String _volatilityTransform;
@@ -28,7 +28,7 @@ public abstract class BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunctio
   private final String _timeLeftExtrapolator;
   private final String _timeRightExtrapolator;
 
-  public BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(timeAxis, "time axis");
