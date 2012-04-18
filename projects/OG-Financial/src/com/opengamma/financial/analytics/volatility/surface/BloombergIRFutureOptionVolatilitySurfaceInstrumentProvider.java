@@ -10,7 +10,6 @@ import java.text.DecimalFormat;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
@@ -21,7 +20,6 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.util.OpenGammaClock;
 
 /**
  * 
@@ -94,34 +92,6 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(SCHEME, ticker.toString());
-  }
-
-  private String createQuarterlyFutureOptions(final int futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
-    
-    final StringBuilder futureOptionCode = new StringBuilder();
-    
-    LocalDate futureOptionExpiry = surfaceDate.with(NEXT_EXPIRY_ADJUSTER);
-    
-    for (int i = 1; i < futureOptionNumber; i++) {
-      futureOptionExpiry = (futureOptionExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
-    }
-    futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
-
-    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
-      final int yearsNum = futureOptionExpiry.getYear() % 100;
-      if (yearsNum < 10) {
-        futureOptionCode.append("0"); // so we get '09' rather than '9'
-      }
-      futureOptionCode.append(Integer.toString(yearsNum));
-    } else {
-      futureOptionCode.append(Integer.toString(futureOptionExpiry.getYear() % 10));
-    }
-    final String typeString = strike > _useCallAboveStrike ? "C " : "P "; // TODO REVIEW CASE: Bloomberg data seems to be populating prices for IN-the-money options!
-    futureOptionCode.append(typeString);
-    futureOptionCode.append(FORMATTER.format(strike));
-    futureOptionCode.append(" ");
-    return futureOptionCode.toString();
   }
 
   public String getFutureOptionPrefix() {
