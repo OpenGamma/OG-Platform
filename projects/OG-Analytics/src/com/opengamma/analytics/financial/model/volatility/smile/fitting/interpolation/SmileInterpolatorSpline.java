@@ -87,34 +87,6 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
 
-    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> f1 = getDifferenceFunc2(forward, new double[] {strikes[0], strikes[1] }, expiry, new double[] {impliedVols[0], impliedVols[1] });
-    //    Function1D<DoubleMatrix1D, DoubleMatrix1D> f2 = getDifferenceFunc2(forward, new double[] {strikes[n - 2], strikes[n - 1] }, expiry, new double[] {impliedVols[n - 2], impliedVols[n - 1] });
-    //
-    //    final double[] res1 = TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(f1, TRANSFORMS.transform(new DoubleMatrix1D(0.0, volL)))).getData();
-    //    final double[] res2 = TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(f2, TRANSFORMS.transform(new DoubleMatrix1D(0.0, volH)))).getData();
-    //
-    //    return new Function1D<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(Double k) {
-    //        if (k < kL) {
-    //          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, res1[0], res1[1]);
-    //        }
-    //        else if (k < strikes[1]) {
-    //          double w = _weightFunction.getWeight(((strikes[1]) - k) / (strikes[1] - strikes[0]));
-    //          return w * ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, res1[0], res1[1]) + (1 - w) * interpFunc.evaluate(k);
-    //        }
-    //        else if (k > kH) {
-    //          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, res2[0], res2[1]);
-    //        }
-    //        else if (k > strikes[n - 2]) {
-    //          double w = _weightFunction.getWeight(((strikes[n - 2]) - k) / (strikes[n - 2] - strikes[n - 1]));
-    //          return w * ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, k, expiry, res2[0], res2[1]) + (1 - w) * interpFunc.evaluate(k);
-    //        }
-    //        else {
-    //          return interpFunc.evaluate(k);
-    //        }
-    //      }
-    //    };
   }
 
 }

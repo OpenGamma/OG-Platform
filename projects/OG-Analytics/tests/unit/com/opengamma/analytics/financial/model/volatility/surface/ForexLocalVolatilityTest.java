@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
@@ -39,8 +40,8 @@ public class ForexLocalVolatilityTest {
   private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = new CombinedInterpolatorExtrapolator(INTERPOLATOR_1D, new LinearExtrapolator1D(INTERPOLATOR_1D));
 
   //Instrument used for Vega/Greeks Reports
-  private static final double EXAMPLE_EXPIRY = 0.5;
-  private static final double EXAMPLE_STRIKE = 1.4;
+  private static final double EXAMPLE_EXPIRY = 7. / 365;//0.5;
+  private static final double EXAMPLE_STRIKE = 1.34;//1.4;
 
   private static final double[] DELTAS = new double[] {0.15, 0.25 };
   private static final double[] FORWARDS = new double[] {1.34, 1.35, 1.36, 1.38, 1.4, 1.43, 1.45, 1.48, 1.5, 1.52 };
@@ -59,8 +60,8 @@ public class ForexLocalVolatilityTest {
   //  private static final double[] ATM;
   //  private static final double[][] RR;
   //  private static final double[][] BUTT;
-  //  private static final double[][] STRIKES;
-  //  private static final double[][] VOLS;
+  private static final double[][] STRIKES;
+  private static final double[][] VOLS;
   private static final int N = EXPIRIES.length;
 
   private static final SmileSurfaceDataBundle MARKET_DATA;
@@ -76,21 +77,23 @@ public class ForexLocalVolatilityTest {
     //    }
 
     //    ATM = new double[N];
-    //    Arrays.fill(ATM, 0.3);
+    //    Arrays.fill(ATM, 0.11);
     //    RR = new double[2][N];
     //    BUTT = new double[2][N];
     //
-    //    STRIKES = new double[N][];
-    //    VOLS = new double[N][];
-    //    for (int i = 0; i < N; i++) {
-    //      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
-    //      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
-    //          new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
-    //      STRIKES[i] = cal.getStrike(FORWARDS[i]);
-    //      VOLS[i] = cal.getVolatility();
-    //    }
+    STRIKES = new double[N][];
+    VOLS = new double[N][];
+    for (int i = 0; i < N; i++) {
+      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
+      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
+          new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
+      STRIKES[i] = cal.getStrike(FORWARDS[i]);
+      VOLS[i] = cal.getVolatility();
+    }
+    //VOLS[0][0] += 1e-4;
 
     MARKET_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, BUTT, true, EXTRAPOLATOR_1D);
+    //MARKET_DATA = new StandardSmileSurfaceDataBundle(FORWARDS, EXPIRIES, STRIKES, VOLS, true, EXTRAPOLATOR_1D);
     CAL = new LocalVolatilityPDEGreekCalculator(MARKET_DATA.getForwardCurve(), EXPIRIES, MARKET_DATA.getStrikes(), MARKET_DATA.getVolatilities(), true);
   }
 
@@ -151,26 +154,26 @@ public class ForexLocalVolatilityTest {
     }
     System.out.print("\n");
 
-    System.out.println("Fitted smiles by proxy delta");
-    System.out.print("\t");
-    for (int j = 0; j < 100; j++) {
-      final double d = -2.5 + j * 5.0 / 99.;
-      System.out.print(d + "\t");
-    }
-    System.out.print("\n");
-    for (int i = 0; i < N; i++) {
-      double f = FORWARDS[i];
-      double rootT = Math.sqrt(EXPIRIES[i] + lambda);
-      System.out.print(EXPIRIES[i] + "\t");
-      for (int j = 0; j < 100; j++) {
-        final double d = -2.5 + j * 5.0 / 99.;
-        double k = Math.exp(d * rootT) * f;
-        final double vol = smiles[i].evaluate(k);
-        System.out.print(vol + "\t");
-      }
-      System.out.print("\n");
-    }
-    System.out.print("\n");
+    //    System.out.println("Fitted smiles by proxy delta");
+    //    System.out.print("\t");
+    //    for (int j = 0; j < 100; j++) {
+    //      final double d = -2.5 + j * 5.0 / 99.;
+    //      System.out.print(d + "\t");
+    //    }
+    //    System.out.print("\n");
+    //    for (int i = 0; i < N; i++) {
+    //      double f = FORWARDS[i];
+    //      double rootT = Math.sqrt(EXPIRIES[i] + lambda);
+    //      System.out.print(EXPIRIES[i] + "\t");
+    //      for (int j = 0; j < 100; j++) {
+    //        final double d = -2.5 + j * 5.0 / 99.;
+    //        double k = Math.exp(d * rootT) * f;
+    //        final double vol = smiles[i].evaluate(k);
+    //        System.out.print(vol + "\t");
+    //      }
+    //      System.out.print("\n");
+    //    }
+    //    System.out.print("\n");
 
     //    System.out.println("Fitted smiles by delta");
     //    System.out.print("\t");
@@ -199,13 +202,13 @@ public class ForexLocalVolatilityTest {
       (enabled = false)
       public void printSurface() {
     final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getVolatilitySurface(MARKET_DATA);
-    //  PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
-    Surface<Double, Double, Double> dens = DUPIRE.getDensity(surface);
-    PDEUtilityTools.printSurface("density surface", dens, 0.01, 1.0, 0.75, 1.25, 200, 100);
+    PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 7. / 365, 0.95, 1.05, 200, 100);
+    //    Surface<Double, Double, Double> dens = DUPIRE.getDensity(surface);
+    //    PDEUtilityTools.printSurface("density surface", dens, 0.01, 1.0, 0.75, 1.25, 200, 100);
     //    Surface<Double, Double, Double> theta = DUPIRE.getTheta(surface);
     //  PDEUtilityTools.printSurface("theta surface", theta, 0, 10, 0.1, 3.0, 200, 100);
-    //    LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatilityDebug(surface);
-    //    PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
+    LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
+    PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 7 / 365., 0.95, 1.05, 200, 100);
     //    final LocalVolatilitySurfaceMoneyness lv2 = DUPIRE.getLocalVolatility(surface);
     //
     //    PDEUtilityTools.printSurface("LV surface2", lv2.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
@@ -283,6 +286,13 @@ public class ForexLocalVolatilityTest {
     //    final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
     //    final Surface<Double, Double, Double> lvMoneynessSurface = toDeltaProxySurface(lv);
     //    PDEUtilityTools.printSurface("LV moneyness surface", lvMoneynessSurface, 0.0, 10, xMin, xMax, 200, 100);
+  }
+
+  @Test
+      (enabled = false)
+      public void printPrices() {
+    final PrintStream ps = System.out;
+    CAL.prices(ps, EXAMPLE_EXPIRY, new double[] {0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 });
   }
 
   @Test

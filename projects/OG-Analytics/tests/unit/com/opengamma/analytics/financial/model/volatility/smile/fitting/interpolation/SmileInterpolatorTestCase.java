@@ -105,14 +105,15 @@ public abstract class SmileInterpolatorTestCase {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void FlatBumpTest() {
     GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);
-    double bump = 1e-3;
-    int index = 0;
+    double bump = 1e-4;
+    int index = 4;
     vols[index] += bump;
 
     Function1D<Double, Double> smile = interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
