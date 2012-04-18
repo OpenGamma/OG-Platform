@@ -66,6 +66,6 @@
     <ROW Action="Configure" BaseAction="RegisterProduct" After="1" Condition="NOT Installed AND UILevel=5"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
-    <ROW ModuleID="OG_Language64" Version="1.0.0" GUID="4E5453BD_4404_4F15_AC48_815D7107864A" Name="Language Integration 64-bit Service" Manufacturer="OpenGamma Ltd" Comments="The service installation for use with 64-bit Java"/>
+    <ROW ModuleID="OG_Language64" Version="1.0.1" GUID="4E5453BD_4404_4F15_AC48_815D7107864A" Name="Language Integration 64-bit Service" Manufacturer="OpenGamma Ltd" Comments="The service installation for use with 64-bit Java"/>
   </COMPONENT>
 </DOCUMENT>

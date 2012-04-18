@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
-import com.opengamma.analytics.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.model.VegaMatrixHelper;
  * 
  */
 public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSingleValuedFunction {
-  private static final PresentValueForexVegaQuoteSensitivityCalculator CALCULATOR = PresentValueForexVegaQuoteSensitivityCalculator.getInstance();
+  private static final PresentValueBlackVolatilityQuoteSensitivityForexCalculator CALCULATOR = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance();
 
   public ForexOptionBlackVegaQuoteMatrixFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
@@ -32,7 +32,7 @@ public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSin
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
+    final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     return Collections.singleton(new ComputedValue(spec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
   }
 

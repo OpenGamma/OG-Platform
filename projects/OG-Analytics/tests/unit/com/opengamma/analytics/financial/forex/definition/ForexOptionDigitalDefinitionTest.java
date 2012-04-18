@@ -13,8 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -37,7 +35,8 @@ public class ForexOptionDigitalDefinitionTest {
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
-  private static final ForexOptionDigitalDefinition FX_OPTION_DEFINITION = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
+  private static final boolean PAY_DOM = true;
+  private static final ForexOptionDigitalDefinition FX_OPTION_DEFINITION = new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG, PAY_DOM);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFX() {
@@ -57,10 +56,16 @@ public class ForexOptionDigitalDefinitionTest {
 
   @Test
   public void getter() {
-    assertEquals(FX_DEFINITION, FX_OPTION_DEFINITION.getUnderlyingForex());
-    assertEquals(EXPIRATION_DATE, FX_OPTION_DEFINITION.getExpirationDate());
-    assertEquals(IS_CALL, FX_OPTION_DEFINITION.isCall());
-    assertEquals(IS_LONG, FX_OPTION_DEFINITION.isLong());
+    assertEquals("ForexOptionDigitalDefinition - getter", FX_DEFINITION, FX_OPTION_DEFINITION.getUnderlyingForex());
+    assertEquals("ForexOptionDigitalDefinition - getter", EXPIRATION_DATE, FX_OPTION_DEFINITION.getExpirationDate());
+    assertEquals("ForexOptionDigitalDefinition - getter", IS_CALL, FX_OPTION_DEFINITION.isCall());
+    assertEquals("ForexOptionDigitalDefinition - getter", IS_LONG, FX_OPTION_DEFINITION.isLong());
+    assertEquals("ForexOptionDigitalDefinition - getter", PAY_DOM, FX_OPTION_DEFINITION.payDomestic());
+  }
+
+  @Test
+  public void defaultPayCurrency() {
+    assertEquals("ForexOptionDigitalDefinition - constructor", true, new ForexOptionDigitalDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG, PAY_DOM).payDomestic());
   }
 
   @Test
@@ -102,7 +107,7 @@ public class ForexOptionDigitalDefinitionTest {
     Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
     DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
-    ForexOptionDigital optionConstructed = new ForexOptionDigital(fx, expirationTime, IS_CALL, IS_LONG);
+    ForexOptionDigital optionConstructed = new ForexOptionDigital(fx, expirationTime, IS_CALL, IS_LONG, PAY_DOM);
     assertEquals("Convertion to derivative", optionConstructed, optionConverted);
   }
 

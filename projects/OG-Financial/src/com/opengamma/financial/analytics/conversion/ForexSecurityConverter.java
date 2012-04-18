@@ -68,13 +68,17 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final boolean isLong = fxDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
     final Currency payCurrency = fxDigitalOptionSecurity.getPaymentCurrency();
-    final boolean isCall = !callCurrency.equals(payCurrency);
-    if (isCall) {
-      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, -callAmount, putAmount);
+    final boolean payDomestic;
+    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency);
+    // Implementation note: To get Base/quote in market standard order.
+    if (order) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+      payDomestic = (payCurrency.equals(callCurrency));
     } else {
-      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, -putAmount, callAmount);
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+      payDomestic = (payCurrency.equals(putCurrency));
     }
-    return new ForexOptionDigitalDefinition(underlying, expiry, isCall, isLong);
+    return new ForexOptionDigitalDefinition(underlying, expiry, !order, isLong, payDomestic);
   }
 
   @Override
