@@ -2,4 +2,15 @@
 	<property file="build.properties" />
 
 	<import file="${common.dir}/common.xml" />
+	
+    <target name="publish" depends="zip-resources,common.publish" />
+    
+    <target name="publish-local" depends="zip-resources,common.publish-local" />
+	
+    <target name="zip-resources" description="--> create resources file for publishing">
+        <mkdir dir="${dist.dir}" />
+        <zip destfile="${dist.dir}/og-security-sql.zip">
+            <zipfileset prefix="install" dir="${basedir}/install" />
+        </zip>
+    </target>
 </project>

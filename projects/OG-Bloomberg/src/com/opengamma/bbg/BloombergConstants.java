@@ -33,7 +33,7 @@ public final class BloombergConstants {
   /**
    * Name for Unknown dataProvider
    */
-  public static final String DATA_PROVIDER_UNKNOWN = "UNKOWN";
+  public static final String DATA_PROVIDER_UNKNOWN = "UNKNOWN";
   /**
    * OPTION CHAIN FIELD
    */
