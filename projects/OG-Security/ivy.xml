@@ -4,6 +4,7 @@
     <publications>
       <artifact name="og-security" type="jar"/>
       <artifact name="og-security" type="source" ext="jar" />
+      <artifact name="og-security" type="sql" ext="zip" />
     </publications>
     <dependencies>
         <dependency name="og-util" rev="latest.integration" />

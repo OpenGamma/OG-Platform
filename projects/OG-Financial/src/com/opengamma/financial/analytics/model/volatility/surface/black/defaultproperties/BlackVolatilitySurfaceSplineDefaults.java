@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class BlackVolatilitySurfaceSplineDefaultPropertiesFunction extends BlackVolatilitySurfaceDefaultPropertiesFunction {
+public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurfaceDefaults {
   private final String _yInterpolator;
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public BlackVolatilitySurfaceSplineDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
       final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName);

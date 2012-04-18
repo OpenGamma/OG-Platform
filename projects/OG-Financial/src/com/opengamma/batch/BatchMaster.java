@@ -9,7 +9,6 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.batch.rest.BatchDocument;
 import com.opengamma.batch.rest.BatchGetRequest;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -28,7 +27,7 @@ public interface BatchMaster {
   /**
    * The default scheme for unique identifiers.
    */
-  public static final String BATCH_IDENTIFIER_SCHEME = "DbBat";
+  String BATCH_IDENTIFIER_SCHEME = "DbBat";
 
 
   /**
@@ -82,7 +81,6 @@ public interface BatchMaster {
   /**
    * Search market data by id.
    *
-   * @param filter the filter, limiting number of values returned
    * @param marketDataId the id of the market data to get               
    * @return requested market data, not null
    * @throws IllegalArgumentException if the request is invalid

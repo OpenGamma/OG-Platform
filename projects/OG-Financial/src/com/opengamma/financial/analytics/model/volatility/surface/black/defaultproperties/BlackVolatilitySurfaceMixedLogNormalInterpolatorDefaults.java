@@ -17,10 +17,10 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 /**
  *
  */
-public class BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaultPropertiesFunction extends BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunction {
+public class BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults extends BlackVolatilitySurfaceInterpolatorDefaults {
   private final String _weightingFunction;
 
-  public BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceMixedLogNormalInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String weightingFunction) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     _weightingFunction = weightingFunction;

@@ -5,6 +5,30 @@
  */
 package com.opengamma.batch;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatters;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -17,23 +41,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * The entry point for running OpenGamma batches. 
@@ -108,7 +115,7 @@ public class BatchJobRunner {
   /**
    * Creates an runs a batch job based on a properties file and configuration.
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {  // CSIGNORE
     if (args.length == 0) {
       usage();
       System.exit(-1);
@@ -123,15 +130,15 @@ public class BatchJobRunner {
 
     if (System.getProperty(propertyFile) != null) {
       configPropertyFile = System.getProperty(propertyFile);      
-    try {
+      try {
         FileInputStream fis = new FileInputStream(configPropertyFile);
         configProperties = new Properties();
         configProperties.load(fis);
         fis.close();
-    } catch (FileNotFoundException e) {
-      s_logger.error("The system cannot find " + configPropertyFile);            
-      System.exit(-1);      
-    }
+      } catch (FileNotFoundException e) {
+        s_logger.error("The system cannot find " + configPropertyFile);
+        System.exit(-1);
+      }
     } else {
       try {
         FileInputStream fis = new FileInputStream(propertyFile);
@@ -147,8 +154,8 @@ public class BatchJobRunner {
         } catch (ParseException e2) {
           usage();
           System.exit(-1);
+        }
       }
-    }
     }
 
     RunCreationMode runCreationMode = getRunCreationMode(line, configProperties, configPropertyFile);
@@ -163,7 +170,7 @@ public class BatchJobRunner {
 
     Instant valuationTime = getValuationTime(line, configProperties, configPropertyFile);
     LocalDate observationDate = getObservationDate(line, configProperties, configPropertyFile);
-    
+
     UniqueId viewDefinitionUniqueId = getViewDefinitionUniqueId(line, configProperties);
 
     URI vpBase;
@@ -184,29 +191,21 @@ public class BatchJobRunner {
     ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
     try {
       ViewProcessor vp = new RemoteViewProcessor(
-        vpBase,
-        jmsConnector,
-        heartbeatScheduler);
+          vpBase,
+          jmsConnector,
+          heartbeatScheduler);
       ViewClient vc = vp.createViewClient(UserPrincipal.getLocalUser());
 
       HistoricalMarketDataSpecification marketDataSpecification = MarketData.historical(observationDate, null, null);
 
       ViewExecutionOptions executionOptions = ExecutionOptions.batch(valuationTime, marketDataSpecification, null);
 
-      vc.attachToViewProcess(viewDefinitionUniqueId, executionOptions);      
+      vc.attachToViewProcess(viewDefinitionUniqueId, executionOptions);
       vc.waitForCompletion();
     } finally {
       heartbeatScheduler.shutdown();
     }
-    
-    /*if (failed) {
-      s_logger.error("Batch failed.");
-      System.exit(-1);
-    } else {
-      s_logger.info("Batch succeeded.");
-      System.exit(0);
-    }*/
-    }
+  }
 
   private static String getProperty(String property, CommandLine line, Properties configProperties) {
     return getProperty(property, line, configProperties, null);
@@ -227,9 +226,9 @@ public class BatchJobRunner {
     if (properties != null) {
       optionValue = properties.getProperty(propertyName);
       if (optionValue == null && required) {
-      s_logger.error("Cannot find property " + propertyName + " in " + configPropertysFile);            
-      System.exit(-1);
-    }
+        s_logger.error("Cannot find property " + propertyName + " in " + configPropertysFile);
+        System.exit(-1);
+      }
     } else {
       if (required) {
         s_logger.error("Cannot find option " + propertyName + " in command line arguments");

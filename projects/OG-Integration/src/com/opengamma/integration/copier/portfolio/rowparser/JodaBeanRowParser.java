@@ -7,9 +7,11 @@
 package com.opengamma.integration.copier.portfolio.rowparser;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -92,7 +94,8 @@ public class JodaBeanRowParser extends RowParser {
     "attributes",
     "gicscode",
     "parentpositionid",
-    "providerid"
+    "providerid",
+    "deal"
   };
   
   /**
@@ -200,6 +203,9 @@ public class JodaBeanRowParser extends RowParser {
     
     ManageableTrade result = (ManageableTrade) recursiveConstructBean(row, ManageableTrade.class, "trade:");
     if (result != null) {
+      if (result.getTradeDate() == null) {
+        return null;
+      }
       result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
     }
     return result;
@@ -329,12 +335,19 @@ public class JodaBeanRowParser extends RowParser {
             // Convert raw value in row to the target property's type
             String rawValue = row.get((prefix + metaProperty.name()).trim().toLowerCase());
             
-            // Set property value
-            if (rawValue != null && !rawValue.equals("")) {
-              builder.set(metaProperty.name(), 
-                  JodaBeanUtils.stringConverter().convertFromString(metaProperty.propertyType(), rawValue));
+            if (isConvertible(metaProperty.propertyType())) {
+              // Set property value
+              if (rawValue != null && !rawValue.equals("")) {
+                builder.set(metaProperty.name(), 
+                    JodaBeanUtils.stringConverter().convertFromString(metaProperty.propertyType(), rawValue));
+              } else {
+                s_logger.info("Skipping empty or null value for " + prefix + metaProperty.name());
+              }
+            } else if (List.class.isAssignableFrom(metaProperty.propertyType()) &&
+                isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
+              builder.set(metaProperty.name(), stringToList(rawValue, JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType())));
             } else {
-              s_logger.info("Skipping empty or null value for " + prefix + metaProperty.name());
+              throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be populated from a string");
             }
           }
         }
@@ -377,12 +390,42 @@ public class JodaBeanRowParser extends RowParser {
         } else {
           // Set the column
           if (_columns.containsKey(prefix + metaProperty.name())) {
-            result.put(prefix + metaProperty.name(), metaProperty.getString(bean));
+            // Can convert
+            if (isConvertible(metaProperty.propertyType())) {
+              result.put(prefix + metaProperty.name(), metaProperty.getString(bean));
+            // Is list, needs to be decomposed
+            } else if (List.class.isAssignableFrom(metaProperty.propertyType()) && 
+                isConvertible(JodaBeanUtils.collectionType(metaProperty, metaProperty.propertyType()))) {
+              result.put(prefix + metaProperty.name(), listToString((List<?>) metaProperty.get(bean)));
+            // Cannot convert :(
+            } else {
+              throw new OpenGammaRuntimeException("Property '" + prefix + metaProperty.name() + "' (" + metaProperty.propertyType() + ") cannot be converted to a string");
+            }
           } else {
             s_logger.info("No matching column found for property " + prefix + metaProperty.name());
           }
         }
       }
+    }
+    return result;
+  }
+  
+  private String listToString(List<?> i) {
+    String result = "";
+    for (Object o : i) {
+      if (isConvertible(o.getClass())) {
+        result = result + JodaBeanUtils.stringConverter().convertToString(o) + " | "; 
+      } else {
+        throw new OpenGammaRuntimeException("Cannot convert " + o.getClass() + " contained in list");
+      }
+    }
+    return result.substring(0, result.lastIndexOf('|')).trim();
+  }
+  
+  private List<?> stringToList(String raw, Class<?> t) {
+    List<Object> result = new ArrayList<Object>();
+    for (String s : raw.split("\\|")) {
+      result.add(JodaBeanUtils.stringConverter().convertFromString(t, s.trim()));
     }
     return result;
   }
