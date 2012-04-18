@@ -388,9 +388,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       
 
       InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
-      String secType = strip.getSecurity().getSecurityType();
-      //TODO set comment below
-      if (secType.equals("FUTURE")) {
+      if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
         ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue);
         if (getCalculationType().equals(PAR_RATE_STRING)) {
           marketValue = 1 - marketValue;
@@ -526,11 +524,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       try {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity); 
         if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-          throw new OpenGammaRuntimeException("YieldCurves containing FUTURES currently do not fit to both forward and funding curve. Please specify only Curve, not FundingCurve and ForwardCurve.");
-//          ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue);
-//          if (getCalculationType().equals(PAR_RATE_STRING)) {
-//            marketValue = 1 - marketValue;
-//          }
+          ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue);
+          if (getCalculationType().equals(PAR_RATE_STRING)) {
+            marketValue = 1 - marketValue;
+          }
         }
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (final Exception e) {
@@ -550,13 +547,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
       forwardIndex++;
     }
-    //Arrays.sort(fundingNodeTimes);
-    //Arrays.sort(forwardNodeTimes);
-    // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
-    // ParallelArrayBinarySort.parallelBinarySort(fundingNodeTimes, initialRatesGuess); //TODO will eventually need two sets of rates guesses
-    final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
-    curveKnots.put(fundingCurveName, fundingNodeTimes);
-    curveKnots.put(forwardCurveName, forwardNodeTimes);
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     curveNodes.put(fundingCurveName, fundingNodeTimes);
