@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.TransactionStatus;
@@ -99,7 +98,7 @@ public class DbBatchWriterTest extends DbTest {
     _requirement = new ValueRequirement("FAIR_VALUE", security);
     _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");
 
-    final Instant _valuationTime = OffsetDateTime.parse("2011-12-14T14:20:17.143Z").toInstant();
+    final Instant _valuationTime = Instant.parse("2011-12-14T14:20:17.143Z");
 
     _cycleInfoStub = new CycleInfo() {
 
