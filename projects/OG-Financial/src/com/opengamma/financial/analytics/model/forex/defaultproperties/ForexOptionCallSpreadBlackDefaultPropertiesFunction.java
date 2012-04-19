@@ -32,6 +32,7 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunction extends Default
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.VALUE_GAMMA,
     ValueRequirementNames.VEGA_MATRIX,
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,

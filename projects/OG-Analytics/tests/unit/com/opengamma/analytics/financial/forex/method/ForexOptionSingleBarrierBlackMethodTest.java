@@ -19,8 +19,8 @@ import org.testng.internal.junit.ArrayAsserts;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBl
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.analytics.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
@@ -115,7 +115,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
-  private static final PresentValueVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
 
   @Test
@@ -294,8 +294,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsShort = METHOD_BARRIER.presentValueCurveSensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsLong = METHOD_BARRIER.presentValueCurveSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multiply(-1.0));
-    final PresentValueForexBlackVolatilitySensitivity pvvsShort = METHOD_BARRIER.presentValueVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
-    final PresentValueForexBlackVolatilitySensitivity pvvsLong = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pvvsShort = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pvvsLong = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, pvvsShort.multipliedBy(-1.0));
   }
 
@@ -304,7 +304,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests present value volatility sensitivity.
    */
   public void volatilitySensitivity() {
-    final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
     final DoublesPair point = new DoublesPair(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
@@ -320,7 +320,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double[] derivatives = new double[5];
     BLACK_BARRIER_FUNCTION.getPriceAdjoint(VANILLA_LONG, BARRIER, REBATE / NOTIONAL, SPOT, rateForeign, rateDomestic, volatility, derivatives);
     assertEquals("Forex vanilla option: vega", derivatives[4] * NOTIONAL, sensi.getVega().getMap().get(point));
-    final PresentValueForexBlackVolatilitySensitivity sensiShort = METHOD_BARRIER.presentValueVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity sensiShort = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega short", -sensi.getVega().getMap().get(point), sensiShort.getVega().getMap().get(point));
   }
 
@@ -329,7 +329,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Test the present value curve sensitivity through the method and through the calculator.
    */
   public void volatilitySensitivityMethodVsCalculator() {
-    final PresentValueForexBlackVolatilitySensitivity pvvsMethod = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pvvsMethod = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilitySensitivity pvvsCalculator = PVVSC_BLACK.visit(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex present value curve sensitivity: Method vs Calculator", pvvsMethod, pvvsCalculator);
   }
@@ -339,12 +339,12 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests present value volatility node sensitivity.
    */
   public void volatilityNodeSensitivity() {
-    final PresentValueVolatilityNodeSensitivityDataBundle sensi = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
     final Pair<Currency, Currency> currencyPair = ObjectsPair.of(CUR_1, CUR_2);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
-    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
     final double[][] nodeWeight = new double[NB_EXP + 1][NB_STRIKE];
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
@@ -362,8 +362,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests present value volatility quote sensitivity.
    */
   public void volatilityQuoteSensitivity() {
-    final PresentValueVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    double[][] sensiQuote = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensiStrike = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE);
+    double[][] sensiQuote = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
     double[][] sensiStrikeData = sensiStrike.getVega().getData();
     double[] atm = new double[sensiQuote.length];
     for (int loopexp = 0; loopexp < sensiQuote.length; loopexp++) {
@@ -384,8 +384,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests present value volatility quote sensitivity: method vs calculator.
    */
   public void volatilityQuoteSensitivityMethodVsCalculator() {
-    double[][] sensiMethod = METHOD_BARRIER.presentValueVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
-    double[][] sensiCalculator = PresentValueForexVegaQuoteSensitivityCalculator.getInstance().visit(OPTION_BARRIER, SMILE_BUNDLE).getVega();
+    double[][] sensiMethod = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_BUNDLE).quoteSensitivity().getVega();
+    double[][] sensiCalculator = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance().visit(OPTION_BARRIER, SMILE_BUNDLE).getVega();
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
     }

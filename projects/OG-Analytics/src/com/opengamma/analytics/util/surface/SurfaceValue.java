@@ -102,6 +102,14 @@ public class SurfaceValue {
   }
 
   /**
+   * Gets the number of elements in the map.
+   * @return The number of elements.
+   */
+  public int getNumberOfElements() {
+    return _data.size();
+  }
+
+  /**
    * Create a new object containing the point of both initial objects. If a point is only on one surface, its value is the original value. 
    * If a point is on both surfaces, the values on that point are added.
    * @param value1 The first surface value.

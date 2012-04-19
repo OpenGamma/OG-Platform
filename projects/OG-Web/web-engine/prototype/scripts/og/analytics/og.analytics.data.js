@@ -7,24 +7,29 @@ $.register_module({
     dependencies: ['og.api.rest'],
     obj: function () {
         return function (config) {
-            var data = this, data_handler, initialize, events = {init: null, data: null};
+            var data = this, data_handler, initialize, fire, events = {init: [], data: []}, meta, viewport = null;
+            fire = function (type) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                events[type].forEach(function (handler) {handler.apply(null, args);});
+            };
             data_handler = function (result) {
-                if (!events.data) return;
-                var matrix = [], rows = 60;
+                if (!events.data.length) return;
+                var matrix = [], rows = Math.min(viewport.rows[1] - viewport.rows[0], data.meta.rows);
                 while (rows--) matrix.push(function (cols, row) {
                     while (cols--) row.push(Math.random() * 1000);
                     return row;
-                }(19, []));
-                events.data(matrix);
+                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length, []));
+                fire('data', matrix);
                 setTimeout(data_handler, 5000);
             };
             initialize = function () {
-                events.init({
-                    'fixed': [
+                meta.rows = 501;
+                meta.columns = {
+                    fixed: [
                         {name: 'Fixed 1', width: 250},
                         {name: 'Fixed 2', width: 100}
                     ],
-                    'scroll': [
+                    scroll: [
                         {name: 'Column 3', width: 100},
                         {name: 'Column 4', width: 100},
                         {name: 'Column 5', width: 100},
@@ -41,15 +46,39 @@ $.register_module({
                         {name: 'Column 16', width: 100},
                         {name: 'Column 17', width: 100},
                         {name: 'Column 18', width: 100},
-                        {name: 'Column 19', width: 100}
+                        {name: 'Column 19', width: 100},
+                        {name: 'Column 20', width: 100},
+                        {name: 'Column 21', width: 100},
+                        {name: 'Column 22', width: 100},
+                        {name: 'Column 23', width: 100},
+                        {name: 'Column 24', width: 100},
+                        {name: 'Column 25', width: 100},
+                        {name: 'Column 26', width: 100},
+                        {name: 'Column 27', width: 100},
+                        {name: 'Column 28', width: 100},
+                        {name: 'Column 29', width: 100},
+                        {name: 'Column 30', width: 100},
+                        {name: 'Column 31', width: 100},
+                        {name: 'Column 32', width: 100},
+                        {name: 'Column 33', width: 100},
+                        {name: 'Column 34', width: 100},
+                        {name: 'Column 35', width: 100},
+                        {name: 'Column 36', width: 100},
+                        {name: 'Column 37', width: 100},
+                        {name: 'Column 38', width: 100},
+                        {name: 'Column 39', width: 100}
                     ]
-                });
+                };
+                fire('init', meta);
                 data_handler();
             };
-            data.on = function (name, handler) {
-                if (name in events) events[name] = handler;
-                if (name === 'init') initialize();
+            data.meta = meta = {columns: null};
+            data.on = function (type, handler) {if (type in events) events[type].push(handler);};
+            data.viewport = function (new_viewport) {
+                viewport = new_viewport;
+                if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
             };
+            setTimeout(initialize, 50);
         };
     }
 });

@@ -54,7 +54,8 @@ public class WebPortfolioVersionResource extends WebPortfolioResource {
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     positionSearch.setPositionObjectIds(doc.getPortfolio().getRootNode().getPositionIds());
     PositionSearchResult positionsResult = data().getPositionMaster().search(positionSearch);
-    
+    resolveSecurities(positionsResult.getPositions());
+
     FlexiBean out = createRootData();
     out.put("positionsResult", positionsResult);
     out.put("positions", positionsResult.getPositions());

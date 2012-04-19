@@ -18,6 +18,9 @@ LOGGING(com.opengamma.language.service.JVM);
 
 typedef jint (JNICALL *JNI_CREATEJAVAVMPROC) (JavaVM **ppjvm, JNIEnv **ppEnv, JavaVMInitArgs *pArgs);
 
+/// Count of the number of times writeProperty has been called.
+static int g_nWriteProperty;
+
 /// Creates a new JVM instance. Note that only one JVM instance is sensible; some libraries don't like
 /// destroying JVMs or creating multiple ones.
 ///
@@ -277,6 +280,7 @@ static void JNICALL _writeProperty (JNIEnv *pEnv, jclass cls, jstring jstrProper
 	pEnv->ReleaseStringUTFChars (jstrProperty, pszProperty);
 	if (pszValue) pEnv->ReleaseStringUTFChars (jstrValue, pszValue);
 #endif /* ifdef _UNICODE */
+	g_nWriteProperty++;
 }
 
 /// Creates a new JVM instance.
@@ -642,11 +646,17 @@ bool CJVM::IsStopped () const {
 	return Invoke (m_pEnv, "svcIsStopped", "()Z");
 }
 
-/// Runs the configuration task
-void CJVM::Configure () {
+/// Runs the configuration task. If the configuration was changed and the service should be
+/// restarted returns TRUE.
+///
+/// @return TRUE if the service configuration was changed, FALSE otherwise
+bool CJVM::Configure () {
+	g_nWriteProperty = 0;
 	if (Invoke ("svcConfigure")) {
-		LOGINFO (TEXT ("Configuration callback run"));
+		LOGINFO (TEXT ("Configuration callback updated ") << g_nWriteProperty << TEXT (" setting(s)"));
+		return g_nWriteProperty > 0;
 	} else {
 		LOGERROR (TEXT ("Couldn't run configuration callback"));
+		return FALSE;
 	}
 }

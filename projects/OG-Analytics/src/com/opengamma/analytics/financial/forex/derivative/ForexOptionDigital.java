@@ -15,8 +15,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a digital foreign exchange European option. 
  * The implied strike is the absolute value of ratio of the domestic currency (currency 2) amount and the foreign currency amount (currency1).
- * When the option is a call, it pays the absolute value of the domestic currency amount when the spot rate is above the strike and nothing otherwise.
- * When the option is a put, it pays the absolute value of the domestic currency amount when the spot rate is below the strike and nothing otherwise.
+ * When the option is a call, it pays the absolute value of the payment currency amount when the spot rate is above the strike and nothing otherwise.
+ * When the option is a put, it pays the absolute value of the payment currency amount when the spot rate is below the strike and nothing otherwise.
  */
 public class ForexOptionDigital implements InstrumentDerivative {
 
@@ -36,6 +36,10 @@ public class ForexOptionDigital implements InstrumentDerivative {
    * The long (true) / short (false) flag.
    */
   private final boolean _isLong;
+  /**
+   * The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
+   */
+  private final boolean _payDomestic;
 
   /**
    * Constructor from all details.
@@ -43,14 +47,16 @@ public class ForexOptionDigital implements InstrumentDerivative {
    * @param expirationTime The expiration date (and time) of the option.
    * @param isCall The call (true) / put (false) flag.
    * @param isLong The long (true) / short (false) flag.
+   * @param payDomestic The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
    */
-  public ForexOptionDigital(Forex underlyingForex, double expirationTime, boolean isCall, boolean isLong) {
+  public ForexOptionDigital(Forex underlyingForex, double expirationTime, boolean isCall, boolean isLong, boolean payDomestic) {
     Validate.notNull(underlyingForex, "Option FX underlying");
     Validate.isTrue(expirationTime <= underlyingForex.getPaymentTime(), "Expiration should be before payment.");
     _underlyingForex = underlyingForex;
     _expirationTime = expirationTime;
     _isCall = isCall;
     _isLong = isLong;
+    _payDomestic = payDomestic;
   }
 
   /**
@@ -83,6 +89,14 @@ public class ForexOptionDigital implements InstrumentDerivative {
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
+   * @return The payment currency flag.
+   */
+  public boolean payDomestic() {
+    return _payDomestic;
   }
 
   /**

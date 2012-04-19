@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionB
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
-import com.opengamma.analytics.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -187,8 +187,8 @@ public class ForexNonDeliverableOptionBlackMethodTest {
    */
   public void presentValueVolatilitySensitivity() {
     double tolerance = 1.0E-2;
-    PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueVolatilitySensitivity(NDO, SMILE_BUNDLE);
-    PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueBlackVolatilitySensitivity(NDO, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueBlackVolatilitySensitivity(FOREX_OPT, SMILE_BUNDLE);
     final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
     assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point), tolerance);
   }
@@ -199,8 +199,8 @@ public class ForexNonDeliverableOptionBlackMethodTest {
    */
   public void presentValueVolatilityNodeSensitivity() {
     double tolerance = 1.0E-2;
-    PresentValueVolatilityNodeSensitivityDataBundle nsNDO = METHOD_NDO.presentValueVolatilityNodeSensitivity(NDO, SMILE_BUNDLE);
-    PresentValueVolatilityNodeSensitivityDataBundle nsFXO = METHOD_FXO.presentValueVolatilityNodeSensitivity(FOREX_OPT, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilityNodeSensitivityDataBundle nsNDO = METHOD_NDO.presentValueVolatilityNodeSensitivity(NDO, SMILE_BUNDLE);
+    PresentValueForexBlackVolatilityNodeSensitivityDataBundle nsFXO = METHOD_FXO.presentValueBlackVolatilityNodeSensitivity(FOREX_OPT, SMILE_BUNDLE);
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       for (int loopstrike = 0; loopstrike < nsNDO.getDelta().getNumberOfElements(); loopstrike++) {
         assertEquals("Forex non-deliverable option: vega node", nsFXO.getVega().getEntry(loopexp, loopstrike), nsNDO.getVega().getEntry(loopexp, loopstrike), tolerance);
