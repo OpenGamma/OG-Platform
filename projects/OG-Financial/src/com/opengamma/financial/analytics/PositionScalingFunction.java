@@ -36,6 +36,8 @@ import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwa
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
+import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -86,7 +88,9 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE,
         ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE,
         ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD,
-        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
+        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR,
+        PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
   }
 
   @Override
