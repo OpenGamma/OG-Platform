@@ -90,6 +90,7 @@ public class BloombergRateClassifier {
       case BASIS_SWAP:
       case FORWARD_CROSS:
         return 10000;
+      case BILL:
       case CASH:
       case FRA:
       case INTEREST_RATE_FUTURE:
