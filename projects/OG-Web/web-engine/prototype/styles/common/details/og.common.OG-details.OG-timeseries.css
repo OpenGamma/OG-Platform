@@ -208,7 +208,7 @@
 .OG-timeseries-gadget .og-container {
     white-space: nowrap;
     display: block;
-    height: 375px;
+    height: 364px;
     overflow: hidden;
     overflow-x: auto;
     background-color: #fff;
@@ -223,7 +223,6 @@
     display: inline-block;
     border-left: 1px solid #f6f6f6;
     float: left;
-    height: 365px;
 }
 
 .OG-timeseries-gadget .og-data-series:last-child {
@@ -233,12 +232,12 @@
 .OG-timeseries-gadget .og-data-series header {
     height: 29px;
     display: block;
-    background-color: #fff;
     position: relative;
+    border-top: 1px solid #fff;
 }
 
 .OG-timeseries-gadget .og-data-series footer {
-    height: 40px;
+    position: relative;
     color: #999;
     display: block;
     padding: 5px;
@@ -246,9 +245,34 @@
 }
 
 .OG-timeseries-gadget .og-data-series header h3 {
-    padding: 5px;
-    background: #e9eaeb;
     display: inline-block;
+    top: -1px;
+    left: 0;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 22px;
+    padding: 3px 10px 3px 10px;
+    border: 1px solid #D8D8D8;
+    color: #555;
+    text-shadow: 0 1px 0 white;
+    background-color: #EEE;
+    border-radius: 1px;
+}
+
+.OG-timeseries-gadget .og-data-series header h3:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 50%;
+    background: #fafafa;
+}
+
+.OG-timeseries-gadget .og-data-series header h3 span {
+    position: relative;
+    z-index: 2;
+    top: 0;
 }
 
 .OG-timeseries-gadget .og-data-series header span {
@@ -256,10 +280,12 @@
     top: 7px;
 }
 
-.OG-timeseries-gadget .og-data-points .og-icon-download {
-    font-size: 10px;
+.OG-timeseries-gadget .og-data-points button {
     position: absolute;
-    right: 12px;
+    right: 0;
+    bottom: 0;
+    color: #57ba48;
+    text-shadow: 0 1px 0 #fff;
 }
 
 /**
@@ -268,7 +294,7 @@
 
 .og-data-points .og-slick {
     border-top:  1px solid #fff;
-    height: 285px;
+    height: 287px;
 }
 
 .og-data-points .og-slick .og-loading {
@@ -291,4 +317,26 @@
     position: relative;
     top: 5px;
     color: #ccc;
+}
+
+/**
+  * Restyle slickgrid
+  */
+
+.og-data-points .og-slick .slick-header {
+    background: #ecf5fa;
+    font-weight: bold;
+}
+
+.og-data-points .og-slick .slick-column-name {
+    font-weight: bold;
+    color: #555;
+}
+
+.og-data-points .og-slick .slick-resizable-handle {
+    border-right-color: #ccc;
+}
+
+.og-data-points .og-slick .slick-resizable-handle:before {
+    border-left-color: transparent;
 }

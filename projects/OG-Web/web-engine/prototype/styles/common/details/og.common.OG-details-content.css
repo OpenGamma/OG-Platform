@@ -6,3 +6,16 @@
     margin-bottom: 30px;
     position: relative;
 }
+
+/**
+ * Sometimes the layout manager doesnt honor the bottom margin here so removing it and adding the height using content
+ */
+.OG-details-content > section:last-child {
+    margin-bottom: none;
+}
+
+.OG-details-content > section:last-child:after {
+    content: '';
+    display: block;
+    height: 30px;
+}

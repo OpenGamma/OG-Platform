@@ -435,14 +435,17 @@ $.register_module({
                     }());
                 };
                 build_menu();
-                resize = function () {
-                    var width = $(selector).width() - 2;
-                    $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width(width + 'px');
-                    load_plots();
-                };
+                resize = (function (timeout) {
+                   var resize = function () {
+                       $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width($(selector).width() - 2 + 'px');
+                       load_plots();
+                   };
+                   return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
+                })(null);
                 og.common.gadgets.manager.register({
                     alive: function () {return !!$('.' + alive).length;}, resize: resize
                 });
+                resize();
             };
             $.when(
                 api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),
