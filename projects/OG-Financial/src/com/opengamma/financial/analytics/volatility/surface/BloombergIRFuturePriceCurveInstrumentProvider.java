@@ -32,7 +32,7 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
   /**
    * @param futurePrefix Two character string representing future type. e.g ED, ER, IR (See WIR in BBG)
    * @param postfix Generally, "Comdty" 
-   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_PRICE
+   * @param dataFieldName Expecting MarketDataRequirementNames.MARKET_VALUE
    * @param tickerScheme Expecting BLOOMBERG_TICKER_WEAK or BLOOMBERG_TICKER
    */
   public BloombergIRFuturePriceCurveInstrumentProvider(final String futurePrefix, final String postfix, final String dataFieldName, String tickerScheme) {

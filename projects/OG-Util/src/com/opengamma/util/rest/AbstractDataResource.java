@@ -124,7 +124,7 @@ public abstract class AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a HATAOES response for this object.
+   * Creates a HATEOAS response for this object.
    * 
    * @param uriInfo the URI info, not null
    * @return the response, not null

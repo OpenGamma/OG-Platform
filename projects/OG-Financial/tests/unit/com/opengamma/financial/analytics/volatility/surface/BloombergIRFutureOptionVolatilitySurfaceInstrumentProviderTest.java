@@ -17,7 +17,7 @@ import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ * This test will begin late in 2012 as historical data on options on the Sep2011 Eurodollar future will cease to be provided  
  */
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final String PREFIX = "ED";
@@ -37,13 +37,13 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
 
   private static final LocalDate[] EXPIRY_DATES = new LocalDate[] {NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2011, MonthOfYear.SEPTEMBER, 1)),
     NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2013, MonthOfYear.SEPTEMBER, 1)),
-    NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2013, MonthOfYear.DECEMBER, 1)) };
+    NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2013, MonthOfYear.DECEMBER, 1)) }; 
 
   private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 97.625);
 
   @Test
   public void test() {
-    final LocalDate today = LocalDate.now();
+    final LocalDate today = LocalDate.of(2011, 12, 2);
     for (int i = 0; i < NUMBERS.length; i++) {
       for (int j = 0; j < STRIKES.length; j++) {
         String expected;

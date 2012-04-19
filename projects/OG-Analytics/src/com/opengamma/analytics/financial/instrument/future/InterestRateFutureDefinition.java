@@ -5,12 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -19,6 +13,12 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Description of an interest rate future security.
@@ -32,7 +32,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
   /**
    * The price at which the transaction was done.
    */
-  private final double _transactionPrice;
+  private double _transactionPrice;
   /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
    */
@@ -131,6 +131,10 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    */
   public double getTransactionPrice() {
     return _transactionPrice;
+  }
+
+  public void setTransactionPrice(double price) {
+    _transactionPrice = price;
   }
 
   /**
