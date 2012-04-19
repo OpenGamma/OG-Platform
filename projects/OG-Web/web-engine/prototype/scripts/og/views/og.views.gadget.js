@@ -17,7 +17,7 @@ $.register_module({
                     <section class="og-js-trades"></section>\
                 ');
                 gadgets.positions({
-                    id: args.id, selector: '.og-js-positions', editable: false, external_links: true
+                    id: args.id, selector: '.og-js-positions', editable: false
                 });
                 if (args.trades === 'true')
                     gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});

@@ -62,14 +62,15 @@ $.register_module({
                     var $html = $.tmpl(template, $.extend(result.data, {
                             editable: editable, external_links: external_links
                         })),
+                        cur_page = routes.current().page.substring(1),
                         link = function () {
-                            if (!external_links) return $(this).html();
+                            if (external_links) return $(this).html();
                             var url = routes.prefix() + routes.hash(og.views.positions.rules.load_item, {
                                 id: result.data.template_data.object_id
                             });
                             return '<a href="' + url + '">' + $(this).text() + '</a>'
                         };
-                        $html.find('thead span').html(link);
+                        if (cur_page !==  'positions') $html.find('thead span').html(link);
                     $(selector).html($html).hide().fadeIn();
                     timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                     if (editable) common.util.ui.content_editable({
