@@ -17,5 +17,5 @@
 .OG-details-content > section:last-child:after {
     content: '';
     display: block;
-    height: 30px;
+    height: 20px;
 }

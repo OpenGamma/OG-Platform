@@ -208,7 +208,7 @@
 .OG-timeseries-gadget .og-container {
     white-space: nowrap;
     display: block;
-    height: 364px;
+    height: 360px;
     overflow: hidden;
     overflow-x: auto;
     background-color: #fff;
@@ -294,7 +294,7 @@
 
 .og-data-points .og-slick {
     border-top:  1px solid #fff;
-    height: 287px;
+    height: 281px;
 }
 
 .og-data-points .og-slick .og-loading {
