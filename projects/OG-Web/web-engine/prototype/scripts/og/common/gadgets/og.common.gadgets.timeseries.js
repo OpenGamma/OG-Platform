@@ -443,7 +443,6 @@ $.register_module({
                 og.common.gadgets.manager.register({
                     alive: function () {return !!$('.' + alive).length;}, resize: resize
                 });
-                resize();
             };
             $.when(
                 api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),
