@@ -14,20 +14,20 @@ $.register_module({
             };
             data_handler = function (result) {
                 if (!events.data.length) return;
-                var matrix = [], rows = Math.min(viewport.rows[1] - viewport.rows[0], data.meta.rows);
+                var matrix = [], rows = data.meta.rows;
                 while (rows--) matrix.push(function (cols, row) {
                     while (cols--) row.push(Math.random() * 1000);
                     return row;
-                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length, []));
-                fire('data', matrix);
-                setTimeout(data_handler, 5000);
+                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length - 1, [data.meta.rows - rows]));
+                fire('data', matrix.slice(viewport.rows[0], viewport.rows[1]));
+                setTimeout(data_handler, 1000);
             };
             initialize = function () {
-                meta.rows = 501;
+                meta.rows = 10000;
                 meta.columns = {
                     fixed: [
-                        {name: 'Fixed 1', width: 250},
-                        {name: 'Fixed 2', width: 100}
+                        {name: 'Fixed 1', width: 50},
+                        {name: 'Fixed 2', width: 150}
                     ],
                     scroll: [
                         {name: 'Column 3', width: 100},
