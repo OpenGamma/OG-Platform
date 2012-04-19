@@ -14,9 +14,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeRuntimeException;
@@ -164,9 +161,6 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
               if (value instanceof FudgeMsg) {
                 value = buildObjectMap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
-            } else if (Instant.class.isAssignableFrom(mp.propertyType()) && String.class.equals(field.getType().getJavaType())) {
-              // JSR-310: Prevent deserialisation from using Instant.parse(), which isn't implemented.
-              value = OffsetDateTime.parse((String) field.getValue()).toInstant();
             }
             if (value == null) {
               try {

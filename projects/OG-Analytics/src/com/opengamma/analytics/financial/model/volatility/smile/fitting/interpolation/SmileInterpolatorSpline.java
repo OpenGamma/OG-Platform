@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * the end point.
  */
 public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
-  private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION);
+  private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D();
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
@@ -72,8 +72,8 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
     final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
 
-    final double gradL = dSigmaDx.evaluate(kL);
-    final double gradH = dSigmaDx.evaluate(kH);
+    double gradL = dSigmaDx.evaluate(kL);
+    double gradH = dSigmaDx.evaluate(kH);
 
     final double[] res1 = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, volL, gradL, expiry);
     final double[] res2 = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, volH, gradH, expiry);

@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
@@ -64,6 +65,7 @@ public final class JodaBeanConverters {
     stringConvert.register(Notional.class, new NotionalConverter());
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
+    stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
   }
   
   /**
@@ -275,6 +277,29 @@ public final class JodaBeanConverters {
     @Override
     public YieldConvention convertFromString(Class<? extends YieldConvention> cls, String str) {
       return YieldConventionFactory.INSTANCE.getYieldConvention(str);
+    }
+    
+  }
+
+  private static class BondFutureDeliverableConverter extends AbstractConverter<BondFutureDeliverable> {
+
+    @Override
+    public String convertToString(BondFutureDeliverable object) {
+      String ids = object.getIdentifiers().toString();
+      ids = ids.substring(ids.indexOf("["), ids.indexOf("]") + 1);
+      return ids + " " + Double.toString(object.getConversionFactor());
+    }
+
+    @Override
+    public BondFutureDeliverable convertFromString(Class<? extends BondFutureDeliverable> cls, String str) {
+      ArrayList<String> ids = new ArrayList<String>();
+      for (String s : str.substring(str.indexOf('[') + 1, str.lastIndexOf(']')).trim().split(",")) {
+        ids.add(s.trim());
+      }
+      BondFutureDeliverable result = new BondFutureDeliverable();
+      result.setIdentifiers(ExternalIdBundle.parse(ids));
+      result.setConversionFactor(Double.parseDouble(str.substring(str.indexOf(']') + 1).trim()));
+      return result;
     }
     
   }

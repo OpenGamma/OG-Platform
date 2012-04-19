@@ -108,8 +108,9 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final GeneralSmileInterpolator smileInterpolator = new SmileInterpolatorSpline();
     final VolatilitySurfaceInterpolator surfaceFitter = new VolatilitySurfaceInterpolator(smileInterpolator, useLogTime, useIntegratedVariance, useLogValue);
     //final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
+    //TODO get rid of hardcoded maxProxydelta = 1.5
     final LocalVolatilityForwardPDEGreekCalculator1<?> calculator = new LocalVolatilityForwardPDEGreekCalculator1<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
-        /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, maxMoneyness);
+        /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, 1.5);
     final ValueSpecification spec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
         hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
         timeGridBunchingName, spaceGridBunchingName, maxMoneynessName, pdeDirection);

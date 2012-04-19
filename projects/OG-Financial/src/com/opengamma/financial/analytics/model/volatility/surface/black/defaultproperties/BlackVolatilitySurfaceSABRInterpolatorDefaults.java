@@ -18,13 +18,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class BlackVolatilitySurfaceSABRInterpolatorDefaultPropertiesFunction extends BlackVolatilitySurfaceInterpolatorDefaultPropertiesFunction {
+public class BlackVolatilitySurfaceSABRInterpolatorDefaults extends BlackVolatilitySurfaceInterpolatorDefaults {
   private final String _sabrModel;
   private final String _weightingFunction;
   private final String _useExternalBeta;
   private final String _externalBeta;
 
-  public BlackVolatilitySurfaceSABRInterpolatorDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceSABRInterpolatorDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String sabrModel, final String weightingFunction, final String useExternalBeta, final String externalBeta) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     ArgumentChecker.notNull(sabrModel, "SARB model");

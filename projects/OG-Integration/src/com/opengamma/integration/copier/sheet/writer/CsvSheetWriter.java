@@ -72,7 +72,7 @@ public class CsvSheetWriter extends SheetWriter {
     
     for (int i = 0; i < getColumns().length; i++) {
       if ((rawRow[i] = row.get(getColumns()[i])) == null) { //CSIGNORE
-        s_logger.warn("Missing data for column '" + getColumns()[i] + "' when writing row to CSV file");
+        s_logger.info("Missing data for column '" + getColumns()[i] + "' when writing row to CSV file");
         rawRow[i] = "";
       }
     }
