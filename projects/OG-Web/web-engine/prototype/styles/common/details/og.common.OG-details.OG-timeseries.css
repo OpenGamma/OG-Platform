@@ -81,14 +81,6 @@
 }
 
 .OG-timeseries-gadget .og-flot-top {
-    /**
-      * 1000
-      * 0100
-      * 0010
-      * 0001
-      * 1=d0d0d1, 0=ecf5fa
-      */
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2O4cOHim6+/IIgBiOF8EAfOh3IgfAB4lCwJ2HzdqwAAAABJRU5ErkJggg==);
     height: 27px;
     position: absolute;
     left: 2px;

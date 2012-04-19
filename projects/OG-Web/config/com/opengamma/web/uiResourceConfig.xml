@@ -67,7 +67,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-unhook.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-background-01.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
   </bundle>
   <bundle id="common.search.css">
