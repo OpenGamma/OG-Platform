@@ -15,7 +15,7 @@ $.register_module({
                 prefix = 'timeseries_', counter = 1, // a unique class name, used to check if the gadget is alive
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
-                colors_arr_p2 = ['#ccc', '#b1b1b1', '#969696', '#858585']; // line colors for plot 2 data sets
+                colors_arr_p2 = ['#aaa', '#b1b1b1', '#969696', '#858585']; // line colors for plot 2 data sets
             spoofed_data = (function (data) {
                 if (!data) return null;
                 data.forEach(function (val, idx) {
@@ -26,33 +26,33 @@ $.register_module({
                 return {main: {error: false, data: data[0]}, search: {error: false, data: {data: []}}};
             })(config.data);
             common_plot_options = {
-                grid: {borderWidth: 1, color: '#999', borderColor: '#e9eaeb'},
-                lines: {lineWidth: 1, fill: true},
+                grid: {borderWidth: 1, color: '#999', borderColor: '#c1c1c2', aboveData: false, minBorderMargin: 0},
+                lines: {lineWidth: 1, fill: true, fillColor: '#f8fbfd'},
                 legend: {backgroundColor: null},
-                series: {shadowSize: 1, threshold: {below: 0, color: '#960505'}},
+                series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
                 xaxis: {ticks: 6, mode: 'time', tickLength: 0},
-                yaxis: {position: 'right'}
+                yaxis: {position: 'left', color: '#555'}
             };
-            top_plot_options = $.extend(true, {
+            top_plot_options = $.extend(true, {}, common_plot_options, {
                 colors: colors_arr,
                 crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
-                grid: {labelMargin: 3, minBorderMargin: 29, hoverable: true},
+                grid: {labelMargin: -40, hoverable: true, borderColor: '#999', aboveData: true},
                 lines: {fillColor: '#f8fbfd'},
                 legend: {show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1},
                 pan: {interactive: true, cursor: "move", frameRate: 30},
                 selection: {mode: null},
-                xaxis: {labelHeight: 26, color: '#fff', tickColor: null, min: initial_preset, max: x_max},
-                yaxis: {ticks: 5, panRange: false, tickLength: 'full', tickColor: '#f3f3f3', labelWidth: 53}
-            }, common_plot_options);
-            bot_plot_options = $.extend(true, {
+                xaxis: {labelHeight: 20, color: '#000', tickColor: null, min: initial_preset, max: x_max},
+                yaxis: {ticks: 5, panRange: false, tickLength: 'full', tickColor: '#f3f3f3', labelWidth: 40}
+            });
+            bot_plot_options = $.extend(true, {}, common_plot_options, {
                 colors: colors_arr_p2,
-                grid: {aboveData: true, labelMargin: -14, minBorderMargin: 43},
+                grid: {aboveData: true, labelMargin: -13, minBorderMargin: 0},
+                lines: {fill: false},
                 legend: {show: false},
-                lines: {fillColor: '#fafafa'},
-                selection: {mode: 'x', color: '#ddd'},
-                xaxis: {labelHeight: 55, tickColor: '#fff'},
-                yaxis: {show: false, ticks: 1, tickLength: 0, labelWidth: 53, reserveSpace: true}
-            }, common_plot_options);
+                selection: {mode: 'x', color: '#42669a'},
+                xaxis: {labelHeight: 13, tickColor: '#fff'},
+                yaxis: {show: false}
+            });
             handler = function (result) {
                 if (result.error) return;
                 var data = result.data,
@@ -106,7 +106,7 @@ $.register_module({
                     if (!$data_points.length) return;
                     if (!config.datapoints) {
                         if (show_datapoints_link) $data_points.css({
-                            'position': 'relative', 'top': '-35px', 'left': '3px'
+                            'position': 'relative', 'top': '-30px', 'left': '3px'
                             }).html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
                         return;
                     }
@@ -191,7 +191,7 @@ $.register_module({
                                 } else if (state.zoom === '_' + cur) { // or the one last set by the user
                                     classes += ' OG-link-active', initial_preset = presets[state.zoom];
                                 }
-                                pre.unshift('<span class="'+ classes +'" style="margin-right: 5px; font-size: 10px;">'
+                                pre.unshift('<span class="'+ classes +'" style="margin-right: 5px;">'
                                     + cur +'</span>');
                                 return pre;
                             }, []).join('')).unbind().bind('click', function (e) {
@@ -307,7 +307,7 @@ $.register_module({
                     var $legends = $(selector + ' .legendLabel'),
                         axes = $p1.getAxes(), j, dataset = $p1.getData(), i = dataset.length, series, y, p1, p2,
                         $date_elm = $legend.find('.og-date'), date, format_date, legend_height,
-                        rel_cursor_pos = hover_pos.pageX - ($(selector).offset().left) + 25;
+                        rel_cursor_pos = hover_pos.pageX - ($(selector).offset().left) + 5;
                     format_date = function (date) {
                         return ('' + new Date(date)).replace(/(^.*:[0-9]{2}\s).*$/, '$1');
                     };
@@ -318,9 +318,10 @@ $.register_module({
                         return;
                     }
                     $legends.each(function () {$(this).css('line-height', 0)});
-                    legend_height = $legend.find('table').prev().height() + 30;
+                    $legend.find('table').css({'top': '17px'});
+                    legend_height = $legend.find('table').prev().height() + 15;
                     $legend.css({
-                        left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 141 : rel_cursor_pos,
+                        left: rel_cursor_pos > $(selector).width() - 310 ? rel_cursor_pos - 160 : rel_cursor_pos,
                         visibility: 'visible', position: 'absolute', top: '13px', width: '140px',
                         'background-color': '#f9f9f9', 'height': legend_height + 'px', 'border': '1px solid #e5e5e5'
                     }).fadeTo(0, 0.9);
@@ -338,7 +339,7 @@ $.register_module({
                         if ($date_elm.length) $date_elm.html(date);
                         else {
                             $('<div class="og-date"></div>').css({
-                                position: 'absolute', top: '15px', 'white-space': 'nowrap',
+                                position: 'absolute', top: '0', 'white-space': 'nowrap',
                                 padding: '0 0 0 2px', 'font-size': '10px', 'color': '#999'
                             }).prependTo($legend);
                         }
@@ -347,7 +348,7 @@ $.register_module({
                 };
                 build_menu = function () {
                     // build meta data object and populate it with the initial plot data
-                    result.data.related.forEach(function (val) {
+                    if (result.data.related) result.data.related.forEach(function (val) {
                         var df = val.data_field;
                         if (!meta[df]) meta[df] = {};
                         meta[df][val.observation_time] = val.object_id;
@@ -362,7 +363,7 @@ $.register_module({
                         build_select = function () {
                             var field, select = '';
                             for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Timeseries:</span><select>' + select
+                            return select = '<div class="og-field"><span>Data Field</span><select>' + select
                                 + '</select></div>';
                         },
                         // build checkboxes
@@ -435,9 +436,8 @@ $.register_module({
                 };
                 build_menu();
                 resize = function () {
-                    var width = $(selector).width() - 19; // 19 is the scrollbar width
-                    $(selector).find('.og-js-p1, .og-js-p1-crop, .og-js-p2, .og-js-p2-crop').width(width + 'px');
-                    $(selector).find('.og-flot-xaxis, .og-flot-top').width((width - 84) + 'px');
+                    var width = $(selector).width() - 2;
+                    $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width(width + 'px');
                     load_plots();
                 };
                 og.common.gadgets.manager.register({

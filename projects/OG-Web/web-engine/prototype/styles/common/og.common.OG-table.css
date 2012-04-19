@@ -109,15 +109,16 @@
     content: none;
 }
 
-/**
-  * 1000
-  * 0100
-  * 0010
-  * 0001
-  * 1=e5e6e7, 0=f2f3f4
-  */
 .OG-table thead tr {
-    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2N4+uz5p89fIIgBiOF8EAfOh3IgfACRGCz1+ENhswAAAABJRU5ErkJggg==)
+  /**
+    * 1000
+    * 0100
+    * 0010
+    * 0001
+    * 1=d0d0d1, 0=ecf5fa
+      background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2N4+uz5p89fIIgBiOF8EAfOh3IgfACRGCz1+ENhswAAAABJRU5ErkJggg==)
+    */
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2O4cOHim6+/IIgBiOF8EAfOh3IgfAB4lCwJ2HzdqwAAAABJRU5ErkJggg==);
 }
 
 
@@ -199,5 +200,5 @@
 
 /* Tablesorter */
 .OG-table.og-tablesorter tr:last-child th {
-  cursor: pointer;
+    cursor: pointer;
 }
