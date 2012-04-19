@@ -135,7 +135,6 @@ $.register_module({
                             editable: false,
                             enableAddRow: false,
                             enableCellNavigation: false,
-                            headerHeight: 11,
                             showHeaderRow: false,
                             headerRowHeight: 0
                         };
