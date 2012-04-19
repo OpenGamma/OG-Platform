@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local.defaultproperties;
@@ -11,28 +11,33 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * 
  */
-public class LocalVolatilitySurfaceMixedLogNormalDefaults extends LocalVolatilitySurfaceDefaults {
-  private final String _weightingFunction;
+public class BackwardPDEMixedLogNormalDefaults extends BackwardPDEDefaults {
+  private final String _weightingFunctionName;
 
-  public LocalVolatilitySurfaceMixedLogNormalDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BackwardPDEMixedLogNormalDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
-      final String eps, final String weightingFunction) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName, eps);
-    ArgumentChecker.notNull(weightingFunction, "weighting function");
-    _weightingFunction = weightingFunction;
+      final String eps, final String theta, final String nTimeSteps, final String nSpaceSteps, final String timeStepBunching, final String spaceStepBunching,
+      final String maxMoneynessScale, final String spaceDirectionInterpolator, final String discountingCurveName,
+      final String weightingFunctionName) {
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod,
+        surfaceName, eps, theta, nTimeSteps, nSpaceSteps, timeStepBunching, spaceStepBunching, maxMoneynessScale, spaceDirectionInterpolator,
+        discountingCurveName);
+    ArgumentChecker.notNull(weightingFunctionName, "weighting function name");
+    _weightingFunctionName = weightingFunctionName;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
+    for (final String valueRequirement : getValueRequirementNames()) {
+      defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION);
+    }
   }
 
   @Override
@@ -42,7 +47,7 @@ public class LocalVolatilitySurfaceMixedLogNormalDefaults extends LocalVolatilit
       return surfaceDefaults;
     }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION.equals(propertyName)) {
-      return Collections.singleton(_weightingFunction);
+      return Collections.singleton(_weightingFunctionName);
     }
     return null;
   }
