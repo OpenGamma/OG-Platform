@@ -5,16 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_DERIVATIVE_EPS;
-
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -26,27 +23,25 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
 
 /**
  *
  */
-public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class LocalVolatilitySurfaceStrikeFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final double eps = Double.parseDouble(desiredValue.getConstraint(PROPERTY_DERIVATIVE_EPS));
-    final Object impliedVolatilitySurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(target, desiredValue));
-    if (impliedVolatilitySurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Volatility surface was null");
+    final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);
+    final Object localVolatilityObject = inputs.getValue(volatilitySurfaceRequirement);
+    if (localVolatilityObject == null) {
+      throw new OpenGammaRuntimeException("Could not get local volatility surface");
     }
-    final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = (BlackVolatilitySurfaceMoneyness) impliedVolatilitySurfaceObject;
-    final DupireLocalVolatilityCalculator calculator = new DupireLocalVolatilityCalculator(eps);
-    final LocalVolatilitySurfaceMoneyness localVolatilitySurface = calculator.getLocalVolatility(impliedVolatilitySurface);
-    final ValueProperties properties = getResultProperties(desiredValue, LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS);
+    final LocalVolatilitySurfaceMoneyness localVolatilityMoneyness = (LocalVolatilitySurfaceMoneyness) localVolatilityObject;
+    final LocalVolatilitySurfaceStrike localVolatilityStrike = LocalVolatilitySurfaceConverter.toStrikeSurface(localVolatilityMoneyness);
+    final ValueProperties properties = getResultProperties(desiredValue, LocalVolatilitySurfacePropertyNamesAndValues.STRIKE);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, localVolatilitySurface));
+    return Collections.singleton(new ComputedValue(spec, localVolatilityStrike));
   }
 
   @Override
@@ -61,7 +56,7 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = getResultProperties(LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS);
+    final ValueProperties properties = getResultProperties(LocalVolatilitySurfacePropertyNamesAndValues.STRIKE);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
 
@@ -72,8 +67,7 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
     if (requirements == null) {
       return null;
     }
-    final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);
-    return Sets.newHashSet(volatilitySurfaceRequirement);
+    return Collections.singleton(getVolatilitySurfaceRequirement(target, desiredValue));
   }
 
   protected abstract boolean isCorrectIdType(final ComputationTarget target);
@@ -92,8 +86,8 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), desiredValue).get();
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
+    final ValueProperties properties = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(),
+        getBlackSmileInterpolatorName(), LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
+    return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties);
   }
-
 }

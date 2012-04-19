@@ -14,7 +14,6 @@ import java.util.List;
 import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -480,7 +479,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       int pos = uniqueId.getVersion().indexOf('P');
       String verStr = uniqueId.getVersion().substring(0, pos);
       String corrStr = uniqueId.getVersion().substring(pos);
-      Instant ver = OffsetDateTime.parse(verStr).toInstant();
+      Instant ver = Instant.parse(verStr);
       Instant corr = ver.plus(Duration.parse(corrStr));
       return VersionCorrection.of(ver, corr);
     } catch (RuntimeException ex) {

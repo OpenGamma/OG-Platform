@@ -88,4 +88,11 @@ public final class NonLoadedSecurityTypes {
   public static final Set<String> VALID_FORWARD_CROSS_SECURITY_TYPES = ImmutableSet.of(
       BLOOMBERG_FORWARD_CROSS_TYPE);
   
+  // Bills
+  private static final String BLOOMBERG_BANK_BILL_TYPE = "BANK BILL";
+  /**
+   * The valid Bloomberg security types for bills
+   */
+  public static final Set<String> VALID_BILL_TYPES = ImmutableSet.of(BLOOMBERG_BANK_BILL_TYPE);
+  
 }
