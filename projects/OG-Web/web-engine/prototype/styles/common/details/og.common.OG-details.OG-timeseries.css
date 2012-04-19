@@ -319,22 +319,32 @@
     color: #ccc;
 }
 
-/**
-  * Restyle slickgrid
-  */
+.og-data-points .og-slick .slick-header {
+    height: 23px;
+}
+
+.og-data-points .og-slick .slick-header-column.ui-state-default {
+    line-height: 12px;
+}
 
 .og-data-points .og-slick .slick-header {
     background: #ecf5fa;
     font-weight: bold;
 }
 
+.og-data-points .og-slick .slick-header-columns:before {
+    content: none;
+}
+
 .og-data-points .og-slick .slick-column-name {
     font-weight: bold;
     color: #555;
+    line-height: 12px;
 }
 
 .og-data-points .og-slick .slick-resizable-handle {
     border-right-color: #ccc;
+    top: 0;
 }
 
 .og-data-points .og-slick .slick-resizable-handle:before {
