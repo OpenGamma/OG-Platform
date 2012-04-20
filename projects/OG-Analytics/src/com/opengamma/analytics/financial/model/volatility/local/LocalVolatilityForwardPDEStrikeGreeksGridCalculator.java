@@ -81,7 +81,7 @@ public abstract class LocalVolatilityForwardPDEStrikeGreeksGridCalculator implem
     @Override
     protected double getResultForMoneyness(final PDETerminalResults1D pdeGrid, final PDETerminalResults1D pdeGridUp, final PDETerminalResults1D pdeGridDown,
         final int index, final double forward, final EuropeanVanillaOption option) {
-      return pdeGrid.getFirstSpatialDerivative(index);
+      return pdeGrid.getSecondSpatialDerivative(index);
     }
   }
 
