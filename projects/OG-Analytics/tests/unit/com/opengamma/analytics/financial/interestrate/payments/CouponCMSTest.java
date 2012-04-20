@@ -26,8 +26,6 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSSABRReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -136,7 +134,7 @@ public class CouponCMSTest {
     assertEquals(8854.551, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
     final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod(integrationInterval);
-    final double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
+    final double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle).getAmount();
     assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
     final double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);
     assertEquals(priceCMS_method, priceCMS_calculator, 2E-1);// Different precision in integration.

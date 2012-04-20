@@ -99,8 +99,8 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getInstance();
-      return replication.presentValue(payment, sabrBundle);
+      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getDefaultInstance();
+      return replication.presentValue(payment, sabrBundle).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
   }
