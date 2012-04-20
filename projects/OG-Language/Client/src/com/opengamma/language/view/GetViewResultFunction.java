@@ -7,7 +7,6 @@
 package com.opengamma.language.view;
 
 
-import com.opengamma.engine.view.CycleInfo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,10 +16,9 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -39,13 +37,6 @@ import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.Cancelable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Returns the latest result from a calculating view
@@ -119,8 +110,21 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     }
 
     // ViewResultListener
-
-
+    @Override
+    public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
+      // Ignore
+      s_logger.debug("View definition compiled");
+    }
+    
+    @Override
+    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
+      postResult("View compilation failed - " + exception.getMessage());
+    }
+    
+    @Override
+    public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    }
+    
     @Override
     public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
       // Ignore
@@ -185,25 +189,12 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     public void processTerminated(final boolean executionInterrupted) {
       postResult("View process terminated");
     }
-
+   
     @Override
-    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-      postResult("View compilation failed - " + exception.getMessage());
-    }
-
-    @Override
-    public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      // Ignore
-      s_logger.debug("View definition compiled");
-    }
-
-    @Override
-    public void cycleInitiated(CycleInfo cycleInfo) {
-      // ignore
+    public void clientShutdown(Exception e) {
     }
 
     // Cancellable
-
     @Override
     public boolean cancel(final boolean mayInterrupt) {
       s_logger.info("Timeout elapsed");

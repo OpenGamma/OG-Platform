@@ -13,9 +13,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.time.Instant;
 
 import com.google.common.base.Function;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -23,7 +23,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
+import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -53,9 +53,10 @@ public class MergingViewProcessListener implements ViewResultListener {
   
   private final List<Function<ViewResultListener, ?>> _callQueue = new LinkedList<Function<ViewResultListener, ?>>();
   
+  private int _previousCycleStartedIndex = -1;
+  private int _latestCycleStartedIndex = -1;
   private int _cycleCompletedIndex = -1;
   private int _cycleFragmentCompletedIndex = -1;
-  private boolean _cycleInitiated;
   
   public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -132,24 +133,6 @@ public class MergingViewProcessListener implements ViewResultListener {
     return getUnderlying().getUser();
   }
 
-
-  @Override
-  public void cycleInitiated(CycleInfo cycleInfo) {
-    _mergerLock.lock();
-    try {
-      if (isPassThrough()) {
-        getUnderlying().cycleInitiated(cycleInfo);
-      } else {
-        if (!_cycleInitiated) {
-          _callQueue.add(new CycleInitiatedCall(cycleInfo));
-          _cycleInitiated = true;
-        }
-      }
-    } finally {
-      _mergerLock.unlock();
-    }
-  }
-
   @Override
   public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
     _mergerLock.lock();
@@ -173,6 +156,22 @@ public class MergingViewProcessListener implements ViewResultListener {
         getUnderlying().viewDefinitionCompilationFailed(valuationTime, exception);
       } else {
         _callQueue.add(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+  
+  @Override
+  public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().cycleStarted(cycleMetadata);
+      } else {
+        _previousCycleStartedIndex = _latestCycleStartedIndex;
+        _latestCycleStartedIndex = _callQueue.size();
+        _callQueue.add(new CycleStartedCall(cycleMetadata));
       }
     } finally {
       _mergerLock.unlock();
@@ -205,6 +204,11 @@ public class MergingViewProcessListener implements ViewResultListener {
           CycleCompletedCall cycleCompletedCall = new CycleCompletedCall(fullResult, deltaResult);
           _cycleCompletedIndex = _callQueue.size();
           _callQueue.add(cycleCompletedCall);
+        }
+        
+        // Only keep the cycle started call for the latest complete result
+        if (_previousCycleStartedIndex != -1) {
+          removeCall(_previousCycleStartedIndex);
         }
       }
       _lastUpdateMillis.set(System.currentTimeMillis());
@@ -281,6 +285,11 @@ public class MergingViewProcessListener implements ViewResultListener {
     }
   }
   
+  @Override
+  public void clientShutdown(Exception e) {
+    // Client shutdowns are not queued
+  }
+  
   //-------------------------------------------------------------------------
   public void drain() {
     _mergerLock.lock();
@@ -289,10 +298,10 @@ public class MergingViewProcessListener implements ViewResultListener {
         call.apply(getUnderlying());
       }
       _callQueue.clear();
+      _previousCycleStartedIndex = -1;
+      _latestCycleStartedIndex = -1;
       _cycleCompletedIndex = -1;
       _cycleFragmentCompletedIndex = -1;
-      _cycleInitiated = false;
-      
     } finally {
       _mergerLock.unlock();
     }
@@ -305,9 +314,10 @@ public class MergingViewProcessListener implements ViewResultListener {
     _mergerLock.lock();
     try {
       _callQueue.clear();
+      _previousCycleStartedIndex = -1;
+      _latestCycleStartedIndex = -1;
       _cycleCompletedIndex = -1;
       _cycleFragmentCompletedIndex = -1;
-      _cycleInitiated = false;
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
       _mergerLock.unlock();
@@ -325,17 +335,36 @@ public class MergingViewProcessListener implements ViewResultListener {
     // Call is elsewhere in queue - pull to end and update indices
     T call = (T) _callQueue.remove(fromIndex);
     _callQueue.add(call);
+    adjustIndices(fromIndex, lastIndex);
+    return call;
+  }
+  
+  private void removeCall(int fromIndex) {
+    _callQueue.remove(fromIndex);
+    adjustIndices(fromIndex, -1);
+  }
+  
+  private void adjustIndices(int fromIndex, int newIndex) {
     if (_cycleFragmentCompletedIndex > fromIndex) {
       _cycleFragmentCompletedIndex--;
     } else if (_cycleFragmentCompletedIndex == fromIndex) {
-      _cycleFragmentCompletedIndex = lastIndex;
+      _cycleFragmentCompletedIndex = newIndex;
     }
     if (_cycleCompletedIndex > fromIndex) {
       _cycleCompletedIndex--;
     } else if (_cycleCompletedIndex == fromIndex) {
-      _cycleCompletedIndex = lastIndex;
+      _cycleCompletedIndex = newIndex;
     }
-    return call;
+    if (_previousCycleStartedIndex > fromIndex) {
+      _previousCycleStartedIndex--;
+    } else if (_previousCycleStartedIndex == fromIndex) {
+      _previousCycleStartedIndex = newIndex;
+    }
+    if (_latestCycleStartedIndex > fromIndex) {
+      _latestCycleStartedIndex--;
+    } else if (_latestCycleStartedIndex == fromIndex) {
+      _latestCycleStartedIndex = newIndex;
+    }
   }
   
   private ViewResultListener getUnderlying() {

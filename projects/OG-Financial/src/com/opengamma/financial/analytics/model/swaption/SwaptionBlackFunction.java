@@ -69,7 +69,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
-    _visitor = new SwaptionSecurityConverter(securitySource, conventionSource, swapConverter);
+    _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
   }
 
   @Override

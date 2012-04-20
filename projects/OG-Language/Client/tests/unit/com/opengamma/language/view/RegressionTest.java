@@ -6,6 +6,19 @@
 package com.opengamma.language.view;
 
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -15,12 +28,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -28,17 +40,6 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
 
 
 /**
@@ -96,21 +97,21 @@ public class RegressionTest {
       }
 
       @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.info("Cycle completed");
-        postResult(fullResult);
-      }
-
-      @Override
-      public void cycleInitiated(CycleInfo cycleInfo) {
-        s_logger.info("Cycle initiated");
-        postResult("INITIATED");
+      public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+        s_logger.info("Cycle started");
+        postResult("STARTED");
       }
 
       @Override
       public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
         s_logger.info("Cycle fragment completed");
         postJobResult(fullFragment);
+      }
+      
+      @Override
+      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
+        s_logger.info("Cycle completed");
+        postResult(fullResult);
       }
 
       @Override
@@ -129,6 +130,12 @@ public class RegressionTest {
       public void processTerminated(final boolean executionInterrupted) {
         s_logger.info("Process terminated");
         postResult("TERMINATED");
+      }
+
+      @Override
+      public void clientShutdown(Exception e) {
+        s_logger.info("Client shutdown");
+        postResult("SHUTDOWN");
       }
 
     };

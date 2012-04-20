@@ -18,10 +18,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class LocalVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction extends LocalVolatilitySurfaceDefaultPropertiesFunction {
+public class LocalVolatilitySurfaceMixedLogNormalDefaults extends LocalVolatilitySurfaceDefaults {
   private final String _weightingFunction;
 
-  public LocalVolatilitySurfaceMixedLogNormalDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public LocalVolatilitySurfaceMixedLogNormalDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
       final String eps, final String weightingFunction) {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod, surfaceName, eps);

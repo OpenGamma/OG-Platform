@@ -12,14 +12,17 @@ import com.opengamma.batch.BatchRunWriter;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
 
+/**
+ * 
+ */
 public class BatchDbViewResultListener implements ViewResultListener {
 
   private RiskRun _riskRun;
@@ -47,8 +50,8 @@ public class BatchDbViewResultListener implements ViewResultListener {
   }
 
   @Override
-  public void cycleInitiated(CycleInfo cycleInfo) {
-    _riskRun = _batchRunWriter.startRiskRun(cycleInfo, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.WRITE_THROUGH);
+  public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    _riskRun = _batchRunWriter.startRiskRun(cycleMetadata, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.WRITE_THROUGH);
   }
 
   @Override
@@ -77,4 +80,9 @@ public class BatchDbViewResultListener implements ViewResultListener {
       _batchRunWriter.endRiskRun(_riskRun.getObjectId());
     }
   }
+
+  @Override
+  public void clientShutdown(Exception e) {
+  }
+  
 }
