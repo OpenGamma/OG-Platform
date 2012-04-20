@@ -183,13 +183,13 @@ public class LocalVolatilityPDEGreekCalculator {
     double maxProxyDelta = 1.5;
     final int nStrikes = strikes.length;
     for (int i = 0; i < nStrikes; i++) {
-      double d = Math.abs(Math.log(strikes[i] / forward) / Math.sqrt(expiry));
+      final double d = Math.abs(Math.log(strikes[i] / forward) / Math.sqrt(expiry));
       if (d > maxProxyDelta) {
         maxProxyDelta = d;
       }
     }
 
-    PDEFullResults1D pdeRes = runForwardPDESolver(forwardCurve, localVol, _isCall, _theta, expiry, maxProxyDelta,
+    final PDEFullResults1D pdeRes = runForwardPDESolver(forwardCurve, localVol, _isCall, _theta, expiry, maxProxyDelta,
         _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
     final int n = pdeRes.getNumberSpaceNodes();
     double[] logM = new double[n];
@@ -211,10 +211,10 @@ public class LocalVolatilityPDEGreekCalculator {
 
     logM = Arrays.copyOfRange(logM, 0, count);
     impVol = Arrays.copyOfRange(impVol, 0, count);
-    Interpolator1DDoubleQuadraticDataBundle data = INTERPOLATOR_1D.getDataBundle(logM, impVol);
+    final Interpolator1DDoubleQuadraticDataBundle data = INTERPOLATOR_1D.getDataBundle(logM, impVol);
     for (int i = 0; i < nStrikes; i++) {
-      double vol = INTERPOLATOR_1D.interpolate(data, Math.log(strikes[i] / forward));
-      double price = BlackFormulaRepository.price(forward, strikes[i], expiry, vol, _isCall);
+      final double vol = INTERPOLATOR_1D.interpolate(data, Math.log(strikes[i] / forward));
+      final double price = BlackFormulaRepository.price(forward, strikes[i], expiry, vol, _isCall);
       ps.println(strikes[i] + "\t" + vol + "\t" + price);
     }
 

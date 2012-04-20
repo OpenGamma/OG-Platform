@@ -27,6 +27,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
+import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 
 /**
  * 
@@ -44,7 +46,9 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
         BondFunction.PROPERTY_CREDIT_CURVE,
-        BondFunction.PROPERTY_RISK_FREE_CURVE);
+        BondFunction.PROPERTY_RISK_FREE_CURVE,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR,
+        PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
   }
 
   @Override

@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
+public abstract class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private final String _timeAxis;
   private final String _yAxis;
   private final String _volatilityTransform;
@@ -34,7 +34,7 @@ public abstract class LocalVolatilitySurfaceDefaultPropertiesFunction extends De
   private final String _surfaceName;
   private final String _eps;
 
-  public LocalVolatilitySurfaceDefaultPropertiesFunction(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public LocalVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceName,
       final String eps) {
     super(ComputationTargetType.PRIMITIVE, true);

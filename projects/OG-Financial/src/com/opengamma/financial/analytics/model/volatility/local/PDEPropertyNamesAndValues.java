@@ -18,5 +18,13 @@ public class PDEPropertyNamesAndValues {
   public static final String PROPERTY_NUMBER_SPACE_STEPS = "SpaceStepsNumber";
   public static final String PROPERTY_TIME_STEP_BUNCHING = "TimeStepsBunching";
   public static final String PROPERTY_SPACE_STEPS_BUNCHING = "SpaceStepsBunching";
+  public static final String PROPERTY_SPACE_DIRECTION_INTERPOLATOR = "SpaceDirectionInterpolator";
+  public static final String PROPERTY_DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
 
+  //Forward PDE-specific properties
+  public static final String PROPERTY_MAX_PROXY_DELTA = "MaxProxyDelta";
+  public static final String PROPERTY_CENTRE_MONEYNESS = "CentreMoneyness";
+
+  //Backward PDE-specific properties
+  public static final String PROPERTY_MAX_MONEYNESS = "MaxMoneyness";
 }

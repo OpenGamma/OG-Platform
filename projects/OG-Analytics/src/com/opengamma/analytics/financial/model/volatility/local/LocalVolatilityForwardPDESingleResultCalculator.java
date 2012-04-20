@@ -11,31 +11,31 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
+
 /**
  * 
  */
-public class LocalVolatilityBackwardPDEPriceCalculator implements PDELocalVolatilityCalculator<Double> {
-  private final LocalVolatilityBackwardPDEPriceGridCalculator _priceCalculator;
-  private final Interpolator1D _interpolator;
+//TODO desperately needs renaming
+public class LocalVolatilityForwardPDESingleResultCalculator implements PDELocalVolatilityCalculator<Double> {
+  private final NearestNPointsInterpolator _interpolator;
+  private final PDELocalVolatilityCalculator<Interpolator1DDataBundle> _calculator;
 
-  public LocalVolatilityBackwardPDEPriceCalculator(final LocalVolatilityBackwardPDEPriceGridCalculator priceCalculator, final Interpolator1D interpolator) {
-    _priceCalculator = priceCalculator;
+  public LocalVolatilityForwardPDESingleResultCalculator(final PDELocalVolatilityCalculator<Interpolator1DDataBundle> calculator, final Interpolator1D interpolator) {
+    _calculator = calculator;
     _interpolator = new NearestNPointsInterpolator(interpolator, 4);
   }
 
   @Override
   public Double getResult(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option, final YieldAndDiscountCurve discountingCurve) {
-    final double expiry = option.getTimeToExpiry();
-    final double forward = forwardCurve.getForward(expiry);
-    final Interpolator1DDataBundle data = _priceCalculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
-    return _interpolator.interpolate(data, forward);
+    final double strike = option.getStrike();
+    final Interpolator1DDataBundle data = _calculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
+    return _interpolator.interpolate(data, strike);
   }
 
   @Override
   public Double getResult(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option, final YieldAndDiscountCurve discountingCurve) {
-    final double expiry = option.getTimeToExpiry();
-    final double forward = forwardCurve.getForward(expiry);
-    final Interpolator1DDataBundle data = _priceCalculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
-    return _interpolator.interpolate(data, forward);
+    final double strike = option.getStrike();
+    final Interpolator1DDataBundle data = _calculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
+    return _interpolator.interpolate(data, strike);
   }
 }

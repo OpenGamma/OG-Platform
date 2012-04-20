@@ -52,7 +52,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexLocalVolatilityPDEPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+public class ForexLocalVolatilityPDEPresentValueFunctionOld extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
