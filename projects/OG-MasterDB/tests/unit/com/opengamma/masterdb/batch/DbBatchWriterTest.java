@@ -50,9 +50,9 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -71,7 +71,7 @@ public class DbBatchWriterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;
   private DbBatchWriter _batchWriter;
-  private CycleInfo _cycleInfoStub;
+  private ViewCycleMetadata _cycleMetadataStub;
   private ComputationTargetSpecification _compTargetSpec;
   private ValueRequirement _requirement;
   private ValueSpecification _specification;
@@ -100,15 +100,20 @@ public class DbBatchWriterTest extends DbTest {
 
     final Instant _valuationTime = Instant.parse("2011-12-14T14:20:17.143Z");
 
-    _cycleInfoStub = new CycleInfo() {
-
+    _cycleMetadataStub = new ViewCycleMetadata() {
+      
+      @Override
+      public UniqueId getViewCycleId() {
+        return UniqueId.of("viewcycle", "viewcycle", "viewcycle");
+      }
+      
       @Override
       public Collection<String> getAllCalculationConfigurationNames() {
         return newArrayList(calculationConfigName);
       }
 
       @Override
-      public Collection<com.opengamma.engine.ComputationTarget> getComputationTargetsByConfigName(String calcConfName) {
+      public Collection<com.opengamma.engine.ComputationTarget> getComputationTargets(String calcConfName) {
         if (calcConfName.equals(calculationConfigName)) {
           return newArrayList(
             new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new UniqueIdentifiable() {
@@ -128,7 +133,7 @@ public class DbBatchWriterTest extends DbTest {
       }
 
       @Override
-      public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputsByConfigName(String calcConfName) {
+      public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs(String calcConfName) {
         return new HashMap<ValueSpecification, Set<ValueRequirement>>() {{
           put(_specification, new HashSet<ValueRequirement>() {{
             add(_requirement);
@@ -137,7 +142,7 @@ public class DbBatchWriterTest extends DbTest {
       }
 
       @Override
-      public UniqueId getMarketDataSnapshotUniqueId() {
+      public UniqueId getMarketDataSnapshotId() {
         return UniqueId.of("snapshot", "snapshot", "snapshot");
       }
 
@@ -152,9 +157,10 @@ public class DbBatchWriterTest extends DbTest {
       }
 
       @Override
-      public UniqueId getViewDefinitionUid() {
+      public UniqueId getViewDefinitionId() {
         return UniqueId.of("viewdef", "viewdef", "viewdef");
       }
+
     };
 
   }
@@ -169,7 +175,7 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void addValuesToIncompleteSnapshot() {
-    MarketData marketData = _batchWriter.createOrGetMarketDataInTransaction(_cycleInfoStub.getMarketDataSnapshotUniqueId());
+    MarketData marketData = _batchWriter.createOrGetMarketDataInTransaction(_cycleMetadataStub.getMarketDataSnapshotId());
 
     _batchMaster.addValuesToMarketData(marketData.getObjectId(), Collections.<MarketDataValue>emptySet());
 
@@ -255,7 +261,7 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void createLiveDataSnapshotMultipleTimes() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
 
     _batchMaster.createMarketData(marketDataUid);
     _batchMaster.createMarketData(marketDataUid);
@@ -271,11 +277,11 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void createThenGetRiskRun() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
     
     _batchMaster.createMarketData(marketDataUid);
 
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     RiskRun run2 = _batchWriter.getRiskRun(run.getObjectId());
 
@@ -311,11 +317,11 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void startAndEndBatch() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
         
     _batchMaster.createMarketData(marketDataUid);
 
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     RiskRun run1 = _batchWriter.getRiskRun(run.getObjectId());
     assertNotNull(run1);
@@ -336,17 +342,17 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void startBatchTwice() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
             
     _batchMaster.createMarketData(marketDataUid);
 
-    RiskRun run1 = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run1 = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     RiskRun run2 = _batchWriter.getRiskRun(run1.getObjectId());
     assertNotNull(run2.getCreateInstant());
     assertEquals(0, run2.getNumRestarts());
 
-    RiskRun run10 = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run10 = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     RiskRun run20 = _batchWriter.getRiskRun(run10.getObjectId());
     assertEquals(1, run20.getNumRestarts());
 
@@ -504,9 +510,9 @@ public class DbBatchWriterTest extends DbTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void delete() {
 
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
     _batchMaster.createMarketData(marketDataUid);            
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     assertNotNull(_batchWriter.getRiskRun(run.getObjectId()));
     _batchMaster.deleteRiskRun(run.getObjectId());
@@ -521,11 +527,11 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addJobResultsWithoutExistingComputeNodeId() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
             
     _batchMaster.createMarketData(marketDataUid);    
     
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.addValue("config_1",
@@ -542,9 +548,9 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void addJobResults() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
     _batchMaster.createMarketData(marketDataUid);            
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     result.addValue("config_1",
       new ComputedValue(
