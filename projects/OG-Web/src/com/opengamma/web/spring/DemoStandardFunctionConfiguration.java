@@ -139,9 +139,16 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalV
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVommaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridDualDeltaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridDualGammaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridForwardDeltaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridForwardGammaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridForwardVannaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridForwardVegaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridForwardVommaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEGridImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPipsPresentValueFunction;
-import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
@@ -481,6 +488,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.VOMMA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.VOMMA_P);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.VARIANCE_VOMMA);
+
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_DELTA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_GAMMA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.DUAL_DELTA);
@@ -489,14 +497,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.IMPLIED_VOLATILITY);
-    
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_DELTA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_GAMMA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_DELTA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_GAMMA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VEGA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
-//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_DELTA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_GAMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_DUAL_DELTA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_DUAL_GAMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VEGA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VANNA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_FORWARD_VOMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.GRID_IMPLIED_VOLATILITY);
 
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_DIRTY_PRICE);
@@ -885,6 +893,58 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), 
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridDualGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardDeltaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardGammaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVegaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVegaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVegaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVannaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVannaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVannaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVommaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVommaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridForwardVommaFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridImpliedVolatilityFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridImpliedVolatilityFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEGridImpliedVolatilityFunction.class.getName(), 
+        Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
+    addLocalVolatilityDefaultProperties(functionConfigs);
+  }
+
+  private static void addLocalVolatilityDefaultProperties(final List<FunctionConfiguration> functionConfigs) {
     final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
             BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
             BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,

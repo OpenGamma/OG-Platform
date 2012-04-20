@@ -53,6 +53,10 @@ public abstract class LocalVolatilityForwardPDESpotGreeksGridCalculator implemen
   protected abstract double getResultForMoneyness(final PDETerminalResults1D pdeGrid, final PDETerminalResults1D pdeGridUp, final PDETerminalResults1D pdeGridDown,
       final int index, final double forward, final EuropeanVanillaOption option);
 
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
+  }
+
   /**
    * Calculates the delta
    */

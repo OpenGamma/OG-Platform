@@ -26,6 +26,7 @@ public class ForexLocalVolatilityForwardPDEImpliedVolatilityFunction extends For
     return ValueRequirementNames.IMPLIED_VOLATILITY;
   }
 
+  @Override
   protected PDELocalVolatilityCalculator<?> getPDECalculator(final LocalVolatilityForwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
     return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEImpliedVolatilityGridCalculator(pdeCalculator, interpolator), interpolator);
   }

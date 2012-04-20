@@ -31,5 +31,4 @@ public class ForexLocalVolatilityForwardPDEDualDeltaFunction extends ForexLocalV
     return new LocalVolatilityForwardPDESingleResultCalculator(new LocalVolatilityForwardPDEStrikeGreeksGridCalculator.DualDeltaCalculator(pdeCalculator, interpolator), interpolator);
   }
 
-
 }
