@@ -29,7 +29,7 @@ public class IRFutureOptionUtils {
       return TimeCalculator.getTimeBetween(today, previousMonday);
     }
     final LocalDate date = firstExpiry.with(s_firstOfMonthAdjuster);
-    final LocalDate plusMonths = date.plusMonths((n-1) * 3); //TODO this is hard-coding the futures to be quarterly
+    final LocalDate plusMonths = date.plusMonths((n - 1) * 3); //TODO this is hard-coding the futures to be quarterly
     final LocalDate thirdWednesday = plusMonths.with(s_nextExpiryAdjuster);
     final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
     return TimeCalculator.getTimeBetween(today, previousMonday);
