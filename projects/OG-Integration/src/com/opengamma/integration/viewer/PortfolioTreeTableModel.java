@@ -13,7 +13,6 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
 import javax.time.Instant;
 
-import com.opengamma.engine.view.CycleInfo;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
@@ -103,7 +103,12 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
   }
 
   @Override
-  public void cycleInitiated(CycleInfo cycleInfo) {
+  public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    //ignore
+  }
+  
+  @Override
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
     //ignore
   }
 
@@ -111,11 +116,6 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     _resultModel = fullResult;
     fireTreeNodesChanged();
-  }
-  
-  @Override
-  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
-    //ignore
   }
 
   @Override
@@ -130,6 +130,10 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
   public void processTerminated(boolean executionInterrupted) {
   }
 
+  @Override
+  public void clientShutdown(Exception e) {
+  }
+  
   //-------------------------------------------------------------------------
   private void fireTreeNodesChanged() {
     TreeModelEvent treeModelEvent = new TreeModelEvent(this, new TreePath(getRoot()), null, null);

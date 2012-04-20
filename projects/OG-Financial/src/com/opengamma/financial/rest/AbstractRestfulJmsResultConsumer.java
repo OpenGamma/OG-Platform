@@ -27,6 +27,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.transport.jms.JmsTemporaryQueueHost;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.FudgeRestClient;
 
@@ -38,6 +39,7 @@ import com.opengamma.util.rest.FudgeRestClient;
 public abstract class AbstractRestfulJmsResultConsumer {
 
   private static final long START_JMS_RESULT_STREAM_TIMEOUT_MILLIS = 10000;
+  private static final int HEARTBEAT_RETRIES = 3;
   
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractRestfulJmsResultConsumer.class);
   
@@ -108,18 +110,52 @@ public abstract class AbstractRestfulJmsResultConsumer {
   
   //-------------------------------------------------------------------------
   /**
-   * Externally visible for testing
+   * Externally visible for testing.
    */
   public void heartbeat() {
-    URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_HEARTBEAT);
-    _client.accessFudge(uri).post();
+    URI heartbeatUri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_HEARTBEAT);
+    heartbeat(heartbeatUri);
+  }
+  
+  /**
+   * Externally visible for testing.
+   * 
+   * @param heartbeatUri  the heartbeat URI, not null
+   */
+  public void heartbeat(URI heartbeatUri) {
+    ArgumentChecker.notNull(heartbeatUri, "heartbeatUri");
+    for (int i = 1; i <= HEARTBEAT_RETRIES; i++) {
+      try {
+        _client.accessFudge(heartbeatUri).post();
+        return;
+      } catch (Exception e) {
+        s_logger.warn("Heartbeat attempt " + i + " of " + HEARTBEAT_RETRIES + " failed", e);
+        if (i == HEARTBEAT_RETRIES) {
+          heartbeatFailed(e);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Called when heartbeating has failed, indicating that the remote resource has been discarded or the connection to
+   * the remote host has been lost. This is intended to be overridden to add custom error handling.
+   * <p>
+   * Externally visible for testing.
+   * 
+   * @param e  an exception associated with the failed heartbeat, may be null
+   */
+  public void heartbeatFailed(Exception e) {
+    s_logger.error("Heartbeating failed for resource " + getBaseUri() + " failed", e);
   }
 
   /**
    * Externally visible for testing
    */
   public void stopHeartbeating() {
-    _scheduledHeartbeat.cancel(true);
+    if (!_scheduledHeartbeat.isCancelled()) {
+      _scheduledHeartbeat.cancel(true);
+    }
   }
   
   //-------------------------------------------------------------------------

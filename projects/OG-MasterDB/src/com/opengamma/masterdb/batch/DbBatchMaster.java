@@ -44,9 +44,9 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
@@ -284,14 +284,14 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
   }
 
   @Override
-  public RiskRun startRiskRun(final CycleInfo cycleInfo,
+  public RiskRun startRiskRun(final ViewCycleMetadata cycleMetadata,
                               final Map<String, String> batchParameters,
                               final RunCreationMode runCreationMode,
                               final SnapshotMode snapshotMode) {
     return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<RiskRun>() {
       @Override
       public RiskRun doInTransaction(final TransactionStatus status) {
-        return _dbBatchWriter.startBatchInTransaction(cycleInfo, batchParameters, runCreationMode, snapshotMode);
+        return _dbBatchWriter.startBatchInTransaction(cycleMetadata, batchParameters, runCreationMode, snapshotMode);
       }
     });
   }

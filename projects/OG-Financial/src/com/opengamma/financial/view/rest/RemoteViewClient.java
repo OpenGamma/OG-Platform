@@ -104,6 +104,18 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
 
     };
   }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public void heartbeatFailed(Exception e) {
+    super.heartbeatFailed(e);
+    terminateRemoteClient();
+    
+    ViewResultListener listener = _resultListener;
+    if (listener != null) {
+      listener.clientShutdown(e);
+    }
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -194,7 +206,9 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   }
 
   private void processCompleted() {
-    _completionLatch.countDown();
+    if (_completionLatch != null) {
+      _completionLatch.countDown();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -372,8 +386,15 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   //-------------------------------------------------------------------------
   @Override
   public void shutdown() {
-    stopHeartbeating();
+    terminateRemoteClient();
     getClient().accessFudge(getBaseUri()).delete();
+  }
+
+  private void terminateRemoteClient() {
+    stopHeartbeating();
+    
+    // Release any threads blocked on completion
+    processCompleted();
   }
 
   //-------------------------------------------------------------------------
@@ -399,7 +420,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     
     // We have not been listening to results so far, so initialise the state of the latch
     if (isAttached() && isCompleted()) {
-      _completionLatch.countDown();
+      processCompleted();
     }
   }
 
