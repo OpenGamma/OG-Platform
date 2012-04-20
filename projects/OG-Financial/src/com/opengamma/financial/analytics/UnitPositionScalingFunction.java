@@ -27,6 +27,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
+import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 
 /**
  * 
@@ -44,7 +47,34 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
         BondFunction.PROPERTY_CREDIT_CURVE,
-        BondFunction.PROPERTY_RISK_FREE_CURVE);
+        BondFunction.PROPERTY_RISK_FREE_CURVE,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_EXTERNAL_BETA,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_MODEL,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_WEIGHTING_FUNCTION,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_AXIS,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_INTERPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_LEFT_EXTRAPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_RIGHT_EXTRAPOLATOR,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_VOLATILITY_TRANSFORM,
+        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS,
+        LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_DERIVATIVE_EPS,
+        LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS_PARAMETERIZATION,
+        PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION,
+        PDEPropertyNamesAndValues.PROPERTY_CENTRE_MONEYNESS,
+        PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME,
+        PDEPropertyNamesAndValues.PROPERTY_MAX_MONEYNESS,
+        PDEPropertyNamesAndValues.PROPERTY_MAX_PROXY_DELTA,
+        PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS,
+        PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS,
+        PDEPropertyNamesAndValues.PROPERTY_SPACE_DIRECTION_INTERPOLATOR,
+        PDEPropertyNamesAndValues.PROPERTY_SPACE_STEPS_BUNCHING,
+        PDEPropertyNamesAndValues.PROPERTY_THETA,
+        PDEPropertyNamesAndValues.PROPERTY_TIME_STEP_BUNCHING);
   }
 
   @Override
