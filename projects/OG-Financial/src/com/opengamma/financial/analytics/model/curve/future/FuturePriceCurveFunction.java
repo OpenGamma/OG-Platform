@@ -163,7 +163,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              final Double ttm = IRFutureOptionUtils.getTime(xNum.doubleValue(), now);
+              final Double ttm = IRFutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
               xList.add(ttm);
               prices.add(futurePrice);
             }
