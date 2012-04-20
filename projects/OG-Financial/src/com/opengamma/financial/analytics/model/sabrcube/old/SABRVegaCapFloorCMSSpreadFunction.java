@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.sabrcube;
+package com.opengamma.financial.analytics.model.sabrcube.old;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
@@ -24,14 +24,14 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentValueSABRFunction {
+public class SABRVegaCapFloorCMSSpreadFunction extends SABRVegaFunction {
 
-  public SABRPresentValueSABRCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
 
-  public SABRPresentValueSABRCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
-    super(currency, definitionName, forwardCurveName, fundingCurveName);
+  public SABRVegaCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+    super(currency, definitionName, false, forwardCurveName, fundingCurveName);
   }
 
   @Override
@@ -69,7 +69,7 @@ public class SABRPresentValueSABRCapFloorCMSSpreadFunction extends SABRPresentVa
 
       @Override
       public Double evaluate(Double x) {
-        return 1.;
+        return 0.5;
       }
 
     };

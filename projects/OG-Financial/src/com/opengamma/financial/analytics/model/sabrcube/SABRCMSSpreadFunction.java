@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -15,38 +15,31 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SABRYieldCurveNodeSensitivitiesFunction {
-
-  public SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
-    this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
-  }
-
-  public SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
-    super(currency, definitionName, false, forwardCurveName, fundingCurveName);
-  }
+public abstract class SABRCMSSpreadFunction extends SABRFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof CapFloorCMSSpreadSecurity && !isUseSABRExtrapolation();
+    return target.getSecurity() instanceof CapFloorCMSSpreadSecurity;
   }
 
   @Override
-  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final YieldCurveBundle bundle) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement surfacesRequirement = getCubeRequirement(target);
+  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
+      final ValueRequirement desiredValue, final YieldCurveBundle yieldCurves) {
+    final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
+    final ValueRequirement surfacesRequirement = getCubeRequirement(target, cubeName, currency);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
@@ -62,14 +55,14 @@ public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SA
     final DayCount dayCount = surfaces.getDayCount();
     final DoubleFunction1D correlationFunction = getCorrelationFunction();
     final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
-    return new SABRInterestRateDataBundle(modelParameters, bundle);
+    return new SABRInterestRateDataBundle(modelParameters, yieldCurves);
   }
 
   private DoubleFunction1D getCorrelationFunction() {
     return new DoubleFunction1D() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return 0.8;
       }
 
