@@ -4,12 +4,18 @@
  */
 (function ($, undefined) {
     var table_resizers = [], t, scrollbar_width = 0;
-    $(window).resize(function () {
-        if (t) clearTimeout(t);
-        t = setTimeout(function () {$.each(table_resizers, function (idx, val) {val();});}, 300);
-    });
+    /**
+     * @param {object} options awesometable configuration object
+     * @param {Number} options.height max height of table before awesometable kicks in
+     * @param {Function} options.resize resize manager that overwrides window resize (optional)
+     */
     $.fn.awesometable = function (options) {
-        var $self = this, $dup;
+        var $self = this, $dup, resize = function () {
+            if (t) clearTimeout(t);
+            t = setTimeout(function () {$.each(table_resizers, function (idx, val) {val();});}, 10);
+        };
+        if (typeof options.resize === 'function') options.resize(resize); // custom resize manager
+        else $(window).resize(resize);
         if (!$self.is('table')) throw new TypeError('awesometable: needs to be called on a table element');
         if (!options || !options.height || typeof options.height !== 'number')
             throw new TypeError('awesometable: requires an object with numeric height property');

@@ -353,7 +353,11 @@ $.register_module({
                 if (!version && editable) attach_trades_link(selector);
                 $(selector + ' .OG-table').tablesorter({
                     headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                }).awesometable({height: height});
+                }).awesometable({height: height, resize: function (resize) {
+                    og.common.gadgets.manager.register({
+                        alive: function () {return !!$(selector).length;}, resize: resize
+                    });
+                }});
                 /*
                  * Enable edit/delete trade
                  */
