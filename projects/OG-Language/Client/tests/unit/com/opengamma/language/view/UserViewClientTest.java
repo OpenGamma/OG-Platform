@@ -11,9 +11,9 @@ import javax.time.Instant;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
@@ -95,17 +95,17 @@ public class UserViewClientTest {
     }
 
     @Override
-    public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void cycleInitiated(CycleInfo cycleInfo) {
+    public void cycleStarted(ViewCycleMetadata cycleMetadata) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+      throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
       throw new UnsupportedOperationException();
     }
 
@@ -126,6 +126,10 @@ public class UserViewClientTest {
 
     public String getString() {
       return _sb.toString();
+    }
+
+    @Override
+    public void clientShutdown(Exception e) {
     }
 
   }

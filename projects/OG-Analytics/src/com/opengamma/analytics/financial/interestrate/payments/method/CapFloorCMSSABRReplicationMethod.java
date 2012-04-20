@@ -60,7 +60,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * Range of the integral. Used only for caps. Represent the approximation of infinity in the strike dimension.
    * The range is [strike, strike+integrationInterval].
    */
-  private double _integrationInterval;
+  private final double _integrationInterval;
   /**
    * Minimal number of integration steps in the replication.
    */
@@ -99,11 +99,11 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   }
 
   /**
-   * Sets the integration interval.
-   * @param integrationInterval The integration interval
+   * Gets the minimal number of iterations for the numerical integration.
+   * @return The number.
    */
-  public void setIntegrationInterval(final double integrationInterval) {
-    this._integrationInterval = integrationInterval;
+  public int getNbIteration() {
+    return _nbIteration;
   }
 
   /**

@@ -9,16 +9,17 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ClientShutdownCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
+import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -40,8 +41,8 @@ public class TestViewResultListener extends AbstractTestResultListener implement
     return expectNextCall(ViewDefinitionCompilationFailedCall.class, timeoutMillis);
   }
   
-  public CycleInitiatedCall getCycleInitiated(long timeoutMillis) throws InterruptedException {
-    return expectNextCall(CycleInitiatedCall.class, timeoutMillis);
+  public CycleStartedCall getCycleStarted(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(CycleStartedCall.class, timeoutMillis);
   }
   
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
@@ -58,6 +59,10 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   
   public ProcessTerminatedCall getProcessTerminated(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ProcessTerminatedCall.class, timeoutMillis);
+  }
+  
+  public ClientShutdownCall getClientShutdown(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(ClientShutdownCall.class, timeoutMillis);
   }
   
   //-------------------------------------------------------------------------  
@@ -100,17 +105,16 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(exceptionMessage, call.getException().getMessage());
     }
   }
-
-  public void assertCycleInitiated() {
-    assertCycleInitiated(0);
+  
+  public void assertCycleStarted() {
+    assertCycleStarted(0);
   }
-
-  public void assertCycleInitiated(long timeoutMillis) {
-    CycleInitiatedCall call;
+  
+  public void assertCycleStarted(long timeoutMillis) {
     try {
-      call = getCycleInitiated(timeoutMillis);
+      getCycleStarted(timeoutMillis);
     } catch (Exception e) {
-      throw new AssertionError("Expected CycleInitiated call error: " + e.getMessage());
+      throw new AssertionError("Expected cycleStarted call error: " + e.getMessage());
     }
   }
 
@@ -203,6 +207,18 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       throw new AssertionError("Expected processTerminated call error: " + e.getMessage());
     }
   }
+  
+  public void assertClientShutdown() {
+    assertClientShutdown(0);
+  }
+  
+  public void assertClientShutdown(long timeoutMillis) {
+    try {
+      getClientShutdown(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected clientShutdown call error: " + e.getMessage());
+    }
+  }
     
   //-------------------------------------------------------------------------
   @Override
@@ -221,8 +237,8 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   }
 
   @Override
-  public void cycleInitiated(CycleInfo cycleInfo) {
-    callReceived(new CycleInitiatedCall(cycleInfo), true);
+  public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    callReceived(new CycleStartedCall(cycleMetadata), true);
   }
 
   @Override
@@ -248,6 +264,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   @Override
   public void processTerminated(boolean executionInterrupted) {
     callReceived(new ProcessTerminatedCall(executionInterrupted));
+  }
+
+  @Override
+  public void clientShutdown(Exception e) {
+    callReceived(new ClientShutdownCall(e));
   }
   
 }

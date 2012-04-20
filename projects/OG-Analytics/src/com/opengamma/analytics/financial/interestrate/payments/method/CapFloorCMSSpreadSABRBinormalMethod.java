@@ -75,7 +75,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     Validate.notNull(correlation, "Correlation");
     _correlation = correlation;
     _methodCmsCap = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
-    _methodCmsCoupon = CouponCMSSABRReplicationMethod.getInstance();
+    _methodCmsCoupon = CouponCMSSABRReplicationMethod.getDefaultInstance();
   }
 
   /** 
@@ -114,8 +114,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
     CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
     CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
-    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData);
-    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData);
+    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
     double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
     double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
     double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
@@ -185,8 +185,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
     CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, strike1, true); // ATM forward cap CMS
     CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, strike2, true); // ATM forward cap CMS
-    double cmsCoupon1Pv = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData);
-    double cmsCoupon2Pv = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData);
+    double cmsCoupon1Pv = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    double cmsCoupon2Pv = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
     double cmsCap1Pv = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
     double cmsCap2Pv = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
     double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());
@@ -282,8 +282,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     cmsCoupon2 = cmsCoupon2.withNotional(Math.abs(cmsCoupon2.getNotional()));
     CapFloorCMS cmsCap1 = CapFloorCMS.from(cmsCoupon1, forward1, true);
     CapFloorCMS cmsCap2 = CapFloorCMS.from(cmsCoupon2, forward2, true);
-    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData);
-    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData);
+    double cmsCoupon1Price = _methodCmsCoupon.presentValue(cmsCoupon1, sabrData).getAmount();
+    double cmsCoupon2Price = _methodCmsCoupon.presentValue(cmsCoupon2, sabrData).getAmount();
     double cmsCap1Price = _methodCmsCap.presentValue(cmsCap1, sabrData).getAmount();
     double cmsCap2Price = _methodCmsCap.presentValue(cmsCap2, sabrData).getAmount();
     double discountFactorPayment = sabrData.getCurve(cmsSpread.getFundingCurveName()).getDiscountFactor(cmsSpread.getPaymentTime());

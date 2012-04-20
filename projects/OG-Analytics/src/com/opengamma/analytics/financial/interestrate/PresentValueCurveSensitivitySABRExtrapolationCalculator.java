@@ -32,14 +32,14 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
   /**
    * The instance of the calculator.
    */
-  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator s_instance = new PresentValueCurveSensitivitySABRExtrapolationCalculator();
+  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator INSTANCE = new PresentValueCurveSensitivitySABRExtrapolationCalculator();
 
   /**
    * Return the instance of the calculator.
    * @return The calculator.
    */
   public static PresentValueCurveSensitivitySABRExtrapolationCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
   /**
@@ -75,8 +75,7 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
         return method.presentValueSensitivity(swaption, sabr).getSensitivities();
       }
     }
-    throw new UnsupportedOperationException(
-        "The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
   }
 
   @Override
@@ -120,7 +119,7 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
         final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValueSensitivity(payment, sabr).getSensitivities();
+        return replication.presentValueCurveSensitivity(payment, sabr).getSensitivities();
       }
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateExtrapolationParameter as data.");

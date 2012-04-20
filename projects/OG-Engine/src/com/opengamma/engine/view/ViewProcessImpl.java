@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -248,18 +249,16 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-
-  public void cycleInitiated(CycleInfo cycleInfo) {
+  public void cycleStarted(ViewCycleMetadata cycleInfo) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
     lock();
     try {
-      cycleInitiatedCore(cycleInfo);
+      cycleStartedCore(cycleInfo);
     } finally {
       unlock();
     }
   }
-
 
   public void cycleFragmentCompleted(ViewComputationResultModel result, ViewDefinition viewDefinition) {
     // Caller MUST NOT hold the semaphore
@@ -319,7 +318,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
-  private void cycleInitiatedCore(CycleInfo cycleInfo) {
+  private void cycleStartedCore(ViewCycleMetadata cycleMetadata) {
     // Caller MUST hold the semaphore
 
     // [PLAT-1158]
@@ -331,13 +330,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     // We swap these first so that in the callback the process is consistent.
     for (ViewResultListener listener : _listeners) {
       try {
-        listener.cycleInitiated(cycleInfo);
+        listener.cycleStarted(cycleMetadata);
       } catch (Exception e) {
         logListenerError(listener, e);
       }
     }
   }
-
 
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);
