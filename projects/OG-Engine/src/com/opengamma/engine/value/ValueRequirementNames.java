@@ -1007,6 +1007,41 @@ public final class ValueRequirementNames {
    * The vomma of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
-  
+  /**
+   * The forward delta of an instrument
+   */
+  public static final String FORWARD_DELTA = "Forward Delta";
+  /** 
+   * The forward gamma of an instrument
+   */
+  public static final String FORWARD_GAMMA = "Forward Gamma";
+  /**
+   * The forward vega of an instrument
+   */
+  public static final String FORWARD_VEGA = "Forward Vega";
+  /**
+   * The forward vanna of an instrument
+   */
+  public static final String FORWARD_VANNA = "Forward Vanna";
+  /**
+   * The forward vomma of an instrument
+   */
+  public static final String FORWARD_VOMMA = "Forward Vomma";
+  /**
+   * The dual delta of an instrument
+   */
+  public static final String DUAL_DELTA = "Dual Delta";
+  /** 
+   * The dual gamma of an instrument
+   */
+  public static final String DUAL_GAMMA = "Dual Gamma";
+  /** 
+   * The domestic price for FX options
+   */
+  public static final String FOREX_DOMESTIC_PRICE = "Forex Domestic Price";
+  /**
+   * The PV quote form of FX option prices
+   */
+  public static final String FOREX_PV_QUOTES = "Forex PV Quotes";
 
 }

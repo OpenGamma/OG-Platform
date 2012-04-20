@@ -65,6 +65,9 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     return SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
   }
 
+  /**
+   * Spline interpolator function for Black volatility surfaces
+   */
   public static class Spline extends ForexBlackVolatilitySurfaceFunction {
 
     @Override
@@ -97,6 +100,9 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   }
 
+  /**
+   * SABR interpolator function for Black volatility surfaces
+   */
   public static class SABR extends ForexBlackVolatilitySurfaceFunction {
 
     @Override
@@ -129,6 +135,9 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   }
 
+  /**
+   * Mixed log-normal interpolator for Black volatility surface
+   */
   public static class MixedLogNormal extends ForexBlackVolatilitySurfaceFunction {
 
     @Override

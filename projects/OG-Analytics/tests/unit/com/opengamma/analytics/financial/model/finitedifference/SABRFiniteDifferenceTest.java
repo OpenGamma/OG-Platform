@@ -9,17 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
-import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -364,7 +353,7 @@ public class SABRFiniteDifferenceTest {
   }
 
   /**
-   * For delta calculations we use the forward (or driftless) delta (pips forward delta in FX speek), which is the sensitivity of the forward option
+   * For delta calculations we use the forward (or driftless) delta (pips forward delta in FX speak), which is the sensitivity of the forward option
    * price to a change in the relevant forward value of the underlying. In a Black-Scholes world this is just N(d1) (for a call) - i.e. no
    * exp(.) factors.
    * The delta under local volatility means the above sensitivity with the local volatility surface fixed, i.e. it is invariant

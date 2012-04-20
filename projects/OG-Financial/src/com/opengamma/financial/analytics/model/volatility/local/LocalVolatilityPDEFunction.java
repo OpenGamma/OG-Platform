@@ -1,52 +1,101 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.BACKWARDS;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.FORWARDS;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_SPACE_STEPS_BUNCHING;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_THETA;
-import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_TIME_STEP_BUNCHING;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME;
 
+import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.local.PDELocalVolatilityCalculator;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * 
  */
 public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name of this local volatility calculation method */
+  public static final String CALCULATION_METHOD = "LocalVolatilityPDE";
+  private final String _blackSmileInterpolatorName;
 
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final double theta = Double.parseDouble(desiredValue.getConstraint(PROPERTY_THETA));
-    final int nTimeSteps = Integer.parseInt(desiredValue.getConstraint(PROPERTY_NUMBER_TIME_STEPS));
-    final int nSpaceSteps = Integer.parseInt(desiredValue.getConstraint(PROPERTY_NUMBER_SPACE_STEPS));
-    final double timeStepBunching = Double.parseDouble(desiredValue.getConstraint(PROPERTY_TIME_STEP_BUNCHING));
-    final double spaceStepBunching = Double.parseDouble(desiredValue.getConstraint(PROPERTY_SPACE_STEPS_BUNCHING));
-    final String direction = desiredValue.getConstraint(PROPERTY_PDE_DIRECTION);
-    if (direction.equals(FORWARDS)) {
-
-    } else if (direction.equals(BACKWARDS)) {
-
-    } else {
-      throw new OpenGammaRuntimeException("Can only run PDE solver forwards or backwards; asked for " + direction);
-    }
-    return null;
+  public LocalVolatilityPDEFunction(final String blackSmileInterpolatorName) {
+    ArgumentChecker.notNull(blackSmileInterpolatorName, "Black smile interpolator name");
+    _blackSmileInterpolatorName = blackSmileInterpolatorName;
   }
 
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
+  }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = getResultProperties();
+    return Collections.singleton(new ValueSpecification(getRequirementName(), target.toSpecification(), properties));
+  }
+
+  protected abstract String getRequirementName();
+
+  protected abstract UniqueId getTargetUid(final ComputationTarget target);
+
+  protected abstract UniqueId getDiscountingCurveUid(final ComputationTarget target);
+
+  protected abstract String getInstrumentType();
+
+  protected abstract EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date);
+
+  protected abstract ValueProperties getResultProperties();
+
+  protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
+
+  protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties properties = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), _blackSmileInterpolatorName,
+        LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
+    return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, getTargetUid(target), properties);
+  }
+
+  protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String calculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String forwardCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .with(CURVE, forwardCurveName).get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, getTargetUid(target), properties);
+  }
+
+  protected ValueRequirement getDiscountingCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME)).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getDiscountingCurveUid(target), properties);
+  }
+
+  protected Object getResult(final PDELocalVolatilityCalculator<?> calculator, final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve,
+      final EuropeanVanillaOption option, final YieldAndDiscountCurve discountingCurve) {
+    return calculator.getResult(localVolatility, forwardCurve, option, discountingCurve);
+  }
+
+  protected String getBlackSmileInterpolatorName() {
+    return _blackSmileInterpolatorName;
+  }
 }
