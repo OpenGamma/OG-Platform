@@ -35,7 +35,8 @@ public abstract class ForwardPDEDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.FORWARD_VOMMA,
     ValueRequirementNames.FORWARD_VANNA,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_PRESENT_VALUE
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.IMPLIED_VOLATILITY
   };
   private final String _timeAxis;
   private final String _yAxis;

@@ -12,7 +12,7 @@ public class PDEPropertyNamesAndValues {
   /** Property name for the PDE direction */
   public static final String PROPERTY_PDE_DIRECTION = "PDEDirection";
   /** Forward PDE */
-  public static final String FORWARDS = "Forwards";
+  public static final String FORWARDS = "Forward";
   /** Backward PDE */
   public static final String BACKWARDS = "Backwards";
 

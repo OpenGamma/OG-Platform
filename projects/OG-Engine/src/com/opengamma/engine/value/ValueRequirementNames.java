@@ -1043,5 +1043,8 @@ public final class ValueRequirementNames {
    * The PV quote form of FX option prices
    */
   public static final String FOREX_PV_QUOTES = "Forex PV Quotes";
-
+  /**
+   * The implied volatility
+   */
+  public static final String IMPLIED_VOLATILITY = "Implied Volatility";
 }

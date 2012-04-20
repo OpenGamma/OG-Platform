@@ -136,11 +136,12 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalV
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEDualGammaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardDeltaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardGammaFunction;
-import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPipsPresentValueFunction;
-import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVannaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVegaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEForwardVommaFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEImpliedVolatilityFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPipsPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
@@ -487,14 +488,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VEGA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
-
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_DELTA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_GAMMA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_DELTA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_GAMMA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VEGA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
-    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.IMPLIED_VOLATILITY);
+    
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_DELTA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_GAMMA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_DELTA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DUAL_GAMMA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VEGA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VANNA);
+//    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FORWARD_VOMMA);
 
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MARKET_DIRTY_PRICE);
@@ -877,11 +879,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEForwardVommaFunction.class.getName(), 
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEPresentValueFunction.class.getName(), 
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), 
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEPresentValueFunction.class.getName(), 
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), 
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.SABR)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEPresentValueFunction.class.getName(), 
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityForwardPDEImpliedVolatilityFunction.class.getName(), 
         Arrays.asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
     final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
             BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
