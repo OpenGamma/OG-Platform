@@ -45,6 +45,7 @@ public abstract class ForwardPDEDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.GRID_FORWARD_VANNA,
     ValueRequirementNames.GRID_FORWARD_VOMMA,
     ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_PRESENT_VALUE
   };
   private final String _timeAxis;
   private final String _yAxis;
