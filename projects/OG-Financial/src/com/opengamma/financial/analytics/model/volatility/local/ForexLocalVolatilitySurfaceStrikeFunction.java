@@ -25,6 +25,9 @@ public abstract class ForexLocalVolatilitySurfaceStrikeFunction extends LocalVol
     return InstrumentTypeProperties.FOREX;
   }
 
+  /**
+   * Function producing a local volatility surface using a Black volatility surface with spline interpolation
+   */
   public static class Spline extends ForexLocalVolatilitySurfaceStrikeFunction {
 
     @Override
@@ -34,6 +37,9 @@ public abstract class ForexLocalVolatilitySurfaceStrikeFunction extends LocalVol
 
   }
 
+  /**
+   * Function producing a local volatility surface using a Black volatility surface with SABR interpolation
+   */
   public static class SABR extends ForexLocalVolatilitySurfaceStrikeFunction {
 
     @Override
@@ -43,6 +49,9 @@ public abstract class ForexLocalVolatilitySurfaceStrikeFunction extends LocalVol
 
   }
 
+  /**
+   * Function producing a local volatility surface using a Black volatility surface with mixed log-normal interpolation
+   */
   public static class MixedLogNormal extends ForexLocalVolatilitySurfaceStrikeFunction {
 
     @Override

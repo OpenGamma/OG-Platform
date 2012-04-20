@@ -35,6 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name of this local volatility calculation method */
   public static final String CALCULATION_METHOD = "LocalVolatilityPDE";
   private final String _blackSmileInterpolatorName;
 

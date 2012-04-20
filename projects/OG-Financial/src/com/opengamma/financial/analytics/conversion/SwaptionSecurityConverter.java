@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -27,15 +26,12 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class SwaptionSecurityConverter implements SwaptionSecurityVisitor<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
-  @SuppressWarnings("unused")
-  private final ConventionBundleSource _conventionSource;
   private final SwapSecurityConverter _swapConverter;
 
-  public SwaptionSecurityConverter(final SecuritySource securitySource, final ConventionBundleSource conventionSource, final SwapSecurityConverter swapConverter) {
+  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
     Validate.notNull(securitySource, "security source");
     Validate.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;
-    _conventionSource = conventionSource;
     _swapConverter = swapConverter;
   }
 
