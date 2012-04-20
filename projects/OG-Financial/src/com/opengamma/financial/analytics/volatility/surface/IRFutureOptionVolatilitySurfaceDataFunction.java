@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -176,8 +177,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
+    final LocalDate today = now.toLocalDate();
     for (final Number x : optionVolatilities.getXs()) {
-      final Double t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
+      final Double t = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
       for (final Double y : optionVolatilities.getYs()) {
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
@@ -201,13 +203,25 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
+    final LocalDate today = now.toLocalDate();
     for (final Number x : optionPrices.getXs()) {
-      final Double ttm = IRFutureOptionUtils.getTime(x.doubleValue(), now);
+      // Loop over option expiries
+      final Double ttm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      // Get the corresponding future, which may not share the same expiries as the option itself
+      Double[] futureExpiries = futurePrices.getXData();
+      Double underlyingExpiry;
+      int i = 0;
+      do {
+        underlyingExpiry = futureExpiries[i++];
+      } while(underlyingExpiry < ttm);
+      final double forward = futurePrices.getYValue(underlyingExpiry);
+      // Loop over strikes
       for (final Double y : optionPrices.getYs()) {
         final Double price = optionPrices.getVolatility(x, y);
         if (price != null) {
           try {
-            final double forward = futurePrices.getYValue(ttm);
+
+            // Compute the Black volatility implied from the option price
             final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, ttm, callAboveStrike / 100.);
             if (!CompareUtils.closeEquals(volatility, 0.0)) {
               txList.add(ttm);

@@ -86,7 +86,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futureOptionPrefix);
-    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutureOptions(_futureOptionPrefix, futureOptionNumber.intValue(), surfaceDate));
+    ticker.append(BloombergIRFutureUtils.getExpiryCodeForFutureOptions(_futureOptionPrefix, futureOptionNumber.intValue(), surfaceDate));
     ticker.append(strike > _useCallAboveStrike ? "C " : "P ");// TODO REVIEW CASE
     ticker.append(FORMATTER.format(strike));
     ticker.append(" ");
