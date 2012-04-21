@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -39,18 +39,13 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the type of SABR calculation (with right extrapolation) */
   public static final String SABR_RIGHT_EXTRAPOLATION = "SABRRightExtrapolation";
   /** String labelling the type of SABR extrapolation (none) */
   public static final String SABR_NO_EXTRAPOLATION = "SABRNoExtrapolation";
-  //  @SuppressWarnings("unchecked")
-  //  private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
-  //      .getCalculator(VolatilityFunctionFactory.HAGAN);
-  //  private static final double CUT_OFF = 0.07;
-  //  private static final double MU = 10.0;
 
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
   private SecuritySource _securitySource;
@@ -100,18 +95,18 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final String cubeName = cubeNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    final ValueRequirement cubeRequirement = getCubeRequirement(target, cubeName, currency);
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
+    final ValueRequirement fundingCurveRequirement = getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
+    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency);
     return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, cubeRequirement);
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod,
+  protected ValueRequirement getCurveRequirement(final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod,
       final Currency currency) {
     return YieldCurveFunction.getCurveRequirement(currency, curveName, advisoryForward, advisoryFunding, calculationMethod);
   }
 
-  protected ValueRequirement getCubeRequirement(final ComputationTarget target, final String cubeName, final Currency currency) {
+  protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, currency.getCode()).get();
@@ -130,7 +125,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     return _securitySource;
   }
 
-  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final Currency currency, final ValueRequirement desiredValue) {
+  protected YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final Currency currency, final ValueRequirement desiredValue) {
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
@@ -148,6 +143,6 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   protected abstract SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final ValueRequirement desiredValue, final YieldCurveBundle yieldCurves);
+      final ValueRequirement desiredValue);
 
 }

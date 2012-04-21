@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -16,10 +16,12 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -28,7 +30,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public abstract class SABRNoExtrapolationFunction extends SABRFunction {
 
@@ -47,9 +49,10 @@ public abstract class SABRNoExtrapolationFunction extends SABRFunction {
 
   @Override
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final ValueRequirement desiredValue, final YieldCurveBundle yieldCurves) {
+      final ValueRequirement desiredValue) {
+    final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final ValueRequirement surfacesRequirement = getCubeRequirement(target, cubeName, currency);
+    final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
@@ -67,4 +70,22 @@ public abstract class SABRNoExtrapolationFunction extends SABRFunction {
     return new SABRInterestRateDataBundle(modelParameters, yieldCurves);
   }
 
+  protected ValueProperties getResultProperties(final ValueProperties properties, final String currency) {
+    return properties.copy()
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CUBE)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
+  }
+
+  protected ValueProperties getResultProperties(final ValueProperties properties, final String currency, final String forwardCurveName,
+      final String fundingCurveName, final String cubeName) {
+    return properties.copy()
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CUBE, cubeName)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
+  }
 }
