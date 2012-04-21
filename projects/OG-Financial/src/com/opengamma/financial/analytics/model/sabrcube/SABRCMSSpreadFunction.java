@@ -5,22 +5,37 @@
  */
 package com.opengamma.financial.analytics.model.sabrcube;
 
+import java.util.Collections;
+import java.util.Set;
+
+import javax.time.calendar.Clock;
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.money.Currency;
 
@@ -35,6 +50,26 @@ public abstract class SABRCMSSpreadFunction extends SABRFunction {
       return false;
     }
     return target.getSecurity() instanceof CapFloorCMSSpreadSecurity;
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
+    final Clock snapshotClock = executionContext.getValuationClock();
+    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final InstrumentDefinition<?> definition = security.accept(getVisitor());
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, desiredValue);
+    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
+    final Object result = getResult(derivative, data);
+    final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), forwardCurveName, fundingCurveName, cubeName);
+    final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 
   @Override

@@ -10,6 +10,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -100,6 +101,10 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency);
     return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, cubeRequirement);
   }
+
+  protected abstract String getValueRequirement();
+
+  protected abstract Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data);
 
   protected ValueRequirement getCurveRequirement(final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod,
       final Currency currency) {
