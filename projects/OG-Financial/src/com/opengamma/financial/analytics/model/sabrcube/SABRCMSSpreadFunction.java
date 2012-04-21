@@ -73,6 +73,13 @@ public abstract class SABRCMSSpreadFunction extends SABRFunction {
   }
 
   @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final ValueProperties properties = getResultProperties(createValueProperties().get(), currency);
+    return Collections.singleton(new ValueSpecification(getValueRequirement(), target.toSpecification(), properties));
+  }
+
+  @Override
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
       final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
