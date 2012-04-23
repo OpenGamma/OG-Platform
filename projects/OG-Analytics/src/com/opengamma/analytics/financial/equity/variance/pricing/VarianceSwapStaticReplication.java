@@ -554,6 +554,7 @@ public class VarianceSwapStaticReplication {
       return visitDelta(surface, limits);
     }
 
+    //TODO Check we can replace this with formula 11.5 of Gatheral
     private Function1D<Double, Double> getDeltaIntegrand(final BlackVolatilitySurfaceDelta surface) {
       final double eps = 1e-5;
       final double rootT = Math.sqrt(_t);

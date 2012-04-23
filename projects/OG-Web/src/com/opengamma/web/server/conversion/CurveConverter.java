@@ -109,7 +109,7 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
     
     Double[] xs = detailedCurve.getXData();
     double eps = (xs[xs.length - 1] - xs[0]) / 100;
-    double x = 0;
+    double x = xs[0];    
     for (int i = 0; i < 100; i++) {      
       detailedData.add(new Double[]{x, detailedCurve.getYValue(x)});
       x += eps;

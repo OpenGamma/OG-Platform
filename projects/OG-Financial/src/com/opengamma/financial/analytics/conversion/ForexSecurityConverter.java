@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -156,6 +157,19 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, forwardDate, -payAmount, receiveAmount);
   }
 
+  @Override
+  public InstrumentDefinition<?> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity fxForwardSecurity) {
+    Validate.notNull(fxForwardSecurity, "fx forward security");
+    final Currency payCurrency = fxForwardSecurity.getPayCurrency();
+    final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
+    final double payAmount = fxForwardSecurity.getPayAmount();
+    final double receiveAmount = fxForwardSecurity.getReceiveAmount();
+    final double exchangeRate = receiveAmount / payAmount;
+    final ZonedDateTime fixingDate = fxForwardSecurity.getForwardDate();
+    final ZonedDateTime paymentDate = fixingDate; //TODO get this right
+    return new ForexNonDeliverableForwardDefinition(payCurrency, receiveCurrency, receiveAmount, exchangeRate, fixingDate, paymentDate);
+  }
+
   private KnockType getKnockType(final BarrierDirection direction) {
     switch (direction) {
       case KNOCK_IN:
@@ -249,11 +263,6 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
 
   @Override
   public InstrumentDefinition<?> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
     return null;
   }
 

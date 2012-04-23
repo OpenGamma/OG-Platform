@@ -5,20 +5,16 @@
  */
 package com.opengamma.engine.view.listener;
 
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
+import javax.time.Instant;
+
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
-
-import javax.time.Instant;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A listener to the output of a view process. Calls to the listener are always made in the sequence in which they
@@ -62,19 +58,13 @@ public interface ViewResultListener {
 
   //-------------------------------------------------------------------------
   /**
-   * Called following the successful completion of a computation cycle.
-   * 
-   * @param fullResult  the entire computation cycle result
-   * @param deltaResult  the delta result representing only the differences since the previous result
-   */
-  void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
-
-  /**
-   * Called following the initialisation of a computation cycle.
+   * Called when a new computation cycle begins.
+   * <p>
+   * This call should be expected only in conjunction with cycle fragment results.
    *
-   * @param cycleInfo cycle information
+   * @param cycleMetadata  information about the cycle, not null
    */
-  void cycleInitiated(CycleInfo cycleInfo);
+  void cycleStarted(ViewCycleMetadata cycleMetadata);
 
   /**
    * Called following the successful completion of a fragment of a computation cycle.
@@ -86,6 +76,14 @@ public interface ViewResultListener {
    * @param deltaFragment  the delta fragment representing only the differences since the previous cycle
    */
   void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment);
+  
+  /**
+   * Called following the successful completion of a computation cycle.
+   * 
+   * @param fullResult  the entire computation cycle result
+   * @param deltaResult  the delta result representing only the differences since the previous result
+   */
+  void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult);
 
   /**
    * Called to indicate that execution of a view cycle failed.
@@ -113,5 +111,17 @@ public interface ViewResultListener {
    *                              false otherwise, for example if execution has already completed
    */
   void processTerminated(boolean executionInterrupted);
-
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Called to indicate that the view client has been shut down. No further results should be expected,
+   * and interactions with the view client should cease.
+   * <p>
+   * This may be triggered normally by the owner of the view client calling {@link ViewClient#shutdown()}, or
+   * unexpectedly by an administrator shutting down the client or a remote client losing its connection to the host.
+   * 
+   * @param e  an exception associated with the shutdown, may be null
+   */
+  void clientShutdown(Exception e);
+  
 }

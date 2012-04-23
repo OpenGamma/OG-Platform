@@ -13,11 +13,11 @@ import javax.time.calendar.MonthOfYear;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.id.ExternalId;
 
 /**
- * 
+ * This test will begin late in 2012 as historical data on options on the Sep2011 Eurodollar future will cease to be provided  
  */
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final String PREFIX = "ED";
@@ -26,35 +26,25 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
   private static final Integer[] NUMBERS = new Integer[] {1, 7, 10};
   private static final Double[] STRIKES = new Double[] {96., 97.25, 98.5, 99.75};
   private static final String DATA_FIELD_NAME = "OPT_IMPLIED_VOLATILITY_MID";
-  private static final NextExpiryAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final String[][] RESULTS = new String[][] {new String[] {"EDU1P 96.000 Comdty", "EDU1P 97.250 Comdty", "EDU1C 98.500 Comdty", "EDU1C 99.750 Comdty"},
-    new String[] {"EDH3P 96.000 Comdty", "EDH3P 97.250 Comdty", "EDH3C 98.500 Comdty", "EDH3C 99.750 Comdty"},
-    new String[] {"EDZ3P 96.000 Comdty", "EDZ3P 97.250 Comdty", "EDZ3C 98.500 Comdty", "EDZ3C 99.750 Comdty"}};
+  private static final String[][] RESULTS = new String[][] {new String[] {"EDN1P 96.000 Comdty", "EDN1P 97.250 Comdty", "EDN1C 98.500 Comdty", "EDN1C 99.750 Comdty"},
+    new String[] {"EDH2P 96.000 Comdty", "EDH2P 97.250 Comdty", "EDH2C 98.500 Comdty", "EDH2C 99.750 Comdty"},
+    new String[] {"EDZ2P 96.000 Comdty", "EDZ2P 97.250 Comdty", "EDZ2C 98.500 Comdty", "EDZ2C 99.750 Comdty"}};
 
-  private static final String[][] EXPIRED_RESULTS = new String[][] {new String[] {"EDU1P 96.000 Comdty", "EDU1P 97.250 Comdty", "EDU1C 98.500 Comdty", "EDU1C 99.750 Comdty"},
-    new String[] {"EDH13P 96.000 Comdty", "EDH13P 97.250 Comdty", "EDH13C 98.500 Comdty", "EDH13C 99.750 Comdty"},
-    new String[] {"EDZ13P 96.000 Comdty", "EDZ13P 97.250 Comdty", "EDZ13C 98.500 Comdty", "EDZ13C 99.750 Comdty"}};
-
-  private static final LocalDate[] EXPIRY_DATES = new LocalDate[] {NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2011, MonthOfYear.SEPTEMBER, 1)),
-    NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2013, MonthOfYear.SEPTEMBER, 1)),
-    NEXT_EXPIRY_ADJUSTER.adjustDate(LocalDate.of(2013, MonthOfYear.DECEMBER, 1)) };
+  private static final LocalDate[] EXPIRY_DATES = new LocalDate[] {IRFutureOptionUtils.getFutureOptionExpiry(1,LocalDate.of(2011, MonthOfYear.SEPTEMBER, 1)),
+    IRFutureOptionUtils.getFutureOptionExpiry(1,LocalDate.of(2013, MonthOfYear.MARCH, 1)),
+    IRFutureOptionUtils.getFutureOptionExpiry(1,LocalDate.of(2013, MonthOfYear.DECEMBER, 1)) }; 
 
   private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 97.625);
 
   @Test
   public void test() {
-    final LocalDate today = LocalDate.now();
     for (int i = 0; i < NUMBERS.length; i++) {
+      assertEquals(EXPIRY_DATES[i], IRFutureOptionUtils.getQuarterlyExpiry(NUMBERS[i], DATE));
       for (int j = 0; j < STRIKES.length; j++) {
-        String expected;
-        if (today.isAfter(EXPIRY_DATES[i])) {
-          expected = EXPIRED_RESULTS[i][j];
-        } else {
-          expected = RESULTS[i][j];
-        }
-        final ExternalId result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
-        assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, result.getScheme());
-        assertEquals(expected, result.getValue());
+        final String expected = RESULTS[i][j];
+        final ExternalId actual = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
+        assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, actual.getScheme());
+        assertEquals(expected, actual.getValue());
       }
     }
   }

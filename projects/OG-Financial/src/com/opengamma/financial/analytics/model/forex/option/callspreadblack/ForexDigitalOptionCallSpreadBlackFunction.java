@@ -22,9 +22,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
-import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -49,6 +49,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -74,8 +75,9 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final FXDigitalOptionSecurity security = (FXDigitalOptionSecurity) target.getSecurity();
-    final ForexOptionDigitalDefinition definition = (ForexOptionDigitalDefinition) security.accept(VISITOR);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    @SuppressWarnings("unchecked")
+    final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(VISITOR);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -119,7 +121,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
-    final ForexOptionDigital fxOption = definition.toDerivative(now, curveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final ValueRequirement spotRequirement = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final Object spotObject = inputs.getValue(spotRequirement);
@@ -151,7 +153,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXDigitalOptionSecurity || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override
@@ -233,7 +235,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
       final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String spread,
       final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final ComputationTarget target);
 
-  protected abstract Set<ComputedValue> getResult(final ForexOptionDigital fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec);
 
   protected static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;

@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -77,6 +77,44 @@ public final class UserViewClient implements UniqueIdentifiable {
   private final ViewResultListener _listener = new ViewResultListener() {
 
     @Override
+    public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+        }
+      };
+      synchronized (this) {
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
+        listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+      }
+    }
+    
+    @Override
+    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
+      final ViewResultListener[] listeners;
+      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
+        @Override
+        public void callback(final ViewResultListener listener) {
+          listener.viewDefinitionCompilationFailed(valuationTime, exception);
+        }
+      };
+      synchronized (this) {
+        _coreEvents.remove(event);
+        _coreEvents.add(event);
+        listeners = _listeners;
+      }
+      for (ViewResultListener listener : listeners) {
+        listener.viewDefinitionCompilationFailed(valuationTime, exception);
+      }
+    }
+    
+    @Override
     public void cycleFragmentCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
       for (ViewResultListener listener : _listeners) {
         listener.cycleFragmentCompleted(fullResult, deltaResult);
@@ -84,16 +122,16 @@ public final class UserViewClient implements UniqueIdentifiable {
     }
 
     @Override
+    public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+      for (ViewResultListener listener : _listeners) {
+        listener.cycleStarted(cycleMetadata);
+      }
+    }
+    
+    @Override
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
       for (ViewResultListener listener : _listeners) {
         listener.cycleCompleted(fullResult, deltaResult);
-      }
-    }
-
-    @Override
-    public void cycleInitiated(CycleInfo cycleInfo) {
-      for (ViewResultListener listener : _listeners) {
-        listener.cycleInitiated(cycleInfo);
       }
     }
 
@@ -148,41 +186,7 @@ public final class UserViewClient implements UniqueIdentifiable {
     }
 
     @Override
-    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-      final ViewResultListener[] listeners;
-      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
-        @Override
-        public void callback(final ViewResultListener listener) {
-          listener.viewDefinitionCompilationFailed(valuationTime, exception);
-        }
-      };
-      synchronized (this) {
-        _coreEvents.remove(event);
-        _coreEvents.add(event);
-        listeners = _listeners;
-      }
-      for (ViewResultListener listener : listeners) {
-        listener.viewDefinitionCompilationFailed(valuationTime, exception);
-      }
-    }
-
-    @Override
-    public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      final ViewResultListener[] listeners;
-      final ViewResultListenerEvent event = new ViewResultListenerEvent(ET_VIEWDEF) {
-        @Override
-        public void callback(final ViewResultListener listener) {
-          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
-        }
-      };
-      synchronized (this) {
-        _coreEvents.remove(event);
-        _coreEvents.add(event);
-        listeners = _listeners;
-      }
-      for (ViewResultListener listener : listeners) {
-        listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
-      }
+    public void clientShutdown(Exception e) {
     }
 
   };

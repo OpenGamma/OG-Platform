@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.volatility.local;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -15,22 +16,39 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * 
  */
-public class LocalVolatilityBackwardPDEPriceGridCalculator {
+public class LocalVolatilityBackwardPDEPriceGridCalculator implements PDELocalVolatilityCalculator<Interpolator1DDataBundle> {
   private final LocalVolatilityBackwardPDECalculator _pdeCalculator;
   private final Interpolator1D _interpolator;
 
-  public LocalVolatilityBackwardPDEPriceGridCalculator(final double theta, final int nTimeSteps, final int nYSteps, final double timeMeshLambda, final double yMeshBunching,
-      final Interpolator1D interpolator) {
-    _pdeCalculator = new LocalVolatilityBackwardPDECalculator(theta, nTimeSteps, nYSteps, timeMeshLambda, yMeshBunching);
+  public LocalVolatilityBackwardPDEPriceGridCalculator(final LocalVolatilityBackwardPDECalculator pdeCalculator, final Interpolator1D interpolator) {
+    _pdeCalculator = pdeCalculator;
     _interpolator = interpolator;
   }
 
-  public Interpolator1DDataBundle getGridPrices(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option) {
+  @Override
+  public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
+      final YieldAndDiscountCurve discountingCurve) {
     final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
     final PDEGrid1D grid = pdeGrid.getGrid();
-    final double[] moneynesses = grid.getSpaceNodes();
-    final double[] prices = pdeGrid.getFinalTimePrices();
-    return _interpolator.getDataBundleFromSortedArrays(moneynesses, prices); //TODO
+    final double df = discountingCurve.getDiscountFactor(option.getTimeToExpiry());
+    final double[] forwards = grid.getSpaceNodes();
+    final double[] forwardPrices = pdeGrid.getFinalTimePrices();
+    final int n = forwards.length;
+    final double[] prices = new double[n];
+    for (int i = 0; i < n; i++) {
+      prices[i] = forwardPrices[i] * df;
+    }
+    return _interpolator.getDataBundleFromSortedArrays(forwards, prices);
+  }
+
+  @Override
+  public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
+      final YieldAndDiscountCurve discountingCurve) {
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDEGrid1D grid = pdeGrid.getGrid();
+    final double[] forwards = grid.getSpaceNodes();
+    final double[] forwardPrices = pdeGrid.getFinalTimePrices();
+    return _interpolator.getDataBundleFromSortedArrays(forwards, forwardPrices);
   }
 
 }

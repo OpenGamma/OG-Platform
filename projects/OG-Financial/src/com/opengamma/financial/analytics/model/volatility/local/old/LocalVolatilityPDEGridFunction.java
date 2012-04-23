@@ -98,7 +98,6 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final String spaceGridBunchingName = desiredValue.getConstraint(PROPERTY_SPACE_GRID_BUNCHING);
     final double spaceGridBunching = Double.parseDouble(spaceGridBunchingName);
     final String maxMoneynessName = desiredValue.getConstraint(PROPERTY_MAX_MONEYNESS);
-    final double maxMoneyness = Double.parseDouble(maxMoneynessName);
     final String pdeDirection = desiredValue.getConstraint(PROPERTY_PDE_DIRECTION);
     if (!(pdeDirection.equals(LocalVolatilityPDEValuePropertyNames.FORWARD_PDE))) {
       throw new OpenGammaRuntimeException("Can only use forward PDE; should never ask for this direction: " + pdeDirection);
@@ -108,8 +107,9 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final GeneralSmileInterpolator smileInterpolator = new SmileInterpolatorSpline();
     final VolatilitySurfaceInterpolator surfaceFitter = new VolatilitySurfaceInterpolator(smileInterpolator, useLogTime, useIntegratedVariance, useLogValue);
     //final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVariance, useLogValue);
+    //TODO get rid of hardcoded maxProxydelta = 1.5
     final LocalVolatilityForwardPDEGreekCalculator1<?> calculator = new LocalVolatilityForwardPDEGreekCalculator1<Moneyness>(theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching,
-        /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, maxMoneyness);
+        /*(MoneynessPiecewiseSABRSurfaceFitter)*/surfaceFitter, localVolatilityCalculator, 1.5);
     final ValueSpecification spec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
         hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
         timeGridBunchingName, spaceGridBunchingName, maxMoneynessName, pdeDirection);

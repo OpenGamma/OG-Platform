@@ -5,14 +5,17 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.Period;
 
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -32,6 +35,8 @@ public class BloombergIRFutureUtils {
     ED,
     /** EUR, Euro Euribor,  3-month, LIF */
     ER,
+    /** JPY, Euroyen, 3-month, SGX */
+    EF,
     /** AUD, 90 day Bankers' Acceptance, 3-month, SFE */
     IR,
     /** GBP, Short Sterling, 3-month, LIF */
@@ -42,51 +47,27 @@ public class BloombergIRFutureUtils {
       }
     }
   }
-  private static BiMap<MonthOfYear, Character> s_monthCode;
-  private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
+  
+  /** Map of MonthOfYear to Bloomberg Month Codes*/
+  public static final BiMap<MonthOfYear, Character> MONTH_CODE;
   static {
-    s_monthCode = HashBiMap.create();
-    s_monthCode.put(MonthOfYear.JANUARY, 'F');
-    s_monthCode.put(MonthOfYear.FEBRUARY, 'G');
-    s_monthCode.put(MonthOfYear.MARCH, 'H');
-    s_monthCode.put(MonthOfYear.APRIL, 'J');
-    s_monthCode.put(MonthOfYear.MAY, 'K');
-    s_monthCode.put(MonthOfYear.JUNE, 'M');
-    s_monthCode.put(MonthOfYear.JULY, 'N');
-    s_monthCode.put(MonthOfYear.AUGUST, 'Q');
-    s_monthCode.put(MonthOfYear.SEPTEMBER, 'U');
-    s_monthCode.put(MonthOfYear.OCTOBER, 'V');
-    s_monthCode.put(MonthOfYear.NOVEMBER, 'X');
-    s_monthCode.put(MonthOfYear.DECEMBER, 'Z');
+    MONTH_CODE = HashBiMap.create();
+    MONTH_CODE.put(MonthOfYear.JANUARY, 'F');
+    MONTH_CODE.put(MonthOfYear.FEBRUARY, 'G');
+    MONTH_CODE.put(MonthOfYear.MARCH, 'H');
+    MONTH_CODE.put(MonthOfYear.APRIL, 'J');
+    MONTH_CODE.put(MonthOfYear.MAY, 'K');
+    MONTH_CODE.put(MonthOfYear.JUNE, 'M');
+    MONTH_CODE.put(MonthOfYear.JULY, 'N');
+    MONTH_CODE.put(MonthOfYear.AUGUST, 'Q');
+    MONTH_CODE.put(MonthOfYear.SEPTEMBER, 'U');
+    MONTH_CODE.put(MonthOfYear.OCTOBER, 'V');
+    MONTH_CODE.put(MonthOfYear.NOVEMBER, 'X');
+    MONTH_CODE.put(MonthOfYear.DECEMBER, 'Z');
   }
   
-  /**
-   * Produces the month-year string required to build ExternalId for Bloomberg tickers of IRFutureSecurity and IRFutureOptionSecurity
-   * @param nthFuture The n'th future following valuation date
-   * @param valuationDate valuation date
-   * @param twoDigitYearDate Expired futures will, before this date, be referenced by a 2-digit year (eg 12 for 2012) as opposed to trading futures (eg 2 for 2012) 
-   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
-   */
-  public static final String getQuarterlyExpiryMonthYearCode(final int nthFuture, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
-    LocalDate futureExpiry = valuationDate.with(NEXT_EXPIRY_ADJUSTER);
-    final StringBuilder futureCode = new StringBuilder();
-    for (int i = 1; i < nthFuture; i++) {
-      futureExpiry = (futureExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
-    }
-    futureCode.append(s_monthCode.get(futureExpiry.getMonthOfYear()));
-    
-    if (futureExpiry.isBefore(twoDigitYearDate)) {
-
-      final int yearsNum = futureExpiry.getYear() % 100;
-      if (yearsNum < 10) {
-        futureCode.append("0"); // so we get '09' rather than '9'  
-      }
-      futureCode.append(Integer.toString(yearsNum));
-    } else {
-      futureCode.append(Integer.toString(futureExpiry.getYear() % 10));
-    }
-    return futureCode.toString();
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(BloombergIRFutureUtils.class);
+  
   /**
    * Produces the month-year string required to build ExternalId for Bloomberg ticker of IRFutureSecurity
    * @param futurePrefix 2 character String of Future (eg ED, ER, IR)
@@ -96,7 +77,7 @@ public class BloombergIRFutureUtils {
    */
   public static final String getQuarterlyExpiryCodeForFutures(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
     //Year convention for historical data is specific to the futurePrefix 
-    LocalDate twoDigitYearSwitch; 
+    final LocalDate twoDigitYearSwitch; 
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     switch(IRFuturePrefix.valueOf(futurePrefix.trim())) {
       case ED:
@@ -114,15 +95,66 @@ public class BloombergIRFutureUtils {
   /**
    * Produces the month-year string required to build ExternalId for Bloomberg ticker of IRFutureSecurity
    * NOTE: Eurodollar FutureOptions do not share the same naming convention for past expiries as their underlying futures!
+   * It appears that Bloomberg doesn't switch to a two-digit convention...
    * @param futurePrefix 2 character String of Future (eg ED, ER, IR)
    * @param nthFuture The n'th future following valuation date
    * @param curveDate Date curve is valid; valuation date
    * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
    */
-  public static final String getQuarterlyExpiryCodeForFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
-    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    LocalDate twoDigitYearSwitch = today.minus(Period.ofMonths(11));
-    return getQuarterlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
+  public static final String getExpiryCodeForFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
+    if (!futurePrefix.equals("ER")) {
+      LOG.warn("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
+      // The reason being that we have hard coded the behaviour of 6 consecutive months, then quarterly thereafter..
+    }    
+    LocalDate expiry  = IRFutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
+    return getMonthYearCode(expiry, expiry.minusYears(10));    
   }
+  
+  /**
+   * Produces the month-year string required to build ExternalId for Bloomberg tickers of IRFutureSecurity and IRFutureOptionSecurity.
+   * @param nthQuarter The n'th quarter following valuation date
+   * @param valuationDate valuation date
+   * @param twoDigitYearDate Expired futures will, before this date, be referenced by a 2-digit year (eg 12 for 2012) as opposed to trading futures (eg 2 for 2012) 
+   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
+   */
+  public static final String getQuarterlyExpiryMonthYearCode(final int nthQuarter, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
+    Validate.isTrue(nthQuarter > 0, "nthFuture must be greater than 0.");
+    final LocalDate expiry = IRFutureOptionUtils.getQuarterlyExpiry(nthQuarter, valuationDate);
+    return getMonthYearCode(expiry, twoDigitYearDate);
+  }
+  
+  /**
+   * Produces the month-year string required to build ExternalId for Bloomberg tickers of IRFutureSecurity and IRFutureOptionSecurity.
+   * @param nthMonth The n'th month following valuation date
+   * @param valuationDate valuation date
+   * @param twoDigitYearDate Expired futures will, before this date, be referenced by a 2-digit year (eg 12 for 2012) as opposed to trading futures (eg 2 for 2012) 
+   * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
+   */
+  public static final String getMonthlyExpiryMonthYearCode(final int nthMonth, final LocalDate valuationDate, final LocalDate twoDigitYearDate) {
+    Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
+    final LocalDate expiry = IRFutureOptionUtils.getMonthlyExpiry(nthMonth, valuationDate);
+    return getMonthYearCode(expiry, twoDigitYearDate);
+  }
+  /**
+   * Produces Bloomberg's code for month and year 
+   * @param expiry Expiry date of instrument
+   * @param twoDigitSwitch Instrument specific historical date when code moves from 1- to 2- digit year code
+   * @return String (e.g. Z3, H09)
+   */
+  public static final String getMonthYearCode(final LocalDate expiry, final LocalDate twoDigitSwitch) {
+    final StringBuilder futureCode = new StringBuilder();
+    futureCode.append(MONTH_CODE.get(expiry.getMonthOfYear()));  
+    if (expiry.isBefore(twoDigitSwitch)) {
+      final int yearsNum = expiry.getYear() % 100;
+      if (yearsNum < 10) {
+        futureCode.append("0"); // so we get '09' rather than '9'  
+      }
+      futureCode.append(Integer.toString(yearsNum));
+    } else {
+      futureCode.append(Integer.toString(expiry.getYear() % 10));
+    }
+    return futureCode.toString();
+  }
+  
   
 }

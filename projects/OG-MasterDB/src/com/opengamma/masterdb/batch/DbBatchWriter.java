@@ -73,10 +73,10 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.financial.conversion.ResultConverter;
@@ -374,12 +374,12 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
 
-  protected void populateRiskValueRequirements(CycleInfo cycleInfo) {
-    populateRiskValueSpecifications(cycleInfo);
+  protected void populateRiskValueRequirements(ViewCycleMetadata cycleMetadata) {
+    populateRiskValueSpecifications(cycleMetadata);
     
     Map<Map<String, Object>, Collection<ValueRequirement>> data = newHashMapWithDefaultCollection();
-    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
-      Map<ValueSpecification, Set<ValueRequirement>> outputs = cycleInfo.getTerminalOutputsByConfigName(configName);
+    for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
+      Map<ValueSpecification, Set<ValueRequirement>> outputs = cycleMetadata.getTerminalOutputs(configName);
       for (ValueSpecification specification : outputs.keySet()) {
         Long specificationId = _riskValueSpecifications.get(specification);
         for (ValueRequirement requirement : outputs.get(specification)) {
@@ -393,10 +393,10 @@ public class DbBatchWriter extends AbstractDbMaster {
     _riskValueRequirements.putAll(populate(data, getElSqlBundle().getSql("SelectRiskValueRequirement"), getElSqlBundle().getSql("InsertRiskValueRequirement"), RSK_SEQUENCE_NAME));
   }
 
-  protected void populateRiskValueSpecifications(CycleInfo cycleInfo) {
+  protected void populateRiskValueSpecifications(ViewCycleMetadata cycleMetadata) {
     Map<Map<String, Object>, Collection<ValueSpecification>> data = newHashMapWithDefaultCollection();
-    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
-      for (ValueSpecification specification : cycleInfo.getTerminalOutputsByConfigName(configName).keySet()) {
+    for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
+      for (ValueSpecification specification : cycleMetadata.getTerminalOutputs(configName).keySet()) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("synthetic_form", RiskValueSpecification.synthesize(specification.getProperties()));
         data.get(attribs).add(specification);
@@ -469,9 +469,9 @@ public class DbBatchWriter extends AbstractDbMaster {
     _computationTargets.putAll(cache);
   }
 
-  protected void populateCalculationConfigurations(Long riskRunId, CycleInfo cycleInfo) {
+  protected void populateCalculationConfigurations(Long riskRunId, ViewCycleMetadata cycleMetadata) {
     Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
-    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
+    for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
       Map<String, Object> map = newHashMap();
       map.put("name", configName);
       map.put("run_id", riskRunId);
@@ -682,13 +682,14 @@ public class DbBatchWriter extends AbstractDbMaster {
     return riskRun;
   }
 
-  public RiskRun startBatchInTransaction(CycleInfo cycleInfo, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
-    s_logger.info("Starting batch ... {}", cycleInfo);
+  public RiskRun startBatchInTransaction(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
+    s_logger.info("Starting batch ... {}", cycleMetadata);
 
     RiskRun run;
     switch (runCreationMode) {
       case AUTO:
-        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
+        run = findRiskRunInDb(cycleMetadata.getValuationTime(), cycleMetadata.getVersionCorrection(),
+            cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId());
 
         if (run != null) {
           // also check parameter equality
@@ -701,32 +702,32 @@ public class DbBatchWriter extends AbstractDbMaster {
         }
 
         if (run == null) {
-          run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(),
-              cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
+          run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
+              cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
         } else {
           restartRunInTransaction(run);
         }
         break;
 
       case CREATE_NEW_OVERWRITE:
-        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
+        run = findRiskRunInDb(cycleMetadata.getValuationTime(), cycleMetadata.getVersionCorrection(), cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId());
         if (run != null) {
           deleteRunInTransaction(run);
         }
 
-        run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(),
-            cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
+        run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
+            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
         break;
 
       case CREATE_NEW:
-        run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(),
-            cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
+        run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
+            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
         break;
 
       case REUSE_EXISTING:
-        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
+        run = findRiskRunInDb(cycleMetadata.getValuationTime(), cycleMetadata.getVersionCorrection(), cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId());
         if (run == null) {
-          throw new IllegalStateException("Cannot find run in database for " + cycleInfo);
+          throw new IllegalStateException("Cannot find run in database for " + cycleMetadata);
         }
         restartRunInTransaction(run);
         break;
@@ -735,12 +736,12 @@ public class DbBatchWriter extends AbstractDbMaster {
         throw new RuntimeException("Unexpected run creation mode " + runCreationMode);
     }
 
-    populateCalculationConfigurations(run.getId(), cycleInfo);
-    populateRiskValueRequirements(cycleInfo);
+    populateCalculationConfigurations(run.getId(), cycleMetadata);
+    populateRiskValueRequirements(cycleMetadata);
 
     Collection<ComputationTargetSpecification> computationTargets = newArrayList();
-    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
-      for (com.opengamma.engine.ComputationTarget computationTarget : cycleInfo.getComputationTargetsByConfigName(configName)) {
+    for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
+      for (com.opengamma.engine.ComputationTarget computationTarget : cycleMetadata.getComputationTargets(configName)) {
         computationTargets.add(computationTarget.toSpecification());
       }
     }

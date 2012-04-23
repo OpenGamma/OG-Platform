@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCallSpreadBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -28,7 +28,7 @@ public class ForexDigitalOptionCallSpreadBlackPresentValueFunction extends Forex
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final ForexOptionDigital fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueCallSpreadBlackForexCalculator calculator = new PresentValueCallSpreadBlackForexCalculator(spread);
     final MultipleCurrencyAmount result = calculator.visit(fxDigital, data);
     ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());

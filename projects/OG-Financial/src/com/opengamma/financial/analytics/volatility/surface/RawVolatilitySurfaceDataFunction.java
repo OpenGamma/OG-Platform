@@ -203,11 +203,14 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           for (final Object y : definition.getYs()) {
             final ExternalId identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
-            if (inputs.getValue(requirement) != null) {
-              final Double volatility = (Double) inputs.getValue(requirement);
+            final Double volatility = (Double) inputs.getValue(requirement);
+            if (volatility != null) {
+              // final Double volatility = (Double) inputs.getValue(requirement);
               xList.add(x);
               yList.add(y);
               volatilityValues.put(Pair.of(x, y), volatility);
+            } else {
+                // System.out.println(identifier.toString());
             }
           }
         }

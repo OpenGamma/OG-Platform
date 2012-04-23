@@ -28,6 +28,10 @@ public enum SecurityType {
    */
   BOND_FUTURE,
   /**
+   * 
+   */
+  BILL,
+  /**
    * Cash
    */
   CASH,

@@ -87,6 +87,14 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.VOMMA_P, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.VARIANCE_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.FORWARD_DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.FORWARD_GAMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.DUAL_DELTA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.DUAL_GAMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.FORWARD_VEGA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.FORWARD_VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.FORWARD_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    addConversion(ValueRequirementNames.IMPLIED_VOLATILITY, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
     addBulkConversion("(POSITION_|VALUE_).*", DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);

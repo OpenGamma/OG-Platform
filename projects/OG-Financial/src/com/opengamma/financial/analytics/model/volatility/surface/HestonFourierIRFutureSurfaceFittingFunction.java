@@ -117,6 +117,8 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
     for (final Double t : x) {
       final List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
+      // FIXME This is bound to break. I changed x/t from an ordinal to an OG-Analytics Year,
+      // via TimeCalculator.getTimeBetween(now, IRFutureOptionUtils.getTime(x,now)) where now is the valuationTime. See IRFutureOptionVolatilitySurfaceDataFunction
       final int n = strip.size();
       final DoubleArrayList strikesList = new DoubleArrayList(n);
       final DoubleArrayList sigmaList = new DoubleArrayList(n);

@@ -1007,6 +1007,80 @@ public final class ValueRequirementNames {
    * The vomma of an instrument calculated using local volatility and PDE methods.
    */
   public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
-  
-
+  /**
+   * The forward delta of an instrument
+   */
+  public static final String FORWARD_DELTA = "Forward Delta";
+  /** 
+   * The forward gamma of an instrument
+   */
+  public static final String FORWARD_GAMMA = "Forward Gamma";
+  /**
+   * The forward vega of an instrument
+   */
+  public static final String FORWARD_VEGA = "Forward Vega";
+  /**
+   * The forward vanna of an instrument
+   */
+  public static final String FORWARD_VANNA = "Forward Vanna";
+  /**
+   * The forward vomma of an instrument
+   */
+  public static final String FORWARD_VOMMA = "Forward Vomma";
+  /**
+   * The dual delta of an instrument
+   */
+  public static final String DUAL_DELTA = "Dual Delta";
+  /** 
+   * The dual gamma of an instrument
+   */
+  public static final String DUAL_GAMMA = "Dual Gamma";
+  /** 
+   * The domestic price for FX options
+   */
+  public static final String FOREX_DOMESTIC_PRICE = "Forex Domestic Price";
+  /**
+   * The PV quote form of FX option prices
+   */
+  public static final String FOREX_PV_QUOTES = "Forex PV Quotes";
+  /**
+   * The implied volatility
+   */
+  public static final String IMPLIED_VOLATILITY = "Implied Volatility";
+  /**
+   * The PDE space grid values of the forward delta of an instrument
+   */
+  public static final String GRID_FORWARD_DELTA = "Grid Forward Delta";
+  /** 
+   * The PDE space grid values of the forward gamma of an instrument
+   */
+  public static final String GRID_FORWARD_GAMMA = "Grid Forward Gamma";
+  /**
+   * The PDE space grid values of the forward vega of an instrument
+   */
+  public static final String GRID_FORWARD_VEGA = "Grid Forward Vega";
+  /**
+   * The PDE space grid values of the forward vanna of an instrument
+   */
+  public static final String GRID_FORWARD_VANNA = "Grid Forward Vanna";
+  /**
+   * The PDE space grid values of the forward vomma of an instrument
+   */
+  public static final String GRID_FORWARD_VOMMA = "Grid Forward Vomma";
+  /**
+   * The PDE space grid values of the dual delta of an instrument
+   */
+  public static final String GRID_DUAL_DELTA = "Grid Dual Delta";
+  /** 
+   * The PDE space grid values of the dual gamma of an instrument
+   */
+  public static final String GRID_DUAL_GAMMA = "Grid Dual Gamma";
+  /**
+   * The PDE space grid values of the implied volatility
+   */
+  public static final String GRID_IMPLIED_VOLATILITY = "Grid Implied Volatility";
+  /**
+   * The PDE space grid values of the price
+   */
+  public static final String GRID_PRESENT_VALUE = "Grid Present Value";
 }
