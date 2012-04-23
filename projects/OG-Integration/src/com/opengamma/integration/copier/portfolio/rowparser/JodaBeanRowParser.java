@@ -410,6 +410,11 @@ public class JodaBeanRowParser extends RowParser {
     return result;
   }
   
+  /**
+   * Converts a list of objects to a |-separated string of their JodaConverted string representations
+   * @param i the list to be converted
+   * @return  the |-separated string string
+   */
   private String listToString(List<?> i) {
     String result = "";
     for (Object o : i) {
@@ -422,6 +427,12 @@ public class JodaBeanRowParser extends RowParser {
     return result.substring(0, result.lastIndexOf('|')).trim();
   }
   
+  /**
+   * Converts a |-separated string to a list of objects using JodaConvert.
+   * @param raw the string to parse
+   * @param t   the class to convert to
+   * @return    the list of objects of type t
+   */
   private List<?> stringToList(String raw, Class<?> t) {
     List<Object> result = new ArrayList<Object>();
     for (String s : raw.split("\\|")) {
