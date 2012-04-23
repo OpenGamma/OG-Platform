@@ -8,20 +8,20 @@ package com.opengamma.analytics.financial.forex.definition;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Class describing a foreign exchange non-deliverable forward transaction.
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
-// TODO: Review: Should the transaction be stored as KRW/USD or USD/KRW? 
+// TODO: Review: Should the transaction be stored as KRW/USD or USD/KRW?
 public class ForexNonDeliverableForwardDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**
@@ -58,13 +58,13 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
    * @param fixingDate The exchange rate fixing date.
    * @param paymentDate The transaction payment or settlement date.
    */
-  public ForexNonDeliverableForwardDefinition(final Currency currency1, final Currency currency2, double notional, final double exchangeRate, final ZonedDateTime fixingDate,
+  public ForexNonDeliverableForwardDefinition(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate, final ZonedDateTime fixingDate,
       final ZonedDateTime paymentDate) {
-    Validate.notNull(currency1, "First currency");
-    Validate.notNull(currency2, "Second currency");
-    Validate.notNull(fixingDate, "Fixing date");
-    Validate.notNull(paymentDate, "Payment date");
-    Validate.isTrue(!paymentDate.isBefore(fixingDate), "Payment date should be on or after fixing date");
+    ArgumentChecker.notNull(currency1, "First currency");
+    ArgumentChecker.notNull(currency2, "Second currency");
+    ArgumentChecker.notNull(fixingDate, "Fixing date");
+    ArgumentChecker.notNull(paymentDate, "Payment date");
+    ArgumentChecker.isTrue(!paymentDate.isBefore(fixingDate), "Payment date should be on or after fixing date");
     this._currency1 = currency1;
     this._currency2 = currency2;
     this._notional = notional;
@@ -122,20 +122,20 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public ForexNonDeliverableForward toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");
-    Validate.isTrue(yieldCurveNames.length > 1, "At least two curves required");
+  public ForexNonDeliverableForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "At least two curves required");
     return new ForexNonDeliverableForward(_currency1, _currency2, _notional, _exchangeRate, TimeCalculator.getTimeBetween(date, _fixingDate), TimeCalculator.getTimeBetween(date, _paymentDate),
         yieldCurveNames[0], yieldCurveNames[1]);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitForexNonDeliverableForwardDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitForexNonDeliverableForwardDefinition(this);
   }
 
@@ -156,7 +156,7 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -166,7 +166,7 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ForexNonDeliverableForwardDefinition other = (ForexNonDeliverableForwardDefinition) obj;
+    final ForexNonDeliverableForwardDefinition other = (ForexNonDeliverableForwardDefinition) obj;
     if (!ObjectUtils.equals(_currency1, other._currency1)) {
       return false;
     }

@@ -45,12 +45,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
@@ -105,10 +105,10 @@ public class ViewClientTest {
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
     client.waitForCompletion();
     //
-    ArgumentCaptor<CycleInfo> argument = ArgumentCaptor.forClass(CycleInfo.class);
-    verify(viewResultListenerMock).cycleInitiated(argument.capture());
+    ArgumentCaptor<ViewCycleMetadata> argument = ArgumentCaptor.forClass(ViewCycleMetadata.class);
+    verify(viewResultListenerMock).cycleStarted(argument.capture());
 
-    assertEquals("boo~far", argument.getValue().getViewDefinitionUid().toString());
+    assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
     assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
     assertEquals("Test Calc Config", first(argument.getValue().getAllCalculationConfigurationNames()));
 

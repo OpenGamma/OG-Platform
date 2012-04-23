@@ -98,7 +98,6 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final String spaceGridBunchingName = desiredValue.getConstraint(PROPERTY_SPACE_GRID_BUNCHING);
     final double spaceGridBunching = Double.parseDouble(spaceGridBunchingName);
     final String maxMoneynessName = desiredValue.getConstraint(PROPERTY_MAX_MONEYNESS);
-    final double maxMoneyness = Double.parseDouble(maxMoneynessName);
     final String pdeDirection = desiredValue.getConstraint(PROPERTY_PDE_DIRECTION);
     if (!(pdeDirection.equals(LocalVolatilityPDEValuePropertyNames.FORWARD_PDE))) {
       throw new OpenGammaRuntimeException("Can only use forward PDE; should never ask for this direction: " + pdeDirection);

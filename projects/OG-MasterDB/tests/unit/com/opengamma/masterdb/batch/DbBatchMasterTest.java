@@ -35,7 +35,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -48,7 +48,7 @@ import com.opengamma.util.tuple.Pair;
 public class DbBatchMasterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;
-  private CycleInfo _cycleInfoStub;
+  private ViewCycleMetadata _cycleMetadataStub;
   private ComputationTargetSpecification _compTargetSpec;
   private ValueRequirement _requirement;
   private ValueSpecification _specification;
@@ -73,16 +73,21 @@ public class DbBatchMasterTest extends DbTest {
     _requirement = new ValueRequirement("FAIR_VALUE", security);
     _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");
 
-    _cycleInfoStub = new CycleInfo() {
+    _cycleMetadataStub = new ViewCycleMetadata() {
 
+      @Override
+      public UniqueId getViewCycleId() {
+        return UniqueId.of("viewcycle", "viewcycle", "viewcycle");
+      }
+      
       @Override
       public Collection<String> getAllCalculationConfigurationNames() {
         return newArrayList(calculationConfigName);
       }
 
       @Override
-      public Collection<com.opengamma.engine.ComputationTarget> getComputationTargetsByConfigName(String calcConfName) {
-        if (calcConfName.equals(calculationConfigName)) {
+      public Collection<com.opengamma.engine.ComputationTarget> getComputationTargets(String configurationName) {
+        if (configurationName.equals(calculationConfigName)) {
           return newArrayList(
             new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new UniqueIdentifiable() {
               @Override
@@ -101,7 +106,7 @@ public class DbBatchMasterTest extends DbTest {
       }
 
       @Override
-      public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputsByConfigName(String calcConfName) {
+      public Map<ValueSpecification, Set<ValueRequirement>> getTerminalOutputs(String configurationName) {
         return new HashMap<ValueSpecification, Set<ValueRequirement>>() {{
           put(_specification, new HashSet<ValueRequirement>() {{
             add(_requirement);
@@ -110,7 +115,7 @@ public class DbBatchMasterTest extends DbTest {
       }
 
       @Override
-      public UniqueId getMarketDataSnapshotUniqueId() {
+      public UniqueId getMarketDataSnapshotId() {
         return UniqueId.of("snapshot", "snapshot", "snapshot");
       }
 
@@ -125,18 +130,19 @@ public class DbBatchMasterTest extends DbTest {
       }
 
       @Override
-      public UniqueId getViewDefinitionUid() {
+      public UniqueId getViewDefinitionId() {
         return UniqueId.of("viewdef", "viewdef", "viewdef");
       }
+
     };
 
   }
 
   @Test
   public void searchAllBatches() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
     _batchMaster.createMarketData(marketDataUid);            
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     BatchRunSearchRequest request = new BatchRunSearchRequest();
 
@@ -162,9 +168,9 @@ public class DbBatchMasterTest extends DbTest {
 
   @Test
   public void searchOneBatch() {
-    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
     _batchMaster.createMarketData(marketDataUid);            
-    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     BatchRunSearchRequest request = new BatchRunSearchRequest();
     request.setValuationTime(run.getValuationTime());

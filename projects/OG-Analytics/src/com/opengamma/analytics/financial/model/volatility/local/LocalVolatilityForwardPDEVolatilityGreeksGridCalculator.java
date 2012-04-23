@@ -85,6 +85,10 @@ public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator im
       final PDETerminalResults1D pdeGridUpUp, final PDETerminalResults1D pdeGridUpDown, final PDETerminalResults1D pdeGridDownUp, final PDETerminalResults1D pdeGridDownDown,
       final int index, final double forward, final EuropeanVanillaOption option);
 
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
+  }
+
   /**
    * Calculates the vega
    */

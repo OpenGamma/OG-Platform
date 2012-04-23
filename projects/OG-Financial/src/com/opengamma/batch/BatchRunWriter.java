@@ -5,20 +5,16 @@
  */
 package com.opengamma.batch;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.paging.Paging;
-import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.Pair;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A master for storing batch job runs.
@@ -34,13 +30,13 @@ public interface BatchRunWriter {
    * This method must be called before any risk can be
    * written for the batch in question.
    *
-   * @param cycleInfo  cycle information of the batch, not null
+   * @param cycleMetadata  cycle metadata of the batch, not null
    * @param batchParameters batch parameters                  
    * @param runCreationMode the mode of risk run cration
    * @param snapshotMode the mode defining if missing market data should be written or expected to exist upfront
    * @return started risk run                    
    */
-  RiskRun startRiskRun(CycleInfo cycleInfo, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode);
+  RiskRun startRiskRun(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode);
 
   /**
    * Ends the batch.

@@ -37,8 +37,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.engine.view.SimpleCycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
@@ -304,7 +302,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           configToTerminalOutputs.put(configName, dependencyGraph.getTerminalOutputs());
         }
         
-        cycleInitiated(new SimpleCycleInfo(
+        cycleStarted(new DefaultViewCycleMetadata(
+            cycleReference.get().getUniqueId(),
             marketDataSnapshot.getUniqueId(),
             compiledViewDefinition.getViewDefinition().getUniqueId(),
             versionCorrection,
@@ -359,11 +358,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void cycleInitiated(CycleInfo cycleInfo) {
+  private void cycleStarted(ViewCycleMetadata cycleMetadata) {
     try {
-      getViewProcess().cycleInitiated(cycleInfo);
+      getViewProcess().cycleStarted(cycleMetadata);
     } catch (Exception e) {
-      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle initiation", e);
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle starting", e);
     }
   }
 

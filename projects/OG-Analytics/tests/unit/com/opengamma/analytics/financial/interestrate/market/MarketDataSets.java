@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
-import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -37,6 +36,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * Sets of market data used in tests.
  */
 public class MarketDataSets {
+
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   //  private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");

@@ -26,12 +26,22 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
  */
 public final class PresentValueSABRExtrapolationCalculator extends PresentValueCalculator {
 
-  private static final PresentValueSABRExtrapolationCalculator s_instance = new PresentValueSABRExtrapolationCalculator();
+  /**
+   * Creates the method unique instance.
+   */
+  private static final PresentValueSABRExtrapolationCalculator INSTANCE = new PresentValueSABRExtrapolationCalculator();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static PresentValueSABRExtrapolationCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private PresentValueSABRExtrapolationCalculator() {
   }
 
@@ -89,7 +99,7 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
       if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
         final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
         final CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValue(payment, sabr);
+        return replication.presentValue(payment, sabr).getAmount();
       }
     }
     throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateExtrapolationParameter as data.");
@@ -109,5 +119,20 @@ public final class PresentValueSABRExtrapolationCalculator extends PresentValueC
     }
     throw new UnsupportedOperationException("The PresentValueSABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateExtrapolationParameter as data.");
   }
+
+  //  @Override
+  //  public Double visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final YieldCurveBundle curves) {
+  //    Validate.notNull(curves);
+  //    Validate.notNull(payment);
+  //    if (curves instanceof SABRInterestRateDataBundle) {
+  //      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+  //      if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
+  //        final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabrBundle.getSABRParameter();
+  //        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation());
+  //        return method.presentValue(payment, sabrBundle).getAmount();
+  //      }
+  //    }
+  //    throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitCapFloorCMSSpread requires a SABRInterestRateDataBundle with correlation as data.");
+  //  }
 
 }

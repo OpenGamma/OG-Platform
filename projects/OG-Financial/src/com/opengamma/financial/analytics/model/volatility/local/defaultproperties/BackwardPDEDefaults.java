@@ -33,7 +33,8 @@ public abstract class BackwardPDEDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.FOREX_PV_QUOTES,
     ValueRequirementNames.FORWARD_VEGA,
     ValueRequirementNames.FORWARD_VOMMA,
-    ValueRequirementNames.FORWARD_VANNA
+    ValueRequirementNames.FORWARD_VANNA,
+    ValueRequirementNames.IMPLIED_VOLATILITY
   };
   private final String _timeAxis;
   private final String _yAxis;

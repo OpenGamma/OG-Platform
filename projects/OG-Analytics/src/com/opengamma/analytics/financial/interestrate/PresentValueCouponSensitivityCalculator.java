@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -21,6 +19,8 @@ import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCoupo
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Calculates the change in present value (PV) when an instrument's fixed payments change (for bonds this is the coupon rate, for swaps it is the rate on the fixed leg etc) dPV/dC
@@ -71,7 +71,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
 
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return future.getPaymentAccrualFactor() * future.getQuantity();
+    return future.getPaymentAccrualFactor() * future.getQuantity() * future.getNotional(); // TODO Confirm adding Notional here, for YCNSens doesn't mess up other stuff
   }
 
   @Override

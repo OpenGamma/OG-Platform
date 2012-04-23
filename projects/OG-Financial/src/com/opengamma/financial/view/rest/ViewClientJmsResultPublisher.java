@@ -11,16 +11,17 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ClientShutdownCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
+import com.opengamma.engine.view.listener.CycleStartedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -83,10 +84,15 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     send(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
   }
+  
+  @Override
+  public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    send(new CycleStartedCall(cycleMetadata));
+  }
 
   @Override
-  public void cycleInitiated(CycleInfo cycleInfo) {
-    send(new CycleInitiatedCall(cycleInfo));
+  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    send(new CycleFragmentCompletedCall(fullFragment, deltaFragment));
   }
 
   @Override
@@ -98,12 +104,7 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     send(new CycleExecutionFailedCall(executionOptions, exception));
   }
-
-  @Override
-  public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
-    send(new CycleFragmentCompletedCall(fullFragment, deltaFragment));
-  }
-
+  
   @Override
   public void processCompleted() {
     send(new ProcessCompletedCall());
@@ -112,6 +113,11 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   @Override
   public void processTerminated(boolean executionInterrupted) {
     send(new ProcessTerminatedCall(executionInterrupted));
+  }
+
+  @Override
+  public void clientShutdown(Exception e) {
+    send(new ClientShutdownCall(e));
   }
 
 }

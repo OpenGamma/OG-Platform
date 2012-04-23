@@ -5,34 +5,36 @@
  */
 package com.opengamma.batch.domain;
 
-import com.google.common.collect.Sets;
-import com.opengamma.batch.BatchMaster;
-import com.opengamma.batch.SnapshotMode;
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.functional.Function1;
-import org.joda.beans.*;
-import org.joda.beans.impl.direct.*;
+import static com.opengamma.util.functional.Functional.map;
 
-import javax.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.opengamma.util.functional.Functional.map;
+import javax.time.Instant;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.Sets;
+import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.SnapshotMode;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.functional.Function1;
 
 @BeanDefinition
 public class RiskRun extends DirectBean implements ObjectIdentifiable {
@@ -108,7 +110,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   public RiskRun() {
   }
 
-  public RiskRun(MarketData marketData, Instant createInstant, Instant valuationTime, int numRestarts, Set<CalculationConfiguration> calculationConfigurations, Set<RiskRunProperty> properties, boolean complete, VersionCorrection versionCorrection, UniqueId viewDefinitionUid) {
+  public RiskRun(MarketData marketData, Instant createInstant, Instant valuationTime, int numRestarts,
+      Set<CalculationConfiguration> calculationConfigurations, Set<RiskRunProperty> properties, boolean complete,
+      VersionCorrection versionCorrection, UniqueId viewDefinitionUid) {
     this._marketData = marketData;
     this._createInstant = createInstant;
     this._valuationTime = valuationTime;
@@ -124,12 +128,12 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     }
   }
 
-  public RiskRun(final CycleInfo cycleInfo) {
-    this(new MarketData(cycleInfo.getMarketDataSnapshotUniqueId()),
+  public RiskRun(final ViewCycleMetadata cycleMetadata) {
+    this(new MarketData(cycleMetadata.getMarketDataSnapshotId()),
       Instant.now(),
-      cycleInfo.getValuationTime(),
+      cycleMetadata.getValuationTime(),
       0,
-      map(Sets.<CalculationConfiguration>newHashSet(), cycleInfo.getAllCalculationConfigurationNames(), new Function1<String, CalculationConfiguration>() {
+      map(Sets.<CalculationConfiguration>newHashSet(), cycleMetadata.getAllCalculationConfigurationNames(), new Function1<String, CalculationConfiguration>() {
         @Override
         public CalculationConfiguration execute(String configName) {
           return new CalculationConfiguration(configName);
@@ -137,8 +141,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
       }),
       Sets.<RiskRunProperty>newHashSet(),
       false,
-      cycleInfo.getVersionCorrection(),
-      cycleInfo.getViewDefinitionUid()
+      cycleMetadata.getVersionCorrection(),
+      cycleMetadata.getViewDefinitionId()
     );
   }
 
