@@ -51,4 +51,8 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
       final YieldAndDiscountCurve discountingCurve) {
     return getResult(LocalVolatilitySurfaceConverter.toMoneynessSurface(localVolatility, forwardCurve), forwardCurve, option, discountingCurve);
   }
+
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
+  }
 }
