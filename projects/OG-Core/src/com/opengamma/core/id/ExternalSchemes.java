@@ -83,6 +83,10 @@ public class ExternalSchemes {
    * Identification scheme for Tullet-Prebon SURF tickers.
    */
   public static final ExternalScheme SURF = ExternalScheme.of("SURF");
+  /**
+   * Identification scheme for ICAP market data feed tickers.
+   */
+  public static final ExternalScheme ICAP = ExternalScheme.of("ICAP");
 
   //-------------------- SCHEMES FOR REGIONS ---------------------
 
