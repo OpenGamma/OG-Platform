@@ -138,8 +138,11 @@ public class ExchangeTradedRowParser extends RowParser {
   }
 
   @Override
-  public Map<String, String> constructRow(ManageableSecurity security) {
-    String ticker = security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER);
+  public Map<String, String> constructRow(ManageableSecurity[] securities) {
+    if (securities.length < 1) {
+      return null;
+    }
+    String ticker = securities[0].getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER);
     if (ticker != null) {
       return Collections.singletonMap(TICKER, ticker);
     }
