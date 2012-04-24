@@ -205,7 +205,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             final Double volatility = (Double) inputs.getValue(requirement);
             if (volatility != null) {
-              // final Double volatility = (Double) inputs.getValue(requirement);
               xList.add(x);
               yList.add(y);
               volatilityValues.put(Pair.of(x, y), volatility);
