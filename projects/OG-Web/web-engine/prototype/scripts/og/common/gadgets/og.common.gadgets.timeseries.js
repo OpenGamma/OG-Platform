@@ -85,17 +85,18 @@ $.register_module({
                 empty_plots = function () {
                     var d = ['1', '2'], disabled_options,
                         msg = $('<div>No data available</div>').css({
-                            position: 'absolute', color: '#999', left: '35px', top: '30px'
+                            position: 'absolute', color: '#999', left: '10px', top: '10px'
                         });
                     reset_options();
                     load_data_points();
                     disabled_options = {
+                        grid: {borderWidth: 0},
                         xaxis: {show: false},
                         yaxis: {show: false},
                         selection: {mode: null},
                         pan: {interactive: false}
                     };
-                    $(tenor).css({visibility: 'hidden'});
+                    $(tenor + ', .og-flot-xaxis').css({visibility: 'hidden'});
                     $p1 = $.plot($(p1_selector), d, $.extend(true, {}, p1_options, disabled_options));
                     $p2 = $.plot($(p2_selector), d, $.extend(true, {}, p2_options, disabled_options));
                     $(p1_selector).append(msg);
@@ -206,7 +207,7 @@ $.register_module({
                                 $legend = get_legend();
                                 $legend.css({visibility: 'hidden'});
                             });
-                        $(tenor).css({visibility: 'visible'});
+                        $(tenor + ', .og-flot-xaxis').css({visibility: 'visible'});
                     }());
                     reset_options();
                     p1_options.xaxis.panRange = [data[0][0], data[data.length-1][0]];
