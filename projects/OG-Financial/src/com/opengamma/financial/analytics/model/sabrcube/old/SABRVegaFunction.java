@@ -115,7 +115,6 @@ public class SABRVegaFunction extends SABRFunction {
     @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
-
     final Map<Double, DoubleMatrix2D> result = SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity,
         NODE_SENSITIVITY_CALCULATOR);
     final DoubleLabelledMatrix3D labelledMatrix = VegaMatrixHelper.getVegaSwaptionCubeQuoteMatrixInStandardForm(fittedDataPoints, result);

@@ -65,7 +65,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   private static final LinearInterpolator1D LINEAR = (LinearInterpolator1D) Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR);
   private static final FlatExtrapolator1D FLAT = new FlatExtrapolator1D();
   private static final GridInterpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR, FLAT, FLAT);
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private final VolatilityCubeFunctionHelper _volCubeHelper;
   private ValueSpecification _sabrSurfacesSpecification;
   private ValueSpecification _smileIdsSpecification;
@@ -145,7 +145,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
           for (int k = 0; k < n; k++) {
             errors[k] = ERROR;
           }
-          if (strikes.length > 4 && forward > 0) { //don't fit those smiles with insufficient data 
+          if (strikes.length > 4 && forward > 0) { //don't fit those smiles with insufficient data
             final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, strikes, swaptionExpiry, blackVols, errors, SABR_FUNCTION).solve(SABR_INITIAL_VALUES, FIXED);
             final DoubleMatrix1D parameters = fittedResult.getModelParameters();
             swapMaturitiesList.add(maturity);
@@ -154,7 +154,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             betaList.add(parameters.getEntry(1));
             rhoList.add(parameters.getEntry(2));
             nuList.add(parameters.getEntry(3));
-            DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
+            final DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
             inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
             chiSqList.add(fittedResult.getChiSq());
             fittedSmileIds.put(tenorPair, externalIds);

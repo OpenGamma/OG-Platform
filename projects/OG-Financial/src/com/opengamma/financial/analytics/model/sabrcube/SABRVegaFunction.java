@@ -1,0 +1,175 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.analytics.model.sabrcube;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
+import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
+
+/**
+ * 
+ */
+public abstract class SABRVegaFunction extends SABRFunction {
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, desiredValue);
+    final ValueProperties sensitivityProperties = getSensitivityProperties(target, currency.getCode(), desiredValue);
+    final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    if (alphaSensitivityObject == null) {
+      throw new OpenGammaRuntimeException("Could not get alpha sensitivity");
+    }
+    final Object nuSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    if (nuSensitivityObject == null) {
+      throw new OpenGammaRuntimeException("Could not get nu sensitivity");
+    }
+    final Object rhoSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getSecurity(), sensitivityProperties));
+    if (rhoSensitivityObject == null) {
+      throw new OpenGammaRuntimeException("Could not get rho sensitivity");
+    }
+    final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
+    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency);
+    final Object sabrSurfacesObject = inputs.getValue(cubeRequirement);
+    if (sabrSurfacesObject == null) {
+      throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
+    }
+    final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
+    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency,
+        getFittedPointsProperties(cubeName, currency.getCode()));
+    final Object fittedDataPointsObject = inputs.getValue(fittedPointsRequirement);
+    if (fittedDataPointsObject == null) {
+      throw new OpenGammaRuntimeException("Could not get fitted points for cube");
+    }
+    final FittedSmileDataPoints fittedDataPoints = (FittedSmileDataPoints) fittedDataPointsObject;
+    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = sabrFittedSurfaces.getInverseJacobians();
+    final DoubleLabelledMatrix2D alphaSensitivity = (DoubleLabelledMatrix2D) alphaSensitivityObject;
+    final DoubleLabelledMatrix2D nuSensitivity = (DoubleLabelledMatrix2D) nuSensitivityObject;
+    final DoubleLabelledMatrix2D rhoSensitivity = (DoubleLabelledMatrix2D) rhoSensitivityObject;
+    final double expiry = alphaSensitivity.getXKeys()[0];
+    final double maturity = alphaSensitivity.getYKeys()[0];
+    final double alpha = alphaSensitivity.getValues()[0][0];
+    final double nu = nuSensitivity.getValues()[0][0];
+    final double rho = rhoSensitivity.getValues()[0][0];
+    final InterpolatedDoublesSurface alphaSurface = data.getSABRParameter().getAlphaSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> alphaDataBundle = (Map<Double, Interpolator1DDataBundle>) alphaSurface.getInterpolatorData();
+    final InterpolatedDoublesSurface nuSurface = data.getSABRParameter().getNuSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> nuDataBundle = (Map<Double, Interpolator1DDataBundle>) nuSurface.getInterpolatorData();
+    final InterpolatedDoublesSurface rhoSurface = data.getSABRParameter().getRhoSurface();
+    @SuppressWarnings("unchecked")
+    final Map<Double, Interpolator1DDataBundle> rhoDataBundle = (Map<Double, Interpolator1DDataBundle>) rhoSurface.getInterpolatorData();
+    final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
+    final String xInterpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final String xLeftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String xRightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String yInterpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    final String yLeftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    final String yRightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    final Interpolator1D xInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(xInterpolatorName, xLeftExtrapolatorName, xRightExtrapolatorName);
+    final Interpolator1D yInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(yInterpolatorName, yLeftExtrapolatorName, yRightExtrapolatorName);
+    final GridInterpolator2D nodeSensitivityCalculator = new GridInterpolator2D(xInterpolator, yInterpolator);
+    final Map<Double, DoubleMatrix2D> result = SABRVegaCalculationUtils.getVegaCube(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity,
+        nodeSensitivityCalculator);
+    final DoubleLabelledMatrix3D labelledMatrix = VegaMatrixHelper.getVegaSwaptionCubeQuoteMatrixInStandardForm(fittedDataPoints, result);
+    final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), desiredValue);
+    final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, labelledMatrix));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> xInterpolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    if (xInterpolators == null || xInterpolators.size() != 1) {
+      return null;
+    }
+    final Set<String> xLeftExtrapolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    if (xLeftExtrapolators == null || xLeftExtrapolators.size() != 1) {
+      return null;
+    }
+    final Set<String> xRightExtrapolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    if (xRightExtrapolators == null || xRightExtrapolators.size() != 1) {
+      return null;
+    }
+    final Set<String> yInterpolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    if (yInterpolators == null || yInterpolators.size() != 1) {
+      return null;
+    }
+    final Set<String> yLeftExtrapolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    if (yLeftExtrapolators == null || yLeftExtrapolators.size() != 1) {
+      return null;
+    }
+    final Set<String> yRightExtrapolators = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    if (yRightExtrapolators == null || yRightExtrapolators.size() != 1) {
+      return null;
+    }
+    final Security security = target.getSecurity();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    final ValueProperties sensitivityProperties = getSensitivityProperties(target, currency.getCode(), desiredValue);
+    final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), sensitivityProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), sensitivityProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), sensitivityProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency, getFittedPointsProperties(cubeName, currency.getCode())));
+    return requirements;
+  }
+
+  @Override
+  protected String getValueRequirement() {
+    return ValueRequirementNames.VEGA_QUOTE_CUBE;
+  }
+
+  protected abstract ValueProperties getSensitivityProperties(final ComputationTarget target, final String currency, final ValueRequirement desiredValue);
+
+  protected ValueProperties getFittedPointsProperties(final String cubeName, final String currency) {
+    return ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CUBE, cubeName).get();
+  }
+
+  @Override
+  protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data) {
+    throw new UnsupportedOperationException("Should never get here");
+  }
+}

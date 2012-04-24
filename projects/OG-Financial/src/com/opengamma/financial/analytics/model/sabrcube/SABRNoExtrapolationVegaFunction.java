@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube;
@@ -22,6 +22,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -30,9 +32,9 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * 
  */
-public abstract class SABRNoExtrapolationFunction extends SABRFunction {
+public class SABRNoExtrapolationVegaFunction extends SABRVegaFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -45,6 +47,21 @@ public abstract class SABRNoExtrapolationFunction extends SABRFunction {
         || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
         || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
+  }
+
+  @Override
+  protected ValueProperties getSensitivityProperties(final ComputationTarget target, final String currency, final ValueRequirement desiredValue) {
+    final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
+    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    return ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CUBE, cubeName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
   }
 
   @Override
@@ -78,7 +95,14 @@ public abstract class SABRNoExtrapolationFunction extends SABRFunction {
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CUBE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
+        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
+        .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
   }
 
   @Override
@@ -87,12 +111,25 @@ public abstract class SABRNoExtrapolationFunction extends SABRFunction {
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String xInterpolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final String xLeftExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String xRightExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String yInterpolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    final String yLeftExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    final String yRightExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
     return properties.copy()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
+        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, xInterpolator)
+        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, xLeftExtrapolator)
+        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, xRightExtrapolator)
+        .with(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME, yInterpolator)
+        .with(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME, yLeftExtrapolator)
+        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME, yRightExtrapolator)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
+        .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
   }
 }
