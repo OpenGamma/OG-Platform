@@ -47,3 +47,4 @@ LOCAL_STASH
 *.iws
 *.ids
 docs.sqlite3
+*.pid

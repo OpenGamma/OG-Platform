@@ -30,8 +30,8 @@ import com.opengamma.analytics.math.function.Function1D;
  * <p>
  * There are several well-known problems with Newton's method, in particular when the range of values given includes a local
  * maximum or minimum. In this situation, the next iterative step can shoot off to $\pm\infty$. This implementation
- * currently does not attempt to correct for this: if the value of $x$ goes beyond the initial range of values $x_low$
- * and $x_high$, an exception is thrown.
+ * currently does not attempt to correct for this: if the value of $x$ goes beyond the initial range of values $x_{low}$
+ * and $x_{high}$, an exception is thrown.
  * <p>
  * If the function that is provided does not override the {@link com.opengamma.analytics.math.function.DoubleFunction1D#derivative()} method, then 
  * the derivative is approximated using finite difference. This is undesirable for several reasons: (i) the extra function evaluations will lead
