@@ -36,6 +36,8 @@ import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwa
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -116,7 +118,11 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         PDEPropertyNamesAndValues.PROPERTY_SPACE_DIRECTION_INTERPOLATOR,
         PDEPropertyNamesAndValues.PROPERTY_SPACE_STEPS_BUNCHING,
         PDEPropertyNamesAndValues.PROPERTY_THETA,
-        PDEPropertyNamesAndValues.PROPERTY_TIME_STEP_BUNCHING);
+        PDEPropertyNamesAndValues.PROPERTY_TIME_STEP_BUNCHING,
+        SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE,
+        SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER,
+        CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD,
+        CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL);
   }
 
   @Override

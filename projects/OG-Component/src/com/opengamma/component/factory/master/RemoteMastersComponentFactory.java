@@ -118,7 +118,7 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
       String jmsBrokerUri = info.getAttributes().get(ComponentInfoAttributes.JMS_BROKER_URI);
       String jmsTopic = info.getAttributes().get(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC);
       Object target;
-      if (_jmsConnector != null && jmsTopic != null && ObjectUtils.equals(jmsBrokerUri, _jmsConnector.getClientBrokerUri())) {
+      if (_jmsConnector != null && jmsTopic != null && ObjectUtils.equals(jmsBrokerUri, _jmsConnector.getClientBrokerUri().toString())) {
         // only sets up JMS if supplied connector matches that needed
         // this approach could be enhanced...
         JmsChangeManager changeManager = new JmsChangeManager(_jmsConnector, jmsTopic);
