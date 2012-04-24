@@ -7,8 +7,6 @@ package com.opengamma.integration.copier.portfolio;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -83,9 +81,6 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
     // Read in next row, checking for EOF
     while ((next = portfolioReader.readNext()) != null) {
       
-      ManageablePosition writtenPosition;
-      List<ManageableSecurity> writtenSecurities = new LinkedList<ManageableSecurity>();
-      
       // Is position and security data is available for the current row?
       if (next.getFirst() != null && next.getSecond() != null) {
         
@@ -93,11 +88,8 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
         String[] path = portfolioReader.getCurrentPath();
         portfolioWriter.setPath(path);
         
-        // Write position and security data
-        for (ManageableSecurity security : next.getSecond()) {
-          writtenSecurities.add(portfolioWriter.writeSecurity(security));
-          
-          // Load this security's relevant HTSes
+        // Load all relevant HTSes
+        for (ManageableSecurity security : next.getSecond()) {          
           for (String dataField : _dataFields) {
             Set<ExternalId> ids = new HashSet<ExternalId>();
             ids = security.getExternalIdBundle().getExternalIds();
@@ -122,10 +114,13 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
             }
           }
         }
-        writtenPosition = portfolioWriter.writePosition(next.getFirst());
+        
+        // Write position and security data
+        ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
+            portfolioWriter.writePosition(next.getFirst(), next.getSecond());
         
         if (visitor != null) {
-          visitor.info(StringUtils.arrayToDelimitedString(path, "/"), writtenPosition, writtenSecurities);
+          visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());
         }
       } else {
         if (visitor != null) {
