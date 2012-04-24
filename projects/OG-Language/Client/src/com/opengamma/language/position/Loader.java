@@ -86,7 +86,8 @@ public class Loader extends ContextInitializationBean {
         PortfoliosFunction.INSTANCE,
         PositionFunction.INSTANCE,
         SetPositionAttributeFunction.INSTANCE,
-        PortfolioIdFunction.INSTANCE));
+        PortfolioIdFunction.INSTANCE,
+        SetTradeProviderIdFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
         StorePortfolioProcedure.INSTANCE));
   }
