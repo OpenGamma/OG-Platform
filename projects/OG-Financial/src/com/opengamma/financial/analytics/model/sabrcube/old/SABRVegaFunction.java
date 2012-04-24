@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.sabrcube;
+package com.opengamma.financial.analytics.model.sabrcube.old;
 
 import java.util.Collections;
 import java.util.HashSet;

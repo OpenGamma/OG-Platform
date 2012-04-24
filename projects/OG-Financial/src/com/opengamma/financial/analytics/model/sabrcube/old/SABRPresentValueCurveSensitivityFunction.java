@@ -3,20 +3,22 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.sabrcube;
+package com.opengamma.financial.analytics.model.sabrcube.old;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRExtrapolationCalculator;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
@@ -33,20 +35,21 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class SABRPresentValueFunction extends SABRFunction {
-  private final PresentValueCalculator _calculator;
+public class SABRPresentValueCurveSensitivityFunction extends SABRFunction {
+  private final PresentValueCurveSensitivityCalculator _calculator;
 
-  public SABRPresentValueFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRPresentValueCurveSensitivityFunction(final String currency, final String definitionName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
   }
 
-  public SABRPresentValueFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRPresentValueCurveSensitivityFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
     super(currency, definitionName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
-    _calculator = useSABRExtrapolation ? PresentValueSABRExtrapolationCalculator.getInstance() : PresentValueSABRCalculator.getInstance();
+    _calculator = useSABRExtrapolation ? PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance() : PresentValueCurveSensitivitySABRCalculator.getInstance();
   }
 
   @Override
@@ -58,8 +61,9 @@ public class SABRPresentValueFunction extends SABRFunction {
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {getFundingCurveName(), getForwardCurveName()}, dataSource);
-    final double presentValue = _calculator.visit(derivative, data);
-    return Sets.newHashSet(new ComputedValue(getSpecification(target), presentValue));
+    final Map<String, List<DoublesPair>> presentValueCurveSensitivity = _calculator.visit(derivative, data);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(presentValueCurveSensitivity);
+    return Collections.singleton(new ComputedValue(getSpecification(target), result));
   }
 
   @Override
@@ -68,7 +72,7 @@ public class SABRPresentValueFunction extends SABRFunction {
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target) {
-    return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
+    return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY, target.toSpecification(),
         createValueProperties()
             .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())

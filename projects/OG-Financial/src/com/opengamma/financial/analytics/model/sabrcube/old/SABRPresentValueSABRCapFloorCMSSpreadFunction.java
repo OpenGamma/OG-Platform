@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.sabrcube;
+package com.opengamma.financial.analytics.model.sabrcube.old;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;

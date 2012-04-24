@@ -383,7 +383,9 @@ public class ForexVisitors {
 
     @Override
     public ValueRequirement visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-      throw new UnsupportedOperationException();
+      final Currency putCurrency = security.getPutCurrency();
+      final Currency callCurrency = security.getCallCurrency();
+      return getSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override
@@ -417,7 +419,9 @@ public class ForexVisitors {
 
     @Override
     public ValueRequirement visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-      throw new UnsupportedOperationException();
+      final Currency payCurrency = security.getPayCurrency();
+      final Currency receiveCurrency = security.getReceiveCurrency();
+      return getSpotIdentifierRequirement(payCurrency, receiveCurrency);
     }
 
     @Override
@@ -534,7 +538,9 @@ public class ForexVisitors {
 
     @Override
     public ValueRequirement visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-      throw new UnsupportedOperationException();
+      final Currency putCurrency = security.getPutCurrency();
+      final Currency callCurrency = security.getCallCurrency();
+      return getInverseSpotIdentifierRequirement(putCurrency, callCurrency);
     }
 
     @Override

@@ -36,10 +36,13 @@ public class InterestRateFutureOptionTradeConverter {
     final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
-    //        TimeZone.UTC); //TODO get the real time zone
+    //        TimeZone.UTC); //TODO get the real time zone 
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
-    final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium() / 100; //TODO remove the default value and throw an exception
-    // TODO: if the premium the right place to store the trade price?
+    
+    final Double tradePrice = trade.getPremium();
+    Validate.notNull(tradePrice, "IRFutureOption trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");
+    // TODO: The premium is not the right place to store the trade price...
+    
     if (securityDefinition instanceof InterestRateFutureOptionMarginSecurityDefinition) {
       final InterestRateFutureOptionMarginSecurityDefinition underlyingOption = (InterestRateFutureOptionMarginSecurityDefinition) securityDefinition;
       return new InterestRateFutureOptionMarginTransactionDefinition(underlyingOption, quantity, tradeDate, tradePrice);

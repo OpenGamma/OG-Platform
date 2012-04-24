@@ -44,6 +44,8 @@ import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -154,7 +156,11 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity || target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity
+        || target.getSecurity() instanceof FXBarrierOptionSecurity
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override

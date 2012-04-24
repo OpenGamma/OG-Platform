@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -115,8 +116,9 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
     final Map<Double, List<Double>> dataPointsForStrip = new HashMap<Double, List<Double>>();
+    final LocalDate valDate = now.toLocalDate();
     for (final Number x : xValues) {
-      final Double ttm = IRFutureOptionUtils.getTime(x, now);
+      final Double ttm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), valDate);
       final List<Double> fittedPointsForStrip = new ArrayList<Double>();
       final List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(x);
       final DoubleArrayList errors = new DoubleArrayList();
@@ -124,7 +126,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
       final DoubleArrayList blackVols = new DoubleArrayList();
       if (strip.size() > 4) {
         try {
-          final Double forward = futurePriceData.getYValue(ttm);  // TODO Confirm this change, from ordinal to ttm is correct
+          final Double forward = futurePriceData.getYValue(ttm);
           for (final ObjectsPair<Double, Double> value : strip) {
             if (value.second != null) {
               strikes.add(1 - value.first);

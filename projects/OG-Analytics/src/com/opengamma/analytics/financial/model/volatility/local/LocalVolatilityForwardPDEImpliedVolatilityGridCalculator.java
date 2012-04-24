@@ -40,7 +40,7 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
     final double[] strikes = new double[n];
     final double[] impliedVols = new double[n];
     for (int i = 0; i < n; i++) {
-      impliedVols[i] = BlackFormulaRepository.impliedVolatility(modifiedPrices.length, 1, moneynesses[i], expiry, isCall);
+      impliedVols[i] = BlackFormulaRepository.impliedVolatility(modifiedPrices[i], 1, moneynesses[i], expiry, isCall);
       strikes[i] = forward * moneynesses[i];
     }
     return _interpolator.getDataBundleFromSortedArrays(strikes, impliedVols);
@@ -50,5 +50,9 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
   public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
       final YieldAndDiscountCurve discountingCurve) {
     return getResult(LocalVolatilitySurfaceConverter.toMoneynessSurface(localVolatility, forwardCurve), forwardCurve, option, discountingCurve);
+  }
+
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
   }
 }

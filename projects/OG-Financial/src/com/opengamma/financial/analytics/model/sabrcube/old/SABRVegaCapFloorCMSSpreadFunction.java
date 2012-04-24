@@ -3,10 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.sabrcube;
+package com.opengamma.financial.analytics.model.sabrcube.old;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
@@ -25,13 +24,13 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SABRYieldCurveNodeSensitivitiesFunction {
+public class SABRVegaCapFloorCMSSpreadFunction extends SABRVegaFunction {
 
-  public SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
 
-  public SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaCapFloorCMSSpreadFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     super(currency, definitionName, false, forwardCurveName, fundingCurveName);
   }
 
@@ -44,7 +43,7 @@ public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SA
   }
 
   @Override
-  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final YieldCurveBundle bundle) {
+  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueRequirement surfacesRequirement = getCubeRequirement(target);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
@@ -62,7 +61,7 @@ public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SA
     final DayCount dayCount = surfaces.getDayCount();
     final DoubleFunction1D correlationFunction = getCorrelationFunction();
     final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
-    return new SABRInterestRateDataBundle(modelParameters, bundle);
+    return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
   }
 
   private DoubleFunction1D getCorrelationFunction() {
@@ -70,7 +69,7 @@ public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SA
 
       @Override
       public Double evaluate(Double x) {
-        return 0.8;
+        return 0.5;
       }
 
     };
