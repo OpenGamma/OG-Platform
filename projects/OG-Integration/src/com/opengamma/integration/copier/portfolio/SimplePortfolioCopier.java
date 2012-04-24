@@ -5,9 +5,6 @@
  */
 package com.opengamma.integration.copier.portfolio;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.springframework.util.StringUtils;
 
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
@@ -37,9 +34,6 @@ public class SimplePortfolioCopier implements PortfolioCopier {
     // Read in next row, checking for EOF
     while ((next = portfolioReader.readNext()) != null) {
       
-      ManageablePosition writtenPosition;
-      List<ManageableSecurity> writtenSecurities = new LinkedList<ManageableSecurity>();
-      
       // Is position and security data is available for the current row?
       if (next.getFirst() != null && next.getSecond() != null) {
         
@@ -48,13 +42,11 @@ public class SimplePortfolioCopier implements PortfolioCopier {
         portfolioWriter.setPath(path);
         
         // Write position and security data
-        for (ManageableSecurity security : next.getSecond()) {
-          writtenSecurities.add(portfolioWriter.writeSecurity(security));
-        }
-        writtenPosition = portfolioWriter.writePosition(next.getFirst());
+        ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
+            portfolioWriter.writePosition(next.getFirst(), next.getSecond());
         
         if (visitor != null) {
-          visitor.info(StringUtils.arrayToDelimitedString(path, "/"), writtenPosition, writtenSecurities);
+          visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());
         }
       } else {
         if (visitor != null) {
