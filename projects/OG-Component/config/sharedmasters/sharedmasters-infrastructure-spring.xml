@@ -82,6 +82,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardJmsConnector" alias="cfgJmsConnector"/>
   <alias name="standardJmsConnector" alias="exgJmsConnector"/>
   <alias name="standardJmsConnector" alias="holJmsConnector"/>
+  <alias name="standardJmsConnector" alias="htsJmsConnector"/>
   <alias name="standardJmsConnector" alias="snpJmsConnector"/>
   <alias name="standardJmsConnector" alias="secJmsConnector"/>
   <alias name="standardJmsConnector" alias="posJmsConnector"/>
