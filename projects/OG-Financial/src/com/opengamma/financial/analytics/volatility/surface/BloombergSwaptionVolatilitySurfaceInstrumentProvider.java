@@ -109,7 +109,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
    * @return the zeroPadSwaptionMaturityTenor
    */
   public boolean isZeroPadSwapMaturityTenor() {
-    return _zeroPadSwaptionMaturityTenor;
+    return _zeroPadSwapMaturityTenor;
   }
 
   /**
