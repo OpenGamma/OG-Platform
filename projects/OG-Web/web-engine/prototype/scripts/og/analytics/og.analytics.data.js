@@ -13,13 +13,13 @@ $.register_module({
                 events[type].forEach(function (handler) {handler.apply(null, args);});
             };
             data_handler = function (result) {
-                if (!events.data.length) return;
-                var matrix = [], rows = data.meta.rows;
-                while (rows--) matrix.push(function (cols, row) {
+                if (!events.data.length) return; // if a tree falls, etc.
+                var matrix = [], rows = data.meta.rows, row_start = viewport.rows[0] || 1, row_end = viewport.rows[1];
+                while (rows--) if (rows >= row_start && rows <= row_end) matrix.push(function (cols, row) {
                     while (cols--) row.push(Math.random() * 1000);
                     return row;
-                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length - 1, [data.meta.rows - rows]));
-                fire('data', matrix.slice(viewport.rows[0], viewport.rows[1]));
+                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length - 1, [rows]));
+                fire('data', matrix.reverse());
                 setTimeout(data_handler, 1000);
             };
             initialize = function () {
