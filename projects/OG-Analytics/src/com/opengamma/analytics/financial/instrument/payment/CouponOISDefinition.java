@@ -42,7 +42,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    */
   private final IndexON _index;
   /**
-   * The dates of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end. 
+   * The dates of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end.
    */
   private final ZonedDateTime[] _fixingPeriodDate;
   /**
@@ -88,13 +88,13 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   }
 
   /**
-   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index. 
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
    * @param tenor The coupon tenor.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @param settlementDays The number of days between last fixing and the payment (also called spot lag).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The OIS coupon.
@@ -106,13 +106,13 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   }
 
   /**
-   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index. 
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
    * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing date and the payment fate (also called payment lag). 
+   * @param settlementDays The number of days between last fixing date and the payment fate (also called payment lag).
    * @return The OIS coupon.
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional, final int settlementDays) {
@@ -168,14 +168,14 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     Validate.notNull(valZdt, "valZdt - valuation date as ZonedDateTime");
     final LocalDate valDate = valZdt.toLocalDate();
     Validate.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
-    LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
+    final LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     if (valDate.isBefore(firstPublicationDate)) {
       return toDerivative(valZdt, yieldCurveNames);
     }
 
-    // FIXME Historical time series do not have time information to begin with. 
+    // FIXME Historical time series do not have time information to begin with.
     // Remove this in FixedIncomeConverterDataProvider.getIndexTimeSeries st indexFixingTimeSeries contains dates when it gets here
-    LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(TimeZone.UTC);
+    final LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(TimeZone.UTC);
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
@@ -185,9 +185,13 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
       Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
 
       if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+        // TODO review this - what happens if a fixing date falls on a holiday?
+        final LocalDate adjustedDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodDate[fixedPeriod].toLocalDate(), 0, _index.getCalendar());
+        fixedRate = indexFixingDateSeries.getValue(adjustedDate);
+        if (fixedRate == null) {
+          throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+        }
       }
-
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;
     }

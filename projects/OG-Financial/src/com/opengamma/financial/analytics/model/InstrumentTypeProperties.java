@@ -22,7 +22,13 @@ public class InstrumentTypeProperties {
   public static final String IR_FUTURE_PRICE = "IR_FUTURE_PRICE";
   /** Property representing ATM surfaces for swaptions */
   public static final String SWAPTION_ATM = "SWAPTION_ATM";
-  /** Property representing a surface for Equity options */
+  /** Property representing a surface for equity options */
   public static final String EQUITY_OPTION = "EQUITY_OPTION";
 
+  /**
+   * Name of the cube type property. This allows cubes to be distinguished by instrument type.
+   */
+  public static final String PROPERTY_CUBE_INSTRUMENT_TYPE = "CubeInstrumentType";
+  /** Property representing a swaption volatility cube */
+  public static final String SWAPTION_CUBE = "SWAPTION_CUBE";
 }

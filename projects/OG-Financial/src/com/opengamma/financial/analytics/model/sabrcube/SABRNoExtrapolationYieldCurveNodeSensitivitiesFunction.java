@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -56,7 +57,8 @@ public class SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction extends SABR
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency, final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency);
+    final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
+    final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
@@ -84,6 +86,8 @@ public class SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction extends SABR
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CUBE)
+        .withAny(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
   }
 
@@ -92,6 +96,7 @@ public class SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction extends SABR
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
@@ -103,6 +108,8 @@ public class SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction extends SABR
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CUBE, cubeName)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
   }
 

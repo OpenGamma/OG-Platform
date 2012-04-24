@@ -13,7 +13,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  *
  */
-public class SABRRightExtrapolationPresentValueCurveSensitivityFunction extends SABRNoExtrapolationFunction {
+public class SABRRightExtrapolationPresentValueCurveSensitivityFunction extends SABRRightExtrapolationFunction {
   private static final PresentValueCurveSensitivitySABRExtrapolationCalculator CALCULATOR = PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance();
 
   @Override
