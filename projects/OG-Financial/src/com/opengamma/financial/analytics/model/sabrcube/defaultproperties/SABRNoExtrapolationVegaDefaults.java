@@ -26,10 +26,10 @@ public class SABRNoExtrapolationVegaDefaults extends SABRNoExtrapolationDefaults
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public SABRNoExtrapolationVegaDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String curveCalculationMethod,
+  public SABRNoExtrapolationVegaDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod, final String curveCalculationMethod,
       final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
       final String yRightExtrapolator, final String... applicableCurrencies) {
-    super(forwardCurveName, fundingCurveName, cubeName, curveCalculationMethod, applicableCurrencies);
+    super(forwardCurveName, fundingCurveName, cubeName, fittingMethod, curveCalculationMethod, applicableCurrencies);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");

@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -127,14 +128,19 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
+    final Set<String> fittingMethods = constraints.getValues(CubeAndSurfaceFittingMethodDefaultNamesAndValues.NON_LINEAR_LEAST_SQUARES);
+    if (fittingMethods == null || fittingMethods.size() != 1) {
+      return null;
+    }
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String fundingCurveName = fundingCurveNames.iterator().next();
     final String cubeName = cubeNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
+    final String fittingMethod = fittingMethods.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     final ValueRequirement fundingCurveRequirement = getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency);
+    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     return Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, cubeRequirement);
   }
 
@@ -147,10 +153,12 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     return YieldCurveFunction.getCurveRequirement(currency, curveName, advisoryForward, advisoryFunding, calculationMethod);
   }
 
-  protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency) {
+  protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency, final String fittingMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURRENCY, currency.getCode()).get();
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 

@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -42,19 +43,23 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String _cubeName;
+  private final String _fittingMethod;
   private final String _curveCalculationMethod;
   private final String[] _applicableCurrencies;
 
-  public SABRNoExtrapolationDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String curveCalculationMethod, final String... applicableCurrencies) {
+  public SABRNoExtrapolationDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod,
+      final String curveCalculationMethod, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");
     ArgumentChecker.notNull(cubeName, "cube name");
+    ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
     _forwardCurveName = forwardCurveName;
     _fundingCurveName = fundingCurveName;
     _cubeName = cubeName;
+    _fittingMethod = fittingMethod;
     _curveCalculationMethod = curveCalculationMethod;
     _applicableCurrencies = applicableCurrencies;
   }
@@ -88,6 +93,7 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
+      defaults.addValuePropertyName(valueRequirement, CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
@@ -102,6 +108,9 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     }
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
+    }
+    if (CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+      return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_curveCalculationMethod);

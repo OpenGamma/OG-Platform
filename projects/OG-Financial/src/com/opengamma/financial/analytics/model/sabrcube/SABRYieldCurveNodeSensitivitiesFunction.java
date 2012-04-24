@@ -54,6 +54,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -173,16 +174,21 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
+    final Set<String> fittingMethods = constraints.getValues(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
+    if (fittingMethods == null || fittingMethods.size() != 1) {
+      return null;
+    }
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String fundingCurveName = fundingCurveNames.iterator().next();
     final String cubeName = cubeNames.iterator().next();
     final String curveName = curveNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
+    final String fittingMethod = fittingMethods.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     final ValueRequirement fundingCurveRequirement = getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
-    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency);
+    final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Set<ValueRequirement> requirements = Sets.newHashSet(forwardCurveRequirement, fundingCurveRequirement, cubeRequirement, curveSpecRequirement);
     if (curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
       return requirements;
@@ -221,10 +227,12 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
-  protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency) {
+  protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency, final String fittingMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURRENCY, currency.getCode()).get();
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, CubeAndSurfaceFittingMethodDefaultNamesAndValues.NON_LINEAR_LEAST_SQUARES).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 

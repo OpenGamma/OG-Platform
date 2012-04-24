@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
+import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -34,6 +35,7 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String _cubeName;
+  private final String _fittingMethod;
   private final String _curveCalculationMethod;
   private final String _cutoff;
   private final String _mu;
@@ -45,13 +47,14 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
   private final String _yRightExtrapolator;
   private final String[] _applicableCurrencies;
 
-  public SABRRightExtrapolationVegaDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String curveCalculationMethod,
+  public SABRRightExtrapolationVegaDefaults(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod, final String curveCalculationMethod,
       final String cutoff, final String mu, final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator,
       final String yLeftExtrapolator, final String yRightExtrapolator, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");
     ArgumentChecker.notNull(cubeName, "cube name");
+    ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(cutoff, "cutoff");
     ArgumentChecker.notNull(mu, "mu");
@@ -64,6 +67,7 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     _forwardCurveName = forwardCurveName;
     _fundingCurveName = fundingCurveName;
     _cubeName = cubeName;
+    _fittingMethod = fittingMethod;
     _curveCalculationMethod = curveCalculationMethod;
     _cutoff = cutoff;
     _mu = mu;
@@ -103,6 +107,7 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CUBE);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
@@ -124,6 +129,9 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     }
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
+    }
+    if (CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+      return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_curveCalculationMethod);

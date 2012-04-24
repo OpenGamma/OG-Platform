@@ -208,16 +208,6 @@ import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNo
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueSABRCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueSABRFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRVegaCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRVegaFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSecurityMarkFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesCreditFactorsFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesNonYieldCurveFunction;
@@ -1081,7 +1071,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
   
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, "USD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueSABRSensitivityFunction.Alpha.class));
@@ -1103,11 +1094,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueSABRSensitivityFunction.Rho.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "PresentValue", "USD"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "PresentValue", "0.07", "10.0", "USD"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "PresentValue", 
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "USD"));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "0.07", "10.0", "USD"));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", 
         "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "PresentValue",
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue",
         "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
   }
 
