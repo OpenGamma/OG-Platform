@@ -41,8 +41,6 @@ import com.opengamma.util.TerminatableJob;
  */
 public class FireHoseLiveDataServer extends AbstractLiveDataServer {
 
-  // TODO: this is a generic thing that should be adopted into the OG-LiveData project
-
   private static final Logger s_logger = LoggerFactory.getLogger(FireHoseLiveDataServer.class);
   private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("FireHoseLiveDataServer"));
 

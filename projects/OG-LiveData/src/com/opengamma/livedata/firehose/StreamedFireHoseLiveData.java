@@ -35,6 +35,7 @@ public abstract class StreamedFireHoseLiveData<T> extends AbstractFireHoseLiveDa
     @Override
     public void disconnected() {
       s_logger.info("Live data server disconnected");
+      liveDataDisconnected();
       setMarketDataComplete(false);
     }
 
@@ -47,11 +48,20 @@ public abstract class StreamedFireHoseLiveData<T> extends AbstractFireHoseLiveDa
     @Override
     public void connected() {
       s_logger.info("Live data server connected");
+      liveDataConnected();
     }
 
   };
 
   protected abstract void recordReceived(T record);
+
+  protected void liveDataDisconnected() {
+    // No-op
+  }
+
+  protected void liveDataConnected() {
+    // No-op
+  }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
