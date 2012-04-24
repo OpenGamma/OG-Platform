@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -26,6 +27,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults extends Defaul
 
   public SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults(final String currency, final String cube) {
     super(ComputationTargetType.PRIMITIVE, true);
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(cube, "cube");
     _currency = currency;
     _cube = cube;
   }
