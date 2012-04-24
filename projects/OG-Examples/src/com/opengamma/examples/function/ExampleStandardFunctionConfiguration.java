@@ -163,11 +163,11 @@ import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLFunct
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadPresentValueCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadPresentValueFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadPresentValueSABRSensitivityFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadVegaFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationVegaFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueSABRSensitivityFunction;
@@ -792,13 +792,13 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueSABRSensitivityFunction.Alpha.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueSABRSensitivityFunction.Nu.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadPresentValueSABRSensitivityFunction.Rho.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadVegaFunction.class));
-    functionConfigs.add(functionConfiguration(SABRCMSSpreadYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Alpha.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Nu.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Rho.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationVegaFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueSABRSensitivityFunction.Alpha.class));

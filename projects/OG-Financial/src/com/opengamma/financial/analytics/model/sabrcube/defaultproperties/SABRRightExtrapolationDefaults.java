@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFu
 import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -78,7 +79,8 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
         || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
         || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
-        || security instanceof CapFloorSecurity)) {
+        || security instanceof CapFloorSecurity
+        || security instanceof CapFloorCMSSpreadSecurity)) {
       return false;
     }
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();

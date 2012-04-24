@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.sabrcube;
 
+import java.util.Set;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
@@ -30,7 +32,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class SABRCMSSpreadVegaFunction extends SABRVegaFunction {
+public class SABRCMSSpreadRightExtrapolationVegaFunction extends SABRVegaFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -41,21 +43,43 @@ public class SABRCMSSpreadVegaFunction extends SABRVegaFunction {
   }
 
   @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> cutoffs = constraints.getValues(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
+    if (cutoffs == null || cutoffs.size() != 1) {
+      return null;
+    }
+    final Set<String> mus = constraints.getValues(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
+    if (mus == null || mus.size() != 1) {
+      return null;
+    }
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    if (requirements == null) {
+      return null;
+    }
+    return requirements;
+  }
+
+  @Override
   protected ValueProperties getSensitivityProperties(final ComputationTarget target, final String currency, final ValueRequirement desiredValue) {
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String cutoff = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
+    final String mu = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
+        .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION).get();
   }
 
   @Override
@@ -91,13 +115,15 @@ public class SABRCMSSpreadVegaFunction extends SABRVegaFunction {
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CUBE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE)
+        .withAny(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER)
         .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
         .withAny(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();
@@ -116,19 +142,23 @@ public class SABRCMSSpreadVegaFunction extends SABRVegaFunction {
     final String yInterpolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
     final String yLeftExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
     final String yRightExtrapolator = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    final String cutoff = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
+    final String mu = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
     return properties.copy()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
+        .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu)
         .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, xInterpolator)
         .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, xLeftExtrapolator)
         .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, xRightExtrapolator)
         .with(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME, yInterpolator)
         .with(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME, yLeftExtrapolator)
         .with(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME, yRightExtrapolator)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_NO_EXTRAPOLATION)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(InstrumentTypeProperties.PROPERTY_CUBE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_CUBE).get();

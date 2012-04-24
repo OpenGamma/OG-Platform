@@ -6,15 +6,15 @@
 package com.opengamma.financial.analytics.model.sabrcube;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  *
  */
-public class SABRCMSSpreadPresentValueCurveSensitivityFunction extends SABRCMSSpreadFunction {
-  private static final PresentValueCurveSensitivitySABRCalculator CALCULATOR = PresentValueCurveSensitivitySABRCalculator.getInstance();
+public class SABRCMSSpreadRightExtrapolationPresentValueCurveSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
+  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator CALCULATOR = PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance();
 
   @Override
   protected String getValueRequirement() {

@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  *
  */
-public abstract class SABRCMSSpreadPresentValueSABRSensitivityFunction extends SABRCMSSpreadFunction {
+public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
   @Override
@@ -37,7 +37,7 @@ public abstract class SABRCMSSpreadPresentValueSABRSensitivityFunction extends S
   /**
    * Function to get the sensitivity to the alpha parameter
    */
-  public static class Alpha extends SABRCMSSpreadPresentValueSABRSensitivityFunction {
+  public static class Alpha extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
 
     @Override
     protected String getValueRequirement() {
@@ -54,7 +54,7 @@ public abstract class SABRCMSSpreadPresentValueSABRSensitivityFunction extends S
   /**
    * Function to get the sensitivity to the nu parameter
    */
-  public static class Nu extends SABRCMSSpreadPresentValueSABRSensitivityFunction {
+  public static class Nu extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
 
     @Override
     protected String getValueRequirement() {
@@ -71,7 +71,7 @@ public abstract class SABRCMSSpreadPresentValueSABRSensitivityFunction extends S
   /**
    * Function to get the sensitivity to the rho parameter
    */
-  public static class Rho extends SABRCMSSpreadPresentValueSABRSensitivityFunction {
+  public static class Rho extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
 
     @Override
     protected String getValueRequirement() {
