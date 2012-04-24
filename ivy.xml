@@ -12,7 +12,7 @@
       -->
       <dependency org="com.googlecode" name="json-simple" rev="1.1.1"/>
       <dependency name="og-util" rev="latest.integration" />
-      <dependency org="it.dexy" name="dexy-doclet" rev="0.4.1" />
+      <dependency org="it.dexy" name="dexy-doclet" rev="0.4.2" />
       <dependency org="org.sqlite" name="sqlitejdbc" rev="056" />
     </dependencies>
 </ivy-module>
