@@ -107,6 +107,8 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
         .withAny(ValuePropertyNames.CUBE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
+        .withAny(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .withAny(PROPERTY_CUTOFF_STRIKE)
         .withAny(PROPERTY_TAIL_THICKNESS_PARAMETER).get();
   }
@@ -117,6 +119,7 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     final String cutoff = desiredValue.getConstraint(PROPERTY_CUTOFF_STRIKE);
     final String mu = desiredValue.getConstraint(PROPERTY_TAIL_THICKNESS_PARAMETER);
     return properties.copy()
@@ -126,6 +129,8 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(PROPERTY_CUTOFF_STRIKE, cutoff)
         .with(PROPERTY_TAIL_THICKNESS_PARAMETER, mu).get();
   }

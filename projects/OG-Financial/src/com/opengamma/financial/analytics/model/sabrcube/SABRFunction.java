@@ -128,7 +128,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(CubeAndSurfaceFittingMethodDefaultNamesAndValues.NON_LINEAR_LEAST_SQUARES);
+    final Set<String> fittingMethods = constraints.getValues(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
