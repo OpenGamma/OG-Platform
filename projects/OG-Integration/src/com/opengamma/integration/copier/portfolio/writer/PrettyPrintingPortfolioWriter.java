@@ -6,11 +6,15 @@
 
 package com.opengamma.integration.copier.portfolio.writer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.util.StringUtils;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A dummy portfolio writer, which pretty-prints information instead of persisting
@@ -24,8 +28,7 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
     _prettyPrint = prettyPrint;
   }
   
-  @Override
-  public ManageableSecurity writeSecurity(ManageableSecurity security) {
+  private ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
     if (_prettyPrint) {
@@ -35,13 +38,26 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
-  public ManageablePosition writePosition(ManageablePosition position) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     
     ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
+    
+    List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
+    
+    // Write securities
+    for (ManageableSecurity security : securities) {
+      ManageableSecurity writtenSecurity = writeSecurity(security);
+      if (writtenSecurity != null) {
+        writtenSecurities.add(writtenSecurity);
+      }
+    }
+
     if (_prettyPrint) {
       System.out.println("Position: " + position.toString());
     }
-    return position;
+    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, 
+        writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
   }
 
   @Override

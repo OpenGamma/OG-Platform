@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.copier.portfolio.writer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import javax.time.calendar.ZonedDateTime;
@@ -32,6 +34,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A class that writes securities and portfolio positions and trades to the OG masters
@@ -69,8 +72,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * writeSecurity searches for an existing security that matches an external id search, and attempts to
    * reuse/update it wherever possible, instead of creating a new one.
    */
-  @Override
-  public ManageableSecurity writeSecurity(ManageableSecurity security) {
+  private ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
     
@@ -118,10 +120,22 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    * If so, the existing position is reused.
    */
   @Override
-  public ManageablePosition writePosition(ManageablePosition position) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     
     ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
     
+    List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
+    
+    // Write securities
+    for (ManageableSecurity security : securities) {
+      ManageableSecurity writtenSecurity = writeSecurity(security);
+      if (writtenSecurity != null) {
+        writtenSecurities.add(writtenSecurity);
+      }
+    }
+    
+    // Write position
     if (_overwrite) {
       // Add the new position to the position master
       PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
@@ -130,7 +144,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _currentNode.addPosition(addedDoc.getUniqueId());
       
       // Return the new position
-      return addedDoc.getPosition();
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+
     } else {
     
       
@@ -166,7 +182,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
             _currentNode.addPosition(existingPosition.getUniqueId());
             
             // Return the existing position
-            return existingPosition;
+            return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition, 
+                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
           }
         }
         
@@ -180,7 +197,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       _currentNode.addPosition(addedDoc.getUniqueId());
       
       // Return the new position
-      return addedDoc.getPosition();
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
     }
   }
 

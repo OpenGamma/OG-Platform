@@ -30,6 +30,7 @@ import com.opengamma.integration.copier.sheet.writer.SheetWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio
@@ -76,33 +77,20 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
-  public ManageableSecurity writeSecurity(ManageableSecurity security) {
-
-    ArgumentChecker.notNull(security, "security");
-    
-    identifyOrCreatePortfolioWriter(security);
-
-    if (_currentWriter != null) {
-      security = _currentWriter.writeSecurity(security);
-    } else {
-      s_logger.warn("Could not identify a suitable parser for security: " + security.getName());
-    }
-
-    return security;
-  }
-
-  @Override
-  public ManageablePosition writePosition(ManageablePosition position) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
 
     ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
     
+    identifyOrCreatePortfolioWriter(securities[0]);
+
     if (_currentWriter != null) {
-      position = _currentWriter.writePosition(position);
+      return _currentWriter.writePosition(position, securities);
+
     } else {
       s_logger.warn("Could not identify a suitable parser for position: " + position.getName());
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
     }
-
-    return position;
   }
 
   @Override
