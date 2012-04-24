@@ -5,8 +5,6 @@
  */
 package com.opengamma.integration.copier.portfolio;
 
-import java.util.List;
-
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 
@@ -15,7 +13,7 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public interface PortfolioCopierVisitor {
 
-  void info(String message, ManageablePosition position, List<ManageableSecurity> securities);
+  void info(String message, ManageablePosition position, ManageableSecurity[] securities);
   
   void info(String message);
   

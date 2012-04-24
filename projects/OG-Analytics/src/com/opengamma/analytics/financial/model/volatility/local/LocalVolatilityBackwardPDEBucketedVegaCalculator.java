@@ -41,7 +41,7 @@ public class LocalVolatilityBackwardPDEBucketedVegaCalculator {
     final double expiry = option.getTimeToExpiry();
     final double forward = forwardCurve.getForward(expiry);
     final double x = option.getStrike() / forward;
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
     final int spaceSteps = _pdeCalculator.getNSpaceSteps();
     final double[] xNodes = pdeGrid.getGrid().getSpaceNodes();
     int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, x);

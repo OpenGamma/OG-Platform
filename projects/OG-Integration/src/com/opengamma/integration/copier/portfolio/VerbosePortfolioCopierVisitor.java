@@ -5,8 +5,6 @@
  */
 package com.opengamma.integration.copier.portfolio;
 
-import java.util.List;
-
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 
@@ -20,7 +18,7 @@ public class VerbosePortfolioCopierVisitor implements PortfolioCopierVisitor {
     System.out.println("Error: " + message);
   }
   @Override
-  public void info(String message, ManageablePosition position, List<ManageableSecurity> securities) {
+  public void info(String message, ManageablePosition position, ManageableSecurity[] securities) {
     if (message != null && message.length() > 0) {
       System.out.print("[" + message + "] ");
     }

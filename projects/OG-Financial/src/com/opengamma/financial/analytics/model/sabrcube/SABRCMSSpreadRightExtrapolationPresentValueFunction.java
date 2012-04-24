@@ -7,15 +7,15 @@ package com.opengamma.financial.analytics.model.sabrcube;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  *
  */
-public class SABRCMSSpreadPresentValueFunction extends SABRCMSSpreadFunction {
-  private static final PresentValueCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
+public class SABRCMSSpreadRightExtrapolationPresentValueFunction extends SABRCMSSpreadRightExtrapolationFunction {
+  private static final PresentValueCalculator CALCULATOR = PresentValueSABRExtrapolationCalculator.getInstance();
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data) {

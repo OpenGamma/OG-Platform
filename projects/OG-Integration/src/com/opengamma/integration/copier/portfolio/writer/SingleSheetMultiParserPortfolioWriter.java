@@ -26,6 +26,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * This class writes a portfolio that might contain multiple security types into a single sheet. The columns are
@@ -79,25 +80,25 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
   }
   
 
-  @Override
-  public ManageableSecurity writeSecurity(ManageableSecurity security) {
-    
-    ArgumentChecker.notNull(security, "security");
-    
-    String className = security.getClass().toString();
+  private void writeSecurities(ManageableSecurity[] securities) {
+        
+    String className = securities[0].getClass().toString();
     className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
     if ((_currentParser = _parserMap.get(className)) != null) { //CSIGNORE
-      _currentRow.putAll(_currentParser.constructRow(security));
+      _currentRow.putAll(_currentParser.constructRow(securities));
     }
-    
-    return security;
   }
 
   @Override
-  public ManageablePosition writePosition(ManageablePosition position) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
 
     ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
     
+    // Write securities
+    writeSecurities(securities);
+    
+    // Write position
     if (_currentParser != null) {
       _currentRow.putAll(_currentParser.constructRow(position));
       
@@ -116,7 +117,7 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
       _currentRow = new HashMap<String, String>();
     }
     
-    return position;
+    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
   }
 
   private static Map<String, RowParser> getParsers(String[] securityTypes) {

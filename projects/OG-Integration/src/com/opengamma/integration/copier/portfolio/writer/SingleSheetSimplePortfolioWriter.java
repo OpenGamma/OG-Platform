@@ -23,6 +23,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Writes positions of a single security type to a single sheet
@@ -72,18 +73,13 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   }
 
   @Override
-  public ManageableSecurity writeSecurity(ManageableSecurity security) {
-    ArgumentChecker.notNull(security, "security");
-    
-    _currentRow.putAll(_rowParser.constructRow(security));
-    
-    return security;
-  }
-
-  @Override
-  public ManageablePosition writePosition(ManageablePosition position) {
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
     
+    // Write securities
+    _currentRow.putAll(_rowParser.constructRow(securities));
+
     if (_rowParser != null) {
       _currentRow.putAll(_rowParser.constructRow(position));
       
@@ -102,7 +98,7 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
       _currentRow = new HashMap<String, String>();
     }
     
-    return position;
+    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);            
   }
 
   @Override

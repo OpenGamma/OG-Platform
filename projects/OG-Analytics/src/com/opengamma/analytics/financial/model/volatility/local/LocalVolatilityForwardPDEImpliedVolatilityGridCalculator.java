@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.local;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -29,7 +31,7 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
   @Override
   public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
       final YieldAndDiscountCurve discountingCurve) {
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
     final PDEGrid1D grid = pdeGrid.getGrid();
     final double expiry = option.getTimeToExpiry();
     final boolean isCall = option.isCall();
@@ -37,12 +39,19 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
     final double[] moneynesses = grid.getSpaceNodes();
     final double[] modifiedPrices = pdeGrid.getFinalTimePrices();
     final int n = modifiedPrices.length;
-    final double[] strikes = new double[n];
-    final double[] impliedVols = new double[n];
+    double[] strikes = new double[n];
+    double[] impliedVols = new double[n];
+    int count = 0;
     for (int i = 0; i < n; i++) {
-      impliedVols[i] = BlackFormulaRepository.impliedVolatility(modifiedPrices[i], 1, moneynesses[i], expiry, isCall);
-      strikes[i] = forward * moneynesses[i];
+      try {
+        impliedVols[count] = BlackFormulaRepository.impliedVolatility(modifiedPrices[i], 1, moneynesses[i], expiry, isCall);
+        strikes[count] = forward * moneynesses[i];
+        count++;
+      } catch (Exception e) {
+      }
     }
+    strikes = Arrays.copyOfRange(strikes, 0, count);
+    impliedVols = Arrays.copyOfRange(impliedVols, 0, count);
     return _interpolator.getDataBundleFromSortedArrays(strikes, impliedVols);
   }
 

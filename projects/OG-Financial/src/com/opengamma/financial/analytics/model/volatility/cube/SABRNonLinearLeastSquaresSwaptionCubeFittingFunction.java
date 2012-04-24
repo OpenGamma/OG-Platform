@@ -193,6 +193,10 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     if (cubeNames == null || cubeNames.size() != 1) {
       return null;
     }
+    final Set<String> currency = constraints.getValues(ValuePropertyNames.CURRENCY);
+    if (currency == null || currency.size() != 1) {
+      return null;
+    }
     final String cubeName = cubeNames.iterator().next();
     return Sets.newHashSet(getCubeDataRequirement(target, cubeName));
   }

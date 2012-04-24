@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -84,13 +85,36 @@ public class MasterPortfolioReader implements PortfolioReader {
     } else {
       ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
       
-      // Write the related security(ies) TODO handle writing multiple, for underlying securities
+      // Write the related security(ies)
       ManageableSecurityLink sLink = position.getSecurityLink();
       Security security = sLink.resolveQuiet(_securitySource);
       if ((security != null) && (security instanceof ManageableSecurity)) {
+        
+        // Find underlying security
+        // TODO support multiple underlyings; unfortunately the system does not provide a standard way
+        // to retrieve underlyings
+        if (((ManageableSecurity) security).propertyNames().contains("underlyingId")) {
+          ExternalId id = (ExternalId) ((ManageableSecurity) security).property("underlyingId").get();
+        
+          Security underlying;
+          try {
+            underlying = _securitySource.getSecurity(id.toBundle());
+            if (underlying != null) {
+              return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
+                  position, 
+                  new ManageableSecurity[] {(ManageableSecurity) security, (ManageableSecurity) underlying});
+            } else {
+              s_logger.warn("Could not resolve underlying " + id + " for security " + security.getName());
+            }
+          } catch (Throwable e) {
+            // Underlying not found
+            s_logger.warn("Error trying to resolve underlying " + id + " for security " + security.getName());
+          }
+        }
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
-            position, 
-            new ManageableSecurity[] {(ManageableSecurity) security});
+              position, 
+              new ManageableSecurity[] {(ManageableSecurity) security});
+
       } else {
         s_logger.warn("Could not resolve security relating to position " + position.getName());
         return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);

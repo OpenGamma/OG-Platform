@@ -30,9 +30,9 @@ public abstract class LocalVolatilityForwardPDEStrikeGreeksGridCalculator implem
       final YieldAndDiscountCurve discountingCurve) {
     final double expiry = option.getTimeToExpiry();
     final double forward = forwardCurve.getForward(expiry);
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
-    final PDETerminalResults1D pdeGridUp = _pdeCalculator.runPDESolver(localVolatility, forwardCurve.withFractionalShift(SHIFT), option);
-    final PDETerminalResults1D pdeGridDown = _pdeCalculator.runPDESolver(localVolatility, forwardCurve.withFractionalShift(-SHIFT), option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
+    final PDETerminalResults1D pdeGridUp = _pdeCalculator.runPDESolver(localVolatility, option);
+    final PDETerminalResults1D pdeGridDown = _pdeCalculator.runPDESolver(localVolatility, option);
     final int n = pdeGrid.getNumberSpaceNodes();
     final double[] strikes = new double[n];
     final double[] greeks = new double[n];
@@ -85,9 +85,8 @@ public abstract class LocalVolatilityForwardPDEStrikeGreeksGridCalculator implem
     @Override
     protected double getResultForMoneyness(final PDETerminalResults1D pdeGrid, final PDETerminalResults1D pdeGridUp, final PDETerminalResults1D pdeGridDown,
         final int index, final double forward, final EuropeanVanillaOption option) {
-      return pdeGrid.getSecondSpatialDerivative(index);
+      return pdeGrid.getSecondSpatialDerivative(index) / forward;
     }
   }
 
 }
-
