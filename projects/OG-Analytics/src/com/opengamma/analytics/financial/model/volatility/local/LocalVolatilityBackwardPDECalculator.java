@@ -37,10 +37,10 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
   }
 
   @Override
-  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option) {
+  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final EuropeanVanillaOption option) {
     final boolean isCall = option.isCall();
     final double expiry = option.getTimeToExpiry();
-    final double forward = forwardCurve.getForward(expiry);
+    final double forward = localVolatility.getForwardCurve().getForward(expiry);
     final double strike = option.getStrike();
     final double maxForward = forward * _maxMoneyness;
     final BoundaryCondition lower = getLowerBoundaryCondition(option, strike);

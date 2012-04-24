@@ -10,9 +10,11 @@ import static com.opengamma.analytics.math.FunctionUtils.square;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.math.function.Function;
@@ -29,9 +31,9 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class VolatilitySurfaceInterpolator {
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(VolatilitySurfaceInterpolator.class);
   //TODO Set this back to SmileInterpolatorSABR() once a full fudge build is in place
-  private static final GeneralSmileInterpolator DEFAULT_SMILE_INTERPOLATOR = new SmileInterpolatorSpline(); // new SmileInterpolatorSABR();
+  private static final GeneralSmileInterpolator DEFAULT_SMILE_INTERPOLATOR = new SmileInterpolatorSABR();
   private static final Interpolator1D DEFAULT_TIME_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final boolean USE_LOG_TIME = true;
@@ -41,7 +43,7 @@ public class VolatilitySurfaceInterpolator {
   private final GeneralSmileInterpolator _smileInterpolator;
   private final Interpolator1D _timeInterpolator;
   private final boolean _useLogTime;
-  private final boolean _useLogValue;
+  private final boolean _useLogVar;
   private final boolean _useIntegratedVariance;
 
   public VolatilitySurfaceInterpolator() {
@@ -60,12 +62,24 @@ public class VolatilitySurfaceInterpolator {
     this(smileInterpolator, timeInterpolator, USE_LOG_TIME, USE_INTEGRATED_VARIANCE, USE_LOG_VALUE);
   }
 
-  public VolatilitySurfaceInterpolator(final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
+  /**
+   * <b>Note</b> The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips/humps between
+   * points at the same level (all other combinations give a flat line), and thus should be avoided. 
+   * @param useIntegratedVariance if true integrated variance ($\sigma^2t$) is used in the interpolation, otherwise variance is used 
+   * @param useLogTime if true the natural-log of the time values are used in interpolation, if false the time values are used directly. This can be useful if the
+   * expiries vary greatly in magnitude 
+   * @param useLogVariance If true the log of variance (actually either variance or integrated variance) is used in the interpolation  
+   */
+  public VolatilitySurfaceInterpolator(final boolean useIntegratedVariance, final boolean useLogTime, final boolean useLogVariance) {
     _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
     _timeInterpolator = DEFAULT_TIME_INTERPOLATOR;
     _useLogTime = useLogTime;
     _useIntegratedVariance = useIntegratedVariance;
-    _useLogValue = useLogValue;
+    _useLogVar = useLogVariance;
+    if (_useIntegratedVariance && _useLogVar != _useLogTime) {
+      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between " +
+          "points at the same level (all other combinations give a flat line), and thus should be avoided.");
+    }
   }
 
   public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
@@ -84,7 +98,11 @@ public class VolatilitySurfaceInterpolator {
     _timeInterpolator = timeInterpolator;
     _useLogTime = useLogTime;
     _useIntegratedVariance = useIntegratedVariance;
-    _useLogValue = useLogValue;
+    _useLogVar = useLogValue;
+    if (_useIntegratedVariance && _useLogVar != _useLogTime) {
+      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between " +
+          "points at the same level (all other combinations give a flat line), and thus should be avoided.");
+    }
   }
 
   //TODO add constructors to set options
@@ -180,17 +198,15 @@ public class VolatilitySurfaceInterpolator {
           if (_useIntegratedVariance) {
             y *= time;
           }
-          yData[i] = Math.log(y);
+          yData[i] = _useLogVar ? Math.log(y) : y;
         }
 
         final Interpolator1DDataBundle db = _timeInterpolator.getDataBundle(xData, yData);
         final double tRes = _timeInterpolator.interpolate(db, x);
+        final double yValue = _useLogVar ? Math.exp(tRes) : tRes;
+        final double res = _useIntegratedVariance ? Math.sqrt(yValue / t) : Math.sqrt(yValue);
 
-        if (_useIntegratedVariance) {
-          return Math.sqrt(Math.exp(tRes) / t);
-        }
-        return Math.sqrt(tRes / t);
-
+        return res;
       }
 
       public Object writeReplace() {
@@ -217,7 +233,7 @@ public class VolatilitySurfaceInterpolator {
   }
 
   public boolean useLogValue() {
-    return _useLogValue;
+    return _useLogVar;
   }
 
   public Interpolator1D getTimeInterpolator() {
@@ -236,7 +252,7 @@ public class VolatilitySurfaceInterpolator {
     result = prime * result + _timeInterpolator.hashCode();
     result = prime * result + (_useIntegratedVariance ? 1231 : 1237);
     result = prime * result + (_useLogTime ? 1231 : 1237);
-    result = prime * result + (_useLogValue ? 1231 : 1237);
+    result = prime * result + (_useLogVar ? 1231 : 1237);
     return result;
   }
 
@@ -264,7 +280,7 @@ public class VolatilitySurfaceInterpolator {
     if (_useLogTime != other._useLogTime) {
       return false;
     }
-    if (_useLogValue != other._useLogValue) {
+    if (_useLogVar != other._useLogVar) {
       return false;
     }
     return true;

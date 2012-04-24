@@ -25,7 +25,7 @@ public abstract class LocalVolatilityPDECalculator {
     _solver = new ThetaMethodFiniteDifference(theta, false);
   }
 
-  public abstract PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option);
+  public abstract PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final EuropeanVanillaOption option);
 
   public abstract PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceStrike localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option);
 

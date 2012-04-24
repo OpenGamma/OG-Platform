@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.volatility.local;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
@@ -43,8 +44,9 @@ public class ForexLocalVolatilityTest {
   private static final double EXAMPLE_STRIKE = 1.4;
 
   private static final double[] DELTAS = new double[] {0.15, 0.25 };
-  private static final double[] FORWARDS = new double[] {1.34, 1.35, 1.36, 1.38, 1.4, 1.43, 1.45, 1.48, 1.5, 1.52 };
-  // private static final double[] FORWARDS;
+  // private static final double[] FORWARDS = new double[] {1.3400578756875536, 1.340097783513583, 1.3401632874217568, 1.3402609422950176, 1.3407805380931572, 1.341476699363105,
+  //    1.3421440211105033, 1.3428419833962038, 1.3528497010863676, 1.35183878530766 };
+  private static final double[] FORWARDS;
   //  private static final double SPOT = 1.34;
   //  private static double DRIFT = 0.05;
 
@@ -70,7 +72,11 @@ public class ForexLocalVolatilityTest {
   private static final DupireLocalVolatilityCalculator DUPIRE = new DupireLocalVolatilityCalculator();
 
   static {
-    //    Arrays.fill(ATM, 0.3);
+    FORWARDS = new double[N];
+    Arrays.fill(FORWARDS, 10.0);
+
+    //    ATM = new double[N];
+    //    Arrays.fill(ATM, 0.11);
     //    RR = new double[2][N];
     //    BUTT = new double[2][N];
     //
@@ -288,8 +294,11 @@ public class ForexLocalVolatilityTest {
   @Test
       (enabled = false)
       public void runPDESolver() {
+    final long startTime = System.nanoTime();
     final PrintStream ps = System.out;
     CAL.runPDESolver(ps);
+    final long endTime = System.nanoTime();
+    ps.println("run time: " + (endTime - startTime) / 1e9 + "s");
   }
 
   @Test

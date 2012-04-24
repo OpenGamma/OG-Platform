@@ -31,7 +31,7 @@ public class LocalVolatilityForwardPDEPriceGridCalculator implements PDELocalVol
   @Override
   public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
       final YieldAndDiscountCurve discountingCurve) {
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
     final PDEGrid1D grid = pdeGrid.getGrid();
     final double expiry = option.getTimeToExpiry();
     final boolean isCall = option.isCall();
