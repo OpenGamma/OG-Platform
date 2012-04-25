@@ -1,5 +1,4 @@
-dexy reset
-cd ../../..
+cd ..
 
 ### @export "ant"
 ant clean-all

@@ -48,3 +48,4 @@ LOCAL_STASH
 *.ids
 docs.sqlite3
 *.pid
+*.pyc
