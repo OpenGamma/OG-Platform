@@ -72,6 +72,9 @@ $.register_module({
                 fire('init', meta);
                 data_handler();
             };
+            data.busy = (function (busy) {
+                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
+            })(false);
             data.meta = meta = {columns: null};
             data.on = function (type, handler) {if (type in events) events[type].push(handler);};
             data.viewport = function (new_viewport) {
