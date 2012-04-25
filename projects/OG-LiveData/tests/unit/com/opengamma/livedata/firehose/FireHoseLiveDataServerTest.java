@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
@@ -59,7 +59,7 @@ public class FireHoseLiveDataServerTest {
 
   public void testBasicSnapshotOperation() {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     liveDataServer.start();
     try {
       final MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
@@ -74,7 +74,7 @@ public class FireHoseLiveDataServerTest {
   @Test(expectedExceptions = {OpenGammaRuntimeException.class })
   public void testMissingSnapshotOperation() {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     liveDataServer.start();
     try {
       FireHoseLiveDataServer.getExecutorService().submit(new Runnable() {
@@ -97,7 +97,7 @@ public class FireHoseLiveDataServerTest {
   @Test(expectedExceptions = {OpenGammaRuntimeException.class })
   public void testSnapshotTimeoutOperation() {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     liveDataServer.setMarketDataTimeout(Timeout.standardTimeoutMillis() / 4, TimeUnit.MILLISECONDS);
     liveDataServer.start();
     try {
@@ -109,7 +109,7 @@ public class FireHoseLiveDataServerTest {
 
   public void testSnapshotOperationLateData() {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     liveDataServer.start();
     try {
       FireHoseLiveDataServer.getExecutorService().submit(new Runnable() {
@@ -160,7 +160,7 @@ public class FireHoseLiveDataServerTest {
 
   public void testBasicSubscription() throws InterruptedException {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     final BlockingQueue<LiveDataValueUpdateBean> updates = connect(liveDataServer, Integer.MAX_VALUE);
     liveDataServer.start();
     try {
@@ -178,7 +178,7 @@ public class FireHoseLiveDataServerTest {
 
   public void testMissingSubscription() throws InterruptedException {
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     final BlockingQueue<LiveDataValueUpdateBean> updates = connect(liveDataServer, Integer.MAX_VALUE);
     liveDataServer.start();
     try {
@@ -195,7 +195,7 @@ public class FireHoseLiveDataServerTest {
     // If the live data server abstraction is slow to consume the fire hose, updates will be lost and the
     // most recent values should win.
     final FireHose fireHose = new FireHose();
-    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(SecurityUtils.SURF, fireHose);
+    final FireHoseLiveDataServer liveDataServer = new FireHoseLiveDataServer(ExternalSchemes.SURF, fireHose);
     final BlockingQueue<LiveDataValueUpdateBean> updates = connect(liveDataServer, 1);
     liveDataServer.start();
     try {
