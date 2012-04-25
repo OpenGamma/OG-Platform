@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -218,7 +218,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       }
     }
     // add the underlying
-    final ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, definition.getTarget().getUniqueId().getValue());
+    final ExternalId temp = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, definition.getTarget().getUniqueId().getValue());
     result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp));
     return result;
   }
@@ -266,7 +266,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
-        final ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
+        final ExternalId temp = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
         final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);
         final Double underlyingSpot = (Double) inputs.getValue(underlyingSpotValueRequirement);
         if (underlyingSpot == null) {

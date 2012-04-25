@@ -29,7 +29,7 @@ import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -267,7 +267,7 @@ public abstract class SecurityLoader {
 
   protected void parseIdentifiers(final FudgeMsg fieldData, final ManageableSecurity security, final String firstTradeDateField, final String lastTradeDateField) {
     ExternalIdBundle identifierBundle = BloombergDataUtils.parseIdentifiers(fieldData, firstTradeDateField, lastTradeDateField).toBundle();
-    security.setUniqueId(BloombergSecuritySource.createUniqueId(identifierBundle.getValue(SecurityUtils.BLOOMBERG_BUID)));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId(identifierBundle.getValue(ExternalSchemes.BLOOMBERG_BUID)));
     security.setExternalIdBundle(identifierBundle);
   }
   
@@ -279,7 +279,7 @@ public abstract class SecurityLoader {
   }
 
   protected ExternalId buildUnderlyingTicker(String underlingTicker) {
-    return SecurityUtils.bloombergTickerSecurityId(underlingTicker.replaceFirst(" (?i)COMB ", " "));
+    return ExternalSchemes.bloombergTickerSecurityId(underlingTicker.replaceFirst(" (?i)COMB ", " "));
   }
 
 }

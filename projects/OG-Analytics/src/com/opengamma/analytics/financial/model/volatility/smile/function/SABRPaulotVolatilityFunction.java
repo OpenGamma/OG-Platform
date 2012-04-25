@@ -18,7 +18,7 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * Expansion from Paulot, Louis, Asymptotic Implied Volatility at the Second Order With Applications to the SABR Model (2009)
- * <b>DO NOT USE This formulating gives very odd (i.e. wrong) smiles for certain parameters. It is not clear whether this is a problem with the actual paper or the 
+ * <b>DO NOT USE This formulating gives very odd (i.e. wrong) smiles for certain parameters. It is not clear whether this is a problem with the actual paper or the
  * Implementation.  </b>
  */
 public class SABRPaulotVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
@@ -145,5 +145,26 @@ public class SABRPaulotVolatilityFunction extends VolatilityFunctionProvider<SAB
 
   private double modAtanh(final double z) {
     return 0.5 * Math.log(Math.abs((1 + z) / (1 - z)));
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABR (Paulot)";
   }
 }

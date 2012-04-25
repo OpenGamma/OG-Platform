@@ -9,8 +9,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -77,14 +77,14 @@ public final class MarketDataELFunctions {
       return getFXMultiplierFromExternalId((ExternalId) id, multiplier);
     } else if (id instanceof ExternalIdBundle) {
       ExternalIdBundle bundle = (ExternalIdBundle) id;
-      if (bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return getFXMultiplierFromExternalId(bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER), multiplier);
-      } else if (bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER_WEAK) != null) {
-        return getFXMultiplierFromExternalId(bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER_WEAK), multiplier);
+      if (bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER) != null) {
+        return getFXMultiplierFromExternalId(bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER), multiplier);
+      } else if (bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER_WEAK) != null) {
+        return getFXMultiplierFromExternalId(bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER_WEAK), multiplier);
       }
     } else if (id instanceof UniqueId) {
       UniqueId uid = (UniqueId) id;
-      return getFXMultiplierFromExternalId(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, uid.getValue()), multiplier);
+      return getFXMultiplierFromExternalId(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, uid.getValue()), multiplier);
     }
     throw new OpenGammaRuntimeException("id was not FX rate, which shouldn't happen");
   }
@@ -99,7 +99,7 @@ public final class MarketDataELFunctions {
   }
   
   private static Pair<Currency, Currency> getFXPairFromBloombergTicker(final ExternalId id) {
-    if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER) || id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER_WEAK)) {
+    if (id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) || id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
       String ticker = id.getValue();
       String[] split = ticker.split(" ");
       if (split.length != 2) {
@@ -138,20 +138,20 @@ public final class MarketDataELFunctions {
       return isFXRateFromBloombergTicker((ExternalId) id);
     } else if (id instanceof ExternalIdBundle) {
       ExternalIdBundle bundle = (ExternalIdBundle) id;
-      if (bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return isFXRateFromBloombergTicker(bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER));
-      } else if (bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER_WEAK) != null) {
-        return isFXRateFromBloombergTicker(bundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER_WEAK));
+      if (bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER) != null) {
+        return isFXRateFromBloombergTicker(bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
+      } else if (bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER_WEAK) != null) {
+        return isFXRateFromBloombergTicker(bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER_WEAK));
       }
     } else if (id instanceof UniqueId) {
       UniqueId uid = (UniqueId) id;
-      return isFXRateFromBloombergTicker(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, uid.getValue()));
+      return isFXRateFromBloombergTicker(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, uid.getValue()));
     }
     return false;
   }
   
   private static boolean isFXRateFromBloombergTicker(final ExternalId id) {
-    if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER) || id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER_WEAK)) {
+    if (id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) || id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
       String ticker = id.getValue();
       String[] split = ticker.split(" ");
       if (split.length != 2) {

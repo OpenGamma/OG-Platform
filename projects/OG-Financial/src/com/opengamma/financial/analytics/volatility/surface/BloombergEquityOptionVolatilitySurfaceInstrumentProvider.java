@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
@@ -23,7 +23,7 @@ import com.opengamma.id.ExternalScheme;
  */
 public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
-  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private final String _underlyingPrefix; //expecting something like DJX
   private final String _postfix; //expecting Index or Equity
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE

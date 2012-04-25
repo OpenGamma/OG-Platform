@@ -27,4 +27,25 @@ public final class CosineWeightingFunction extends WeightingFunction {
     final double cos = Math.cos(Math.PI / 2 * y);
     return cos * cos;
   }
+
+  @Override
+  public String toString() {
+    return "Cosine weighting function";
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
 }

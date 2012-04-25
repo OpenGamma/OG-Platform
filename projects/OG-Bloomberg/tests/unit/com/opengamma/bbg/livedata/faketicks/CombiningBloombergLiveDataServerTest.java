@@ -24,7 +24,7 @@ import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -60,7 +60,7 @@ public class CombiningBloombergLiveDataServerTest {
     _underlying = BloombergLiveDataServerUtils.getUnderlyingProvider();
     _unitTestingProvider = new UnitTestingReferenceDataProvider(_underlying);
     _server = BloombergLiveDataServerUtils.startTestServer(CombiningBloombergLiveDataServerTest.class,
-        new UnionFakeSubscriptionSelector(new BySchemeFakeSubscriptionSelector(SecurityUtils.BLOOMBERG_BUID_WEAK, SecurityUtils.BLOOMBERG_TICKER_WEAK), new ByTypeFakeSubscriptionSelector("SWAPTION VOLATILITY"))
+        new UnionFakeSubscriptionSelector(new BySchemeFakeSubscriptionSelector(ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_TICKER_WEAK), new ByTypeFakeSubscriptionSelector("SWAPTION VOLATILITY"))
     , _unitTestingProvider);
     _liveDataClient = LiveDataClientTestUtils.getJmsClient(_server);
     _unitTestingProvider.reset();
@@ -76,9 +76,9 @@ public class CombiningBloombergLiveDataServerTest {
 
   @Test
   public void testFakeSubscribe() throws Exception {
-    ExternalId broken = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "CZPFGQFC Curncy");
-    ExternalId working = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, "USPFJD5W Curncy");
-    ExternalId workingStrong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USPFJD5W Curncy");
+    ExternalId broken = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "CZPFGQFC Curncy");
+    ExternalId working = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, "USPFJD5W Curncy");
+    ExternalId workingStrong = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USPFJD5W Curncy");
     
     List<ExternalId> instruments = Lists.newArrayList(broken, working, workingStrong);
 
@@ -117,7 +117,7 @@ public class CombiningBloombergLiveDataServerTest {
 
   @Test(groups={"bbgSubscriptionTests"})
   public void testRealSubscribe() throws Exception {
-    ExternalId strong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
+    ExternalId strong = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GBP Curncy");
     
     List<ExternalId> instruments = Lists.newArrayList(strong);
     CollectingLiveDataListener listener = new CollectingLiveDataListener(instruments.size(), 3);
@@ -140,8 +140,8 @@ public class CombiningBloombergLiveDataServerTest {
   
   @Test(groups={"bbgSubscriptionTests"})
   public void testMixedSubscribe() throws Exception {
-    ExternalId strong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
-    ExternalId weak = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, "GBP Curncy");
+    ExternalId strong = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GBP Curncy");
+    ExternalId weak = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, "GBP Curncy");
     
     List<ExternalId> instruments = Lists.newArrayList(strong, weak);
 
@@ -179,8 +179,8 @@ public class CombiningBloombergLiveDataServerTest {
 
   @Test(groups={"bbgSubscriptionTests"})
   public void testBrokenSubscribe() throws Exception {
-    ExternalId broken = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
-    ExternalId working = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
+    ExternalId broken = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
+    ExternalId working = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GBP Curncy");
     
     List<ExternalId> instruments = Lists.newArrayList(broken, working);
 
@@ -225,7 +225,7 @@ public class CombiningBloombergLiveDataServerTest {
    final AtomicInteger fakeSubs = countSubscriptions(_server.getFakeServer());
    final AtomicInteger realSubs = countSubscriptions(_server.getRealServer());
    
-   ExternalId weak = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, "GBP Curncy");
+   ExternalId weak = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, "GBP Curncy");
    
    List<ExternalId> instruments = Lists.newArrayList(weak);
    CollectingLiveDataListener listener = new CollectingLiveDataListener(1, 1);
@@ -297,10 +297,10 @@ public class CombiningBloombergLiveDataServerTest {
 
   @Test(groups={"bbgSubscriptionTests"})
   public void testRepeatedSubscriptions_BBG_80() throws Exception {
-    ExternalId broken = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
-    ExternalId working = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "GBP Curncy");
-    ExternalId workingWeak = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, "USPFJD5W Curncy");
-    ExternalId workingStrong = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USPFJD5W Curncy");
+    ExternalId broken = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USSV15F Curncy");//Broken
+    ExternalId working = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GBP Curncy");
+    ExternalId workingWeak = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, "USPFJD5W Curncy");
+    ExternalId workingStrong = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USPFJD5W Curncy");
     
     List<ExternalId> instruments = Lists.newArrayList(broken, working, workingWeak, workingStrong);
 

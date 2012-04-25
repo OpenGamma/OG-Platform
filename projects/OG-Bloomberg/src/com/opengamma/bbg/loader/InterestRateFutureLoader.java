@@ -36,7 +36,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -160,7 +160,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
     if (id == null) {
       throw new OpenGammaRuntimeException("Cannot get underlying for future " + bbgCode2);
     }
-    ExternalId underlyingIdentifier = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, id);
+    ExternalId underlyingIdentifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, id);
     InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier);
     security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
     // set identifiers

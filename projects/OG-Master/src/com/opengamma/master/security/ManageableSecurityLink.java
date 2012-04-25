@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.LinkResolver;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -156,12 +156,12 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
       bundle = security.getExternalIdBundle();
     }
     if (bundle != null && bundle.size() > 0) {
-      if (bundle.getValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return bundle.getValue(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (bundle.getValue(SecurityUtils.RIC) != null) {
-        return bundle.getValue(SecurityUtils.RIC);
-      } else if (bundle.getValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return bundle.getValue(SecurityUtils.ACTIVFEED_TICKER);
+      if (bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER) != null) {
+        return bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER);
+      } else if (bundle.getValue(ExternalSchemes.RIC) != null) {
+        return bundle.getValue(ExternalSchemes.RIC);
+      } else if (bundle.getValue(ExternalSchemes.ACTIVFEED_TICKER) != null) {
+        return bundle.getValue(ExternalSchemes.ACTIVFEED_TICKER);
       } else {
         return bundle.getExternalIds().iterator().next().getValue();
       }

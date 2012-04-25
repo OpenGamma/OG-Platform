@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -56,7 +56,7 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
       } catch (DataNotFoundException ex) {
         return value;
       }
-      if (!security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER).contains("Equity")) {
+      if (!security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER).contains("Equity")) {
         return value;
       }
       if (value instanceof Number) {

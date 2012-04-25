@@ -31,7 +31,7 @@ import com.opengamma.bloombergexample.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
 import com.opengamma.bloombergexample.loader.PortfolioLoaderHelper;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
@@ -81,7 +81,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   @SuppressWarnings("unchecked")
   @Override
   protected void doRun() {
-    Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "EURUSD Curncy"));
+    Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
 
     loadCurveNodeHistoricalData();
     loadFutures(_futuresExternalIds);
@@ -156,7 +156,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
 
     Collection<EquitySecurity> securities = readEquitySecurities();
     for (final EquitySecurity security : securities) {
-      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
+      loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), null);
     }
     for (Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {

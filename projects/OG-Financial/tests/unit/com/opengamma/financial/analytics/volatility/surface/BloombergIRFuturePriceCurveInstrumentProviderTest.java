@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.OpenGammaClock;
@@ -42,7 +42,7 @@ public class BloombergIRFuturePriceCurveInstrumentProviderTest {
     for (int ithFuture = 1; ithFuture <= nFutures; ithFuture++) {
       expected = RESULTS_EUR[ithFuture-1];       
       final ExternalId result = PROVIDER_EUR.getInstrument(ithFuture, SNAPSHOT_DATE);
-      assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, result.getScheme());
+      assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, result.getScheme());
       assertEquals(expected, result.getValue());
     }
   }

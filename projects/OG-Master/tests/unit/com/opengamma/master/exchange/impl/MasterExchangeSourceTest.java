@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -177,7 +177,7 @@ public class MasterExchangeSourceTest {
     ManageableExchange exchange = new ManageableExchange();
     exchange.setUniqueId(UID);
     exchange.setName("NYSE");
-    exchange.setRegionIdBundle(ExternalIdBundle.of(RegionUtils.countryRegionId(Country.US)));
+    exchange.setRegionIdBundle(ExternalIdBundle.of(ExternalSchemes.countryRegionId(Country.US)));
     return exchange;
   }
 

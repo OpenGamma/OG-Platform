@@ -246,6 +246,12 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
 
+  <!-- Trade -->
+  <bean id="tradeLoader" class="com.opengamma.language.trade.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
+
   <!-- Values -->
   <bean id="valuesLoader" class="com.opengamma.language.value.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />

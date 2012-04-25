@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -229,7 +229,7 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
     
     DayCount fixedDayCount = DayCountFactory.INSTANCE.getDayCount(getWithException(swapDetails, FIXED_LEG_DAYCOUNT));
     Frequency fixedFrequency = SimpleFrequencyFactory.INSTANCE.getFrequency(getWithException(swapDetails, FIXED_LEG_FREQUENCY));
-    ExternalId fixedRegionIdentifier = RegionUtils.countryRegionId(Country.of(getWithException(swapDetails, FIXED_LEG_REGION)));
+    ExternalId fixedRegionIdentifier = ExternalSchemes.countryRegionId(Country.of(getWithException(swapDetails, FIXED_LEG_REGION)));
     BusinessDayConvention fixedBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(getWithException(swapDetails, FIXED_LEG_BUS_DAY_CONVENTION));
     Currency fixedCurrency = Currency.of(getWithException(swapDetails, FIXED_LEG_CURRENCY));
     double fixedNotionalAmount = Double.parseDouble(getWithException(swapDetails, FIXED_LEG_NOTIONAL));
@@ -239,7 +239,7 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
     
     DayCount floatingDayCount = DayCountFactory.INSTANCE.getDayCount(getWithException(swapDetails, FLOATING_LEG_DAYCOUNT));
     Frequency floatingFrequency = SimpleFrequencyFactory.INSTANCE.getFrequency(getWithException(swapDetails, FLOATING_LEG_FREQUENCY));
-    ExternalId floatingRegionIdentifier = RegionUtils.countryRegionId(Country.of(getWithException(swapDetails, FLOATING_LEG_REGION)));
+    ExternalId floatingRegionIdentifier = ExternalSchemes.countryRegionId(Country.of(getWithException(swapDetails, FLOATING_LEG_REGION)));
     BusinessDayConvention floatingBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(getWithException(swapDetails, FLOATING_LEG_BUS_DAY_CONVENTION));
     Currency floatingCurrency = Currency.of(getWithException(swapDetails, FLOATING_LEG_CURRENCY));
     double floatingNotionalAmount = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_NOTIONAL));

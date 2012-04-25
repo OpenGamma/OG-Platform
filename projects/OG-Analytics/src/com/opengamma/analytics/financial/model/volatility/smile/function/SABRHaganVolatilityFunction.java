@@ -493,7 +493,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       for (int loopy = loopx; loopy < 2; loopy++) {
         sigmaD2hh[loopx][loopy] = (sigmaD2ff[0][0] * f1Dh[loopy] + sigmaD2ff[0][1] * f2Dh[loopy] + sigmaD2ff[0][2] * f3Dh[loopy]) * f1Dh[loopx] + sigmaDf1 * f1D2hh[loopx][loopy]
             + (sigmaD2ff[0][1] * f1Dh[loopy] + sigmaD2ff[1][1] * f2Dh[loopy] + sigmaD2ff[1][2] * f3Dh[loopy]) * f2Dh[loopx] + sigmaDf2 * f2D2hh[loopx][loopy]
-            + (sigmaD2ff[0][2] * f1Dh[loopy] + sigmaD2ff[1][2] * f2Dh[loopy] + sigmaD2ff[2][2] * f3Dh[loopy]) * f3Dh[loopx] + sigmaDf3 * f3D2hh[loopx][loopy];
+                + (sigmaD2ff[0][2] * f1Dh[loopy] + sigmaD2ff[1][2] * f2Dh[loopy] + sigmaD2ff[2][2] * f3Dh[loopy]) * f3Dh[loopx] + sigmaDf3 * f3D2hh[loopx][loopy];
       }
     }
     // Third level
@@ -678,4 +678,24 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     return res;
   }
 
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABR (Hagan)";
+  }
 }

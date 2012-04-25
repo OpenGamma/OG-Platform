@@ -12,7 +12,7 @@ import java.util.Random;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
@@ -51,7 +51,7 @@ public class CurrencyMatrixTest extends FinancialTestBase {
   @Test
   public void testSymmetricalMatrix() {
     final SimpleCurrencyMatrix simple = new SimpleCurrencyMatrix();
-    simple.setLiveData(Currency.USD, Currency.GBP, UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
+    simple.setLiveData(Currency.USD, Currency.GBP, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), "GBP Curncy"));
     simple.setFixedConversion(Currency.GBP, Currency.EUR, 0.9);
     simple.setCrossConversion(Currency.USD, Currency.EUR, Currency.GBP);
     simple.setFixedConversion(Currency.EUR, Currency.CHF, 10.0);

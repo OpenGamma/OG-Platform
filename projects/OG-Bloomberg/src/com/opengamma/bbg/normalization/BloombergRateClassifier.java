@@ -20,7 +20,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -80,7 +80,7 @@ public class BloombergRateClassifier {
   }
 
   private Integer getNormalizationFactorCore(String buid) {
-    ExternalIdBundle buidBundle = ExternalIdBundle.of(SecurityUtils.BLOOMBERG_BUID, buid);
+    ExternalIdBundle buidBundle = ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_BUID, buid);
     SecurityType securityType = _securityTypeResolver.getSecurityType(Collections.singleton(buidBundle)).get(buidBundle);
     if (securityType == null) {
       s_logger.warn("Unable to determine security type for BUID " + buid);

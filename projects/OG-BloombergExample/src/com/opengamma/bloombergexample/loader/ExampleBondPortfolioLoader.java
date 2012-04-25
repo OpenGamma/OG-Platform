@@ -11,7 +11,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
@@ -189,7 +189,7 @@ public class ExampleBondPortfolioLoader extends AbstractExampleTool {
   protected ManageablePosition createPosition(BondSecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+    ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
     ExternalIdBundle bundle;
     if (buid != null) {
       bundle = ExternalIdBundle.of(buid);

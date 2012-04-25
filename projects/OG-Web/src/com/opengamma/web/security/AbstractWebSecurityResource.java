@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -329,8 +329,8 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       List<BondFutureDeliverable> basket = bondFutureSecurity.getBasket();
       for (BondFutureDeliverable bondFutureDeliverable : basket) {
-        String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
-        result.put(SecurityUtils.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
+        String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID);
+        result.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
       }
     }
     return result;

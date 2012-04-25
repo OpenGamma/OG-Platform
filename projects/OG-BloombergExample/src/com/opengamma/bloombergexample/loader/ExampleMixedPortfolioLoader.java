@@ -15,8 +15,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -79,7 +78,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   private static final String ID_SCHEME = "MIXED_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final ExternalId USDLIBOR3M = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
+  private static final ExternalId USDLIBOR3M = ExternalSchemes.bloombergTickerSecurityId("US0003M Index");
   
   public static void main(String[] args) { //CSIGNORE
     new ExampleMixedPortfolioLoader().initAndRun(args);
@@ -111,26 +110,26 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   private void addEquityNode(ManageablePortfolioNode rootNode) {
     final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Equity");
     
-    EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(SecurityUtils.bloombergTickerSecurityId("DJX Index"), 
+    EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(ExternalSchemes.bloombergTickerSecurityId("DJX Index"), 
         Currency.USD, 0.5, 1000000.0, true, 250.0, ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2012, 11, 1, 16, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), RegionUtils.currencyRegionId(Currency.USD), SimpleFrequency.DAILY);
+        ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), ExternalSchemes.currencyRegionId(Currency.USD), SimpleFrequency.DAILY);
     equityVarianceSwap.setName("Equity Variance Swap, USD 1MM, strike=0.5, maturing 2012-11-01");
     equityVarianceSwap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     storeFinancialSecurity(equityVarianceSwap);
     addPosition(portfolioNode, equityVarianceSwap, BigDecimal.ONE);
     
     EquityIndexDividendFutureSecurity dividendFuture = new EquityIndexDividendFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "HSBA"));
+        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "HSBA"));
     dividendFuture.setName("HSBC Holdings SSDF Dec11");
-    dividendFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
+    dividendFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
     storeFinancialSecurity(dividendFuture);
     addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
     
     EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), SecurityUtils.bloombergTickerSecurityId("SPX Index"));
+        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalSchemes.bloombergTickerSecurityId("SPX Index"));
     equityFuture.setName("S&P 500 FUTURE Dec12");
-    equityFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPZ2"));
+    equityFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "SPZ2"));
     storeFinancialSecurity(equityFuture);
     addPosition(portfolioNode, equityFuture, BigDecimal.ONE);
     
@@ -149,7 +148,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2011, 5, 28, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2009, 12, 31, 11, 0), TimeZone.UTC), 
         99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
-    bond1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828KY53"));
+    bond1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "US912828KY53"));
     bond1.setName("T 2 5/8 06/30/14");
     storeFinancialSecurity(bond1);
     addPosition(portfolioNode, bond1, BigDecimal.valueOf(2120));
@@ -162,7 +161,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2011, 2, 14, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2011, 2, 28, 11, 0), TimeZone.UTC), 
         99.402797, 3.6881E10, 100.0, 100.0, 100.0, 100.0);
-    bond2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828NV87"));
+    bond2.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "US912828NV87"));
     bond2.setName("T 1 1/4 08/31/15");
     storeFinancialSecurity(bond2);
     addPosition(portfolioNode, bond2, BigDecimal.valueOf(3940));
@@ -175,30 +174,30 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2011, 1, 28, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(1996, 6, 7, 12, 0), TimeZone.UTC), 
         99.0625, 2.2686E10, 0.01, 0.01, 100.0, 100.0);
-    bond3.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GB0009997999"));
+    bond3.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GB0009997999"));
     bond3.setName("UKT 8 06/07/21");
     bond3.setAnnouncementDate(ZonedDateTime.of(LocalDateTime.of(1996, 2, 20, 11, 0), TimeZone.UTC));
     storeFinancialSecurity(bond3);
     addPosition(portfolioNode, bond3, BigDecimal.valueOf(4690));
     
     final List<BondFutureDeliverable> bondFutureDelivarables = new ArrayList<BondFutureDeliverable>();
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FF0")), 0.9221));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FJ2")), 1.0132));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FA1")), 1.037));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FE3")), 0.9485));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FB9")), 1.0125));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FM5")), 1.0273));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FG8")), 0.9213));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810PT9")), 0.8398));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FF0")), 0.9221));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FJ2")), 1.0132));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FA1")), 1.037));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FE3")), 0.9485));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FB9")), 1.0125));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FM5")), 1.0273));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FG8")), 0.9213));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810PT9")), 0.8398));
     
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FP8")), 0.9301));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FP8")), 0.9301));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
     
     final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
         "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
     bond4.setName("US LONG BOND(CBT) Mar12");
-    bond4.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USH12"));
+    bond4.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USH12"));
     storeFinancialSecurity(bond4);
     addPosition(portfolioNode, bond4, BigDecimal.valueOf(10));
     
@@ -217,27 +216,27 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     
     InterestRateFutureSecurity edu12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 20, 0), TimeZone.UTC)), 
         "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
-    edu12.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU12"));
+    edu12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"));
     edu12.setName("90DAY EURO$ FUTR Sep12");
     storeFinancialSecurity(edu12);
     
     AmericanExerciseType exerciseType = new AmericanExerciseType();
     IRFutureOptionSecurity optionSec1 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 0, 0), TimeZone.UTC)), 
-        exerciseType, ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU12"), 6.25, false, Currency.USD, 98.0, OptionType.PUT);
-    optionSec1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU2P98"));
+        exerciseType, ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"), 6.25, false, Currency.USD, 98.0, OptionType.PUT);
+    optionSec1.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU2P98"));
     optionSec1.setName("EDU2P 2012-09-17 P 98.0");
     storeFinancialSecurity(optionSec1);
     securities.add(optionSec1);
     
     InterestRateFutureSecurity edz12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 20, 0), TimeZone.UTC)), 
         "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
-    edz12.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ12"));
+    edz12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ12"));
     edz12.setName("90DAY EURO$ FUTR Dec12");
     storeFinancialSecurity(edz12);
     
     IRFutureOptionSecurity optionSec2 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 0, 0), TimeZone.UTC)), 
-        exerciseType, ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ12"), 6.25, false, Currency.USD, 99.0, OptionType.CALL);
-    optionSec2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU2P98"));
+        exerciseType, ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ12"), 6.25, false, Currency.USD, 99.0, OptionType.CALL);
+    optionSec2.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU2P98"));
     optionSec2.setName("EDZ2C 2012-12-17 C 99.0");
     storeFinancialSecurity(optionSec2);
     securities.add(optionSec2);
@@ -269,7 +268,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     
     final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
-        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
         DayCountFactory.INSTANCE.getDayCount("30U/360"), false, true, true);
     sec1.setName("Ibor cap,  @ 0.01");
     sec1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
@@ -277,7 +276,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     
     final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
-        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
         DayCountFactory.INSTANCE.getDayCount("30U/360"), false, false, true);
     sec2.setName("Ibor floor,  @ 0.01");
     sec2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
@@ -294,14 +293,14 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("US")), 
+                                 ExternalSchemes.countryRegionId(Country.of("US")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.USD, 15000000), 
                                  true, 
                                  0.05), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
@@ -316,18 +315,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("DE")), 
+                                 ExternalSchemes.countryRegionId(Country.of("DE")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.EUR, 20000000), 
                                  true, 
                                  0.04), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("DE")), 
+                                    ExternalSchemes.countryRegionId(Country.of("DE")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.EUR, 20000000), 
                                     true, 
-                                    SecurityUtils.bloombergTickerSecurityId("US0006M Index"), 
+                                    ExternalSchemes.bloombergTickerSecurityId("US0006M Index"), 
                                     FloatingRateType.IBOR));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap2.setName("Swap: pay 4% fixed vs 6m Euribor, start=1/5/2005, maturity=1/5/2030, notional=EUR 20MM");
@@ -338,18 +337,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("GB")), 
+                                 ExternalSchemes.countryRegionId(Country.of("GB")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.GBP, 15000000), 
                                  true, 
                                  0.03), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("GB")), 
+                                    ExternalSchemes.countryRegionId(Country.of("GB")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.GBP, 15000000), 
                                     true, 
-                                    SecurityUtils.bloombergTickerSecurityId("BP0006M Index"), 
+                                    ExternalSchemes.bloombergTickerSecurityId("BP0006M Index"), 
                                     FloatingRateType.IBOR));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap3.setName("Swap: pay 3% fixed vs 6m Libor, start=1/5/2007, maturity=1/5/2020, notional=GBP 15MM");
@@ -360,18 +359,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("JP")), 
+                                 ExternalSchemes.countryRegionId(Country.of("JP")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.JPY, 100000000), 
                                  true, 
                                  0.02), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("JP")), 
+                                    ExternalSchemes.countryRegionId(Country.of("JP")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.JPY, 100000000), 
                                     true, 
-                                    SecurityUtils.bloombergTickerSecurityId("JY0006M Index"), 
+                                    ExternalSchemes.bloombergTickerSecurityId("JY0006M Index"), 
                                     FloatingRateType.IBOR));
     swap4.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap4.setName("Swap: pay 2% fixed vs 6m Libor, start=1/5/2003, maturity=1/5/2028, notional=JPY 100MM");
@@ -382,18 +381,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("CH")), 
+                                 ExternalSchemes.countryRegionId(Country.of("CH")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.CHF, 5000000), 
                                  true, 
                                  0.07), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("CH")), 
+                                    ExternalSchemes.countryRegionId(Country.of("CH")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.CHF, 5000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "CHFLIBORP6M"), 
+                                    ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "CHFLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap5.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap5.setName("Swap: pay 7% fixed vs 6m Libor, start=1/5/2004, maturity=1/5/2044, notional=CHF 50MM");
@@ -448,18 +447,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("NZ")), 
+                                 ExternalSchemes.countryRegionId(Country.of("NZ")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.NZD, 55000000), 
                                  true, 
                                  0.05), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("NZ")), 
+                                    ExternalSchemes.countryRegionId(Country.of("NZ")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.NZD, 55000000), 
                                     true, 
-                                    SecurityUtils.bloombergTickerSecurityId("NZ0006M Index"), 
+                                    ExternalSchemes.bloombergTickerSecurityId("NZ0006M Index"), 
                                     FloatingRateType.IBOR));
     swap8.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap8.setName("Swap: pay 5% fixed vs 6m Libor, start=1/5/2010, maturity=1/5/2030, notional=NZD 55MM");
@@ -470,18 +469,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("DK")), 
+                                 ExternalSchemes.countryRegionId(Country.of("DK")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.DKK, 90000000), 
                                  true, 
                                  0.05), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("DK")), 
+                                    ExternalSchemes.countryRegionId(Country.of("DK")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.DKK, 90000000), 
                                     true, 
-                                    SecurityUtils.bloombergTickerSecurityId("CIBO06M Index"), 
+                                    ExternalSchemes.bloombergTickerSecurityId("CIBO06M Index"), 
                                     FloatingRateType.IBOR));
     swap9.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap9.setName("Swap: pay 5% fixed vs 6m Cibor, start=1/5/2010, maturity=1/5/2030, notional=DKK 90MM");
@@ -506,18 +505,18 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
-                                 RegionUtils.countryRegionId(Country.of("US")), 
+                                 ExternalSchemes.countryRegionId(Country.of("US")), 
                                  BUSINESS_DAY, 
                                  new InterestRateNotional(Currency.USD, 15000000), 
                                  true, 
                                  0.05), 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
+                                    ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap1.setName("Swap: pay 5% fixed vs USDSWAPP6Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -528,7 +527,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
@@ -536,11 +535,11 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                     FloatingRateType.IBOR),
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
+                                    ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap2.setName("Swap: pay 6m Libor vs USDSWAPP6Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -551,19 +550,19 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         "Cpty", 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP10Y"), 
+                                    ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP10Y"), 
                                     FloatingRateType.CMS),
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
-                                    RegionUtils.countryRegionId(Country.of("US")), 
+                                    ExternalSchemes.countryRegionId(Country.of("US")), 
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
+                                    ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap3.setName("Swap: pay USSW10 vs USDSWAPP10Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -583,7 +582,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2022, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 1.0E7), 
             false, 
@@ -591,7 +590,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
             FloatingRateType.IBOR),
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
             SimpleFrequency.SEMI_ANNUAL, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 1.0E7), 
             false, 
@@ -612,7 +611,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2015, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 3000000.0), 
             false, 
@@ -620,7 +619,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
             FloatingRateType.IBOR),
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
             SimpleFrequency.SEMI_ANNUAL, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 3000000.0), 
             false, 
@@ -641,7 +640,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
         ZonedDateTime.of(LocalDateTime.of(2031, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 6000000.0), 
             false, 
@@ -649,7 +648,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
             FloatingRateType.IBOR),
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
             SimpleFrequency.SEMI_ANNUAL, 
-            RegionUtils.financialRegionId("US+GB"),
+            ExternalSchemes.financialRegionId("US+GB"),
             BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
             new InterestRateNotional(Currency.USD, 6000000.0), 
             false, 
@@ -690,7 +689,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   private static Collection<FinancialSecurity> getSimpleFixedIncome() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final FRASecurity fra = new FRASecurity(Currency.USD, 
-                                            RegionUtils.countryRegionId(Country.of("US")), 
+                                            ExternalSchemes.countryRegionId(Country.of("US")), 
                                             ZonedDateTime.of(LocalDateTime.of(2012, 1, 14, 11, 0), TimeZone.UTC), 
                                             ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC), 
                                             0.01, 
@@ -705,7 +704,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
                                                                                Currency.USD, 
                                                                                1000, 
                                                                                USDLIBOR3M);
-    irFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ13"));
+    irFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ13"));
     irFuture.setName("90DAY EURO$ FUTR Jun13");
     securities.add(fra);
     securities.add(irFuture);
@@ -716,7 +715,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final FXForwardSecurity fxForward1 = new FXForwardSecurity(Currency.USD, 1000000, Currency.EUR, 1000000,
                                                                ZonedDateTime.of(LocalDateTime.of(2013, 2, 1, 11, 0), TimeZone.UTC), 
-                                                               RegionUtils.countryRegionId(Country.of("US")));
+                                                               ExternalSchemes.countryRegionId(Country.of("US")));
     fxForward1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     fxForward1.setName("FX forward, pay USD 1000000, receive EUR 1000000, maturity=1/2/2013");
 
@@ -728,7 +727,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     
     final FXForwardSecurity fxForward3 = new FXForwardSecurity(Currency.CHF, 2000000, Currency.EUR, 1000000,
                                                                ZonedDateTime.of(LocalDateTime.of(2013, 2, 1, 11, 0), TimeZone.UTC), 
-                                                               RegionUtils.countryRegionId(Country.of("US")));
+                                                               ExternalSchemes.countryRegionId(Country.of("US")));
     fxForward3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     fxForward3.setName("FX forward, pay CHF 2000000, receive EUR 1000000, maturity=1/2/2013");
     securities.add(fxForward1);

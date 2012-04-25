@@ -8,7 +8,7 @@ package com.opengamma.core;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.google.common.base.Objects;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
@@ -58,12 +58,12 @@ public class LinkUtils {
     ObjectId objectId = link.getObjectId();
     ExternalIdBundle bundle = link.getExternalId();
     if (bundle != null && bundle.size() > 0) {
-      if (bundle.getValue(SecurityUtils.BLOOMBERG_TICKER) != null) {
-        return bundle.getValue(SecurityUtils.BLOOMBERG_TICKER);
-      } else if (bundle.getValue(SecurityUtils.RIC) != null) {
-        return bundle.getValue(SecurityUtils.RIC);
-      } else if (bundle.getValue(SecurityUtils.ACTIVFEED_TICKER) != null) {
-        return bundle.getValue(SecurityUtils.ACTIVFEED_TICKER);
+      if (bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER) != null) {
+        return bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER);
+      } else if (bundle.getValue(ExternalSchemes.RIC) != null) {
+        return bundle.getValue(ExternalSchemes.RIC);
+      } else if (bundle.getValue(ExternalSchemes.ACTIVFEED_TICKER) != null) {
+        return bundle.getValue(ExternalSchemes.ACTIVFEED_TICKER);
       } else {
         return bundle.getExternalIds().iterator().next().getValue();
       }

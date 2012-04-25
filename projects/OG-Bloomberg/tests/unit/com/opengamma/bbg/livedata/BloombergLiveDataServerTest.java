@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.bbg.test.BloombergTestUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -98,7 +98,7 @@ public class BloombergLiveDataServerTest {
     
     for (LiveDataValueUpdate update : listener.getValueUpdates()) {
       assertEquals(1, update.getSpecification().getIdentifiers().size());
-      assertNotNull(update.getSpecification().getIdentifier(SecurityUtils.BLOOMBERG_BUID));
+      assertNotNull(update.getSpecification().getIdentifier(ExternalSchemes.BLOOMBERG_BUID));
       assertNotNull(StandardRules.getOpenGammaRuleSetId(), update.getSpecification().getNormalizationRuleSetId());
     
       StandardRulesUtils.validateOpenGammaMsg(update.getFields());
@@ -108,14 +108,14 @@ public class BloombergLiveDataServerTest {
   private void subscribe(LiveDataClient liveDataClient, LiveDataListener listener, String ticker) {
     LiveDataSpecification requestedSpecification = new LiveDataSpecification(
         liveDataClient.getDefaultNormalizationRuleSetId(),
-        SecurityUtils.bloombergTickerSecurityId(ticker));
+        ExternalSchemes.bloombergTickerSecurityId(ticker));
     liveDataClient.subscribe(TEST_USER, requestedSpecification, listener);
   }
   
   private LiveDataSubscriptionResponse snapshot(String ticker) {
     LiveDataSpecification requestedSpecification = new LiveDataSpecification(
         _liveDataClient.getDefaultNormalizationRuleSetId(),
-        SecurityUtils.bloombergTickerSecurityId(ticker));
+        ExternalSchemes.bloombergTickerSecurityId(ticker));
     return _liveDataClient.snapshot(TEST_USER, requestedSpecification, 3000);
   }
   

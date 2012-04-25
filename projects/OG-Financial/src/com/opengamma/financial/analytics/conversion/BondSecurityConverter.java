@@ -15,8 +15,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -68,7 +68,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
   }
 
   public InstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
-    final ExternalId regionId = RegionUtils.financialRegionId(security.getIssuerDomicile());
+    final ExternalId regionId = ExternalSchemes.financialRegionId(security.getIssuerDomicile());
     if (regionId == null) {
       throw new OpenGammaRuntimeException("Could not find region for " + security.getIssuerDomicile());
     }

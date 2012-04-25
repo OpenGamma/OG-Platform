@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
@@ -87,8 +87,8 @@ public class HistoricalTimeSeriesSourceTest {
   }
 
   private ExternalIdBundle makeBundle() {
-    return ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(makeUniqueRandomId()), 
-                                SecurityUtils.bloombergBuidSecurityId(makeUniqueRandomId()));
+    return ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId(makeUniqueRandomId()), 
+                                ExternalSchemes.bloombergBuidSecurityId(makeUniqueRandomId()));
   }
 
   /**

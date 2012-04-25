@@ -137,9 +137,11 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_beta);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_externalBeta ? 1231 : 1237);
+    if (_externalBeta) {
+      temp = Double.doubleToLongBits(_beta);
+      result = prime * result + (int) (temp ^ (temp >>> 32));
+    }
     return result;
   }
 
@@ -155,13 +157,28 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
       return false;
     }
     final SmileInterpolatorSABR other = (SmileInterpolatorSABR) obj;
-    if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
-      return false;
-    }
     if (_externalBeta != other._externalBeta) {
       return false;
+    }
+    if (_externalBeta) {
+      if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
+        return false;
+      }
     }
     return true;
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("SABRInterpolator[weighting function=");
+    sb.append(getWeightingFunction());
+    sb.append(", SABR model=");
+    sb.append(getModel());
+    if (_externalBeta) {
+      sb.append(", fixed beta=");
+      sb.append(_beta);
+    }
+    sb.append("]");
+    return sb.toString();
+  }
 }

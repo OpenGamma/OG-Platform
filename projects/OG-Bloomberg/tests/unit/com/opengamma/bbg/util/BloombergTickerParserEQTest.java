@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 
 
@@ -19,7 +19,7 @@ public class BloombergTickerParserEQTest {
   //-------- BASIC CASES --------
   @Test
   public void testWithTickerIdentifier() {
-    BloombergTickerParserEQ parser = new BloombergTickerParserEQ (ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "MSFT US Equity"));;
+    BloombergTickerParserEQ parser = new BloombergTickerParserEQ (ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "MSFT US Equity"));;
     assertEquals ("US", parser.getExchangeCode());
     assertEquals ("MSFT", parser.getSymbol());
   }
@@ -34,12 +34,12 @@ public class BloombergTickerParserEQTest {
   // -------- ILLEGAL FORMATTING --------
   @Test (expectedExceptions = OpenGammaRuntimeException.class)
   public void testIllegalIdentifierScheme () {
-    BloombergTickerParserEQ parser = new BloombergTickerParserEQ(ExternalId.of(SecurityUtils.CUSIP, "12345678"));
+    BloombergTickerParserEQ parser = new BloombergTickerParserEQ(ExternalId.of(ExternalSchemes.CUSIP, "12345678"));
   }
   
   @Test (expectedExceptions = OpenGammaRuntimeException.class)
   public void testIllegalPattern1 () {
-    BloombergTickerParserEQ parser = new BloombergTickerParserEQ(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "adddsfsdfsdf"));
+    BloombergTickerParserEQ parser = new BloombergTickerParserEQ(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "adddsfsdfsdf"));
   }
   
   @Test (expectedExceptions = OpenGammaRuntimeException.class)

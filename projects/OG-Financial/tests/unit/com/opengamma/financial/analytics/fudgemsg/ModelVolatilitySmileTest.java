@@ -38,7 +38,7 @@ public class ModelVolatilitySmileTest extends AnalyticsTestBase {
   private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final ForexSmileDeltaSurfaceDataBundle FOREX_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, BUTT, true, EXTRAPOLATOR_1D);
-  private static final VolatilitySurfaceInterpolator VOLATILITY_SURFACE_INTERPOLATOR = new VolatilitySurfaceInterpolator(new SmileInterpolatorMixedLogNormal(),
+  private static final VolatilitySurfaceInterpolator VOLATILITY_SURFACE_INTERPOLATOR = new VolatilitySurfaceInterpolator(new SmileInterpolatorSABR(),
       EXTRAPOLATOR_1D, true, false, false);
 
   @Test
@@ -62,6 +62,7 @@ public class ModelVolatilitySmileTest extends AnalyticsTestBase {
   @Test
   public void testVolatilitySurfaceInterpolator() {
     final VolatilitySurfaceInterpolator fitter = cycleObject(VolatilitySurfaceInterpolator.class, VOLATILITY_SURFACE_INTERPOLATOR);
+    assertEquals(VOLATILITY_SURFACE_INTERPOLATOR.getSmileInterpolator(), fitter.getSmileInterpolator());
     assertEquals(VOLATILITY_SURFACE_INTERPOLATOR, fitter);
     final BlackVolatilitySurfaceMoneyness surface1 = VOLATILITY_SURFACE_INTERPOLATOR.getVolatilitySurface(FOREX_DATA);
     final BlackVolatilitySurfaceMoneyness surface2 = cycleObject(BlackVolatilitySurfaceMoneyness.class, surface1);

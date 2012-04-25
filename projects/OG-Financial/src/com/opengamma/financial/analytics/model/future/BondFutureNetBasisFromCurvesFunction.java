@@ -13,7 +13,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.calculator.BondFutureNetBasisFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -47,7 +47,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondFutureFromCurvesFu
     }
     final String[] label = new String[n];
     for (int i = 0; i < n; i++) {
-      label[i] = deliverables.get(i).getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID);
+      label[i] = deliverables.get(i).getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID);
     }
     final StringLabelledMatrix1D result = new StringLabelledMatrix1D(label, netBasis);
     return Sets.newHashSet(new ComputedValue(getResultSpec(target), result));
