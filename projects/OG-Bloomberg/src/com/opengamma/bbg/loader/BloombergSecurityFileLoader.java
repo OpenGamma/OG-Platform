@@ -44,7 +44,7 @@ import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -213,7 +213,7 @@ public class BloombergSecurityFileLoader {
           continue;
         }
 
-        ExternalId optionTicker = SecurityUtils.bloombergTickerSecurityId(optionTickerStr);
+        ExternalId optionTicker = ExternalSchemes.bloombergTickerSecurityId(optionTickerStr);
         optionsIdentifiers.add(ExternalIdBundle.of(optionTicker));
 
         nAdded++;
@@ -283,7 +283,7 @@ public class BloombergSecurityFileLoader {
       String schemeValue = line.getOptionValue(IDENTIFICATION_SCHEME);
       securityLoader.setScheme(ExternalScheme.of(schemeValue));
     } else {
-      securityLoader.setScheme(SecurityUtils.BLOOMBERG_TICKER);
+      securityLoader.setScheme(ExternalSchemes.BLOOMBERG_TICKER);
     }
     securityLoader.run();
   }

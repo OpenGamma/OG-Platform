@@ -8,7 +8,7 @@ package com.opengamma.examples.volatility.surface;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.ExternalId;
@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
  */
 //TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class ExampleFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
-  private static final ExternalScheme SCHEME = SecurityUtils.OG_SYNTHETIC_TICKER;
+  private static final ExternalScheme SCHEME = ExternalSchemes.OG_SYNTHETIC_TICKER;
 
   private final String _fxPrefix; //expecting something like USDJPY
   private final String _postfix; //expecting Curncy

@@ -18,11 +18,11 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -341,8 +341,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final String counterparty = "";
     final ConventionBundle payLegFloatRateConvention = _conventionBundleSource.getConventionBundle(convention.getBasisSwapPayFloatingLegInitialRate());
     final ConventionBundle receiveLegFloatRateConvention = _conventionBundleSource.getConventionBundle(convention.getBasisSwapReceiveFloatingLegInitialRate());
-    final ExternalId payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
-    final ExternalId receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId payLegFloatRateBloombergTicker = payLegFloatRateConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+    final ExternalId receiveLegFloatRateBloombergTicker = receiveLegFloatRateConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get spread; was trying " + swapIdentifier);
     }

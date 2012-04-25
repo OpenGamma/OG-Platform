@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
@@ -56,17 +56,17 @@ public class BloombergJmsTopicNameResolverTest {
     BloombergJmsTopicNameResolver topicNameResolver = new BloombergJmsTopicNameResolver(rdp);
     
     ExternalId aaplEquity = idResolver.resolve(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("AAPL US Equity")));
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity")));
     String spec = topicNameResolver.resolve(new JmsTopicNameResolveRequest(aaplEquity, rules));
     assertEquals("LiveData.Bloomberg.Equity.NASDAQ GS.AAPL" + rules.getJmsTopicSuffix(), spec);
     
     ExternalId usDomesticBond = idResolver.resolve(
-        ExternalIdBundle.of(SecurityUtils.cusipSecurityId("607059AT9")));
+        ExternalIdBundle.of(ExternalSchemes.cusipSecurityId("607059AT9")));
     spec = topicNameResolver.resolve(new JmsTopicNameResolveRequest(usDomesticBond, rules));
     assertEquals("LiveData.Bloomberg.Bond.MOBIL CORP.607059AT9" + rules.getJmsTopicSuffix(), spec);
     
     ExternalId globalBond = idResolver.resolve(
-        ExternalIdBundle.of(SecurityUtils.cusipSecurityId("4581X0AD0")));
+        ExternalIdBundle.of(ExternalSchemes.cusipSecurityId("4581X0AD0")));
     spec = topicNameResolver.resolve(new JmsTopicNameResolveRequest(globalBond, rules));
     assertEquals("LiveData.Bloomberg.Bond.INTER-AMERICAN DEVEL BK.US4581X0AD07" + rules.getJmsTopicSuffix(), spec);
     

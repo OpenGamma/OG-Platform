@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -228,9 +228,9 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
     String ticker = getWithException(equityDetails, "ticker");
     
     return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, gicsCode,
-        ExternalId.of(SecurityUtils.ISIN, isin), 
-        ExternalId.of(SecurityUtils.CUSIP, cusip), 
-        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
+        ExternalId.of(ExternalSchemes.ISIN, isin), 
+        ExternalId.of(ExternalSchemes.CUSIP, cusip), 
+        ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker));
   }
 
   /**

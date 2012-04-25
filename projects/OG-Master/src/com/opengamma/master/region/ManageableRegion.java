@@ -25,9 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -131,7 +131,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public Country getCountry() {
-    String code = _externalIdBundle.getValue(RegionUtils.ISO_COUNTRY_ALPHA2);
+    String code = _externalIdBundle.getValue(ExternalSchemes.ISO_COUNTRY_ALPHA2);
     return (code != null ? Country.of(code) : null);
   }
 
@@ -141,9 +141,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @param country  the country to set, null to remove any defined country
    */
   public void setCountry(Country country) {
-    setExternalIdBundle(getExternalIdBundle().withoutScheme(RegionUtils.ISO_CURRENCY_ALPHA3));
+    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.ISO_CURRENCY_ALPHA3));
     if (country != null) {
-      addExternalId(RegionUtils.countryRegionId(country));
+      addExternalId(ExternalSchemes.countryRegionId(country));
     }
   }
 
@@ -153,7 +153,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public Currency getCurrency() {
-    String code = _externalIdBundle.getValue(RegionUtils.ISO_CURRENCY_ALPHA3);
+    String code = _externalIdBundle.getValue(ExternalSchemes.ISO_CURRENCY_ALPHA3);
     return (code != null ? Currency.of(code) : null);
   }
 
@@ -163,9 +163,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @param currency  the currency to set, null to remove any currency
    */
   public void setCurrency(Currency currency) {
-    setExternalIdBundle(getExternalIdBundle().withoutScheme(RegionUtils.ISO_CURRENCY_ALPHA3));
+    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.ISO_CURRENCY_ALPHA3));
     if (currency != null) {
-      addExternalId(RegionUtils.currencyRegionId(currency));
+      addExternalId(ExternalSchemes.currencyRegionId(currency));
     }
   }
 
@@ -177,7 +177,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @return the value of the property
    */
   public TimeZone getTimeZone() {
-    String id = _externalIdBundle.getValue(RegionUtils.TZDB_TIME_ZONE);
+    String id = _externalIdBundle.getValue(ExternalSchemes.TZDB_TIME_ZONE);
     return (id != null ? TimeZone.of(id) : null);
   }
 
@@ -187,9 +187,9 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
    * @param timeZone  the time-zone to set, null to remove any time-zone
    */
   public void setTimeZone(TimeZone timeZone) {
-    setExternalIdBundle(getExternalIdBundle().withoutScheme(RegionUtils.TZDB_TIME_ZONE));
+    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.TZDB_TIME_ZONE));
     if (timeZone != null) {
-      addExternalId(RegionUtils.timeZoneRegionId(timeZone));
+      addExternalId(ExternalSchemes.timeZoneRegionId(timeZone));
     }
   }
 

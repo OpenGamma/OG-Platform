@@ -7,8 +7,8 @@ package com.opengamma.web.region;
 
 import java.net.URI;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
@@ -65,7 +65,7 @@ public class WebRegionUris {
    */
   public URI regionsByCurrency(final String currencyISO) {
     try {
-      return WebRegionsResource.uri(_data, ExternalIdBundle.of(RegionUtils.currencyRegionId(Currency.of(currencyISO))));
+      return WebRegionsResource.uri(_data, ExternalIdBundle.of(ExternalSchemes.currencyRegionId(Currency.of(currencyISO))));
     } catch (Exception ex) {
       return WebRegionResource.uri(_data);
     }

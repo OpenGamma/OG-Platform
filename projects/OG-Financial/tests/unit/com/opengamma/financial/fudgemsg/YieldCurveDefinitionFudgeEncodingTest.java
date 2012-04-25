@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.CurveDefinitionAndSpecifications;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
@@ -22,7 +22,7 @@ public class YieldCurveDefinitionFudgeEncodingTest extends FinancialTestBase {
 
   @Test
   public void testCycle() {
-    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "ANNOYING", "STUPID");
+    final YieldCurveDefinition curveDefinition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "ANNOYING", "STUPID");
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "Convention"));
     assertEquals(curveDefinition, cycleObject(YieldCurveDefinition.class, curveDefinition));
     curveDefinition.addStrip(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.TWO_YEARS, 3, "CONVENTIONAL"));

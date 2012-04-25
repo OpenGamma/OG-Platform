@@ -9,7 +9,7 @@ import org.testng.AssertJUnit;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -37,7 +37,7 @@ public class InMemoryConventionBundleMasterTest {
 
     final ConventionBundle conventions = source.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N"));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getName());
-    AssertJUnit.assertEquals("US00O/N Index", conventions.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER));
+    AssertJUnit.assertEquals("US00O/N Index", conventions.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getIdentifiers().getValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
     final UniqueId uidON = conventions.getUniqueId();
     AssertJUnit.assertEquals(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), uidON.getScheme());
@@ -47,7 +47,7 @@ public class InMemoryConventionBundleMasterTest {
 
     final ConventionBundle conventions2 = source.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getName());
-    AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_TICKER));
+    AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
     AssertJUnit.assertEquals("USDLIBORP3M", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER));
     final UniqueId uid3M = conventions2.getUniqueId ();

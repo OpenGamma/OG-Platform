@@ -10,7 +10,7 @@ import java.text.DecimalFormat;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> extends SecurityGenerator<T> {
 
-  private static final ExternalId REGION = RegionUtils.countryRegionId(Country.US);
+  private static final ExternalId REGION = ExternalSchemes.countryRegionId(Country.US);
   private static final double NOTIONAL = 100000;
   private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.######");
   private static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("########.###");

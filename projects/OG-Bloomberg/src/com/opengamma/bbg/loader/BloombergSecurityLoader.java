@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -68,7 +68,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
       
       UniqueId uid = null;
       if (security != null) {
-        ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+        ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
         uid = getUid(buid);
         if (uid == null) {
           uid = addSecurity(security);
@@ -89,7 +89,7 @@ public class BloombergSecurityLoader implements SecurityLoader {
     for (Entry<ExternalIdBundle, ManageableSecurity> entry : securities.entrySet()) {
       ManageableSecurity security = entry.getValue();
       if (security != null) {
-        ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
+        ExternalId buid = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_BUID);
         UniqueId uid = getUid(buid);
         if (uid == null) {
           uid = addSecurity(security);

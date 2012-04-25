@@ -64,8 +64,8 @@ import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.livedata.normalization.BloombergRateRuleProvider;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
@@ -266,10 +266,10 @@ public final class BloombergDataUtils {
   
   public static MarketDataAvailabilityProvider createAvailabilityProvider(SecuritySource securitySource) {
     Set<ExternalScheme> acceptableSchemes = ImmutableSet.of(
-        SecurityUtils.BLOOMBERG_BUID_WEAK,
-        SecurityUtils.BLOOMBERG_BUID,
-        SecurityUtils.BLOOMBERG_TICKER_WEAK,
-        SecurityUtils.BLOOMBERG_TICKER);
+        ExternalSchemes.BLOOMBERG_BUID_WEAK,
+        ExternalSchemes.BLOOMBERG_BUID,
+        ExternalSchemes.BLOOMBERG_TICKER_WEAK,
+        ExternalSchemes.BLOOMBERG_TICKER);
     Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
     return new DomainMarketDataAvailabilityProvider(securitySource, acceptableSchemes, validMarketDataRequirementNames);
   }
@@ -473,7 +473,7 @@ public final class BloombergDataUtils {
       FudgeMsg chainContainer = (FudgeMsg) field.getValue();
       String identifier =  StringUtils.trimToNull(chainContainer.getString("Security Description"));
       if (identifier != null) {
-        ExternalId ticker = SecurityUtils.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
+        ExternalId ticker = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(identifier, " "));
         result.add(ticker);
       }
     }
@@ -501,23 +501,23 @@ public final class BloombergDataUtils {
 
     final Set<ExternalIdWithDates> identifiers = new HashSet<ExternalIdWithDates>();
     if (isValidField(bbgUnique)) {
-      ExternalId buid = SecurityUtils.bloombergBuidSecurityId(bbgUnique);
+      ExternalId buid = ExternalSchemes.bloombergBuidSecurityId(bbgUnique);
       identifiers.add(ExternalIdWithDates.of(buid, null, null));
     }
     if (isValidField(cusip)) {
-      ExternalId cusipId = SecurityUtils.cusipSecurityId(cusip);
+      ExternalId cusipId = ExternalSchemes.cusipSecurityId(cusip);
       identifiers.add(ExternalIdWithDates.of(cusipId, null, null));
     }
     if (isValidField(sedol1)) {
-      ExternalId sedol1Id = SecurityUtils.sedol1SecurityId(sedol1);
+      ExternalId sedol1Id = ExternalSchemes.sedol1SecurityId(sedol1);
       identifiers.add(ExternalIdWithDates.of(sedol1Id, null, null));
     }
     if (isValidField(isin)) {
-      ExternalId isinId = SecurityUtils.isinSecurityId(isin);
+      ExternalId isinId = ExternalSchemes.isinSecurityId(isin);
       identifiers.add(ExternalIdWithDates.of(isinId, null, null));
     }
     if (isValidField(securityIdentifier)) {
-      ExternalId tickerId = SecurityUtils.bloombergTickerSecurityId(securityIdentifier);
+      ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityIdentifier);
       LocalDate validFrom = null;
       if (isValidField(validFromStr)) {
         try {
@@ -565,7 +565,7 @@ public final class BloombergDataUtils {
           StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
           buf.append(yearStr.charAt(yearStr.length() - 1));
           buf.append(identifierValue.substring(splitIndex));
-          ExternalId singleYearId = SecurityUtils.bloombergTickerSecurityId(buf.toString());
+          ExternalId singleYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
           identifiers.add(ExternalIdWithDates.of(singleYearId, identifierWithDates.getValidFrom(), identifierWithDates.getValidTo()));
         } catch (NumberFormatException ex) {
           // try the single digit
@@ -579,7 +579,7 @@ public final class BloombergDataUtils {
             StringBuilder buf = new StringBuilder(secCode.substring(0, secCode.indexOf(yearStr)));
             buf.append(endYear.substring(endYear.length() - 2));
             buf.append(identifierValue.substring(splitIndex));
-            ExternalId doubleDigitYearId = SecurityUtils.bloombergTickerSecurityId(buf.toString());
+            ExternalId doubleDigitYearId = ExternalSchemes.bloombergTickerSecurityId(buf.toString());
             identifiers.add(ExternalIdWithDates.of(doubleDigitYearId, identifierWithDates.getValidTo().plusDays(1), null));
           } catch (NumberFormatException ex2) {
             s_logger.warn("cannot make out year code for {}", identifier);
@@ -667,7 +667,7 @@ public final class BloombergDataUtils {
       }
       //REVIEW simon : is it ok that we discard duplicates here 
       bundle2Bbgkey.put(bloombergKey, identifierBundle);
-      if (!preferredIdentifier.getScheme().equals(SecurityUtils.BLOOMBERG_BUID)) {
+      if (!preferredIdentifier.getScheme().equals(ExternalSchemes.BLOOMBERG_BUID)) {
         nonBuids.add(bloombergKey);
       }
     }
@@ -678,7 +678,7 @@ public final class BloombergDataUtils {
       for (Entry<String, String> entry : remaps.entrySet()) {
         String nonBuid = entry.getKey();
         String buid = entry.getValue();
-        ExternalId buidExternalId = ExternalId.of(SecurityUtils.BLOOMBERG_BUID, buid);
+        ExternalId buidExternalId = ExternalId.of(ExternalSchemes.BLOOMBERG_BUID, buid);
         String buidKey = BloombergDomainIdentifierResolver.toBloombergKey(buidExternalId);
         changeKey(nonBuid, buidKey, bundle2Bbgkey);
       }
@@ -747,7 +747,7 @@ public final class BloombergDataUtils {
       .append(strikeString)
       .append(' ')
       .append(tickerMarketSectorPair.getSecond());
-    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, sb.toString());
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, sb.toString());
   }
 
   public static String dateToBbgCode(LocalDate date) {
@@ -756,13 +756,13 @@ public final class BloombergDataUtils {
   }
   
   public static ExternalId ricToBbgFuture(String ric) {
-    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, 
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, 
         ricToBbgFuturePrefix(ric) + ric.substring(ric.length() - 2, ric.length()) + " Comdty");
   }
   
   public static ExternalId ricToBbgFutureOption(String ric, boolean isCall, double strike, LocalDate expiry) {
     String result = ricToBbgFuturePrefix(ric) + dateToBbgCode(expiry) + (isCall ? "C" : "P") + " " + THREE_DECIMAL_PLACES.format(strike) + " Comdty";
-    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, result);
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, result);
   }
  
   private static String ricToBbgFuturePrefix(String ric) {

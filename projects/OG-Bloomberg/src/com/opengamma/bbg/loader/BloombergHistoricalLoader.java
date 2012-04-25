@@ -56,7 +56,7 @@ import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -347,9 +347,9 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
     for (String secDes : securities) {
       if (!StringUtils.isBlank(secDes)) {
         if (_bbgUniqueId) {
-          result.add(SecurityUtils.bloombergBuidSecurityId(secDes.trim()));
+          result.add(ExternalSchemes.bloombergBuidSecurityId(secDes.trim()));
         } else {
-          result.add(SecurityUtils.bloombergTickerSecurityId(secDes.trim()));
+          result.add(ExternalSchemes.bloombergTickerSecurityId(secDes.trim()));
         }
       }
     }
@@ -393,7 +393,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
               continue;
             }
             if (StringUtils.isBlank(idScheme)) {
-              idScheme = _bbgUniqueId ? SecurityUtils.BLOOMBERG_BUID.getName() : SecurityUtils.BLOOMBERG_TICKER.getName();
+              idScheme = _bbgUniqueId ? ExternalSchemes.BLOOMBERG_BUID.getName() : ExternalSchemes.BLOOMBERG_TICKER.getName();
             }
             if (StringUtils.isBlank(idValue)) {
               s_logger.warn("Blank identifier value found in CSV file {}. This line will be ignored.", file);
@@ -1061,9 +1061,9 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
         info.setDataSource(BLOOMBERG_DATA_SOURCE_NAME);
         ExternalIdBundle bundle = bundleWithDates.toBundle(LocalDate.now(OpenGammaClock.getInstance()));
         String idStr = Objects.firstNonNull(
-            bundle.getValue(SecurityUtils.BLOOMBERG_TICKER),
+            bundle.getValue(ExternalSchemes.BLOOMBERG_TICKER),
             Objects.firstNonNull(
-              bundle.getExternalId(SecurityUtils.BLOOMBERG_BUID),
+              bundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID),
               bundle.getExternalIds().iterator().next())).toString();
         info.setName(dataField + " " + idStr);
         if (dataProvider == null) {

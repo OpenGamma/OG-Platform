@@ -29,7 +29,7 @@ import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
@@ -132,7 +132,7 @@ public class CurveHtsResolverTool extends AbstractTool {
         if (convention != null) {
           ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
           ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
-          externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
+          externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
         } else {
           s_logger.warn("No convention for {} product", product);
         }

@@ -22,7 +22,7 @@ import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.resolver.AbstractResolver;
 import com.opengamma.livedata.resolver.JmsTopicNameResolveRequest;
@@ -62,7 +62,7 @@ public class BloombergJmsTopicNameResolver extends AbstractResolver<JmsTopicName
     
     for (JmsTopicNameResolveRequest request : requests) {
       ExternalId marketDataUniqueId = request.getMarketDataUniqueId();
-      if (!marketDataUniqueId.getScheme().equals(SecurityUtils.BLOOMBERG_BUID)) {
+      if (!marketDataUniqueId.getScheme().equals(ExternalSchemes.BLOOMBERG_BUID)) {
         s_logger.info("No Bloomberg BUID found, was given: " + marketDataUniqueId);
         returnValue.put(request, null);
         continue;

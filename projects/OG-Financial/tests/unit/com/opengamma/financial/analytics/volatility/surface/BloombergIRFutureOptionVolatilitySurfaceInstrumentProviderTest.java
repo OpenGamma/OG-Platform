@@ -12,7 +12,7 @@ import javax.time.calendar.MonthOfYear;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.id.ExternalId;
 
@@ -41,10 +41,15 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
     for (int i = 0; i < NUMBERS.length; i++) {
       assertEquals(EXPIRY_DATES[i], IRFutureOptionUtils.getQuarterlyExpiry(NUMBERS[i], DATE));
       for (int j = 0; j < STRIKES.length; j++) {
-        final String expected = RESULTS[i][j];
-        final ExternalId actual = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
-        assertEquals(SecurityUtils.BLOOMBERG_TICKER_WEAK, actual.getScheme());
-        assertEquals(expected, actual.getValue());
+        String expected;
+        if (today.isAfter(EXPIRY_DATES[i])) {
+          expected = EXPIRED_RESULTS[i][j];
+        } else {
+          expected = RESULTS[i][j];
+        }
+        final ExternalId result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
+        assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, result.getScheme());
+        assertEquals(expected, result.getValue());
       }
     }
   }

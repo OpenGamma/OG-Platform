@@ -39,7 +39,7 @@ public class BloombergTickerParserEQIndexOption extends BloombergTickerParserEQO
   /**
    * Create a parser
    * @param identifier a legal Bloomberg ticker, with {@link com.opengamma.id.ExternalScheme} 
-   * of {@link com.opengamma.core.security.SecurityUtils#BLOOMBERG_TICKER}.  
+   * of {@link com.opengamma.core.id.ExternalSchemes#BLOOMBERG_TICKER}.  
    */
   public BloombergTickerParserEQIndexOption(ExternalId identifier) {
     super(identifier);

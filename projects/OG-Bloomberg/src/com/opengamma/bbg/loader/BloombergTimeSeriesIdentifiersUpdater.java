@@ -21,7 +21,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -115,7 +115,7 @@ public class BloombergTimeSeriesIdentifiersUpdater {
     for (HistoricalTimeSeriesInfoDocument doc : documents) {
       ExternalIdBundleWithDates identifierBundleWithDates = doc.getInfo().getExternalIdBundle();
       ExternalIdBundle bundle = identifierBundleWithDates.toBundle();
-      ExternalId buid = bundle.getExternalId(SecurityUtils.BLOOMBERG_BUID);
+      ExternalId buid = bundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID);
       if (buid == null) {
         throw new OpenGammaRuntimeException("no buid for " + bundle);
       }

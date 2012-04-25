@@ -35,7 +35,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.timeseries.exchange.Exchange;
@@ -208,6 +208,6 @@ public final class EquityLoader extends SecurityLoader {
       sb.append(exchangeCode).append(" ");
     }
     sb.append(marketSector);
-    return SecurityUtils.bloombergTickerSecurityId(sb.toString());
+    return ExternalSchemes.bloombergTickerSecurityId(sb.toString());
   }
 }

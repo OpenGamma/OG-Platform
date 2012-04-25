@@ -27,7 +27,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -169,7 +169,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
         .withAny(STRIKE_PARAMETERIZATION_METHOD)//, _strikeParameterizationMethodName)
         .get();
     final ExternalId id = security.getSpotUnderlyingId();
-    final UniqueId newId = id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER) ? UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
+    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
       UniqueId.of(id.getScheme().getName(), id.getValue());
     //UniqueId temp = UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index");
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);

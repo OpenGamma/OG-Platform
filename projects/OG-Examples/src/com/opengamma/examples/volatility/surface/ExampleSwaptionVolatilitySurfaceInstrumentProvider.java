@@ -10,7 +10,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.id.ExternalId;
@@ -53,7 +53,7 @@ public class ExampleSwaptionVolatilitySurfaceInstrumentProvider implements Surfa
     ticker.append(tenorToCode(swaptionExpiryTenor, _zeroPadSwaptionExpiryTenor));
     ticker.append(tenorToCode(swapMaturityTenor, _zeroPadSwapMaturityTenor));
     ticker.append(_postfix);
-    return ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker.toString());
+    return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker.toString());
   }
 
   @Override

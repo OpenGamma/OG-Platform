@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -32,7 +32,7 @@ public class HistoricalTimeSeriesMasterPopulator {
       int datasetSize, String[] dataSources, String[] dataProviders, String[] dataFields, String observationTime) {
     List<ExternalIdBundleWithDates> result = new ArrayList<ExternalIdBundleWithDates>(); 
     for (int i = 0; i < datasetSize; i++) {
-      ExternalIdBundle identifiers = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
+      ExternalIdBundle identifiers = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("ticker" + i), ExternalSchemes.bloombergBuidSecurityId("buid" + i));
       result.add(ExternalIdBundleWithDates.of(identifiers));
       
       LocalDate start = DateUtils.previousWeekDay().minusDays(7);

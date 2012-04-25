@@ -30,7 +30,7 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -73,11 +73,11 @@ public final class WebResourceTestUtils {
    */
   public static EquitySecurity getEquitySecurity() {
     EquitySecurity equitySecurity = new EquitySecurity("NASDAQ/NGS (GLOBAL SELECT MARKET)", "XNGS", "APPLE INC", Currency.USD);
-    equitySecurity.addExternalId(SecurityUtils.bloombergTickerSecurityId("AAPL US Equity"));
-    equitySecurity.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0010169500001000"));
-    equitySecurity.addExternalId(SecurityUtils.cusipSecurityId("037833100"));
-    equitySecurity.addExternalId(SecurityUtils.isinSecurityId("US0378331005"));
-    equitySecurity.addExternalId(SecurityUtils.sedol1SecurityId("2046251"));
+    equitySecurity.addExternalId(ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity"));
+    equitySecurity.addExternalId(ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
+    equitySecurity.addExternalId(ExternalSchemes.cusipSecurityId("037833100"));
+    equitySecurity.addExternalId(ExternalSchemes.isinSecurityId("US0378331005"));
+    equitySecurity.addExternalId(ExternalSchemes.sedol1SecurityId("2046251"));
     equitySecurity.setShortName("AAPL");
     equitySecurity.setName("APPLE INC");
     equitySecurity.setGicsCode(GICSCode.of("45202010"));
@@ -94,62 +94,62 @@ public final class WebResourceTestUtils {
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable>();
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810EV6")), 1.0858));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810EV6")), 1.0858));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FB9")), 1.0132));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FB9")), 1.0132));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810PX0")), 0.7984));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810PX0")), 0.7984));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FG8")), 0.9169));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FG8")), 0.9169));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QD3")), 0.7771));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QD3")), 0.7771));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FF0")), 0.9174));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FF0")), 0.9174));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810PW2")), 0.7825));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810PW2")), 0.7825));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FE3")), 0.9454));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FE3")), 0.9454));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QH4")), 0.7757));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QH4")), 0.7757));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810PU6")), 0.8675));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810PU6")), 0.8675));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810EX2")), 1.0765));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810EX2")), 1.0765));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FT0")), 0.8054));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FT0")), 0.8054));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FJ2")), 1.0141));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FJ2")), 1.0141));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810PT9")), 0.8352));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810PT9")), 0.8352));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QE1")), 0.8109));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QE1")), 0.8109));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FP8")), 0.9268));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FP8")), 0.9268));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QA9")), 0.6606));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QA9")), 0.6606));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FM5")), 1.0286));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FM5")), 1.0286));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810EY0")), 1.0513));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810EY0")), 1.0513));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QB7")), 0.7616));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QB7")), 0.7616));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810QC5")), 0.795));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810QC5")), 0.795));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810EZ7")), 1.0649));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810EZ7")), 1.0649));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810EW4")), 1.0));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810EW4")), 1.0));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("GV912810FA1")), 1.0396));
+        ExternalSchemes.bloombergBuidSecurityId("GV912810FA1")), 1.0396));
     
     BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", Currency.USD, 1000, basket, "Bond",
                                                     ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC), 
                                                     ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC));
     sec.setName("US LONG BOND(CBT) Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
-    identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX8530684-0"));
-    identifiers.add(SecurityUtils.cusipSecurityId("USM10"));
-    identifiers.add(SecurityUtils.bloombergTickerSecurityId("USM10 Comdty"));
+    identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX8530684-0"));
+    identifiers.add(ExternalSchemes.cusipSecurityId("USM10"));
+    identifiers.add(ExternalSchemes.bloombergTickerSecurityId("USM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     return sec;
   }

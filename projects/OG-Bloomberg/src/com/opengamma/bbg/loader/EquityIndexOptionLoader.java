@@ -35,7 +35,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
@@ -166,9 +166,9 @@ public class EquityIndexOptionLoader extends SecurityLoader {
     Currency ogCurrency = Currency.parse(currency);
     
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
-    identifiers.add(SecurityUtils.bloombergBuidSecurityId(bbgUniqueID));
+    identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUniqueID));
     if (BloombergDataUtils.isValidField(secDes) && BloombergDataUtils.isValidField(marketSector)) {
-      identifiers.add(SecurityUtils.bloombergTickerSecurityId(secDes + " " + marketSector));
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes + " " + marketSector));
     }
     
     final ExerciseType exerciseType = getExerciseType(optionExerciseType);
@@ -177,7 +177,7 @@ public class EquityIndexOptionLoader extends SecurityLoader {
         optionType, 
         optionStrikePrice, 
         ogCurrency, 
-        SecurityUtils.bloombergBuidSecurityId(underlyingUniqueID), 
+        ExternalSchemes.bloombergBuidSecurityId(underlyingUniqueID), 
         exerciseType, 
         expiry, 
         pointValue, 

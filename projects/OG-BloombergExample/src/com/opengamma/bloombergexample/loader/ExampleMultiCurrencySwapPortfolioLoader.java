@@ -32,7 +32,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -196,7 +196,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
     ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
 
     // look up the BLOOMBERG ticker out of the bundle
-    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No bloomberg ticker set up for " + swapConvention.getName());
     }

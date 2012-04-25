@@ -22,8 +22,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.examples.volatility.surface.ExampleSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
@@ -156,13 +156,13 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
   private void addPoint(Currency ccy, Tenor optionExpiry, Tenor swapTenor, Double relativeStrike, String format) {
     final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
     String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
-    final ExternalId identifier = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker);
+    final ExternalId identifier = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
     final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(ccy, point);
     _idsByPoint.put(key, Sets.newHashSet(identifier));
   }
 
   private ExternalId getIdentifier(final String ticker) {
-    return ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker);
+    return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
   }
 
   public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {

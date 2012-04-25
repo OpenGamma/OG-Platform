@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -133,9 +133,9 @@ public final class EnergyFutureLoader extends SecurityLoader {
     if (underlyingTicker != null) {
       //Blindly copied from EquityDividendFutureLoader, not sure if necessary here
       if (BloombergDataUtils.isValidBloombergTicker(underlyingTicker)) {
-        underlying = SecurityUtils.bloombergTickerSecurityId(underlyingTicker);
+        underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker);
       } else {
-        underlying = SecurityUtils.bloombergTickerSecurityId(underlyingTicker + " " + "Comdty");
+        underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker + " " + "Comdty");
       }
     }
     Expiry expiry = decodeExpiry(expiryDate, futureTradingHours);

@@ -23,8 +23,8 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
@@ -147,7 +147,7 @@ class UnLocodeRegionFileReader {
         }
         
         ManageableRegion region = createRegion(name, fullName, countryISO);
-        region.addExternalId(RegionUtils.unLocode20102RegionId(unlocode));
+        region.addExternalId(ExternalSchemes.unLocode20102RegionId(unlocode));
         regions.add(region);
       }
     } catch (Exception ex) {
@@ -181,20 +181,20 @@ class UnLocodeRegionFileReader {
 
   private void coppClark(Set<ManageableRegion> regions) {
     for (ManageableRegion region : regions) {
-      String unLocode = region.getExternalIdBundle().getValue(RegionUtils.UN_LOCODE_2010_2);
+      String unLocode = region.getExternalIdBundle().getValue(ExternalSchemes.UN_LOCODE_2010_2);
       String coppClarkLocode = COPP_CLARK_ALTERATIONS.get(unLocode);
       if (coppClarkLocode != null) {
-        region.addExternalId(RegionUtils.coppClarkRegionId(coppClarkLocode));
+        region.addExternalId(ExternalSchemes.coppClarkRegionId(coppClarkLocode));
         if (coppClarkLocode.substring(0, 2).equals(unLocode.substring(0, 2)) == false) {
           addParent(region, coppClarkLocode.substring(0, 2));
         }
       } else {
-        region.addExternalId(RegionUtils.coppClarkRegionId(unLocode));
+        region.addExternalId(ExternalSchemes.coppClarkRegionId(unLocode));
       }
     }
     for (Entry<String, String> entry : COPP_CLARK_ADDITIONS.entrySet()) {
       ManageableRegion region = createRegion(entry.getValue(), entry.getValue(), entry.getKey().substring(0, 2));
-      region.addExternalId(RegionUtils.coppClarkRegionId(entry.getKey()));
+      region.addExternalId(ExternalSchemes.coppClarkRegionId(entry.getKey()));
       regions.add(region);
     }
   }

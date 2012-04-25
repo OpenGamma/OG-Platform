@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -51,7 +51,7 @@ public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefini
     final ZonedDateTime accrualStartDate = security.getStartDate();
     final ZonedDateTime accrualEndDate = security.getEndDate();
     final double notional = security.getAmount();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
     final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(), calendar, fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
         fraConvention.isEOMConvention());
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate());

@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -85,7 +85,7 @@ public class BloombergSecurityTypeResolverTest {
   
   @Test
   public void testBondSecurity() {
-    assertSecurityType(Collections.singleton("GV912810EL8"), SecurityUtils.BLOOMBERG_BUID, SecurityType.BOND);
+    assertSecurityType(Collections.singleton("GV912810EL8"), ExternalSchemes.BLOOMBERG_BUID, SecurityType.BOND);
   }
   
   private void assertSecurityType(final Set<String> identifiers, final ExternalScheme scheme, final SecurityType securityType) {
@@ -101,7 +101,7 @@ public class BloombergSecurityTypeResolverTest {
   }
 
   private void assertSecurityType(final Set<String> identifiers, final SecurityType securityType) {
-    assertSecurityType(identifiers, SecurityUtils.BLOOMBERG_TICKER, securityType);
+    assertSecurityType(identifiers, ExternalSchemes.BLOOMBERG_TICKER, securityType);
   }
 
 }
