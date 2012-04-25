@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.bbg.util.ReferenceDataProviderUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.resolver.AbstractResolver;
@@ -28,13 +28,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Resolves Bloomberg IDs. Accepts IDs of types:
  * <ul>
- * <li>{@link SecurityUtils#BLOOMBERG_BUID} 
- * <li>{@link SecurityUtils#BLOOMBERG_TICKER}
- * <li>{@link SecurityUtils#BLOOMBERG_TCM}
- * <li>{@link SecurityUtils#ISIN}
- * <li>{@link SecurityUtils#CUSIP}
+ * <li>{@link ExternalSchemes#BLOOMBERG_BUID} 
+ * <li>{@link ExternalSchemes#BLOOMBERG_TICKER}
+ * <li>{@link ExternalSchemes#BLOOMBERG_TCM}
+ * <li>{@link ExternalSchemes#ISIN}
+ * <li>{@link ExternalSchemes#CUSIP}
  * </ul>
- * Returns an ID collection with {@link SecurityUtils#BLOOMBERG_BUID}.
+ * Returns an ID collection with {@link ExternalSchemes#BLOOMBERG_BUID}.
  * All other IDs are stripped out.  
  *
  */
@@ -65,7 +65,7 @@ public class BloombergIdResolver extends AbstractResolver<ExternalIdBundle, Exte
       String bbgUniqueId = null;
       ExternalId preferredIdentifier = BloombergDomainIdentifierResolver.resolvePreferredIdentifier(bundle);
       if (preferredIdentifier != null) {
-        if (!preferredIdentifier.getScheme().equals(SecurityUtils.BLOOMBERG_BUID)) {
+        if (!preferredIdentifier.getScheme().equals(ExternalSchemes.BLOOMBERG_BUID)) {
           
           String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(preferredIdentifier);
           bbgKeys.add(bloombergKey);
@@ -79,7 +79,7 @@ public class BloombergIdResolver extends AbstractResolver<ExternalIdBundle, Exte
           
         } else {
           bbgUniqueId = preferredIdentifier.getValue();
-          result.put(bundle, SecurityUtils.bloombergBuidSecurityId(bbgUniqueId));
+          result.put(bundle, ExternalSchemes.bloombergBuidSecurityId(bbgUniqueId));
         }
       } else {
         s_logger.warn("Unable to identify any Bloomberg compatible identifier for {}", bundle);
@@ -96,7 +96,7 @@ public class BloombergIdResolver extends AbstractResolver<ExternalIdBundle, Exte
       if (bbgUniqueId == null) {
         identifier = null;
       } else {
-        identifier = SecurityUtils.bloombergBuidSecurityId(bbgUniqueId);
+        identifier = ExternalSchemes.bloombergBuidSecurityId(bbgUniqueId);
       }
       
       for (ExternalIdBundle bundle : bbgKey2Bundle.get(bbgKey)) {

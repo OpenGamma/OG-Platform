@@ -38,9 +38,9 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
@@ -142,7 +142,7 @@ public class WatchListRecorder {
   
   private void addInterestRates(Set<ExternalId> emitted) {
     _writer.println("# Adding generated interest rates");
-    String scheme = SecurityUtils.BLOOMBERG_TICKER.getName();
+    String scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
     List<String> monthCodes = ImmutableList.of("H", "M", "U", "Z");
     List<String> securityCodes = ImmutableList.of("ED", "ER", "L", "ES", "EF");
     List<String> addSpace = ImmutableList.of("L");
@@ -279,8 +279,8 @@ public class WatchListRecorder {
     }
     
     final WatchListRecorder recorder = create(URI.create(url), "main", "combined");
-    recorder.addWatchScheme(SecurityUtils.BLOOMBERG_TICKER);
-    recorder.addWatchScheme(SecurityUtils.BLOOMBERG_BUID);
+    recorder.addWatchScheme(ExternalSchemes.BLOOMBERG_TICKER);
+    recorder.addWatchScheme(ExternalSchemes.BLOOMBERG_BUID);
     final PrintWriter pw = new PrintWriter(outputFile);
     recorder.setPrintWriter(pw);
     recorder.run();

@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
@@ -34,11 +34,11 @@ public class CalendarUtils {
   //-------------------------------------------------------------------------
   public static Calendar getCalendar(final RegionSource regionSource, final HolidaySource holidaySource,
       final ExternalId regionId) {
-    if (regionId.isScheme(RegionUtils.FINANCIAL) && regionId.getValue().contains("+")) {
+    if (regionId.isScheme(ExternalSchemes.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
       final Set<Region> resultRegions = new HashSet<Region>();
       for (final String region : regions) {
-        resultRegions.add(regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
+        resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(holidaySource, resultRegions.toArray(new Region[] {}));
     } 

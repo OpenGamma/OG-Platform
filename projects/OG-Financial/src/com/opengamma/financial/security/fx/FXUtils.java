@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -50,9 +50,9 @@ public class FXUtils {
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     ExternalId bloomberg;
     if (convertToPutCurrency) {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
     } else {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
     }
     return bloomberg;
   }
@@ -69,9 +69,9 @@ public class FXUtils {
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
     ExternalId bloomberg;
     if (isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
     } else {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
     }
     return bloomberg;
   }

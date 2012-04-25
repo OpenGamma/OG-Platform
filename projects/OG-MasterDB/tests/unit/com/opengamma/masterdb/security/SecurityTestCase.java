@@ -37,9 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -452,8 +452,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {
       @Override
       public void getValues(final Collection<Region> values) {
-        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId(Country.US)));
-        values.add(getRegionSource().getHighestLevelRegion(RegionUtils.countryRegionId(Country.GB)));
+        values.add(getRegionSource().getHighestLevelRegion(ExternalSchemes.countryRegionId(Country.US)));
+        values.add(getRegionSource().getHighestLevelRegion(ExternalSchemes.countryRegionId(Country.GB)));
       }
     });
     s_dataProviders.put(Notional.class, new TestDataProvider<Notional>() {

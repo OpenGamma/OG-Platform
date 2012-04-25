@@ -20,8 +20,8 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
@@ -114,7 +114,7 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
   }
 
   private ExternalId getIdentifier(final String ticker) {
-    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, ticker);
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, ticker);
   }
 
   public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {

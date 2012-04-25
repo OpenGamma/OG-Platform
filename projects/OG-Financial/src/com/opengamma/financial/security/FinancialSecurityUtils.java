@@ -12,8 +12,7 @@ import java.util.Collections;
 import org.apache.commons.lang.NotImplementedException;
 import org.fudgemsg.FudgeMsgEnvelope;
 
-import com.opengamma.core.exchange.ExchangeUtils;
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -111,7 +110,7 @@ public class FinancialSecurityUtils {
       final ExternalId regionId = finSec.accept(new FinancialSecurityVisitor<ExternalId>() {
         @Override
         public ExternalId visitBondSecurity(final BondSecurity security) {
-          return ExternalId.of(RegionUtils.ISO_COUNTRY_ALPHA2, security.getIssuerDomicile());
+          return ExternalId.of(ExternalSchemes.ISO_COUNTRY_ALPHA2, security.getIssuerDomicile());
         }
 
         @Override
@@ -260,7 +259,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitEquitySecurity(final EquitySecurity security) {
-          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchangeCode());
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getExchangeCode());
         }
 
         @Override
@@ -270,7 +269,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitFutureSecurity(final FutureSecurity security) {
-          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getTradingExchange());
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getTradingExchange());
         }
 
         @Override
@@ -280,17 +279,17 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getExchange());
         }
 
         @Override
         public ExternalId visitEquityOptionSecurity(final EquityOptionSecurity security) {
-          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getExchange());
         }
 
         @Override
         public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-          return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getExchange());
         }
 
         @Override

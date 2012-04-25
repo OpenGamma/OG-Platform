@@ -40,7 +40,7 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
   }
 
   @Override
-  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option) {
+  public PDETerminalResults1D runPDESolver(final LocalVolatilitySurfaceMoneyness localVolatility, final EuropeanVanillaOption option) {
     final boolean isCall = option.isCall();
     final double expiry = option.getTimeToExpiry();
     final double minMoneyness = Math.exp(-_maxProxyDelta * Math.sqrt(expiry));

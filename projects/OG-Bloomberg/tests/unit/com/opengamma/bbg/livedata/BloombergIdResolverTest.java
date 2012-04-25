@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -44,33 +44,33 @@ public class BloombergIdResolverTest {
   //-------------------------------------------------------------------------
   @Test
   public void aaplNoBbgId() {
-    ExternalIdBundle aaplEquity = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("AAPL US Equity"));
+    ExternalIdBundle aaplEquity = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity"));
     BloombergIdResolver resolver = new BloombergIdResolver(_refDataProvider);
     ExternalId resolved = resolver.resolve(aaplEquity);
-    assertEquals(SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
+    assertEquals(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
   }
 
   @Test
   public void aaplWithBbgId() {
     ExternalIdBundle aaplEquity = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId("AAPL US Equity"),
-        SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE));
+        ExternalSchemes.bloombergTickerSecurityId("AAPL US Equity"),
+        ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE));
     BloombergIdResolver resolver = new BloombergIdResolver(_refDataProvider);
     ExternalId resolved = resolver.resolve(aaplEquity);
-    assertEquals(SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
+    assertEquals(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
   }
 
   @Test
   public void bbgIdOnly() {
-    ExternalIdBundle aaplEquity = ExternalIdBundle.of(SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE));
+    ExternalIdBundle aaplEquity = ExternalIdBundle.of(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE));
     BloombergIdResolver resolver = new BloombergIdResolver(_refDataProvider);
     ExternalId resolved = resolver.resolve(aaplEquity);
-    assertEquals(SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
+    assertEquals(ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE), resolved);
   }
   
   @Test
   public void invalidBbgId() {
-    ExternalIdBundle invalidSpec = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("foo123"));
+    ExternalIdBundle invalidSpec = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("foo123"));
     BloombergIdResolver resolver = new BloombergIdResolver(_refDataProvider);
     ExternalId resolved = resolver.resolve(invalidSpec);
     assertNull(resolved);
@@ -78,7 +78,7 @@ public class BloombergIdResolverTest {
   
   @Test
   public void invalidBbgUniqueId() {
-    ExternalId invalidSpec = SecurityUtils.bloombergBuidSecurityId("foo123");
+    ExternalId invalidSpec = ExternalSchemes.bloombergBuidSecurityId("foo123");
     BloombergIdResolver resolver = new BloombergIdResolver(_refDataProvider);
     ExternalId resolved = resolver.resolve(ExternalIdBundle.of(invalidSpec));
     

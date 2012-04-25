@@ -22,9 +22,9 @@ import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.util.ReferenceDataProviderUtils;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -145,7 +145,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   }
   
   private Security getSecurity(String bbgIdValue) {
-    ExternalId bbgId = SecurityUtils.bloombergBuidSecurityId(bbgIdValue);
+    ExternalId bbgId = ExternalSchemes.bloombergBuidSecurityId(bbgIdValue);
     ExternalIdBundle bundle = ExternalIdBundle.of(bbgId);
     return getSecurity(bundle);
   }
@@ -168,7 +168,7 @@ public final class BloombergSecuritySource implements SecuritySource {
         throw new IllegalArgumentException("Identifier must be a Bloomberg unique identifier: " + uniqueId);
       }
       String bbgIdValue = uniqueId.getValue();
-      ExternalId bbgId = SecurityUtils.bloombergBuidSecurityId(bbgIdValue);
+      ExternalId bbgId = ExternalSchemes.bloombergBuidSecurityId(bbgIdValue);
       ExternalIdBundle bundle = ExternalIdBundle.of(bbgId);
       result.put(bundle, uniqueId);
     }

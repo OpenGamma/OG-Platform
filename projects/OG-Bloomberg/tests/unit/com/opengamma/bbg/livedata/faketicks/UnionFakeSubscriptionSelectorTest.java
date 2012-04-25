@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -117,7 +117,7 @@ public class UnionFakeSubscriptionSelectorTest {
   private Collection<LiveDataSpecification> getSpecs(Collection<String> queries) {
     Set<LiveDataSpecification> specs = new HashSet<LiveDataSpecification>();
     for (String query : queries) {
-      specs.add(new LiveDataSpecification("No Normalization", ExternalIdBundle.of(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, query))));
+      specs.add(new LiveDataSpecification("No Normalization", ExternalIdBundle.of(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, query))));
     }
     return specs;
   }

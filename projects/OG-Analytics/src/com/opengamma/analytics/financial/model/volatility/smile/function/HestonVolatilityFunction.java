@@ -329,4 +329,24 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
     };
   }
 
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "Heston";
+  }
 }

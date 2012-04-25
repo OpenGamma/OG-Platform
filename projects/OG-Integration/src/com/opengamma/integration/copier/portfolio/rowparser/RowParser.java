@@ -63,29 +63,29 @@ public abstract class RowParser {
   }
 
   /**
-   * Constructs a row from the supplied security.
-   * @param security The security to convert
+   * Constructs a row from the supplied securities.
+   * @param securities The securities to convert (securities following the first are assumed to be underlyings)
    * @return      The mapping from column names to contents of the current row
   */
-  public Map<String, String> constructRow(ManageableSecurity security) {
+  public Map<String, String> constructRow(ManageableSecurity[] securities) {
     return new HashMap<String, String>();
   }
-  
+   
   /**
    * Constructs a row from the supplied security, position and trade.
-   * @param security  The security to convert
+   * @param securities  The securities to convert
    * @param position  The position to convert
    * @param trade     The trade to convert
    * @return          The mapping from column names to contents of the current row
    */
-  public Map<String, String> constructRow(ManageableSecurity security, ManageablePosition position, ManageableTrade trade) {
+  public Map<String, String> constructRow(ManageableSecurity[] securities, ManageablePosition position, ManageableTrade trade) {
     
-    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(securities, "securities");
     ArgumentChecker.notNull(position, "position");
     ArgumentChecker.notNull(trade, "trade");
     
     Map<String, String> result = new HashMap<String, String>();
-    Map<String, String> securityRow = constructRow(security);
+    Map<String, String> securityRow = constructRow(securities);
     Map<String, String> positionRow = constructRow(position);
     Map<String, String> tradeRow = constructRow(trade);
     if (securityRow != null) {

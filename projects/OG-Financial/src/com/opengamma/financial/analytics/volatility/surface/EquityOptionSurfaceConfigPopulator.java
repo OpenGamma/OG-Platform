@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -40,7 +40,7 @@ public class EquityOptionSurfaceConfigPopulator {
       strikes[j++] = (double) i;
     }
     final VolatilitySurfaceDefinition<LocalDate, Double> usVolSurfaceDefinition =
-        new VolatilitySurfaceDefinition<LocalDate, Double>("DEFAULT_EQUITY_OPTION", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), equityOptionExpiries, strikes);
+        new VolatilitySurfaceDefinition<LocalDate, Double>("DEFAULT_EQUITY_OPTION", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), equityOptionExpiries, strikes);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }
 
@@ -62,7 +62,7 @@ public class EquityOptionSurfaceConfigPopulator {
     final SurfaceInstrumentProvider<LocalDate, Double> surfaceInstrumentProvider =
         new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification usVolSurfaceSpec = new VolatilitySurfaceSpecification("DEFAULT_DJX_EQUITY_OPTION",
-        UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), SurfaceQuoteType.CALL_AND_PUT_STRIKE,
+        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), SurfaceQuoteType.CALL_AND_PUT_STRIKE,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceSpec));
   }

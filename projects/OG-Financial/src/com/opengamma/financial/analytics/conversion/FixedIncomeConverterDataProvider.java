@@ -255,7 +255,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
       if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate) || now.equals(swapEffectiveDate)) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }

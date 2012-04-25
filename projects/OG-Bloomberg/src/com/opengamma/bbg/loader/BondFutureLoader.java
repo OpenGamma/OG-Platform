@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -166,7 +166,7 @@ public class BondFutureLoader extends SecurityLoader {
         Double conversionFactor = deliverableContainer.getDouble("Conversion Factor");
         String buid = deliverableContainer.getString("Unique Bloomberg Identifier of Deliverable Bonds");
         if (conversionFactor != null && isValidField(buid)) {
-          ExternalIdBundle ids = ExternalIdBundle.of(SecurityUtils.bloombergBuidSecurityId(buid));
+          ExternalIdBundle ids = ExternalIdBundle.of(ExternalSchemes.bloombergBuidSecurityId(buid));
           BondFutureDeliverable deliverable = new BondFutureDeliverable(ids, conversionFactor);
           result.add(deliverable);
         }

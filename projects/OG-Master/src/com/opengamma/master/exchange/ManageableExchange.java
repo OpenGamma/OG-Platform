@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.exchange.Exchange;
-import com.opengamma.core.exchange.ExchangeUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -134,7 +134,7 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
    * @return the value of the property
    */
   public String getISOMic() {
-    return _externalIdBundle.getValue(ExchangeUtils.ISO_MIC);
+    return _externalIdBundle.getValue(ExternalSchemes.ISO_MIC);
   }
 
   /**
@@ -143,9 +143,9 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
    * @param isoMicCode  the exchange MIC to set, null to remove any defined ISO MIC
    */
   public void setISOMic(String isoMicCode) {
-    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExchangeUtils.ISO_MIC));
+    setExternalIdBundle(getExternalIdBundle().withoutScheme(ExternalSchemes.ISO_MIC));
     if (isoMicCode != null) {
-      addExternalId(ExchangeUtils.isoMicExchangeId(isoMicCode));
+      addExternalId(ExternalSchemes.isoMicExchangeId(isoMicCode));
     }
   }
 

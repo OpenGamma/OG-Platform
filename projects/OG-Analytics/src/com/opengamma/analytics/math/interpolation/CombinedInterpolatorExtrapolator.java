@@ -97,4 +97,15 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
     return _interpolator.getNodeSensitivitiesForValue(data, value);
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("Interpolator[interpolator=");
+    sb.append(_interpolator.toString());
+    sb.append(", left extrapolator=");
+    sb.append(_leftExtrapolator.toString());
+    sb.append(", right extrapolator=");
+    sb.append(_rightExtrapolator.toString());
+    sb.append("]");
+    return sb.toString();
+  }
 }

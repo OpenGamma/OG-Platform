@@ -10,7 +10,7 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
@@ -52,7 +52,7 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
     ticker.append(tenorToCode(swaptionExpiryTenor, _zeroPadSwaptionExpiryTenor));
     ticker.append(tenorToCode(swapMaturityTenor, _zeroPadSwapMaturityTenor));
     ticker.append(_postfix);
-    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK, ticker.toString());
+    return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, ticker.toString());
   }
 
   @Override
@@ -105,11 +105,11 @@ public class BloombergSwaptionVolatilitySurfaceInstrumentProvider implements Sur
   }
 
   /**
-   * Gets the zeroPadSwaptionExpiryTenor field.
-   * @return the zeroPadSwaptionExpiryTenor
+   * Gets the zeroPadSwaptionMaturityTenor field.
+   * @return the zeroPadSwaptionMaturityTenor
    */
   public boolean isZeroPadSwapMaturityTenor() {
-    return _zeroPadSwaptionExpiryTenor;
+    return _zeroPadSwapMaturityTenor;
   }
 
   /**

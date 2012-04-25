@@ -13,8 +13,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearchType;
@@ -33,9 +33,9 @@ import com.opengamma.util.money.Currency;
 public class InMemoryRegionMasterTest {
 
   private static String NAME = "France";
-  private static ExternalId ID_COUNTRY = RegionUtils.countryRegionId(Country.FR);
-  private static ExternalId ID_CURENCY = RegionUtils.currencyRegionId(Currency.EUR);
-  private static ExternalId ID_TIME_ZONE = RegionUtils.timeZoneRegionId(TimeZone.of("Europe/Paris"));
+  private static ExternalId ID_COUNTRY = ExternalSchemes.countryRegionId(Country.FR);
+  private static ExternalId ID_CURENCY = ExternalSchemes.currencyRegionId(Currency.EUR);
+  private static ExternalId ID_TIME_ZONE = ExternalSchemes.timeZoneRegionId(TimeZone.of("Europe/Paris"));
   private static ExternalId ID_OTHER1 = ExternalId.of("TEST_SCHEME", "The French");
   private static ExternalId ID_OTHER2 = ExternalId.of("TEST_SCHEME", "France");
   private static ExternalIdBundle BUNDLE_FULL = ExternalIdBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_CURENCY);

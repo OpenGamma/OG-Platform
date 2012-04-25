@@ -44,7 +44,7 @@ public class BloombergTickerParserEQ extends BloombergTickerParser {
   /**
    * Create a parser
    * @param identifier a legal Bloomberg ticker, with {@link com.opengamma.id.ExternalScheme} 
-   * of {@link com.opengamma.core.security.SecurityUtils#BLOOMBERG_TICKER}.  A legal Bloomberg equity 
+   * of {@link com.opengamma.core.id.ExternalSchemes#BLOOMBERG_TICKER}.  A legal Bloomberg equity 
    * ticker looks like this:  <code>MSFT US Equity</code>.  See the Bloomberg documentation for more details.
    */
   public BloombergTickerParserEQ(ExternalId identifier) {

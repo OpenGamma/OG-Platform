@@ -5,7 +5,7 @@
  */
 package com.opengamma.bloombergexample.generator;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
@@ -20,11 +20,11 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("FUNDING");
-    securityGenerator.setPreferredScheme(SecurityUtils.BLOOMBERG_TICKER);
+    securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override
       public ExternalId execute(final Currency a, final Currency b) {
-        return SecurityUtils.bloombergTickerSecurityId(a.getCode() + b.getCode() + " Curncy");
+        return ExternalSchemes.bloombergTickerSecurityId(a.getCode() + b.getCode() + " Curncy");
       }
     });
   }

@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
 /**
- *  This is the form given in Obloj (2008), "<i>Fine-Tune Your Smile</i>", and supposedly corresponds to that given in Berestycki (2004), 
+ *  This is the form given in Obloj (2008), "<i>Fine-Tune Your Smile</i>", and supposedly corresponds to that given in Berestycki (2004),
  *  "<i>Computing the implied volatility in stochastic volatility models</i>". However, appears to be the same as Hagan's.
  */
 public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
@@ -88,7 +88,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
   }
 
   @Override
-  public Function1D<SABRFormulaData, double[]> getVolatilityFunction(double forward, double[] strikes, double timeToExpiry) {
+  public Function1D<SABRFormulaData, double[]> getVolatilityFunction(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final int n = strikes.length;
     final List<Function1D<SABRFormulaData, Double>> funcs = new ArrayList<Function1D<SABRFormulaData, Double>>(n);
@@ -97,7 +97,7 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
     }
     return new Function1D<SABRFormulaData, double[]>() {
       @Override
-      public double[] evaluate(SABRFormulaData data) {
+      public double[] evaluate(final SABRFormulaData data) {
         final double[] res = new double[n];
         for (int i = 0; i < n; i++) {
           res[i] = funcs.get(i).evaluate(data);
@@ -109,4 +109,24 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
 
   }
 
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABR (Berestycki)";
+  }
 }

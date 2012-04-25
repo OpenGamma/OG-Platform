@@ -11,9 +11,9 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
@@ -42,7 +42,7 @@ public class ExampleMarketDataProvider extends InMemoryLKVMarketDataProvider {
    * @param securitySource  the security source for resolution of Identifiers, null to prevent this support
    */
   public ExampleMarketDataProvider(final SecuritySource securitySource) {
-    this(securitySource, ImmutableSet.of(SecurityUtils.OG_SYNTHETIC_TICKER), MarketDataRequirementNamesHelper.constructValidRequirementNames());
+    this(securitySource, ImmutableSet.of(ExternalSchemes.OG_SYNTHETIC_TICKER), MarketDataRequirementNamesHelper.constructValidRequirementNames());
   }
   
   /**

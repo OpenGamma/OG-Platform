@@ -48,6 +48,7 @@ public class CreateBeanFunction implements PublishedFunction {
       paramDescriptions.add(propertyType.getSimpleName() + " " + metaProperty.name());
       // TODO get the PropertyDefinition annotation from the property and check whether its validate property = notNull
       JavaTypeInfo<?> typeInfo = JavaTypeInfo.builder(propertyType).allowNull().get();
+      // TODO parameter descriptions
       metaParameters.add(new MetaParameter(metaProperty.name(), typeInfo));
     }
     _paramDescription = StringUtils.join(paramDescriptions, ", ");

@@ -31,7 +31,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -42,7 +42,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 public class BloombergHistoricalTimeSeriesSourceTest {
   
   private HistoricalTimeSeriesSource _source;
-  private ExternalIdBundle _secDes = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("IBM US Equity"));
+  private ExternalIdBundle _secDes = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IBM US Equity"));
   private static final String DEFAULT_DATA_PROVIDER = DATA_PROVIDER_UNKNOWN;
   private static final String DEFAULT_DATA_SOURCE = BLOOMBERG_DATA_SOURCE_NAME;
   private static final String PX_LAST = "PX_LAST";

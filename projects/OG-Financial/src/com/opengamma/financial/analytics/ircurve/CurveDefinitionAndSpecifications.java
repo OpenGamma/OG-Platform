@@ -12,8 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
@@ -32,7 +31,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "SWAP_ONLY", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "SWAP_ONLY", interpolatorName, strips);
     return definition;
   }
 
@@ -43,7 +42,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "SWAP_ONLY_NO3YR", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "SWAP_ONLY_NO3YR", interpolatorName, strips);
     return definition;
   }
 
@@ -54,7 +53,7 @@ public class CurveDefinitionAndSpecifications {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "SWAP_ONLY_3YR", interpolatorName, strips);
+    final YieldCurveDefinition definition = new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "SWAP_ONLY_3YR", interpolatorName, strips);
     return definition;
   }
 
@@ -72,7 +71,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 10}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildUSDThreeMonthForwardCurveDefinition() {
@@ -91,7 +90,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.USD, RegionUtils.countryRegionId(Country.US), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.USD, ExternalSchemes.countryRegionId(Country.US), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildEURFundingCurveDefinition() {
@@ -105,7 +104,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.EUR, RegionUtils.financialRegionId("EU"), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildEURSixMonthForwardCurveDefinition() { //TODO use euribor somewhere in the name
@@ -122,7 +121,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.EUR, RegionUtils.financialRegionId("EU"), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.EUR, ExternalSchemes.financialRegionId("EU"), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildGBPFundingCurveDefinition() {
@@ -139,7 +138,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildGBPThreeMonthForwardCurveDefinition() {
@@ -155,7 +154,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildGBPSixMonthForwardCurveDefinition() {
@@ -173,7 +172,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.GBP, RegionUtils.countryRegionId(Country.GB), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.GBP, ExternalSchemes.countryRegionId(Country.GB), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildCHFFundingCurveDefinition() {
@@ -187,7 +186,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.CHF, RegionUtils.countryRegionId(Country.CH), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildCHFSixMonthForwardCurveDefinition() {
@@ -204,7 +203,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.CHF, RegionUtils.countryRegionId(Country.CH), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.CHF, ExternalSchemes.countryRegionId(Country.CH), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildJPYFundingCurveDefinition() {
@@ -221,7 +220,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.JPY, RegionUtils.countryRegionId(Country.JP), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildJPYSixMonthForwardCurveDefinition() {
@@ -239,7 +238,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.JPY, RegionUtils.countryRegionId(Country.JP), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.JPY, ExternalSchemes.countryRegionId(Country.JP), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildCADFundingCurveDefinition() {
@@ -253,7 +252,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {3, 4, 5}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.CAD, RegionUtils.countryRegionId(Country.CA), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildCADSixMonthForwardCurveDefinition() {
@@ -268,7 +267,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.CAD, RegionUtils.countryRegionId(Country.CA), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.CAD, ExternalSchemes.countryRegionId(Country.CA), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildAUDFundingCurveDefinition() {
@@ -282,7 +281,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.AUD, RegionUtils.countryRegionId(Country.AU), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildAUDSixMonthForwardCurveDefinition() {
@@ -299,7 +298,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.AUD, RegionUtils.countryRegionId(Country.AU), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildNZDFundingCurveDefinition() {
@@ -313,7 +312,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.NZD, RegionUtils.countryRegionId(Country.NZ), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildNZDThreeMonthForwardCurveDefinition() {
@@ -327,7 +326,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.NZD, RegionUtils.countryRegionId(Country.NZ), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.NZD, ExternalSchemes.countryRegionId(Country.NZ), "FORWARD_3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildDKKFundingCurveDefinition() {
@@ -341,7 +340,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.DKK, RegionUtils.countryRegionId(Country.DK), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "FUNDING", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static YieldCurveDefinition buildDKKSixMonthForwardCurveDefinition() {
@@ -352,7 +351,7 @@ public class CurveDefinitionAndSpecifications {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "DEFAULT"));
     }
-    return new YieldCurveDefinition(Currency.DKK, RegionUtils.countryRegionId(Country.DK), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+    return new YieldCurveDefinition(Currency.DKK, ExternalSchemes.countryRegionId(Country.DK), "FORWARD_6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static Map<String, Map<Currency, YieldCurveDefinition>> buildStandardCurveDefinitions() {
@@ -435,7 +434,7 @@ public class CurveDefinitionAndSpecifications {
 
   public static Map<Currency, CurveSpecificationBuilderConfiguration> buildSyntheticCurveSpecificationBuilderConfigurations() {
     final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = new HashMap<Currency, CurveSpecificationBuilderConfiguration>();
-    final ExternalScheme scheme = SecurityUtils.OG_SYNTHETIC_TICKER;
+    final ExternalScheme scheme = ExternalSchemes.OG_SYNTHETIC_TICKER;
     configurations.put(Currency.EUR, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.EUR, scheme));
     configurations.put(Currency.DKK, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.DKK, scheme));
     configurations.put(Currency.DEM, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.DEM, scheme));
@@ -502,33 +501,33 @@ public class CurveDefinitionAndSpecifications {
 
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergDepositInstrumentProvider(final String prefix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR1T Curncy")));
-    provider.put(Tenor.ofDays(2), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR2T Curncy")));
-    provider.put(Tenor.ofDays(3), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR3T Curncy")));
+    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR1T Curncy")));
+    provider.put(Tenor.ofDays(2), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR2T Curncy")));
+    provider.put(Tenor.ofDays(3), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR3T Curncy")));
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR" + i + "Z Curncy")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR" + i + "Z Curncy")));
     }
     for (int i = 1; i < 12; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR" + BBG_MONTH_CODES[i - 1] + " Curncy")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR" + BBG_MONTH_CODES[i - 1] + " Curncy")));
     }
     for (int i = 1; i < 51; i++) {
-      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "DR" + i + " Curncy")));
+      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "DR" + i + " Curncy")));
     }
     return provider;
   }
 
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergLiborInstrumentProvider(final String prefix, final String overnightString, final String twoDayString) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00" + overnightString + " Index")));
-    provider.put(Tenor.ofDays(2), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00" + twoDayString + " Index")));
+    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "00" + overnightString + " Index")));
+    provider.put(Tenor.ofDays(2), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "00" + twoDayString + " Index")));
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "000" + i + "W Index")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "000" + i + "W Index")));
     }
     for (int i = 1; i < 10; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "000" + i + "M Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "000" + i + "M Index")));
     }
     for (int i = 10; i < 13; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "00" + i + "M Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "00" + i + "M Index")));
     }
     return provider;
   }
@@ -536,10 +535,10 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergEuriborInstrumentProvider() {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("EUR00" + i + "W Index")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR00" + i + "W Index")));
     }
     for (int i = 1; i < 10; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("EUR00" + i + "M Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR00" + i + "M Index")));
     }
     return provider;
   }
@@ -547,7 +546,7 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergCDORInstrumentProvider() {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 7; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("CDOR0" + i + " RBC Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CDOR0" + i + " RBC Index")));
     }
     return provider;
   }
@@ -555,29 +554,29 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergCiborInstrumentProvider() {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("CIBO0" + i + "W Index")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CIBO0" + i + "W Index")));
     }
     for (int i = 1; i < 10; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("CIBO0" + i + "M Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("CIBO0" + i + "M Index")));
     }
     return provider;
   }
 
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergStiborInstrumentProvider() {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("STIB1D Index")));
+    provider.put(Tenor.ofDays(1), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("STIB1D Index")));
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("STIB" + i + "W Index")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("STIB" + i + "W Index")));
     }
     for (int i = 1; i < 10; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("STIB" + i + "M Index")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("STIB" + i + "M Index")));
     }
     return provider;
   }
 
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloomberg3MFRAInstrumentProvider(final String prefix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    provider.put(Tenor.ofMonths(3), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "FR00C Curncy")));
+    provider.put(Tenor.ofMonths(3), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "FR00C Curncy")));
     for (int i = 1; i < 22; i++) {
       final int year = i / 12;
       final int month = i % 12;
@@ -594,14 +593,14 @@ public class CurveDefinitionAndSpecifications {
       } else {
         endTenor3M = (endYear3M > 0 ? String.valueOf(endYear3M) : "") + BBG_MONTH_CODES[endMonth3M - 1];
       }
-      provider.put(Tenor.ofMonths(i + 3), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "FR" + startTenor + endTenor3M + " Curncy")));
+      provider.put(Tenor.ofMonths(i + 3), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "FR" + startTenor + endTenor3M + " Curncy")));
     }
     return provider;
   }
 
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloomberg6MFRAInstrumentProvider(final String prefix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
-    provider.put(Tenor.ofMonths(6), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "FR00F Curncy")));
+    provider.put(Tenor.ofMonths(6), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "FR00F Curncy")));
     for (int i = 1; i < 22; i++) {
       final int year = i / 12;
       final int month = i % 12;
@@ -618,7 +617,7 @@ public class CurveDefinitionAndSpecifications {
       } else {
         endTenor6M = (endYear6M > 0 ? String.valueOf(endYear6M) : "") + BBG_MONTH_CODES[endMonth6M - 1];
       }
-      provider.put(Tenor.ofMonths(i + 6), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "FR" + startTenor + endTenor6M + " Curncy")));
+      provider.put(Tenor.ofMonths(i + 6), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "FR" + startTenor + endTenor6M + " Curncy")));
     }
     return provider;
   }
@@ -626,7 +625,7 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergJPY6MFRAInstrumentProvider() {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 0; i < 22; i++) {
-      provider.put(Tenor.ofMonths(i + 6), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId("JYFR" + i + "/" + (i + 6) + " Curncy")));
+      provider.put(Tenor.ofMonths(i + 6), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("JYFR" + i + "/" + (i + 6) + " Curncy")));
     }
     return provider;
   }
@@ -649,20 +648,20 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloomberg6MSwapInstrumentProvider(final String prefix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 12; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + BBG_MONTH_CODES[i - 1] + " Curncy")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + BBG_MONTH_CODES[i - 1] + " Curncy")));
     }
     for (int i = 12; i < 60; i += 3) {
       final int year = i / 12;
       final int month = i % 12;
       if (month == 0) {
-        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + year + " Curncy")));
+        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + year + " Curncy")));
       } else {
         final String code = year + BBG_MONTH_CODES[month - 1];
-        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + code + " Curncy")));
+        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + code + " Curncy")));
       }
     }
     for (int i = 5; i < 61; i++) {
-      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + i + " Curncy")));
+      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + i + " Curncy")));
     }
     return provider;
   }
@@ -670,20 +669,20 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloomberg3MSwapInstrumentProvider(final String prefix, final String postfix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 12; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "SW" + BBG_MONTH_CODES[i - 1] + postfix + " Curncy")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "SW" + BBG_MONTH_CODES[i - 1] + postfix + " Curncy")));
     }
     for (int i = 12; i < 34; i += 3) {
       final int year = i / 12;
       final int month = i % 12;
       if (month == 0) {
-        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "SW" + year + postfix + " Curncy")));
+        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "SW" + year + postfix + " Curncy")));
       } else {
         final String code = year + BBG_MONTH_CODES[month - 1];
-        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "SW" + code + postfix + " Curncy")));
+        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "SW" + code + postfix + " Curncy")));
       }
     }
     for (int i = 3; i < 51; i++) {
-      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + "SW" + i + postfix + " Curncy")));
+      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + "SW" + i + postfix + " Curncy")));
     }
     return provider;
   }
@@ -691,23 +690,23 @@ public class CurveDefinitionAndSpecifications {
   public static Map<Tenor, CurveInstrumentProvider> buildStandardBloombergOISSwapInstrumentProvider(final String prefix) {
     final Map<Tenor, CurveInstrumentProvider> provider = new LinkedHashMap<Tenor, CurveInstrumentProvider>();
     for (int i = 1; i < 4; i++) {
-      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + i + "Z Curncy")));
+      provider.put(Tenor.ofDays(i * 7), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + i + "Z Curncy")));
     }
     for (int i = 1; i < 12; i++) {
-      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + BBG_MONTH_CODES[i - 1] + " Curncy")));
+      provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + BBG_MONTH_CODES[i - 1] + " Curncy")));
     }
     for (int i = 12; i < 36; i += 3) {
       final int year = i / 12;
       final int month = i % 12;
       if (month == 0) {
-        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + year + " Curncy")));
+        provider.put(Tenor.ofYears(year), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + year + " Curncy")));
       } else {
         final String code = year + BBG_MONTH_CODES[month - 1];
-        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + code + " Curncy")));
+        provider.put(Tenor.ofMonths(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + code + " Curncy")));
       }
     }
     for (int i = 3; i < 51; i++) {
-      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(SecurityUtils.bloombergTickerSecurityId(prefix + i + " Curncy")));
+      provider.put(Tenor.ofYears(i), new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId(prefix + i + " Curncy")));
     }
     return provider;
   }

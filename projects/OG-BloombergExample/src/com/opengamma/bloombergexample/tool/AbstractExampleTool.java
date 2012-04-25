@@ -27,7 +27,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
@@ -110,9 +110,9 @@ public abstract class AbstractExampleTool extends AbstractTool {
     String ticker = getWithException(equityDetails, "ticker");
 
     return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, gicsCode,
-      ExternalId.of(SecurityUtils.ISIN, isin),
-      ExternalId.of(SecurityUtils.CUSIP, cusip),
-      ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, ticker));
+      ExternalId.of(ExternalSchemes.ISIN, isin),
+      ExternalId.of(ExternalSchemes.CUSIP, cusip),
+      ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, ticker));
   }
 
   protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, String gicsCode, ExternalId... identifiers) {

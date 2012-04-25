@@ -7,7 +7,7 @@ package com.opengamma.examples.generator;
 
 import org.apache.commons.cli.Options;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
@@ -23,11 +23,11 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("SECONDARY");
-    securityGenerator.setPreferredScheme(SecurityUtils.OG_SYNTHETIC_TICKER);
+    securityGenerator.setPreferredScheme(ExternalSchemes.OG_SYNTHETIC_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override
       public ExternalId execute(final Currency a, final Currency b) {
-        return ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, a.getCode() + b.getCode());
+        return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, a.getCode() + b.getCode());
       }
     });
   }

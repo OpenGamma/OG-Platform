@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
@@ -56,10 +56,10 @@ public class FakeDistributionSpecificationResolver implements DistributionSpecif
       return null;
     }
     ExternalId identifier = underResolved.getMarketDataId();
-    if (!identifier.getScheme().equals(SecurityUtils.BLOOMBERG_BUID)) {
+    if (!identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_BUID)) {
       throw new IllegalArgumentException();
     }
-    ExternalId wrapped = ExternalId.of(SecurityUtils.BLOOMBERG_BUID_WEAK, identifier.getValue());
+    ExternalId wrapped = ExternalId.of(ExternalSchemes.BLOOMBERG_BUID_WEAK, identifier.getValue());
     return new DistributionSpecification(wrapped, underResolved.getNormalizationRuleSet(), underResolved.getJmsTopic().concat(".Fake"));
   }
 }
