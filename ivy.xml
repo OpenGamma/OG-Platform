@@ -10,10 +10,12 @@
       <dependency org="com.google.common" name="guava" rev="11.0.1"/>
       <dependency org="org.cometd" name="cometd-java" rev="1.0.1" conf="*->server"/>
       -->
-      <dependency org="com.googlecode" name="json-simple" rev="1.1.1"/>
       <dependency name="og-util" rev="latest.integration" />
+
+      <dependency org="com.googlecode" name="json-simple" rev="1.1.1"/>
       <dependency org="it.dexy" name="dexy-doclet" rev="0.4.2" />
       <dependency org="org.sqlite" name="sqlitejdbc" rev="056" />
+      <dependency org="org.apache.bcel" name="bcel" rev="5.2" />
     </dependencies>
 </ivy-module>
 

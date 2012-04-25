@@ -550,7 +550,11 @@
       <exec executable="dexy" dir="docs">
           <arg value="setup" />
       </exec>
-      <exec executable="dexy" dir="docs" failonerror="true" />
+      <property name="oglibpathid" refid="lib.path.id"/>
+      <property name="oglibs" value="${projects.dir}/OG-Analytics/lib/classpath.jar:${projects.dir}/OG-Analytics/build/og-analytics.jar:${projects.dir}/OG-Financial/build/og-financial.jar" />
+      <exec executable="dexy" dir="docs" failonerror="true">
+          <env key="CLASSPATH" value="${oglibpathid}:${oglibs}" />
+      </exec>
   </target>
 
   <!-- Idea here is that these get copied into a directory which can then be
