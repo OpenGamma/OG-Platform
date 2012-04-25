@@ -49,4 +49,17 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
     return securitySensitivity;
   }
 
+  /**
+   * Computes the present value gamma of a transaction.
+   * This is with respect to futures rate
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The present value curve sensitivity.
+   */
+  public double presentValueGamma(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
+    final double securityGamma = ((InterestRateFutureOptionMarginSecurityBlackSurfaceMethod) getSecurityMethod()).optionPriceGamma(transaction.getUnderlyingOption(), blackData);
+    final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+                          * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    return txnGamma;
+  }
 }
