@@ -392,6 +392,74 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     return initDiscountFactorBar;
   }
 
+  //  /**
+  //   * Computes the initial discount factors adjoint values with respect to y.
+  //   * @param initDiscountFactor The initial discount factors.
+  //   * @param y The correlated random variables.
+  //   * @param h The H parameters.
+  //   * @param h2 The H^2 parameters.
+  //   * @param gamma The gamma parameters.
+  //   * @param pDBar The simulated discount factor adjoints (path/jump/cf).
+  //   * @return The y adjoints (jump/path).
+  //   */
+  //  private double[][] pathGeneratorDiscountAdjointY(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
+  //    int nbJump = y.length;
+  //    int nbPath = y[0].length;
+  //    double[] h2gamma;
+  //    double[][] yBar = new double[nbJump][nbPath];
+  //    for (int loopjump = 0; loopjump < nbJump; loopjump++) {
+  //      int nbCF = h[loopjump].length;
+  //      h2gamma = new double[nbCF];
+  //      for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+  //        h2gamma[loopcf] = h2[loopjump][loopcf] * gamma[loopjump];
+  //      }
+  //      // Backward sweep
+  //      for (int looppath = 0; looppath < nbPath; looppath++) {
+  //        for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+  //          y[loopjump][looppath] += initDiscountFactor[loopjump][loopcf] * Math.exp(-h[loopjump][loopcf] * y[loopjump][looppath] - h2gamma[loopcf]) * -h[loopjump][loopcf]
+  //              * pDBar[looppath][loopjump][loopcf];
+  //        }
+  //      }
+  //    }
+  //    return yBar;
+  //  }
+  //
+  //  /**
+  //   * Computes the initial discount factors adjoint values with respect to gamma.
+  //   * @param initDiscountFactor The initial discount factors.
+  //   * @param y The correlated random variables.
+  //   * @param h The H parameters.
+  //   * @param h2 The H^2 parameters.
+  //   * @param gamma The gamma parameters.
+  //   * @param pDBar The simulated discount factor adjoints (path/jump/cf).
+  //   * @return The y adjoints (jump/path).
+  //   */
+  //  private double[] pathGeneratorDiscountAdjointGamma(double[][] initDiscountFactor, double[][] y, double[][] h, double[][] h2, double[] gamma, Double[][][] pDBar) {
+  //    int nbJump = y.length;
+  //    int nbPath = y[0].length;
+  //    double[] h2gamma;
+  //    double[] h2gammaBar;
+  //    double[] gammaBar = new double[nbJump];
+  //    for (int loopjump = 0; loopjump < nbJump; loopjump++) {
+  //      int nbCF = h[loopjump].length;
+  //      h2gamma = new double[nbCF];
+  //      for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+  //        h2gamma[loopcf] = h2[loopjump][loopcf] * gamma[loopjump];
+  //      }
+  //      // Backward sweep
+  //      h2gammaBar = new double[nbCF];
+  //      for (int looppath = 0; looppath < nbPath; looppath++) {
+  //        for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+  //          h2gammaBar[loopcf] += -initDiscountFactor[loopjump][loopcf] * Math.exp(-h[loopjump][loopcf] * y[loopjump][looppath] - h2gamma[loopcf]) * pDBar[looppath][loopjump][loopcf];
+  //        }
+  //      }
+  //      for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+  //        gammaBar[loopjump] += h2[loopjump][loopcf] * h2gammaBar[loopcf];
+  //      }
+  //    }
+  //    return gammaBar;
+  //  }
+
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");

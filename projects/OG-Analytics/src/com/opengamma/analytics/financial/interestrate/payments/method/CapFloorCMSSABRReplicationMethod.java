@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCal
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -41,7 +40,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  */
-public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
+public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplicationAbstractMethod {
 
   /**
    * The method default instance.
@@ -57,16 +56,6 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
   }
 
   /**
-   * Range of the integral. Used only for caps. Represent the approximation of infinity in the strike dimension.
-   * The range is [strike, strike+integrationInterval].
-   */
-  private final double _integrationInterval;
-  /**
-   * Minimal number of integration steps in the replication.
-   */
-  private final int _nbIteration = 10;
-
-  /**
    * The par rate calculator.
    */
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
@@ -79,7 +68,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    */
   private CapFloorCMSSABRReplicationMethod() {
-    _integrationInterval = 1.00;
+    super(1.0);
   }
 
   /**
@@ -87,23 +76,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param integrationInterval Integration range.
    */
   public CapFloorCMSSABRReplicationMethod(final double integrationInterval) {
-    _integrationInterval = integrationInterval;
-  }
-
-  /**
-   * Gets the integration interval.
-   * @return The integration interval.
-   */
-  public double getIntegrationInterval() {
-    return _integrationInterval;
-  }
-
-  /**
-   * Gets the minimal number of iterations for the numerical integration.
-   * @return The number.
-   */
-  public int getNbIteration() {
-    return _nbIteration;
+    super(integrationInterval);
   }
 
   /**
@@ -113,6 +86,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data bundle.
    * @return The present value.
    */
+  @Override
   public CurrencyAmount presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -124,13 +98,13 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double absoluteTolerance = 0.1 / (discountFactor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
     // Implementation note: Each sub-integral has less than 0.1 currency unit error.
     final double relativeTolerance = 1.0E-6;
-    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
     // TODO: replace the integrator by an integrator that does not used the limits (open end). Recorded as [PLAT-1679].
     // TODO: replace the integrator by an integrator that accept infinite interval (for the upper limit of cap).
     double integralPart;
     try {
       if (cmsCapFloor.isCap()) {
-        integralPart = discountFactor * integrator.integrate(integrant, strike, strike + _integrationInterval);
+        integralPart = discountFactor * integrator.integrate(integrant, strike, strike + getIntegrationInterval());
       } else {
         integralPart = discountFactor * integrator.integrate(integrant, 0.0, strike);
       }
@@ -154,6 +128,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
    */
+  @Override
   @SuppressWarnings("synthetic-access")
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
@@ -167,7 +142,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double factor = discountFactor / integrantDelta.h(forward) * integrantDelta.g(forward);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
     final double relativeTolerance = 1E-2;
-    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
     // Price
     final double[] bs = integrantDelta.bsbsp(strike);
     final double[] n = integrantDelta.nnp(forward);
@@ -175,7 +150,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     double integralPartPrice;
     try {
       if (cmsCapFloor.isCap()) {
-        integralPartPrice = discountFactor * integrator.integrate(integrantPrice, strike, strike + _integrationInterval);
+        integralPartPrice = discountFactor * integrator.integrate(integrantPrice, strike, strike + getIntegrationInterval());
       } else {
         integralPartPrice = discountFactor * integrator.integrate(integrantPrice, 0.0, strike);
       }
@@ -188,7 +163,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     double integralPart;
     try {
       if (cmsCapFloor.isCap()) {
-        integralPart = discountFactor * integrator.integrate(integrantDelta, strike, strike + _integrationInterval);
+        integralPart = discountFactor * integrator.integrate(integrantDelta, strike, strike + getIntegrationInterval());
       } else {
         integralPart = discountFactor * integrator.integrate(integrantDelta, 0.0, strike);
       }
@@ -214,6 +189,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to SABR parameters.
    */
+  @Override
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -225,7 +201,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     final double factor = discountFactor / integrantVega.h(forward) * integrantVega.g(forward);
     final double absoluteTolerance = 1.0 / (factor * Math.abs(cmsCapFloor.getNotional()) * cmsCapFloor.getPaymentYearFraction());
     final double relativeTolerance = 1E-3;
-    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
     final double factor2 = factor * integrantVega.k(strike) * integrantVega.bs(strike);
     final double[] strikePartPrice = new double[3];
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cmsCapFloor.getFixingTime(), maturity, strike, forward);
@@ -242,7 +218,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
       integrantVega.setParameterIndex(parameterIndex[loopparameter]);
       try {
         if (cmsCapFloor.isCap()) {
-          integralPart[loopparameter] = discountFactor * integrator.integrate(integrantVega, strike, strike + _integrationInterval);
+          integralPart[loopparameter] = discountFactor * integrator.integrate(integrantVega, strike, strike + getIntegrationInterval());
         } else {
           integralPart[loopparameter] = discountFactor * integrator.integrate(integrantVega, 0.0, strike);
         }
@@ -265,6 +241,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to strike.
    */
+  @Override
   public double presentValueStrikeSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final FixedCouponSwap<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
@@ -279,7 +256,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
 
     final double absoluteTolerance = 1.0E-9;
     final double relativeTolerance = 1.0E-5;
-    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, _nbIteration);
+    final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
 
     final double alpha = sabrParameter.getAlpha(expiryMaturity);
     final double beta = sabrParameter.getBeta(expiryMaturity);
@@ -298,7 +275,7 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
     double thirdPart;
     if (cmsCapFloor.isCap()) {
       firstPart = -kpkpp[0] * integrant.bs(strike);
-      thirdPart = integrator.integrate(integrant, strike, strike + _integrationInterval);
+      thirdPart = integrator.integrate(integrant, strike, strike + getIntegrationInterval());
     } else {
       firstPart = 3 * kpkpp[0] * integrant.bs(strike);
       thirdPart = integrator.integrate(integrant, 0.0, strike);

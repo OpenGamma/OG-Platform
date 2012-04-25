@@ -12,7 +12,6 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.security.Security;
@@ -39,7 +38,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction extends SABRYieldCurveNodeSensitivitiesFunction {
-  private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance());
+  
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -77,8 +76,6 @@ public class SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction extends S
       final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
-    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
     final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
@@ -94,7 +91,7 @@ public class SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction extends S
     final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
     final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    final SABRInterestRateParameters modelParameters = new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, cutoff, mu);
+    final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount);
     return new SABRInterestRateDataBundle(modelParameters, yieldCurves);
   }
 
@@ -142,8 +139,10 @@ public class SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction extends S
   }
 
   @Override
-  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator() {
-    return NSC;
+  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator(final ValueRequirement desiredValue) {
+    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
+    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
+    return PresentValueNodeSensitivityCalculator.using(new PresentValueCurveSensitivitySABRExtrapolationCalculator(cutoff, mu));
   }
 
 }

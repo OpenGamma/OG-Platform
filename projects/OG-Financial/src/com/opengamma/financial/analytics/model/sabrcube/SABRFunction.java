@@ -91,7 +91,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, desiredValue);
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
-    final Object result = getResult(derivative, data);
+    final Object result = getResult(derivative, data, desiredValue);
     final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), desiredValue);
     final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, result));
@@ -146,7 +146,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
 
   protected abstract String getValueRequirement();
 
-  protected abstract Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data);
+  protected abstract Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue);
 
   protected ValueRequirement getCurveRequirement(final String curveName, final String advisoryForward, final String advisoryFunding, final String calculationMethod,
       final Currency currency) {

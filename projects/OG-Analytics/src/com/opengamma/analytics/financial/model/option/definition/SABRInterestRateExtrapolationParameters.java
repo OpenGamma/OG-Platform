@@ -11,6 +11,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * Class describing the SABR parameter surfaces and the extrapolation parameters used in interest rate modelling.
  */
+@Deprecated
 public class SABRInterestRateExtrapolationParameters extends SABRInterestRateParameters {
 
   /**

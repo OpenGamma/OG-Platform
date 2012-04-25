@@ -5,34 +5,28 @@
  */
 package com.opengamma.financial.analytics.model.sabrcube;
 
-import java.util.Map;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRRightExtrapolationCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *
  */
 public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
-  private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
   @Override
-  protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data) {
-    return getResultAsMatrix(CALCULATOR.visit(derivative, data));
+  protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
+    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
+    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
+    final PresentValueSABRSensitivitySABRRightExtrapolationCalculator calculator = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(cutoff, mu);
+    return getResultAsMatrix(calculator.visit(derivative, data));
   }
 
-  protected abstract Map<DoublesPair, Double> getDataForRequirement(final PresentValueSABRSensitivityDataBundle sensitivities);
-
-  private DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-    final Map<DoublesPair, Double> data = getDataForRequirement(sensitivities);
-    final Map.Entry<DoublesPair, Double> entry = data.entrySet().iterator().next();
-    return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
-  }
+  protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);
 
   /**
    * Function to get the sensitivity to the alpha parameter
@@ -45,25 +39,8 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivity
     }
 
     @Override
-    protected Map<DoublesPair, Double> getDataForRequirement(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return sensitivities.getAlpha().getMap();
-    }
-
-  }
-
-  /**
-   * Function to get the sensitivity to the nu parameter
-   */
-  public static class Nu extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
-
-    @Override
-    protected String getValueRequirement() {
-      return ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY;
-    }
-
-    @Override
-    protected Map<DoublesPair, Double> getDataForRequirement(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return sensitivities.getNu().getMap();
+    protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
+      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getAlpha());
     }
 
   }
@@ -79,9 +56,27 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivity
     }
 
     @Override
-    protected Map<DoublesPair, Double> getDataForRequirement(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return sensitivities.getRho().getMap();
+    protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
+      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getRho());
     }
 
   }
+
+  /**
+   * Function to get the sensitivity to the nu parameter
+   */
+  public static class Nu extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
+
+    @Override
+    protected String getValueRequirement() {
+      return ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY;
+    }
+
+    @Override
+    protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
+      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getNu());
+    }
+
+  }
+
 }

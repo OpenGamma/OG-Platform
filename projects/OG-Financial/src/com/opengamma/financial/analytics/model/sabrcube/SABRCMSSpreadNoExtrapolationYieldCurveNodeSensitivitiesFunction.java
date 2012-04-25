@@ -105,7 +105,7 @@ public class SABRCMSSpreadNoExtrapolationYieldCurveNodeSensitivitiesFunction ext
   }
 
   @Override
-  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator() {
+  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator(final ValueRequirement desiredValue) {
     return NSC;
   }
 

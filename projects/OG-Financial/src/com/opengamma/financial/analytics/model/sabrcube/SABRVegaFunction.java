@@ -72,8 +72,8 @@ public abstract class SABRVegaFunction extends SABRFunction {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
     final SABRFittedSurfaces sabrFittedSurfaces = (SABRFittedSurfaces) sabrSurfacesObject;
-    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency,
-        getFittedPointsProperties(cubeName, currency.getCode(), fittingMethod));
+    final ValueRequirement fittedPointsRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, currency, getFittedPointsProperties(cubeName, currency.getCode(),
+        fittingMethod));
     final Object fittedDataPointsObject = inputs.getValue(fittedPointsRequirement);
     if (fittedDataPointsObject == null) {
       throw new OpenGammaRuntimeException("Could not get fitted points for cube");
@@ -166,15 +166,13 @@ public abstract class SABRVegaFunction extends SABRFunction {
   protected abstract ValueProperties getSensitivityProperties(final ComputationTarget target, final String currency, final ValueRequirement desiredValue);
 
   protected ValueProperties getFittedPointsProperties(final String cubeName, final String currency, final String fittingMethod) {
-    return ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CUBE, cubeName)
+    return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CUBE, cubeName)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod).get();
   }
 
   @Override
-  protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data) {
+  protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
     throw new UnsupportedOperationException("Should never get here");
   }
 }

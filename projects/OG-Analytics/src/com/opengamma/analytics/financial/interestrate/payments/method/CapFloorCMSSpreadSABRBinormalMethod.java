@@ -57,26 +57,15 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
   /**
    * The method to compute the price of CMS cap/floors.
    */
-  private final CapFloorCMSSABRReplicationMethod _methodCmsCap;
+  private final CapFloorCMSSABRReplicationAbstractMethod _methodCmsCap;
   /**
    * The method to compute the price o CMS coupons.
    */
-  private final CouponCMSSABRReplicationMethod _methodCmsCoupon;
+  private final CouponCMSSABRReplicationGenericMethod _methodCmsCoupon;
   /**
    * The correlation as function of the strike.
    */
   private final DoubleFunction1D _correlation;
-
-  /** 
-   * Default constructor of the CMS spread cap/floor method.
-   * @param correlation The rates correlation.
-   */
-  public CapFloorCMSSpreadSABRBinormalMethod(final DoubleFunction1D correlation) {
-    Validate.notNull(correlation, "Correlation");
-    _correlation = correlation;
-    _methodCmsCap = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
-    _methodCmsCoupon = CouponCMSSABRReplicationMethod.getDefaultInstance();
-  }
 
   /** 
    * Constructor of the CMS spread cap/floor method with the CMS cap and coupon methods.
@@ -84,7 +73,8 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
    * @param methodCmsCap The pricing method for the CMS cap/floor.
    * @param methodCmsCoupon The pricing method for the CMS coupons.
    */
-  public CapFloorCMSSpreadSABRBinormalMethod(final DoubleFunction1D correlation, final CapFloorCMSSABRReplicationMethod methodCmsCap, final CouponCMSSABRReplicationMethod methodCmsCoupon) {
+  public CapFloorCMSSpreadSABRBinormalMethod(final DoubleFunction1D correlation, final CapFloorCMSSABRReplicationAbstractMethod methodCmsCap,
+      final CouponCMSSABRReplicationGenericMethod methodCmsCoupon) {
     Validate.notNull(correlation, "Correlation");
     _correlation = correlation;
     _methodCmsCap = methodCmsCap;
@@ -345,9 +335,6 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
     return result;
   }
 
-  // TODO: presentValueSABRSensitivity
-  // TODO: presentValueStrikeSensitivity(CapFloorCMS, SABRInterestRateDataBundle)
-
   /**
    * Inner class to solve for the implied correlation.
    */
@@ -379,7 +366,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
 
     @Override
     public Double evaluate(Double x) {
-      CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x}));
+      CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x}), _methodCmsCap, _methodCmsCoupon);
       return method.presentValue(_cmsSpread, _sabrData).getAmount() - _price;
     }
   }

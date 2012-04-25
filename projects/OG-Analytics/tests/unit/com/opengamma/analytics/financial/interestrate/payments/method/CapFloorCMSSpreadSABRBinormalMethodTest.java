@@ -41,7 +41,6 @@ import com.opengamma.analytics.financial.interestrate.payments.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -129,19 +128,15 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final DoubleFunction1D CORRELATION_FUNCTION = new RealPolynomialFunction1D(new double[] {CORRELATION}); // Constant function
   private static final SABRInterestRateCorrelationParameters SABR_CORRELATION = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
   private static final SABRInterestRateDataBundle SABR_CORRELATION_BUNDLE = new SABRInterestRateDataBundle(SABR_CORRELATION, CURVES);
-  private static final CapFloorCMSSpreadSABRBinormalMethod METHOD_CMS_SPREAD = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION);
-  private static final CouponCMSSABRReplicationMethod METHOD_CMS_COUPON = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_CMS_COUPON = CouponCMSSABRReplicationMethod.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD_CMS_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CapFloorCMSSpreadSABRBinormalMethod METHOD_CMS_SPREAD = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION, METHOD_CMS_CAP, METHOD_CMS_COUPON);
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
   private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
-  private static final PresentValueSABRExtrapolationCalculator PVC_SABR_EXTRA = PresentValueSABRExtrapolationCalculator.getInstance();
 
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
-  private static final SABRInterestRateExtrapolationParameters SABR_EXTRA_PARAMETERS = SABRInterestRateExtrapolationParameters.from(SABR_PARAMETERS, CUT_OFF_STRIKE, MU);
-  private static final SABRInterestRateCorrelationParameters SABR_EXTRA_CORRELATION = SABRInterestRateCorrelationParameters.from(SABR_EXTRA_PARAMETERS, CORRELATION_FUNCTION);
-  private static final SABRInterestRateDataBundle SABR_EXTRA_BUNDLE = new SABRInterestRateDataBundle(SABR_EXTRA_PARAMETERS, CURVES);
-  private static final SABRInterestRateDataBundle SABR_EXTRA_CORRELATION_BUNDLE = new SABRInterestRateDataBundle(SABR_EXTRA_CORRELATION, CURVES);
+  private static final PresentValueSABRExtrapolationCalculator PVC_SABR_EXTRA = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_CMS_CAP_EXTRAPOLATION = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
   private static final CouponCMSSABRExtrapolationRightReplicationMethod METHOD_CMS_COUPON_EXTRAPOLATION = new CouponCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
@@ -152,14 +147,14 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotNullCorrelation() {
-    new CapFloorCMSSpreadSABRBinormalMethod(null);
+    new CapFloorCMSSpreadSABRBinormalMethod(null, METHOD_CMS_CAP, METHOD_CMS_COUPON);
   }
 
   @Test
   public void getter() {
     final double correlation = 0.80;
     final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction, METHOD_CMS_CAP, METHOD_CMS_COUPON);
     assertEquals("CMS spread binormal method: correlation function getter", correlationFunction, method.getCorrelation());
   }
 
@@ -170,10 +165,10 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValue() {
     final double correlation = 0.80;
     final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+    final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction, METHOD_CMS_CAP, METHOD_CMS_COUPON);
     final double cmsSpreadPrice = method.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
     final double discountFactorPayment = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(PAYMENT_TIME);
-    final CouponCMSSABRReplicationMethod methodCms = CouponCMSSABRReplicationMethod.getDefaultInstance();
+    final CouponCMSSABRReplicationMethod methodCms = CouponCMSSABRReplicationMethod.getInstance();
     final CapFloorCMSSABRReplicationMethod methodCmsCap = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
     final NormalImpliedVolatilityFormula impliedVolatility = new NormalImpliedVolatilityFormula();
     final NormalPriceFunction normalPrice = new NormalPriceFunction();
@@ -210,7 +205,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the present value with default method and with method without extrapolation. 
    */
   public void presentValueConstructor() {
-    final CapFloorCMSSpreadSABRBinormalMethod methodDefault = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION);
+    final CapFloorCMSSpreadSABRBinormalMethod methodDefault = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION, METHOD_CMS_CAP, METHOD_CMS_COUPON);
     final CurrencyAmount pvDefault = methodDefault.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE);
     final CapFloorCMSSpreadSABRBinormalMethod methodNoExtrapolation = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION, METHOD_CMS_CAP, METHOD_CMS_COUPON);
     final CurrencyAmount pvNoExtrapolation = methodNoExtrapolation.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE);
@@ -269,8 +264,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     // Extrapolation
     CurrencyAmount pvCapLongExtra = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE);
     CurrencyAmount pvFloorLongExtra = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_FLOOR_SPREAD, SABR_BUNDLE);
-    Double pvCMS1Extra = PVC_SABR_EXTRA.visit(cms1, SABR_EXTRA_BUNDLE);
-    Double pvCMS2Extra = PVC_SABR_EXTRA.visit(cms2, SABR_EXTRA_BUNDLE);
+    Double pvCMS1Extra = PVC_SABR_EXTRA.visit(cms1, SABR_BUNDLE);
+    Double pvCMS2Extra = PVC_SABR_EXTRA.visit(cms2, SABR_BUNDLE);
     assertEquals("CMS spread: Cap/Floor parity", pvCMS1Extra - pvCMS2Extra - pvStrike, pvCapLongExtra.getAmount() - pvFloorLongExtra.getAmount(), TOLERANCE_PRICE);
   }
 
@@ -283,8 +278,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     double pvCalculator = PVC_SABR.visit(CMS_CAP_SPREAD, SABR_CORRELATION_BUNDLE);
     assertEquals("CMS spread: present value Method vs Calculator", pvMethod.getAmount(), pvCalculator, TOLERANCE_PRICE);
     // Extrapolation
-    CurrencyAmount pvExtraMethod = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_EXTRA_CORRELATION_BUNDLE);
-    double pvExtraCalculator = PVC_SABR.visit(CMS_CAP_SPREAD, SABR_EXTRA_CORRELATION_BUNDLE);
+    CurrencyAmount pvExtraMethod = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, SABR_CORRELATION_BUNDLE);
+    double pvExtraCalculator = PVC_SABR_EXTRA.visit(CMS_CAP_SPREAD, SABR_CORRELATION_BUNDLE);
     assertEquals("CMS spread: present value Method vs Calculator", pvExtraMethod.getAmount(), pvExtraCalculator, TOLERANCE_PRICE);
   }
 
@@ -301,7 +296,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final double[] impliedCorrelation = new double[nbCor];
     for (int loopcor = 0; loopcor < nbCor; loopcor++) {
       final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation[loopcor]}); // Constant function
-      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
+      final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction, METHOD_CMS_CAP, METHOD_CMS_COUPON);
       final double cmsSpreadPrice = method.presentValue(CMS_CAP_SPREAD, sabrBundle).getAmount();
       impliedCorrelation[loopcor] = method.impliedCorrelation(CMS_CAP_SPREAD, sabrBundle, cmsSpreadPrice);
       assertEquals("CMS spread cap/floor: implied correlation", correlation[loopcor], impliedCorrelation[loopcor], 1.0E-10);

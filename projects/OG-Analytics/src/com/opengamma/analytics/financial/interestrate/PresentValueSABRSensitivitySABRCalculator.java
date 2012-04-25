@@ -29,7 +29,6 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCa
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
@@ -55,6 +54,11 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
   private PresentValueSABRSensitivitySABRCalculator() {
   }
 
+  /**
+   * Methods.
+   */
+  public static final CapFloorIborSABRMethod METHOD_IBOR_CAP = CapFloorIborSABRMethod.getInstance();
+
   @Override
   public PresentValueSABRSensitivityDataBundle visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -68,8 +72,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      final CapFloorIborSABRMethod method = CapFloorIborSABRMethod.getInstance();
-      return method.presentValueSABRSensitivity(cap, sabr);
+      return METHOD_IBOR_CAP.presentValueSABRSensitivity(cap, sabr);
     }
     throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitCapFloorIbor requires a SABRInterestRateDataBundle as data.");
   }
@@ -105,7 +108,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getDefaultInstance();
+      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getInstance();
       return replication.presentValueSABRSensitivity(payment, sabrBundle);
     }
     throw new UnsupportedOperationException("The PresentValueSABRSensitivitySABRCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
@@ -131,7 +134,8 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
         final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabrBundle.getSABRParameter();
-        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation());
+        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation(), CapFloorCMSSABRReplicationMethod.getDefaultInstance(),
+            CouponCMSSABRReplicationMethod.getInstance());
         return method.presentValueSABRSensitivity(payment, sabrBundle);
       }
     }
@@ -166,10 +170,6 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(curves);
     Validate.notNull(coupon);
     final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = DoublesPair.of(0., coupon.getPaymentTime());
-    pvss.addAlpha(expiryMaturity, 0);
-    pvss.addNu(expiryMaturity, 0);
-    pvss.addRho(expiryMaturity, 0);
     return pvss;
   }
 
@@ -178,10 +178,6 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(curves);
     Validate.notNull(coupon);
     final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = DoublesPair.of(0., coupon.getPaymentTime());
-    pvss.addAlpha(expiryMaturity, 0);
-    pvss.addNu(expiryMaturity, 0);
-    pvss.addRho(expiryMaturity, 0);
     return pvss;
   }
 
@@ -201,7 +197,10 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
 
   @Override
   public PresentValueSABRSensitivityDataBundle visitCouponIbor(final CouponIbor coupon, final YieldCurveBundle curves) {
-    final CapFloorIbor capFloor = CapFloorIbor.from(coupon, 0, true);
-    return visit(capFloor, curves);
+    Validate.notNull(curves);
+    Validate.notNull(coupon);
+    final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
+    return pvss;
   }
+
 }

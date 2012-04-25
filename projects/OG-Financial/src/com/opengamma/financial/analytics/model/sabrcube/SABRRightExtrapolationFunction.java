@@ -10,7 +10,6 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.security.Security;
@@ -77,8 +76,6 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
       final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(PROPERTY_CUTOFF_STRIKE));
-    final Double mu = Double.parseDouble(desiredValue.getConstraint(PROPERTY_TAIL_THICKNESS_PARAMETER));
     final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
@@ -94,7 +91,7 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
     final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
     final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    final SABRInterestRateParameters modelParameters = new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, cutoff, mu);
+    final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount); // , cutoff, mu
     return new SABRInterestRateDataBundle(modelParameters, yieldCurves);
   }
 
