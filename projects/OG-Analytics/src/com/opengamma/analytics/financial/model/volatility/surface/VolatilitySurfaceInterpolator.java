@@ -64,11 +64,11 @@ public class VolatilitySurfaceInterpolator {
 
   /**
    * <b>Note</b> The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips/humps between
-   * points at the same level (all other combinations give a flat line), and thus should be avoided. 
-   * @param useIntegratedVariance if true integrated variance ($\sigma^2t$) is used in the interpolation, otherwise variance is used 
+   * points at the same level (all other combinations give a flat line), and thus should be avoided.
+   * @param useIntegratedVariance if true integrated variance ($\sigma^2t$) is used in the interpolation, otherwise variance is used
    * @param useLogTime if true the natural-log of the time values are used in interpolation, if false the time values are used directly. This can be useful if the
-   * expiries vary greatly in magnitude 
-   * @param useLogVariance If true the log of variance (actually either variance or integrated variance) is used in the interpolation  
+   * expiries vary greatly in magnitude
+   * @param useLogVariance If true the log of variance (actually either variance or integrated variance) is used in the interpolation
    */
   public VolatilitySurfaceInterpolator(final boolean useIntegratedVariance, final boolean useLogTime, final boolean useLogVariance) {
     _smileInterpolator = DEFAULT_SMILE_INTERPOLATOR;
@@ -286,4 +286,17 @@ public class VolatilitySurfaceInterpolator {
     return true;
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("VolatilitySurfaceInterpolator[time interpolator=");
+    sb.append(_timeInterpolator.toString());
+    sb.append(", smile interpolator=");
+    sb.append(_smileInterpolator.toString());
+    sb.append(" using ");
+    sb.append(_useIntegratedVariance ? "integrated variance, " : " variance, ");
+    sb.append(_useLogTime ? " log time and " : " linear time and ");
+    sb.append(_useLogVar ? " log y" : " linear y");
+    sb.append("]");
+    return sb.toString();
+  }
 }

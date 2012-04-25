@@ -27,4 +27,24 @@ public final class SineWeightingFunction extends WeightingFunction {
     return 0.5 * (Math.sin(Math.PI * (y - 0.5)) + 1);
   }
 
+  @Override
+  public String toString() {
+    return "Sine weighting function";
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
 }
