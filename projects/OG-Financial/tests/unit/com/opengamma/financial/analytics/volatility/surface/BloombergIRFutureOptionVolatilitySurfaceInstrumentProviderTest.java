@@ -41,15 +41,10 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
     for (int i = 0; i < NUMBERS.length; i++) {
       assertEquals(EXPIRY_DATES[i], IRFutureOptionUtils.getQuarterlyExpiry(NUMBERS[i], DATE));
       for (int j = 0; j < STRIKES.length; j++) {
-        String expected;
-        if (today.isAfter(EXPIRY_DATES[i])) {
-          expected = EXPIRED_RESULTS[i][j];
-        } else {
-          expected = RESULTS[i][j];
-        }
-        final ExternalId result = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
-        assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, result.getScheme());
-        assertEquals(expected, result.getValue());
+        final String expected = RESULTS[i][j];
+        final ExternalId actual = PROVIDER.getInstrument(NUMBERS[i], STRIKES[j], DATE);
+        assertEquals(ExternalSchemes.BLOOMBERG_TICKER_WEAK, actual.getScheme());
+        assertEquals(expected, actual.getValue());
       }
     }
   }
