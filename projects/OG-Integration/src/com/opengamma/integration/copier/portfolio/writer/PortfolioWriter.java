@@ -8,6 +8,7 @@ package com.opengamma.integration.copier.portfolio.writer;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Interface for a portfolio writer, which is able to write positions and securities, and manipulate the portfolio's
@@ -15,9 +16,9 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public interface PortfolioWriter {
 
-  ManageableSecurity writeSecurity(ManageableSecurity security);
+//  ManageableSecurity writeSecurity(ManageableSecurity security);
   
-  ManageablePosition writePosition(ManageablePosition position);
+  ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities);
     
   /**
    * Get the current portfolio path.

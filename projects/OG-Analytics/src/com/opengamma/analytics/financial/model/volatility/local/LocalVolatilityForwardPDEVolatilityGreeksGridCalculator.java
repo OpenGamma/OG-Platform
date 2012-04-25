@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
  * 
  */
 public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator implements PDELocalVolatilityCalculator<Interpolator1DDataBundle> {
-  private static final double VOL_SHIFT = 1e-4;
+  private static final double VOL_SHIFT = 1e-3;
   private static final double FWD_SHIFT = 5e-2;
   private final LocalVolatilityForwardPDECalculator _pdeCalculator;
   private final Interpolator1D _interpolator;
@@ -30,11 +30,12 @@ public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator im
   @Override
   public Interpolator1DDataBundle getResult(final LocalVolatilitySurfaceMoneyness localVolatility, final ForwardCurve forwardCurve, final EuropeanVanillaOption option,
       final YieldAndDiscountCurve discountingCurve) {
-    final LocalVolatilitySurfaceStrike localVolatilityUp = new LocalVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(localVolatility.getSurface(), VOL_SHIFT, true));
-    final LocalVolatilitySurfaceStrike localVolatilityDown = new LocalVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(localVolatility.getSurface(), -VOL_SHIFT, true));
+    final LocalVolatilitySurfaceStrike lvStrike = LocalVolatilitySurfaceConverter.toStrikeSurface(localVolatility);
+    final LocalVolatilitySurfaceStrike localVolatilityUp = new LocalVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(lvStrike.getSurface(), VOL_SHIFT, true));
+    final LocalVolatilitySurfaceStrike localVolatilityDown = new LocalVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(lvStrike.getSurface(), -VOL_SHIFT, true));
     final ForwardCurve forwardCurveUp = forwardCurve.withFractionalShift(FWD_SHIFT);
     final ForwardCurve forwardCurveDown = forwardCurve.withFractionalShift(-FWD_SHIFT);
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
     final PDETerminalResults1D pdeGridUp = _pdeCalculator.runPDESolver(localVolatilityUp, forwardCurve, option);
     final PDETerminalResults1D pdeGridDown = _pdeCalculator.runPDESolver(localVolatilityDown, forwardCurve, option);
     final PDETerminalResults1D pdeGridUpUp = _pdeCalculator.runPDESolver(localVolatilityUp, forwardCurveUp, option);
@@ -51,6 +52,14 @@ public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator im
       strikes[i] = moneyness * forward;
       greeks[i] = getResultForMoneyness(pdeGrid, pdeGridUp, pdeGridDown, pdeGridUpUp, pdeGridUpDown, pdeGridDownUp, pdeGridDownDown, i, forward, option);
     }
+    //    //debug
+    //    double[] t = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
+    //    int m = t.length;
+    //    double[] debug = new double[m];
+    //    for (int i = 0; i < m; i++) {
+    //      debug[i] = forwardCurve.getForward(t[i]);
+    //    }
+
     return _interpolator.getDataBundleFromSortedArrays(strikes, greeks);
   }
 
@@ -102,7 +111,7 @@ public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator im
     protected double getResultForMoneyness(final PDETerminalResults1D pdeGrid, final PDETerminalResults1D pdeGridUp, final PDETerminalResults1D pdeGridDown,
         final PDETerminalResults1D pdeGridUpUp, final PDETerminalResults1D pdeGridUpDown, final PDETerminalResults1D pdeGridDownUp, final PDETerminalResults1D pdeGridDownDown,
         final int index, final double forward, final EuropeanVanillaOption option) {
-      return (pdeGridUp.getFunctionValue(index) - pdeGridDown.getFunctionValue(index)) / 2 / VOL_SHIFT;
+      return forward * (pdeGridUp.getFunctionValue(index) - pdeGridDown.getFunctionValue(index)) / 2 / VOL_SHIFT;
     }
   }
 
@@ -143,7 +152,7 @@ public abstract class LocalVolatilityForwardPDEVolatilityGreeksGridCalculator im
     protected double getResultForMoneyness(final PDETerminalResults1D pdeGrid, final PDETerminalResults1D pdeGridUp, final PDETerminalResults1D pdeGridDown,
         final PDETerminalResults1D pdeGridUpUp, final PDETerminalResults1D pdeGridUpDown, final PDETerminalResults1D pdeGridDownUp, final PDETerminalResults1D pdeGridDownDown,
         final int index, final double forward, final EuropeanVanillaOption option) {
-      return (pdeGridUp.getFunctionValue(index) + pdeGridDown.getFunctionValue(index) - 2 * pdeGrid.getFunctionValue(index)) / VOL_SHIFT / VOL_SHIFT;
+      return forward * (pdeGridUp.getFunctionValue(index) + pdeGridDown.getFunctionValue(index) - 2 * pdeGrid.getFunctionValue(index)) / VOL_SHIFT / VOL_SHIFT;
     }
   }
 }

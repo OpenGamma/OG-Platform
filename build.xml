@@ -462,7 +462,36 @@
         Creates javadocs documentation for whole system                 
       =================================================================== 
   -->
-  <target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM and LaTeX)" />
+  <target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM)" />
+
+  <target name="javadoc-single">
+    <delete dir="${docs.dir}/javadoc-single" includeemptydirs="true" failonerror="false" />
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-single" />
+    <javadoc
+        bottom="${javadoc-all.bottom}"
+        classpathref="lib.path.id"
+        destdir="${docs.dir}/javadoc-single"
+        header="${javadoc-all.header}"
+        linksource="Yes"
+        sourcefiles="${fn}"
+    />
+  </target>
+
+  <target name="javadoc-one">
+    <delete dir="${docs.dir}/javadoc-one" includeemptydirs="true" failonerror="false" />
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-one" />
+    <javadoc
+        sourcefiles="${fn}"
+        sourcepath="${fn}"
+        destdir="${docs.dir}/javadoc-one"
+        classpathref="lib.path.id"
+        failonerror="Yes"
+        doclet="it.dexy.doclet.MathJaxDoclet"
+        docletpathref="lib.path.id"
+    />
+  </target>
 
   <target name="javadoc-all" depends="load-ivy, resolve">
     <mkdir dir="${docs.dir}" />

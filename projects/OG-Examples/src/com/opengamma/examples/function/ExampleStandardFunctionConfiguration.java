@@ -163,16 +163,25 @@ import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLFunct
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueSABRCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRPresentValueSABRFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRVegaCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRVegaFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction;
-import com.opengamma.financial.analytics.model.sabrcube.old.SABRYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationVegaFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationPresentValueSABRSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationVegaFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationPresentValueFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationPresentValueSABRSensitivityFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationVegaFunction;
+import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationDefaults;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaults;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaults;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSecurityMarkFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesCreditFactorsFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesNonYieldCurveFunction;
@@ -185,6 +194,7 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRDefault
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRFunction;
+import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.local.old.BlackVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityBucketedVegaFunction;
@@ -779,21 +789,36 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES);
   }
 
-  private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList(USD, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
+  private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Alpha.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Nu.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueSABRSensitivityFunction.Rho.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationVegaFunction.class));
+    functionConfigs.add(functionConfiguration(SABRCMSSpreadNoExtrapolationYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueSABRSensitivityFunction.Alpha.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueSABRSensitivityFunction.Nu.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationPresentValueSABRSensitivityFunction.Rho.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueSABRSensitivityFunction.Alpha.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueSABRSensitivityFunction.Nu.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueSABRSensitivityFunction.Rho.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", "PresentValue", "USD"));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", "PresentValue", "0.07", "10.0", "USD"));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", "PresentValue", 
+        "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", "PresentValue",
+        "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
   }
 
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {

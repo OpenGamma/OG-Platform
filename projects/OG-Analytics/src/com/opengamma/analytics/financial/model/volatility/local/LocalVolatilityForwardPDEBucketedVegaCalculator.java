@@ -41,7 +41,7 @@ public class LocalVolatilityForwardPDEBucketedVegaCalculator {
     final double expiry = option.getTimeToExpiry();
     final double forward = forwardCurve.getForward(expiry);
     final double x = option.getStrike() / forward;
-    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
+    final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, option);
     final int spaceSteps = _pdeCalculator.getNSpaceSteps();
     final double[] xNodes = pdeGrid.getGrid().getSpaceNodes();
     int index = SurfaceArrayUtils.getLowerBoundIndex(xNodes, x);
@@ -70,7 +70,7 @@ public class LocalVolatilityForwardPDEBucketedVegaCalculator {
       for (int j = 0; j < m; j++) {
         final BlackVolatilitySurfaceMoneyness bumpedSurface = _surfaceInterpolator.getBumpedVolatilitySurface(marketData, i, j, SHIFT);
         final LocalVolatilitySurfaceMoneyness bumpedLV = _dupireCalculator.getLocalVolatility(bumpedSurface);
-        final PDETerminalResults1D pdeResBumped = _pdeCalculator.runPDESolver(bumpedLV, forwardCurve, option);
+        final PDETerminalResults1D pdeResBumped = _pdeCalculator.runPDESolver(bumpedLV, option);
         for (int k = 0; k < 4; k++) {
           vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), 1.0, moneyness[k],
               expiry, option.isCall());
@@ -119,7 +119,7 @@ public class LocalVolatilityForwardPDEBucketedVegaCalculator {
       for (int j = 0; j < m; j++) {
         final BlackVolatilitySurfaceMoneyness bumpedSurface = _surfaceInterpolator.getBumpedVolatilitySurface(marketData, i, j, SHIFT);
         final LocalVolatilitySurfaceMoneyness bumpedLV = _dupireCalculator.getLocalVolatility(bumpedSurface);
-        final PDETerminalResults1D pdeResBumped = _pdeCalculator.runPDESolver(bumpedLV, forwardCurve, option);
+        final PDETerminalResults1D pdeResBumped = _pdeCalculator.runPDESolver(bumpedLV, option);
         for (int k = 0; k < 4; k++) {
           vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), 1.0, moneyness[k],
               expiry, option.isCall());

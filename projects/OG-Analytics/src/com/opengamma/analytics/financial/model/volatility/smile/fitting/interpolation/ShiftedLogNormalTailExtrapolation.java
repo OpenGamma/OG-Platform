@@ -49,7 +49,7 @@ public class ShiftedLogNormalTailExtrapolation {
     }
 
     double p = price(forward, strike, timeToExpiry, isCall, mu, theta);
-    if (p <= 0.0) {
+    if (p <= 1e-100) { //TODO this is an arbitrary choice to switch to the approximation here 
       double c = Math.log(strike / forward);
       double a = timeToExpiry / 2;
       double b = (-c + mu - theta * theta * timeToExpiry / 2) / theta;
