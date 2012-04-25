@@ -142,7 +142,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       manPrt = getPortfolioMaster().get(uniqueId).getPortfolio();
     }
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
-    convertNode(manPrt.getRootNode(), prt.getRootNode());
+    convertNode(manPrt.getRootNode(), prt.getRootNode(), vc);
     copyAttributes(manPrt, prt);
     return prt;
   }
@@ -163,7 +163,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ManageablePortfolio manPrt = getPortfolioMaster().get(objectId, versionCorrection).getPortfolio();
     SimplePortfolio prt = new SimplePortfolio(manPrt.getUniqueId(), manPrt.getName());
-    convertNode(manPrt.getRootNode(), prt.getRootNode());
+    convertNode(manPrt.getRootNode(), prt.getRootNode(), versionCorrection);
     copyAttributes(manPrt, prt);
     return prt;
   }
@@ -191,7 +191,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       throw new DataNotFoundException("Unable to find node: " + uniqueId);
     }
     SimplePortfolioNode node = new SimplePortfolioNode();
-    convertNode(manNode, node);
+    convertNode(manNode, node, vc);
     return node;
   }
 
@@ -268,16 +268,17 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   /**
    * Converts a manageable node to a source node.
    * 
+   * @param versionCorrection the version correction, not null
    * @param manNode the manageable node, not null
    * @param sourceNode the source node, not null
    */
-  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode) {
+  protected void convertNode(final ManageablePortfolioNode manNode, final SimplePortfolioNode sourceNode, VersionCorrection versionCorrection) {
     PositionSearchRequest positionSearch = new PositionSearchRequest();
     final Map<ObjectId, ManageablePosition> positionCache;
     final int positionCount = populatePositionSearchRequest(positionSearch, manNode);
     if (positionCount > 0) {
       positionCache = Maps.newHashMapWithExpectedSize(positionCount);
-      positionSearch.setVersionCorrection(getVersionCorrection());
+      positionSearch.setVersionCorrection(versionCorrection);
       final PositionSearchResult positions = getPositionMaster().search(positionSearch);
       for (PositionDocument position : positions.getDocuments()) {
         positionCache.put(position.getObjectId(), position.getPosition());
