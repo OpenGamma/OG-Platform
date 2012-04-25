@@ -15,6 +15,7 @@
 #include <fudge/envelope.h>
 #include <fudge/header.h>
 #include <fudge/codec.h>
+#include <fudge/datetime.h>
 
 // Proto-C required definitions for Unicode build
 #include "Unicode.h"
