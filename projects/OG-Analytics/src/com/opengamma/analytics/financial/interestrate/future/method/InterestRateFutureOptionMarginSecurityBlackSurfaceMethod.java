@@ -150,4 +150,42 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     return sensi;
   }
 
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate. 
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return The security price.
+   */
+  public double optionPriceGamma(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    ArgumentChecker.notNull(blackData, "YieldCurveWithBlackCubeBundle was unexpectedly null");
+    // Forward sweep
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double strike = security.getStrike();
+    final double rateStrike = 1.0 - strike;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFuture;
+
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+
+    // TODO This is overkill. We only need one value, but it provides extra calculations while doing testing
+    double[] firstDerivs = new double[3];
+    double[][] secondDerivs = new double[3][3];
+    BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
+    return secondDerivs[0][0];
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate. 
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param curves The curve and Black volatility data.
+   * @return The security price.
+   */
+  public double optionPriceGamma(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
+  }
+
 }

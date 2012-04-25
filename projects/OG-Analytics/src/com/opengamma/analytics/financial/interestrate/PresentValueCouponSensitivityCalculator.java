@@ -71,7 +71,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
 
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return future.getPaymentAccrualFactor() * future.getQuantity() * future.getNotional(); // TODO Confirm adding Notional here, for YCNSens doesn't mess up other stuff
+    return future.getPaymentAccrualFactor() * future.getQuantity() * future.getNotional();
   }
 
   @Override

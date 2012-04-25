@@ -5,7 +5,8 @@
  */
 
 /**
- * Renders a detailed view of a volatility surface
+ * Renders a detailed view of a volatility surface.
+ * brightness and colour vary with value, higher ones being brighter.
  */
 (function($) {
   
@@ -69,7 +70,7 @@
             continue;
           }
           var value = values[i][col];
-          var brightness = (value - minVal) / (maxVal - minVal); // decimal %
+          var brightness = (maxVal - value) / (maxVal - minVal); // decimal %
           var colorValue = Math.round((brightness * 64) + 127 + 64).toString(16);
           row['x' + (col + 1)] = '<div style="padding: 2px; background: #ff' + colorValue + colorValue + ';">' + value.toPrecision(5) + '</div>';
         }

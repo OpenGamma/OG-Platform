@@ -5,13 +5,6 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -28,6 +21,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
@@ -192,7 +192,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
-   * Computes the gamma of the Forex option. The gamma is the second oder derivative of the pv.
+   * Computes the gamma of the Forex option. The gamma is the second order derivative of the pv.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
