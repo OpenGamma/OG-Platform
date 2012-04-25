@@ -65,13 +65,13 @@ public class BeanFunctionProvider extends AbstractFunctionProvider {
   
   private <T extends Bean> Collection<PublishedFunction> createBeanFunctions(Class<T> beanClass) {
     final Collection<PublishedFunction> functions = new ArrayList<PublishedFunction>();
-    final String beanName = beanClass.getSimpleName();
-    functions.add(new CreateBeanFunction(beanName, beanClass));
+    final String simpleBeanName = beanClass.getSimpleName();
+    functions.add(new CreateBeanFunction(simpleBeanName, beanClass));
     final MetaBean metaBean = JodaBeanUtils.metaBean(beanClass);
-    final MetaParameter beanParameter = new MetaParameter(StringUtils.uncapitalize(metaBean.beanName()), JavaTypeInfo.builder(beanClass).get());
-    beanParameter.setDescription(StringUtils.capitalize(metaBean.beanName()) + " to query");
+    final MetaParameter beanParameter = new MetaParameter(StringUtils.uncapitalize(simpleBeanName), JavaTypeInfo.builder(beanClass).get());
+    beanParameter.setDescription("is the " + simpleBeanName + " to query");
     for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
-      final String accessorFunctionName = "Get" + beanName + StringUtils.capitalize(property.name());
+      final String accessorFunctionName = "Get" + simpleBeanName + StringUtils.capitalize(property.name());
       functions.add(new GetBeanPropertyFunction(accessorFunctionName, property, beanParameter));
     }
     s_logger.debug("Created function definitions: " + functions);
