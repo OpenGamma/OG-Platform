@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -30,13 +30,13 @@ public final class BloombergDomainIdentifierResolver {
   private static final Map<ExternalScheme, String> DOMAIN_PREFERENCES = new LinkedHashMap<ExternalScheme, String>();
   
   static {
-    DOMAIN_PREFERENCES.put(SecurityUtils.BLOOMBERG_BUID, "/buid/");
-    DOMAIN_PREFERENCES.put(SecurityUtils.BLOOMBERG_BUID_WEAK, "/buid/");
-    DOMAIN_PREFERENCES.put(SecurityUtils.BLOOMBERG_TICKER, null);
-    DOMAIN_PREFERENCES.put(SecurityUtils.BLOOMBERG_TICKER_WEAK, null);
-    DOMAIN_PREFERENCES.put(SecurityUtils.BLOOMBERG_TCM, null);
-    DOMAIN_PREFERENCES.put(SecurityUtils.ISIN, "/isin/");
-    DOMAIN_PREFERENCES.put(SecurityUtils.CUSIP, "/cusip/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID, "/buid/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_BUID_WEAK, "/buid/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER, null);
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, null);
+    DOMAIN_PREFERENCES.put(ExternalSchemes.BLOOMBERG_TCM, null);
+    DOMAIN_PREFERENCES.put(ExternalSchemes.ISIN, "/isin/");
+    DOMAIN_PREFERENCES.put(ExternalSchemes.CUSIP, "/cusip/");
   };
  
   private BloombergDomainIdentifierResolver() {
@@ -72,7 +72,7 @@ public final class BloombergDomainIdentifierResolver {
       if (prefix != null) {
         buf.append(prefix);
       }
-      if (domain.equals(SecurityUtils.BLOOMBERG_TICKER)) {
+      if (domain.equals(ExternalSchemes.BLOOMBERG_TICKER)) {
         String id  = identifier.getValue().toUpperCase();
         String[] splits = id.split(" ");
         if (id.endsWith("CURNCY")) {

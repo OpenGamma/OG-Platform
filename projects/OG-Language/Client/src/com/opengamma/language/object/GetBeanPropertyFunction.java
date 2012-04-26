@@ -35,6 +35,7 @@ public class GetBeanPropertyFunction implements PublishedFunction {
       }
       
     });
+    _definition.setDescription("Gets the " + property.name() + " field from a " + property.declaringType().getSimpleName());
   }
   
   @Override

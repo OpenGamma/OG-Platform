@@ -30,9 +30,7 @@ import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDi
 import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorIborSABRExtrapolationRightMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
@@ -82,7 +80,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final CapFloorIborSABRExtrapolationRightMethod METHOD = new CapFloorIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator PVSC = PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance();
+  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator PVSC = new PresentValueCurveSensitivitySABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
@@ -195,10 +193,9 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueMethodVsCalculator() {
-    SABRInterestRateExtrapolationParameters sabrExtra = SABRInterestRateExtrapolationParameters.from(SABR_PARAMETERS, CUT_OFF_STRIKE, MU);
-    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(sabrExtra, CURVES);
+    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
     CurrencyAmount pvMethod = METHOD.presentValue(CAP_LONG, SABR_BUNDLE);
-    PresentValueSABRExtrapolationCalculator pvc = PresentValueSABRExtrapolationCalculator.getInstance();
+    PresentValueSABRExtrapolationCalculator pvc = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
     double pvCalculator = pvc.visit(CAP_LONG, sabrExtraBundle);
     assertEquals("Cap/floor: SABR with extrapolation pricing - Method vs Calculator", pvMethod.getAmount(), pvCalculator, 1E-2);
   }
@@ -298,8 +295,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    SABRInterestRateExtrapolationParameters sabrExtra = SABRInterestRateExtrapolationParameters.from(SABR_PARAMETERS, CUT_OFF_STRIKE, MU);
-    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(sabrExtra, CURVES);
+    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
     InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(CAP_HIGH_LONG, SABR_BUNDLE);
     InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(PVSC.visit(CAP_HIGH_LONG, sabrExtraBundle));
     assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator);

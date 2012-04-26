@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -80,9 +80,9 @@ public class BloombergDataUtilsTest {
   @Test
   public void addTwoDigitYearCode() throws Exception {
     Set<ExternalIdWithDates> identifiers = Sets.newHashSet(
-        ExternalIdWithDates.of(SecurityUtils.bloombergTickerSecurityId("EDU0 Comdty"),
+        ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU0 Comdty"),
             LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14)),
-        ExternalIdWithDates.of(SecurityUtils.bloombergBuidSecurityId("IX11084074-0"), null, null));
+        ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX11084074-0"), null, null));
 
     ExternalIdBundleWithDates withTwoDigits = BloombergDataUtils.addTwoDigitYearCode(new ExternalIdBundleWithDates(identifiers));
     assertTrue(withTwoDigits.size() == 3);
@@ -90,30 +90,30 @@ public class BloombergDataUtilsTest {
       assertTrue(withTwoDigits.contains(identifierWithDates));
     }
     assertTrue(withTwoDigits.contains(ExternalIdWithDates.of(
-        SecurityUtils.bloombergTickerSecurityId("EDU20 Comdty"),
+        ExternalSchemes.bloombergTickerSecurityId("EDU20 Comdty"),
         LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14))));
     
     identifiers = Sets.newHashSet(
-        ExternalIdWithDates.of(SecurityUtils.bloombergTickerSecurityId("EDU09 Comdty"),
+        ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU09 Comdty"),
             LocalDate.of(1999, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2009, MonthOfYear.SEPTEMBER, 14)),
-        ExternalIdWithDates.of(SecurityUtils.bloombergBuidSecurityId("IX9471080-0"), null, null));
+        ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX9471080-0"), null, null));
     withTwoDigits = BloombergDataUtils.addTwoDigitYearCode(new ExternalIdBundleWithDates(identifiers));
     assertTrue(withTwoDigits.size() == 3);
     for (ExternalIdWithDates identifierWithDates : identifiers) {
       assertTrue(withTwoDigits.contains(identifierWithDates));
     }
     assertTrue(withTwoDigits.contains(ExternalIdWithDates.of(
-        SecurityUtils.bloombergTickerSecurityId("EDU9 Comdty"),
+        ExternalSchemes.bloombergTickerSecurityId("EDU9 Comdty"),
         LocalDate.of(1999, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2009, MonthOfYear.SEPTEMBER, 14))));
   }
 
   @Test
   public void parseIdentifiers() throws Exception {
     Set<ExternalIdWithDates> identifiers = Sets.newHashSet(
-        ExternalIdWithDates.of(SecurityUtils.bloombergTickerSecurityId("EDU0 Comdty"),
+        ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU0 Comdty"),
             LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14)),
-        ExternalIdWithDates.of(SecurityUtils.bloombergBuidSecurityId("IX11084074-0"), null, null),
-        ExternalIdWithDates.of(SecurityUtils.cusipSecurityId("EDU0"), null, null));
+        ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX11084074-0"), null, null),
+        ExternalIdWithDates.of(ExternalSchemes.cusipSecurityId("EDU0"), null, null));
 
     ExternalIdBundleWithDates expected = new ExternalIdBundleWithDates(identifiers);
     

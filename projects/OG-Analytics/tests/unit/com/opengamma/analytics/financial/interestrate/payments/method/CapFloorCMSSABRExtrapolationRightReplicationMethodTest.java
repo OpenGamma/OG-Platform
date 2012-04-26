@@ -40,7 +40,6 @@ import com.opengamma.analytics.financial.interestrate.payments.Payment;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -115,16 +114,16 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   // Calculators & methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
-  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getInstance();
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CAP = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
   private static final CouponCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CPN = new CouponCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
   private static final CouponCMSGenericMethod METHOD_GENERIC = new CouponCMSGenericMethod(METHOD_EXTRAPOLATION_CAP);
   // Calculators
-  private static final PresentValueSABRExtrapolationCalculator PVC_SABR = PresentValueSABRExtrapolationCalculator.getInstance();
-  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance();
-  private static final PresentValueSABRSensitivitySABRRightExtrapolationCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRRightExtrapolationCalculator.getInstance();
+  private static final PresentValueSABRExtrapolationCalculator PVC_SABR = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
+  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator PVCSC_EXTRA_SABR = new PresentValueCurveSensitivitySABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
+  private static final PresentValueSABRSensitivitySABRRightExtrapolationCalculator PVSSC_SABR = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final double TOLERANCE_DELTA = 1.0E+2; // 0.01 currency unit for 1 bp.
   private static final double TOLERANCE_PRICE = 1.0E-2;
@@ -178,7 +177,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    */
   public void presentValueMethodVsCalculator() {
     double pvMethod = METHOD_EXTRAPOLATION_CAP.presentValue(CMS_CAP_LONG, SABR_BUNDLE).getAmount();
-    double pvCalculator = PVC_SABR.visit(CMS_CAP_LONG, new SABRInterestRateDataBundle(SABRInterestRateExtrapolationParameters.from(SABR_PARAMETER, CUT_OFF_STRIKE, MU), CURVES));
+    double pvCalculator = PVC_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value : method vs calculator", pvMethod, pvCalculator, TOLERANCE_PRICE);
   }
 
@@ -296,8 +295,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     InterestRateCurveSensitivity pvcsMethod = METHOD_EXTRAPOLATION_CAP.presentValueCurveSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
-    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_SABR.visit(CMS_CAP_LONG,
-        new SABRInterestRateDataBundle(SABRInterestRateExtrapolationParameters.from(SABR_PARAMETER, CUT_OFF_STRIKE, MU), CURVES)));
+    InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_EXTRA_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE));
     assertTrue("CMS cap/floor SABR: Present value : method vs calculator", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_DELTA));
   }
 
@@ -389,8 +387,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD_EXTRAPOLATION_CAP.presentValueSABRSensitivity(CMS_CAP_LONG, SABR_BUNDLE);
-    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_CAP_LONG,
-        new SABRInterestRateDataBundle(SABRInterestRateExtrapolationParameters.from(SABR_PARAMETER, CUT_OFF_STRIKE, MU), CURVES));
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_CAP_LONG, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 

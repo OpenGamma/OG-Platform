@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -31,7 +31,7 @@ public class DemoLiveDataAvailabilityProviderFactoryBean extends SingletonFactor
   @Override
   protected MarketDataAvailabilityProvider createObject() {
     Collection<ExternalScheme> acceptableSchemes = new HashSet<ExternalScheme>();
-    Collections.addAll(acceptableSchemes, SecurityUtils.BLOOMBERG_BUID_WEAK, SecurityUtils.BLOOMBERG_BUID, SecurityUtils.BLOOMBERG_TICKER_WEAK, SecurityUtils.BLOOMBERG_TICKER);
+    Collections.addAll(acceptableSchemes, ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_BUID, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TICKER);
     Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
     return new DomainMarketDataAvailabilityProvider(_securitySource, acceptableSchemes, validMarketDataRequirementNames);
   }

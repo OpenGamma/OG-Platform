@@ -37,16 +37,7 @@ import com.opengamma.util.tuple.DoublesPair;
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
  */
-public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloorCMSSABRReplicationMethod {
-
-  /**
-   * The par rate calculator.
-   */
-  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  /**
-   * The par rate sensitivity calculator.
-   */
-  private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
+public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloorCMSSABRReplicationAbstractMethod {
 
   /**
    * The cut-off strike. The smile is extrapolated above that level.
@@ -57,13 +48,34 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
    */
   private final double _mu;
 
+  /**
+   * The par rate calculator.
+   */
+  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  /**
+   * The par rate sensitivity calculator.
+   */
+  private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
+
   /** 
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
    */
   public CapFloorCMSSABRExtrapolationRightReplicationMethod(final double cutOffStrike, final double mu) {
-    super(1.00);
+    super(1.0);
+    _mu = mu;
+    _cutOffStrike = cutOffStrike;
+  }
+
+  /** 
+   * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
+   * @param cutOffStrike The cut-off strike.
+   * @param mu The tail thickness parameter.
+   * @param integrationInterval Integration range.
+   */
+  public CapFloorCMSSABRExtrapolationRightReplicationMethod(final double cutOffStrike, final double mu, final double integrationInterval) {
+    super(integrationInterval);
     _mu = mu;
     _cutOffStrike = cutOffStrike;
   }

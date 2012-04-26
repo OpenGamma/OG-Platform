@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.test.BloombergLiveDataServerUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -53,9 +53,9 @@ public class BloombergIdentifierProviderTest {
   @Test
   public void equityOption() {
     Set<ExternalIdWithDates> ids = new HashSet<ExternalIdWithDates>();
-    ExternalId buid = SecurityUtils.bloombergBuidSecurityId("EO1005552010070180500001");
+    ExternalId buid = ExternalSchemes.bloombergBuidSecurityId("EO1005552010070180500001");
     ids.add(ExternalIdWithDates.of(buid, null, null));
-    ExternalId tickerId = SecurityUtils.bloombergTickerSecurityId("FMCC US 07/17/10 C2.5 Equity");
+    ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId("FMCC US 07/17/10 C2.5 Equity");
     ids.add(ExternalIdWithDates.of(tickerId, null, LocalDate.of(2010, MonthOfYear.JULY, 17)));
     ExternalIdBundleWithDates expected = new ExternalIdBundleWithDates(ids);
     
@@ -67,12 +67,12 @@ public class BloombergIdentifierProviderTest {
   @Test
   public void bondFuture() {
     Set<ExternalIdWithDates> ids = new HashSet<ExternalIdWithDates>();
-    ids.add(ExternalIdWithDates.of(SecurityUtils.bloombergBuidSecurityId("IX1562358-0"), null, null));
-    ids.add(ExternalIdWithDates.of(SecurityUtils.bloombergTickerSecurityId("USH02 Comdty"), LocalDate.of(2000, MonthOfYear.DECEMBER, 20), LocalDate.of(2002, MonthOfYear.MARCH, 19)));
-    ids.add(ExternalIdWithDates.of(SecurityUtils.cusipSecurityId("USH02"), LocalDate.of(2000, MonthOfYear.DECEMBER, 20), LocalDate.of(2002, MonthOfYear.MARCH, 19)));
+    ids.add(ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX1562358-0"), null, null));
+    ids.add(ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("USH02 Comdty"), LocalDate.of(2000, MonthOfYear.DECEMBER, 20), LocalDate.of(2002, MonthOfYear.MARCH, 19)));
+    ids.add(ExternalIdWithDates.of(ExternalSchemes.cusipSecurityId("USH02"), LocalDate.of(2000, MonthOfYear.DECEMBER, 20), LocalDate.of(2002, MonthOfYear.MARCH, 19)));
     ExternalIdBundleWithDates expectedIds = new ExternalIdBundleWithDates(ids);
     
-    Collection<ExternalIdBundleWithDates> bbgIds = _idProvider.getExternalIds(Collections.singleton(SecurityUtils.bloombergTickerSecurityId("USH02 Comdty"))).values();
+    Collection<ExternalIdBundleWithDates> bbgIds = _idProvider.getExternalIds(Collections.singleton(ExternalSchemes.bloombergTickerSecurityId("USH02 Comdty"))).values();
     assertFalse(bbgIds.isEmpty());
     assertEquals(expectedIds, bbgIds.iterator().next());
   }

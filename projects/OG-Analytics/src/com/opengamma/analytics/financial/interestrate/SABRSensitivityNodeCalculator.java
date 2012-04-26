@@ -25,18 +25,21 @@ public class SABRSensitivityNodeCalculator {
    * @return The node sensitivities.
    */
   PresentValueSABRSensitivityDataBundle calculateNodeSensitivities(final PresentValueSABRSensitivityDataBundle sensitivities, final SABRInterestRateParameters parameters) {
+    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> alphaData = (Map<Double, Interpolator1DDataBundle>) parameters.getAlphaSurface().getInterpolatorData();
     SurfaceValue alphaNode = new SurfaceValue();
     for (final Entry<DoublesPair, Double> entry : sensitivities.getAlpha().getMap().entrySet()) {
       final Map<DoublesPair, Double> weight = parameters.getAlphaSurface().getInterpolator().getNodeSensitivitiesForValue(alphaData, entry.getKey());
       alphaNode = SurfaceValue.plus(alphaNode, SurfaceValue.multiplyBy(SurfaceValue.from(weight), entry.getValue()));
     }
+    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> rhoData = (Map<Double, Interpolator1DDataBundle>) parameters.getRhoSurface().getInterpolatorData();
     SurfaceValue rhoNode = new SurfaceValue();
     for (final Entry<DoublesPair, Double> entry : sensitivities.getRho().getMap().entrySet()) {
       final Map<DoublesPair, Double> weight = parameters.getRhoSurface().getInterpolator().getNodeSensitivitiesForValue(rhoData, entry.getKey());
       rhoNode = SurfaceValue.plus(rhoNode, SurfaceValue.multiplyBy(SurfaceValue.from(weight), entry.getValue()));
     }
+    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> nuData = (Map<Double, Interpolator1DDataBundle>) parameters.getNuSurface().getInterpolatorData();
     SurfaceValue nuNode = new SurfaceValue();
     for (final Entry<DoublesPair, Double> entry : sensitivities.getNu().getMap().entrySet()) {

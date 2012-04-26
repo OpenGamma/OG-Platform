@@ -15,7 +15,7 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * This is the form given in Obloj, Fine-Tune Your Smile (2008), and supposedly corresponds to that given in Hagan, Managing Smile Risk (2002). However it differs from Hagan
- * {@link SABRBerestyckiVolatilityFunction}   
+ * {@link SABRBerestyckiVolatilityFunction}
  */
 public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganAlternativeVolatilityFunction.class);
@@ -78,6 +78,27 @@ public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionPr
         return i0 * (1 + i1 * t);
       }
     };
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SABR (Hagan alternative)";
   }
 
 }

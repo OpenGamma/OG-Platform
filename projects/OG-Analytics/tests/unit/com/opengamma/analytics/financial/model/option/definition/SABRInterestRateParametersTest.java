@@ -7,11 +7,10 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
@@ -116,7 +115,7 @@ public class SABRInterestRateParametersTest {
     assertEquals(OBJECT, other);
     assertEquals(OBJECT.hashCode(), other.hashCode());
     other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT);
-    assertFalse(other.equals(OBJECT));
+    assertTrue(other.equals(OBJECT));
     other = new SABRInterestRateParameters(BETA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, FUNCTION);
     assertFalse(other.equals(OBJECT));
     other = new SABRInterestRateParameters(ALPHA_SURFACE, ALPHA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, FUNCTION);

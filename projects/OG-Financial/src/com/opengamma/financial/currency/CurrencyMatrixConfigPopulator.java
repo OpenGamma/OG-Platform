@@ -8,7 +8,7 @@ package com.opengamma.financial.currency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -64,10 +64,10 @@ public class CurrencyMatrixConfigPopulator {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.USD;
     for (final String currency : DOLLARS_PER_UNIT_CURRENCIES) {
-      matrix.setLiveData(commonCross, Currency.of(currency), UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+      matrix.setLiveData(commonCross, Currency.of(currency), UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
     }
     for (final String currency : UNITS_PER_DOLLAR_CURRENCIES) {
-      matrix.setLiveData(Currency.of(currency), commonCross, UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
+      matrix.setLiveData(Currency.of(currency), commonCross, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), currency + " Curncy"));
     }
     for (final String currency : CURRENCIES) {
       final Currency target = Currency.of(currency);
@@ -85,10 +85,10 @@ public class CurrencyMatrixConfigPopulator {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.USD;
     for (final String currency : DOLLARS_PER_UNIT_CURRENCIES) {
-      matrix.setLiveData(commonCross, Currency.of(currency), UniqueId.of(SecurityUtils.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency));
+      matrix.setLiveData(commonCross, Currency.of(currency), UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency));
     }
     for (final String currency : UNITS_PER_DOLLAR_CURRENCIES) {
-      matrix.setLiveData(Currency.of(currency), commonCross, UniqueId.of(SecurityUtils.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency));
+      matrix.setLiveData(Currency.of(currency), commonCross, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency));
     }
     for (final String currency : CURRENCIES) {
       final Currency target = Currency.of(currency);

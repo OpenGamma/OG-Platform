@@ -7,7 +7,7 @@ package com.opengamma.examples.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
@@ -44,7 +44,7 @@ public class ExampleEquityOptionSurfaceConfigPopulator {
       strikes[j++] = (double) i;
     }
     final VolatilitySurfaceDefinition<LocalDate, Double> usVolSurfaceDefinition =
-        new VolatilitySurfaceDefinition<LocalDate, Double>("SECONDARY_EQUITY_OPTION", UniqueId.of(SecurityUtils.OG_SYNTHETIC_TICKER.getName(), "DJX_IDX"), equityOptionExpiries, strikes);
+        new VolatilitySurfaceDefinition<LocalDate, Double>("SECONDARY_EQUITY_OPTION", UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), "DJX_IDX"), equityOptionExpiries, strikes);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }
 
@@ -66,7 +66,7 @@ public class ExampleEquityOptionSurfaceConfigPopulator {
     final SurfaceInstrumentProvider<LocalDate, Double> surfaceInstrumentProvider =
         new ExampleEquityOptionVolatilitySurfaceInstrumentProvider("DJX_IDX", "EQOPTIONVOL", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("SECONDARY_EQUITY_OPTION",
-        UniqueId.of(SecurityUtils.OG_SYNTHETIC_TICKER.getName(), "DJX_IDX"), SurfaceQuoteType.CALL_AND_PUT_STRIKE,
+        UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), "DJX_IDX"), SurfaceQuoteType.CALL_AND_PUT_STRIKE,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }

@@ -34,7 +34,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -209,7 +209,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
           LocalDate validFrom = null;
           if (BloombergDataUtils.isValidField(securityDes)) {
             if (BloombergDataUtils.isValidField(marketSector)) {
-              ExternalId tickerId = SecurityUtils.bloombergTickerSecurityId(securityDes + " " + marketSector);
+              ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(securityDes + " " + marketSector);
               result = ExternalIdWithDates.of(tickerId, validFrom, validTo);
             }
           }
@@ -217,7 +217,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
           final String securityIdentifier = fieldData.getString(FIELD_PARSEKYABLE_DES);
           final Pair<LocalDate, LocalDate> futureValidFromTo = getFutureValidFromTo(fieldData);
           if (BloombergDataUtils.isValidField(securityIdentifier)) {
-            ExternalId tickerId = SecurityUtils.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(securityIdentifier, " "));
+            ExternalId tickerId = ExternalSchemes.bloombergTickerSecurityId(BloombergDataUtils.removeDuplicateWhiteSpace(securityIdentifier, " "));
             result = ExternalIdWithDates.of(tickerId, futureValidFromTo.getFirst(), futureValidFromTo.getSecond());
           }
         }
@@ -238,7 +238,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     if (BloombergDataUtils.isValidField(sedol1) == false) {
       return null;
     }
-    ExternalId sedol1Id = SecurityUtils.sedol1SecurityId(sedol1);
+    ExternalId sedol1Id = ExternalSchemes.sedol1SecurityId(sedol1);
     return ExternalIdWithDates.of(sedol1Id, null, null);
   }
 
@@ -253,7 +253,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     if (BloombergDataUtils.isValidField(isin) == false) {
       return null;
     }
-    ExternalId isinId = SecurityUtils.isinSecurityId(isin);
+    ExternalId isinId = ExternalSchemes.isinSecurityId(isin);
     return ExternalIdWithDates.of(isinId, null, null);
   }
 
@@ -269,7 +269,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
       return null;
     }
     final Pair<LocalDate, LocalDate> validFromTo = getFutureValidFromTo(fieldData);
-    final ExternalId cusipId = SecurityUtils.cusipSecurityId(cusip);
+    final ExternalId cusipId = ExternalSchemes.cusipSecurityId(cusip);
     return ExternalIdWithDates.of(cusipId, validFromTo.getFirst(), validFromTo.getSecond());
   }
 
@@ -284,7 +284,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     if (BloombergDataUtils.isValidField(bbgUnique) == false) {
       return null;
     }
-    ExternalId buid = SecurityUtils.bloombergBuidSecurityId(bbgUnique);
+    ExternalId buid = ExternalSchemes.bloombergBuidSecurityId(bbgUnique);
     return ExternalIdWithDates.of(buid, null, null);
   }
 

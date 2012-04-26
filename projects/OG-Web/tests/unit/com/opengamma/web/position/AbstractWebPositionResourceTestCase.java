@@ -27,8 +27,8 @@ import org.testng.annotations.BeforeMethod;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
@@ -69,7 +69,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected static final ExternalId COUNTER_PARTY = ExternalId.of(Counterparty.DEFAULT_SCHEME, "BACS");
   protected static final ZoneOffset ZONE_OFFSET = ZoneOffset.of("+0100");
   protected static final EquitySecurity EQUITY_SECURITY = WebResourceTestUtils.getEquitySecurity();
-  protected static final ExternalId SEC_ID = EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+  protected static final ExternalId SEC_ID = EQUITY_SECURITY.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
   protected static final ManageableSecurityLink SECURITY_LINK = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle());
   protected static final String EMPTY_TRADES = "{\"trades\" : []}";
   protected static final Long QUANTITY = Long.valueOf(100);

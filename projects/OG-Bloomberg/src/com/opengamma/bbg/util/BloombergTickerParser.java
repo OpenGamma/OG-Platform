@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -39,16 +39,16 @@ public abstract class BloombergTickerParser {
    */
   public BloombergTickerParser(String value) {
     init(value);
-    _identifier = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, value);
+    _identifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, value);
   }
   
   /**
    * Create a parser
    * @param identifier a legal Bloomberg ticker, with {@link com.opengamma.id.ExternalScheme} 
-   * of {@link com.opengamma.core.security.SecurityUtils#BLOOMBERG_TICKER}
+   * of {@link com.opengamma.core.id.ExternalSchemes#BLOOMBERG_TICKER}
    */
   public BloombergTickerParser(ExternalId identifier) {
-    if (identifier.isNotScheme(SecurityUtils.BLOOMBERG_TICKER)) {
+    if (identifier.isNotScheme(ExternalSchemes.BLOOMBERG_TICKER)) {
       throw new OpenGammaRuntimeException("Must be BLOOMBERG_TICKER identifier scheme: " + identifier);
     }
     init(identifier.getValue());

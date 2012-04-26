@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -92,7 +92,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   private ValueRequirement createLiveDataRequirement(final ComputationTarget target) {
     final Pair<String, String> currencies = parse(target);
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
-        UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
+        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
   }
 
   @Override

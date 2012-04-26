@@ -9,8 +9,7 @@ import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -36,158 +35,158 @@ public class EUConventions {
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
 
     //TODO holiday associated with EUR swaps is TARGET
-    final ExternalId eu = RegionUtils.financialRegionId("EU");
+    final ExternalId eu = ExternalSchemes.financialRegionId("EU");
 
     //EURO LIBOR
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR O/N")), "EUR LIBOR O/N", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR O/N")), "EUR LIBOR O/N", act360,
         following, Period.ofDays(1), 0, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU00T/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR T/N")), "EUR LIBOR T/N", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU00T/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR T/N")), "EUR LIBOR T/N", act360,
         following, Period.ofDays(1), 1, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 1w")), "EUR LIBOR 1w", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0001W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 1w")), "EUR LIBOR 1w", act360,
         following, Period.ofDays(7), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 2w")), "EUR LIBOR 2w", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0002W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 2w")), "EUR LIBOR 2w", act360,
         following, Period.ofDays(14), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0001M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 1m")), "EUR LIBOR 1m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0001M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 1m")), "EUR LIBOR 1m", act360,
         modified, Period.ofMonths(1), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0002M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 2m")), "EUR LIBOR 2m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0002M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 2m")), "EUR LIBOR 2m", act360,
         modified, Period.ofMonths(2), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0003M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"),
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0003M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURLIBORP3M")), "EUR LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0004M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 4m")), "EUR LIBOR 4m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0004M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 4m")), "EUR LIBOR 4m", act360,
         modified, Period.ofMonths(4), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0005M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 5m")), "EUR LIBOR 5m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0005M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 5m")), "EUR LIBOR 5m", act360,
         modified, Period.ofMonths(5), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0006M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"),
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0006M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURLIBORP6M")), "EUR LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0007M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 7m")), "EUR LIBOR 7m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0007M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 7m")), "EUR LIBOR 7m", act360,
         modified, Period.ofMonths(7), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0008M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 8m")), "EUR LIBOR 8m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0008M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 8m")), "EUR LIBOR 8m", act360,
         modified, Period.ofMonths(8), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0009M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 9m")), "EUR LIBOR 9m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0009M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 9m")), "EUR LIBOR 9m", act360,
         modified, Period.ofMonths(9), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0010M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 10m")), "EUR LIBOR 10m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0010M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 10m")), "EUR LIBOR 10m", act360,
         modified, Period.ofMonths(10), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0011M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 11m")), "EUR LIBOR 11m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0011M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 11m")), "EUR LIBOR 11m", act360,
         modified, Period.ofMonths(11), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EU0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 12m"),
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EU0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 12m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURLIBORP12M")), "EUR LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, eu);
     // EURIBOR
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR001W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 1w")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR001W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 1w")),
         "EURIBOR 1w", act360, following, Period.ofDays(7), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR002W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 2w")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR002W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 2w")),
         "EURIBOR 2w", act360, following, Period.ofDays(14), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR003W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3w")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR003W Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3w")),
         "EURIBOR 3w", act360, following, Period.ofDays(21), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR001M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 1m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR001M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 1m")),
         "EURIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR002M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 2m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR002M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 2m")),
         "EURIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR003M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR003M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m")),
         "EURIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR004M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 4m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR004M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 4m")),
         "EURIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR005M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 5m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR005M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 5m")),
         "EURIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR006M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR006M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m")),
         "EURIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR007M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 7m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR007M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 7m")),
         "EURIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR008M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 8m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR008M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 8m")),
         "EURIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, eu);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR009M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 9m")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR009M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 9m")),
         "EURIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR010M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 10m")), "EURIBOR 10m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR010M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 10m")), "EURIBOR 10m", act360,
         modified, Period.ofMonths(10), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR011M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 11m")), "EURIBOR 11m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR011M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 11m")), "EURIBOR 11m", act360,
         modified, Period.ofMonths(11), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUR012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 12m")), "EURIBOR 12m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUR012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 12m")), "EURIBOR 12m", act360,
         modified, Period.ofMonths(12), 2, false, eu);
 
     // Deposit
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR1T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1d")), "EUR DEPOSIT 1d", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR1T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1d")), "EUR DEPOSIT 1d", act360,
         following, Period.ofDays(1), 0, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR2T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2d")), "EUR DEPOSIT 2d", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR2T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2d")), "EUR DEPOSIT 2d", act360,
         following, Period.ofDays(1), 1, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR3T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3d")), "EUR DEPOSIT 3d", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR3T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3d")), "EUR DEPOSIT 3d", act360,
         following, Period.ofDays(1), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR1Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1w")), "EUR DEPOSIT 1w", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR1Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1w")), "EUR DEPOSIT 1w", act360,
         following, Period.ofDays(7), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR2Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2w")), "EUR DEPOSIT 2w", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR2Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2w")), "EUR DEPOSIT 2w", act360,
         following, Period.ofDays(14), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR3Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3w")), "EUR DEPOSIT 3w", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR3Z Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3w")), "EUR DEPOSIT 3w", act360,
         following, Period.ofDays(21), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRA Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1m")), "EUR DEPOSIT 1m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRA Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1m")), "EUR DEPOSIT 1m", act360,
         following, Period.ofMonths(1), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRB Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2m")), "EUR DEPOSIT 2m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRB Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2m")), "EUR DEPOSIT 2m", act360,
         following, Period.ofMonths(2), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRC Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3m")), "EUR DEPOSIT 3m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRC Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3m")), "EUR DEPOSIT 3m", act360,
         following, Period.ofMonths(3), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRD Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 4m")), "EUR DEPOSIT 4m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRD Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 4m")), "EUR DEPOSIT 4m", act360,
         following, Period.ofMonths(4), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRE Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 5m")), "EUR DEPOSIT 5m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRE Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 5m")), "EUR DEPOSIT 5m", act360,
         following, Period.ofMonths(5), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRF Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 6m")), "EUR DEPOSIT 6m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRF Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 6m")), "EUR DEPOSIT 6m", act360,
         following, Period.ofMonths(6), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRG Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 7m")), "EUR DEPOSIT 7m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRG Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 7m")), "EUR DEPOSIT 7m", act360,
         following, Period.ofMonths(7), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRH Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 8m")), "EUR DEPOSIT 8m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRH Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 8m")), "EUR DEPOSIT 8m", act360,
         following, Period.ofMonths(8), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRI Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 9m")), "EUR DEPOSIT 9m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRI Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 9m")), "EUR DEPOSIT 9m", act360,
         following, Period.ofMonths(9), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRJ Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 10m")), "EUR DEPOSIT 10m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRJ Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 10m")), "EUR DEPOSIT 10m", act360,
         following, Period.ofMonths(10), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDRK Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 11m")), "EUR DEPOSIT 11m", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDRK Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 11m")), "EUR DEPOSIT 11m", act360,
         following, Period.ofMonths(11), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR1 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1y")), "EUR DEPOSIT 1y", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR1 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 1y")), "EUR DEPOSIT 1y", act360,
         following, Period.ofYears(1), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR2 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2y")), "EUR DEPOSIT 2y", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR2 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 2y")), "EUR DEPOSIT 2y", act360,
         following, Period.ofYears(2), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR3 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3y")), "EUR DEPOSIT 3y", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR3 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 3y")), "EUR DEPOSIT 3y", act360,
         following, Period.ofYears(3), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR4 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 4y")), "EUR DEPOSIT 4y", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR4 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 4y")), "EUR DEPOSIT 4y", act360,
         following, Period.ofYears(4), 2, false, eu);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EUDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 5y")), "EUR DEPOSIT 5y", act360,
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EUDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR DEPOSIT 5y")), "EUR DEPOSIT 5y", act360,
         following, Period.ofYears(5), 2, false, eu);
 
     final DayCount swapFixedDayCount = thirty360;
@@ -214,7 +213,7 @@ public class EUConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_IR_FUTURE")), "EUR_IR_FUTURE", euriborDayCount, modified,
         Period.ofMonths(3), 2, true, null);
     // EONIA
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EONIA Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("EONIA Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA")),
         "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, eu, publicationLagON);
     // OIS - EONIA
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_OIS_SWAP")), "EUR_OIS_SWAP", act360, modified, annual, 2, eu,
@@ -223,31 +222,31 @@ public class EUConventions {
     // TODO: Add all ISDA fixing
     final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     // ISDA fixing Euribor 10.00 Frankfurt
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXA1Y="), 
-        SecurityUtils.bloombergTickerSecurityId("EIISDA01 Index")),
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), ExternalSchemes.ricSecurityId("EURSFIXA1Y="), 
+        ExternalSchemes.bloombergTickerSecurityId("EIISDA01 Index")),
         "EUR_ISDAFIX_EURIBOR10_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2,
         ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true, Period.ofYears(1));
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
       final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXA" + tenorString + "="), 
-          SecurityUtils.bloombergTickerSecurityId("EIISDA" + tenorStringBbg + " Index")),
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), ExternalSchemes.ricSecurityId("EURSFIXA" + tenorString + "="), 
+          ExternalSchemes.bloombergTickerSecurityId("EIISDA" + tenorStringBbg + " Index")),
           "EUR_ISDAFIX_EURIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
           ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true, Period.ofYears(isdaFixTenor[looptenor]));
     }
     // ISDA fixing Euro Libor 10.00 London
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXB1Y="), 
-            SecurityUtils.bloombergTickerSecurityId("ELISDA01 Index")), "EUR_ISDAFIX_EUROLIBOR10_1Y",
+        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_1Y"), ExternalSchemes.ricSecurityId("EURSFIXB1Y="), 
+            ExternalSchemes.bloombergTickerSecurityId("ELISDA01 Index")), "EUR_ISDAFIX_EUROLIBOR10_1Y",
         swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"),
         eu, true);
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
       final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXB" + tenorString + "="), 
-              SecurityUtils.bloombergTickerSecurityId("ELISDA" + tenorStringBbg + " Index")),
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_" + tenorString), ExternalSchemes.ricSecurityId("EURSFIXB" + tenorString + "="), 
+              ExternalSchemes.bloombergTickerSecurityId("ELISDA" + tenorStringBbg + " Index")),
           "EUR_ISDAFIX_EUROLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
           ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }

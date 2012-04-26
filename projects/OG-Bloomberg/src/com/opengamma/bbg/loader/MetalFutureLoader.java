@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -132,7 +132,7 @@ public class MetalFutureLoader extends SecurityLoader {
     }
     ExternalId underlying = null;
     if (underlyingTicker != null) {
-      underlying = SecurityUtils.bloombergTickerSecurityId(underlyingTicker);
+      underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker);
     }
     Expiry expiry = decodeExpiry(expiryDate, futureTradingHours);
     if (expiry == null) {

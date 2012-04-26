@@ -26,4 +26,25 @@ public final class LinearWeightingFunction extends WeightingFunction {
     ArgumentChecker.isInRangeInclusive(0, 1, y);
     return y;
   }
+
+  @Override
+  public String toString() {
+    return "Linear weighting function";
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
 }

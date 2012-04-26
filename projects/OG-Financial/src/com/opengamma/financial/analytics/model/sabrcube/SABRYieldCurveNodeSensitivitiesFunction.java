@@ -91,6 +91,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final PresentValueNodeSensitivityCalculator nodeCalculator = getNodeSensitivityCalculator(desiredValue);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
@@ -116,7 +117,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final ValueProperties properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
-      final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, data, getNodeSensitivityCalculator());
+      final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, data, nodeCalculator);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
     }
     final Object jacobianObject = inputs.getValue(getJacobianRequirement(currency, forwardCurveName, fundingCurveName, calculationMethod));
@@ -132,9 +133,9 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
       final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
-      sensitivities = CALCULATOR.calculateFromPresentValue(derivative, null, data, couponSensitivity, jacobian, getNodeSensitivityCalculator());
+      sensitivities = CALCULATOR.calculateFromPresentValue(derivative, null, data, couponSensitivity, jacobian, nodeCalculator);
     } else {
-      sensitivities = CALCULATOR.calculateFromParRate(derivative, null, data, jacobian, getNodeSensitivityCalculator());
+      sensitivities = CALCULATOR.calculateFromParRate(derivative, null, data, jacobian, nodeCalculator);
     }
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
   }
@@ -240,7 +241,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
 
   protected abstract ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected abstract PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator();
+  protected abstract PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator(final ValueRequirement desiredValue);
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()

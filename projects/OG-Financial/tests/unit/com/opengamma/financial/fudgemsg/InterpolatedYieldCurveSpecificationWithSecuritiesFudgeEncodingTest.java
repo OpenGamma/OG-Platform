@@ -11,8 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
@@ -38,30 +37,30 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
 
   @Test
   public void testCycle() {
-    ExternalId dummyId = SecurityUtils.bloombergTickerSecurityId("USDRC Curncy");
+    ExternalId dummyId = ExternalSchemes.bloombergTickerSecurityId("USDRC Curncy");
     ExternalIdBundle bundle = ExternalIdBundle.of(dummyId);
     ZonedDateTime start = DateUtils.getUTCDate(2011, 9, 30);
     ZonedDateTime maturity = DateUtils.getUTCDate(2011, 10, 1);
     DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-    final CashSecurity cash = new CashSecurity(Currency.USD, RegionUtils.financialRegionId("US"), start, maturity, dayCount, 0.05, 1);
+    final CashSecurity cash = new CashSecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), start, maturity, dayCount, 0.05, 1);
     cash.setUniqueId(UniqueId.of("TEST", "TEST"));
     cash.setName("1m deposit rate");
     cash.setExternalIdBundle(bundle);
     FixedIncomeStripWithSecurity cashStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_MONTH, "DEFAULT"), Tenor.ONE_MONTH, maturity, dummyId, cash);
 
-    dummyId = SecurityUtils.bloombergTickerSecurityId("EDZ2 Comdty");
+    dummyId = ExternalSchemes.bloombergTickerSecurityId("EDZ2 Comdty");
     bundle = ExternalIdBundle.of(dummyId);
     final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId);
     future.setExternalIdBundle(bundle);
     FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
 
-    dummyId = SecurityUtils.bloombergTickerSecurityId("USFR0BE Curncy");
+    dummyId = ExternalSchemes.bloombergTickerSecurityId("USFR0BE Curncy");
     bundle = ExternalIdBundle.of(dummyId);
     ZonedDateTime startDate = DateUtils.getUTCDate(2011, 11, 1);
     ZonedDateTime endDate = DateUtils.getUTCDate(2012, 2, 1);
-    ExternalId underlyingIdentifier = SecurityUtils.bloombergTickerSecurityId("US0003M Index");
+    ExternalId underlyingIdentifier = ExternalSchemes.bloombergTickerSecurityId("US0003M Index");
     ZonedDateTime fixingDate = startDate.minusDays(2);
-    FRASecurity fra = new FRASecurity(Currency.USD, RegionUtils.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier, fixingDate);
+    FRASecurity fra = new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), startDate, endDate, 0.05, 1, underlyingIdentifier, fixingDate);
     fra.setExternalIdBundle(bundle);
     FixedIncomeStripWithSecurity fraStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FRA_3M, Tenor.FIVE_MONTHS, "DEFAULT"), Tenor.FIVE_MONTHS, endDate, dummyId, fra);
     

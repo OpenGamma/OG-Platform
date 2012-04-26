@@ -24,8 +24,7 @@ import org.springframework.util.Assert;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.i18n.Country;
@@ -122,43 +121,43 @@ public class SecondaryCurveDefinitionAndSpecifications {
   public static Map<String, Map<Currency, YieldCurveDefinition>> buildSecondaryCurveDefintions() {
     final Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     final Currency usd = Currency.USD;
-    final ExternalId usdRegion = RegionUtils.countryRegionId(Country.US);
+    final ExternalId usdRegion = ExternalSchemes.countryRegionId(Country.US);
     singleDefinitions.put(usd, buildSecondaryCurve(usd, usdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_3M));
 
     final Currency eur = Currency.EUR;
-    final ExternalId eurRegion = RegionUtils.countryRegionId(Country.EU);
+    final ExternalId eurRegion = ExternalSchemes.countryRegionId(Country.EU);
     singleDefinitions.put(eur, buildSecondaryCurve(eur, eurRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), EURIBOR, SWAP_6M));
 
     final Currency gbp = Currency.GBP;
-    final ExternalId gbpRegion = RegionUtils.countryRegionId(Country.GB);
+    final ExternalId gbpRegion = ExternalSchemes.countryRegionId(Country.GB);
     singleDefinitions.put(gbp, buildSecondaryCurve(gbp, gbpRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency chf = Currency.CHF;
-    final ExternalId chfRegion = RegionUtils.countryRegionId(Country.CH);
+    final ExternalId chfRegion = ExternalSchemes.countryRegionId(Country.CH);
     singleDefinitions.put(chf, buildSecondaryCurve(chf, chfRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency aud = Currency.AUD;
-    final ExternalId audRegion = RegionUtils.countryRegionId(Country.AU);
+    final ExternalId audRegion = ExternalSchemes.countryRegionId(Country.AU);
     singleDefinitions.put(aud, buildSecondaryCurve(aud, audRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency sek = Currency.SEK;
-    final ExternalId sekRegion = RegionUtils.countryRegionId(Country.SE);
+    final ExternalId sekRegion = ExternalSchemes.countryRegionId(Country.SE);
     singleDefinitions.put(sek, buildSecondaryCurve(sek, sekRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), STIBOR, SWAP_6M));
 
     final Currency nzd = Currency.NZD;
-    final ExternalId nzdRegion = RegionUtils.countryRegionId(Country.NZ);
+    final ExternalId nzdRegion = ExternalSchemes.countryRegionId(Country.NZ);
     singleDefinitions.put(nzd, buildSecondaryCurve(nzd, nzdRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 30}), LIBOR, SWAP_6M));
 
     final Currency cad = Currency.CAD;
-    final ExternalId cadRegion = RegionUtils.countryRegionId(Country.CA);
+    final ExternalId cadRegion = ExternalSchemes.countryRegionId(Country.CA);
     singleDefinitions.put(cad, buildSecondaryCurve(cad, cadRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
 
     final Currency dkk = Currency.DKK;
-    final ExternalId dkkRegion = RegionUtils.countryRegionId(Country.DK);
+    final ExternalId dkkRegion = ExternalSchemes.countryRegionId(Country.DK);
     singleDefinitions.put(dkk, buildSecondaryCurve(dkk, dkkRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), CIBOR, SWAP_6M));
 
     final Currency jpy = Currency.JPY;
-    final ExternalId jpyRegion = RegionUtils.countryRegionId(Country.JP);
+    final ExternalId jpyRegion = ExternalSchemes.countryRegionId(Country.JP);
     singleDefinitions.put(jpy, buildSecondaryCurve(jpy, jpyRegion, makeShortEnd(true, false, false), null, 0, makeLongEnd(2, 10, new int[] {12, 15, 20, 25, 30, 40}), LIBOR, SWAP_6M));
     final Map<String, Map<Currency, YieldCurveDefinition>> results = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
     results.put("SECONDARY", singleDefinitions);
@@ -167,7 +166,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
 
   public static Map<Currency, CurveSpecificationBuilderConfiguration> buildSyntheticCurveSpecificationBuilderConfigurations() {
     final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = new HashMap<Currency, CurveSpecificationBuilderConfiguration>();
-    final ExternalScheme scheme = SecurityUtils.OG_SYNTHETIC_TICKER;
+    final ExternalScheme scheme = ExternalSchemes.OG_SYNTHETIC_TICKER;
     configurations.put(Currency.EUR, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.EUR, scheme));
     configurations.put(Currency.DKK, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.DKK, scheme));
     configurations.put(Currency.DEM, buildSyntheticCurveSpecificationBuilderConfiguration(Currency.DEM, scheme));

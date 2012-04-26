@@ -36,7 +36,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -153,9 +153,9 @@ public class IRFutureOptionLoader extends SecurityLoader {
     Currency ogCurrency = Currency.parse(currency);
     
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
-    identifiers.add(SecurityUtils.bloombergBuidSecurityId(bbgUniqueID));
+    identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUniqueID));
     if (BloombergDataUtils.isValidField(secDes)) {
-      identifiers.add(SecurityUtils.bloombergTickerSecurityId(secDes));
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes));
     }
     
     final IRFutureOptionSecurity security = new IRFutureOptionSecurity(

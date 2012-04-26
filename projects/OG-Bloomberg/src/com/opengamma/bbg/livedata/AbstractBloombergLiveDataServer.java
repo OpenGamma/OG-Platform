@@ -21,7 +21,7 @@ import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.normalization.StandardRuleResolver;
 import com.opengamma.livedata.resolver.DefaultDistributionSpecificationResolver;
@@ -60,7 +60,7 @@ public abstract class AbstractBloombergLiveDataServer extends AbstractLiveDataSe
   
   @Override
   protected ExternalScheme getUniqueIdDomain() {
-    return SecurityUtils.BLOOMBERG_BUID;
+    return ExternalSchemes.BLOOMBERG_BUID;
   }
   
   @Override

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
@@ -253,7 +253,7 @@ public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataSer
 
   @Override
   protected ExternalScheme getUniqueIdDomain() {
-    return SecurityUtils.BLOOMBERG_BUID_WEAK;
+    return ExternalSchemes.BLOOMBERG_BUID_WEAK;
   }
 
   @Override

@@ -220,4 +220,24 @@ public final class MixedLogNormalVolatilityFunction extends VolatilityFunctionPr
     return res;
   }
 
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "Mixed log normal";
+  }
 }

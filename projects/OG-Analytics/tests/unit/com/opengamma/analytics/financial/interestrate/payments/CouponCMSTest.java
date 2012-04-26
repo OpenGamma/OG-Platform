@@ -133,7 +133,7 @@ public class CouponCMSTest {
     final double priceCMS = factor * (strikePart + integralPart) * CMS_COUPON_RECEIVER.getNotional() * CMS_COUPON_RECEIVER.getPaymentYearFraction();
     assertEquals(8854.551, priceCMS, 1E-2);
     // Price not verified yet: from previous run.
-    final CouponCMSSABRReplicationMethod replication = new CouponCMSSABRReplicationMethod(integrationInterval);
+    final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getInstance();
     final double priceCMS_method = replication.presentValue(CMS_COUPON_RECEIVER, sabrBundle).getAmount();
     assertEquals(priceCMS, priceCMS_method, 1.5); // Different precision in integration.
     final double priceCMS_calculator = PVC.visit(CMS_COUPON_RECEIVER, sabrBundle);

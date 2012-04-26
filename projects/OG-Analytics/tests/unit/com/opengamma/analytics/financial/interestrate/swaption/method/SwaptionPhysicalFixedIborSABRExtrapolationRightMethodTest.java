@@ -32,8 +32,6 @@ import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -100,7 +98,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
   private static final double MU = 10.0;
   private static final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod METHOD_EXTRAPOLATION = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
   // Calculators
-  private static final PresentValueSABRExtrapolationCalculator PVC = PresentValueSABRExtrapolationCalculator.getInstance();
+  private static final PresentValueSABRExtrapolationCalculator PVC = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
   private static final PresentValueSABRCalculator PVC_NO_EXTRA = PresentValueSABRCalculator.getInstance();
 
   /**

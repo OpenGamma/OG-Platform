@@ -527,10 +527,10 @@
       <link href="http://joda-beans.sourceforge.net/apidocs/" />
     </javadoc>
     <!-- process javadocs to a sqlite file for Dexy --> 
-    <delete file="${projects.dir}/OG-Analytics/docs/shared/docs.sqlite3" />
+    <delete file="docs/shared/docs.sqlite3" />
     <javadoc
         sourcepath="${docs.dir}/temp-src"
-        destdir="${projects.dir}/OG-Analytics/docs/shared/docs.sqlite3"
+        destdir="docs/shared/docs.sqlite3"
         classpathref="lib.path.id"
         failonerror="Yes"
         doclet="it.dexy.doclet.DexyDoclet"
@@ -538,6 +538,34 @@
     >
     </javadoc>
     <delete dir="${docs.dir}/temp-src"/>
+  </target>
+
+  <target
+      name="dexy"
+      depends="javadoc-all,dexy-only,copy-javadocs-to-dexy"
+      description="Runs dexy for OG-Platform docs. Requires dexy and LaTeX."
+   />
+
+  <target name="dexy-only" description="Runs dexy without processing OpenGamma source changes (faster).">
+      <exec executable="dexy" dir="docs">
+          <arg value="setup" />
+      </exec>
+      <property name="oglibpathid" refid="lib.path.id"/>
+      <property name="oglibs" value="${projects.dir}/OG-Analytics/lib/classpath.jar:${projects.dir}/OG-Analytics/build/og-analytics.jar:${projects.dir}/OG-Financial/build/og-financial.jar" />
+      <exec executable="dexy" dir="docs" failonerror="true">
+          <env key="CLASSPATH" value="${oglibpathid}:${oglibs}" />
+      </exec>
+  </target>
+
+  <!-- Idea here is that these get copied into a directory which can then be
+       uploaded to docs-static, along with dexy-generated docs, and also to
+       make it easier to preview all docs using a local web server. -->
+  <target name="copy-javadocs-to-dexy">
+      <property name="javadocs.destdir" value="docs/output/javadocs" />
+      <copy todir="${javadocs.destdir}" preservelastmodified="true">
+          <fileset dir="${docs.dir}/javadoc-all" />
+      </copy>
+      <echo message="Copied javadocs to ${javadocs.destdir}" />
   </target>
 
   <!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
@@ -610,12 +638,22 @@
     <subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
   </target>
 
+  <target name="fetch-noload" if="build.projects.ok">
+    <antcall target="projects.fetch" />
+  </target>
+
+  <target name="fetch-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.fetch" buildpath="${basedir}" antfile="build.xml" />
+  </target>
   <!-- 
       =================================================================== 
         Git sync all projects using pull                
       =================================================================== 
   -->
   <target name="pull" depends="pull-noload,pull-load" description="git sync all projects using pull" />
+
+  <target name="fetch" depends="fetch-noload,fetch-load" description="git sync all projects using fetch" />
 
   <target name="status-noload" if="build.projects.ok">
     <antcall target="projects.status" />

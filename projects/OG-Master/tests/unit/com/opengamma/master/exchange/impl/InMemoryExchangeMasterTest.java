@@ -13,8 +13,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.exchange.ExchangeUtils;
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearchType;
@@ -32,7 +31,7 @@ import com.opengamma.util.i18n.Country;
 public class InMemoryExchangeMasterTest {
 
   private static String NAME = "LIFFE";
-  private static ExternalId ID_LIFFE_MIC = ExternalId.of(ExchangeUtils.ISO_MIC, "XLIF");
+  private static ExternalId ID_LIFFE_MIC = ExternalId.of(ExternalSchemes.ISO_MIC, "XLIF");
   private static ExternalId ID_LIFFE_CCID = ExternalId.of("COPP_CLARK_CENTER_ID", "979");
   private static ExternalId ID_LIFFE_CCNAME = ExternalId.of("COPP_CLARK_NAME", "Euronext LIFFE (UK contracts)");
   private static ExternalId ID_OTHER1 = ExternalId.of("TEST_SCHEME", "EURONEXT LIFFE");
@@ -40,7 +39,7 @@ public class InMemoryExchangeMasterTest {
   private static ExternalIdBundle BUNDLE_FULL = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_LIFFE_CCID);
   private static ExternalIdBundle BUNDLE_PART = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCID);
   private static ExternalIdBundle BUNDLE_OTHER = ExternalIdBundle.of(ID_LIFFE_MIC, ID_LIFFE_CCNAME, ID_OTHER1);
-  private static ExternalIdBundle GB = ExternalIdBundle.of(RegionUtils.countryRegionId(Country.GB));
+  private static ExternalIdBundle GB = ExternalIdBundle.of(ExternalSchemes.countryRegionId(Country.GB));
 
   private InMemoryExchangeMaster master;
   private ExchangeDocument addedDoc;

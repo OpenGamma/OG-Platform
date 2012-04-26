@@ -31,15 +31,13 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
       Object[] xs = value.getXs();
       String[] xsStrings = new String[xs.length];
       for (int i = 0; i < xs.length; i++) {
-        xsStrings[i] = xs[i].toString();
-        //xsStrings[i] = xs[i].getPeriod().toString().replaceFirst("P", "");
+        xsStrings[i] = LabelFormatter.format(xs[i]);
       }
       result.put("xs", xsStrings);
       Object[] ys = value.getYs();
       String[] ysStrings = new String[ys.length];
       for (int i = 0; i < ys.length; i++) {
-        ysStrings[i] = ys[i].toString();
-        //ysStrings[i] = ys[i].getPeriod().toString().replaceFirst("P", "");
+        ysStrings[i] = LabelFormatter.format(ys[i]);
       }
       result.put("ys", ysStrings);
       

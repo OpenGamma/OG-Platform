@@ -138,7 +138,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     res[4] = s / 2 / sigma; //bBar
     res[5] = b * d / 2 / sigma; //rhoBar
     res[6] = nu * b / r / 2 / sigma; //nuBar
-    res[7] = -kappaBar; //mBar 
+    res[7] = -kappaBar; //mBar
 
     return res;
   }
@@ -163,8 +163,29 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     res[1] = s / 2 / sigma; //bBar
     res[2] = b * d / 2 / sigma; //rhoBar
     res[3] = nu * b / r / 2 / sigma; //nuBar
-    res[4] = -kappaBar; //mBar 
+    res[4] = -kappaBar; //mBar
 
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    return toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SVI";
   }
 }

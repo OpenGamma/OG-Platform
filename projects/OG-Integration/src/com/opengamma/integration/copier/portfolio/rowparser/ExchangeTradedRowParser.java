@@ -17,7 +17,7 @@ import javax.time.calendar.ZoneOffset;
 
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -48,11 +48,11 @@ public class ExchangeTradedRowParser extends RowParser {
   }
 
   private static final ExternalScheme[] s_schemeWaterfall = {
-    SecurityUtils.BLOOMBERG_TICKER,
-    SecurityUtils.BLOOMBERG_TCM,
-    SecurityUtils.BLOOMBERG_BUID,
-    SecurityUtils.CUSIP,
-    SecurityUtils.ISIN
+    ExternalSchemes.BLOOMBERG_TICKER,
+    ExternalSchemes.BLOOMBERG_TCM,
+    ExternalSchemes.BLOOMBERG_BUID,
+    ExternalSchemes.CUSIP,
+    ExternalSchemes.ISIN
   };
   
   
@@ -142,7 +142,7 @@ public class ExchangeTradedRowParser extends RowParser {
     if (securities.length < 1) {
       return null;
     }
-    String ticker = securities[0].getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER);
+    String ticker = securities[0].getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {
       return Collections.singletonMap(TICKER, ticker);
     }

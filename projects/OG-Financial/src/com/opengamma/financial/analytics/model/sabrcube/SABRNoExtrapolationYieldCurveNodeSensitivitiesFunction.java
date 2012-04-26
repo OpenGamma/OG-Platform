@@ -114,7 +114,7 @@ public class SABRNoExtrapolationYieldCurveNodeSensitivitiesFunction extends SABR
   }
 
   @Override
-  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator() {
+  protected PresentValueNodeSensitivityCalculator getNodeSensitivityCalculator(final ValueRequirement desiredValue) {
     return NSC;
   }
 

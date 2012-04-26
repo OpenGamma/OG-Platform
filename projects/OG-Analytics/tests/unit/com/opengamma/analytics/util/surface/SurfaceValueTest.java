@@ -10,7 +10,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
 public class SurfaceValueTest {

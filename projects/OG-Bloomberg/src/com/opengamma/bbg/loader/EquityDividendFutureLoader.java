@@ -33,7 +33,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -143,9 +143,9 @@ public class EquityDividendFutureLoader extends SecurityLoader {
     ExternalId underlying = null;
     if (underlyingTicker != null) {
       if (BloombergDataUtils.isValidBloombergTicker(underlyingTicker)) {
-        underlying = SecurityUtils.bloombergTickerSecurityId(underlyingTicker);
+        underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker);
       } else {
-        underlying = SecurityUtils.bloombergTickerSecurityId(underlyingTicker + " " + marketSectorDes);
+        underlying = ExternalSchemes.bloombergTickerSecurityId(underlyingTicker + " " + marketSectorDes);
       }
     }
     Expiry expiry = decodeExpiry(expiryDate, futureTradingHours);

@@ -33,9 +33,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.bbg.server.SecurityMasterRequestReceiver;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -196,7 +196,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     Security sec = _remoteSecSource.getSecurity(equityKey);
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(true);
     assertEquitySecurity(expectedEquity, sec);
@@ -205,7 +205,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquityByBbgUnique() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010169500001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
     Security sec = _remoteSecSource.getSecurity(equityKey);
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(false);
     assertEquitySecurity(expectedEquity, sec);
@@ -214,7 +214,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquitiesByBbgTicker() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(true);
     Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
     assertNotNull(securities);
@@ -226,7 +226,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplEquitiesByBbgUnique() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010169500001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
     EquitySecurity expectedEquity = makeAAPLEquitySecurity(false);
     Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
     assertNotNull(securities);
@@ -238,7 +238,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquityByBbgTicker() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeATTEquitySecurity(true);
     Security sec = _remoteSecSource.getSecurity(equityKey);
     assertEquitySecurity(expectedEquity, sec);
@@ -247,7 +247,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquitiesByBbgTicker() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
     EquitySecurity expectedEquity = makeATTEquitySecurity(true);
     Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
     assertNotNull(securities);
@@ -259,7 +259,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquityByBbgUnique() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010137600001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010137600001000"));
     EquitySecurity expectedEquity = makeATTEquitySecurity(false);
     Security sec = _remoteSecSource.getSecurity(equityKey);
     assertEquitySecurity(expectedEquity, sec);
@@ -268,7 +268,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void attEquitiesByBbgUnique() throws Exception {
     ExternalIdBundle equityKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010137600001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010137600001000"));
     EquitySecurity expectedEquity = makeATTEquitySecurity(false);
     Collection<Security> securities = _remoteSecSource.getSecurities(equityKey);
     assertNotNull(securities);
@@ -280,7 +280,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionByBbgTicker() throws Exception {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(true);
     Security sec = _remoteSecSource.getSecurity(equityOptionKey);
     assertAmericanVanillaEquityOptionSecurity(expectedOption, sec);
@@ -289,7 +289,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionsByBbgTicker() throws Exception {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(true);
     Collection<Security> securities = _remoteSecSource
         .getSecurities(equityOptionKey);
@@ -302,7 +302,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionsByBbgUnique() throws Exception {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EO1016952010010397C00001"));
+        ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(false);
     Collection<Security> securities = _remoteSecSource
         .getSecurities(equityOptionKey);
@@ -315,7 +315,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionByBbgUnique() throws Exception {
     ExternalIdBundle equityOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("EO1016952010010397C00001"));
+        ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     EquityOptionSecurity expectedOption = makeAPVLEquityOptionSecurity(false);
     Security sec = _remoteSecSource.getSecurity(equityOptionKey);
     assertAmericanVanillaEquityOptionSecurity(expectedOption, sec);
@@ -324,7 +324,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionByBbgTicker() throws Exception {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
     Security sec = _remoteSecSource.getSecurity(indexOptionKey);
     BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
@@ -333,7 +333,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionsByBbgTicker() throws Exception {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(true);
     Collection<Security> securities = _remoteSecSource
         .getSecurities(indexOptionKey);
@@ -346,7 +346,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionByBbgUnique() throws Exception {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("IX3961626-0-9B80"));
+        ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(false);
     Security sec = _remoteSecSource.getSecurity(indexOptionKey);
     BloombergSecuritySourceTestCase.assertEuropeanVanillaEquityIndexOptionSecurity(expectedOption, sec);
@@ -355,7 +355,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void spxIndexOptionsByBbgUnique() throws Exception {
     ExternalIdBundle indexOptionKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergBuidSecurityId("IX3961626-0-9B80"));
+        ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     EquityIndexOptionSecurity expectedOption = makeSPXIndexOptionSecurity(false);
     Collection<Security> securities = _remoteSecSource
         .getSecurities(indexOptionKey);
@@ -368,7 +368,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurity() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId("INVALID"));
+        ExternalSchemes.bloombergTickerSecurityId("INVALID"));
     Security sec = _remoteSecSource.getSecurity(invalidKey);
     assertNull(sec);
   }
@@ -376,7 +376,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurities() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId("INVALID"));
+        ExternalSchemes.bloombergTickerSecurityId("INVALID"));
     Collection<Security> securities = _remoteSecSource
         .getSecurities(invalidKey);
     assertNotNull(securities);
@@ -387,13 +387,13 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   public void multiThreadedSecurityRequest() throws Exception {
 
     ExternalIdBundle apvKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     ExternalIdBundle spxKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     ExternalIdBundle aaplKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     ExternalIdBundle attKey = ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
+        ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
 
     ExecutorService pool = Executors.newFixedThreadPool(4);
     List<Future<Security>> apvresults = new ArrayList<Future<Security>>();
@@ -444,7 +444,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
   @Test(enabled = false, description = "Because this contacts Bloomberg, we don't want to run all the time")
   public void aaplOptionChain() throws Exception {
     Set<String> optionChain = _remoteSecSource
-        .getOptionChain(SecurityUtils.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
+        .getOptionChain(ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     assertNotNull(optionChain);
     assertFalse(optionChain.isEmpty());
   }
@@ -456,15 +456,15 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     OptionType optionType = OptionType.CALL;
     double strike = 1100.0;
     Expiry expiry = new Expiry(DateUtils.getUTCDate(2009, 12, 19));
-    ExternalId underlyingUniqueID = SecurityUtils.bloombergBuidSecurityId("EI09SPX");
+    ExternalId underlyingUniqueID = ExternalSchemes.bloombergBuidSecurityId("EI09SPX");
     Currency currency = Currency.USD;
     
     final EquityIndexOptionSecurity security = new EquityIndexOptionSecurity(optionType, strike, currency, underlyingUniqueID, new EuropeanExerciseType(), expiry, 1, "UKX");
     
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
-    identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX3961626-0-9B80"));
+    identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX3961626-0-9B80"));
     if (haveBbgTicker) {
-      identifiers.add(SecurityUtils.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     }
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecuritySource.createUniqueId("IX3961626-0-9B80"));
@@ -479,7 +479,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     OptionType optionType = OptionType.CALL;
     double strike = 190.0;
     Expiry expiry = new Expiry(DateUtils.getUTCDate(2010, 01, 16));
-    ExternalId underlyingUniqueID = SecurityUtils.bloombergBuidSecurityId("EQ0010169500001000");
+    ExternalId underlyingUniqueID = ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000");
     
     Currency currency = Currency.USD;
     final EquityOptionSecurity security = new EquityOptionSecurity(optionType, strike, currency, underlyingUniqueID, 
@@ -487,9 +487,9 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
 
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     if (haveBbgTicker) {
-      identifiers.add(SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     }
-    identifiers.add(SecurityUtils.bloombergBuidSecurityId("EO1016952010010397C00001"));
+    identifiers.add(ExternalSchemes.bloombergBuidSecurityId("EO1016952010010397C00001"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecuritySource.createUniqueId("EO1016952010010397C00001"));
 
@@ -503,16 +503,16 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     EquitySecurity equitySecurity = new EquitySecurity("US", "US", "APPLE INC", Currency.USD);
     if (haveBbgTicker) {
       equitySecurity.addExternalId(
-          SecurityUtils.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
+          ExternalSchemes.bloombergTickerSecurityId(AAPL_EQUITY_TICKER));
     }
     equitySecurity.addExternalId(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010169500001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010169500001000"));
     equitySecurity.addExternalId(
-        SecurityUtils.cusipSecurityId("037833100"));
+        ExternalSchemes.cusipSecurityId("037833100"));
     equitySecurity.addExternalId(
-        SecurityUtils.isinSecurityId("US0378331005"));
+        ExternalSchemes.isinSecurityId("US0378331005"));
     equitySecurity.addExternalId(
-        SecurityUtils.sedol1SecurityId("2046251"));
+        ExternalSchemes.sedol1SecurityId("2046251"));
 
     equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0010169500001000"));
     equitySecurity.setShortName("AAPL");
@@ -528,16 +528,16 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     
     if (haveBbgTicker) {
       equitySecurity.addExternalId(
-          SecurityUtils.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
+          ExternalSchemes.bloombergTickerSecurityId(ATT_EQUITY_TICKER));
     }
     equitySecurity.addExternalId(
-        SecurityUtils.bloombergBuidSecurityId("EQ0010137600001000"));
+        ExternalSchemes.bloombergBuidSecurityId("EQ0010137600001000"));
     equitySecurity.addExternalId(
-        SecurityUtils.cusipSecurityId("00206R102"));
+        ExternalSchemes.cusipSecurityId("00206R102"));
     equitySecurity.addExternalId(
-        SecurityUtils.isinSecurityId("US00206R1023"));
+        ExternalSchemes.isinSecurityId("US00206R1023"));
     equitySecurity.addExternalId(
-        SecurityUtils.sedol1SecurityId("2831811"));
+        ExternalSchemes.sedol1SecurityId("2831811"));
     
     equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0010137600001000"));
     equitySecurity.setShortName("T");

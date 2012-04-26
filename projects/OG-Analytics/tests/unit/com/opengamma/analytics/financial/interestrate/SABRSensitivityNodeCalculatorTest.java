@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.SABRSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.util.surface.SurfaceValue;
@@ -52,6 +50,7 @@ public class SABRSensitivityNodeCalculatorTest {
       assertTrue("SABR Node calculator " + loopnode, node.getAlpha().getMap().get(nodeExpected[loopnode]) != null);
       assertTrue("SABR Node calculator", Math.abs(node.getAlpha().getMap().get(nodeExpected[loopnode])) > TOLERANCE);
     }
+    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> alphaData = (Map<Double, Interpolator1DDataBundle>) SABR_PARAMETERS.getAlphaSurface().getInterpolatorData();
     final Map<DoublesPair, Double> weight = SABR_PARAMETERS.getAlphaSurface().getInterpolator().getNodeSensitivitiesForValue(alphaData, point);
     for (int loopnode = 0; loopnode < 4; loopnode++) {
@@ -83,6 +82,7 @@ public class SABRSensitivityNodeCalculatorTest {
       assertTrue("SABR Node calculator " + loopnode, node.getAlpha().getMap().get(nodeExpected[loopnode]) != null);
       assertTrue("SABR Node calculator", Math.abs(node.getAlpha().getMap().get(nodeExpected[loopnode])) > TOLERANCE);
     }
+    @SuppressWarnings("unchecked")
     final Map<Double, Interpolator1DDataBundle> alphaData = (Map<Double, Interpolator1DDataBundle>) SABR_PARAMETERS.getAlphaSurface().getInterpolatorData();
     final Map<DoublesPair, Double> weight = SABR_PARAMETERS.getAlphaSurface().getInterpolator().getNodeSensitivitiesForValue(alphaData, point);
     for (int loopnode = 0; loopnode < 3; loopnode++) {

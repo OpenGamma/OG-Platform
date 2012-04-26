@@ -16,7 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -27,7 +27,7 @@ import com.opengamma.id.ExternalScheme;
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Number, Double> {
   private static final BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
-  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
 
   static {

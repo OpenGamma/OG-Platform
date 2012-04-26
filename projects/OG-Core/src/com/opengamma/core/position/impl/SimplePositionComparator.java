@@ -7,8 +7,8 @@ package com.opengamma.core.position.impl;
 
 import java.util.Comparator;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -34,8 +34,8 @@ public class SimplePositionComparator implements Comparator<Position> {
   }
   
   public ExternalId getBestIdentifier(ExternalIdBundle idBundle) {
-    ExternalScheme[] schemes = {SecurityUtils.BLOOMBERG_TICKER, SecurityUtils.BLOOMBERG_TICKER_WEAK, SecurityUtils.BLOOMBERG_TCM, 
-                                SecurityUtils.ACTIVFEED_TICKER, SecurityUtils.RIC, SecurityUtils.ISIN, SecurityUtils.CUSIP };
+    ExternalScheme[] schemes = {ExternalSchemes.BLOOMBERG_TICKER, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TCM, 
+                                ExternalSchemes.ACTIVFEED_TICKER, ExternalSchemes.RIC, ExternalSchemes.ISIN, ExternalSchemes.CUSIP };
     for (ExternalScheme scheme : schemes) {
       ExternalId externalId = idBundle.getExternalId(scheme);
       if (externalId != null) {

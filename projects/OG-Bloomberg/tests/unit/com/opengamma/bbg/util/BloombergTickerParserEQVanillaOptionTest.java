@@ -14,7 +14,7 @@ import javax.time.calendar.MonthOfYear;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 
@@ -24,7 +24,7 @@ public class BloombergTickerParserEQVanillaOptionTest {
   @Test
   public void testWithTickerIdentifier() {
     BloombergTickerParserEQVanillaOption parser = 
-      new BloombergTickerParserEQVanillaOption (ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "MSFT US 01/21/12 C17.5 Equity"));;
+      new BloombergTickerParserEQVanillaOption (ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "MSFT US 01/21/12 C17.5 Equity"));;
     testImpl (parser, "MSFT", MonthOfYear.JANUARY, 21, 2012, OptionType.CALL, 17.5);
   }
   
@@ -60,13 +60,13 @@ public class BloombergTickerParserEQVanillaOptionTest {
   @Test (expectedExceptions = OpenGammaRuntimeException.class)
   public void testIllegalIdentifierScheme () {
     BloombergTickerParserEQVanillaOption parser = 
-      new BloombergTickerParserEQVanillaOption(ExternalId.of(SecurityUtils.CUSIP, "12345678"));
+      new BloombergTickerParserEQVanillaOption(ExternalId.of(ExternalSchemes.CUSIP, "12345678"));
   }
   
   @Test (expectedExceptions = OpenGammaRuntimeException.class)
   public void testIllegalPattern1 () {
     BloombergTickerParserEQVanillaOption parser = 
-      new BloombergTickerParserEQVanillaOption(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "adddsfsdfsdf"));
+      new BloombergTickerParserEQVanillaOption(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "adddsfsdfsdf"));
   }
   
   @Test (expectedExceptions = OpenGammaRuntimeException.class)

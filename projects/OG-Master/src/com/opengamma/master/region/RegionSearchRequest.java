@@ -23,8 +23,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionClassification;
-import com.opengamma.core.region.RegionUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -197,7 +197,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    */
   public void addCountry(Country country) {
     ArgumentChecker.notNull(country, "country");
-    addExternalId(RegionUtils.countryRegionId(country));
+    addExternalId(ExternalSchemes.countryRegionId(country));
   }
 
   /**
@@ -207,7 +207,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    */
   public void addCurrency(Currency currency) {
     ArgumentChecker.notNull(currency, "currency");
-    addExternalId(RegionUtils.currencyRegionId(currency));
+    addExternalId(ExternalSchemes.currencyRegionId(currency));
   }
 
   /**
@@ -217,7 +217,7 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
    */
   public void addTimeZone(TimeZone timeZone) {
     ArgumentChecker.notNull(timeZone, "timeZone");
-    addExternalId(RegionUtils.timeZoneRegionId(timeZone));
+    addExternalId(ExternalSchemes.timeZoneRegionId(timeZone));
   }
 
   //-------------------------------------------------------------------------

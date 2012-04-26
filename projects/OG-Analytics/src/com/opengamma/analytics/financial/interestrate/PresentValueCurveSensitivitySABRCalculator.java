@@ -95,7 +95,7 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getDefaultInstance();
+      final CouponCMSSABRReplicationMethod replication = CouponCMSSABRReplicationMethod.getInstance();
       return replication.presentValueCurveSensitivity(payment, sabrBundle).getSensitivities();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
@@ -121,7 +121,8 @@ public final class PresentValueCurveSensitivitySABRCalculator extends PresentVal
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
         final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabrBundle.getSABRParameter();
-        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation());
+        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation(), CapFloorCMSSABRReplicationMethod.getDefaultInstance(),
+            CouponCMSSABRReplicationMethod.getInstance());
         return method.presentValueCurveSensitivity(payment, sabrBundle).getSensitivities();
       }
     }

@@ -1,0 +1,4 @@
+{
+    "check-install.js|fn|casperjs" : {},
+    "run-r.sh|shint" : { "shint" : { "timeout" : 60 }}
+}

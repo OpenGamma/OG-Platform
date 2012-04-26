@@ -31,6 +31,10 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFunction {
+  /** Property name for the cutoff strike after which extrapolation is used */
+  public static final String PROPERTY_CUTOFF_STRIKE = "SABRExtrapolationCutoffStrike";
+  /** Property name for the tail thickness parameter */
+  public static final String PROPERTY_TAIL_THICKNESS_PARAMETER = "SABRTailThicknessParameter";
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -59,8 +63,7 @@ public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFuncti
   }
 
   @Override
-  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final ValueRequirement desiredValue) {
+  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency, final ValueRequirement desiredValue) {
     final YieldCurveBundle yieldCurves = getYieldCurves(inputs, currency, desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     final String fittingMethod = desiredValue.getConstraint(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
@@ -85,16 +88,10 @@ public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFuncti
 
   @Override
   protected ValueProperties getResultProperties(final ValueProperties properties, final String currency) {
-    return properties.copy()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(ValuePropertyNames.CUBE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .withAny(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD)
+    return properties.copy().with(ValuePropertyNames.CURRENCY, currency).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CUBE).withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).withAny(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .withAny(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION).withAny(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE)
         .withAny(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER).get();
   }
 
@@ -107,16 +104,11 @@ public abstract class SABRCMSSpreadRightExtrapolationFunction extends SABRFuncti
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String cutoff = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
     final String mu = desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
-    return properties.copy()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+    return properties.copy().with(ValuePropertyNames.CURRENCY, currency).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).with(ValuePropertyNames.CUBE, cubeName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION)
-        .with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABR_RIGHT_EXTRAPOLATION).with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
         .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu).get();
   }
 

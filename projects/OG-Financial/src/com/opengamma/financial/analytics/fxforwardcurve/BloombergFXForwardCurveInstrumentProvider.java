@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +18,7 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
-  private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private final String _prefix;
   private final String _postfix;
   private final String _dataFieldName;

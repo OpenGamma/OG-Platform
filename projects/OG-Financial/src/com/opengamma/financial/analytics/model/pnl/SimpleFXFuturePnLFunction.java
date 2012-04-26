@@ -25,9 +25,9 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFact
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -182,9 +182,9 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     final Currency payCurrency = future.getNumerator();
     final Currency receiveCurrency = future.getDenominator();
     if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) {
-      bloombergId = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
+      bloombergId = ExternalSchemes.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
-      bloombergId = SecurityUtils.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");
+      bloombergId = ExternalSchemes.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");
     }
     return ExternalIdBundle.of(bloombergId);
   }

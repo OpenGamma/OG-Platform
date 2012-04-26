@@ -42,7 +42,7 @@ import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -237,9 +237,9 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     List<ExternalId> identifiers = new ArrayList<ExternalId>();
     for (String line : readLines) {
       if (_loader.isBbgUniqueId()) {
-        identifiers.add(SecurityUtils.bloombergBuidSecurityId(line.trim()));
+        identifiers.add(ExternalSchemes.bloombergBuidSecurityId(line.trim()));
       } else {
-        identifiers.add(SecurityUtils.bloombergTickerSecurityId(line.trim()));
+        identifiers.add(ExternalSchemes.bloombergTickerSecurityId(line.trim()));
       }
     }
 
@@ -450,8 +450,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> result = Lists.newArrayList();
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       Set<ExternalIdWithDates> identifierWithDatesSet = Sets.newHashSet(
-          ExternalIdWithDates.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), null, null),
-          ExternalIdWithDates.of(SecurityUtils.bloombergBuidSecurityId("buid" + i), null, null)
+          ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("ticker" + i), null, null),
+          ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("buid" + i), null, null)
         );
       ExternalIdBundleWithDates identifiersWithDates = new ExternalIdBundleWithDates(identifierWithDatesSet);
       LocalDate previousWeekDay = DateUtils.previousWeekDay();

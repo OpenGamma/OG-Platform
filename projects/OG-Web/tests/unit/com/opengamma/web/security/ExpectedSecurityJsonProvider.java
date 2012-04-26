@@ -12,7 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -137,7 +137,7 @@ import com.opengamma.util.time.Expiry;
         if (!basket.isEmpty()) {
           Map<String, String> underlyingBond = Maps.newHashMap();
           for (BondFutureDeliverable bondFutureDeliverable : basket) {
-            underlyingBond.put(SecurityUtils.BLOOMBERG_BUID.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(SecurityUtils.BLOOMBERG_BUID), 
+            underlyingBond.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID), 
                 String.valueOf(bondFutureDeliverable.getConversionFactor()));
           }
           templateData.put("underlyingBond", underlyingBond);
@@ -294,20 +294,20 @@ import com.opengamma.util.time.Expiry;
   private void addExternalIds(FinancialSecurity security, Map<String, Object> secMap) {
     Map<String, String> identifiers = Maps.newHashMap();
     ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
-    if (externalIdBundle.getExternalId(SecurityUtils.BLOOMBERG_BUID) != null) {
-      identifiers.put(SecurityUtils.BLOOMBERG_BUID.getName(),  SecurityUtils.BLOOMBERG_BUID.getName() + "-" + externalIdBundle.getValue(SecurityUtils.BLOOMBERG_BUID));
+    if (externalIdBundle.getExternalId(ExternalSchemes.BLOOMBERG_BUID) != null) {
+      identifiers.put(ExternalSchemes.BLOOMBERG_BUID.getName(),  ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + externalIdBundle.getValue(ExternalSchemes.BLOOMBERG_BUID));
     }
-    if (externalIdBundle.getExternalId(SecurityUtils.BLOOMBERG_TICKER) != null) {
-      identifiers.put(SecurityUtils.BLOOMBERG_TICKER.getName(), SecurityUtils.BLOOMBERG_TICKER.getName() + "-" + externalIdBundle.getValue(SecurityUtils.BLOOMBERG_TICKER));
+    if (externalIdBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER) != null) {
+      identifiers.put(ExternalSchemes.BLOOMBERG_TICKER.getName(), ExternalSchemes.BLOOMBERG_TICKER.getName() + "-" + externalIdBundle.getValue(ExternalSchemes.BLOOMBERG_TICKER));
     }
-    if (externalIdBundle.getExternalId(SecurityUtils.CUSIP) != null) {
-      identifiers.put(SecurityUtils.CUSIP.getName(), SecurityUtils.CUSIP.getName() + "-" + externalIdBundle.getValue(SecurityUtils.CUSIP));
+    if (externalIdBundle.getExternalId(ExternalSchemes.CUSIP) != null) {
+      identifiers.put(ExternalSchemes.CUSIP.getName(), ExternalSchemes.CUSIP.getName() + "-" + externalIdBundle.getValue(ExternalSchemes.CUSIP));
     }
-    if (externalIdBundle.getExternalId(SecurityUtils.ISIN) != null) {
-      identifiers.put(SecurityUtils.ISIN.getName(), SecurityUtils.ISIN.getName() + "-" + externalIdBundle.getValue(SecurityUtils.ISIN));
+    if (externalIdBundle.getExternalId(ExternalSchemes.ISIN) != null) {
+      identifiers.put(ExternalSchemes.ISIN.getName(), ExternalSchemes.ISIN.getName() + "-" + externalIdBundle.getValue(ExternalSchemes.ISIN));
     }
-    if (externalIdBundle.getExternalId(SecurityUtils.SEDOL1) != null) {
-      identifiers.put(SecurityUtils.SEDOL1.getName(), SecurityUtils.SEDOL1.getName() + "-" + externalIdBundle.getValue(SecurityUtils.SEDOL1));
+    if (externalIdBundle.getExternalId(ExternalSchemes.SEDOL1) != null) {
+      identifiers.put(ExternalSchemes.SEDOL1.getName(), ExternalSchemes.SEDOL1.getName() + "-" + externalIdBundle.getValue(ExternalSchemes.SEDOL1));
     }
     secMap.put("identifiers", identifiers);
   }

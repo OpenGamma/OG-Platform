@@ -58,8 +58,10 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
     Validate.notNull(data, "Price index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 0, "at least one curve required");
+    @SuppressWarnings("unchecked")
     final BondCapitalIndexedSecurity<Coupon> bondPurchase = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, getSettlementDate(), data);
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
+    @SuppressWarnings("unchecked")
     final BondCapitalIndexedSecurity<Coupon> bondStandard = ((BondCapitalIndexedSecurityDefinition<CouponInflationDefinition>) getUnderlyingBond()).toDerivative(date, spot, data);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.

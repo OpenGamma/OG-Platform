@@ -11,17 +11,19 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSABRExtrapolationRightReplicationMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorIborSABRExtrapolationRightMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod;
+import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -30,22 +32,30 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**
-   * The instance of the calculator.
+   * The cut-off strike. The smile is extrapolated above that level.
    */
-  private static final PresentValueCurveSensitivitySABRExtrapolationCalculator INSTANCE = new PresentValueCurveSensitivitySABRExtrapolationCalculator();
+  private final double _cutOffStrike;
+  /**
+   * The tail thickness parameter.
+   */
+  private final double _mu;
 
   /**
-   * Return the instance of the calculator.
-   * @return The calculator.
+   * The methods.
    */
-  public static PresentValueCurveSensitivitySABRExtrapolationCalculator getInstance() {
-    return INSTANCE;
-  }
+  private final CouponCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCpn;
+  private final CapFloorCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCap;
 
   /**
-   * Private constructor.
+   * Constructor.
+   * @param cutOffStrike The cut-off strike.
+   * @param mu The tail thickness parameter.
    */
-  private PresentValueCurveSensitivitySABRExtrapolationCalculator() {
+  public PresentValueCurveSensitivitySABRExtrapolationCalculator(final double cutOffStrike, final double mu) {
+    _mu = mu;
+    _cutOffStrike = cutOffStrike;
+    _methodExtraCMSCpn = new CouponCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
+    _methodExtraCMSCap = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
   }
 
   @Override
@@ -54,13 +64,10 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
-        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
-        final CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return method.presentValueSensitivity(cap, sabr).getSensitivities();
-      }
+      final CapFloorIborSABRExtrapolationRightMethod method = new CapFloorIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
+      return method.presentValueSensitivity(cap, sabr).getSensitivities();
     }
-    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorIbor requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorIbor requires a SABRInterestRateDataBundle as data.");
   }
 
   @Override
@@ -69,13 +76,10 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
-        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
-        final SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return method.presentValueSensitivity(swaption, sabr).getSensitivities();
-      }
+      final SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
+      return method.presentValueSensitivity(swaption, sabr).getSensitivities();
     }
-    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionCashFixedIbor requires a SABRInterestRateDataBundle as data.");
   }
 
   @Override
@@ -84,14 +88,10 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     Validate.notNull(curves);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
-        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
-        final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return method.presentValueSensitivity(swaption, sabr).getSensitivities();
-      }
+      final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
+      return method.presentValueSensitivity(swaption, sabr).getSensitivities();
     }
-    throw new UnsupportedOperationException(
-        "The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateDataBundle as data.");
 
   }
 
@@ -101,13 +101,9 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
-        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
-        final CouponCMSSABRExtrapolationRightReplicationMethod replication = new CouponCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValueCurveSensitivity(payment, sabr).getSensitivities();
-      }
+      return _methodExtraCMSCpn.presentValueCurveSensitivity(payment, sabr).getSensitivities();
     }
-    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCouponCMS requires a SABRInterestRateDataBundle as data.");
   }
 
   @Override
@@ -116,13 +112,24 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     Validate.notNull(payment);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
-      if (sabr.getSABRParameter() instanceof SABRInterestRateExtrapolationParameters) {
-        final SABRInterestRateExtrapolationParameters sabrExtrapolation = (SABRInterestRateExtrapolationParameters) sabr.getSABRParameter();
-        final CapFloorCMSSABRExtrapolationRightReplicationMethod replication = new CapFloorCMSSABRExtrapolationRightReplicationMethod(sabrExtrapolation.getCutOffStrike(), sabrExtrapolation.getMu());
-        return replication.presentValueCurveSensitivity(payment, sabr).getSensitivities();
+      return _methodExtraCMSCap.presentValueCurveSensitivity(payment, sabr).getSensitivities();
+    }
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCapFloorCMSSpread(final CapFloorCMSSpread payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    if (curves instanceof SABRInterestRateDataBundle) {
+      final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
+      if (sabrBundle.getSABRParameter() instanceof SABRInterestRateCorrelationParameters) {
+        final SABRInterestRateCorrelationParameters sabrCorrelation = (SABRInterestRateCorrelationParameters) sabrBundle.getSABRParameter();
+        final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(sabrCorrelation.getCorrelation(), _methodExtraCMSCap, _methodExtraCMSCpn);
+        return method.presentValueCurveSensitivity(payment, sabrBundle).getSensitivities();
       }
     }
-    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateExtrapolationParameter as data.");
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitCapFloorCMS requires a SABRInterestRateDataBundle as data.");
   }
 
 }

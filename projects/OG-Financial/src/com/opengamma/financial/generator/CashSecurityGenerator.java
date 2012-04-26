@@ -9,7 +9,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -43,7 +43,7 @@ public class CashSecurityGenerator extends SecurityGenerator<CashSecurity> {
   @Override
   public CashSecurity createSecurity() {
     final Currency currency = getRandomCurrency();
-    final ExternalId region = RegionUtils.currencyRegionId(currency);
+    final ExternalId region = ExternalSchemes.currencyRegionId(currency);
     final ZonedDateTime start = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(60) + 7), currency);
     final int length = getRandom(6) + 3;
     final ZonedDateTime maturity = nextWorkingDay(start.plusMonths(length), currency);

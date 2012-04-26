@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
@@ -37,7 +37,7 @@ public class BloombergEntitlementCheckerTest {
   }
 
   static final String AAPL_BB_ID_UNIQUE = "EQ0010169500001000";
-  static final ExternalId AAPL_EQUITY = SecurityUtils.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE);
+  static final ExternalId AAPL_EQUITY = ExternalSchemes.bloombergBuidSecurityId(AAPL_BB_ID_UNIQUE);
   static final DistributionSpecification DIST_SPEC = 
     new DistributionSpecification(AAPL_EQUITY, StandardRules.getNoNormalization(), "AAPL");
   

@@ -87,7 +87,7 @@ public class BloombergEQVanillaOptionChain {
    * a call to {@link com.opengamma.bbg.util.BloombergDataUtils#getOptionChain BloombergDataUtil.getOptionChain()}.
    * </p>
    * <p>
-   * The identifiers must have an {@link com.opengamma.id.ExternalScheme} of {@link com.opengamma.core.security.SecurityUtils#BLOOMBERG_TICKER}. 
+   * The identifiers must have an {@link com.opengamma.id.ExternalScheme} of {@link com.opengamma.core.id.ExternalSchemes#BLOOMBERG_TICKER}. 
    * </p>
    * @param identifiers the identifiers that comprise the chain
    */
@@ -101,7 +101,7 @@ public class BloombergEQVanillaOptionChain {
    * a call to {@link com.opengamma.bbg.util.BloombergDataUtils#getOptionChain BloombergDataUtil.getOptionChain()}.
    * </p>
    * <p>
-   * The identifiers must have an {@link com.opengamma.id.ExternalScheme} of {@link com.opengamma.core.security.SecurityUtils#BLOOMBERG_TICKER}. 
+   * The identifiers must have an {@link com.opengamma.id.ExternalScheme} of {@link com.opengamma.core.id.ExternalSchemes#BLOOMBERG_TICKER}. 
    * </p>
    * @param identifiers the identifiers that comprise the chain
    */

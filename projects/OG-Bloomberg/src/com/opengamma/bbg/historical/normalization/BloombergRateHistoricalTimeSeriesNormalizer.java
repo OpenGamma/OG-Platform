@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.bbg.normalization.BloombergRateClassifier;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -32,7 +32,7 @@ public class BloombergRateHistoricalTimeSeriesNormalizer implements HistoricalTi
 
   @Override
   public HistoricalTimeSeries adjust(ExternalIdBundle securityIdBundle, HistoricalTimeSeries timeSeries) {
-    String buid = securityIdBundle.getValue(SecurityUtils.BLOOMBERG_BUID);
+    String buid = securityIdBundle.getValue(ExternalSchemes.BLOOMBERG_BUID);
     if (buid == null) {
       s_logger.warn("Unable to classify security for Bloomberg time-series normalization as no BUID found in bundle: {}. The time-series will be unnormalized.", securityIdBundle);
       return timeSeries;

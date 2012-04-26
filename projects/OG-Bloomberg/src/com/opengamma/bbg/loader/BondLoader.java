@@ -57,7 +57,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -325,21 +325,21 @@ public class BondLoader extends SecurityLoader {
     
     final Set<ExternalId> identifiers = new HashSet<ExternalId>();
     if (isValidField(bbgUnique)) {
-      identifiers.add(SecurityUtils.bloombergBuidSecurityId(bbgUnique));
+      identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUnique));
       security.setUniqueId(BloombergSecuritySource.createUniqueId(bbgUnique));
     }
     if (isValidField(cusip)) {
-      identifiers.add(SecurityUtils.cusipSecurityId(cusip));
+      identifiers.add(ExternalSchemes.cusipSecurityId(cusip));
     }
     if (isValidField(sedol1)) {
-      identifiers.add(SecurityUtils.sedol1SecurityId(sedol1));
+      identifiers.add(ExternalSchemes.sedol1SecurityId(sedol1));
     }
     if (isValidField(isin)) {
-      identifiers.add(SecurityUtils.isinSecurityId(isin));
+      identifiers.add(ExternalSchemes.isinSecurityId(isin));
     }
     if (isValidField(ticker) && isValidField(coupon) && isValidField(maturity) && isValidField(marketSector)) {
       try {
-        identifiers.add(SecurityUtils.bloombergTCMSecurityId(ticker, coupon, maturity, marketSector));
+        identifiers.add(ExternalSchemes.bloombergTCMSecurityId(ticker, coupon, maturity, marketSector));
       } catch (Exception e) {
         s_logger.warn("Couldn't add Bloomberg TCM to bond", e);
       }
