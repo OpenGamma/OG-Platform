@@ -10,7 +10,9 @@ $.register_module({
             css_tmpl = api_text.partial({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
             header_tmpl = api_text.partial({module: 'og.analytics.grid.header_tash'}),
             container_tmpl = api_text.partial({module: 'og.analytics.grid.container_tash'}),
-            templates = null, scrollbar_size = 19, header_height = 49, row_height = 19;
+            row_tmpl = api_text.partial({module: 'og.analytics.grid.row_tash'}),
+            scrollbar_size = 19, header_height = 49, row_height = 19;
+        module.templates = null;
         var col_css = function (id, columns, col_offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return +val.width + acc;}, 0);
             return columns.map(function (val, idx) {
@@ -60,7 +62,7 @@ $.register_module({
             var render_cols = (function () {
                 var gen_cols = function (column_set, offset) {
                     var width = meta.columns.width;
-                    return templates.header({
+                    return module.templates.header({
                         width: offset ? width.scroll : width.fixed,
                         padding_right: offset ? scrollbar_size : 0,
                         cols: column_set.reduce(function (acc, val, idx) {
@@ -75,33 +77,28 @@ $.register_module({
                 }
             })();
             var render_rows = (function () {
-                var gen_rows = function (data, fixed) {
-                    var html, columns = meta.columns, viewport = meta.viewport,
-                        fixed_length = columns.fixed.length, offset = fixed ? 0 : fixed_length,
-                        start = '<div class="OG-g-rows" style="height: ' +
-                            (viewport.height + (fixed ? scrollbar_size : 0)) + 'px;">';
-                    html = data.reduce(function (acc, row, idx) {
+                var row_data = function (data, fixed) {
+                    var fixed_length = meta.columns.fixed.length;
+                    return data.reduce(function (acc, row, idx) {
                         var slice = row.slice(fixed ? 0 : fixed_length, fixed ? fixed_length : undefined);
-                        acc.push('<div class="OG-g-row" style="top: ' +
-                            ((idx + viewport.rows[0]) * row_height) + 'px">');
-                        acc.push.apply(acc, slice.reduce(function (acc, val, idx) {
-                            return val === null ? acc // don't bother putting undefined things into the DOM
-                                : acc.concat('<div class="OG-g-cell c' + (offset + idx) + '">' + val + '</div>');
-                        }, []));
-                        acc.push('</div>');
+                        acc.rows.push({
+                            top: (idx + meta.viewport.rows[0]) * row_height,
+                            cells: slice.reduce(function (acc, val, idx) {
+                                return val === null ? acc
+                                    : acc.concat({column: fixed ? idx : fixed_length + idx, value: val});
+                            }, [])
+                        });
                         return acc;
-                    }, [start]);
-                    html.push('</div>');
-                    return html.join('');
+                    }, {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []});
                 };
                 return function (data) {
                     if (dataman.busy()) return; // just bail
-                    $(id + ' .OG-g-b-fixed').html(gen_rows(data, true));
-                    $(id + ' .OG-g-b-scroll').html(gen_rows(data, false));
+                    $(id + ' .OG-g-b-fixed').html(module.templates.row(row_data(data, true)));
+                    $(id + ' .OG-g-b-scroll').html(module.templates.row(row_data(data, false)));
                 };
             })();
             var initialize = function (metadata) {
-                var columns = metadata.columns, $style;
+                var columns = metadata.columns, templates = module.templates, $style;
                 columns.width = (function () { // width of fixed and scrollable column areas
                     return {
                         fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
@@ -136,11 +133,12 @@ $.register_module({
                     resize: function () {console.log('grid resize');}
                 });
             };
-            $.when(css_tmpl(), header_tmpl(), container_tmpl())
-                .then(function (css_tmpl, header_tmpl, container_tmpl) {
+            $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
+                .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
                     dataman = new og.analytics.Data;
-                    if (!templates) templates = {
-                        css: compile(css_tmpl), header: compile(header_tmpl), container: compile(container_tmpl)
+                    if (!module.templates) module.templates = {
+                        css: compile(css_tmpl), header: compile(header_tmpl),
+                        container: compile(container_tmpl), row: compile(row_tmpl)
                     };
                     dataman.on('init', initialize);
                 });

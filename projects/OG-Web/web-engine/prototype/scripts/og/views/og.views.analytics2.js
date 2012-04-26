@@ -12,6 +12,7 @@ $.register_module({
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             load: function (args) {
+                og.analytics.layout_manager();
                 grid = new og.analytics.Grid({
                     selector: '.OG-layout-analytics-center',
                     width: 900,
