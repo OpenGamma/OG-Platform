@@ -148,6 +148,7 @@ public class DbTool extends Task {
     addDbManagement("jdbc:postgresql", PostgresDbManagement.getInstance());
     addDbManagement("jdbc:derby", DerbyDbManagement.getInstance());
     addDbManagement("jdbc:hsqldb", HSQLDbManagement.getInstance());
+    addDbManagement("jdbc:sqlserver", HSQLDbManagement.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
     for (Map.Entry<String, DbManagement> entry : s_url2Management.entrySet()) {
