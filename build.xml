@@ -638,12 +638,22 @@
     <subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
   </target>
 
+  <target name="fetch-noload" if="build.projects.ok">
+    <antcall target="projects.fetch" />
+  </target>
+
+  <target name="fetch-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.fetch" buildpath="${basedir}" antfile="build.xml" />
+  </target>
   <!-- 
       =================================================================== 
         Git sync all projects using pull                
       =================================================================== 
   -->
   <target name="pull" depends="pull-noload,pull-load" description="git sync all projects using pull" />
+
+  <target name="fetch" depends="fetch-noload,fetch-load" description="git sync all projects using fetch" />
 
   <target name="status-noload" if="build.projects.ok">
     <antcall target="projects.status" />

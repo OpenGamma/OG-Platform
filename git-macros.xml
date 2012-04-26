@@ -56,6 +56,7 @@
     </sequential>
   </macrodef>
 
+
   <macrodef name="git-status">
     <attribute name="dest" />
     <attribute name="displayName" />
@@ -64,6 +65,15 @@
       <git command="status" dir="@{dest}"/>
     </sequential>
   </macrodef>
+
+  <macrodef name="git-fetch">
+      <attribute name="dest" />
+      <sequential>
+          <echo message="fetching @{dest} ------------------------------" />
+          <git command="fetch" dir="@{dest}"/>
+      </sequential>
+  </macrodef>
+
 
   <macrodef name="git-checkout">
     <attribute name="dest" />
