@@ -1,0 +1,16 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-gadget-tabs-options {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    height: 21px;
+}
+
+.OG-gadget-tabs-options div {
+    float: left;
+    width: 16px;
+    cursor: pointer;
+}

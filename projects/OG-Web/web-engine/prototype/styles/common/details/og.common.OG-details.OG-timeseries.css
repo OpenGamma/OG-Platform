@@ -10,7 +10,6 @@
 .OG-timeseries-gadget .og-plot-header {
     position: absolute;
     top: -1px;
-    left: 2px;
     font-size: 12px;
     font-weight: normal;
     line-height: 12px;
@@ -82,16 +81,15 @@
 
 .OG-timeseries-gadget .og-flot-top {
     height: 27px;
-    position: absolute;
-    left: 2px;
+    position: relative;
     right: 0;
+    margin-bottom: 2px;
 }
 
 .OG-timeseries-gadget .og-tenor {
-    margin: 30px 0 0 15px;
     position: absolute;
     top: -32px;
-    right: 0;
+    right: -1px;
     font-size: 12px;
     font-weight: normal;
     line-height: 12px;
@@ -126,30 +124,27 @@
  */
 
 .OG-timeseries-gadget .og-plots {
-    height: 352px;
-    top: 25px;
-    margin-bottom: 30px;
+    top: 0;
+    background-color: #fff;
 }
 
 .OG-timeseries-gadget .og-timeseries-plot {
     position: relative;
+    border: 1px solid #ccc;
 }
 
 .OG-timeseries-gadget .og-js-p1 {
-    left: 2px;
+    left: 0;
     position: relative;
     overflow: hidden;
     height: 270px;
     width: 882px;
     position: relative;
-    top: 24px;
+    top: 0;
 }
 
 .OG-timeseries-gadget .og-js-p2 {
     position: relative;
-    left: 2px;
-    height: 50px;
-    top: 31px;
     height: 50px;
     width: 882px;
     position: relative;
@@ -168,11 +163,11 @@
       * 0=425069, 1=526da1
       */
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2NwCsgMyl0IQQxADOeDOHA+lAPhAwAO+hRtFw3ssQAAAABJRU5ErkJggg==);
-    height: 10px;
+    height: 5px;
     width: 798px;
-    position: absolute;
-    top: 290px;
-    left: 2px;
+    position: relative;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
 }
 
 .OG-timeseries-gadget .og-flot-xaxis:after {
@@ -195,6 +190,7 @@
     overflow-x: auto;
     display: block;
     position: relative;
+    margin-top: 55px;
 }
 
 .OG-timeseries-gadget .og-data-points time {

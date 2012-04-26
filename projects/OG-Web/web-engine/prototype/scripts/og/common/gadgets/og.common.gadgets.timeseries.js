@@ -10,6 +10,15 @@ $.register_module({
     dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
     obj: function () {
         var api = og.api;
+        /**
+         * @param {object} config
+         * @param {String} config.selector
+         * @param {String} config.id
+         * @param {String} config.height optional height of Timeseries, gadget will calculate height from parent if not supplied
+         * @param {Boolean} config.datapoints
+         * @param {Boolean} config.datapoints_link
+         * @param {Object} config.data Spoffed Data - temporary solution
+         */
         return function (config) {
             var handler, initial_preset, x_max, meta = {}, // object that stores the structure and data of the plots
                 prefix = 'timeseries_', counter = 1, // a unique class name, used to check if the gadget is alive
@@ -26,7 +35,7 @@ $.register_module({
                 return {main: {error: false, data: data[0]}, search: {error: false, data: {data: []}}};
             })(config.data);
             common_plot_options = {
-                grid: {borderWidth: 1, color: '#999', borderColor: '#c1c1c2', aboveData: false, minBorderMargin: 0},
+                grid: {borderWidth: 0, color: '#999', borderColor: '#c1c1c2', aboveData: false, minBorderMargin: 0},
                 lines: {lineWidth: 1, fill: true, fillColor: '#f8fbfd'},
                 legend: {backgroundColor: null},
                 series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
@@ -46,7 +55,7 @@ $.register_module({
             });
             bot_plot_options = $.extend(true, {}, common_plot_options, {
                 colors: colors_arr_p2,
-                grid: {aboveData: true, labelMargin: -13, minBorderMargin: 0},
+                grid: {aboveData: true, labelMargin: -13, minBorderMargin: 1},
                 lines: {fill: false},
                 legend: {show: false},
                 selection: {mode: 'x', color: '#42669a'},
@@ -437,7 +446,9 @@ $.register_module({
                 build_menu();
                 resize = (function (timeout) {
                    var resize = function () {
+                       var height = config.height ? config.height : $(selector).parent().height();
                        $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width($(selector).width() - 2 + 'px');
+                       $(selector).find('.og-js-p1').height(height - 104);
                        load_plots();
                    };
                    return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
