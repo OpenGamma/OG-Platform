@@ -14,11 +14,16 @@ $.register_module({
             };
             data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.
-                var matrix = [], rows = data.meta.rows, row_start = viewport.rows[0] || 1, row_end = viewport.rows[1];
+                var matrix = [], rows = data.meta.rows,
+                    row_start = viewport.rows[0] || 1, row_end = viewport.rows[1],
+                    fixed_length = data.meta.columns.fixed.length,
+                    requested_cols = viewport.cols.reduce(function (acc, val) {return (acc[val] = null), acc;}, {});
                 while (rows--) if (rows >= row_start && rows <= row_end) matrix.push(function (cols, row) {
-                    while (cols--) row.push(Math.random() * 1000);
+                    var lcv = 0;
+                    while (lcv++ < cols)
+                        row.push(lcv < fixed_length || lcv in requested_cols ? Math.random() * 1000 : null);
                     return row;
-                }(data.meta.columns.fixed.length + data.meta.columns.scroll.length - 1, [rows]));
+                }(fixed_length + data.meta.columns.scroll.length - 1, [rows]));
                 fire('data', matrix.reverse());
                 setTimeout(data_handler, 1000);
             };

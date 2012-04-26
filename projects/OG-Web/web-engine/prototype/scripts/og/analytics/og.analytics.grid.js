@@ -28,15 +28,12 @@ $.register_module({
             return $style;
         };
         return function (config) {
-            var grid = this, selector = config.selector, id = '#analytics_grid_' + counter++,
-                total_width = config.width, total_height = config.height, meta, dataman,
-                $fixed, $head, top = 'scrollTop', left = 'scrollLeft';
+            var grid = this, id = '#analytics_grid_' + counter++, meta, dataman;
             var set_viewport = function (handler) {
-                var viewport = meta.viewport,
-                    top_position = ($fixed || ($fixed = $(id + ' .OG-g-b-fixed')))[top](),
-                    left_position = ($head || ($head = $(id + ' .OG-g-h-scroll')))[left](),
-                    scroll_position = left_position + viewport.width,
-                    row_start, partial_left;
+                var viewport = meta.viewport, row_start,
+                    top_position = $(id + ' .OG-g-b-fixed').scrollTop(),
+                    left_position = $(id + ' .OG-g-h-scroll').scrollLeft(),
+                    scroll_position = left_position + viewport.width;
                 viewport.rows = [
                     (row_start = Math.floor((top_position / viewport.height) * meta.rows)),
                     row_start + meta.visible_rows
@@ -50,98 +47,103 @@ $.register_module({
                 dataman.viewport(viewport);
                 if (handler) handler();
             };
-            var scroll_observer = (function (timeout, update_viewport) {
-                return function (event) { // sync scroll
+            var scroll_observer = (function (timeout, update_viewport, $section, $fixed, $head) {
+                return function (event) { // sync scroll instantaneously and set viewport after scroll stops
                     dataman.busy(true);
-                    var $section = $(id + ' .OG-g-b-scroll');
-                    $fixed[top]($section[top]());
-                    $head[left]($section[left]());
+                    ($fixed || ($fixed = $(id + ' .OG-g-b-fixed'))) // cache DOM reference
+                        .scrollTop(($section || ($section = $(id + ' .OG-g-b-scroll'))).scrollTop());
+                    ($head || ($head = $(id + ' .OG-g-h-scroll'))) // cache DOM reference
+                        .scrollLeft($section.scrollLeft());
                     timeout = clearTimeout(timeout) || setTimeout(update_viewport, 200);
                 }
             })(null, set_viewport.partial(function () {dataman.busy(false);}));
-            $.when(css_tmpl(), header_tmpl(), container_tmpl()).then(function (css_tmpl, header_tmpl, container_tmpl) {
-                var alive, resize, render_rows, render_cols;
-                dataman = new og.analytics.Data;
-                if (!templates) templates = {
-                    css: compile(css_tmpl), header: compile(header_tmpl), container: compile(container_tmpl)
-                };
-                render_cols = function () {
-                    var width = meta.columns.width, gen_cols = function (column_set, start_at) {
-                        return templates.header({
-                            width: start_at ? width.scroll : width.fixed,
-                            padding_right: start_at ? scrollbar_size : 0,
-                            cols: column_set.reduce(function (acc, val, idx) {
-                                return acc + '<div class="OG-g-h-col c' + (idx + (start_at || 0)) + '">' + val.name +
-                                    '</div>';
-                            }, '')
-                        });
-                    };
+            var render_cols = (function () {
+                var gen_cols = function (column_set, offset) {
+                    var width = meta.columns.width;
+                    return templates.header({
+                        width: offset ? width.scroll : width.fixed,
+                        padding_right: offset ? scrollbar_size : 0,
+                        cols: column_set.reduce(function (acc, val, idx) {
+                            return acc + '<div class="OG-g-h-col c' + (idx + (offset || 0)) + '">' + val.name +
+                                '</div>';
+                        }, '')
+                    });
+                }
+                return function () {
                     $(id + ' .OG-g-h-fixed').html(gen_cols(meta.columns.fixed));
                     $(id + ' .OG-g-h-scroll').html(gen_cols(meta.columns.scroll, meta.columns.fixed.length));
+                }
+            })();
+            var render_rows = (function () {
+                var gen_rows = function (data, fixed) {
+                    var html, columns = meta.columns, viewport = meta.viewport,
+                        fixed_length = columns.fixed.length, offset = fixed ? 0 : fixed_length,
+                        start = '<div class="OG-g-rows" style="height: ' +
+                            (viewport.height + (fixed ? scrollbar_size : 0)) + 'px;">';
+                    html = data.reduce(function (acc, row, idx) {
+                        var slice = row.slice(fixed ? 0 : fixed_length, fixed ? fixed_length : undefined);
+                        acc.push('<div class="OG-g-row" style="top: ' +
+                            ((idx + viewport.rows[0]) * row_height) + 'px">');
+                        acc.push.apply(acc, slice.reduce(function (acc, val, idx) {
+                            return val === null ? acc // don't bother putting undefined things into the DOM
+                                : acc.concat('<div class="OG-g-cell c' + (offset + idx) + '">' + val + '</div>');
+                        }, []));
+                        acc.push('</div>');
+                        return acc;
+                    }, [start]);
+                    html.push('</div>');
+                    return html.join('');
                 };
-                render_rows = function (data) {
+                return function (data) {
                     if (dataman.busy()) return; // just bail
-                    var gen_rows = function (fixed) {
-                        var html, columns = meta.columns, col_from = fixed ? 0 : columns.fixed.length,
-                            viewport = meta.viewport,
-                            col_to = fixed ? columns.fixed.length : columns.fixed.length + columns.scroll.length,
-                            start = '<div class="OG-g-rows" style="height: ' +
-                                (viewport.height + (fixed ? scrollbar_size : 0)) + 'px">',
-                            top_offset = Math.floor(viewport.rows[0] / meta.rows) * row_height;
-                        html = data.reduce(function (acc, row, idx) {
-                            var top = (idx + viewport.rows[0]) * row_height;
-                            acc.push('<div class="OG-g-row r'+ idx +'" style="top: ' + top + 'px">');
-                            acc.push.apply(acc, row.slice(col_from, col_to).reduce(function (acc, val, idx) {
-                                if (!val) return acc; // don't bother putting undefined things into the DOM
-                                return acc.concat('<div class="OG-g-cell c' + (col_from + idx) + '">' + val + '</div>');
-                            }, []));
-                            acc.push('</div>\n\n');
-                            return acc;
-                        }, [start]);
-                        html.push('</div>');
-                        return html.join('');
-                    };
-                    $(id + ' .OG-g-b-fixed').html(gen_rows(true));
-                    $(id + ' .OG-g-b-scroll').html(gen_rows(false));
+                    $(id + ' .OG-g-b-fixed').html(gen_rows(data, true));
+                    $(id + ' .OG-g-b-scroll').html(gen_rows(data, false));
                 };
-                initialize = function (metadata) {
-                    var columns = metadata.columns, $style;
-                    columns.width = (function () { // width of fixed and scrollable column areas
-                        return {
-                            fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
-                            scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
-                        };
-                    })();
-                    grid.meta = meta = metadata; // set instance-wide reference
-                    grid.meta.viewport = {
-                        height: meta.rows * row_height,
-                        width: total_width - columns.width.fixed
+            })();
+            var initialize = function (metadata) {
+                var columns = metadata.columns, $style;
+                columns.width = (function () { // width of fixed and scrollable column areas
+                    return {
+                        fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
+                        scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
                     };
-                    meta.visible_rows = Math.ceil((total_height - header_height) / row_height);
-                    $style = load_css(templates.css({
-                        id: id,
-                        height: total_height - header_height,
-                        header_height: header_height,
-                        row_height: row_height,
-                        viewport_width: meta.viewport.width,
-                        scroll_width: columns.width.scroll,
-                        fixed_width: columns.width.fixed,
-                        columns: col_css(id, columns.fixed)
-                            .concat(col_css(id, columns.scroll, columns.fixed.length))
-                    }));
-                    $(selector)
-                        .html(templates.container({id: id.substring(1), height: total_height, width: total_width}));
-                    $(id + ' .OG-g-b-scroll').scroll(scroll_observer);
-                    render_cols();
-                    set_viewport();
-                    dataman.on('data', render_rows);
-                    og.common.gadgets.manager.register({
-                        alive: function () {return $(id).length ? true : !$style.remove();},
-                        resize: function () {console.log('grid resize');}
-                    });
+                })();
+                grid.meta = meta = metadata; // set instance-wide reference
+                grid.meta.viewport = {
+                    height: meta.rows * row_height,
+                    width: config.width - columns.width.fixed
                 };
-                dataman.on('init', initialize);
-            });
+                meta.visible_rows = Math.ceil((config.height - header_height) / row_height);
+                $style = load_css(templates.css({
+                    id: id,
+                    height: config.height - header_height,
+                    header_height: header_height,
+                    row_height: row_height,
+                    viewport_width: meta.viewport.width,
+                    scroll_width: columns.width.scroll,
+                    fixed_width: columns.width.fixed,
+                    columns: col_css(id, columns.fixed)
+                        .concat(col_css(id, columns.scroll, columns.fixed.length))
+                }));
+                $(config.selector)
+                    .html(templates.container({id: id.substring(1), height: config.height, width: config.width}));
+                $(id + ' .OG-g-b-scroll').scroll(scroll_observer);
+                render_cols();
+                set_viewport();
+                dataman.on('data', render_rows);
+                og.common.gadgets.manager.register({
+                    alive: function () {return $(id).length ? true : !$style.remove();},
+                    resize: function () {console.log('grid resize');}
+                });
+            };
+            $.when(css_tmpl(), header_tmpl(), container_tmpl())
+                .then(function (css_tmpl, header_tmpl, container_tmpl) {
+                    dataman = new og.analytics.Data;
+                    if (!templates) templates = {
+                        css: compile(css_tmpl), header: compile(header_tmpl), container: compile(container_tmpl)
+                    };
+                    dataman.on('init', initialize);
+                });
         };
     }
 });
