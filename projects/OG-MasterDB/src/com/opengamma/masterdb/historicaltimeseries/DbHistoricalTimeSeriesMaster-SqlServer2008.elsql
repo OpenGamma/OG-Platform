@@ -1,0 +1,28 @@
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  DECLARE @NewSeqValue INT;
+  SET NOCOUNT ON;
+  INSERT INTO hts_doc2idkey_seq
+    (SeqVal)
+  VALUES
+    ('a');
+  SET @NewSeqValue = scope_identity();
+  DELETE FROM hts_doc2idkey_seq
+    WITH (READPAST);
+  SET NOCOUNT OFF;
+  INSERT INTO hts_doc2idkey
+    (id, doc_id, idkey_id, valid_from, valid_to)
+  VALUES
+    ( @NewSeqValue, :doc_id, ( @INCLUDE(SelectIdKey) ), :valid_from, :valid_to)
+
+
+-- ==========================================================================
+@NAME(SelectIdKey)
+  SELECT
+    id
+  FROM
+    hts_idkey
+  WHERE key_scheme = :key_scheme
+    AND key_value = :key_value
+
+
