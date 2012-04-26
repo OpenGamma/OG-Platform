@@ -51,6 +51,7 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="OG-Install" />
   </component>
 </module>
 
