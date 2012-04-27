@@ -78,7 +78,7 @@ $.register_module({
                 var row_data = function (data, fixed) {
                     var fixed_length = meta.columns.fixed.length;
                     return data.reduce(function (acc, row, idx) {
-                        var slice = row.slice(fixed ? 0 : fixed_length, fixed ? fixed_length : undefined);
+                        var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                         acc.rows.push({
                             top: (idx + meta.viewport.rows[0]) * row_height,
                             cells: slice.reduce(function (acc, val, idx) {
@@ -124,7 +124,7 @@ $.register_module({
                 dataman.on('data', render_rows);
                 og.common.gadgets.manager.register({
                     alive: function () {return $(id).length ? true : !$style.remove();},
-                    resize: function () {console.log('grid resize');}
+                    resize: $.noop
                 });
             };
             var initialize_data = function () {(dataman = new og.analytics.Data).on('init', initialize_grid);};
