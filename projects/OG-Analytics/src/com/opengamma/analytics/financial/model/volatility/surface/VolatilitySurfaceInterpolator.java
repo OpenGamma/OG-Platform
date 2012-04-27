@@ -32,7 +32,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class VolatilitySurfaceInterpolator {
   private static final Logger LOGGER = LoggerFactory.getLogger(VolatilitySurfaceInterpolator.class);
-  //TODO Set this back to SmileInterpolatorSABR() once a full fudge build is in place
   private static final GeneralSmileInterpolator DEFAULT_SMILE_INTERPOLATOR = new SmileInterpolatorSABR();
   private static final Interpolator1D DEFAULT_TIME_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);

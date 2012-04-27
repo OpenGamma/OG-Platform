@@ -41,6 +41,20 @@ public final class YieldCurveFunction {
    */
   public static final String PROPERTY_FUNDING_CURVE = "Funding" + ValuePropertyNames.CURVE;
 
+  /**
+   * Identifies the interpolator to be used
+   */
+  public static final String PROPERTY_INTERPOLATOR = "Interpolator";
+
+  /**
+   * Identifies the left extrapolator to be used
+   */
+  public static final String PROPERTY_LEFT_EXTRAPOLATOR = "LeftExtrapolator";
+
+  /**
+   * Identifies the right extrapolator to be used
+   */
+  public static final String PROPERTY_RIGHT_EXTRAPOLATOR = "RightExtrapolator";
   // TODO: Should the FORWARD_CURVE and FUNDING_CURVE be promoted into ValuePropertyNames as "convention"
 
   private YieldCurveFunction() {
@@ -167,18 +181,18 @@ public final class YieldCurveFunction {
   }
 
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), 
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
         ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-                       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-                       .get());
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .get());
   }
 
-  public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName, String calculationMethod) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), 
+  public static ValueRequirement getJacobianRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
         ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-                       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-                       .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
-                       .get());
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .get());
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
@@ -187,20 +201,20 @@ public final class YieldCurveFunction {
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency) {
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), 
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
         ValueProperties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-                       .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-                       .get());
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .get());
   }
 
   public static ValueRequirement getJacobianRequirement(final Currency currency, final String calculationMethod) {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, currency.getUniqueId(),
         ValueProperties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-                       .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-                       .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
-                       .get());
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .get());
   }
-  
+
   public static Pair<String, String> getDesiredValueCurveNames(final Set<ValueRequirement> desiredValues) {
     String forwardCurveName = null;
     String fundingCurveName = null;
