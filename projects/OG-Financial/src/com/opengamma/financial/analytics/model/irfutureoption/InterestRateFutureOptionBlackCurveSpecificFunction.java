@@ -226,7 +226,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
       final String prefix = ticker.substring(0, 2);
       return prefix;
     } else {
-      throw new OpenGammaRuntimeException("Could not determine whether option was Standard (OPT) or MidCurve (MIDCURVE).");
+      throw new OpenGammaRuntimeException("Could not determine whether option was Standard or MidCurve.");
     }
   }
 }
