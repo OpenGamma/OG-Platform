@@ -59,22 +59,20 @@ $.register_module({
                     timeout = clearTimeout(timeout) || setTimeout(update_viewport, 200);
                 }
             })(null, set_viewport.partial(function () {dataman.busy(false);}));
-            var render_cols = (function () {
-                var gen_cols = function (column_set, offset) {
+            var render_header = (function () {
+                var head_data = function (columns, offset) {
                     var width = meta.columns.width;
-                    return module.templates.header({
+                    return {
                         width: offset ? width.scroll : width.fixed,
                         padding_right: offset ? scrollbar_size : 0,
-                        cols: column_set.reduce(function (acc, val, idx) {
-                            return acc + '<div class="OG-g-h-col c' + (idx + (offset || 0)) + '">' + val.name +
-                                '</div>';
-                        }, '')
-                    });
-                }
+                        columns: columns.map(function (val, idx) {return {index: idx + (offset || 0), name: val.name};})
+                    };
+                };
                 return function () {
-                    $(id + ' .OG-g-h-fixed').html(gen_cols(meta.columns.fixed));
-                    $(id + ' .OG-g-h-scroll').html(gen_cols(meta.columns.scroll, meta.columns.fixed.length));
-                }
+                    $(id + ' .OG-g-h-fixed').html(module.templates.header(head_data(meta.columns.fixed)));
+                    $(id + ' .OG-g-h-scroll')
+                        .html(module.templates.header(head_data(meta.columns.scroll, meta.columns.fixed.length)));
+                };
             })();
             var render_rows = (function () {
                 var row_data = function (data, fixed) {
@@ -97,19 +95,15 @@ $.register_module({
                     $(id + ' .OG-g-b-scroll').html(module.templates.row(row_data(data, false)));
                 };
             })();
-            var initialize = function (metadata) {
+            var initialize_grid = function (metadata) {
                 var columns = metadata.columns, templates = module.templates, $style;
-                columns.width = (function () { // width of fixed and scrollable column areas
-                    return {
-                        fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
-                        scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
-                    };
-                })();
                 grid.meta = meta = metadata; // set instance-wide reference
-                grid.meta.viewport = {
-                    height: meta.rows * row_height,
-                    width: config.width - columns.width.fixed
+                grid.data = dataman;
+                columns.width = {
+                    fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
+                    scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
                 };
+                meta.viewport = {height: meta.rows * row_height, width: config.width - columns.width.fixed};
                 meta.visible_rows = Math.ceil((config.height - header_height) / row_height);
                 $style = load_css(templates.css({
                     id: id,
@@ -125,7 +119,7 @@ $.register_module({
                 $(config.selector)
                     .html(templates.container({id: id.substring(1), height: config.height, width: config.width}));
                 $(id + ' .OG-g-b-scroll').scroll(scroll_observer);
-                render_cols();
+                render_header();
                 set_viewport();
                 dataman.on('data', render_rows);
                 og.common.gadgets.manager.register({
@@ -133,15 +127,15 @@ $.register_module({
                     resize: function () {console.log('grid resize');}
                 });
             };
-            $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
+            var initialize_data = function () {(dataman = new og.analytics.Data).on('init', initialize_grid);};
+            if (!module.templates) $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
                 .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
-                    dataman = new og.analytics.Data;
-                    if (!module.templates) module.templates = {
+                    module.templates = {
                         css: compile(css_tmpl), header: compile(header_tmpl),
                         container: compile(container_tmpl), row: compile(row_tmpl)
                     };
-                    dataman.on('init', initialize);
-                });
+                    initialize_data();
+            }); else initialize_data();
         };
     }
 });
