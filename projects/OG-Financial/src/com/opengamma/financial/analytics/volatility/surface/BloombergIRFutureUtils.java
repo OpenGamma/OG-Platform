@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.util.HashSet;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.Period;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Sets;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.util.OpenGammaClock;
 
@@ -23,10 +26,19 @@ import com.opengamma.util.OpenGammaClock;
  */
 public class BloombergIRFutureUtils {
   
+  /** Set of prefixes for Standard IR Future Options */
+  public static final HashSet<String> STANDARD_PREFIX_SET = Sets.newHashSet("ER", "ED", "EF", "IR", "L ");
+  /** Set of prefixes for MidCurve IR Future Options */
+  public static final HashSet<String> MIDCURVE_PREFIX_SET = Sets.newHashSet("0R");
+  
+  /** Set of prefixes for which the logic of expiries has been tested */
+  private static final HashSet<String> TESTED_PREFIX_SET = Sets.newHashSet("ER", "0R");
+  
   
   /**
    *  Bloomberg's two character prefixes for Interest Rate Futures
-   *  Be careful: Some of Bloomberg's code consist of 1 digit only with a trailing space! eg "L " for Sterling 
+   *  Be careful: Some of Bloomberg's code consist of 1 digit only with a trailing space! eg "L " for Sterling <p>
+   *  Be careful: Some of Bloomberg's codes begin with a numeral (e.g. Euribor Mid-curves 0R). This isn't permitted in a java enum.
    *  Do NOT use name() to get string values of this enum as in this case, the trailing string will not be present
    *  Instead, use toString, which can be, and has, been overridden.    
    */
@@ -79,15 +91,10 @@ public class BloombergIRFutureUtils {
     //Year convention for historical data is specific to the futurePrefix 
     final LocalDate twoDigitYearSwitch; 
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
-    switch(IRFuturePrefix.valueOf(futurePrefix.trim())) {
-      case ED:
-        // Quarterly Eurodollar expiries trade for a decade. They begin just after the previous one expires
-        // To accomodate 1-digit years for active contracts, the expired one changes immediately
-        twoDigitYearSwitch = today.minus(Period.ofDays(2)); 
-        break;
-      default:
-        twoDigitYearSwitch = today.minus(Period.ofMonths(11));
-        break;
+    if (futurePrefix.equals("ED")) {
+      twoDigitYearSwitch = today.minus(Period.ofDays(2));
+    } else {     
+      twoDigitYearSwitch = today.minus(Period.ofMonths(11));
     } 
     return getQuarterlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
   }
@@ -102,8 +109,8 @@ public class BloombergIRFutureUtils {
    * @return e.g. M10 (for June 2010) or Z3 (for December 2013), both valid as of valuationDate 2012/04/10
    */
   public static final String getExpiryCodeForFutureOptions(final String futurePrefix, final int nthFuture, final LocalDate curveDate) {
-    if (!futurePrefix.equals("ER")) {
-      LOG.warn("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
+    if (!TESTED_PREFIX_SET.contains(futurePrefix)) {
+      LOG.debug("We recommended that you ask QR to test behaviour of IRFutureOption Volatility Surface's Expiries for prefix {}", futurePrefix);
       // The reason being that we have hard coded the behaviour of 6 consecutive months, then quarterly thereafter..
     }    
     LocalDate expiry  = IRFutureOptionUtils.getFutureOptionExpiry(nthFuture, curveDate);
