@@ -19,6 +19,7 @@ import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
+import com.opengamma.integration.copier.portfolio.rowparser.RowParser;
 import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
@@ -104,7 +105,13 @@ public class PortfolioSaverTool extends AbstractTool {
 //        if (securityType.equalsIgnoreCase("exchangetraded")) {
 //          return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
 //        } else {
-        return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
+        
+        RowParser rowParser = JodaBeanRowParser.newJodaBeanRowParser(securityType);
+        if (rowParser != null) {
+          return new SingleSheetSimplePortfolioWriter(filename, rowParser);
+        } else {
+          throw new OpenGammaRuntimeException("Could not create a row parser for security type " + securityType);
+        }
 //        }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
         return new ZippedPortfolioWriter(filename);
