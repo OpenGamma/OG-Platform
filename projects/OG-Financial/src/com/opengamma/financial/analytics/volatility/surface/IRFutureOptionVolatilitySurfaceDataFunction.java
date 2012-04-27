@@ -206,32 +206,40 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final LocalDate today = now.toLocalDate();
     for (final Number x : optionPrices.getXs()) {
       // Loop over option expiries
-      final Double ttm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
+      final Double optionTtm = IRFutureOptionUtils.getFutureOptionTtm(x.intValue(), today);
       // Get the corresponding future, which may not share the same expiries as the option itself
       Double[] futureExpiries = futurePrices.getXData();
+      int nFutures = futureExpiries.length;
       Double underlyingExpiry;
       int i = 0;
       do {
         underlyingExpiry = futureExpiries[i++];
-      } while(underlyingExpiry < ttm);
-      final double forward = futurePrices.getYValue(underlyingExpiry);
-      // Loop over strikes
-      for (final Double y : optionPrices.getYs()) {
-        final Double price = optionPrices.getVolatility(x, y);
-        if (price != null) {
-          try {
-
-            // Compute the Black volatility implied from the option price
-            final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, ttm, callAboveStrike / 100.);
-            if (!CompareUtils.closeEquals(volatility, 0.0)) {
-              txList.add(ttm);
-              kList.add(y / 100.0);
-              volatilityValues.put(Pair.of(ttm, y / 100.), volatility);
+      } while(underlyingExpiry < optionTtm && i < nFutures);
+      
+      if (underlyingExpiry < optionTtm) {
+        s_logger.info("Requesting an option price where the underlying future price isn't available. "
+            + "Either there are too many expiries in VolatilitySurfaceDefinition or too few in the corresponding FuturePriceCurveDefinition");
+        
+      } else {
+        final Double forward = futurePrices.getYValue(underlyingExpiry);
+        // Loop over strikes
+        for (final Double y : optionPrices.getYs()) {
+          final Double price = optionPrices.getVolatility(x, y);
+          if (price != null) {
+            try {
+  
+              // Compute the Black volatility implied from the option price
+              final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, optionTtm, callAboveStrike / 100.);
+              if (!CompareUtils.closeEquals(volatility, 0.0)) {
+                txList.add(optionTtm);
+                kList.add(y / 100.0);
+                volatilityValues.put(Pair.of(optionTtm, y / 100.), volatility);
+              }
+            } catch (final MathException e) {
+              s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
+            } catch (final IllegalArgumentException e) {
+              s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
             }
-          } catch (final MathException e) {
-            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
-          } catch (final IllegalArgumentException e) {
-            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
           }
         }
       }

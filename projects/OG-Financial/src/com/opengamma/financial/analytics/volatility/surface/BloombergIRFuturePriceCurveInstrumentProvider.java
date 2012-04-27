@@ -71,14 +71,23 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
    * Provides ExternalID for Bloomberg ticker, eg EDZ3 Comdty,
    * given a reference date and an integer offset, the n'th subsequent future
    * The format is _futurePrefix + month + year + _postfix
-   * 
+   * <p>
+   * Note that midcurve options are written on underlying futures that expire some number of quarters after the option's expiry.
+   * The logic of this is based on the _futurePrefix.
+   * <p>
    * @param futureNumber n'th future following curve date
    * @param curveDate date of curve validity; valuation date
    */
   public ExternalId getInstrument(final Number futureNumber, final LocalDate curveDate) {
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_futurePrefix);
-    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue(), curveDate));
+    
+    // nQuartersDelay is used to handle mid-curve options
+    int nQuartersDelay = 0;
+    if ("0R".equals(_futurePrefix)) {
+      nQuartersDelay = 4;
+    }
+    ticker.append(BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(_futurePrefix, futureNumber.intValue() + nQuartersDelay, curveDate));
     ticker.append(" ");
     ticker.append(_postfix);
     return ExternalId.of(ExternalScheme.of(_tickerScheme), ticker.toString());
