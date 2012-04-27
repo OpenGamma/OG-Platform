@@ -151,7 +151,7 @@ public class JodaBeanRowParser extends RowParser {
     FixedVarianceSwapLeg.meta();
     FloatingVarianceSwapLeg.meta();
     EquitySecurity.meta();
-    
+    SwapSecurity.meta();
   }
   
   protected JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
@@ -279,7 +279,7 @@ public class JodaBeanRowParser extends RowParser {
     Map<String, String> result = recursiveConstructRow(securities[0], "");
     
     for (int i = 1; i < securities.length; i++) {
-      result.putAll(recursiveConstructRow(securities[i], UNDERLYING_PREFIX + securities[i].getClass().getSimpleName().toLowerCase() + ":"));
+      result.putAll(recursiveConstructRow(securities[i], UNDERLYING_PREFIX + securities[i].getClass().getSimpleName() + ":"));
     }
     return result;
   }

@@ -22,12 +22,12 @@ public class ConfigDBFXForwardCurveDefinitionSource implements FXForwardCurveDef
   }
 
   @Override
-  public FXForwardCurveDefinition getDefinition(final String name) {
-    return _configSource.getLatestByName(FXForwardCurveDefinition.class, name + "_FX_FORWARD");
+  public FXForwardCurveDefinition getDefinition(final String name, final String currencyPair) {
+    return _configSource.getLatestByName(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD");
   }
 
   @Override
-  public FXForwardCurveDefinition getDefinition(final String name, final Instant version) {
-    return _configSource.getByName(FXForwardCurveDefinition.class, name + "_FX_FORWARD", version);
+  public FXForwardCurveDefinition getDefinition(final String name, final String currencyPair, final Instant version) {
+    return _configSource.getByName(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD", version);
   }
 }

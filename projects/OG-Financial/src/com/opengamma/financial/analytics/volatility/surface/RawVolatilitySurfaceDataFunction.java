@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -193,15 +193,14 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           throw new OpenGammaRuntimeException("Specification with requirement " + specificationRequirement + " was null");
         }
         final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
-        final Clock snapshotClock = executionContext.getValuationClock();
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final LocalDate valuationDate = executionContext.getValuationClock().today();
         final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         final ObjectArrayList<Object> xList = new ObjectArrayList<Object>();
         final ObjectArrayList<Object> yList = new ObjectArrayList<Object>();
         for (final Object x : definition.getXs()) {
           for (final Object y : definition.getYs()) {
-            final ExternalId identifier = provider.getInstrument(x, y, now.toLocalDate());
+            final ExternalId identifier = provider.getInstrument(x, y, valuationDate);
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             final Double volatility = (Double) inputs.getValue(requirement);
             if (volatility != null) {
@@ -209,7 +208,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
               yList.add(y);
               volatilityValues.put(Pair.of(x, y), volatility);
             } else {
-                // System.out.println(identifier.toString());
+              s_logger.debug("Missing option price~" + identifier.toString());
             }
           }
         }

@@ -99,6 +99,8 @@ public class BloombergRateClassifier {
       case SWAP:
       case VOLATILITY_QUOTE:
         return 100;
+      case FX_FORWARD:
+        return 10000;
       default:
         return 1;
     }

@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
@@ -30,7 +31,6 @@ import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurre
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.definition.ForexForward;
 import com.opengamma.analytics.financial.interestrate.swap.definition.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
