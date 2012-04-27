@@ -64,11 +64,11 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
   private static final Currency DOMESTIC_CCY = Currency.USD;
   private static final Currency FOREIGN_CCY = Currency.JPY;
-  private static final double spotFX = 1. / 76.335;
-  private static final CurrencyAmount DOMESTIC_NOTIONAL = CurrencyAmount.of(DOMESTIC_CCY, 1e6);
-  private static final CurrencyAmount FOREIGN_NOTIONAL = CurrencyAmount.of(FOREIGN_CCY, DOMESTIC_NOTIONAL.getAmount() / spotFX);
+  private static final double SPOT_FX = 1. / 76.335;
+  private static final CurrencyAmount DOMESTIC_NOTIONAL = CurrencyAmount.of(DOMESTIC_CCY, 1);
+  private static final CurrencyAmount FOREIGN_NOTIONAL = CurrencyAmount.of(FOREIGN_CCY, DOMESTIC_NOTIONAL.getAmount() / SPOT_FX);
 
-  protected static final Function1D<Double, Double> DOMESIC_DISCOUNT_CURVE = new Function1D<Double, Double>() {
+  protected static final Function1D<Double, Double> DOMESTIC_DISCOUNT_CURVE = new Function1D<Double, Double>() {
 
     private static final double a = -0.0375;
     private static final double b = 0.0021;
@@ -81,7 +81,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     }
   };
 
-  protected static final Function1D<Double, Double> DOMESIC_SPREAD_CURVE = new Function1D<Double, Double>() {
+  protected static final Function1D<Double, Double> DOMESTIC_SPREAD_CURVE = new Function1D<Double, Double>() {
 
     private static final double a = 0.005;
     private static final double b = 0.002;
@@ -123,16 +123,16 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   @Test
   public void testNewton() {
     final NewtonVectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
-    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    final YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton");
     data.setTestType(TestType.FD_JACOBIAN);
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Newton (FD Jacobian)");
   }
-  
+
   @Test
   public void testShermanMorrison() {
     final NewtonVectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder(EPS, EPS, STEPS);
-    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    final YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder:Sherman Morrison");
     data.setTestType(TestType.FD_JACOBIAN);
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Sherman Morrison (FD Jacobian)");
@@ -141,7 +141,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   @Test
   public void testBroyden() {
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
+    final YieldCurveFittingTestDataBundle data = getMultiCurveSetup();
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden");
     data.setTestType(TestType.FD_JACOBIAN);
     doHotSpot(rootFinder, data, "Multi curve, domestic OIS, CCS, domestic and foreign Libor,  FRA & swaps. Root finder: Broyden (FD Jacobian)");
@@ -153,7 +153,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
   }
 
   private YieldCurveFittingTestDataBundle getMultiCurveSetup() {
-    
+
     final SimpleFrequency paymentFreq = SimpleFrequency.QUARTERLY;
 
     final List<String> curveNames = new ArrayList<String>();
@@ -176,7 +176,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
     //domestic OIS instrument  - funding is assumed at OIS rate, so funding curve found from these along
     domesticFundingMaturities.put("OIS", new double[] { 1./365, 1./12 , 3./12, 6./12, 1.0, 2.0, 5.0, 10, 15.0, 20., 30.});
-     
+
     //need instruments to find domestic index (3M Libor) curve
     domesticIndexMaturities.put("libor", new double[] {3. / 12 }); //3M spot Libor
     domesticIndexMaturities.put("fra", new double[] {0.5, 0.75 });
@@ -187,7 +187,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     foreignIndexMaturities.put("fra", new double[] {0.5, 0.75 });
     foreignIndexMaturities.put("swap", new double[] {2.0, 4.0, 7.0, 10., 15., 20., 25., 30. });
     foreignFundingMaturities.put("ForexFwd", new double[] {1. / 52, 2. / 52., 1. / 12, 3. / 12, 6. / 12, 1.0 });
-    foreignFundingMaturities.put("CCS", new double[] {2., 3., 5., 7., 10., 15, 20., 30. });   
+    foreignFundingMaturities.put("CCS", new double[] {2., 3., 5., 7., 10., 15, 20., 30. });
     foreignMaturities.putAll(foreignFundingMaturities);
     foreignMaturities.putAll(foreignIndexMaturities);
 
@@ -202,13 +202,13 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     double[] temp = new double[curveKnots.get(0).length];
     int index = 0;
     for (final double t : curveKnots.get(0)) {
-      temp[index++] = DOMESIC_DISCOUNT_CURVE.evaluate(t);
+      temp[index++] = DOMESTIC_DISCOUNT_CURVE.evaluate(t);
     }
     yields.add(temp);
     temp = new double[curveKnots.get(1).length];
     index=0;
     for (final double t : curveKnots.get(1)) {
-      temp[index++] = DOMESIC_DISCOUNT_CURVE.evaluate(t) + DOMESIC_SPREAD_CURVE.evaluate(t);
+      temp[index++] = DOMESTIC_DISCOUNT_CURVE.evaluate(t) + DOMESTIC_SPREAD_CURVE.evaluate(t);
     }
     yields.add(temp);
     temp = new double[curveKnots.get(2).length];
@@ -229,7 +229,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final double[] marketValues = new double[nNodes];
 
     final YieldCurveBundle bundle = new YieldCurveBundle();
-  
+
     for (int i = 0; i < yields.size(); i++) {
       if (curveKnots.get(i).length > 0) {
         bundle.setCurve(curveNames.get(i), makeYieldCurve(yields.get(i), curveKnots.get(i), extrapolator));
@@ -239,8 +239,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final List<InstrumentDerivative> instruments = new ArrayList<InstrumentDerivative>();
     InstrumentDerivative ird = null;
     index = 0;
-    
-    //the domestic funding curve instruments 
+
+    //the domestic funding curve instruments
     for (final String name : domesticFundingMaturities.keySet()) {
       for (final double t : domesticFundingMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(0), 0.0, DOMESTIC_NOTIONAL.getAmount());
@@ -249,8 +249,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
         index++;
       }
     }
-    
-    //the domestic Libor instruments 
+
+    //the domestic Libor instruments
     for (final String name : domesticIndexMaturities.keySet()) {
       for (final double t : domesticIndexMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(1), 0.0, DOMESTIC_NOTIONAL.getAmount());
@@ -259,7 +259,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
         index++;
       }
     }
-    //the foreign Libor instruments 
+    //the foreign Libor instruments
     for (final String name : foreignIndexMaturities.keySet()) {
       for (final double t : foreignIndexMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(2), curveNames.get(3), 0.0, FOREIGN_NOTIONAL.getAmount());
@@ -268,11 +268,11 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
         index++;
       }
     }
-    //the Forex instruments 
+    //the Forex instruments
     for (final String name : foreignFundingMaturities.keySet()) {
       for (final double t : foreignFundingMaturities.get(name)) {
         if ("ForexFwd".equals(name)) {
-          ird = makeForexForward(DOMESTIC_NOTIONAL, FOREIGN_NOTIONAL.multipliedBy(-1.0), t, spotFX, curveNames.get(0), curveNames.get(2));
+          ird = makeForexForward(DOMESTIC_NOTIONAL, FOREIGN_NOTIONAL.multipliedBy(-1.0), t, SPOT_FX, curveNames.get(0), curveNames.get(2));
         } else if ("CCS".equals(name)) {
           ird = makeCrossCurrencySwap(DOMESTIC_NOTIONAL, FOREIGN_NOTIONAL, (int) t, SimpleFrequency.QUARTERLY, SimpleFrequency.QUARTERLY, curveNames.get(0), curveNames.get(1), curveNames.get(2),
               curveNames.get(3), 0.0);
@@ -282,7 +282,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
 
         marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
         instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
-       // marketValues[index] = 0.0; //for PV cal
+        // marketValues[index] = 0.0; //for PV cal
         index++;
       }
     }
