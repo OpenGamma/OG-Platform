@@ -12,7 +12,7 @@ import javax.time.Instant;
  */
 public interface FXForwardCurveSpecificationSource {
 
-  FXForwardCurveSpecification getSpecification(String name);
+  FXForwardCurveSpecification getSpecification(final String name, final String currencyPair);
 
-  FXForwardCurveSpecification getSpecification(String name, Instant version);
+  FXForwardCurveSpecification getSpecification(final String name, final String currencyPair, final Instant version);
 }

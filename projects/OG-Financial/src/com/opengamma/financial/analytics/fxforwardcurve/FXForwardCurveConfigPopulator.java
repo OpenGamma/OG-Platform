@@ -23,7 +23,7 @@ public class FXForwardCurveConfigPopulator {
   }
 
   public static ConfigMaster populateFXForwardCurveConfigMaster(final ConfigMaster configMaster) {
-    populateCurveSpecifications(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), "EUR");
+    populateCurveSpecifications(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), "EUR", "EUR");
     populateCurveDefinitions(configMaster, UnorderedCurrencyPair.of(Currency.EUR, Currency.USD));
     return configMaster;
   }
@@ -36,8 +36,8 @@ public class FXForwardCurveConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(definition));
   }
 
-  private static void populateCurveSpecifications(final ConfigMaster configMaster, final UnorderedCurrencyPair target, final String currencyString) {
-    final FXForwardCurveInstrumentProvider curveInstrumentProvider = new BloombergFXForwardCurveInstrumentProvider(currencyString, "Curncy",
+  private static void populateCurveSpecifications(final ConfigMaster configMaster, final UnorderedCurrencyPair target, final String currencyString, final String spotString) {
+    final FXForwardCurveInstrumentProvider curveInstrumentProvider = new BloombergFXForwardCurveInstrumentProvider(currencyString, "Curncy", spotString,
         MarketDataRequirementNames.MARKET_VALUE);
     final FXForwardCurveSpecification spec = new FXForwardCurveSpecification("DEFAULT_FX_FORWARD", target, curveInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));

@@ -13,27 +13,27 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class InterpolatedYieldCurveDefaults extends DefaultPropertyFunction {
+public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
+  private final String _interpolatorName;
   private final String _leftExtrapolatorName;
   private final String _rightExtrapolatorName;
-  private final String[] _applicableCurrencyNames;
 
-  public InterpolatedYieldCurveDefaults(final String leftExtrapolatorName, final String rightExtrapolatorName,
-      final String... applicableCurrencyNames) {
+  public FXImpliedYieldCurveDefaults(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     super(ComputationTargetType.PRIMITIVE, true);
+    ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
-    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
+    _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
-    _applicableCurrencyNames = applicableCurrencyNames;
   }
 
   @Override
@@ -41,26 +41,25 @@ public class InterpolatedYieldCurveDefaults extends DefaultPropertyFunction {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(target.getUniqueId().getValue())) {
-        return true;
-      }
-    }
-    return false;
+    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, YieldCurveFunction.PROPERTY_INTERPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, YieldCurveFunction.PROPERTY_LEFT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, YieldCurveFunction.PROPERTY_RIGHT_EXTRAPOLATOR);
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (YieldCurveFunction.PROPERTY_INTERPOLATOR.equals(propertyName)) {
+      return Collections.singleton(_interpolatorName);
+    }
+    if (YieldCurveFunction.PROPERTY_LEFT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_leftExtrapolatorName);
     }
-    if (InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (YieldCurveFunction.PROPERTY_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_rightExtrapolatorName);
     }
     return null;

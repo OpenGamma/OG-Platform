@@ -25,6 +25,7 @@ public class FXForwardCurveFromYieldCurveDefaultPropertiesFunction extends Defau
   private final String _payCurveName;
   private final String _receiveCurveName;
 
+  //TODO shouldn't need curve name in here
   public FXForwardCurveFromYieldCurveDefaultPropertiesFunction(final String curveName, final String payCurveName, final String receiveCurveName) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(curveName, "curve name");
