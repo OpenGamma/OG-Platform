@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.MathException;
  * com.opengamma.analytics.math.function.special.GammaFunction}).
  * <p>
  * For the case where $r + \lambda > 2000$, the implementation of the cdf is taken from "An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.
- * (<a href="fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from "Computing the Non-Central Chi-Squared Distribution Function", Ding.
+ * (<a href="http://fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from "Computing the Non-Central Chi-Squared Distribution Function", Ding.
  */
 public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
   private final double _lambdaOverTwo;
