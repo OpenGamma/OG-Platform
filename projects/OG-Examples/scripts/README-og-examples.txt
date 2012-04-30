@@ -12,8 +12,8 @@ These scripts are intended for use when OpenGamma is packaged up into a distribu
 The scripts will not work when running from Eclipse or a simple Git checkout.
 
 The key difference is the properties file that is invoked:
-      Scripts - /OG Examples/config/fullstack/example-bin.properties
-  Development - /OG Examples/config/fullstack/example-dev.properties
+      Scripts - /OG Examples/config/fullstack/fullstack-example-bin.properties
+  Development - /OG Examples/config/fullstack/fullstack-example-dev.properties
 
 For Eclipse, run the main method in ExampleComponentServerDev
 For Ant, run the ant command "jetty" or "jetty-debug"

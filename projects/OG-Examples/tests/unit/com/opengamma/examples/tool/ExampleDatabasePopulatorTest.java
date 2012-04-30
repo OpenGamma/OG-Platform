@@ -26,7 +26,7 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
  */
 public class ExampleDatabasePopulatorTest {
 
-  private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/example.properties";
+  private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/toolcontext-example.properties";
 
 //  @BeforeMethod
 //  public void setUp() throws IOException {

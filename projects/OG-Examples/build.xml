@@ -61,7 +61,7 @@
 			<jvmarg value="-Xmx${jetty.maxheap}" />
 			<jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
 	</target>
 
@@ -74,7 +74,7 @@
 			<jvmarg value="-Xmx${jetty.maxheap}" />
 			<jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}example-dev.properties" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
 	</target>
 
