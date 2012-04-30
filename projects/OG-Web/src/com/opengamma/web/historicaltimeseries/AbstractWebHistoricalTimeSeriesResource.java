@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -30,10 +31,12 @@ public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPe
    * Creates the resource.
    * @param master  the historical data master, not null
    * @param loader  the historical data loader, not null
+   * @param configSource  the configuration source, not null
    */
-  protected AbstractWebHistoricalTimeSeriesResource(final HistoricalTimeSeriesMaster master, final HistoricalTimeSeriesLoader loader) {
+  protected AbstractWebHistoricalTimeSeriesResource(final HistoricalTimeSeriesMaster master, final HistoricalTimeSeriesLoader loader, final ConfigSource configSource) {
     ArgumentChecker.notNull(master, "master");
     ArgumentChecker.notNull(loader, "loader");
+    ArgumentChecker.notNull(configSource, "configSource");
     _data = new WebHistoricalTimeSeriesData();
     data().setHistoricalTimeSeriesMaster(master);
     data().setHistoricalTimeSeriesLoader(loader);

@@ -38,7 +38,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.id.ExternalIdDisplayComparator;
+import com.opengamma.core.id.ExternalIdDisplayComparatorUtils;
+import com.opengamma.core.id.ExternalIdWithDatesDisplayComparator;
+import com.opengamma.core.id.ExternalIdWithDatesDisplayComparatorUtils;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -73,9 +79,10 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
    * Creates the resource.
    * @param master  the historical time-series master, not null
    * @param loader  the historical time-series loader, not null
+   * @param configSource  the configuration source, not null
    */
-  public WebAllHistoricalTimeSeriesResource(final HistoricalTimeSeriesMaster master, final HistoricalTimeSeriesLoader loader) {
-    super(master, loader);
+  public WebAllHistoricalTimeSeriesResource(final HistoricalTimeSeriesMaster master, final HistoricalTimeSeriesLoader loader, ConfigSource configSource) {
+    super(master, loader, configSource);
   }
 
   //-------------------------------------------------------------------------
@@ -136,7 +143,13 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     out.put("searchRequest", searchRequest);
     
     if (data().getUriInfo().getQueryParameters().size() > 0) {
+      ExternalIdWithDatesDisplayComparator comparator = ExternalIdWithDatesDisplayComparatorUtils.getComparator(data().getConfigSource(), ExternalIdDisplayComparatorUtils.DEFAULT_CONFIG_NAME);
       HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);
+      for (HistoricalTimeSeriesInfoDocument doc : searchResult.getDocuments()) {
+        // replace ids with one's sorted the way we want.
+        ExternalIdBundleWithDates withCustomIdOrdering = doc.getInfo().getExternalIdBundle().withCustomIdOrdering(comparator);
+        doc.getInfo().setExternalIdBundle(withCustomIdOrdering);
+      }
       out.put("searchResult", searchResult);
       out.put("paging", new WebPaging(searchResult.getPaging(), data().getUriInfo()));
     }

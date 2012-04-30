@@ -26,6 +26,7 @@ import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -160,7 +161,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(prt);
     
     JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
-        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader());
+        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), new MasterConfigSource(getConfigMaster()));
     repo.getRestComponents().publishResource(hts);
   }
 
