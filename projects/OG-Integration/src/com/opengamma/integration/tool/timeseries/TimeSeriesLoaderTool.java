@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.marketdata;
+package com.opengamma.integration.tool.timeseries;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
