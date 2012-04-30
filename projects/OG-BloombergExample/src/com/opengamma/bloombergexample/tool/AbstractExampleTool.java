@@ -42,7 +42,7 @@ public abstract class AbstractExampleTool extends AbstractTool {
   /**
    * Example configuration for tools.
    */
-  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/bloombergexample.properties";
+  public static final String TOOLCONTEXT_EXAMPLE_PROPERTIES = "classpath:toolcontext/toolcontext-bloombergexample.properties";
   
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractExampleTool.class);

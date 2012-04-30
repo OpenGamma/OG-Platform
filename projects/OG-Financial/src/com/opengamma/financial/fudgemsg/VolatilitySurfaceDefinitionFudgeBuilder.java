@@ -29,14 +29,14 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceDefinitionFudgeBuilder.class);
-  
+
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceDefinition<?, ?> object) {
     final MutableFudgeMsg message = serializer.newMessage();
     // the following forces it not to use a secondary type if one is available.
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     if (object.getTarget() instanceof Currency) {
-      Currency ccy = (Currency) object.getTarget();
+      final Currency ccy = (Currency) object.getTarget();
       message.add("currency", null, ccy.getCode());
     } else {
       // just for now...
@@ -61,24 +61,19 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
   }
 
   @Override
-  public VolatilitySurfaceDefinition<?, ?> buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+  public VolatilitySurfaceDefinition<?, ?> buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     UniqueIdentifiable target;
     if (!message.hasField("target")) {
-      String currencyCode = message.getString("currency");
+      final String currencyCode = message.getString("currency");
       target = Currency.of(currencyCode);
-//      target = deserializer.fieldValueToObject(Currency.class, message.getByName("currency")); 
     } else {
-//      try {
       target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
-//      } catch (Exception fre) { // arghhhhhh
-//        target = Currency.of(message.getString("target"));
-//      }
     }
-    String name = message.getString("name");
-    List<FudgeField> xsFields = message.getAllByName("xs");
-    List<Object> xs = new ArrayList<Object>();
-    for (FudgeField xField : xsFields) {
-      Object x = deserializer.fieldValueToObject(xField);
+    final String name = message.getString("name");
+    final List<FudgeField> xsFields = message.getAllByName("xs");
+    final List<Object> xs = new ArrayList<Object>();
+    for (final FudgeField xField : xsFields) {
+      final Object x = deserializer.fieldValueToObject(xField);
       xs.add(x);
     }
     final List<FudgeField> ysFields = message.getAllByName("ys");

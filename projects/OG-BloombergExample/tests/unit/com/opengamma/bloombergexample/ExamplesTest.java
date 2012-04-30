@@ -24,7 +24,7 @@ import com.opengamma.component.rest.RemoteComponentServer;
 public class ExamplesTest {
   
 
-  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/bloombergexample-test.properties";
+  private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-bloombergexample-test.properties";
 
   @BeforeMethod
   public void setUp() throws IOException {

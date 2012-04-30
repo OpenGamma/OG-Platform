@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
@@ -44,8 +45,13 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   @PropertyDefinition
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
   /**
-   * The JSR-311 URI information.
+   * The config source
    */
+  @PropertyDefinition
+  private ConfigSource _configSource;
+  /**
+   * The JSR-311 URI information.
+   */ 
   @PropertyDefinition
   private UriInfo _uriInfo;
   /**
@@ -101,6 +107,8 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
         return getHistoricalTimeSeriesMaster();
       case 157715905:  // historicalTimeSeriesLoader
         return getHistoricalTimeSeriesLoader();
+      case 195157501:  // configSource
+        return getConfigSource();
       case -173275078:  // uriInfo
         return getUriInfo();
       case 1609878101:  // uriHistoricalTimeSeriesId
@@ -121,6 +129,9 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
         return;
       case 157715905:  // historicalTimeSeriesLoader
         setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
+        return;
+      case 195157501:  // configSource
+        setConfigSource((ConfigSource) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -147,6 +158,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
       WebHistoricalTimeSeriesData other = (WebHistoricalTimeSeriesData) obj;
       return JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriHistoricalTimeSeriesId(), other.getUriHistoricalTimeSeriesId()) &&
           JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
@@ -160,6 +172,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriHistoricalTimeSeriesId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
@@ -215,6 +228,31 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
    */
   public final Property<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
     return metaBean().historicalTimeSeriesLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the config source
+   * @return the value of the property
+   */
+  public ConfigSource getConfigSource() {
+    return _configSource;
+  }
+
+  /**
+   * Sets the config source
+   * @param configSource  the new value of the property
+   */
+  public void setConfigSource(ConfigSource configSource) {
+    this._configSource = configSource;
+  }
+
+  /**
+   * Gets the the {@code configSource} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigSource> configSource() {
+    return metaBean().configSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -338,6 +376,11 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
     private final MetaProperty<HistoricalTimeSeriesLoader> _historicalTimeSeriesLoader = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesLoader", WebHistoricalTimeSeriesData.class, HistoricalTimeSeriesLoader.class);
     /**
+     * The meta-property for the {@code configSource} property.
+     */
+    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
+        this, "configSource", WebHistoricalTimeSeriesData.class, ConfigSource.class);
+    /**
      * The meta-property for the {@code uriInfo} property.
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
@@ -364,6 +407,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
         this, null,
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesLoader",
+        "configSource",
         "uriInfo",
         "uriHistoricalTimeSeriesId",
         "info",
@@ -382,6 +426,8 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
           return _historicalTimeSeriesMaster;
         case 157715905:  // historicalTimeSeriesLoader
           return _historicalTimeSeriesLoader;
+        case 195157501:  // configSource
+          return _configSource;
         case -173275078:  // uriInfo
           return _uriInfo;
         case 1609878101:  // uriHistoricalTimeSeriesId
@@ -424,6 +470,14 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
      */
     public final MetaProperty<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
       return _historicalTimeSeriesLoader;
+    }
+
+    /**
+     * The meta-property for the {@code configSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigSource> configSource() {
+      return _configSource;
     }
 
     /**

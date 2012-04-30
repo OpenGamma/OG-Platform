@@ -25,7 +25,7 @@ fi
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/example-bin.properties
+CONFIG=classpath:fullstack/fullstack-example-bin.properties
 LOGBACK_CONFIG=jetty-logback.xml
 
 # User customizations

@@ -44,7 +44,7 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Xmx1024M ^
   com.opengamma.bloombergexample.tool.ExampleDatabasePopulator ^
   -l tofile-logback.xml ^
-  -c classpath:toolcontext/bloombergexample-bin.properties
+  -c classpath:toolcontext/toolcontext-bloombergexample-bin.properties
 
 echo ### Completed
 

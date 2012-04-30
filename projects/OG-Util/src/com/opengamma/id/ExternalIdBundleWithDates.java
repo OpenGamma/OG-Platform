@@ -8,6 +8,7 @@ package com.opengamma.id;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -137,6 +138,21 @@ public final class ExternalIdBundleWithDates
       _externalIds = ImmutableSortedSet.copyOf(externalIds);
     }
   }
+  
+  /**
+   * Creates a bundle from a collection of identifiers with a given comparator to specify ordering.
+   * Note that the comparator is not preserved over Fudge encoding.
+   * 
+   * @param externalIds  the collection of identifiers, null returns an empty bundle, no nulls in array
+   */
+  private ExternalIdBundleWithDates(Collection<? extends ExternalIdWithDates> externalIds, Comparator<ExternalIdWithDates> comparator) {
+    if (externalIds == null) {
+      _externalIds = ImmutableSortedSet.orderedBy(comparator).build();
+    } else {
+      ArgumentChecker.noNulls(externalIds, "identifiers");
+      _externalIds = ImmutableSortedSet.orderedBy(comparator).addAll(externalIds).build();
+    }
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -149,6 +165,11 @@ public final class ExternalIdBundleWithDates
   }
 
   //-------------------------------------------------------------------------
+  
+  public ExternalIdBundleWithDates withCustomIdOrdering(Comparator<ExternalIdWithDates> comparator) {
+    return new ExternalIdBundleWithDates(_externalIds, comparator);
+  }
+  
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
