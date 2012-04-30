@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.config;
+package com.opengamma.integration.tool.marketdata;
 
 
 import static com.google.common.collect.Sets.newHashSet;

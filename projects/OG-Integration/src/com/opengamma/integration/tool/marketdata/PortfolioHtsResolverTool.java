@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool.portfolio;
+package com.opengamma.integration.tool.marketdata;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
