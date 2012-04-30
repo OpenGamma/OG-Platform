@@ -57,7 +57,7 @@ public class CurveHtsResolverTool extends AbstractTool {
   private static Logger s_logger = LoggerFactory.getLogger(CurveHtsResolverTool.class);
 
   /** Portfolio name option flag*/
-  private static final String PORTFOLIO_NAME_OPT = "n";
+  private static final String CURVE_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
   /** Verbose option flag */
@@ -93,7 +93,7 @@ public class CurveHtsResolverTool extends AbstractTool {
     ConfigMaster configMaster = getToolContext().getConfigMaster();
 
     // Find all matching curves
-    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT));
+    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, getCommandLine().getOptionValue(CURVE_NAME_OPT));
 
     // Get initial rate hts external ids for curves
     Set<Currency> currencies = newHashSet();
@@ -230,10 +230,10 @@ public class CurveHtsResolverTool extends AbstractTool {
     
     Options options = super.createOptions(contextProvided);
     
-    Option portfolioNameOption = new Option(
-        PORTFOLIO_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
-    portfolioNameOption.setRequired(true);
-    options.addOption(portfolioNameOption);
+    Option curveNameOption = new Option(
+        CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
+    curveNameOption.setRequired(true);
+    options.addOption(curveNameOption);
     
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
