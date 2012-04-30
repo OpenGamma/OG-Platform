@@ -32,7 +32,6 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -111,13 +110,6 @@ public class SimpleTrade extends DirectBean
    */
   @PropertyDefinition(validate = "notNull")
   private final Map<String, String> _attributes = Maps.newHashMap();
-  /**
-   * The provider external identifier for the data, null if not applicable.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
-   */
-  @PropertyDefinition
-  private ExternalId _providerId;
 
   /**
    * Construct an empty instance that must be populated via setters.
@@ -192,10 +184,6 @@ public class SimpleTrade extends DirectBean
     _premiumDate = copyFrom.getPremiumDate();
     _premiumTime = copyFrom.getPremiumTime();
     _securityLink = new SimpleSecurityLink(copyFrom.getSecurityLink());
-    // TODO maybe have an interface with get/setProviderId()
-    if (copyFrom instanceof SimpleTrade) {
-      _providerId = ((SimpleTrade) copyFrom).getProviderId();
-    }
     setAttributes(copyFrom.getAttributes());
   }
 
@@ -298,8 +286,6 @@ public class SimpleTrade extends DirectBean
         return getPremiumTime();
       case 405645655:  // attributes
         return getAttributes();
-      case 205149932:  // providerId
-        return getProviderId();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -344,9 +330,6 @@ public class SimpleTrade extends DirectBean
       case 405645655:  // attributes
         setAttributes((Map<String, String>) newValue);
         return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -378,8 +361,7 @@ public class SimpleTrade extends DirectBean
           JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
           JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
           JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId());
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
   }
@@ -399,7 +381,6 @@ public class SimpleTrade extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
     return hash;
   }
 
@@ -718,37 +699,6 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the provider external identifier for the data, null if not applicable.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
-   * @return the value of the property
-   */
-  public ExternalId getProviderId() {
-    return _providerId;
-  }
-
-  /**
-   * Sets the provider external identifier for the data, null if not applicable.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
-   * @param providerId  the new value of the property
-   */
-  public void setProviderId(ExternalId providerId) {
-    this._providerId = providerId;
-  }
-
-  /**
-   * Gets the the {@code providerId} property.
-   * This optional field can be used to capture the identifier used by the data provider.
-   * This can be useful when receiving updates from the same provider.
-   * @return the property, not null
-   */
-  public final Property<ExternalId> providerId() {
-    return metaBean().providerId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code SimpleTrade}.
    */
   public static class Meta extends DirectMetaBean {
@@ -819,11 +769,6 @@ public class SimpleTrade extends DirectBean
     private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", SimpleTrade.class, (Class) Map.class);
     /**
-     * The meta-property for the {@code providerId} property.
-     */
-    private final MetaProperty<ExternalId> _providerId = DirectMetaProperty.ofReadWrite(
-        this, "providerId", SimpleTrade.class, ExternalId.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -839,8 +784,7 @@ public class SimpleTrade extends DirectBean
         "premiumCurrency",
         "premiumDate",
         "premiumTime",
-        "attributes",
-        "providerId");
+        "attributes");
 
     /**
      * Restricted constructor.
@@ -875,8 +819,6 @@ public class SimpleTrade extends DirectBean
           return _premiumTime;
         case 405645655:  // attributes
           return _attributes;
-        case 205149932:  // providerId
-          return _providerId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -991,14 +933,6 @@ public class SimpleTrade extends DirectBean
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
-    }
-
-    /**
-     * The meta-property for the {@code providerId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ExternalId> providerId() {
-      return _providerId;
     }
 
   }
