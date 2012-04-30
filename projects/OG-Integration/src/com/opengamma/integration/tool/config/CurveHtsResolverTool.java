@@ -93,7 +93,7 @@ public class CurveHtsResolverTool extends AbstractTool {
     ConfigMaster configMaster = getToolContext().getConfigMaster();
 
     // Find all matching curves
-    List<YieldCurveDefinition> curves = getCurves(getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), configMaster);
+    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT));
 
     // Get initial rate hts external ids for curves
     Set<Currency> currencies = newHashSet();
@@ -111,14 +111,14 @@ public class CurveHtsResolverTool extends AbstractTool {
       }
     });
     curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
-     
+    
     // Load the required time series
     loadHistoricalData(
         getCommandLine().hasOption(WRITE_OPT),
         getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT),
         getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
         initialRateExternalIds, 
-        curveNodesExternalIds);  
+        curveNodesExternalIds);
   }
 
   private Set<ExternalId> getInitialRateExternalIds(Set<Currency> currencies) {
@@ -154,16 +154,6 @@ public class CurveHtsResolverTool extends AbstractTool {
       dates.add(next);
     }
     return dates;
-  }
-
-  /**
-   * Get all the curves starting with FUNDING or FORWARD
-   * @param configMaster
-   * @return list of yield curve definition config object names
-   */
-  private List<YieldCurveDefinition> getCurves(String name, ConfigMaster configMaster) {
-    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, name);
-    return curves;
   }
 
   /**
