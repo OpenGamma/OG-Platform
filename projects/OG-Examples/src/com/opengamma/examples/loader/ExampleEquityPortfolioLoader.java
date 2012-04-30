@@ -102,14 +102,14 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
     for (EquitySecurity security : securities) {
       
       GICSCode gics = security.getGicsCode();
-      if (gics == null || gics.isPartial()) {
+      if (gics == null || gics.getCode().length() != 2) {
         continue;
       }
       String sector = SECTORS.get(gics.getSectorCode());
-      String industryGroup = gics.getIndustryGroupCode();
-      String industry = gics.getIndustryCode();
-      String subIndustry = gics.getSubIndustryCode();
-      
+      if (sector == null) {
+        s_logger.warn("unrecognised sector code {}", sector);
+        continue;
+      }
       // create portfolio structure
       ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
       if (sectorNode == null) {
@@ -117,31 +117,12 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
         sectorNode = new ManageablePortfolioNode(sector);
         rootNode.addChildNode(sectorNode);
       }
-      ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
-      if (groupNode == null) {
-        s_logger.debug("Creating node for industry group {}", industryGroup);
-        groupNode = new ManageablePortfolioNode("Group " + industryGroup);
-        sectorNode.addChildNode(groupNode);
-      }
-      ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
-      if (industryNode == null) {
-        s_logger.debug("Creating node for industry {}", industry);
-        industryNode = new ManageablePortfolioNode("Industry " + industry);
-        groupNode.addChildNode(industryNode);
-      }
-      ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
-      if (subIndustryNode == null) {
-        s_logger.debug("Creating node for sub industry {}", subIndustry);
-        subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
-        industryNode.addChildNode(subIndustryNode);
-      }
-      
       // create the position and add it to the master
       final ManageablePosition position = createPositionAndTrade(security);
       final PositionDocument addedPosition = addPosition(position);
       
       // add the position reference (the unique identifier) to portfolio
-      subIndustryNode.addPosition(addedPosition.getUniqueId());
+      sectorNode.addPosition(addedPosition.getUniqueId());
     }
     
     // adds the complete tree structure to the master
