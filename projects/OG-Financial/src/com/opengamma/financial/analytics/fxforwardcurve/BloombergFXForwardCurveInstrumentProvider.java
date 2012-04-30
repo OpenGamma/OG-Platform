@@ -18,21 +18,24 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
-  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
   private final String _prefix;
   private final String _postfix;
+  private final String _spotPrefix;
   private final String _dataFieldName;
   private final String _spotName;
   private final ExternalId _spotId;
 
-  public BloombergFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String dataFieldName) {
+  public BloombergFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String spotPrefix, final String dataFieldName) {
     ArgumentChecker.notNull(prefix, "prefix");
     ArgumentChecker.notNull(postfix, "postfix");
+    ArgumentChecker.notNull(spotPrefix, "spot prefix");
     ArgumentChecker.notNull(dataFieldName, "data field name");
     _prefix = prefix;
     _postfix = postfix;
+    _spotPrefix = spotPrefix;
     _dataFieldName = dataFieldName;
-    _spotName = prefix + " BGN " + _postfix;
+    _spotName = spotPrefix + " " + _postfix;
     _spotId = ExternalId.of(SCHEME, _spotName);
   }
 
@@ -42,6 +45,10 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
 
   public String getPostfix() {
     return _postfix;
+  }
+
+  public String getSpotPrefix() {
+    return _spotPrefix;
   }
 
   @Override
@@ -102,6 +109,7 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
     final BloombergFXForwardCurveInstrumentProvider other = (BloombergFXForwardCurveInstrumentProvider) obj;
     return getPrefix().equals(other.getPrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
+        getSpotPrefix().equals(other.getSpotPrefix()) &&
         getDataFieldName().equals(other.getDataFieldName());
   }
 }

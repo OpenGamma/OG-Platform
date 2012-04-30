@@ -23,6 +23,8 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
@@ -118,8 +120,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   }
 
   private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
-    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("FUNDING-FUNDING", "FUNDING", "FUNDING")));
+    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromMarketQuotesFunction.class.getName()));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class.getName(), 
+        Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));
+//    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
+//    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("FUNDING-FUNDING", "FUNDING", "FUNDING")));
   }
   
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {

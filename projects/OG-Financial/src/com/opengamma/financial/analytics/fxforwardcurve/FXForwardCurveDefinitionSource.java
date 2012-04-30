@@ -11,7 +11,7 @@ import javax.time.Instant;
  */
 public interface FXForwardCurveDefinitionSource {
 
-  FXForwardCurveDefinition getDefinition(String name);
+  FXForwardCurveDefinition getDefinition(final String name, final String currencyPair);
 
-  FXForwardCurveDefinition getDefinition(String name, Instant version);
+  FXForwardCurveDefinition getDefinition(final String name, final String currencyPair, final Instant version);
 }
