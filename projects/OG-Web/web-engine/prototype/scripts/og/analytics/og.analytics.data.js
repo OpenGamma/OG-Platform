@@ -10,7 +10,9 @@ $.register_module({
             var data = this, data_handler, initialize, fire, events = {init: [], data: []}, meta, viewport = null;
             fire = function (type) {
                 var args = Array.prototype.slice.call(arguments, 1);
-                events[type].forEach(function (handler) {handler.apply(null, args);});
+                events[type].forEach(function (value) {
+                    value.handler.apply(null, value.args.concat(args));
+                });
             };
             data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.
@@ -81,7 +83,10 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             data.meta = meta = {columns: null};
-            data.on = function (type, handler) {if (type in events) events[type].push(handler);};
+            data.on = function (type, handler) {
+                if (type in events)
+                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+            };
             data.viewport = function (new_viewport) {
                 viewport = new_viewport;
                 if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
