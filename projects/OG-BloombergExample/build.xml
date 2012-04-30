@@ -61,7 +61,7 @@
       <jvmarg value="-Xmx${jetty.maxheap}" />
       <jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
       <arg value="-v" />
-      <arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
+      <arg value="classpath:fullstack${file.separator}fullstack-bloombergexample-dev.properties" />
     </java>
   </target>
 
@@ -74,7 +74,7 @@
       <jvmarg value="-Xmx${jetty.maxheap}" />
       <jvmarg value="-XX:MaxPermSize=${jetty.maxpermgen}" />
       <arg value="-v" />
-      <arg value="classpath:fullstack${file.separator}bloombergexample-dev.properties" />
+      <arg value="classpath:fullstack${file.separator}fullstack-bloombergexample-dev.properties" />
     </java>
   </target>
 
@@ -99,7 +99,7 @@
       <jvmarg value="-Xmx${jvm.maxheap}" />
       <jvmarg value="-XX:MaxPermSize=${jvm.maxpermgen}" />
       <arg value="-c" />
-      <arg value="classpath:toolcontext${file.separator}bloombergexample-dev.properties" />
+      <arg value="classpath:toolcontext${file.separator}toolcontext-bloombergexample-dev.properties" />
     </java>
   </target>
 

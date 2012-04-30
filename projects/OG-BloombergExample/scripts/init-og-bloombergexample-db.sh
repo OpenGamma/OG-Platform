@@ -54,7 +54,7 @@ $JAVA  -cp "$CLASSPATH" \
   -Xmx1024M \
   com.opengamma.bloombergexample.tool.ExampleDatabasePopulator \
   -l tofile-logback.xml \
-  -c classpath:toolcontext/bloombergexample-bin.properties
+  -c classpath:toolcontext/toolcontext-bloombergexample-bin.properties
 
 echo "### Completed"
 

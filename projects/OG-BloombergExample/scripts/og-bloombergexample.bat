@@ -8,7 +8,7 @@ set SCRIPTDIR=%BASEDIR%\scripts
 set PROJECT=og-bloombergexample
 set PROJECTJAR=%PROJECT%.jar
 set LOGBACK_CONFIG=jetty-logback.xml
-set CONFIG=config\fullstack\bloombergexample-bin.properties
+set CONFIG=config\fullstack\fullstack-bloombergexample-bin.properties
 SETLOCAL EnableDelayedExpansion
 SET CLASSPATH="config;%PROJECTJAR%;lib\*
  for %%i in (lib/*.zip) do (
