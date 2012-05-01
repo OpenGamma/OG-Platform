@@ -38,6 +38,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -127,7 +129,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
@@ -767,6 +769,26 @@ public class ForexDerivativeVisitorTest {
     @Override
     public String visitDepositZero(DepositZero deposit) {
       // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option) {
       return null;
     }
 

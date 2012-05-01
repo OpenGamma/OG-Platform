@@ -9,8 +9,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -30,6 +28,7 @@ import com.opengamma.util.time.DateUtils;
  * Contains a set of Future instruments that can be used in tests.
  */
 public class FutureInstrumentsDescriptionDataSet {
+
   //EURIBOR 3M Index
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final Currency CUR = Currency.EUR;
@@ -65,7 +64,7 @@ public class FutureInstrumentsDescriptionDataSet {
   }
 
   // 5-Year U.S. Treasury Note Futures: FVU1
-  private static final Currency BNDFUT_CUR = Currency.EUR;
+  private static final Currency BNDFUT_CUR = Currency.USD;
   private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
   private static final DayCount BNDFUT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BNDFUT_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -94,8 +93,8 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final double BNDFUT_REFERENCE_PRICE = 0.0; // FIXME CASE Confirm BNDFUT_REFERENCE_PRICE. Was 1.23 
   private static final ZonedDateTime BNDFUT_REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 21);
   private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
+  private static final String DISC_CURVE_NAME = "Discounting";
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISC_CURVE_NAME};
 
   public static BondFutureDefinition createBondFutureSecurityDefinition() {
     return new BondFutureDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
@@ -103,6 +102,10 @@ public class FutureInstrumentsDescriptionDataSet {
 
   public static BondFuture createBondFutureSecurity() {
     return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
+  }
+
+  public static String[] curveNames() {
+    return CURVES_NAME;
   }
 
 }

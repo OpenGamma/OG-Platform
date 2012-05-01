@@ -23,8 +23,6 @@ import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -40,7 +38,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -51,8 +48,6 @@ public class InterestRateFutureLoader extends SecurityLoader {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureLoader.class);
-  
-  private static final Pattern s_rateTenorPattern = Pattern.compile("(\\d+)\\s*(DAY|MO)");
   
   /**
    * The fields to load from Bloomberg.
@@ -70,15 +65,6 @@ public class InterestRateFutureLoader extends SecurityLoader {
       FIELD_ID_ISIN,
       FIELD_ID_SEDOL1,
       FIELD_FUT_VAL_PT));
-
-//  private static final Map<Currency, String> s_currency2BBGRateCode = Maps.newHashMap();
-//  static {
-//    s_currency2BBGRateCode.put(Currency.USD, "US");
-//    s_currency2BBGRateCode.put(Currency.GBP, "BP");
-//    s_currency2BBGRateCode.put(Currency.EUR, "EU");
-//    s_currency2BBGRateCode.put(Currency.CHF, "SF");
-//    s_currency2BBGRateCode.put(Currency.JPY, "JY");
-//  }
   
   private static final Map<String, String> BBGCODE_UNDERLYING = Maps.newHashMap();
   static {
@@ -93,6 +79,8 @@ public class InterestRateFutureLoader extends SecurityLoader {
     BBGCODE_UNDERLYING.put("2L", "BP0003M Index");
     BBGCODE_UNDERLYING.put("ES", "SF0003M Index");
     BBGCODE_UNDERLYING.put("EF", "JY0003M Index");
+    BBGCODE_UNDERLYING.put("IR", "BBSW3M Index");
+    BBGCODE_UNDERLYING.put("BA", "CDOR03 Index");
     // TODO: Add EY - 3M Tibor
   }
   
@@ -118,8 +106,14 @@ public class InterestRateFutureLoader extends SecurityLoader {
     String currencyStr = fieldData.getString(FIELD_CRNCY);
     String name = fieldData.getString(FIELD_FUT_LONG_NAME);
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
-    double unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
-    
+    double unitAmount = 2500;
+    try {
+      unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
+    } catch (NumberFormatException e) {
+      if (!currencyStr.equals("AUD")) {
+        throw e;
+      }
+    }
 
     if (!isValidField(bbgUnique)) {
       s_logger.warn("bbgUnique is null, cannot construct interest rate future security");
@@ -167,40 +161,6 @@ public class InterestRateFutureLoader extends SecurityLoader {
     parseIdentifiers(fieldData, security);
     return security;
   }
-
-//  private ExternalId parseUnderlyingIdentifier(Currency currency, FudgeMsg fieldData) {
-//    ArgumentChecker.notNull(currency, "currency");
-//    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
-//    String tenor = extractRateTenor(name);
-//    String identifierValue = null;
-//    if (tenor != null) {
-//      identifierValue = s_currency2BBGRateCode.get(currency);
-//      if (identifierValue == null) {
-//        throw new OpenGammaRuntimeException("cannot parse underlying from currency=" + currency + " name=" + name + " sec des=" + fieldData.getString(FIELD_SECURITY_DES));
-//      }
-//      if (tenor.startsWith("3MO") || tenor.startsWith("90DAY")) {
-//        identifierValue += "0003M";
-//      } else if (tenor.startsWith("1MO") || tenor.startsWith("30DAY")) {
-//        identifierValue += "0001M";
-//      } else {
-//        throw new OpenGammaRuntimeException("cannot parse underlying from currency=" + currency + " name=" + name + " sec des=" + fieldData.getString(FIELD_SECURITY_DES));
-//      }
-//      identifierValue += " Index";
-//    } else {
-//      throw new OpenGammaRuntimeException("tenor can not be extracted from name = " + name + " for SecDes=" + fieldData.getString(FIELD_SECURITY_DES));
-//    }
-//    return ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, identifierValue);
-//  }
-//
-//  private String extractRateTenor(String name) {
-//    name = name.toUpperCase();
-//    Matcher matcher = s_rateTenorPattern.matcher(name);
-//    String result = null;
-//    if (matcher.find()) {
-//      result = BloombergDataUtils.removeDuplicateWhiteSpace(matcher.group(), "");
-//    } 
-//    return result;
-//  }
 
   @Override
   protected Set<String> getBloombergFields() {
