@@ -201,4 +201,8 @@ public final class ValuePropertyNames {
    */
   public static final String EXCESS_RETURN_CALCULATOR = "ExcessReturnMethod";
   
+  /**
+   * The name for a property describing the curve calculation configuration
+   */
+  public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
 }

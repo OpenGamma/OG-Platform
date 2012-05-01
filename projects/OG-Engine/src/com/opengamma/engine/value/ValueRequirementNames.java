@@ -110,6 +110,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
   /**
+   * Curve calculation property metadata
+   */
+  public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
+  /**
    * The raw FX forward and spot market data that is used in curve construction
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
