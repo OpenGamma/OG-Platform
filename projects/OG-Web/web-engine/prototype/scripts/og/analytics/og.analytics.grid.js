@@ -13,13 +13,23 @@ $.register_module({
             row_tmpl = api_text.partial({module: 'og.analytics.grid.row_tash'}),
             scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
         var col_css = function (id, columns, col_offset) {
-            var partial_width = 0, total_width = columns.reduce(function (acc, val) {return +val.width + acc;}, 0);
+            var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var width = +val.width, css = {
                     prefix: id, selector: 'c' + (idx + (col_offset || 0)),
                     left: partial_width, right: total_width - partial_width - width
                 };
                 return (partial_width += width), css;
+            });
+        };
+        var compile_templates = function (grid, config) {
+            $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
+                .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
+                    templates = {
+                        css: compile(css_tmpl), header: compile(header_tmpl),
+                        container: compile(container_tmpl), row: compile(row_tmpl)
+                    };
+                    init_data(grid, config);
             });
         };
         var init_data = function (grid, config) {
@@ -125,16 +135,6 @@ $.register_module({
             dataman.viewport(viewport);
             if (handler) handler();
         };
-        return function (config) {
-            var grid = this;
-            if (!templates) $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
-                .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
-                    templates = {
-                        css: compile(css_tmpl), header: compile(header_tmpl),
-                        container: compile(container_tmpl), row: compile(row_tmpl)
-                    };
-                    init_data(grid, config);
-            }); else init_data(grid, config);
-        };
+        return function (config) {return templates ? init_data(this, config) : compile_templates(this, config);};
     }
 });
