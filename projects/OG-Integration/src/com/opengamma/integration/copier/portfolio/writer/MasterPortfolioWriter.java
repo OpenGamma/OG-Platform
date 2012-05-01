@@ -148,8 +148,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
 
     } else {
-    
-      
+
       if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
         PositionSearchRequest searchReq = new PositionSearchRequest();
         
@@ -169,22 +168,15 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         // Search
         PositionSearchResult searchResult = _positionMaster.search(searchReq);
         
-        if (_overwrite) {
-          for (ManageablePosition pos : searchResult.getPositions()) {
-            _positionMaster.remove(pos.getUniqueId());
-          }
-        } else {
-          // Get the first match if found
-          PositionDocument firstDocument = searchResult.getFirstDocument();
-          if (firstDocument != null) {        
-            ManageablePosition existingPosition = firstDocument.getPosition();
-            // Add the existing position to the portfolio
-            _currentNode.addPosition(existingPosition.getUniqueId());
-            
-            // Return the existing position
-            return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition, 
-                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
-          }
+        PositionDocument firstDocument = searchResult.getFirstDocument();
+        if (firstDocument != null) {        
+          ManageablePosition existingPosition = firstDocument.getPosition();
+          // Add the existing position to the portfolio
+          _currentNode.addPosition(existingPosition.getUniqueId());
+          
+          // Return the existing position
+          return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition, 
+              writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
         }
         
         // TODO also confirm that all the associated trades are identical
