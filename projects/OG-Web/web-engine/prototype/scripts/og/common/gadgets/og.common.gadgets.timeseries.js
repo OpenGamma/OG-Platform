@@ -14,7 +14,8 @@ $.register_module({
          * @param {object} config
          * @param {String} config.selector
          * @param {String} config.id
-         * @param {String} config.height optional height of Timeseries, gadget will calculate height from parent if not supplied
+         * @param {String} config.height optional height of Timeseries, gadget will calculate height from parent
+         * if not supplied
          * @param {Boolean} config.datapoints
          * @param {Boolean} config.datapoints_link
          * @param {Object} config.data Spoffed Data - temporary solution
@@ -135,9 +136,7 @@ $.register_module({
                         var SLICK_SELECTOR = selector + ' .og-data-points .og-slick-' + index, slick, data,
                         columns = [
                             {id: 'time', name: 'Time', field: 'time', width: col_width,
-                                formatter: function (row, cell, value) {
-                                    return og.common.util.date(value, 'dateonly');
-                                }
+                                formatter: function (row, cell, value) {return og.common.util.date(value, 'dateonly');}
                             },
                             {id: 'value', name: 'Value', field: 'value', width: col_width}
                         ],
@@ -148,7 +147,8 @@ $.register_module({
                             showHeaderRow: false,
                             headerRowHeight: 0
                         };
-                        data = data_arr[index].data.reduce(function (acc, val) {
+                        // clone (slice) so you don't touch original data structure, reverse order for display
+                        data = data_arr[index].data.slice().reverse().reduce(function (acc, val) {
                             return acc.push({time: val[0], value: val[1]}) && acc;
                         }, []);
                         columns = og.common.slickgrid.calibrate_columns({

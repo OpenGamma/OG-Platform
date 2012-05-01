@@ -22,43 +22,23 @@ $.register_module({
                 return (partial_width += width), css;
             });
         };
-        var set_size = function (grid, config) {
-            var meta = grid.meta, css, $style, $parent = $(config.selector), width = config.width || $parent.width(),
-                height = config.height || $parent.height(), columns = meta.columns, id = grid.id;
-            grid.style = $style = grid.style || $('<style type="text/css" />').appendTo($('head'));
-            meta.columns.width = {
-                fixed: meta.columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
-                scroll: meta.columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
-            };
-            meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
-            meta.visible_rows = Math.ceil((height - header_height) / row_height);
-            css = templates.css({
-                id: id, viewport_width: meta.viewport.width,
-                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
-                height: height - header_height, header_height: header_height, row_height: row_height,
-                columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
-            });
-            set_viewport(grid);
-            if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
-            $style[0].appendChild(document.createTextNode(css));
+        var init_data = function (grid, config) {
+            (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
         };
-        var set_viewport = function (grid, handler) {
-            var id = grid.id, meta = grid.meta, viewport = meta.viewport, dataman = grid.dataman, row_start,
-                top_position = $(id + ' .OG-g-b-fixed').scrollTop(),
-                left_position = $(id + ' .OG-g-h-scroll').scrollLeft(),
-                scroll_position = left_position + viewport.width;
-            viewport.rows = [
-                row_start = Math.floor((top_position / viewport.height) * meta.rows),
-                row_start + meta.visible_rows
-            ];
-            viewport.cols = meta.columns.scroll.reduce(function (acc, val, idx) {
-                if (!('scan' in acc)) return acc;
-                if ((acc.scan += val.width) >= left_position) acc.cols.push(idx + meta.columns.fixed.length);
-                if (acc.scan > scroll_position) delete acc.scan;
-                return acc;
-            }, {scan: 0, cols: []}).cols;
-            dataman.viewport(viewport);
-            if (handler) handler();
+        var init_grid = function (grid, config, metadata) {
+            var columns = metadata.columns, $style,
+                scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
+            grid.id = '#analytics_grid_' + counter++;
+            grid.meta = metadata;
+            set_size(grid, config);
+            $(config.selector).html(templates.container({id: grid.id.substring(1)}));
+            $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
+            render_header(grid);
+            grid.dataman.on('data', render_rows, grid);
+            og.common.gadgets.manager.register({
+                alive: function () {return $(grid.id).length ? true : !grid.style.remove();},
+                resize: set_size.partial(grid, config)
+            });
         };
         var render_header = (function () {
             var meta, head_data = function (columns, offset) {
@@ -107,32 +87,54 @@ $.register_module({
                 timeout = clearTimeout(timeout) || setTimeout(update_viewport, 200);
             }
         };
+        var set_size = function (grid, config) {
+            var meta = grid.meta, css, $style, $parent = $(config.selector), width = config.width || $parent.width(),
+                height = config.height || $parent.height(), columns = meta.columns, id = grid.id;
+            grid.style = $style = grid.style || $('<style type="text/css" />').appendTo($('head'));
+            meta.columns.width = {
+                fixed: meta.columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
+                scroll: meta.columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
+            };
+            meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
+            meta.visible_rows = Math.ceil((height - header_height) / row_height);
+            css = templates.css({
+                id: id, viewport_width: meta.viewport.width,
+                scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
+                height: height - header_height, header_height: header_height, row_height: row_height,
+                columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
+            });
+            set_viewport(grid);
+            if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
+            $style[0].appendChild(document.createTextNode(css));
+        };
+        var set_viewport = function (grid, handler) {
+            var id = grid.id, meta = grid.meta, viewport = meta.viewport, dataman = grid.dataman, row_start,
+                top_position = $(id + ' .OG-g-b-fixed').scrollTop(),
+                left_position = $(id + ' .OG-g-h-scroll').scrollLeft(),
+                scroll_position = left_position + viewport.width;
+            viewport.rows = [
+                row_start = Math.floor((top_position / viewport.height) * meta.rows),
+                row_start + meta.visible_rows
+            ];
+            viewport.cols = meta.columns.scroll.reduce(function (acc, val, idx) {
+                if (!('scan' in acc)) return acc;
+                if ((acc.scan += val.width) >= left_position) acc.cols.push(idx + meta.columns.fixed.length);
+                if (acc.scan > scroll_position) delete acc.scan;
+                return acc;
+            }, {scan: 0, cols: []}).cols;
+            dataman.viewport(viewport);
+            if (handler) handler();
+        };
         return function (config) {
             var grid = this;
-            var initialize_grid = function (metadata) {
-                var columns = metadata.columns, $style,
-                    scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
-                grid.id = '#analytics_grid_' + counter++;
-                grid.meta = metadata;
-                set_size(grid, config);
-                $(config.selector).html(templates.container({id: grid.id.substring(1)}));
-                $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
-                render_header(grid);
-                grid.dataman.on('data', render_rows, grid);
-                og.common.gadgets.manager.register({
-                    alive: function () {return $(grid.id).length ? true : !grid.style.remove();},
-                    resize: set_size.partial(grid, config)
-                });
-            };
-            var initialize_data = function () {(grid.dataman = new og.analytics.Data).on('init', initialize_grid);};
             if (!templates) $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
                 .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
                     templates = {
                         css: compile(css_tmpl), header: compile(header_tmpl),
                         container: compile(container_tmpl), row: compile(row_tmpl)
                     };
-                    initialize_data();
-            }); else initialize_data();
+                    init_data(grid, config);
+            }); else init_data(grid, config);
         };
     }
 });
