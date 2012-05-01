@@ -208,7 +208,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
               yList.add(y);
               volatilityValues.put(Pair.of(x, y), volatility);
             } else {
-              s_logger.debug("Missing option price~" + identifier.toString());
+              s_logger.info("Missing option price, {}", identifier);
             }
           }
         }

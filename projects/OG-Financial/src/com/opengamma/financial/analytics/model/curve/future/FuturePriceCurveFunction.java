@@ -154,9 +154,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
         final LocalDate valDate = now.toLocalDate();
         for (final Object x : priceCurveDefinition.getXs()) {
-          
           final Number xNum = (Number) x;
-          
           final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
           final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           Double futurePrice = null;
