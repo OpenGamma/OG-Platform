@@ -6,9 +6,12 @@
 package com.opengamma.financial.analytics.ircurve.calcconfig;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
@@ -16,22 +19,26 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class MultiCurveCalculationConfig {
+  //TODO check inputs for instrument exposures - need some or all of yield curve names in the array of names
   private final String _calculationConfigName;
   private final String[] _yieldCurveNames;
   private final UniqueIdentifiable[] _uniqueIds;
   private final String[] _calculationMethods;
   private final String[] _exogenousConfigNames;
+  private final Map<String, CurveInstrumentConfig> _curveExposuresForInstruments;
 
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod) {
-    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethod, null);
+  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments) {
+    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethod, curveExposuresForInstruments, null);
   }
 
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods) {
-    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethods, null);
+  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments) {
+    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethods, curveExposuresForInstruments, null);
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
-      final String[] exogenousConfigNames) {
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final String[] exogenousConfigNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -50,11 +57,12 @@ public class MultiCurveCalculationConfig {
     _uniqueIds = uniqueIds;
     _calculationMethods = new String[_yieldCurveNames.length];
     Arrays.fill(_calculationMethods, calculationMethod);
+    _curveExposuresForInstruments = curveExposuresForInstruments;
     _exogenousConfigNames = exogenousConfigNames;
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final String[] exogenousConfigNames) {
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final String[] exogenousConfigNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -76,6 +84,7 @@ public class MultiCurveCalculationConfig {
     _yieldCurveNames = yieldCurveNames;
     _uniqueIds = uniqueIds;
     _calculationMethods = calculationMethods;
+    _curveExposuresForInstruments = curveExposuresForInstruments;
     _exogenousConfigNames = exogenousConfigNames;
   }
 
@@ -95,6 +104,17 @@ public class MultiCurveCalculationConfig {
     return _uniqueIds;
   }
 
+  public Map<String, CurveInstrumentConfig> getCurveExposuresForInstruments() {
+    return _curveExposuresForInstruments;
+  }
+
+  public String[] getCurveExposureForInstrument(final String yieldCurveName, final StripInstrumentType instrumentType) {
+    if (Arrays.binarySearch(_yieldCurveNames, yieldCurveName) < 0) {
+      throw new OpenGammaRuntimeException("Did not have curve called " + yieldCurveName + " in this calculation configuration");
+    }
+    return _curveExposuresForInstruments.get(yieldCurveName).getExposuresForInstrument(instrumentType);
+  }
+
   public String[] getExogenousConfigNames() {
     return _exogenousConfigNames;
   }
@@ -108,6 +128,7 @@ public class MultiCurveCalculationConfig {
     result = prime * result + Arrays.hashCode(_exogenousConfigNames);
     result = prime * result + Arrays.hashCode(_uniqueIds);
     result = prime * result + Arrays.hashCode(_yieldCurveNames);
+    result = prime * result + _curveExposuresForInstruments.hashCode();
     return result;
   }
 
@@ -127,6 +148,9 @@ public class MultiCurveCalculationConfig {
       return false;
     }
     if (!Arrays.equals(_yieldCurveNames, other._yieldCurveNames)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_curveExposuresForInstruments, other._curveExposuresForInstruments)) {
       return false;
     }
     if (!Arrays.equals(_uniqueIds, other._uniqueIds)) {

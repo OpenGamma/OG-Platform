@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve.calcconfig;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.config.ConfigDocument;
@@ -24,8 +28,10 @@ public class CurveCalculationConfigConfigPopulator {
   }
 
   private static void populateConfigMaster(final ConfigMaster configMaster) {
-    final MultiCurveCalculationConfig defaultUSDConfig = new MultiCurveCalculationConfig("Default", new String[] {"FUNDING", "FORWARD_3M"},
-        new UniqueIdentifiable[] {Currency.USD, Currency.USD}, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+    final String usdFundingCurveName = "Funding";
+    final String usdForward3MCurveName = "Forward3M";
+    final MultiCurveCalculationConfig defaultUSDConfig = new MultiCurveCalculationConfig("Default", new String[] {usdFundingCurveName, usdForward3MCurveName},
+        new UniqueIdentifiable[] {Currency.USD, Currency.USD}, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING, getUSDCurveInstrumentConfig(usdFundingCurveName, usdForward3MCurveName));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultUSDConfig));
   }
 
@@ -34,5 +40,23 @@ public class CurveCalculationConfigConfigPopulator {
     configDocument.setName(curveConfig.getCalculationConfigName());
     configDocument.setValue(curveConfig);
     return configDocument;
+  }
+
+  private static Map<String, CurveInstrumentConfig> getUSDCurveInstrumentConfig(final String fundingCurveName, final String forward3MCurveName) {
+    final String[] fundingOnly = new String[] {fundingCurveName};
+    final String[] forward3MOnly = new String[] {forward3MCurveName};
+    final String[] fundingForward3M = new String[] {fundingCurveName, forward3MCurveName};
+    final Map<String, CurveInstrumentConfig> result = new HashMap<String, CurveInstrumentConfig>();
+    final Map<StripInstrumentType, String[]> fundingConfig = new HashMap<StripInstrumentType, String[]>();
+    fundingConfig.put(StripInstrumentType.CASH, fundingOnly);
+    fundingConfig.put(StripInstrumentType.OIS_SWAP, new String[] {fundingCurveName, fundingCurveName});
+    final Map<StripInstrumentType, String[]> forward3MConfig = new HashMap<StripInstrumentType, String[]>();
+    forward3MConfig.put(StripInstrumentType.LIBOR, forward3MOnly);
+    forward3MConfig.put(StripInstrumentType.FUTURE, fundingForward3M);
+    forward3MConfig.put(StripInstrumentType.FRA_3M, fundingForward3M);
+    forward3MConfig.put(StripInstrumentType.SWAP_6M, fundingForward3M);
+    result.put(fundingCurveName, new CurveInstrumentConfig(fundingConfig));
+    result.put(forward3MCurveName, new CurveInstrumentConfig(forward3MConfig));
+    return result;
   }
 }

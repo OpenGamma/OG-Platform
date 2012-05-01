@@ -13,6 +13,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
+import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
@@ -32,6 +33,7 @@ public final class OpenGammaCompilationContext {
   private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
   private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
   private static final String SECURITY_SOURCE_NAME = "securitySource";
+  private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
 
   /**
    * Restricted constructor.
@@ -165,5 +167,23 @@ public final class OpenGammaCompilationContext {
 
   public static void setSecuritySource(final FunctionCompilationContext compilationContext, final SecuritySource securitySource) {
     set(compilationContext, SECURITY_SOURCE_NAME, securitySource);
+  }
+
+  /**
+   * Gets a {@code CurveCalculationConfigSource} from the context.
+   * @param compilationContext  the context to examine, not null
+   * @return the curve config source, null if not found
+   */
+  public static CurveCalculationConfigSource getCurveCalculationConfigSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, CURVE_CALCULATION_CONFIG_NAME);
+  }
+
+  /**
+   * Stores a {@code CurveCalculationConfigSource} in the context.
+   * @param compilationContext  the context to store in, not null
+   * @param curveConfigSource  the curve config source to store, not null
+   */
+  public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
+    set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
 }
