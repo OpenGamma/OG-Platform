@@ -9,8 +9,15 @@
     color: #ccc;
 }
 
-.OG-layout-analytics-dock,
+.OG-layout-analytics-center,
 .OG-layout-analytics-south,
-.OG-layout-analytics-center {
-    background: #f8f8f8;
+.OG-layout-analytics-dock-north,
+.OG-layout-analytics-dock-center,
+.OG-layout-analytics-dock-south {
+  background: #f8f8f8;
+}
+
+.OG-layout-analytics-container .ui-layout-content {
+    padding: 0;
+    overflow-y: hidden;
 }

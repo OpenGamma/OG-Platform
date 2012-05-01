@@ -9,9 +9,9 @@
 
 html {
   background-color: #cdcdcd;
-  background-image: -moz-radial-gradient(cover, #fafafa, #cdcdcd);
-  background-image: -webkit-radial-gradient(cover, #fafafa, #cdcdcd);
-  background-image: radial-gradient(cover, #fafafa, #cdcdcd);
+      background-image: -moz-radial-gradient(cover, #fff, #cdcdcd);
+  background-image: -webkit-radial-gradient(cover, #fff, #cdcdcd);
+  background-image: radial-gradient(cover, #fff, #cdcdcd);
   height: 100%;
 }
 

@@ -181,15 +181,15 @@ $.register_module({
           <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th colspan="6"><span>Trades</span></th>\
+                <th colspan="6"><span><em>Trades</em></span></th>\
               </tr>\
               <tr>\
-                <th>ID</th>\
-                <th>Quantity</th>\
-                <th>Counterparty</th>\
-                <th>Trade Date / Time</th>\
-                <th>Premium</th>\
-                <th>Premium Date / Time</th>\
+                <th><div><em>ID<em/></div></th>\
+                <th><div><em>Quantity<em/></div></th>\
+                <th><div><em>Counterparty<em/></div></th>\
+                <th><div><em>Trade Date / Time<em/></div></th>\
+                <th><div><em>Premium<em/></div></th>\
+                <th><div><em>Premium Date / Time<em/></div></th>\
               </tr>\
             </thead>\
             <tbody>{TBODY}</tbody>\
@@ -353,7 +353,11 @@ $.register_module({
                 if (!version && editable) attach_trades_link(selector);
                 $(selector + ' .OG-table').tablesorter({
                     headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}}
-                }).awesometable({height: height});
+                }).awesometable({height: height, resize: function (resize) {
+                    og.common.gadgets.manager.register({
+                        alive: function () {return !!$(selector).length;}, resize: resize
+                    });
+                }});
                 /*
                  * Enable edit/delete trade
                  */

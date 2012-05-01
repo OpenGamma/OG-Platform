@@ -147,12 +147,11 @@ $.register_module({
                                      .replace('[3]', cur.date.end);
                             }, '')
                         ).end().find('.OG-table').tablesorter();
-                        $('.OG-layout-admin-details-center .og-js-identifiers').tablesorter();
                         // Plot
                         common.gadgets.timeseries({
                             selector: '.OG-timeseries-gadget',
                             id: result.data.template_data.object_id,
-                            datapoints: true
+                            datapoints: true, height: 400
                         });
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);

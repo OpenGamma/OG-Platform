@@ -217,7 +217,7 @@ $.register_module({
                     handlers: [{type: 'form:load', handler: function () {
                         ['DeltaCalcPeriod', 'FullCalcPeriod'].forEach(function (suffix) {
                             ['min', 'max'].forEach(function (prefix) {
-                                $('#' + prefix + suffix).val(master[prefix + suffix]);
+                                $('input[name=' + prefix + suffix + ']').val(master[prefix + suffix]);
                             });
                         });
                     }}]

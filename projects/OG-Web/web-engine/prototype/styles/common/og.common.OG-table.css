@@ -16,12 +16,6 @@
     visibility: hidden;
 }
 
-.OG-table th,
-.OG-table td {
-    padding-right: 2px;
-    padding-bottom: 2px;
-}
-
 .OG-table td {
     padding: 4px;
     background-color: #ecf5fa;
@@ -38,53 +32,111 @@
 }
 
 .OG-table th {
-    color: #999;
+    color: #555;
     text-align: left;
-    font-weight: normal;
-    padding-top: 7px;
+    font-weight: bold;
+    padding: 4px 0;
+}
+
+.OG-table tr:nth-child(2) th {
+    padding: 0;
+}
+
+.OG-table tr:nth-child(2) th div {
+    padding: 4px 0;
+}
+
+.OG-table th em {
+    font-style: normal;
+    z-index: 2;
+    position: relative;
 }
 
 .OG-table thead span {
-    font-size: 16px;
+    font-size: 12px;
+    font-weight: normal;
     line-height: 12px;
-    padding: 5px 10px 5px 8px;
-    border-left: 2px solid #c6c6c6;
+    padding: 6px 10px 6px 8px;
+    border: 1px solid #d8d8d8;
     color: #555;
-    background-color: #f3f3f3;
+    text-shadow: 0px 1px 0px #fff;
+    background-color: #eee;
+    border-radius: 1px;
+    position: relative;
+}
+
+.OG-table thead span:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 50%;
+    background: #fafafa;
+}
+
+.OG-table thead span * {
+    position: relative;
+    font-style: normal;
+    z-index: 2;
 }
 
 .OG-table thead tr th {
-    background-color: #fff;
     white-space: nowrap;
+    border-bottom: 2px solid #fff;
 }
 
 .OG-table tbody td {
     vertical-align: top;
 }
 
-.OG-table th:after {
+.OG-table thead tr:last-child th div {
+    position: relative;
+}
+
+.OG-table thead tr:last-child th div:after {
     display: block;
     content: '';
-    border-bottom: 4px solid #f3f3f3;
+    background: #dfecf5;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 50%;
+    position: absolute;
 }
+
+.OG-table thead tr:first-child th:after {
+    content: none;
+}
+
+.OG-table thead tr {
+  /**
+    * 1000
+    * 0100
+    * 0010
+    * 0001
+    * 1=d0d0d1, 0=ecf5fa
+      background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2N4+uz5p89fIIgBiOF8EAfOh3IgfACRGCz1+ENhswAAAABJRU5ErkJggg==)
+    */
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2O4cOHim6+/IIgBiOF8EAfOh3IgfAB4lCwJ2HzdqwAAAABJRU5ErkJggg==);
+}
+
 
 /* Second level header support */
 
-    .OG-table thead tr + tr th {
-        background-color: #f3f3f3;
-        border-bottom: 2px solid #fff;
-        border-right: 2px solid #fff;
-        color: #999;
-        padding-left: 2px;
+    .OG-table thead tr + tr {
+        background: #d7e7f2;
+        border-top: 2px solid #fff;
     }
 
-    .OG-table thead tr + tr th:first-child {
+    .OG-table thead tr + tr th:first-child div {
         padding-left: 10px;
     }
 
     .OG-table thead tr + tr th:last-child {
       border-right: none;
     }
+
 
 /* Sub list content */
 
@@ -148,5 +200,5 @@
 
 /* Tablesorter */
 .OG-table.og-tablesorter tr:last-child th {
-  cursor: pointer;
+    cursor: pointer;
 }

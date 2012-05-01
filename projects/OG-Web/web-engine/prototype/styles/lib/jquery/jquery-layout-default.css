@@ -2,6 +2,9 @@
     padding: 10px;
     position: relative;
     overflow: auto;
+    overflow-y: scroll;
+    margin-right: 1px;
+    margin-bottom: 1px;
 }
 
 /*
@@ -9,6 +12,22 @@
  */
     .ui-layout-resizer {
         background: transparent;
+        position: relative;
+    }
+
+    .ui-layout-resizer:after {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        height: 50px;
+        width: 50px;
+        margin-top: -23px;
+        margin-left: -23px;
+        background:
+            url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAS0lEQVQY02P4+OnT/wuXLv2/decumAbxgYABHTNcvnIVrAiGQXysCm/fvYeiEMTHbuJVNBOv4jDxy5cvYOtAJoFoEB+rQmyCQ1UhADavOcpb2cQpAAAAAElFTkSuQmCC)
+            1px 1px;
     }
 
     .ui-layout-resizer-open-hover,
@@ -33,11 +52,7 @@
  * Toggle button
  */
 
-.ui-layout-toggler {
-    background:
-        url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAS0lEQVQY02P4+OnT/wuXLv2/decumAbxgYABHTNcvnIVrAiGQXysCm/fvYeiEMTHbuJVNBOv4jDxy5cvYOtAJoFoEB+rQmyCQ1UhADavOcpb2cQpAAAAAElFTkSuQmCC)
-        1px 1px;
-}
+.ui-layout-toggler {}
 
 .ui-layout-resizer-hover .ui-layout-toggler {
     opacity: 0;
