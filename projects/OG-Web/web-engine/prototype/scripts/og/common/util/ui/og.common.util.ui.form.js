@@ -115,7 +115,7 @@ $.register_module({
                         return !(result = type_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
                     for (key in data) {
                         result[key] = build_meta(data[key], null_path ? key : [path, key || empty].join('.'), warns);
-                        if (result[key] in numbers) data[key] = +data[key];
+                        if (result[key] in numbers) if (data[key].length) data[key] = +data[key]; else delete data[key];
                         // INDs that are not null need to be re-typed as STRs
                         if ((result[key] === Form.type.IND) && (data[key] !== null)) result[key] = Form.type.STR;
                     }
