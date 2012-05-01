@@ -7,5 +7,5 @@
 {{id}} .OG-g-b {top: {{header_height}}px}
 {{#if row_height}}}{{id}} .OG-g-cell {height: {{row_height}}px;}{{/if}}
 {{#each columns}}
-    {{this.prefix}} .OG-g .{{this.selector}} {left: {{this.left}}px; right: {{this.right}}px;}
+    {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}

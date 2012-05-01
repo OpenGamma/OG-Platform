@@ -12,14 +12,14 @@ $.register_module({
             container_tmpl = api_text.partial({module: 'og.analytics.grid.container_tash'}),
             row_tmpl = api_text.partial({module: 'og.analytics.grid.row_tash'}),
             scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
-        var col_css = function (id, columns, col_offset) {
+        var col_css = function (id, columns, offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
-                var width = +val.width, css = {
-                    prefix: id, selector: 'c' + (idx + (col_offset || 0)),
-                    left: partial_width, right: total_width - partial_width - width
+                var css = {
+                    prefix: id, index: idx + (offset || 0),
+                    left: partial_width, right: total_width - partial_width - val.width
                 };
-                return (partial_width += width), css;
+                return (partial_width += val.width), css;
             });
         };
         var compile_templates = function (grid, config) {
