@@ -68,56 +68,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   }
 
-  /*
-   * writeSecurity searches for an existing security that matches an external id search, and attempts to
-   * reuse/update it wherever possible, instead of creating a new one.
-   */
-  private ManageableSecurity writeSecurity(ManageableSecurity security) {
-    
-    ArgumentChecker.notNull(security, "security");
-    
-    SecuritySearchRequest searchReq = new SecuritySearchRequest();
-    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
-    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
-    searchReq.setExternalIdSearch(idSearch);
-    searchReq.setFullDetail(true);
-    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
-    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
-    if (_overwrite) {
-      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        _securityMaster.remove(foundSecurity.getUniqueId());
-      }
-    } else {
-      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        if (weakEquals(foundSecurity, security)) {
-          // It's already there, don't update or add it
-          return foundSecurity;
-        } else {
-          SecurityDocument updateDoc = new SecurityDocument(security);
-          updateDoc.setUniqueId(foundSecurity.getUniqueId());
-          SecurityDocument result = _securityMaster.update(updateDoc);
-          return result.getSecurity();
-        }
-      }
-    }
-    // Not found, so add it
-    SecurityDocument addDoc = new SecurityDocument(security);
-    SecurityDocument result = _securityMaster.add(addDoc);
-    return result.getSecurity();
-  }
-  
-  // This weak equals does not actually compare the security's fields, just the type, external ids and attributes :(
-  protected boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
-    return sec1.getName().equals(sec2.getName()) &&
-           sec1.getSecurityType().equals(sec2.getSecurityType()) &&
-           sec1.getExternalIdBundle().equals(sec2.getExternalIdBundle()) &&
-           sec1.getAttributes().equals(sec2.getAttributes());
-  }
-  
-  
-  /*
+  /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
+   * @param position    the position to be written
+   * @param securities  the security(ies) related to the above position, also to be written; index 1 onwards are underlyings
+   * @return            the positions/securities in the masters after writing
    */
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
@@ -194,6 +150,53 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
   }
 
+  /*
+   * writeSecurity searches for an existing security that matches an external id search, and attempts to
+   * reuse/update it wherever possible, instead of creating a new one.
+   */
+  private ManageableSecurity writeSecurity(ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(security, "security");
+    
+    SecuritySearchRequest searchReq = new SecuritySearchRequest();
+    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
+    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
+    searchReq.setExternalIdSearch(idSearch);
+    searchReq.setFullDetail(true);
+    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
+    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
+    if (_overwrite) {
+      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+        _securityMaster.remove(foundSecurity.getUniqueId());
+      }
+    } else {
+      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+        if (weakEquals(foundSecurity, security)) {
+          // It's already there, don't update or add it
+          return foundSecurity;
+        } else {
+          SecurityDocument updateDoc = new SecurityDocument(security);
+          updateDoc.setUniqueId(foundSecurity.getUniqueId());
+          SecurityDocument result = _securityMaster.update(updateDoc);
+          return result.getSecurity();
+        }
+      }
+    }
+    // Not found, so add it
+    SecurityDocument addDoc = new SecurityDocument(security);
+    SecurityDocument result = _securityMaster.add(addDoc);
+    return result.getSecurity();
+  }
+  
+  // This weak equals does not actually compare the security's fields, just the type, external ids and attributes :(
+  protected boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
+    return sec1.getName().equals(sec2.getName()) &&
+           sec1.getSecurityType().equals(sec2.getSecurityType()) &&
+           sec1.getExternalIdBundle().equals(sec2.getExternalIdBundle()) &&
+           sec1.getAttributes().equals(sec2.getAttributes());
+  }
+  
+  
   @Override
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 
