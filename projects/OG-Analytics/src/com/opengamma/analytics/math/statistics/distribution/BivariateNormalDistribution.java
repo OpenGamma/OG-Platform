@@ -19,7 +19,7 @@ import org.apache.commons.lang.Validate;
  * where $\rho$ is the correlation between $x$ and $y$.
  * <p>
  * The implementation of the cdf is taken from "Better Approximations to Cumulative Normal Functions", West
- * (<a href="www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
+ * (<a href="http://www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
  */
 public class BivariateNormalDistribution implements ProbabilityDistribution<double[]> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
