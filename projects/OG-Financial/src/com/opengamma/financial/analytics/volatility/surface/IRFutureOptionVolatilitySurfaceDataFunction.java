@@ -17,6 +17,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +211,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       // Get the corresponding future, which may not share the same expiries as the option itself
       Double[] futureExpiries = futurePrices.getXData();
       int nFutures = futureExpiries.length;
+      Validate.isTrue(nFutures > 0, "No future prices found");
       Double underlyingExpiry;
       int i = 0;
       do {
