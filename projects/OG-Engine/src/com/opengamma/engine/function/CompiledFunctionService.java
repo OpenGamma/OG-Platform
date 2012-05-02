@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -95,10 +94,18 @@ public class CompiledFunctionService {
 
   private static final class StaticFunctionRepository implements FunctionRepository {
 
-    private final Collection<FunctionDefinition> _functions;
+    private final Set<FunctionDefinition> _functions;
 
-    private StaticFunctionRepository(final Collection<FunctionDefinition> functions) {
-      _functions = Collections.unmodifiableCollection(functions);
+    private StaticFunctionRepository(final FunctionRepository functions) {
+      _functions = new HashSet<FunctionDefinition>((functions != null) ? functions.getAllFunctions() : Collections.<FunctionDefinition>emptyList());
+    }
+
+    private void remove(final FunctionDefinition function) {
+      _functions.remove(function);
+    }
+
+    private void add(final FunctionDefinition function) {
+      _functions.add(function);
     }
 
     @Override
@@ -113,6 +120,7 @@ public class CompiledFunctionService {
     final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
     int nFunctions = functions.size();
     getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
+    final StaticFunctionRepository initialized = new StaticFunctionRepository(_initializedFunctionRepository);
     for (final FunctionDefinition definition : functions) {
       completionService.submit(new Runnable() {
         @Override
@@ -125,8 +133,8 @@ public class CompiledFunctionService {
           }
         }
       }, definition);
+      initialized.remove(definition);
     }
-    final Collection<FunctionDefinition> initializedFunctions = new ArrayList<FunctionDefinition>(nFunctions);
     for (int i = 0; i < nFunctions; i++) {
       Future<FunctionDefinition> future = null;
       try {
@@ -137,13 +145,13 @@ public class CompiledFunctionService {
         throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
       }
       try {
-        initializedFunctions.add(future.get());
+        initialized.add(future.get());
       } catch (Exception e) {
         s_logger.warn("Couldn't initialize function", e);
         // Don't take any further action - the error has been logged and the function is not in the "initialized" set
       }
     }
-    _initializedFunctionRepository = new StaticFunctionRepository(initializedFunctions);
+    _initializedFunctionRepository = initialized;
     getFunctionCompilationContext().setFunctionReinitializer(null);
     getFunctionCompilationContext().setFunctionInitId(initId);
     timer.finished();
