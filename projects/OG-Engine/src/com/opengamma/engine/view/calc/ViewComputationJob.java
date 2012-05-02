@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.time.Duration;
@@ -63,7 +64,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
 
-
 /**
  * The job which schedules and executes computation cycles for a view process.
  */
@@ -97,6 +97,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private volatile boolean _forceTriggerCycle;
   private volatile boolean _viewDefinitionDirty = true;
   private volatile boolean _compilationDirty;
+  private volatile Future<CompiledViewDefinitionWithGraphsImpl> _compilationTask;
 
   /**
    * Nanoseconds
@@ -165,15 +166,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   /**
    * Determines whether to run, and runs if required, a single computation cycle using the following rules:
-   * 
    * <ul>
-   *   <li>A computation cycle can only be triggered if the relevant minimum computation period has passed since the
-   *   start of the previous cycle.
-   *   <li>A computation cycle will be forced if the relevant maximum computation period has passed since the start of
-   *   the previous cycle.
-   *   <li>A full computation is preferred over a delta computation if both are possible.
-   *   <li>Performing a full computation also updates the times to the next delta computation; i.e. a full computation
-   *   is considered to be as good as a delta.
+   * <li>A computation cycle can only be triggered if the relevant minimum computation period has passed since the start of the previous cycle.
+   * <li>A computation cycle will be forced if the relevant maximum computation period has passed since the start of the previous cycle.
+   * <li>A full computation is preferred over a delta computation if both are possible.
+   * <li>Performing a full computation also updates the times to the next delta computation; i.e. a full computation is considered to be as good as a delta.
    * </ul>
    */
   @Override
@@ -252,9 +249,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
-      if (isTerminated()) {
-        return; //[PLAT-1904]
-      }
     } catch (Exception e) {
       String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
           getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);
@@ -289,19 +283,19 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       try {
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
         final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
-        
+
         final HashMap<String, Collection<ComputationTarget>> configToComputationTargets = new HashMap<String, Collection<ComputationTarget>>();
         for (String configName : configurationNames) {
           DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
           configToComputationTargets.put(configName, dependencyGraph.getAllComputationTargets());
         }
-        
+
         final HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> configToTerminalOutputs = new HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>();
         for (String configName : configurationNames) {
           DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
           configToTerminalOutputs.put(configName, dependencyGraph.getTerminalOutputs());
         }
-        
+
         cycleStarted(new DefaultViewCycleMetadata(
             cycleReference.get().getUniqueId(),
             marketDataSnapshot.getUniqueId(),
@@ -310,8 +304,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
             executionOptions.getValuationTime(),
             configurationNames,
             configToComputationTargets,
-            configToTerminalOutputs
-        ));
+            configToTerminalOutputs));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
@@ -497,6 +490,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     invalidateCachedCompiledViewDefinition();
   }
 
+  @Override
+  public void terminate() {
+    super.terminate();
+    final Future<CompiledViewDefinitionWithGraphsImpl> task = _compilationTask;
+    if (task != null) {
+      task.cancel(true);
+    }
+  }
+
   private void processCompleted() {
     s_logger.info("Computation job completed for view process {}", getViewProcess());
     try {
@@ -508,8 +510,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   /**
-   * Indicates that the view definition itself has changed. It is not necessary to call {@link #dirtyCompilation()}
-   * as well.
+   * Indicates that the view definition itself has changed. It is not necessary to call {@link #dirtyCompilation()} as well.
    */
   public void dirtyViewDefinition() {
     s_logger.info("Marking view definition as dirty for view process {}", getViewProcess());
@@ -517,8 +518,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   /**
-   * Indicates that changes have occurred which may affect the compilation, and the view definition should be
-   * recompiled at the earliest opportunity.
+   * Indicates that changes have occurred which may affect the compilation, and the view definition should be recompiled at the earliest opportunity.
    */
   public void dirtyCompilation() {
     s_logger.info("Marking compilation as dirty for view process {}", getViewProcess());
@@ -593,10 +593,15 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     try {
       MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
-      compiledViewDefinition = ViewDefinitionCompiler.compile(_viewDefinition, compilationServices, valuationTime, versionCorrection);
-      
-      if (isTerminated()) {
-        return compiledViewDefinition; //[PLAT-1904] If we can't terminate the compilation at least avoid doing the subscribe etc.
+      _compilationTask = ViewDefinitionCompiler.compileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
+      try {
+        if (!isTerminated()) {
+          compiledViewDefinition = _compilationTask.get();
+        } else {
+          return null;
+        }
+      } finally {
+        _compilationTask = null;
       }
     } catch (Exception e) {
       String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
@@ -647,7 +652,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * <p>
    * External visibility for tests.
    * 
-   * @param latestCompiledViewDefinition  the compiled view definition, may be null
+   * @param latestCompiledViewDefinition the compiled view definition, may be null
    */
   public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;

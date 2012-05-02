@@ -39,7 +39,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY
   };
   private final String _putCurveName;
   private final String _putForwardCurveName;

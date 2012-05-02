@@ -28,7 +28,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY
   };
   private final String _forwardCurveName;
   private final String _fundingCurveName;

@@ -26,7 +26,7 @@ public class SwaptionBlackImpliedVolatilityFunction extends SwaptionBlackFunctio
   private static final ImpliedVolatilityBlackCalculator CALCULATOR = ImpliedVolatilityBlackCalculator.getInstance();
 
   public SwaptionBlackImpliedVolatilityFunction() {
-    super(ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    super(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
   }
 
   @Override

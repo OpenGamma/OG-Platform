@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -217,28 +215,6 @@ public class TestsDataSetsSABR {
   public static SABRInterestRateParameters createSABR1NuBumped() {
     final double shift = 0.0001;
     return createSABR1NuBumped(new SABRHaganVolatilityFunction(), shift);
-  }
-
-  /**
-   * Create a SABR surface with extrapolation parameters based on createSABR1.
-   * @param sabrFunction The SABR function.
-   * @param cutOffStrike The cut-off strike.
-   * @param mu The tail thickness parameter.
-   * @return The SABR surface with extrapolation parameters.
-   */
-  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double cutOffStrike, final double mu) {
-    final SABRInterestRateParameters sabr = createSABR1();
-    return SABRInterestRateExtrapolationParameters.from(sabr, cutOffStrike, mu);
-  }
-
-  /**
-   * Create a SABR surface with extrapolation and with Hagan volatility function parameters based on createSABR1.
-   * @param cutOffStrike The cut-off strike.
-   * @param mu The tail thickness parameter.
-   * @return The SABR surface with extrapolation parameters.
-   */
-  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final double cutOffStrike, final double mu) {
-    return createSABRExtrapolation1(new SABRHaganVolatilityFunction(), cutOffStrike, mu);
   }
 
   /**
