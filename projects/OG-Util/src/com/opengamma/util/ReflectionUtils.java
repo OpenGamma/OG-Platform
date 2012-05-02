@@ -9,9 +9,6 @@ import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.Lifecycle;
@@ -94,17 +91,20 @@ public final class ReflectionUtils {
     for (int i = 0; i < arguments.length; i++) {
       paramTypes[i] = (arguments[i] != null ? arguments[i].getClass() : null);
     }
-    List<Constructor<?>> constructors = Arrays.asList(type.getConstructors());
-    for (Iterator<Constructor<?>> it = constructors.iterator(); it.hasNext(); ) {
-      Constructor<?> constructor = (Constructor<?>) it.next();
-      if (org.apache.commons.lang.ClassUtils.isAssignable(paramTypes, constructor.getParameterTypes()) == false) {
-        it.remove();
+    Constructor<?> matched = null;
+    for (Constructor<?> constructor : type.getConstructors()) {
+      if (org.apache.commons.lang.ClassUtils.isAssignable(paramTypes, constructor.getParameterTypes())) {
+        if (matched == null) {
+          matched = constructor;
+        } else {
+          throw new OpenGammaRuntimeException("Multiple matching constructors: " + type);
+        }
       }
     }
-    if (constructors.size() != 1) {
-      throw new OpenGammaRuntimeException("Unable to match single constructor: " + type);
+    if (matched == null) {
+      throw new OpenGammaRuntimeException("No matching constructor: " + type);
     }
-    return (Constructor<T>) constructors.get(0);
+    return (Constructor<T>) matched;
   }
 
   //-------------------------------------------------------------------------
