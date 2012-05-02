@@ -12,6 +12,6 @@ START TRANSACTION;
   ALTER  TABLE pos_attribute DROP CONSTRAINT pos_chk_uq_pos_attribute;
   ALTER  TABLE pos_attribute ALTER COLUMN key RENAME TO attr_key;
   ALTER  TABLE pos_attribute ALTER COLUMN value RENAME TO attr_value;
-  ALTER  TABLE pos_trade_attribute ADD CONSTRAINT pos_chk_uq_pos_attribute UNIQUE (position_id, attr_key, attr_value);
+  ALTER  TABLE pos_trade_attribute ADD CONSTRAINT pos_chk_uq_pos_attribute UNIQUE (id, attr_key, attr_value);
   CREATE INDEX ix_pos_attr_key ON pos_attribute(attr_key);
 COMMIT;
