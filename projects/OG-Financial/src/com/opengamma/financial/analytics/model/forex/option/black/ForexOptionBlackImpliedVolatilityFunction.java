@@ -26,7 +26,7 @@ public class ForexOptionBlackImpliedVolatilityFunction extends ForexOptionBlackM
   private static final ImpliedVolatilityBlackForexCalculator CALCULATOR = ImpliedVolatilityBlackForexCalculator.getInstance();
 
   public ForexOptionBlackImpliedVolatilityFunction() {
-    super(ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    super(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
   }
 
   @Override

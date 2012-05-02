@@ -437,7 +437,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addValueFunctions(functionConfigs);
 
     functionConfigs.add(functionConfiguration(SecurityMarketPriceFunction.class));
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
@@ -537,7 +537,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
 
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.GROSS_BASIS);
     addSummingFunction(functionConfigs, ValueRequirementNames.GROSS_BASIS);

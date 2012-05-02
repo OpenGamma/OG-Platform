@@ -171,7 +171,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   protected ValueSpecification createImpliedVolResultSpecification(final ComputationTargetSpecification target, ValueProperties.Builder props) {
-    return new ValueSpecification(ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY, target, props.get());
+    return new ValueSpecification(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY, target, props.get());
   }
 
   private ValueRequirement getPriceRequirement(final UniqueId uid) {
