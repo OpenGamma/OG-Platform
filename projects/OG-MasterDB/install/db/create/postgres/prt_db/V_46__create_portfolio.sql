@@ -86,7 +86,7 @@ CREATE TABLE prt_portfolio_attribute (
     attr_value varchar(255) not null,
     primary key (id),
     constraint prt_fk_prtattr2portfolio foreign key (portfolio_id) references prt_portfolio (id),
-    constraint prt_chk_uq_prt_attribute unique (portfolio_id, attr_key, value)
+    constraint prt_chk_uq_prt_attribute unique (portfolio_id, attr_key, attr_value)
 );
 -- portfolio_oid is an optimization
 -- prt_portfolio_attribute is fully dependent of prt_portfolio
