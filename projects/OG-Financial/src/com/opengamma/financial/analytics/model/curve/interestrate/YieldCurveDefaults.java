@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class MultiYieldCurveDefaults extends DefaultPropertyFunction {
+public class YieldCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.YIELD_CURVE,
     ValueRequirementNames.YIELD_CURVE_JACOBIAN,
@@ -32,7 +32,7 @@ public class MultiYieldCurveDefaults extends DefaultPropertyFunction {
   private final String _useFiniteDifference;
   private final String[] _applicableCurrencies;
 
-  public MultiYieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
+  public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String... applicableCurrencies) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(absoluteTolerance, "absolute tolerance");

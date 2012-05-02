@@ -43,8 +43,10 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -67,7 +69,8 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
-import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunctionHelper;
+import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.id.ExternalId;
@@ -118,7 +121,8 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
     final String useFiniteDifferenceName = desiredValue.getConstraint(PROPERTY_USE_FINITE_DIFFERENCE);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-    final MultiCurveCalculationConfig curveCalculationConfig = OpenGammaExecutionContext.getCurveCalculationConfigSource(executionContext).getConfig(curveCalculationConfigName);
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
@@ -193,7 +197,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE || target.getUniqueId() == null) {
       return false;
     }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
@@ -237,7 +241,8 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final CurveCalculationConfigSource curveCalculationConfigSource = OpenGammaCompilationContext.getCurveCalculationConfigSource(context);
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -249,53 +254,8 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
     return requirements;
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String curveCalculationConfigName = null;
-    String absoluteTolerance = null;
-    String relativeTolerance = null;
-    String maxIterations = null;
-    String decomposition = null;
-    String useFiniteDifference = null;
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final ValueSpecification key = entry.getKey();
-      if (curveCalculationConfigName == null) {
-        curveCalculationConfigName = key.getProperty(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-        absoluteTolerance = key.getProperty(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-        relativeTolerance = key.getProperty(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-        maxIterations = key.getProperty(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
-        decomposition = key.getProperty(PROPERTY_DECOMPOSITION);
-        useFiniteDifference = key.getProperty(PROPERTY_USE_FINITE_DIFFERENCE);
-      } else {
-        if (!key.getProperty(ValuePropertyNames.CURVE_CALCULATION_CONFIG).equals(curveCalculationConfigName)) {
-          throw new OpenGammaRuntimeException("Input " + key + " had a different curve calculation configuration name to that expected (" + curveCalculationConfigName + ")");
-        }
-      }
-    }
-    assert curveCalculationConfigName != null;
-    assert absoluteTolerance != null;
-    assert relativeTolerance != null;
-    assert maxIterations != null;
-    assert decomposition != null;
-    assert useFiniteDifference != null;
-    final CurveCalculationConfigSource curveCalculationConfigSource = OpenGammaCompilationContext.getCurveCalculationConfigSource(context);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    for (final String curveName : curveNames) {
-      final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteTolerance, relativeTolerance, maxIterations, decomposition,
-          useFiniteDifference);
-      results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), curveProperties));
-    }
-    final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteTolerance, relativeTolerance, maxIterations, decomposition,
-        useFiniteDifference);
-    results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, target.toSpecification(), properties));
-    results.add(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, target.toSpecification(), properties));
-    return results;
-  }
-
   private ValueProperties getProperties() {
-    final ValueProperties properties = createValueProperties()
+    return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
@@ -303,11 +263,10 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
         .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
         .withAny(PROPERTY_DECOMPOSITION)
         .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
-    return properties;
   }
 
   private ValueProperties getCurveProperties() {
-    final ValueProperties curveProperties = createValueProperties()
+    return createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -316,12 +275,11 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
         .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
         .withAny(PROPERTY_DECOMPOSITION)
         .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
-    return curveProperties;
   }
 
   private ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference) {
-    final ValueProperties properties = createValueProperties()
+    return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
@@ -329,12 +287,11 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
         .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
         .with(PROPERTY_DECOMPOSITION, decomposition)
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
-    return properties;
   }
 
   private ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance, final String relativeTolerance,
       final String maxIterations, final String decomposition, final String useFiniteDifference) {
-    final ValueProperties curveProperties = createValueProperties()
+    return createValueProperties()
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
@@ -343,7 +300,6 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
         .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
         .with(PROPERTY_DECOMPOSITION, decomposition)
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
-    return curveProperties;
   }
 
   private Map<ExternalId, Double> getMarketData(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
@@ -352,8 +308,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.
     if (marketDataMapObject == null) {
       throw new OpenGammaRuntimeException("Could not get a value for requirement " + marketDataRequirement);
     }
-    @SuppressWarnings("unchecked")
-    final Map<ExternalId, Double> marketDataMap = (Map<ExternalId, Double>) marketDataMapObject;
+    final Map<ExternalId, Double> marketDataMap = YieldCurveFunctionHelper.buildMarketDataMap((SnapshotDataBundle) marketDataMapObject);
     return marketDataMap;
   }
 
