@@ -14,7 +14,9 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 public class SwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected SwapSecurityGenerator createSwapSecurityGenerator() {
-    return new SwapSecurityGenerator();
+    SwapSecurityGenerator securities = new SwapSecurityGenerator();
+    configure(securities);
+    return securities;
   }
 
   @Override
@@ -26,4 +28,12 @@ public class SwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 
+  @Override
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
+    final SwapSecurityGenerator securities = createSwapSecurityGenerator();
+    configure(securities);
+    final PositionGenerator positions = new SimplePositionGenerator<SwapSecurity>(securities, getSecurityPersister());
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Swaps"), positions, portfolioSize);
+  }
+  
 }
