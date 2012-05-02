@@ -175,7 +175,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       while (rs.next()) {
         FunctionCostsDocument doc = new FunctionCostsDocument();
         doc.setConfigurationName(rs.getString("CONFIGURATION"));
-        doc.setFunctionId(rs.getString("FUNCTION"));
+        doc.setFunctionId(rs.getString("FUNCTION_NAME"));
         doc.setVersion(DbDateUtils.fromSqlTimestamp(rs.getTimestamp("VERSION_INSTANT")));
         doc.setInvocationCost(rs.getDouble("INVOCATION_COST"));
         doc.setDataInputCost(rs.getDouble("DATA_INPUT_COST"));
