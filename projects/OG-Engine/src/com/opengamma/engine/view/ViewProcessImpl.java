@@ -168,6 +168,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   @Override
   public void suspend() {
+    // Caller MUST NOT hold the semaphore
     s_logger.info("Suspending view process {}", getUniqueId());
     lock();
     if (getComputationJob() != null) {
@@ -194,7 +195,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   @Override
   public void resume() {
+    // Caller MUST still hold the semaphore (from the previous call to suspend)
     s_logger.info("Resuming view process {}", getUniqueId());
+    if (getState() == ViewProcessState.RUNNING) {
+      s_logger.info("Restarting computation job for view process {}", getUniqueId());
+      startComputationJobImpl();
+      s_logger.info("Restarted computation job for view process {}", getUniqueId());
+    }
     unlock();
   }
 
@@ -372,9 +379,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   //-------------------------------------------------------------------------
   private void lock() {
     try {
-      s_logger.debug("Attempt to acquire lock by thread " + Thread.currentThread().getName());
+      s_logger.debug("Attempt to acquire lock by thread {}", Thread.currentThread().getName());
       _processLock.acquire();
-      s_logger.debug("Lock acquired by thread " + Thread.currentThread().getName());
+      s_logger.debug("Lock acquired by thread {}", Thread.currentThread().getName());
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
@@ -521,6 +528,23 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     return _executionOptions;
   }
 
+  private void startComputationJobImpl() {
+    // Caller MUST hold the semaphore
+    try {
+      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
+      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
+
+      setComputationJob(computationJob);
+      setComputationThread(computationJobThread);
+      computationJobThread.start();
+    } catch (Exception e) {
+      // Roll-back
+      terminateComputationJob();
+      s_logger.error("Failed to start computation job for view process " + toString(), e);
+      throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
+    }
+  }
+
   /**
    * Starts the background job responsible for running computation cycles for this view process.
    */
@@ -536,22 +560,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       case TERMINATED:
         throw new IllegalStateException("A terminated view process cannot be used.");
     }
-
-    try {
-      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
-
-      setComputationJob(computationJob);
-      setComputationThread(computationJobThread);
-      setState(ViewProcessState.RUNNING);
-      computationJobThread.start();
-    } catch (Exception e) {
-      // Roll-back
-      terminateComputationJob();
-      s_logger.error("Failed to start computation job for view process " + toString(), e);
-      throw new OpenGammaRuntimeException("Failed to start computation job for view process " + toString(), e);
-    }
-
+    setState(ViewProcessState.RUNNING);
+    startComputationJobImpl();
     s_logger.info("Started computation job for view process {}", this);
   }
 
