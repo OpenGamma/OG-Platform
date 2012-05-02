@@ -79,7 +79,7 @@ CREATE TABLE pos_trade_attribute (
     attr_value varchar(255) NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT pos_fk_tradeattr2trade FOREIGN KEY (trade_id) REFERENCES pos_trade (id),
-    CONSTRAINT pos_chk_uq_trade_attribute UNIQUE (trade_id, attr_key, value)
+    CONSTRAINT pos_chk_uq_trade_attribute UNIQUE (trade_id, attr_key, attr_value)
 );
 -- trade_oid is an optimization
 -- pos_trade_attribute is fully dependent of pos_trade
@@ -94,7 +94,7 @@ CREATE TABLE pos_attribute (
     attr_value varchar(255) NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT pos_fk_posattr2pos FOREIGN KEY (position_id) REFERENCES pos_position (id),
-    CONSTRAINT pos_chk_uq_pos_attribute UNIQUE (position_id, attr_key, value)
+    CONSTRAINT pos_chk_uq_pos_attribute UNIQUE (position_id, attr_key, attr_value)
 );
 -- position_oid is an optimization
 -- pos_attribute is fully dependent of pos_position
