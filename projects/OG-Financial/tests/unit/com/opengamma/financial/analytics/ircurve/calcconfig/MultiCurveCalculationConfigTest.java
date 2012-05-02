@@ -8,12 +8,14 @@ package com.opengamma.financial.analytics.ircurve.calcconfig;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -38,15 +40,19 @@ public class MultiCurveCalculationConfigTest extends FinancialTestBase {
   private static final MultiCurveCalculationConfig EXTRA_USD_CONFIG;
   private static final MultiCurveCalculationConfig DEFAULT_INR_CONFIG;
   private static final Map<String, CurveInstrumentConfig> CURVE_EXPOSURES;
+  private static final Map<String, String[]> EXOGENOUS_CURVES;
 
   static {
+    EXOGENOUS_CURVES = new HashMap<String, String[]>();
+    EXOGENOUS_CURVES.put(DEFAULT_USD_CONFIG_NAME, new String[] {"FUNDING"});
     CURVE_EXPOSURES = new HashMap<String, CurveInstrumentConfig>();
+    CURVE_EXPOSURES.put("FUNDING", new CurveInstrumentConfig(Collections.singletonMap(StripInstrumentType.CASH, new String[] {"FUNDING"})));
     DEFAULT_USD_CONFIG = new MultiCurveCalculationConfig(DEFAULT_USD_CONFIG_NAME, DEFAULT_USD_YIELD_CURVE_NAMES, DEFAULT_USD_IDS,
         DEFAULT_USD_CALCULATION_METHODS, CURVE_EXPOSURES);
     EXTRA_USD_CONFIG = new MultiCurveCalculationConfig(EXTRA_USD_CONFIG_NAME, EXTRA_USD_YIELD_CURVE_NAMES, EXTRA_USD_IDS, EXTRA_USD_CALCULATION_METHODS,
-        CURVE_EXPOSURES, new String[] {DEFAULT_USD_CONFIG_NAME});
+        CURVE_EXPOSURES, EXOGENOUS_CURVES);
     DEFAULT_INR_CONFIG = new MultiCurveCalculationConfig(DEFAULT_INR_CONFIG_NAME, DEFAULT_INR_YIELD_CURVE_NAMES, DEFAULT_INR_IDS, DEFAULT_INR_CALCULATION_METHOD,
-        CURVE_EXPOSURES, new String[] {DEFAULT_USD_CONFIG_NAME});
+        CURVE_EXPOSURES, EXOGENOUS_CURVES);
   }
 
   @Test
@@ -57,13 +63,15 @@ public class MultiCurveCalculationConfigTest extends FinancialTestBase {
     final String[] curveNames = new String[] {"FORWARD_6M", "FORWARD_12M", "FORWARD_1M"};
     final UniqueIdentifiable[] ids = new UniqueIdentifiable[] {Currency.USD, Currency.USD, Currency.USD};
     final String[] methods = new String[] {"ParRate", "ParRate", "ParRate"};
-    final MultiCurveCalculationConfig config = new MultiCurveCalculationConfig(name, curveNames, ids, methods, CURVE_EXPOSURES, new String[] {DEFAULT_USD_CONFIG_NAME});
+    final Map<String, String[]> exogenousCurves = new HashMap<String, String[]>();
+    exogenousCurves.put(DEFAULT_USD_CONFIG_NAME, new String[] {"FUNDING"});
+    final MultiCurveCalculationConfig config = new MultiCurveCalculationConfig(name, curveNames, ids, methods, CURVE_EXPOSURES, exogenousCurves);
     assertEquals(EXTRA_USD_CONFIG, config);
     ArrayAsserts.assertArrayEquals(config.getCalculationMethods(), methods);
     assertEquals(config.getCalculationConfigName(), name);
     ArrayAsserts.assertArrayEquals(config.getUniqueIds(), ids);
     ArrayAsserts.assertArrayEquals(config.getYieldCurveNames(), curveNames);
-    ArrayAsserts.assertArrayEquals(config.getExogenousConfigNames(), new String[] {DEFAULT_USD_CONFIG_NAME});
+    assertEquals(config.getExogenousConfigData(), exogenousCurves);
   }
 
   @Test
