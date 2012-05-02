@@ -5,15 +5,30 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -25,19 +40,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
-
-import javax.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -179,7 +181,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       setComputationJob(null);
       try {
         s_logger.debug("Waiting for calculation thread to finish");
-        getComputationThread().wait();
+        getComputationThread().join();
       } catch (InterruptedException e) {
         s_logger.warn("Interrupted waiting for calculation thread");
         throw new OpenGammaRuntimeException("Couldn't suspend view process", e);
