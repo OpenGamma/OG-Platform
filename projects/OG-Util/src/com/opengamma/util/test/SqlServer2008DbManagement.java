@@ -23,11 +23,11 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
    * SQL to retrieve all the columns.
    */
   private static final String GET_ALL_COLUMNS_SQL =
-    "SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_catalog='";
+    "SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_name='";
   /**
-   * The Postgres default schema.
+   * The default schema.
    */
-  private static final String SQLSERVER2008_DEFAULT_SCHEMA = "public";
+  private static final String SQLSERVER2008_DEFAULT_SCHEMA = "dbo";
   /**
    * Singleton instance.
    */
@@ -94,7 +94,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
     if (schema == null) {
       schema = SQLSERVER2008_DEFAULT_SCHEMA;
     }
-    String sql = "SELECT sequence_name AS name FROM information_schema.sequences WHERE " +
+    String sql = "SELECT sequence_name AS name FROM information_schema.sequences WHERE " + //////////////////////////////
       "sequence_catalog = '" + catalog + "'" + " AND sequence_schema = '" + schema + "'";
     return sql;
   }
@@ -141,7 +141,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
         getDbHost(), 
         getUser(), 
         getPassword(), 
-        "SELECT datname AS name FROM pg_database",
+        "SELECT datname AS name FROM pg_database", ///////////////////////
         "template1");
   }
 
@@ -157,7 +157,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
         Connection conn = connect(catalog);
         Statement statement = conn.createStatement();
         //TODO default schema
-        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;");
+        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;"); /////////////////////////
         statement.close();
         conn.close();
       } catch (SQLException se) {
