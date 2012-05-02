@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +23,7 @@ public class MultiCurveCalculationConfig {
   private final String[] _yieldCurveNames;
   private final UniqueIdentifiable[] _uniqueIds;
   private final String[] _calculationMethods;
-  private final String[] _exogenousConfigNames;
+  private final Map<String, String[]> _exogenousConfigAndCurveNames;
   private final Map<String, CurveInstrumentConfig> _curveExposuresForInstruments;
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
@@ -38,7 +37,7 @@ public class MultiCurveCalculationConfig {
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final String[] exogenousConfigNames) {
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final Map<String, String[]> exogenousConfigAndCurveNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -48,9 +47,12 @@ public class MultiCurveCalculationConfig {
     ArgumentChecker.noNulls(yieldCurveNames, "yield curve names");
     ArgumentChecker.noNulls(uniqueIds, "unique ids");
     ArgumentChecker.isTrue(yieldCurveNames.length == uniqueIds.length, "yield curve names length {} didn't match unique ids length {}", yieldCurveNames.length, uniqueIds.length);
-    if (exogenousConfigNames != null) {
-      ArgumentChecker.notEmpty(exogenousConfigNames, "exogenous config names");
-      ArgumentChecker.noNulls(exogenousConfigNames, "exogenous config names");
+    if (curveExposuresForInstruments != null) {
+      ArgumentChecker.notEmpty(curveExposuresForInstruments, "curve exposures for instruments");
+    }
+    if (exogenousConfigAndCurveNames != null) {
+      ArgumentChecker.notEmpty(exogenousConfigAndCurveNames, "exogenous config names");
+      ArgumentChecker.noNulls(exogenousConfigAndCurveNames.entrySet(), "exogenous config names");
     }
     _calculationConfigName = calculationConfigName;
     _yieldCurveNames = yieldCurveNames;
@@ -58,11 +60,11 @@ public class MultiCurveCalculationConfig {
     _calculationMethods = new String[_yieldCurveNames.length];
     Arrays.fill(_calculationMethods, calculationMethod);
     _curveExposuresForInstruments = curveExposuresForInstruments;
-    _exogenousConfigNames = exogenousConfigNames;
+    _exogenousConfigAndCurveNames = exogenousConfigAndCurveNames;
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final String[] exogenousConfigNames) {
+      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final Map<String, String[]> exogenousConfigAndCurveNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -76,16 +78,16 @@ public class MultiCurveCalculationConfig {
     ArgumentChecker.isTrue(yieldCurveNames.length == uniqueIds.length, "yield curve names length {} didn't match unique ids length {}", yieldCurveNames.length, uniqueIds.length);
     ArgumentChecker.isTrue(yieldCurveNames.length == calculationMethods.length, "yield curve names length {} didn't match calculationMethods length {}",
         yieldCurveNames.length, calculationMethods.length);
-    if (exogenousConfigNames != null) {
-      ArgumentChecker.notEmpty(exogenousConfigNames, "exogenous config names");
-      ArgumentChecker.noNulls(exogenousConfigNames, "exogenous config names");
+    if (exogenousConfigAndCurveNames != null) {
+      ArgumentChecker.notEmpty(exogenousConfigAndCurveNames, "exogenous config names");
+      ArgumentChecker.noNulls(exogenousConfigAndCurveNames.entrySet(), "exogenous config names");
     }
     _calculationConfigName = calculationConfigName;
     _yieldCurveNames = yieldCurveNames;
     _uniqueIds = uniqueIds;
     _calculationMethods = calculationMethods;
     _curveExposuresForInstruments = curveExposuresForInstruments;
-    _exogenousConfigNames = exogenousConfigNames;
+    _exogenousConfigAndCurveNames = exogenousConfigAndCurveNames;
   }
 
   public String getCalculationConfigName() {
@@ -109,14 +111,11 @@ public class MultiCurveCalculationConfig {
   }
 
   public String[] getCurveExposureForInstrument(final String yieldCurveName, final StripInstrumentType instrumentType) {
-    if (Arrays.binarySearch(_yieldCurveNames, yieldCurveName) < 0) {
-      throw new OpenGammaRuntimeException("Did not have curve called " + yieldCurveName + " in this calculation configuration");
-    }
     return _curveExposuresForInstruments.get(yieldCurveName).getExposuresForInstrument(instrumentType);
   }
 
-  public String[] getExogenousConfigNames() {
-    return _exogenousConfigNames;
+  public Map<String, String[]> getExogenousConfigData() {
+    return _exogenousConfigAndCurveNames;
   }
 
   @Override
@@ -125,10 +124,10 @@ public class MultiCurveCalculationConfig {
     int result = 1;
     result = prime * result + _calculationConfigName.hashCode();
     result = prime * result + Arrays.hashCode(_calculationMethods);
-    result = prime * result + Arrays.hashCode(_exogenousConfigNames);
+    result = prime * result + (_exogenousConfigAndCurveNames == null ? 0 : _exogenousConfigAndCurveNames.hashCode());
     result = prime * result + Arrays.hashCode(_uniqueIds);
     result = prime * result + Arrays.hashCode(_yieldCurveNames);
-    result = prime * result + _curveExposuresForInstruments.hashCode();
+    result = prime * result + (_curveExposuresForInstruments == null ? 0 : _curveExposuresForInstruments.hashCode());
     return result;
   }
 
@@ -159,8 +158,18 @@ public class MultiCurveCalculationConfig {
     if (!Arrays.equals(_calculationMethods, other._calculationMethods)) {
       return false;
     }
-    if (!Arrays.equals(_exogenousConfigNames, other._exogenousConfigNames)) {
-      return false;
+    if (_exogenousConfigAndCurveNames != null) {
+      if (_exogenousConfigAndCurveNames.size() != other._exogenousConfigAndCurveNames.size()) {
+        return false;
+      }
+      for (final Map.Entry<String, String[]> entry : _exogenousConfigAndCurveNames.entrySet()) {
+        if (!other._exogenousConfigAndCurveNames.containsKey(entry.getKey())) {
+          return false;
+        }
+        if (!Arrays.deepEquals(entry.getValue(), _exogenousConfigAndCurveNames.get(entry.getKey()))) {
+          return false;
+        }
+      }
     }
     return true;
   }

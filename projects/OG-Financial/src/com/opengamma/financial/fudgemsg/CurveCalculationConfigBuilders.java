@@ -42,7 +42,9 @@ import com.opengamma.id.UniqueIdentifiable;
     private static final String CALCULATION_METHOD_FIELD = "calculationMethods";
     private static final String INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD = "instrumentExposureCurveName";
     private static final String INSTRUMENT_EXPOSURES_FOR_CURVE_FIELD = "instrumentExposuresForCurve";
-    private static final String EXOGENOUS_CURVES_FIELD = "exogenousCurveConfigurationNames";
+    private static final String EXOGENOUS_DATA_FIELD = "exogenousData";
+    private static final String PER_CONFIG_FIELD = "exogenousCurveName";
+    private static final String EXOGENOUS_CONFIG_FIELD = "exogenousCurveConfig";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final MultiCurveCalculationConfig object) {
@@ -55,13 +57,20 @@ import com.opengamma.id.UniqueIdentifiable;
         message.add(CALCULATION_METHOD_FIELD, object.getCalculationMethods()[i]);
       }
       final Map<String, CurveInstrumentConfig> instrumentExposures = object.getCurveExposuresForInstruments();
-      for (final Map.Entry<String, CurveInstrumentConfig> entry : instrumentExposures.entrySet()) {
-        message.add(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD, entry.getKey());
-        message.add(INSTRUMENT_EXPOSURES_FOR_CURVE_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getValue()), entry.getValue().getClass()));
+      if (instrumentExposures != null) {
+        for (final Map.Entry<String, CurveInstrumentConfig> entry : instrumentExposures.entrySet()) {
+          message.add(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD, entry.getKey());
+          message.add(INSTRUMENT_EXPOSURES_FOR_CURVE_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getValue()), entry.getValue().getClass()));
+        }
       }
-      if (object.getExogenousConfigNames() != null) {
-        for (final String name : object.getExogenousConfigNames()) {
-          message.add(EXOGENOUS_CURVES_FIELD, name);
+      if (object.getExogenousConfigData() != null) {
+        for (final Map.Entry<String, String[]> entry : object.getExogenousConfigData().entrySet()) {
+          message.add(EXOGENOUS_DATA_FIELD, entry.getKey());
+          final MutableFudgeMsg perConfigMessage = serializer.newMessage();
+          for (final String exogenousCurveName : entry.getValue()) {
+            perConfigMessage.add(PER_CONFIG_FIELD, exogenousCurveName);
+          }
+          message.add(EXOGENOUS_CONFIG_FIELD, perConfigMessage);
         }
       }
       return message;
@@ -86,21 +95,35 @@ import com.opengamma.id.UniqueIdentifiable;
       if (instrumentExposuresCurveNameField.size() != instrumentExposuresForCurve.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      final Map<String, CurveInstrumentConfig> curveInstrumentExposures = new HashMap<String, CurveInstrumentConfig>();
-      for (int i = 0; i < instrumentExposuresCurveNameField.size(); i++) {
-        final String curveName = deserializer.fieldValueToObject(String.class, instrumentExposuresCurveNameField.get(i));
-        final CurveInstrumentConfig config = deserializer.fieldValueToObject(CurveInstrumentConfig.class, instrumentExposuresForCurve.get(i));
-        curveInstrumentExposures.put(curveName, config);
+      Map<String, CurveInstrumentConfig> curveInstrumentExposures = null;
+      if (message.hasField(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD)) {
+        curveInstrumentExposures = new HashMap<String, CurveInstrumentConfig>();
+        for (int i = 0; i < instrumentExposuresCurveNameField.size(); i++) {
+          final String curveName = deserializer.fieldValueToObject(String.class, instrumentExposuresCurveNameField.get(i));
+          final CurveInstrumentConfig config = deserializer.fieldValueToObject(CurveInstrumentConfig.class, instrumentExposuresForCurve.get(i));
+          curveInstrumentExposures.put(curveName, config);
+        }
       }
-      if (message.hasField(EXOGENOUS_CURVES_FIELD)) {
-        final List<FudgeField> exogenousConfigFields = message.getAllByName(EXOGENOUS_CURVES_FIELD);
-        final List<String> exogenousConfigNames = new ArrayList<String>();
-        for (final FudgeField field : exogenousConfigFields) {
-          exogenousConfigNames.add(deserializer.fieldValueToObject(String.class, field));
+      if (message.hasField(EXOGENOUS_DATA_FIELD)) {
+        final List<FudgeField> exogenousConfigFields = message.getAllByName(EXOGENOUS_DATA_FIELD);
+        final List<FudgeField> exogenousCurveFields = message.getAllByName(EXOGENOUS_CONFIG_FIELD);
+        if (exogenousConfigFields.size() != exogenousCurveFields.size()) {
+          throw new OpenGammaRuntimeException("Should never happen");
+        }
+        final Map<String, String[]> exogenousConfig = new HashMap<String, String[]>();
+        for (int i = 0; i < exogenousConfigFields.size(); i++) {
+          final String configName = deserializer.fieldValueToObject(String.class, exogenousConfigFields.get(i));
+          final List<FudgeField> curveNamesField = ((FudgeMsg) exogenousCurveFields.get(i).getValue()).getAllByName(PER_CONFIG_FIELD);
+          final String[] curveNames = new String[curveNamesField.size()];
+          int j = 0;
+          for (final FudgeField field : curveNamesField) {
+            curveNames[j++] = deserializer.fieldValueToObject(String.class, field);
+          }
+          exogenousConfig.put(configName, curveNames);
         }
         return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
             uniqueIds.toArray(EMPTY_UNIQUE_ID_ARRAY), calculationMethods.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveInstrumentExposures,
-            exogenousConfigNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
+            exogenousConfig);
       }
       return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
           uniqueIds.toArray(EMPTY_UNIQUE_ID_ARRAY), calculationMethods.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveInstrumentExposures);
