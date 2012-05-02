@@ -764,7 +764,7 @@ CREATE TABLE sec_security_attribute (
     attr_value varchar(255) not null,
     primary key (id),
     constraint sec_fk_securityattr2security foreign key (security_id) references sec_security (id),
-    constraint sec_chk_uq_security_attribute unique (security_id, attr_key, value)
+    constraint sec_chk_uq_security_attribute unique (security_id, attr_key, attr_value)
 );
 -- security_oid is an optimization
 -- sec_security_attribute is fully dependent of sec_security
