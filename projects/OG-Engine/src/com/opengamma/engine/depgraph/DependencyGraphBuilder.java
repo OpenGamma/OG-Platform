@@ -53,7 +53,7 @@ import com.opengamma.util.tuple.Pair;
  * methods at any one time. If multiple threads are to attempt to add targets to the graph
  * concurrently, it is possible to synchronize on the builder instance.
  */
-public final class DependencyGraphBuilder {
+public final class DependencyGraphBuilder implements Cancelable {
 
   private static final Logger s_loggerBuilder = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   private static final Logger s_loggerResolver = LoggerFactory.getLogger(RequirementResolver.class);
@@ -713,6 +713,11 @@ public final class DependencyGraphBuilder {
    */
   private volatile int _maxAdditionalThreads = getDefaultMaxAdditionalThreads();
 
+  /**
+   * Flag to indicate when the build has been canceled.
+   */
+  private boolean _cancelled;
+
   // TODO: we could have different run queues for the different states. When the PENDING one is considered, a bulk lookup operation can then be done
 
   // TODO: We should use an external execution framework rather than the one here; there are far better (and probably more accurate) implementations of
@@ -1070,14 +1075,16 @@ public final class DependencyGraphBuilder {
   }
 
   /**
-   * Tests if the graph has been built or if work is still required. Graphs are only built in the
-   * background if additional threads is set to non-zero.
+   * Tests if the graph has been built or if work is still required. Graphs are only built in the background if additional threads is set to non-zero.
    * 
    * @return true if the graph has been built, false if it is outstanding
    */
   public boolean isGraphBuilt() {
     synchronized (_buildCompleteLock) {
       synchronized (_activeJobs) {
+        if (_cancelled) {
+          throw new CancellationException();
+        }
         return _activeJobs.isEmpty() && _runQueue.isEmpty();
       }
     }
@@ -1098,23 +1105,29 @@ public final class DependencyGraphBuilder {
   }
 
   /**
-   * Cancels any construction threads. If background threads had been started for graph construction, they
-   * will be stopped and the construction abandoned. Note that this will also reset the number of
-   * additional threads to zero to prevent further threads from being started by the existing ones before
-   * they terminate. If a thread is already blocked in a call to {@link #getDependencyGraph} it will receive
-   * a {@link CancellationException} unless the graph construction completes before the cancellation is
-   * noted by that or other background threads. The cancellation is temporary, the additional threads
-   * can be reset afterwards for continued background building or a subsequent call to getDependencyGraph
-   * can finish the work.
+   * Cancels any construction threads. If background threads had been started for graph construction, they will be stopped and the construction abandoned. Note that this will also reset the number of
+   * additional threads to zero to prevent further threads from being started by the existing ones before they terminate. If a thread is already blocked in a call to {@link #getDependencyGraph} it
+   * will receive a {@link CancellationException} unless the graph construction completes before the cancellation is noted by that or other background threads. The cancellation is temporary, the
+   * additional threads can be reset afterwards for continued background building or a subsequent call to getDependencyGraph can finish the work.
+   * 
+   * @param mayInterruptIfRunning ignored
+   * @return true if the build was cancelled
    */
-  public void cancelActiveBuild() {
+  @Override
+  public boolean cancel(final boolean mayInterruptIfRunning) {
     setMaxAdditionalThreads(0);
     synchronized (_activeJobs) {
+      _cancelled = true;
       for (Job job : _activeJobs) {
         job.cancel(true);
       }
       _activeJobs.clear();
     }
+    return true;
+  }
+
+  public boolean isCancelled() {
+    return _cancelled;
   }
 
   /**
@@ -1183,7 +1196,9 @@ public final class DependencyGraphBuilder {
       do {
         final Job job = createConstructionJob();
         synchronized (_activeJobs) {
-          _activeJobs.add(job);
+          if (!_cancelled) {
+            _activeJobs.add(job);
+          }
         }
         job.run();
         synchronized (_activeJobs) {

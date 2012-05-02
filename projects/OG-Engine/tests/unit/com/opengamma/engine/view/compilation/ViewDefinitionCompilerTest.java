@@ -6,15 +6,19 @@
 package com.opengamma.engine.view.compilation;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.time.Instant;
 
@@ -24,6 +28,7 @@ import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -33,6 +38,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
@@ -302,6 +308,35 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
     compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
     assertTargets(compiledViewDefinition);
+  }
+
+  public void testCancel() throws Exception {
+    final ViewDefinition viewDefinition = new ViewDefinition("Test", "jonathan");
+    ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Config1");
+    viewDefinition.addViewCalculationConfiguration(calcConfig);
+    final InMemoryLKVMarketDataProvider snapshotProvider = new InMemoryLKVMarketDataProvider();
+    final FunctionRepository functionRepo = new InMemoryFunctionRepository();
+    final FunctionCompilationContext compilationContext = new FunctionCompilationContext();
+    final CompiledFunctionService cfs = new CompiledFunctionService(functionRepo, new CachingFunctionRepositoryCompiler(), compilationContext);
+    cfs.initialize();
+    final DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
+    final SecuritySource securitySource = new MockSecuritySource();
+    final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource),
+        EHCacheUtils.createCacheManager());
+    final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.compileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext,
+        computationTargetResolver, executorService), Instant.now(),
+        VersionCorrection.LATEST);
+    assertFalse(future.isDone());
+    assertFalse(future.isCancelled());
+    assertTrue(future.cancel(true));
+    try {
+      future.get();
+      fail();
+    } catch (CancellationException e) {
+      // expected
+    }
+    assertTrue(future.isCancelled());
   }
 
   private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueId... targets) {
