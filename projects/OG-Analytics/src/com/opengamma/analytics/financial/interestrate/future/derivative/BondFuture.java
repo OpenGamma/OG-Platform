@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.money.Currency;
-
-import java.util.Arrays;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Description of a bond future (derivative version).
@@ -71,8 +71,8 @@ public class BondFuture implements InstrumentDerivative {
    * @param conversionFactor The conversion factor of each bond in the basket.
    * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward. 
    */
-  public BondFuture(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional,
-      BondFixedSecurity[] deliveryBasket, double[] conversionFactor, double referencePrice) {
+  public BondFuture(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional, BondFixedSecurity[] deliveryBasket,
+      double[] conversionFactor, double referencePrice) {
     Validate.notNull(deliveryBasket, "Delivery basket");
     Validate.notNull(conversionFactor, "Conversion factors");
     Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
@@ -166,6 +166,14 @@ public class BondFuture implements InstrumentDerivative {
    */
   public Currency getCurrency() {
     return _deliveryBasket[0].getCurrency();
+  }
+
+  /**
+   * Gets the discount factor name.
+   * @return The name.
+   */
+  public String getDiscountingCurveName() {
+    return _deliveryBasket[0].getDiscountingCurveName();
   }
 
   @Override

@@ -416,7 +416,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addValueFunctions(functionConfigs);
 
     functionConfigs.add(functionConfiguration(SecurityMarketPriceFunction.class));
-    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));

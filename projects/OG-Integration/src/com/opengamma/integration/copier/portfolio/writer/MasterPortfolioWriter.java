@@ -68,6 +68,88 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   }
 
+  /**
+   * WritePosition checks if the position exists in the previous version of the portfolio.
+   * If so, the existing position is reused.
+   * @param position    the position to be written
+   * @param securities  the security(ies) related to the above position, also to be written; index 1 onwards are underlyings
+   * @return            the positions/securities in the masters after writing
+   */
+  @Override
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
+    
+    ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(securities, "securities");
+    
+    List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
+    
+    // Write securities
+    for (ManageableSecurity security : securities) {
+      ManageableSecurity writtenSecurity = writeSecurity(security);
+      if (writtenSecurity != null) {
+        writtenSecurities.add(writtenSecurity);
+      }
+    }
+    
+    // Write position
+    if (_overwrite) {
+      // Add the new position to the position master
+      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
+
+      // Add the new position to the portfolio
+      _currentNode.addPosition(addedDoc.getUniqueId());
+      
+      // Return the new position
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
+
+    } else {
+
+      if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
+        PositionSearchRequest searchReq = new PositionSearchRequest();
+        
+        // Filter positions in current node of original portfolio
+        searchReq.setPositionObjectIds(_originalNode.getPositionIds());
+  
+        // Filter positions with same external ids
+        ExternalIdSearch externalIdSearch = new ExternalIdSearch();
+        externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds()); 
+        externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
+        searchReq.setSecurityIdSearch(externalIdSearch);
+        
+        // Filter positions with the same quantity
+        searchReq.setMinQuantity(position.getQuantity());
+        searchReq.setMaxQuantity(position.getQuantity());
+  
+        // Search
+        PositionSearchResult searchResult = _positionMaster.search(searchReq);
+        
+        PositionDocument firstDocument = searchResult.getFirstDocument();
+        if (firstDocument != null) {        
+          ManageablePosition existingPosition = firstDocument.getPosition();
+          // Add the existing position to the portfolio
+          _currentNode.addPosition(existingPosition.getUniqueId());
+          
+          // Return the existing position
+          return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition, 
+              writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
+        }
+        
+        // TODO also confirm that all the associated trades are identical
+      }
+   
+      // Add the new position to the position master
+      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
+
+      // Add the new position to the portfolio
+      _currentNode.addPosition(addedDoc.getUniqueId());
+      
+      // Return the new position
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
+          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
+    }
+  }
+
   /*
    * writeSecurity searches for an existing security that matches an external id search, and attempts to
    * reuse/update it wherever possible, instead of creating a new one.
@@ -115,93 +197,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
   
   
-  /*
-   * WritePosition checks if the position exists in the previous version of the portfolio.
-   * If so, the existing position is reused.
-   */
-  @Override
-  public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
-    
-    ArgumentChecker.notNull(position, "position");
-    ArgumentChecker.notNull(securities, "securities");
-    
-    List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
-    
-    // Write securities
-    for (ManageableSecurity security : securities) {
-      ManageableSecurity writtenSecurity = writeSecurity(security);
-      if (writtenSecurity != null) {
-        writtenSecurities.add(writtenSecurity);
-      }
-    }
-    
-    // Write position
-    if (_overwrite) {
-      // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
-      // Add the new position to the portfolio
-      _currentNode.addPosition(addedDoc.getUniqueId());
-      
-      // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
-          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
-
-    } else {
-    
-      
-      if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
-        PositionSearchRequest searchReq = new PositionSearchRequest();
-        
-        // Filter positions in current node of original portfolio
-        searchReq.setPositionObjectIds(_originalNode.getPositionIds());
-  
-        // Filter positions with same external ids
-        ExternalIdSearch externalIdSearch = new ExternalIdSearch();
-        externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds()); 
-        externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
-        searchReq.setSecurityIdSearch(externalIdSearch);
-        
-        // Filter positions with the same quantity
-        searchReq.setMinQuantity(position.getQuantity());
-        searchReq.setMaxQuantity(position.getQuantity());
-  
-        // Search
-        PositionSearchResult searchResult = _positionMaster.search(searchReq);
-        
-        if (_overwrite) {
-          for (ManageablePosition pos : searchResult.getPositions()) {
-            _positionMaster.remove(pos.getUniqueId());
-          }
-        } else {
-          // Get the first match if found
-          PositionDocument firstDocument = searchResult.getFirstDocument();
-          if (firstDocument != null) {        
-            ManageablePosition existingPosition = firstDocument.getPosition();
-            // Add the existing position to the portfolio
-            _currentNode.addPosition(existingPosition.getUniqueId());
-            
-            // Return the existing position
-            return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(existingPosition, 
-                writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
-          }
-        }
-        
-        // TODO also confirm that all the associated trades are identical
-      }
-   
-      // Add the new position to the position master
-      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
-
-      // Add the new position to the portfolio
-      _currentNode.addPosition(addedDoc.getUniqueId());
-      
-      // Return the new position
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(addedDoc.getPosition(), 
-          writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
-    }
-  }
-
   @Override
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 

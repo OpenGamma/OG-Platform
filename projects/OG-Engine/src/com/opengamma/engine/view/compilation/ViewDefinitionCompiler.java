@@ -11,12 +11,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
@@ -52,41 +57,94 @@ public final class ViewDefinitionCompiler {
   }
 
   //-------------------------------------------------------------------------
-  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
+  public static Future<CompiledViewDefinitionWithGraphsImpl> compileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+      final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compilationServices, "compilationServices");
-
     s_logger.debug("Compiling {} for use with {}", viewDefinition.getName(), valuationTime);
+    final OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
+    final ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime);
+    return new Future<CompiledViewDefinitionWithGraphsImpl>() {
+      
+      private volatile CompiledViewDefinitionWithGraphsImpl _result;
 
-    OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
-    ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime);
+      /**
+       * Cancels any active builders.
+       */
+      @Override
+      public boolean cancel(final boolean mayInterruptIfRunning) {
+        boolean result = true;
+        for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : viewCompilationContext.getBuilders()) {
+          result &= builder.getFirst().cancel(mayInterruptIfRunning);
+        }
+        return result;
+      }
 
-    long t = -System.nanoTime();
-    EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
-    t += System.nanoTime();
-    s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
-    t -= System.nanoTime();
-    boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
-    Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
-    t += System.nanoTime();
-    s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
-    t -= System.nanoTime();
-    Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
-    t += System.nanoTime();
-    s_logger.debug("Processed dependency graphs after {}ms", (double) t / 1e6);
-    timer.finished();
+      /**
+       * Tests if any of the builders have been canceled.
+       */
+      @Override
+      public boolean isCancelled() {
+        boolean result = false;
+        for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : viewCompilationContext.getBuilders()) {
+          result |= builder.getFirst().isCancelled();
+        }
+        return result;
+      }
 
-    if (OUTPUT_DEPENDENCY_GRAPHS) {
-      outputDependencyGraphs(graphsByConfiguration);
+      /**
+       * Tests if all of the builders have completed.
+       */
+      @Override
+      public boolean isDone() {
+        return _result != null;
+      }
+      
+      @Override
+      public CompiledViewDefinitionWithGraphsImpl get() throws InterruptedException, ExecutionException {
+        long t = -System.nanoTime();
+        EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
+        t += System.nanoTime();
+        s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
+        t -= System.nanoTime();
+        boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
+        Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
+        t += System.nanoTime();
+        s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
+        t -= System.nanoTime();
+        Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
+        t += System.nanoTime();
+        s_logger.debug("Processed dependency graphs after {}ms", (double) t / 1e6);
+        timer.finished();
+        _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
+        if (OUTPUT_DEPENDENCY_GRAPHS) {
+          outputDependencyGraphs(graphsByConfiguration);
+        }
+        if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
+          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
+        }
+        if (OUTPUT_FAILURE_REPORTS) {
+          outputFailureReports(viewCompilationContext.getBuilders());
+        }
+        return _result;
+      }
+
+      @Override
+      public CompiledViewDefinitionWithGraphsImpl get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        throw new UnsupportedOperationException();
+      }
+
+    };
+  }
+
+  public static CompiledViewDefinitionWithGraphsImpl compile(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime, VersionCorrection versionCorrection) {
+    try {
+      return compileTask(viewDefinition, compilationServices, valuationTime, versionCorrection).get();
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    } catch (ExecutionException e) {
+      throw new OpenGammaRuntimeException("Failed", e);
     }
-    if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-      outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
-    }
-    if (OUTPUT_FAILURE_REPORTS) {
-      outputFailureReports(viewCompilationContext.getBuilders());
-    }
-
-    return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {

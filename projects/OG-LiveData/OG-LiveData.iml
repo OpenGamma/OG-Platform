@@ -41,7 +41,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
     <orderEntry type="module" module-name="OG-Security" exported="" />
-    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-Core" exported="" />
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-LiveData-default">
         <CLASSES>

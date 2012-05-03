@@ -155,7 +155,7 @@ public class NZConventions {
         following, Period.ofYears(5), 2, false, nz);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NZOCRS Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE")), "RBNZ CASH DAILY RATE",
-        act365, following, Period.ofDays(1), 0, false, nz);
+        act365, following, Period.ofDays(1), 0, false, nz, 0); // review publication lag when doing OIS.
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 1, nz, act365,
         modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);

@@ -32,6 +32,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -169,46 +171,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitCash(final Cash cash, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
-  }
-
-  @Override
-  public T visitBondFuture(BondFuture bondFuture, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
-  }
-
-  @Override
-  public T visitInterestRateFuture(final InterestRateFuture future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
-  }
-
-  @Override
-  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
-  }
-
-  @Override
-  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureTransaction()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
   }
 
   @Override
@@ -364,46 +326,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitCash(final Cash cash) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCash()");
-  }
-
-  @Override
-  public T visitBondFuture(BondFuture bondFuture) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
-  }
-
-  @Override
-  public T visitInterestRateFutureSecurity(final InterestRateFuture future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
-  }
-
-  @Override
-  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
-  }
-
-  @Override
-  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
-  }
-
-  @Override
-  public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
   }
 
   @Override
@@ -566,6 +488,140 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondCapitalIndexedTransaction()");
   }
 
+  // -----     Futures     -----
+
+  @Override
+  public T visitBondFuture(BondFuture bondFuture, S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+  }
+
+  @Override
+  public T visitBondFuture(BondFuture bondFuture) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFuture()");
+  }
+
+  @Override
+  public T visitInterestRateFuture(final InterestRateFuture future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureSecurity(final InterestRateFuture future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureTransaction()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionMarginTransaction()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+  }
+
+  @Override
+  public T visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
+  }
+
+  // -----     Deposit     -----
+
+  @Override
+  public T visitDepositIbor(final DepositIbor deposit, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+  }
+
+  @Override
+  public T visitDepositIbor(final DepositIbor deposit) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+  }
+
+  @Override
+  public T visitDepositCounterpart(final DepositCounterpart deposit, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
+  }
+
+  @Override
+  public T visitDepositCounterpart(final DepositCounterpart deposit) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
+  }
+
+  @Override
+  public T visitDepositZero(final DepositZero deposit, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
+  }
+
+  @Override
+  public T visitDepositZero(final DepositZero deposit) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
+  }
+
   // -----     Forex     -----
 
   @Override
@@ -636,36 +692,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
-  }
-
-  @Override
-  public T visitDepositIbor(final DepositIbor deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
-  }
-
-  @Override
-  public T visitDepositIbor(final DepositIbor deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
-  }
-
-  @Override
-  public T visitDepositCounterpart(final DepositCounterpart deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
-  }
-
-  @Override
-  public T visitDepositCounterpart(final DepositCounterpart deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
-  }
-
-  @Override
-  public T visitDepositZero(final DepositZero deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
-  }
-
-  @Override
-  public T visitDepositZero(final DepositZero deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
   }
 
 }
