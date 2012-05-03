@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -185,4 +186,10 @@ public abstract class BackwardPDEDefaults extends DefaultPropertyFunction {
   protected String[] getValueRequirementNames() {
     return VALUE_REQUIREMENT_NAMES;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.BACKWARD_PDE_DEFAULTS;
+  }
+
 }
