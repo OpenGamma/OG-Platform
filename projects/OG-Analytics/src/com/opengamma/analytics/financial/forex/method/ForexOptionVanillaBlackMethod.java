@@ -5,6 +5,13 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -21,13 +28,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
@@ -147,9 +147,10 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * Computes the relative delta of the Forex option. The relative delta is the amount in the foreign currency equivalent to the first oder to the option relative to the option notional.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The delta.
    */
-  public double deltaRelative(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile) {
+  public double deltaRelative(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile, boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smile, "Smile");
     Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -158,11 +159,41 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
-    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
-    final double deltaSpot = priceAdjoint[1] * dfForeign / dfDomestic * sign;
-    return deltaSpot;
+    final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
+    if (directQuote) {
+      return deltaDirect;
+    }
+    double deltaReverse = -deltaDirect * spot * spot;
+    return deltaReverse;
+  }
+
+  /**
+   * Computes the relative delta of the Forex option multiplied by the spot rate. 
+   * The relative delta is the amount in the foreign currency equivalent to the first oder to the option relative to the option notional.
+   * The reason to multiply by the spot rate is to be able to compute the change of value for a relative increase of e of the spot rate (from X to X(1+e)).
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile, boolean directQuote) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
+    if (directQuote) {
+      return deltaDirect * spot;
+    }
+    double deltaReverse = -deltaDirect * spot;
+    return deltaReverse;
+
   }
 
   /**
@@ -192,6 +223,34 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
+   * Computes the relative gamma of the Forex option multiplied by the spot rate. 
+   * The relative gamma is the second oder derivative of the pv relative to the option notional.
+   * The reason to multiply by the spot rate is to be able to compute the change of delta for a relative increase of e of the spot rate (from X to X(1+e)).
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The gamma.
+   */
+  public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final SmileDeltaTermStructureDataBundle smile, boolean directQuote) {
+    Validate.notNull(optionForex, "Forex option");
+    Validate.notNull(smile, "Smile");
+    Validate.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double gammaDirect = BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * (dfForeign * dfForeign) / dfDomestic * sign;
+    if (directQuote) {
+      return gammaDirect * spot;
+    }
+    final double deltaDirect = BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall()) * dfForeign * sign;
+    final double gamma = (gammaDirect * spot + 2 * deltaDirect) * spot * spot;
+    return gamma;
+  }
+
+  /**
    * Computes the gamma of the Forex option. The gamma is the second order derivative of the pv.
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
@@ -204,6 +263,22 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
     final double gammaRelative = gammaRelative(optionForex, smile, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+  }
+
+  /**
+   * Computes the gamma of the Forex option multiplied by the spot rate. The gamma is the second order derivative of the pv.
+   * The reason to multiply by the spot rate is to be able to compute the change of delta for a relative increase of e of the spot rate (from X to X(1+e)).
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The gamma.
+   */
+  public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final YieldCurveBundle curves, boolean directQuote) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double gammaRelativeSpot = gammaRelativeSpot(optionForex, smile, directQuote);
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelativeSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
   /**
