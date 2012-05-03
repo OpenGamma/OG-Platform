@@ -9,6 +9,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -34,6 +35,7 @@ public class ViewProcessContext {
   private final ViewPermissionProvider _viewPermissionProvider;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
+  private final FunctionExclusionGroups _functionExclusionGroups;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
@@ -52,6 +54,7 @@ public class ViewProcessContext {
       MarketDataProviderResolver marketDataProviderResolver,
       CompiledFunctionService functionCompilationService,
       FunctionResolver functionResolver,
+      FunctionExclusionGroups functionExclusionGroups,
       PositionSource positionSource,
       SecuritySource securitySource,
       CachingComputationTargetResolver computationTargetResolver,
@@ -84,6 +87,7 @@ public class ViewProcessContext {
     
     _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
+    _functionExclusionGroups = functionExclusionGroups;
     _positionSource = positionSource;
     _securitySource = securitySource;
     _computationTargetResolver = computationTargetResolver;
@@ -143,6 +147,15 @@ public class ViewProcessContext {
    */
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
+  }
+
+  /**
+   * Gets the function exclusion groups, if used.
+   * 
+   * @return the function exclusion groups, null if none are being used
+   */
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
   }
 
   /**
@@ -225,7 +238,8 @@ public class ViewProcessContext {
    * @return the services, not null
    */
   public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
-    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
+    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionExclusionGroups(), getFunctionCompilationService().getFunctionCompilationContext(),
+        getComputationTargetResolver(),
         getFunctionCompilationService().getExecutorService(), getSecuritySource(), getPositionSource());
   }
 

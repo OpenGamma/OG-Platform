@@ -22,6 +22,7 @@ import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -387,8 +388,9 @@ import com.opengamma.util.tuple.Pair;
         }
 
       };
+      final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, getFunction().getFunction());
       for (ValueRequirement inputRequirement : additionalRequirements) {
-        final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
+        final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
         lock.incrementAndGet();
         inputProducer.addCallback(context, callback);
         inputProducer.release(context);
@@ -516,8 +518,9 @@ import com.opengamma.util.tuple.Pair;
       } else {
         s_logger.debug("Function {} requires {}", functionDefinition, inputRequirements);
         worker.setPumpingState(state, inputRequirements.size());
+        final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, functionDefinition);
         for (ValueRequirement inputRequirement : inputRequirements) {
-          final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask());
+          final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
           worker.addInput(context, inputRequirement, inputProducer);
           inputProducer.release(context);
         }

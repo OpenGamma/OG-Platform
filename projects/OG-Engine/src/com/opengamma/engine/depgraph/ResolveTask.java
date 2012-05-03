@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -155,7 +156,12 @@ import com.opengamma.engine.value.ValueSpecification;
    */
   private ComputationTarget _target;
 
-  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent) {
+  /**
+   * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task.
+   */
+  private Set<FunctionExclusionGroup> _functionExclusion;
+
+  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Set<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
     _parent = parent;
     if (parent != null) {
@@ -170,6 +176,7 @@ import com.opengamma.engine.value.ValueSpecification;
       _parentRequirements = null;
       _hashCode = valueRequirement.hashCode();
     }
+    _functionExclusion = (functionExclusion != null) ? new HashSet<FunctionExclusionGroup>(functionExclusion) : null;
     setState(new ResolveTargetStep(this));
   }
 
@@ -249,6 +256,10 @@ import com.opengamma.engine.value.ValueSpecification;
     } else {
       return getParentValueRequirements().contains(valueRequirement);
     }
+  }
+
+  public Set<FunctionExclusionGroup> getFunctionExclusion() {
+    return _functionExclusion;
   }
 
   // HashCode and Equality are to allow tasks to be considered equal iff they are for the same value requirement and

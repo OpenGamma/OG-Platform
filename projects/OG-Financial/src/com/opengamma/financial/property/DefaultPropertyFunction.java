@@ -23,7 +23,9 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
+import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -297,8 +299,24 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     return inputs.keySet();
   }
 
+  /**
+   * Returns a priority adjustment. {@link FunctionPriority} implementations may recognize {@link DefaultPropertyFunction} instances and use this to adjust the priority they would otherwise assign to
+   * the function.
+   * 
+   * @return the priority adjustment, defaults to {@link PriorityClass#NORMAL}
+   */
   public PriorityClass getPriority() {
     return PriorityClass.NORMAL;
+  }
+
+  /**
+   * Returns a mutual function exclusion group name. A {@link FunctionExclusionGroups} implementation may recognize {@link DefaultPropertyFunction} instances and use this to declare application
+   * exclusions.
+   * 
+   * @return the mutual exclusion group, defaults to null for none
+   */
+  public String getMutualExclusionGroup() {
+    return null;
   }
 
 }

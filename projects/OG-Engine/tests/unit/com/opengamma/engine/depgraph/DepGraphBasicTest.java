@@ -88,8 +88,8 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     helper.addFunctionProducing1and2();
     ValueRequirement anotherReq = new ValueRequirement("Req-3", helper.getTarget());
     DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement1(), null));
-    expectFailure(builder, builder.getContext().resolveRequirement(anotherReq, null));
+    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement1(), null, null));
+    expectFailure(builder, builder.getContext().resolveRequirement(anotherReq, null, null));
   }
 
   public void doubleLevelNoLiveData() {

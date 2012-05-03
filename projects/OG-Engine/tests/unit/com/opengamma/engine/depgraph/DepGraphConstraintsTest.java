@@ -73,8 +73,8 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
     final DepGraphTestHelper helper = helper();
     helper.addFunctionProducing2();
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement2(), null));
-    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Beta(), null));
+    expectCompletion(builder, builder.getContext().resolveRequirement(helper.getRequirement2(), null, null));
+    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Beta(), null, null));
   }
 
   public void functionWithProperty() {
@@ -96,7 +96,7 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
     helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue2Bar());
     helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.getBuilder(null);
-    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Bar(), null));
+    expectFailure(builder, builder.getContext().resolveRequirement(helper.getRequirement2Bar(), null, null));
   }
 
   public void outputBasedRequirements() {

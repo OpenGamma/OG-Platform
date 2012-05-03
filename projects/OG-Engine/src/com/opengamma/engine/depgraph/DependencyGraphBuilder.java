@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -126,7 +128,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         }
       }
       if ((fallback == null) && useFallback) {
-        fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask);
+        fallback = context.getOrCreateTaskResolving(getValueRequirement(), _parentTask, _parentTask.getFunctionExclusion());
         synchronized (this) {
           useFallback = _tasks.add(fallback);
         }
@@ -246,6 +248,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     private ComputationTargetResolver _targetResolver;
     private CompiledFunctionResolver _functionResolver;
     private FunctionCompilationContext _compilationContext;
+    private FunctionExclusionGroups _functionExclusionGroups;
 
     // The resolve task is ref-counted once for the map (it is being used as a set)
     private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
@@ -270,6 +273,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       setTargetResolver(copyFrom.getTargetResolver());
       setFunctionResolver(copyFrom.getFunctionResolver());
       setCompilationContext(copyFrom.getCompilationContext());
+      setFunctionExclusionGroups(copyFrom.getFunctionExclusionGroups());
       _requirements = copyFrom._requirements;
       _specifications = copyFrom._specifications;
     }
@@ -314,6 +318,14 @@ public final class DependencyGraphBuilder implements Cancelable {
 
     private void setCompilationContext(final FunctionCompilationContext compilationContext) {
       _compilationContext = compilationContext;
+    }
+
+    public FunctionExclusionGroups getFunctionExclusionGroups() {
+      return _functionExclusionGroups;
+    }
+
+    private void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
+      _functionExclusionGroups = functionExclusionGroups;
     }
 
     // Operations
@@ -406,7 +418,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       ExceptionWrapper.createAndPut(t, _exceptions);
     }
 
-    public ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent) {
+    public ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
       s_loggerResolver.debug("Resolve requirement {}", requirement);
       if ((dependent != null) && dependent.hasParent(requirement)) {
         dependent.setRecursionDetected();
@@ -458,12 +470,12 @@ public final class DependencyGraphBuilder implements Cancelable {
         return resolver;
       } else {
         s_loggerResolver.debug("Using direct resolution {}/{}", requirement, dependent);
-        return getOrCreateTaskResolving(requirement, dependent);
+        return getOrCreateTaskResolving(requirement, dependent, functionExclusion);
       }
     }
 
-    private ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
-      ResolveTask newTask = new ResolveTask(valueRequirement, parentTask);
+    private ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+      ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
       ResolveTask task;
       Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
       if (tasks == null) {
@@ -805,6 +817,24 @@ public final class DependencyGraphBuilder implements Cancelable {
     getContext().setCompilationContext(compilationContext);
   }
 
+  /**
+   * Sets the function exclusion group rules to use.
+   * 
+   * @param exclusionGroups the source of groups, or null to not use function exclusion groups
+   */
+  public void setFunctionExclusionGroups(final FunctionExclusionGroups exclusionGroups) {
+    getContext().setFunctionExclusionGroups(exclusionGroups);
+  }
+
+  /**
+   * Returns the current function exclusion group rules.
+   * 
+   * @return the function exclusion groups or null if none are being used
+   */
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return getContext().getFunctionExclusionGroups();
+  }
+
   public int getMaxAdditionalThreads() {
     return _maxAdditionalThreads;
   }
@@ -850,7 +880,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   public void addTarget(ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     checkInjectedInputs();
-    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
+    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
     resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
     resolvedValue.release(getContext());
     // If the run-queue was empty, we won't have started a thread, so double check 
@@ -869,7 +899,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     ArgumentChecker.noNulls(requirements, "requirements");
     checkInjectedInputs();
     for (ValueRequirement requirement : requirements) {
-      final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
+      final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
       resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
       resolvedValue.release(getContext());
     }
@@ -885,7 +915,7 @@ public final class DependencyGraphBuilder implements Cancelable {
    */
   @Deprecated
   protected void addTargetImpl(final ValueRequirement requirement) {
-    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null);
+    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
     resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
     startBackgroundConstructionJob();
     final CountDownLatch latch = new CountDownLatch(1);

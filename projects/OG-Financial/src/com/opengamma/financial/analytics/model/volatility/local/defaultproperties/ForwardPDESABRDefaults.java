@@ -31,7 +31,7 @@ public class ForwardPDESABRDefaults extends ForwardPDEDefaults {
     super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, forwardCurveName, forwardCurveCalculationMethod,
         surfaceName, eps, theta, nTimeSteps, nSpaceSteps, timeStepBunching, spaceStepBunching, maxProxyDelta, centreMoneyness, spaceDirectionInterpolator,
         discountingCurveName);
-    ArgumentChecker.notNull(sabrModel, "SARB model");
+    ArgumentChecker.notNull(sabrModel, "SABR model");
     ArgumentChecker.notNull(weightingFunction, "weighting function");
     ArgumentChecker.notNull(useExternalBeta, "use external beta");
     ArgumentChecker.notNull(externalBeta, "external beta");

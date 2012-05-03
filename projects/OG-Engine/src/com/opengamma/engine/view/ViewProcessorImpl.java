@@ -30,6 +30,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -88,6 +89,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
+  private final FunctionExclusionGroups _functionExclusionGroups;
   private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
@@ -128,6 +130,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       CachingComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
+      FunctionExclusionGroups functionExclusionGroups,
       MarketDataProviderResolver marketDataProviderFactoryResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher jobDispatcher,
@@ -146,6 +149,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
+    _functionExclusionGroups = functionExclusionGroups;
     _marketDataProviderFactoryResolver = marketDataProviderFactoryResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = jobDispatcher;
@@ -552,6 +556,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
+        _functionExclusionGroups,
         _positionSource,
         _securitySource,
         _computationTargetResolver,

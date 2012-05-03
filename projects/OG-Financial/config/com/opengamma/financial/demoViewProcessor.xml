@@ -215,9 +215,11 @@
   </bean>
   <bean id="mainFunctionResolver" class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
-  </bean>  
+  </bean>
+  <bean id="mainFunctionExclusionGroups" class="com.opengamma.web.spring.DemoFunctionExclusionGroupsBean" />
   <bean id="mainAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
     <constructor-arg ref="mainCompiledFunctionService" />
+    <constructor-arg ref="mainFunctionExclusionGroups" />
     <constructor-arg ref="combinedPositionSource" />
     <constructor-arg ref="combinedSecuritySource" />
     <constructor-arg value="*" />
@@ -345,6 +347,7 @@
     <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
+    <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
     <property name="computationCacheSource" ref="mainComputationCacheSource" />
     <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
