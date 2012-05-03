@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jetty.server.Server;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.context.WebApplicationContext;
@@ -25,13 +26,14 @@ public class ViewDefinitionEntriesResourceTest {
     ViewDefinitionRepository repository = mock(ViewDefinitionRepository.class);
     Map<UniqueId, String> viewDefs = new HashMap<UniqueId, String>();
     viewDefs.put(UniqueId.of("TST", "vd1"), "viewDef1");
-    viewDefs.put(UniqueId.of("TST", "vd2"), "viewDef2");
     when(repository.getDefinitionEntries()).thenReturn(viewDefs);
     ViewDefinitionEntriesResource resource = new ViewDefinitionEntriesResource(repository);
-    JSONObject json = new JSONObject(resource.getViewDefinitionEntriesJson());
-    assertEquals(2, json.length());
-    assertEquals("viewDef1", json.getString("TST~vd1"));
-    assertEquals("viewDef2", json.getString("TST~vd2"));
+    JSONArray json = new JSONArray(resource.getViewDefinitionEntriesJson());
+    assertEquals(1, json.length());
+
+    JSONObject def1 = json.getJSONObject(0);
+    assertEquals("viewDef1", def1.get("name"));
+    assertEquals(UniqueId.of("TST", "vd1").toString(), def1.get("id"));
   }
 
   @Test
@@ -39,10 +41,12 @@ public class ViewDefinitionEntriesResourceTest {
     Pair<Server, WebApplicationContext> serverAndContext =
         WebPushTestUtils.createJettyServer("classpath:/com/opengamma/web/server/push/viewdefinitionentriesresource-test.xml");
     Server server = serverAndContext.getFirst();
-    JSONObject json = new JSONObject(WebPushTestUtils.readFromPath("/jax/viewdefinitions"));
-    assertEquals(2, json.length());
-    assertEquals("viewDef1", json.getString("TST~vd1"));
-    assertEquals("viewDef2", json.getString("TST~vd2"));
+    JSONArray json = new JSONArray(WebPushTestUtils.readFromPath("/jax/viewdefinitions"));
+    assertEquals(1, json.length());
+
+    JSONObject def1 = json.getJSONObject(0);
+    assertEquals("viewDef1", def1.get("name"));
+    assertEquals(UniqueId.of("TST", "vd1").toString(), def1.get("id"));
     server.stop();
   }
 }

@@ -58,28 +58,12 @@ public class MarketDataSnapshotListResourceTest {
 
     String json = resource.getMarketDataSnapshotList();
     JSONArray jsonArray = new JSONArray(json);
-    assertEquals(2, jsonArray.length());
 
-    JSONObject basis1Map = jsonArray.getJSONObject(0);
-    assertEquals("basisView1", basis1Map.get(BASIS_VIEW_NAME));
-    JSONArray basis1Snapshots = basis1Map.getJSONArray(SNAPSHOTS);
-    assertNotNull(basis1Snapshots);
-    assertEquals(2, basis1Snapshots.length());
-    JSONObject snap1 = basis1Snapshots.getJSONObject(0);
-    assertEquals("snap1", snap1.get(NAME));
-    assertEquals(UniqueId.of("Tst", "1").toString(), snap1.get(ID));
-    JSONObject snap2 = basis1Snapshots.getJSONObject(1);
-    assertEquals("snap2", snap2.get(NAME));
-    assertEquals(UniqueId.of("Tst", "2").toString(), snap2.get(ID));
-
-    JSONObject basis2Map = jsonArray.getJSONObject(1);
-    assertEquals("basisView2", basis2Map.get(BASIS_VIEW_NAME));
-    JSONArray basis2Snapshots = basis2Map.getJSONArray(SNAPSHOTS);
-    assertNotNull(basis2Snapshots);
-    assertEquals(1, basis2Snapshots.length());
-    JSONObject snap3 = basis2Snapshots.getJSONObject(0);
-    assertEquals("snap3", snap3.get(NAME));
-    assertEquals(UniqueId.of("Tst", "3").toString(), snap3.get(ID));
+    String expected =
+        "[{\"basisViewName\": \"basisView1\", \"snapshots\": [{\"id\": \"Tst~1\", \"name\": \"snap1\"}, {\"id\": \"Tst~2\", \"name\": \"snap2\"}]}, " +
+        " {\"basisViewName\": \"basisView2\", \"snapshots\": [{\"id\": \"Tst~3\", \"name\": \"snap3\"}]}]";
+    JSONArray expectedArray = new JSONArray(expected);
+    assertEquals(expectedArray.toString(), jsonArray.toString());
   }
 
   @Test
