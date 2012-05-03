@@ -30,6 +30,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.function.CompiledFunctionRepository;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueProperties;
@@ -113,6 +114,7 @@ public abstract class AbstractDocumentation implements Runnable {
   }
 
   private final CompiledFunctionRepository _functionRepository;
+  private final FunctionExclusionGroups _functionExclusionGroups;
   private final MarketDataAvailabilityProvider _availabilityProvider = new OptimisticMarketDataAvailabilityProvider();
   private final SecurityTypePortfolioFilter _securityTypePortfolioFilter = new SecurityTypePortfolioFilter();
   private final Map<String, Set<AvailableOutput>> _availableOutputsBySecurityType = new HashMap<String, Set<AvailableOutput>>();
@@ -125,13 +127,18 @@ public abstract class AbstractDocumentation implements Runnable {
 
   private WikiPageHook _pageHook = getDefaultWikiPageHook();
 
-  protected AbstractDocumentation(final CompiledFunctionRepository functionRepository) {
+  protected AbstractDocumentation(final CompiledFunctionRepository functionRepository, final FunctionExclusionGroups functionExclusionGroups) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     _functionRepository = functionRepository;
+    _functionExclusionGroups = functionExclusionGroups;
   }
 
   protected CompiledFunctionRepository getFunctionRepository() {
     return _functionRepository;
+  }
+
+  protected FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
   }
 
   protected MarketDataAvailabilityProvider getAvailabilityProvider() {
@@ -191,7 +198,7 @@ public abstract class AbstractDocumentation implements Runnable {
       s_logger.debug("Ignoring {} ({})", portfolio.getName(), portfolio.getUniqueId());
     } else {
       s_logger.info("Calculating available outputs from {} ({})", portfolio.getName(), portfolio.getUniqueId());
-      final AvailableOutputs outputs = new AvailablePortfolioOutputs(filtered, getFunctionRepository(), getAvailabilityProvider(), null);
+      final AvailableOutputs outputs = new AvailablePortfolioOutputs(filtered, getFunctionRepository(), getFunctionExclusionGroups(), getAvailabilityProvider(), null);
       synchronized (_availableOutputsBySecurityType) {
         for (AvailableOutput output : outputs.getOutputs()) {
           for (String securityType : output.getSecurityTypes()) {

@@ -31,6 +31,8 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,9 +43,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Implementation of {@link AvailableOutputs} that scans a function repository to give possible outputs available on a portfolio.
  * <p>
- * The named values aren't guaranteed to be computable for all nodes, positions or security types indicated as the full set of
- * functions may require underlying market data or other information that is not available or computable. Due to the black-box
- * nature of the function definitions additional values not mentioned may be available for a portfolio.
+ * The named values aren't guaranteed to be computable for all nodes, positions or security types indicated as the full set of functions may require underlying market data or other information that is
+ * not available or computable. Due to the black-box nature of the function definitions additional values not mentioned may be available for a portfolio.
  * <p>
  * For more accurate details, refer to the documentation for the functions installed in the repository.
  */
@@ -95,12 +96,13 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
   /**
    * Constructs a new output set.
    * 
-   * @param portfolio  the portfolio (must be resolved), not null
-   * @param functionRepository  the functions, not null
-   * @param marketDataAvailabilityProvider  the market data availability provider, not null
-   * @param anyValue  value to use when composing a wild-card with a finite set of property values, or null to not compose
+   * @param portfolio the portfolio (must be resolved), not null
+   * @param functionRepository the functions, not null
+   * @param functionExclusionGroups the function exclusion groups
+   * @param marketDataAvailabilityProvider the market data availability provider, not null
+   * @param anyValue value to use when composing a wild-card with a finite set of property values, or null to not compose
    */
-  public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository,
+  public AvailablePortfolioOutputs(final Portfolio portfolio, final CompiledFunctionRepository functionRepository, final FunctionExclusionGroups functionExclusionGroups,
       final MarketDataAvailabilityProvider marketDataAvailabilityProvider, final String anyValue) {
     ArgumentChecker.notNull(portfolio, "portfolio");
     ArgumentChecker.notNull(functionRepository, "functions");
@@ -168,8 +170,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         entries.add((Pair<List<ValueRequirement>, Set<ValueSpecification>>) (Pair<?, ?>) Pair.of(new ArrayList<ValueRequirement>(visited), (results != null) ? results : Collections.emptySet()));
       }
 
-      private Set<ValueSpecification> satisfyRequirement(final Set<ValueRequirement> visited, final ComputationTarget target, final ValueRequirement requirement) {
-        Set<ValueSpecification> allResults = getCachedResult(visited, requirement);
+      private Set<ValueSpecification> satisfyRequirement(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions, final ComputationTarget target,
+          final ValueRequirement requirement) {
+        Set<ValueSpecification> allResults = getCachedResult(visitedRequirements, requirement);
         if (allResults != null) {
           if (allResults.isEmpty()) {
             s_logger.debug("Cache failure hit on {}", requirement);
@@ -197,7 +200,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           }
           _resultsCache.put(target, functionResults);
         }
-        if (!visited.add(requirement)) {
+        if (!visitedRequirements.add(requirement)) {
           // This shouldn't happen
           throw new IllegalStateException();
         }
@@ -205,23 +208,29 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           final CompiledFunctionDefinition function = functionResult.getKey();
           for (ValueSpecification result : functionResult.getValue()) {
             if (requirement.isSatisfiedBy(result)) {
-              final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visited, function, target, requirement, result.compose(requirement));
-              if (resolved != null) {
-                if (allResults == null) {
-                  allResults = new HashSet<ValueSpecification>();
+              final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
+              if ((group == null) || visitedFunctions.add(group)) {
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, requirement, result.compose(requirement));
+                if (resolved != null) {
+                  if (allResults == null) {
+                    allResults = new HashSet<ValueSpecification>();
+                  }
+                  allResults.addAll(resolved);
                 }
-                allResults.addAll(resolved);
+                if (group != null) {
+                  visitedFunctions.remove(group);
+                }
               }
             }
           }
         }
-        visited.remove(requirement);
-        setCachedResult(visited, requirement, allResults);
+        visitedRequirements.remove(requirement);
+        setCachedResult(visitedRequirements, requirement, allResults);
         return allResults;
       }
 
-      private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visited, final CompiledFunctionDefinition function,
-          final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
+      private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions,
+          final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
         final Set<ValueRequirement> requirements;
         try {
           requirements = function.getRequirements(_context, target, requiredOutputValue);
@@ -237,7 +246,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
           return Collections.singleton(resolvedOutputValue);
         }
         for (ValueRequirement requirement : requirements) {
-          if (visited.contains(requirement)) {
+          if (visitedRequirements.contains(requirement)) {
             return null;
           }
         }
@@ -251,7 +260,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
             } else {
               final Object requirementTarget = targetCache.get(targetSpec.getUniqueId());
               if (requirementTarget != null) {
-                final Set<ValueSpecification> satisfied = satisfyRequirement(visited, new ComputationTarget(requirementTarget), requirement);
+                final Set<ValueSpecification> satisfied = satisfyRequirement(visitedRequirements, visitedFunctions, new ComputationTarget(requirementTarget), requirement);
                 if (satisfied == null) {
                   s_logger.debug("Can't satisfy {} for function {}", requirement, function);
                   if (!function.canHandleMissingRequirements()) {
@@ -318,13 +327,19 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         }
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, portfolioNode);
         final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
+        final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.PORTFOLIO_NODE) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
                 visitedRequirements.clear();
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, function, target, new ValueRequirement(result.getValueName(), result
+                visitedFunctions.clear();
+                final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
+                if (group != null) {
+                  visitedFunctions.add(group);
+                }
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
                     .getTargetSpecification()), result);
                 if (resolved != null) {
                   s_logger.info("Resolved {} on {}", result.getValueName(), portfolioNode);
@@ -347,14 +362,20 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       public void preOrderOperation(final Position position) {
         final ComputationTarget target = new ComputationTarget(ComputationTargetType.POSITION, position);
         final Set<ValueRequirement> visitedRequirements = new HashSet<ValueRequirement>();
+        final Set<FunctionExclusionGroup> visitedFunctions = new HashSet<FunctionExclusionGroup>();
         for (CompiledFunctionDefinition function : functions) {
           try {
             if ((function.getTargetType() == ComputationTargetType.POSITION) && function.canApplyTo(_context, target)) {
               final Set<ValueSpecification> results = function.getResults(_context, target);
               for (ValueSpecification result : results) {
                 visitedRequirements.clear();
-                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, function, target, new ValueRequirement(result.getValueName(), result
-                    .getTargetSpecification()), result);
+                visitedFunctions.clear();
+                final FunctionExclusionGroup group = (functionExclusionGroups == null) ? null : functionExclusionGroups.getExclusionGroup(function.getFunctionDefinition());
+                if (group != null) {
+                  visitedFunctions.add(group);
+                }
+                final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target,
+                    new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
                 if (resolved != null) {
                   s_logger.info("Resolved {} on {}", result.getValueName(), position);
                   for (ValueSpecification resolvedItem : resolved) {

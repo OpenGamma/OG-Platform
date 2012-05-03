@@ -70,7 +70,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
   @Override
@@ -84,12 +84,16 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
   //------------------------------------------------------------------------
   private CompiledFunctionService getCompiledFunctionService() {
     return _compiledFunctions;
+  }
+
+  private FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
   }
 
   private PositionSource getPositionSource() {

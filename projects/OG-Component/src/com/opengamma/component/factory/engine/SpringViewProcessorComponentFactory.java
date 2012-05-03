@@ -28,6 +28,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.ViewProcessor;
@@ -188,25 +189,23 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
     ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
     repo.registerComponent(infoCFS, compiledFunctionService);
-    
     ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
     repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
-    
+    final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
+    repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     ComputationTargetResolver targetResolver = appContext.getBean(ComputationTargetResolver.class);
     ComponentInfo infoTR = new ComponentInfo(ComputationTargetResolver.class, getClassifier());
     repo.registerComponent(infoTR, targetResolver);
-    
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
-      
       DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
       bean.setCompiledFunctionService(compiledFunctionService);
       bean.setComputationTargetResolver(targetResolver);
       bean.setFunctionResolver(functionResolver);
+      bean.setFunctionExclusionGroups(functionExclusionGroups);
       bean.setMarketDataProviderResolver(getMarketDataProviderResolver());
       DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(bean, getFudgeContext());
-      
       // TODO: not really designed as a "component"
       ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderResource.class, getClassifier());
       repo.registerComponent(infoDGB, resource);
