@@ -15,8 +15,8 @@
     raw.raw_data AS raw_data,
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
-    sa.key AS security_attr_key,
-    sa.value AS security_attr_value
+    sa.attr_key AS security_attr_key,
+    sa.attr_value AS security_attr_value
   FROM
     sec_security main
     LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
@@ -42,8 +42,8 @@
     raw.raw_data AS raw_data,
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
-    sa.key AS security_attr_key,
-    sa.value AS security_attr_value
+    sa.attr_key AS security_attr_key,
+    sa.attr_value AS security_attr_value
   FROM
     sec_security main
     LEFT JOIN sec_raw raw ON (raw.security_id = main.id)
@@ -71,8 +71,8 @@
     raw.raw_data AS raw_data,
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
-    sa.key AS security_attr_key,
-    sa.value AS security_attr_value
+    sa.attr_key AS security_attr_key,
+    sa.attr_value AS security_attr_value
   FROM
     sec_security main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -256,8 +256,8 @@
     raw.raw_data AS raw_data,
     i.key_scheme AS key_scheme,
     i.key_value AS key_value,
-    sa.key AS security_attr_key,
-    sa.value AS security_attr_value
+    sa.attr_key AS security_attr_key,
+    sa.attr_value AS security_attr_value
   FROM
     sec_security main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -348,7 +348,7 @@
 -- ==========================================================================
 @NAME(InsertAttributes)
   INSERT INTO sec_security_attribute
-    (id, security_id, security_oid, key, value)
+    (id, security_id, security_oid, attr_key, attr_value)
   VALUES
     (:attr_id, :security_id, :security_oid, :key, :value)
 

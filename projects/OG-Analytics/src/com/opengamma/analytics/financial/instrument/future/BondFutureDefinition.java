@@ -5,6 +5,13 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import java.util.Arrays;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -13,13 +20,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-
-import java.util.Arrays;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future (definition version).
@@ -166,10 +167,17 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     return _conversionFactor;
   }
 
+  /**
+   * The future currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _deliveryBasket[0].getCurrency();
+  }
+
   @Override
   public BondFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() +
-        " does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }
 
   @Override

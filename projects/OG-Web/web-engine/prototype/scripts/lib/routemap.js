@@ -58,7 +58,7 @@
         merge = function () {
             var self = 'merge', to_string = Object.prototype.toString, clone = function (obj) {
                 return typeof obj !== 'object' || obj === null ? obj // primitives
-                    : Object.prototype.toString.call(obj) === '[object Array]' ? obj.map(clone) // arrays
+                    : to_string.call(obj) === '[object Array]' ? obj.map(clone) // arrays
                         : merge(obj); // objects
             };
             return Array.prototype.reduce.call(arguments, function (acc, obj) {

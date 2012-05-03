@@ -1,12 +1,21 @@
 .OG-details-content > section:first-child {
-  margin-top: 20px;
-}
-
-.OG-details-content > section:last-child {
-  margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .OG-details-content > section {
-  margin-bottom: 30px;
-  position: relative;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+/**
+ * Sometimes the layout manager doesnt honor the bottom margin here so removing it and adding the height using content
+ */
+.OG-details-content > section:last-child {
+    margin-bottom: none;
+}
+
+.OG-details-content > section:last-child:after {
+    content: '';
+    display: block;
+    height: 20px;
 }

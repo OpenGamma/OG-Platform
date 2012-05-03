@@ -83,7 +83,7 @@ $.register_module({
                                 handler: function (e) {
                                     var $el = $(form_id + ' [name="' + ['strip', idx, NUMF].join('.') + '"]'),
                                         is_future = $(e.target).val() === 'FUTURE';
-                                    $el.attr('disabled', is_future ? '' : 'disabled');
+                                    if (is_future) $el.removeAttr('disabled'); else $el.attr('disabled', 'disabled');
                                     if (!is_future) $el.attr('value', '');
                                 }
                             }

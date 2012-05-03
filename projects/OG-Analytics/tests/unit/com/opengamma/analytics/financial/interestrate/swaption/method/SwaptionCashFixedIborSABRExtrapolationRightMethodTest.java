@@ -103,7 +103,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
   @Test
   public void testPresentValueNoExtra() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABRExtrapolation1(CUT_OFF_STRIKE, MU);
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final SwaptionCashFixedIborSABRExtrapolationRightMethod method = new SwaptionCashFixedIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU);
     final double priceLongPayer = method.presentValue(SWAPTION_LONG_PAYER, sabrBundle);

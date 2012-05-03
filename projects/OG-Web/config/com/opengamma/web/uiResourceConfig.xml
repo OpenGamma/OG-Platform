@@ -67,7 +67,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-unhook.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-background-01.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
   </bundle>
   <bundle id="common.search.css">
@@ -99,7 +99,7 @@
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.OG-form-column-sets.css</fragment>
-	<fragment>/styles/views/forms/og.views.forms.OG-add-trades.css</fragment>
+    <fragment>/styles/views/forms/og.views.forms.OG-add-trades.css</fragment>
   </bundle>
   <bundle id="libs.css">
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
@@ -123,6 +123,8 @@
   </bundle>
   <bundle id="analytics.css">
     <fragment>/styles/analytics/og.analytics.footer.OG-analytics-footer.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -309,6 +311,7 @@
       <bundle idref="common_module.js" />
       <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
       <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
+      <fragment>/scripts/og/analytics/og.analytics.layout_manager.js</fragment>
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">

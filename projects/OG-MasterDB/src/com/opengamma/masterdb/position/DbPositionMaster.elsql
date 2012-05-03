@@ -31,10 +31,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
@@ -82,10 +82,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
@@ -135,10 +135,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -329,10 +329,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -446,7 +446,7 @@
 -- ==========================================================================
 @NAME(InsertPositionAttributes)
   INSERT INTO pos_attribute
-    (id, position_id, position_oid, key, value)
+    (id, position_id, position_oid, attr_key, attr_value)
   VALUES
     (:attr_id, :pos_id, :pos_oid, :key, :value)
 
@@ -454,7 +454,7 @@
 -- ==========================================================================
 @NAME(InsertTradeAttributes)
   INSERT INTO pos_trade_attribute
-    (id, trade_id, trade_oid, key, value)
+    (id, trade_id, trade_oid, attr_key, attr_value)
   VALUES
     (:attr_id, :trade_id, :trade_oid, :key, :value)
 
@@ -506,10 +506,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)
@@ -556,10 +556,10 @@
     t.premium_zone_offset AS premium_zone_offset,
     ts.key_scheme AS trade_key_scheme,
     ts.key_value AS trade_key_value,
-    ta.key AS trade_attr_key,
-    ta.value AS trade_attr_value,
-    pa.key AS pos_attr_key,
-    pa.value AS pos_attr_value
+    ta.attr_key AS trade_attr_key,
+    ta.attr_value AS trade_attr_value,
+    pa.attr_key AS pos_attr_key,
+    pa.attr_value AS pos_attr_value
   FROM
     pos_position main
     LEFT JOIN pos_position2idkey pi ON (pi.position_id = main.id)

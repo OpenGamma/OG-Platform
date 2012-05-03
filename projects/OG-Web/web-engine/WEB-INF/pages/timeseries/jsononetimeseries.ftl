@@ -13,20 +13,27 @@
     },
     "identifiers": [
         <#list info.externalIdBundle.externalIds as item>
-            {   "scheme": "${item.externalId.scheme}", 
-                "value": "${item.externalId.value}", 
+            {   "scheme": "${item.externalId.scheme}",
+                "value": "${item.externalId.value}",
                 "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}
             }   <#if item_has_next>,</#if>
    	</#list>
     ],
     "related": [
+            {
+              "object_id": "${info.uniqueId.objectId}",
+              "data_field": "${info.dataField}",
+              "data_source": "${info.dataSource}",
+              "data_provider": "${info.dataProvider}",
+              "observation_time": "${info.observationTime}"
+            }
         <#list related as item>
-            {   "object_id": "${item.uniqueId.objectId}", 
-                "data_field":"${item.dataField}", 
-                "data_source":"${item.dataSource}", 
-                "data_provider":"${item.dataProvider}", 
+            ,{   "object_id": "${item.uniqueId.objectId}",
+                "data_field":"${item.dataField}",
+                "data_source":"${item.dataSource}",
+                "data_provider":"${item.dataProvider}",
                 "observation_time":"${item.observationTime}"
-            }   <#if item_has_next>,</#if>
+            }
    	</#list>
     ],
     "timeseries": {

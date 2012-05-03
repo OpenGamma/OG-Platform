@@ -38,6 +38,10 @@ public class AUConventions {
 
     final Integer overnightPublicationLag = 0;
 
+    // IR FUTURES
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_IR_FUTURE")), "AUD_IR_FUTURE", act365, modified, Period.ofMonths(3),
+        0, true, au);
+
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("AU00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR O/N")), "AUD LIBOR O/N", act365,
         following, Period.ofDays(1), 0, false, au);

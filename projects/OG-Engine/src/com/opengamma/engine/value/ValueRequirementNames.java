@@ -244,7 +244,7 @@ public final class ValueRequirementNames {
   /**
    * The implied volatility of a security.
    */
-  public static final String SECURITY_IMPLIED_VOLATLITY = "Security Implied Volatility";
+  public static final String SECURITY_IMPLIED_VOLATILITY = "Security Implied Volatility";
   /**
    * Generic valuation of a security, for example it might be FAIR_VALUE or PRESENT_VALUE depending on the asset class.
    */

@@ -25,10 +25,12 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRRightExtrapolationCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
@@ -544,6 +546,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     InterestRateCurveSensitivity pvcsMethod = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(calculator.visit(CMS_CAP_SPREAD, sabrBundleCor));
     assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
+    // Extrapolation
+    final PresentValueCurveSensitivitySABRExtrapolationCalculator calculatorExtra = new PresentValueCurveSensitivitySABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
+    InterestRateCurveSensitivity pvcsMethodExtra = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsCalculatorExtra = new InterestRateCurveSensitivity(calculatorExtra.visit(CMS_CAP_SPREAD, sabrBundleCor));
+    assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethodExtra, pvcsCalculatorExtra);
   }
 
   @Test
@@ -707,6 +714,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     PresentValueSABRSensitivityDataBundle pvcsCalculator = calculator.visit(CMS_CAP_SPREAD, sabrBundleCor);
     assertEquals("CMS spread: SABR sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
+    // Extrapolation
+    final PresentValueSABRSensitivitySABRRightExtrapolationCalculator calculatorExtra = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
+    PresentValueSABRSensitivityDataBundle pvcsMethodExtra = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    PresentValueSABRSensitivityDataBundle pvcsCalculatorExtra = calculatorExtra.visit(CMS_CAP_SPREAD, sabrBundleCor);
+    assertEquals("CMS spread: SABR sensitivity Method vs Calculator", pvcsMethodExtra, pvcsCalculatorExtra);
   }
 
   @Test

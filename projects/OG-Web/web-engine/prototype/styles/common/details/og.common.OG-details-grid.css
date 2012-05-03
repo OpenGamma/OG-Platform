@@ -4,15 +4,33 @@
  */
 
 .OG-details-grid h3 {
-  margin: 0;
-  position: relative;
-  display: inline-block;
-  font-size: 16px;
-  line-height: 12px;
-  padding: 8px 10px 8px 8px;
-  border-left: 2px solid #c6c6c6;
-  color: #555;
-  background-color: #f3f3f3;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 12px;
+    padding: 8px 10px 7px 8px;
+    border: 1px solid #d8d8d8;
+    color: #555;
+    text-shadow: 0 1px 0 white;
+    background-color: #eee;
+    border-radius: 1px;
+    position: relative;
+    margin: -1px 0;
+}
+
+.OG-details-grid h3:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 50%;
+    background: #fafafa;
+}
+
+.OG-details-grid h3 span {
+    position: relative;
+    z-index: 2;
 }
 
 .OG-details-grid > div {
@@ -30,10 +48,8 @@
 }
 
 .OG-details-grid .og-divider {
-  height: 4px;
-  background: #f3f3f3;
-  margin-top: -4px;
-  margin-bottom: 1px;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHElEQVQIW2O4cOHim6+/IIgBiOF8EAfOh3IgfAB4lCwJ2HzdqwAAAABJRU5ErkJggg==);
+    margin-bottom: 1px;
 }
 
 .OG-details-grid .og-grid {
@@ -58,7 +74,10 @@
 }
 
 .OG-details-grid .OG-link-add {
-  position: relative;
-  bottom: 4px;
-  left: 5px;
+    padding: 4px 5px 4px 12px;
+    position: relative;
+    left: -9px;
+    background: #fff;
+    opacity: .7;
+    top: -1px;
 }

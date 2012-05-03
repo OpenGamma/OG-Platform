@@ -18,8 +18,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value
   FROM
     prt_portfolio main
     LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
@@ -51,8 +51,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value
   FROM
     prt_portfolio main
     LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
@@ -86,8 +86,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value
   FROM
     prt_portfolio main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -123,8 +123,8 @@
     n.tree_left AS tree_left,
     n.tree_right AS tree_right,
     n.name AS node_name,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value
   FROM
     prt_portfolio main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -193,8 +193,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value
   FROM
     prt_portfolio main
     INNER JOIN cte_docs ON main.id = cte_docs.id
@@ -280,7 +280,7 @@
 -- ==========================================================================
 @NAME(InsertAttribute)
   INSERT INTO prt_portfolio_attribute
-    (id, portfolio_id, portfolio_oid, key, value)
+    (id, portfolio_id, portfolio_oid, attr_key, attr_value)
   VALUES
     (:attr_id, :portfolio_id, :portfolio_oid, :key, :value)
 
@@ -322,8 +322,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value,
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value,
     n.parent_node_id AS parent_node_id,
     n.parent_node_oid AS parent_node_oid
   FROM
@@ -360,8 +360,8 @@
     n.name AS node_name,
     p.key_scheme AS pos_key_scheme,
     p.key_value AS pos_key_value,
-    pa.key AS prt_attr_key,
-    pa.value AS prt_attr_value,
+    pa.attr_key AS prt_attr_key,
+    pa.attr_value AS prt_attr_value,
     n.parent_node_id AS parent_node_id,
     n.parent_node_oid AS parent_node_oid
   FROM

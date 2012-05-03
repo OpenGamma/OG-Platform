@@ -30,6 +30,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -121,22 +123,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitCash(Cash cash, S data);
 
-  T visitBondFuture(BondFuture bondFuture, S data);
-
-  T visitInterestRateFuture(InterestRateFuture future, S data);
-
-  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, S data);
-
-  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, S data);
-
-  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
-
-  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, S data);
-
-  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
-
-  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
-
   T visitFixedPayment(PaymentFixed payment, S data);
 
   T visitFixedCouponPayment(CouponFixed payment, S data);
@@ -221,22 +207,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitCash(Cash cash);
 
-  T visitBondFuture(BondFuture future);
-
-  T visitInterestRateFutureSecurity(InterestRateFuture future);
-
-  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future);
-
-  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
-
-  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
-
-  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option);
-
-  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option);
-
-  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
-
   T visitFixedPayment(PaymentFixed payment);
 
   T visitFixedCouponPayment(CouponFixed payment);
@@ -270,6 +240,48 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
+
+  // -----     Futures     -----
+
+  T visitBondFuture(BondFuture bondFuture, S data);
+
+  T visitBondFuture(BondFuture future);
+
+  T visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option, S data);
+
+  T visitBondFutureOptionPremiumSecurity(BondFutureOptionPremiumSecurity option);
+
+  T visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option, S data);
+
+  T visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option);
+
+  T visitInterestRateFuture(InterestRateFuture future, S data);
+
+  T visitInterestRateFutureSecurity(InterestRateFuture future);
+
+  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, S data);
+
+  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, S data);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
+
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option, S data);
+
+  T visitInterestRateFutureOptionMarginSecurity(InterestRateFutureOptionMarginSecurity option);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, S data);
+
+  T visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
+
+  T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option, S data);
+
+  T visitInterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumTransaction option);
 
   // -----     Deposit     -----
 

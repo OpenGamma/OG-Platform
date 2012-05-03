@@ -15,10 +15,11 @@ $.register_module({
         'og.common.util.ui.toolbar',
         'og.views.common.versions',
         'og.views.common.versions',
-        'og.views.extras.portfolios_sync'
+        'og.views.extras.portfolios_sync',
+        'og.common.gadgets.manager'
     ],
     obj: function () {
-        var api = og.api, common = og.common, gadgets = common.gadgets,
+        var api = og.api, common = og.common, gadgets = common.gadgets, gadgets_manager = common.gadgets.manager,
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
@@ -88,13 +89,70 @@ $.register_module({
             var show_loading = !(config || {}).hide_loading, rest_options,
                 render_portfolio_rows, render_position, render_position_rows, breadcrumb;
             render_portfolio_rows = function (selector, json) {
-                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
+                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios, slick,
+                    rand = Math.floor(Math.random() * 100000000), alive = 'alive-' + rand, no_message = 'No portfolios',
                     html = '\
-                        <h3>Portfolios</h3>\
-                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new sub portfolio</a>\
-                        <div class="og-divider"></div>\
+                        <div class="og-divider">\
+                            <h3><span>Portfolios</span></h3>\
+                            <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new sub portfolio</a>\
+                        </div>\
                         <div class="og-js-portfolios-grid og-grid"></div>';
-                $(selector).html(html);
+                $(selector).html(html).addClass(alive);
+                gadgets_manager.register({
+                    alive: function () {return !!$('.' + alive).length;}, resize: function () {
+                        if (json.portfolios[0] && json.portfolios[0].name !== no_message) {
+                            display_columns = [{
+                                id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
+                                width: 250, formatter: format
+                            }],
+                            data_columns = [{id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}];
+                        } else {
+                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
+                            json.portfolios = [{name: no_message, id: ''}]
+                        }
+                        display_columns = common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-portfolios-grid',
+                            columns: display_columns,
+                            buffer: 18
+                        });
+                        if (typeof slick === 'object') return slick.setColumns(display_columns);
+                        slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
+                            json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
+                        slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
+                        slick.onClick.subscribe(function (e, dd) {
+                            var rule = view.rules.load_item, node = json.portfolios[dd.row];
+                            if (!$(e.target).hasClass('og-icon-delete'))
+                                return routes.go(routes.hash(rule, routes.current().args,
+                                    {add: {node: node.id}, del: ['position']}));
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Delete sub-portfolio?',
+                                width: 400, height: 190,
+                                message: 'Are you sure you want to permanently delete ' +
+                                    '<strong style="white-space: nowrap">' + node.name + '</strong>?',
+                                buttons: {
+                                    'Delete': function () {
+                                        api.rest.portfolios.del({
+                                            id: routes.current().args.id, node: node.id,
+                                            handler: function (result) {
+                                                if (result.error) return view.error(result.message);
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
+                            });
+                        });
+                        slick.onMouseEnter.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                        });
+                        slick.onMouseLeave.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
+                        });
+                    }
+                });
                 (function () { /* Hook up add button */
                     var do_update = function () {
                         api.rest.portfolios.put({
@@ -125,58 +183,6 @@ $.register_module({
                         return false;
                     });
                 }());
-                if (json.portfolios[0]) {
-                    display_columns = [{
-                        id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
-                        width: 250, formatter: format
-                    }],
-                    data_columns = [{
-                        id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
-                    }];
-                } else {
-                    display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
-                    json.portfolios = [{name: 'No portfolios', id: ''}]
-                }
-                display_columns = common.slickgrid.calibrate_columns({
-                    container: selector + ' .og-js-portfolios-grid',
-                    columns: display_columns,
-                    buffer: 17
-                });
-                slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
-                    json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
-                slick.setColumns(display_columns);
-                slick.setSelectionModel(new Slick.RowSelectionModel());
-                slick.onClick.subscribe(function (e, dd) {
-                    var rule = view.rules.load_item, node = json.portfolios[dd.row];
-                    if (!$(e.target).hasClass('og-icon-delete'))
-                        return routes.go(routes.hash(rule, routes.current().args,
-                            {add: {node: node.id}, del: ['position']}));
-                    ui.dialog({
-                        type: 'confirm',
-                        title: 'Delete sub-portfolio?',
-                        width: 400, height: 190,
-                        message: 'Are you sure you want to permanently delete ' +
-                            '<strong style="white-space: nowrap">' + node.name + '</strong>?',
-                        buttons: {
-                            'Delete': function () {
-                                api.rest.portfolios.del({
-                                    id: routes.current().args.id, node: node.id,
-                                    handler: function (result) {
-                                        if (result.error) return view.error(result.message);
-                                    }
-                                });
-                                $(this).dialog('close');
-                            },
-                            'Cancel': function () {$(this).dialog('close');}
-                        }
-                    });
-                });
-                slick.onMouseEnter.subscribe(function (e) {
-                   $(e.currentTarget).closest('.slick-row').find('.og-button').show();
-                });
-                slick.onMouseLeave.subscribe(function (e) {
-                   $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
-                });
             };
             render_position = function (json) {
                 var position = routes.current().args.position;
@@ -184,17 +190,83 @@ $.register_module({
                 // but don't redirect so history will still work
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 api.rest.positions.get({id: position, update: view.update, cache_for: 500, dependencies: ['position']});
-                gadgets.positions({id: position, selector: '.og-js-details-positions', editable: false, view: view});
+                gadgets.positions({
+                    id: position, selector: '.og-js-details-positions', editable: false, view: view
+                });
                 gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };
             render_position_rows = function (selector, json) {
-                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
+                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions, slick,
+                    rand = Math.floor(Math.random() * 100000000), alive = 'alive-' + rand, no_message = 'No positions',
                     html = '\
-                      <h3>Positions</h3>\
-                      <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
-                      <div class="og-divider"></div>\
+                      <div class="og-divider">\
+                          <h3><span>Positions</span></h3>\
+                          <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
+                      </div>\
                       <div class="og-js-position-grid og-grid"></div>';
-                $(selector).html(html);
+                $(selector).html(html).addClass(alive);
+                gadgets_manager.register({
+                    alive: function () {return !!$('.' + alive).length;}, resize: function () {
+                        if (json.positions[0] && json.positions[0].name !== no_message) {
+                            display_columns = [
+                                {id: 'name', name: 'Name', field: 'name', width: 250, cssClass: 'og-link'},
+                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80, formatter: format}
+                            ],
+                            data_columns = [{id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}];
+                        } else {
+                            display_columns = [
+                                {id: 'name', name: 'Name', field: 'name', width: 250},
+                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80}
+                            ],
+                            json.positions = [{name: no_message, quantity:'', id: ''}]
+                        }
+                        display_columns = og.common.slickgrid.calibrate_columns({
+                            container: selector + ' .og-js-position-grid',
+                            columns: display_columns,
+                            buffer: 18
+                        });
+                        if (typeof slick === 'object') return slick.setColumns(display_columns);
+                        slick = new Slick.Grid(selector + ' .og-js-position-grid',
+                            json.positions, display_columns.concat(data_columns), {headerHeight: 33});
+                        slick.setColumns(display_columns);
+                        slick.setSelectionModel(new Slick.RowSelectionModel());
+                        slick.onClick.subscribe(function (e, dd) {
+                            var row = json.positions[dd.row], position = row.id, position_name = row.name;
+                            if (!$(e.target).hasClass('og-icon-unhook')) {
+                                return routes.go(routes.hash(
+                                    view.rules.load_item, routes.current().args, {add: {position: position}}));
+                            }
+                            ui.dialog({
+                                type: 'confirm',
+                                title: 'Remove Position?',
+                                message: 'Are you sure you want to remove the position '
+                                    + '<strong style="white-space: nowrap">' + position_name + '</strong>'
+                                    + ' from this portfolio?',
+                                buttons: {
+                                    'Delete': function () {
+                                        var args = routes.current().args;
+                                        api.rest.portfolios.del({
+                                            id: args.id,
+                                            node: json.template_data.node,
+                                            position: position,
+                                            handler: function (result) {
+                                                if (result.error) return view.error(result.message);
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
+                            });
+                        });
+                        slick.onMouseEnter.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                        });
+                        slick.onMouseLeave.subscribe(function (e) {
+                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
+                        });
+                    }
+                });
                 (function () { /* hook up add button */
                     var do_update = function (e, id) {
                         api.rest.portfolios.put({
@@ -242,65 +314,6 @@ $.register_module({
                         return false;
                     });
                 }());
-                if (json.positions[0]) {
-                    display_columns = [
-                        {id: 'name', name: 'Name', field: 'name', width: 250, cssClass: 'og-link'},
-                        {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80, formatter: format}
-                    ],
-                    data_columns = [
-                        {id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}
-                    ];
-                } else {
-                    display_columns = [
-                        {id: 'name', name: 'Name', field: 'name', width: 250},
-                        {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80}
-                    ],
-                    json.positions = [{name: 'No positions', quantity:'', id: ''}]
-                }
-                display_columns = og.common.slickgrid.calibrate_columns({
-                    container: selector + ' .og-js-position-grid',
-                    columns: display_columns,
-                    buffer: 17
-                });
-                slick = new Slick.Grid(selector + ' .og-js-position-grid',
-                    json.positions, display_columns.concat(data_columns), {headerHeight: 33});
-                slick.setColumns(display_columns);
-                slick.setSelectionModel(new Slick.RowSelectionModel());
-                slick.onClick.subscribe(function (e, dd) {
-                    var row = json.positions[dd.row], position = row.id, position_name = row.name;
-                    if (!$(e.target).hasClass('og-icon-unhook')) {
-                        return routes.go(routes.hash(
-                            view.rules.load_item, routes.current().args, {add: {position: position}}));
-                    }
-                    ui.dialog({
-                        type: 'confirm',
-                        title: 'Remove Position?',
-                        message: 'Are you sure you want to remove the position '
-                            + '<strong style="white-space: nowrap">' + position_name + '</strong>'
-                            + ' from this portfolio?',
-                        buttons: {
-                            'Delete': function () {
-                                var args = routes.current().args;
-                                api.rest.portfolios.del({
-                                    id: args.id,
-                                    node: json.template_data.node,
-                                    position: position,
-                                    handler: function (result) {
-                                        if (result.error) return view.error(result.message);
-                                    }
-                                });
-                                $(this).dialog('close');
-                            },
-                            'Cancel': function () {$(this).dialog('close');}
-                        }
-                    });
-                });
-                slick.onMouseEnter.subscribe(function (e) {
-                   $(e.currentTarget).closest('.slick-row').find('.og-button').show();
-                });
-                slick.onMouseLeave.subscribe(function (e) {
-                   $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
-                });
             };
             breadcrumb = function (config) {
                 var data = config.data, rule = view.rules.load_item, args = routes.current().args;

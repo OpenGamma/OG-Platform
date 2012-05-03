@@ -1014,6 +1014,9 @@
 
             plotOffset.left = Math.max(margins.x, plotOffset.left);
             plotOffset.right = Math.max(margins.x, plotOffset.right);
+            // OG hack to fix the width of the plot!
+            plotOffset.left = 1;
+            plotOffset.right = 1;
             plotOffset.top = Math.max(margins.y, plotOffset.top);
             plotOffset.bottom = Math.max(margins.y, plotOffset.bottom);
         }

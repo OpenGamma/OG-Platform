@@ -13,7 +13,9 @@ import com.opengamma.financial.security.fra.FRASecurity;
 public class FRAPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected FRASecurityGenerator createFRASecurityGenerator() {
-    return new FRASecurityGenerator();
+    FRASecurityGenerator securities = new FRASecurityGenerator();
+    configure(securities);
+    return securities;
   }
 
   @Override
@@ -25,4 +27,12 @@ public class FRAPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 
+  @Override
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
+    final FRASecurityGenerator securities = createFRASecurityGenerator();
+    configure(securities);
+    final PositionGenerator positions = new SimplePositionGenerator<FRASecurity>(securities, getSecurityPersister());
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("FRA"), positions, portfolioSize);
+  }
+  
 }

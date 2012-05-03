@@ -12,11 +12,9 @@ $.register_module({
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             load: function (args) {
-                og.analytics.grid({
-                    selector: '.OG-layout-analytics-center',
-                    width: 900,
-                    height: 350
-                });
+                og.analytics.layout_manager();
+                // TODO THIS IS A GLOBAL, REMOVE IT LATER
+                grid = new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
             },
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules

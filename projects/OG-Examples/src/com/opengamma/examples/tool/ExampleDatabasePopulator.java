@@ -88,6 +88,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadFRAPortfolio();
     loadLiborRawSecurities();
     loadMixedFXPortfolio();
+    loadMixedPortfolio();
     loadMultiAssetPortfolio();
     loadViews();
   }
@@ -291,6 +292,16 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     final Log log = new Log("Creating mixed FX portfolio");
     try {
       (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true);
+      log.done();
+    } catch (RuntimeException t) {
+      log.fail(t);
+    }
+  }
+  
+  private void loadMixedPortfolio() {
+    final Log log = new Log("Creating mixed portfolio");
+    try {
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed Portfolio", "Mixed", true);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
