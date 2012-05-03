@@ -149,7 +149,7 @@ $.register_module({
                         ).end().find('.OG-table').tablesorter();
                         // Plot
                         common.gadgets.timeseries({
-                            selector: '.OG-timeseries-gadget',
+                            selector: '.OG-timeseries-container',
                             id: result.data.template_data.object_id,
                             datapoints: true, height: 400
                         });

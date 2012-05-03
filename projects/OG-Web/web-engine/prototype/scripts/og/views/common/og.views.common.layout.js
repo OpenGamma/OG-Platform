@@ -74,7 +74,7 @@ $.register_module({
                     },
                     south: {
                         paneSelector: '.OG-layout-analytics-south', paneClass: 'OG-layout-analytics-south',
-                        size: '25%', initClosed: false, spacing_closed: 0
+                        size: '50%', initClosed: false, spacing_closed: 0
                     },
                     center: { // main grid
                         paneSelector: '.OG-layout-analytics-center', paneClass: 'OG-layout-analytics-center',

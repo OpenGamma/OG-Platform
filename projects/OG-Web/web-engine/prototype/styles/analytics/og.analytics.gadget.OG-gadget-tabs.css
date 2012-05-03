@@ -40,68 +40,92 @@
 }
 
 /* separator white bar */
-.OG-gadget-tabs li:before {
-    display: block;
-    content: '';
-    background: #fff;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 1px;
-}
+    .OG-gadget-tabs li:before {
+        display: block;
+        content: '';
+        background: #fff;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+    }
 
 /* highlight */
-.OG-gadget-tabs li:after {
-    display: block;
-    content: '';
-    background: #fafafa;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 50%;
-}
+    .OG-gadget-tabs li:after {
+        display: block;
+        content: '';
+        background: #fafafa;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 50%;
+    }
 
 /* top colour hover notifier */
-.OG-gadget-tabs li:hover:after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: -2px;
-    border-top: 2px solid #ccc;
-    -webkit-border-top-left-radius: 1px;
-    -webkit-border-top-right-radius: 1px;
-    -moz-border-radius-topleft: 1px;
-    -moz-border-radius-topright: 1px;
-    border-top-left-radius: 1px;
-    border-top-right-radius: 1px;
-}
+    .OG-gadget-tabs li:hover:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -2px;
+        border-top: 2px solid #ccc;
+        -webkit-border-top-left-radius: 1px;
+        -webkit-border-top-right-radius: 1px;
+        -moz-border-radius-topleft: 1px;
+        -moz-border-radius-topright: 1px;
+        border-top-left-radius: 1px;
+        border-top-right-radius: 1px;
+    }
 
 /* top colour active notifier */
-.OG-gadget-tabs .og-active:after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: -2px;
-    border-top: 2px solid #80c696;
-    -webkit-border-top-left-radius: 1px;
-    -webkit-border-top-right-radius: 1px;
-    -moz-border-radius-topleft: 1px;
-    -moz-border-radius-topright: 1px;
-    border-top-left-radius: 1px;
-    border-top-right-radius: 1px;
-}
+    .OG-gadget-tabs .og-active:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: -2px;
+        border-top: 2px solid #80c696;
+        -webkit-border-top-left-radius: 1px;
+        -webkit-border-top-right-radius: 1px;
+        -moz-border-radius-topleft: 1px;
+        -moz-border-radius-topright: 1px;
+        border-top-left-radius: 1px;
+        border-top-right-radius: 1px;
+    }
 
-.OG-gadget-tabs li.og-active {
-    background-color: #fff;
-}
+    .OG-gadget-tabs li.og-active {
+        background-color: #fff;
+    }
 
-.OG-gadget-tabs li div {
-    position: relative;
-    z-index: 2;
-}
+    .OG-gadget-tabs li div {
+        position: relative;
+        z-index: 2;
+    }
 
-.OG-gadget-tabs li:last-child {
-    float: none;
-}
+    .OG-gadget-tabs li:last-child {
+        float: none;
+    }
+
+/* contenxtual delete */
+/* TODO: extract out into separate class */
+    .OG-gadget-tabs li:hover .og-delete {
+        display: block;
+    }
+
+    .OG-gadget-tabs li .og-delete {
+        display: none;
+        background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+        content: '';
+        cursor: pointer;
+        background-position: -23px -35px;
+        height: 10px;
+        width: 11px;
+        position: absolute;
+        right: -5px;
+        top: -5px;
+        z-index: 2;
+    }
+
+    .OG-gadget-tabs li .og-delete:hover {
+        background-position: -11px -35px;
+    }

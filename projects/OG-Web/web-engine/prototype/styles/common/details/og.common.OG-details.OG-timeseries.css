@@ -19,6 +19,7 @@
     text-shadow: 0 1px 0 #fff;
     background-color: #eee;
     border-radius: 1px;
+    z-index: 3;
 }
 
 .OG-timeseries-gadget .og-plot-header:after {

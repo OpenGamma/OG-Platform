@@ -27,7 +27,7 @@ $.register_module({
                 gadgets.securities_identifiers({id: args.id, selector: '#gadget_content section'});
             },
             timeseries: function (args) {
-                var options = {selector: '.OG-timeseries-gadget', datapoints_link: false};
+                var options = {selector: '.OG-timeseries-container', datapoints_link: false};
                 $content.html('<section class="' + options.selector.substring(1) + '"></section>');
                 if (args.id) options.id = args.id; else options.data = og.api.common.get_cache(args.key);
                 if (args.key) og.api.common.del_cache(args.key);
