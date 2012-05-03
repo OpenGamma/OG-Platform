@@ -6,18 +6,29 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: ['og.views.common.state', 'og.common.routes'],
     obj: function () {
-        var api = og.api.rest, routes = og.common.routes, module = this, view,
-            page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name);
-        module.rules = {load: {route: '/', method: module.name + '.load'}};
+        var api = og.api.rest, routes = og.common.routes, module = this, view;
         return view = {
+            check_state: og.views.common.state.check.partial('/'),
+            default_details: function (args) {
+                og.api.text({module: 'og.analytics.grid.configure_tash'}).pipe(function (markup) {
+                    var template = Handlebars.compile(markup);
+                    $('.OG-layout-analytics-center').html(template({}));
+                });
+            },
             load: function (args) {
-                og.analytics.layout_manager();
-                // TODO THIS IS A GLOBAL, REMOVE IT LATER
+                view.check_state({args: args, conditions: [{new_page: og.analytics.layout_manager}]});
+                if (!args.id) view.default_details(args);
+            },
+            load_item: function (args) {
+                view.check_state({args: args, conditions: [{new_page: view.load}]});
+                // TODO this is public!
                 grid = new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
             },
-            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
-            rules: module.rules
+            init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
+            rules: {
+                load: {route: '/', method: module.name + '.load'},
+                load_item: {route: '/:id', method: module.name + '.load_item'}
+            }
         };
     }
 });

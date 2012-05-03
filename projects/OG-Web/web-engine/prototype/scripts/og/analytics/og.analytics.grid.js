@@ -12,6 +12,14 @@ $.register_module({
             container_tmpl = api_text.partial({module: 'og.analytics.grid.container_tash'}),
             row_tmpl = api_text.partial({module: 'og.analytics.grid.row_tash'}),
             scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
+        var background = function (cols, width) {
+            var height = row_height, canvas = $('<canvas height="' + height + '" width="' + width + '" />')[0], context;
+            if (!canvas.getContext) return ''; // don't bother with IE8
+            (context = canvas.getContext('2d')).fillStyle = '#dadcdd';
+            context.fillRect(0, height - 1, width, 1);
+            cols.reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
+            return canvas.toDataURL('image/png');
+        };
         var col_css = function (id, columns, offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
@@ -109,6 +117,8 @@ $.register_module({
             meta.visible_rows = Math.ceil((height - header_height) / row_height);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
+                fixed_bg: background(columns.fixed, meta.columns.width.fixed),
+                scroll_bg: background(columns.scroll, meta.columns.width.scroll),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
