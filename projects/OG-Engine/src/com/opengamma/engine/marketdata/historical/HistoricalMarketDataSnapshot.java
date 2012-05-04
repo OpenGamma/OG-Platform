@@ -8,7 +8,6 @@ package com.opengamma.engine.marketdata.historical;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +15,10 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataTargetResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,6 +32,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final Instant _snapshotInstant;
   private final LocalDate _snapshotDate;
   private final String _timeSeriesFieldResolverKey;
+  private final MarketDataTargetResolver _targetResolver;
   
   /**
    * Creates a market data snapshot based on historical time-series data.
@@ -39,14 +41,17 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
    * @param snapshotInstant  the snapshot instant to report to the engine, not null
    * @param snapshotDate  the date of the required value, null for the latest
    * @param timeSeriesFieldResolverKey  the time series field resolver key, null for default
+   * @param targetResolver  the market data target resolver, not null
    */
-  public HistoricalMarketDataSnapshot(HistoricalTimeSeriesSource timeSeriesSource, Instant snapshotInstant, LocalDate snapshotDate, String timeSeriesFieldResolverKey) {
+  public HistoricalMarketDataSnapshot(HistoricalTimeSeriesSource timeSeriesSource, Instant snapshotInstant,
+      LocalDate snapshotDate, String timeSeriesFieldResolverKey, MarketDataTargetResolver targetResolver) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     ArgumentChecker.notNull(snapshotInstant, "snapshotInstant");
     _timeSeriesSource = timeSeriesSource;
     _snapshotInstant = snapshotInstant;
     _snapshotDate = snapshotDate;
     _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
+    _targetResolver = targetResolver;
   }
   
   @Override
@@ -67,7 +72,11 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   @Override
   public Object query(ValueRequirement requirement) {
     String valueName = requirement.getValueName();
-    ExternalIdBundle identifiers = ExternalIdBundle.of(requirement.getTargetSpecification().getIdentifier());
+    ExternalIdBundle identifiers = _targetResolver.getExternalIdBundle(requirement);
+    if (identifiers == null) {
+      s_logger.warn("Unable to resolve requirement {} to an external ID bundle", requirement);
+      return null;
+    }
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
         valueName,
         identifiers,

@@ -10,6 +10,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -22,22 +23,24 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource underlying source
-   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
-   * @param fieldResolverKey the field name resolver resolution key, or null to use the resolver default
+   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
+   * @param securitySource  the source of securities, not null
+   * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
+   * @param fieldResolverKey  the field name resolver resolution key, or null to use the resolver default
    */
-  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey, 
-      final String fieldResolverKey) {
-    super(historicalTimeSeriesSource, timeSeriesResolverKey, fieldResolverKey);
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+      final SecuritySource securitySource, final String timeSeriesResolverKey, final String fieldResolverKey) {
+    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey, fieldResolverKey);
   }
   
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource underlying source
+   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
+   * @param securitySource  the source of securities, not null
    */
-  public HistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    super(historicalTimeSeriesSource);
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
+    super(historicalTimeSeriesSource, securitySource);
   }
 
   //-------------------------------------------------------------------------
@@ -56,7 +59,7 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
     //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
     Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(TimeZone.UTC).toInstant();
     LocalDate snapshotDate = historicalSpec.getSnapshotDate();
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate, historicalSpec.getTimeSeriesFieldResolverKey());
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate, historicalSpec.getTimeSeriesFieldResolverKey(), this);
   }
   
 }
