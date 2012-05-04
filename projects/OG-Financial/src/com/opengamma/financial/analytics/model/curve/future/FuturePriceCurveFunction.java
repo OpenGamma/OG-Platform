@@ -72,6 +72,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
     for (final Object x : futurePriceCurveDefinition.getXs()) {
       final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
+      //System.out.println(identifier);
     }
     return result;
   }
@@ -164,7 +165,10 @@ public class FuturePriceCurveFunction extends AbstractFunction {
               final Double ttm = IRFutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
               xList.add(ttm);
               prices.add(futurePrice);
+            } else {
+              System.out.println(identifier);
             }
+              
           }
         }
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
