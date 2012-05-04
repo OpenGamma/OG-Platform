@@ -24,7 +24,7 @@ $.register_module({
             },
             securities: function (args) {
                 $content.html('<section></section>');
-                gadgets.securities_identifiers({id: args.id, selector: '#gadget_content section'});
+                new gadgets.securities_identifiers({id: args.id, selector: '#gadget_content section'});
             },
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-container', datapoints_link: false};

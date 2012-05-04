@@ -136,7 +136,7 @@ $.register_module({
                             $html = $.tmpl(template, json.template_data);
                         $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
                         $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
-                        og.common.gadgets.securities_identifiers({
+                        new og.common.gadgets.securities_identifiers({
                             selector: '.og-js-identifiers',
                             id: rest_options.id
                         });
