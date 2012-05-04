@@ -38,7 +38,8 @@ public class BondFutureOptionPremiumTransaction implements InstrumentDerivative 
   * @param premium The transaction premium.
   */
   public BondFutureOptionPremiumTransaction(BondFutureOptionPremiumSecurity underlyingOption, int quantity, PaymentFixed premium) {
-    Validate.notNull(underlyingOption, "underlying option");
+    Validate.notNull(underlyingOption, "Underlying option");
+    Validate.notNull(premium, "Premium");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     _premium = premium;
