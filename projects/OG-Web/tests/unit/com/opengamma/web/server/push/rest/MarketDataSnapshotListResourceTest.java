@@ -7,7 +7,6 @@ import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
