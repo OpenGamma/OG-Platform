@@ -40,16 +40,15 @@ $.register_module({
         };
         var init_data = function (grid, config) {
             grid.alive = function () {return $(grid.id).length ? true : !grid.style.remove();};
-            (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
             grid.style = null;
+            (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
         };
         var init_grid = function (grid, config, metadata) {
             var columns = metadata.columns, $style,
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
-            // SET UP
             grid.meta = metadata;
             set_size(grid, config);
             $(config.selector).html(templates.container({id: grid.id.substring(1)}));
@@ -59,19 +58,17 @@ $.register_module({
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
-            var meta, head_data = function (columns, offset) {
+            var meta, columns, head_data = function (columns, offset) {
                 var width = meta.columns.width;
                 return {
-                    width: offset ? width.scroll : width.fixed,
-                    padding_right: offset ? scrollbar_size : 0,
+                    width: offset ? width.scroll : width.fixed, padding_right: offset ? scrollbar_size : 0,
                     columns: columns.map(function (val, idx) {return {index: idx + (offset || 0), name: val.name};})
                 };
             };
             return function (grid) {
-                meta = grid.meta;
-                $(grid.id + ' .OG-g-h-fixed').html(templates.header(head_data(meta.columns.fixed)));
-                $(grid.id + ' .OG-g-h-scroll')
-                    .html(templates.header(head_data(meta.columns.scroll, meta.columns.fixed.length)));
+                (meta = grid.meta), (columns = meta.columns);
+                $(grid.id + ' .OG-g-h-fixed').html(templates.header(head_data(columns.fixed)));
+                $(grid.id + ' .OG-g-h-scroll').html(templates.header(head_data(columns.scroll, columns.fixed.length)));
             };
         })();
         var render_rows = (function ($fixed, $scroll) {
