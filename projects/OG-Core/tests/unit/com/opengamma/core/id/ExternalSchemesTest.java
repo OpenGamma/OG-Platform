@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.security;
+package com.opengamma.core.id;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -16,7 +16,7 @@ import com.opengamma.id.ExternalId;
  * Test {@link ExternalSchemes}.
  */
 @Test
-public class SecurityUtilsTest {
+public class ExternalSchemesTest {
 
   public void test_constants() {
     assertEquals("ISIN", ExternalSchemes.ISIN.getName());
