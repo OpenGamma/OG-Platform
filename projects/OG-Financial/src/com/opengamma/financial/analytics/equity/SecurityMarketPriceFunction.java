@@ -37,7 +37,6 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Object temp = getRequirement(target);
     double marketValue = (Double) inputs.getValue(getRequirement(target));
     return Collections.singleton(new ComputedValue(getSpecification(target), marketValue));
   }
@@ -85,7 +84,6 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   
   private ValueRequirement getRequirement(ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.getPosition().getSecurity());
-//    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPosition().getSecurity().getUniqueId());
   }
 
 }

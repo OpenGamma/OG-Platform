@@ -238,13 +238,17 @@ public final class ValueRequirementNames {
    */
   public static final String PV01 = "PV01";
   /**
-   * The market price of a security,
-   */
-  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
-  /**
    * The implied volatility of a security.
    */
   public static final String SECURITY_IMPLIED_VOLATILITY = "Security Implied Volatility";
+  /**
+   * The market price of the security, as opposed to trade or position.
+   */
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  /**
+   * The model price of the security, as opposed to trade or position.
+   */
+  public static final String SECURITY_MODEL_PRICE = "Security Model Price";
   /**
    * Generic valuation of a security, for example it might be FAIR_VALUE or PRESENT_VALUE depending on the asset class.
    */
