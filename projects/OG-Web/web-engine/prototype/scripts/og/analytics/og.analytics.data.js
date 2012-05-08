@@ -7,14 +7,14 @@ $.register_module({
     dependencies: ['og.api.rest'],
     obj: function () {
         return function (config) {
-            var data = this, data_handler, initialize, fire, events = {init: [], data: []}, meta, viewport = null;
-            fire = function (type) {
+            var data = this, events = {init: [], data: []}, meta, viewport = null;
+            var fire = function (type) {
                 var args = Array.prototype.slice.call(arguments, 1);
                 events[type].forEach(function (value) {
                     value.handler.apply(null, value.args.concat(args));
                 });
             };
-            data_handler = function (result) {
+            var data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.
                 var matrix = [], rows = data.meta.rows,
                     row_start = viewport.rows[0] || 1, row_end = viewport.rows[1],
@@ -29,7 +29,7 @@ $.register_module({
                 fire('data', matrix.reverse());
                 setTimeout(data_handler, 1000);
             };
-            initialize = function () {
+            var initialize = function () {
                 meta.rows = 10000;
                 meta.columns = {
                     fixed: [
@@ -82,6 +82,7 @@ $.register_module({
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
+            data.kill = function () {for (var type in events) events[type] = [];};
             data.meta = meta = {columns: null};
             data.on = function (type, handler) {
                 if (type in events)

@@ -6,18 +6,14 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.analytics.Data'],
     obj: function () {
-        var module = this, api_text = og.api.text, counter = 1, compile = Handlebars.compile,
-            css_tmpl = api_text.partial({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
-            header_tmpl = api_text.partial({module: 'og.analytics.grid.header_tash'}),
-            container_tmpl = api_text.partial({module: 'og.analytics.grid.container_tash'}),
-            row_tmpl = api_text.partial({module: 'og.analytics.grid.row_tash'}),
-            scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
-        var background = function (cols, width) {
+        var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
+        var background = function (columns, width) {
             var height = row_height, canvas = $('<canvas height="' + height + '" width="' + width + '" />')[0], context;
             if (!canvas.getContext) return ''; // don't bother with IE8
             (context = canvas.getContext('2d')).fillStyle = '#dadcdd';
             context.fillRect(0, height - 1, width, 1);
-            cols.reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
+            columns
+                .reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
             return canvas.toDataURL('image/png');
         };
         var col_css = function (id, columns, offset) {
@@ -30,33 +26,37 @@ $.register_module({
                 return (partial_width += val.width), css;
             });
         };
-        var compile_templates = function (grid, config) {
-            $.when(css_tmpl(), header_tmpl(), container_tmpl(), row_tmpl())
-                .then(function (css_tmpl, header_tmpl, container_tmpl, row_tmpl) {
-                    templates = {
-                        css: compile(css_tmpl), header: compile(header_tmpl),
-                        container: compile(container_tmpl), row: compile(row_tmpl)
-                    };
-                    init_data(grid, config);
+        var compile_templates = function (handler) {
+            var css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
+                header = og.api.text({module: 'og.analytics.grid.header_tash'}),
+                container = og.api.text({module: 'og.analytics.grid.container_tash'}),
+                row = og.api.text({module: 'og.analytics.grid.row_tash'}), compile = Handlebars.compile;
+            $.when(css, header, container, row).then(function (css, header, container, row) {
+                templates = {
+                    css: compile(css), header: compile(header), container: compile(container), row: compile(row)
+                };
+                handler();
             });
         };
         var init_data = function (grid, config) {
+            grid.alive = function () {return $(grid.id).length ? true : !grid.style.remove();};
             (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
+            grid.id = '#analytics_grid_' + counter++;
+            grid.meta = null;
+            grid.resize = set_size.partial(grid, config);
+            grid.style = null;
         };
         var init_grid = function (grid, config, metadata) {
             var columns = metadata.columns, $style,
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
-            grid.id = '#analytics_grid_' + counter++;
+            // SET UP
             grid.meta = metadata;
             set_size(grid, config);
             $(config.selector).html(templates.container({id: grid.id.substring(1)}));
             $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
             render_header(grid);
             grid.dataman.on('data', render_rows, grid);
-            og.common.gadgets.manager.register({
-                alive: function () {return $(grid.id).length ? true : !grid.style.remove();},
-                resize: set_size.partial(grid, config)
-            });
+            og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
             var meta, head_data = function (columns, offset) {
@@ -92,6 +92,7 @@ $.register_module({
             return function (grid, data) {
                 meta = grid.meta;
                 if (grid.dataman.busy()) return;
+                if (!grid.alive()) return ($fixed = null), ($scroll = null), grid.dataman.kill();
                 ($fixed || ($fixed = $(grid.id + ' .OG-g-b-fixed'))).html(templates.row(row_data(data, true)));
                 ($scroll || ($scroll = $(grid.id + ' .OG-g-b-scroll'))).html(templates.row(row_data(data, false)));
             };
@@ -145,6 +146,8 @@ $.register_module({
             dataman.viewport(viewport);
             if (handler) handler();
         };
-        return function (config) {return templates ? init_data(this, config) : compile_templates(this, config);};
+        return function (config) {
+            return templates ? init_data(this, config) : compile_templates(init_data.partial(this, config));
+        };
     }
 });
