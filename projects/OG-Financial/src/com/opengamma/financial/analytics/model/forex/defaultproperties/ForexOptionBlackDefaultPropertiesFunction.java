@@ -34,6 +34,7 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_GAMMA_P,
     ValueRequirementNames.VEGA_MATRIX,
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,

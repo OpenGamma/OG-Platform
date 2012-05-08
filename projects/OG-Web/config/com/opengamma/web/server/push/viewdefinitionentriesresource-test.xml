@@ -15,7 +15,6 @@
     <constructor-arg>
       <map>
         <entry key="TST~vd1" value="viewDef1"/>
-        <entry key="TST~vd2" value="viewDef2"/>
       </map>
     </constructor-arg>
   </bean>

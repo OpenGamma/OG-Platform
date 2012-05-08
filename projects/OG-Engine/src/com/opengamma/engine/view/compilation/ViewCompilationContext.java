@@ -50,6 +50,7 @@ public class ViewCompilationContext {
       final Collection<ResolutionRule> transformedRules = calcConfig.getResolutionRuleTransform().transform(rules);
       compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext, compilationServices.getComputationTargetResolver()));
       builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
+      builder.setFunctionExclusionGroups(compilationServices.getFunctionExclusionGroups());
       builder.setCompilationContext(compilationContext);
       configurations.put(configName, (Pair<DependencyGraphBuilder, Set<ValueRequirement>>) (Pair<?, ?>) Pair.of(builder, new HashSet<ValueRequirement>()));
     }

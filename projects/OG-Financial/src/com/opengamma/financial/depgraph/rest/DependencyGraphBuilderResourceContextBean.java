@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -26,6 +27,7 @@ public class DependencyGraphBuilderResourceContextBean implements InitializingBe
   private ComputationTargetResolver _targetResolver;
   private FunctionCompilationContext _compilationContext;
   private FunctionResolver _functionResolver;
+  private FunctionExclusionGroups _functionExclusionGroups;
 
   public void setDependencyGraphBuilderFactory(final DependencyGraphBuilderFactory graphBuilders) {
     _graphBuilders = graphBuilders;
@@ -65,6 +67,14 @@ public class DependencyGraphBuilderResourceContextBean implements InitializingBe
 
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
+  }
+
+  public void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
+    _functionExclusionGroups = functionExclusionGroups;
+  }
+
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
   }
 
   public void setCompiledFunctionService(final CompiledFunctionService cfs) {

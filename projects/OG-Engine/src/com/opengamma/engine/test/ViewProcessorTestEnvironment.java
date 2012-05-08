@@ -24,11 +24,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
-import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.value.ValueRequirement;
@@ -88,6 +89,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext _functionCompilationContext;
   private ViewDefinition _viewDefinition;
   private FunctionRepository _functionRepository;
+  private FunctionExclusionGroups _functionExclusionGroups;
   private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
 
   // Environment
@@ -154,10 +156,10 @@ public class ViewProcessorTestEnvironment {
     if (getViewProcessor() == null) {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
-    
     ViewCompilationServices compilationServices = new ViewCompilationServices(
         getMarketDataProvider().getAvailabilityProvider(),
         getFunctionResolver(),
+        getFunctionExclusionGroups(),
         getFunctionCompilationContext(),
         getCachingComputationTargetResolver(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
@@ -258,6 +260,14 @@ public class ViewProcessorTestEnvironment {
     return functionRepository;
   }
   
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
+  }
+
+  public void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
+    _functionExclusionGroups = functionExclusionGroups;
+  }
+
   public DependencyGraphExecutorFactory<CalculationJobResult> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }

@@ -5,18 +5,18 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
+import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
 public final class InstrumentSensitivityCalculator {
-  private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra(); //TODO make this a parameter
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make choice of algebra a parameter (also available: CommonsMatrixAlgebra)
   private static final InstrumentSensitivityCalculator INSTANCE = new InstrumentSensitivityCalculator();
 
   public static InstrumentSensitivityCalculator getInstance() {
@@ -45,7 +45,6 @@ public final class InstrumentSensitivityCalculator {
     Validate.isTrue(n == couponSensitivity.getNumberOfElements());
     Validate.isTrue(n == pvJacobian.getNumberOfColumns());
     Validate.isTrue(n == pvJacobian.getNumberOfRows());
-
     final DoubleMatrix2D invJac = MATRIX_ALGEBRA.getInverse(pvJacobian);
     // TODO: REVIEW: do we need to inverse the Jacobian each time?
 

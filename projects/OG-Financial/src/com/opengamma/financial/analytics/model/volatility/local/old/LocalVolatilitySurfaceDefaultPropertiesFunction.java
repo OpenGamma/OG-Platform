@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -91,4 +92,10 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
     }
     return null;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.LOCAL_VOLATILITY_SURFACE_DEFAULTS;
+  }
+
 }

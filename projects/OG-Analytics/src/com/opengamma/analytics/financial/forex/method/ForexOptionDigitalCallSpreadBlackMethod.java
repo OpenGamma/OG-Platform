@@ -62,6 +62,26 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
   }
 
   /**
+   * Computes the gamma of the Forex option multiplied by the spot rate. The gamma is the second order derivative of the pv.
+   * The reason to multiply by the spot rate is to be able to compute the change of delta for a relative increase of e of the spot rate (from X to X(1+e)).
+   * @param optionDigital The option.
+   * @param curves The yield curve bundle.
+   * @return The gamma.
+   */
+  public CurrencyAmount gammaSpot(final ForexOptionDigital optionDigital, final YieldCurveBundle curves) {
+    Validate.notNull(optionDigital, "Forex option");
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
+    ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
+    // Spread value
+    CurrencyAmount gammaM = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gammaSpot(callSpread[0], smile, optionDigital.payDomestic());
+    CurrencyAmount gammaP = ((ForexOptionVanillaBlackMethod) getBaseMethod()).gammaSpot(callSpread[1], smile, optionDigital.payDomestic());
+    return gammaM.plus(gammaP);
+  }
+
+  /**
    * Computes the volatility sensitivity of the vanilla option with the Black function and a volatility from a volatility surface. The sensitivity
    * is computed with respect to the computed Black implied volatility and not with respect to the volatility surface input.
    * @param optionDigital The option.

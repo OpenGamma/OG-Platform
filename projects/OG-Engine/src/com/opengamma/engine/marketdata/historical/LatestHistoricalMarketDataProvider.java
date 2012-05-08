@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.historical;
 import javax.time.Instant;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
@@ -21,22 +22,24 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource underlying source
-   * @param timeSeriesResolverKey the source resolver key, or null to use the source default
-   * @param fieldResolverKey the field name resolver resolution key, or null to use the resolver default
+   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
+   * @param securitySource  the source of securities, not null
+   * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
+   * @param fieldResolverKey  the field name resolver resolution key, or null to use the resolver default
    */
-  protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey, 
-      final String fieldResolverKey) {
-    super(historicalTimeSeriesSource, timeSeriesResolverKey, fieldResolverKey);
+  protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+      final SecuritySource securitySource, final String timeSeriesResolverKey, final String fieldResolverKey) {
+    super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey, fieldResolverKey);
   }
   
   /**
    * Creates an instance.
    * 
-   * @param historicalTimeSeriesSource underlying source
+   * @param historicalTimeSeriesSource  the underlying source of historical data, not null
+   * @param securitySource  the source of securities, not null
    */
-  public LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    super(historicalTimeSeriesSource);
+  public LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource, SecuritySource securitySource) {
+    super(historicalTimeSeriesSource, securitySource);
   }
   
   //-------------------------------------------------------------------------
@@ -51,7 +54,7 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null, historicalSpec.getTimeSeriesFieldResolverKey());
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null, historicalSpec.getTimeSeriesFieldResolverKey(), this);
   }
 
 }

@@ -28,7 +28,8 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_GAMMA
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.IMPLIED_VOLATILITY
   };
   private final String _forwardCurveName;
   private final String _fundingCurveName;

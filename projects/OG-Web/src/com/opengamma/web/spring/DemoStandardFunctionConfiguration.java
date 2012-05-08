@@ -158,6 +158,7 @@ import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentV
 import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPV01Function;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackVolatilitySensitivityFunction;
@@ -1120,6 +1121,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));

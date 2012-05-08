@@ -20,6 +20,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionRepository;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -42,8 +43,9 @@ public class PortfolioDocumentation extends AbstractDocumentation {
   private final SecuritySource _securitySource;
   private final ExecutorService _executorService;
 
-  public PortfolioDocumentation(final CompiledFunctionRepository functionRepository, final PortfolioMaster portfolioMaster, final PositionSource positionSource, final SecuritySource securitySource) {
-    super(functionRepository);
+  public PortfolioDocumentation(final CompiledFunctionRepository functionRepository, final FunctionExclusionGroups functionExclusionGroups, final PortfolioMaster portfolioMaster,
+      final PositionSource positionSource, final SecuritySource securitySource) {
+    super(functionRepository, functionExclusionGroups);
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(portfolioMaster, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");

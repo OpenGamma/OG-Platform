@@ -18,6 +18,8 @@ import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.GammaSpotBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.GammaValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityQuoteSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityBlackForexCalculator;
@@ -115,7 +117,7 @@ public class ForexOptionVanillaMethodTest {
   private static final ForexOptionVanillaDefinition FOREX_OPTION_CALL_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
   private static final ForexOptionVanilla FOREX_CALL_OPTION = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
-  private static final double TOLERANCE_RELATIVE = 1.0E-10;
+  private static final double TOLERANCE_RELATIVE = 1.0E-9;
   private static final double TOLERANCE_PRICE = 1.0E-2;
 
   @Test
@@ -365,7 +367,8 @@ public class ForexOptionVanillaMethodTest {
   /**
    * Tests the relative delta for Forex option.
    */
-  public void deltaRelative() {
+  public void deltaRelativeDirect() {
+    final double shift = 1.0E-6;
     final double strike = 1.45;
     final boolean isCall = true;
     final boolean isLong = true;
@@ -376,17 +379,94 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
     final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyAmount ce = METHOD_OPTION.currencyExposure(forexOption, SMILE_BUNDLE);
-    final double delta = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE);
+    final double delta = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE, true);
     assertEquals("Forex: relative delta", ce.getAmount(EUR), delta, TOLERANCE_RELATIVE);
-    final double shift = 0.000001;
     final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
     final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
     final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
-    final double deltaFlat = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE_FLAT);
+    final double deltaFlat = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE_FLAT, true);
     assertEquals("Forex: relative delta", (pvP.getAmount(USD) - pvM.getAmount(USD)) / (2 * shift), deltaFlat, TOLERANCE_RELATIVE);
+  }
+
+  @Test
+  /**
+   * Tests the relative delta for Forex option.
+   */
+  public void deltaRelativeReverse() {
+    final double shift = 1.0E-6;
+    final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT - shift);
+    final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
+    final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 1;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(USD, EUR, payDate, notional, 1.0 / strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
+    final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
+    final double delta = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE_FLAT, false);
+    assertEquals("Forex: relative gamma", (pvP.getAmount(EUR) - pvM.getAmount(EUR)) / (2 * shift), delta, TOLERANCE_RELATIVE);
+  }
+
+  @Test
+  /**
+   * Tests the relative delta for Forex option.
+   */
+  public void deltaRelativeSpotDirect() {
+    final double shift = 1.0E-6;
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 1;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final MultipleCurrencyAmount ce = METHOD_OPTION.currencyExposure(forexOption, SMILE_BUNDLE);
+    final double delta = METHOD_OPTION.deltaRelative(forexOption, SMILE_BUNDLE, true);
+    assertEquals("Forex: relative delta", ce.getAmount(EUR), delta, TOLERANCE_RELATIVE);
+    final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
+    final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
+    final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
+    final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
+    final double deltaFlat = METHOD_OPTION.deltaRelativeSpot(forexOption, SMILE_BUNDLE_FLAT, true);
+    assertEquals("Forex: relative delta", (pvP.getAmount(USD) - pvM.getAmount(USD)) / (2 * shift), deltaFlat, TOLERANCE_RELATIVE);
+  }
+
+  @Test
+  /**
+   * Tests the relative delta for Forex option.
+   */
+  public void deltaRelativeSpotReverse() {
+    final double shift = 1.0E-6;
+    final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
+    final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
+    final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 1;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(USD, EUR, payDate, notional, 1.0 / strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final MultipleCurrencyAmount pvM = METHOD_OPTION.presentValue(forexOption, smileBundleM);
+    final MultipleCurrencyAmount pvP = METHOD_OPTION.presentValue(forexOption, smileBundleP);
+    final double delta = METHOD_OPTION.deltaRelativeSpot(forexOption, SMILE_BUNDLE_FLAT, false);
+    assertEquals("Forex: relative gamma", (pvP.getAmount(EUR) - pvM.getAmount(EUR)) / (2 * shift), delta, TOLERANCE_RELATIVE);
   }
 
   @Test
@@ -443,9 +523,59 @@ public class ForexOptionVanillaMethodTest {
 
   @Test
   /**
+   * Tests the relative gamma for Forex option. Direct quote
+   */
+  public void gammaRelativeSpotDirect() {
+    final double shift = 1.0E-6;
+    final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
+    final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
+    final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 1;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double deltaM = METHOD_OPTION.deltaRelative(forexOption, smileBundleM, true);
+    final double deltaP = METHOD_OPTION.deltaRelative(forexOption, smileBundleP, true);
+    final double gamma = METHOD_OPTION.gammaRelativeSpot(forexOption, SMILE_BUNDLE_FLAT, true);
+    assertEquals("Forex: relative gamma", gamma, (deltaP - deltaM) / (2 * shift), TOLERANCE_RELATIVE);
+  }
+
+  @Test
+  /**
+   * Tests the relative gamma for Forex option. Reverse quote
+   */
+  public void gammaRelativeSpotReverse() {
+    final double shift = 1.0E-6;
+    final FXMatrix fxMatrixM = new FXMatrix(EUR, USD, SPOT * (1 - shift));
+    final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT * (1 + shift));
+    final SmileDeltaTermStructureDataBundle smileBundleM = new SmileDeltaTermStructureDataBundle(fxMatrixM, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(fxMatrixP, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 1;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(USD, EUR, payDate, notional, 1.0 / strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double deltaM = METHOD_OPTION.deltaRelative(forexOption, smileBundleM, false);
+    final double deltaP = METHOD_OPTION.deltaRelative(forexOption, smileBundleP, false);
+    final double gamma = METHOD_OPTION.gammaRelativeSpot(forexOption, SMILE_BUNDLE_FLAT, false);
+    assertEquals("Forex: relative gamma", gamma, (deltaP - deltaM) / (2 * shift), TOLERANCE_RELATIVE);
+  }
+
+  @Test
+  /**
    * Tests the gamma for Forex option.
    */
-  public void gamma() {
+  public void gammaDirect() {
     final double strike = 1.45;
     final boolean isCall = true;
     final boolean isLong = true;
@@ -459,6 +589,110 @@ public class ForexOptionVanillaMethodTest {
     double gammaExpected = gammaRelative * notional;
     final CurrencyAmount gammaComputed = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, true);
     assertEquals("Forex: relative gamma", 1.0, gammaExpected / gammaComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option.
+   */
+  public void gammaReverse() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(USD, EUR, payDate, notional, 1.0 / strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double gammaRelative = METHOD_OPTION.gammaRelative(forexOption, SMILE_BUNDLE, false);
+    double gammaExpected = gammaRelative * notional;
+    final CurrencyAmount gammaComputed = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, false);
+    assertEquals("Forex: relative gamma", 1.0, gammaExpected / gammaComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option.
+   */
+  public void gammaMethodVsCalculator() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final GammaValueBlackForexCalculator calculator = GammaValueBlackForexCalculator.getInstance();
+    final CurrencyAmount gammaCalculator = calculator.visit(forexOption, SMILE_BUNDLE);
+    final CurrencyAmount gammaMethod = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, true);
+    assertEquals("Forex: relative gamma", 1.0, gammaCalculator.getAmount() / gammaMethod.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option.
+   */
+  public void gammaSpotDirect() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double gammaRelativeSpot = METHOD_OPTION.gammaRelativeSpot(forexOption, SMILE_BUNDLE, true);
+    double gammaSpotExpected = gammaRelativeSpot * notional;
+    final CurrencyAmount gammaSpotComputed = METHOD_OPTION.gammaSpot(forexOption, SMILE_BUNDLE, true);
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected / gammaSpotComputed.getAmount(), TOLERANCE_PRICE);
+    double gammaSpotExpected2 = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, true).getAmount() * SPOT;
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected2 / gammaSpotComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option.
+   */
+  public void gammaSpotReverse() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(USD, EUR, payDate, notional, 1.0 / strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final double gammaRelativeSpot = METHOD_OPTION.gammaRelativeSpot(forexOption, SMILE_BUNDLE, false);
+    double gammaSpotExpected = gammaRelativeSpot * notional;
+    final CurrencyAmount gammaSpotComputed = METHOD_OPTION.gammaSpot(forexOption, SMILE_BUNDLE, false);
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected / gammaSpotComputed.getAmount(), TOLERANCE_PRICE);
+    double gammaSpotExpected2 = METHOD_OPTION.gamma(forexOption, SMILE_BUNDLE, false).getAmount() * SPOT;
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotExpected2 / gammaSpotComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option.
+   */
+  public void gammaSpotMethodVsCalculator() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    GammaSpotBlackForexCalculator calculator = GammaSpotBlackForexCalculator.getInstance();
+    final CurrencyAmount gammaSpotCalculator = calculator.visit(forexOption, SMILE_BUNDLE);
+    final CurrencyAmount gammaSpotMethod = METHOD_OPTION.gammaSpot(forexOption, SMILE_BUNDLE, true);
+    assertEquals("Forex: relative gamma", 1.0, gammaSpotCalculator.getAmount() / gammaSpotMethod.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test

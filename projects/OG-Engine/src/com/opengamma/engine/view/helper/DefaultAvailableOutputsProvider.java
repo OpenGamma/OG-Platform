@@ -20,6 +20,7 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
@@ -32,25 +33,26 @@ import com.opengamma.util.ArgumentChecker;
 public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider {
 
   private final CompiledFunctionService _compiledFunctions;
+  private final FunctionExclusionGroups _functionExclusionGroups;
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final MarketDataAvailabilityProvider _marketDataAvailabilityProvider;
   private final String _wildcardIndicator;
-  
-  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService,
-      PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
-    this(compiledFunctionService, new OptimisticMarketDataAvailabilityProvider(), positionSource, securitySource, wildcardIndicator);
+
+  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService, FunctionExclusionGroups functionExclusionGroups, PositionSource positionSource,
+      SecuritySource securitySource, String wildcardIndicator) {
+    this(compiledFunctionService, functionExclusionGroups, new OptimisticMarketDataAvailabilityProvider(), positionSource, securitySource, wildcardIndicator);
   }
-  
-  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService,
-      MarketDataAvailabilityProvider marketDataAvailabilityProvider, 
-      PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
+
+  public DefaultAvailableOutputsProvider(CompiledFunctionService compiledFunctionService, FunctionExclusionGroups functionExclusionGroups,
+      MarketDataAvailabilityProvider marketDataAvailabilityProvider, PositionSource positionSource, SecuritySource securitySource, String wildcardIndicator) {
     ArgumentChecker.notNull(compiledFunctionService, "compiledFunctionService");
     ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
 
     _compiledFunctions = compiledFunctionService;
+    _functionExclusionGroups = functionExclusionGroups;
     _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
     _positionSource = positionSource;
     _securitySource = securitySource;
@@ -62,50 +64,54 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
   public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider) {
     return getPortfolioOutputs(portfolio, instantProvider, null, null);
   }
-  
+
   @Override
   public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
   @Override
   public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider) {
     return getPortfolioOutputs(portfolioId, instantProvider, null, null);
   }
-  
+
   @Override
   public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
     Portfolio portfolio = getPortfolio(portfolioId);
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
     InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
     CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
-    return new AvailablePortfolioOutputs(portfolio, functionRepository, getMarketDataAvailabilityProvider(), getWildcardIndicator());
+    return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
-  
+
   //------------------------------------------------------------------------
   private CompiledFunctionService getCompiledFunctionService() {
     return _compiledFunctions;
   }
-  
+
+  private FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
+  }
+
   private PositionSource getPositionSource() {
     return _positionSource;
   }
-  
+
   private SecuritySource getSecuritySource() {
     return _securitySource;
   }
-  
+
   private MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
     return _marketDataAvailabilityProvider;
   }
-  
+
   private String getWildcardIndicator() {
     return _wildcardIndicator;
   }
-  
+
   //------------------------------------------------------------------------
   private static SimplePortfolioNode copyNode(PortfolioNode node, Integer maxNodes, Integer maxPositions) {
     final SimplePortfolioNode copy = new SimplePortfolioNode(node.getUniqueId(), node.getName());
@@ -145,9 +151,9 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
   /**
    * Fetches a portfolio by its unique identifier.
    * 
-   * @param portfolioId  the unique identifier of the portfolio, not null
+   * @param portfolioId the unique identifier of the portfolio, not null
    * @return the portfolio, not null
-   * @throws DataNotFoundException  if the portfolio identifier is invalid or cannot be resolved to a portfolio
+   * @throws DataNotFoundException if the portfolio identifier is invalid or cannot be resolved to a portfolio
    */
   protected Portfolio getPortfolio(UniqueId portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
@@ -157,9 +163,9 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
   /**
    * Prepares the portfolio, truncating the number of sub-nodes and positions if required and resolving its securities.
    * 
-   * @param portfolio  the portfolio, not null
-   * @param maxNodes  the maximum number of child nodes under each node, null for unlimited
-   * @param maxPositions  the maximum number of positions, null for unlimited
+   * @param portfolio the portfolio, not null
+   * @param maxNodes the maximum number of child nodes under each node, null for unlimited
+   * @param maxPositions the maximum number of positions, null for unlimited
    * @return the resolved portfolio, truncated as requested
    */
   protected Portfolio preparePortfolio(Portfolio portfolio, Integer maxNodes, Integer maxPositions) {

@@ -5,16 +5,16 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
@@ -101,7 +101,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     LocalDate date = dateTime.toLocalDate();
     Validate.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
     LocalDate tradeDateLocal = _tradeDate.toLocalDate();
-    Validate.isTrue(!date.isBefore(tradeDateLocal), "Date is after trade date");
+    Validate.isTrue(!date.isBefore(tradeDateLocal), "Valuation date is before the trade date"); // TODO - Confirm with Quants whether this check is required/desired. Consider, for eg,  HVaR..
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
     double referencePrice;
     if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.

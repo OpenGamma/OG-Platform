@@ -23,6 +23,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
@@ -59,6 +60,11 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   /**
+   * The security source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecuritySource _securitySource;
+  /**
    * The market data snapshot source.
    */
   @PropertyDefinition(validate = "notNull")  
@@ -92,11 +98,11 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
   
   protected MarketDataProviderFactory initFixedHistoricalMarketDataProviderFactory() {
-    return new HistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource());
+    return new HistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource(), getSecuritySource());
   }
   
   protected MarketDataProviderFactory initLatestHistoricalMarketDataProviderFactory() {
-    return new LatestHistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource());
+    return new LatestHistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource(), getSecuritySource());
   }
   
   protected MarketDataProviderFactory initUserMarketDataProviderFactory() {
@@ -134,6 +140,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
         return getLiveMarketDataProviderFactory();
       case 358729161:  // historicalTimeSeriesSource
         return getHistoricalTimeSeriesSource();
+      case -702456965:  // securitySource
+        return getSecuritySource();
       case -2019554651:  // marketDataSnapshotSource
         return getMarketDataSnapshotSource();
     }
@@ -152,6 +160,9 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
       case 358729161:  // historicalTimeSeriesSource
         setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
+      case -702456965:  // securitySource
+        setSecuritySource((SecuritySource) newValue);
+        return;
       case -2019554651:  // marketDataSnapshotSource
         setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
         return;
@@ -164,6 +175,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_marketDataSnapshotSource, "marketDataSnapshotSource");
     super.validate();
   }
@@ -178,6 +190,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
           super.equals(obj);
     }
@@ -190,6 +203,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
     return hash ^ super.hashCode();
   }
@@ -274,6 +288,32 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the security source.
+   * @return the value of the property, not null
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Sets the security source.
+   * @param securitySource  the new value of the property, not null
+   */
+  public void setSecuritySource(SecuritySource securitySource) {
+    JodaBeanUtils.notNull(securitySource, "securitySource");
+    this._securitySource = securitySource;
+  }
+
+  /**
+   * Gets the the {@code securitySource} property.
+   * @return the property, not null
+   */
+  public final Property<SecuritySource> securitySource() {
+    return metaBean().securitySource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the market data snapshot source.
    * @return the value of the property, not null
    */
@@ -324,6 +364,11 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesSource", MarketDataProviderResolverComponentFactory.class, HistoricalTimeSeriesSource.class);
     /**
+     * The meta-property for the {@code securitySource} property.
+     */
+    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
+        this, "securitySource", MarketDataProviderResolverComponentFactory.class, SecuritySource.class);
+    /**
      * The meta-property for the {@code marketDataSnapshotSource} property.
      */
     private final MetaProperty<MarketDataSnapshotSource> _marketDataSnapshotSource = DirectMetaProperty.ofReadWrite(
@@ -336,6 +381,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
         "classifier",
         "liveMarketDataProviderFactory",
         "historicalTimeSeriesSource",
+        "securitySource",
         "marketDataSnapshotSource");
 
     /**
@@ -353,6 +399,8 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
           return _liveMarketDataProviderFactory;
         case 358729161:  // historicalTimeSeriesSource
           return _historicalTimeSeriesSource;
+        case -702456965:  // securitySource
+          return _securitySource;
         case -2019554651:  // marketDataSnapshotSource
           return _marketDataSnapshotSource;
       }
@@ -397,6 +445,14 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
      */
     public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
       return _historicalTimeSeriesSource;
+    }
+
+    /**
+     * The meta-property for the {@code securitySource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecuritySource> securitySource() {
+      return _securitySource;
     }
 
     /**

@@ -39,6 +39,7 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
+import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.test.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueProperties;
@@ -376,13 +377,13 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetSecurityTypes() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
     final Set<String> securityTypes = outputs.getSecurityTypes();
     assertEquals(securityTypes, new HashSet<String>(Arrays.asList(SECURITY_TYPE_1, SECURITY_TYPE_2)));
   }
 
   public void testGetTypedPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
     Set<AvailableOutput> available = outputs.getPositionOutputs(SECURITY_TYPE_1);
     final AvailableOutputImpl value1Type1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1Type1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -398,7 +399,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPortfolioNodeOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPortfolioNodeOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
@@ -408,7 +409,7 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetPositionOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getPositionOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
@@ -420,10 +421,51 @@ public class AvailablePortfolioOutputsTest {
   }
 
   public void testGetOutputs() {
-    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, _availabilityProvider, WILDCARD);
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, null, _availabilityProvider, WILDCARD);
     final Set<AvailableOutput> available = outputs.getOutputs();
     final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
+    value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
+    value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
+    final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
+    value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_2_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
+    value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
+    value2.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
+    assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1, value2)));
+  }
+
+  public void testWithNoExclusion() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+      @Override
+      protected String getKey(FunctionDefinition function) {
+        return null;
+      }
+    }, _availabilityProvider, WILDCARD);
+    final Set<AvailableOutput> available = outputs.getOutputs();
+    final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
+    value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_1_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
+    value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
+    value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
+    final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);
+    value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_2_TYPE_1_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_1);
+    value2.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
+    value2.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
+    assertEquals(available, new HashSet<AvailableOutput>(Arrays.asList(value1, value2)));
+  }
+
+  public void testWithExclusion() {
+    final AvailableOutputs outputs = new AvailablePortfolioOutputs(_testPortfolio, _functionRepository, new AbstractFunctionExclusionGroups<String>() {
+      @Override
+      protected String getKey(FunctionDefinition function) {
+        if (FUNCTION_1_TYPE_1_POSITION.equals(function.getUniqueId()) || FUNCTION_1_TYPE_1_SECURITY.equals(function.getUniqueId())) {
+          return "group";
+        } else {
+          return null;
+        }
+      }
+    }, _availabilityProvider, WILDCARD);
+    final Set<AvailableOutput> available = outputs.getOutputs();
+    final AvailableOutputImpl value1 = new AvailableOutputImpl(VALUE_1, WILDCARD);
     value1.setPositionProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_TYPE_2_POSITION).with(ValuePropertyNames.CURRENCY, CURRENCY_1, CURRENCY_2).get(), SECURITY_TYPE_2);
     value1.setPortfolioNodeProperties(ValueProperties.with(ValuePropertyNames.FUNCTION, FUNCTION_SUM_NODE).withAny(ValuePropertyNames.CURRENCY).get());
     final AvailableOutputImpl value2 = new AvailableOutputImpl(VALUE_2, WILDCARD);

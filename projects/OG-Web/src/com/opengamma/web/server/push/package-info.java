@@ -51,15 +51,15 @@
  *   /jax/viewdefinitions</pre>
  * <p>returns</p>
  * <pre>
- *   {viewDefId1: viewDefName1, viewDefId2: viewDefName2, ...}
+ *   [{id: viewDefId1, name: viewDefName1}, {id: viewDefId2, name: viewDefName2}, ...]
  * </pre>
  * <p>and</p>
  * <pre>
  *   /jax/marketdatasnapshots</pre>
  * <p>returns</p>
  * <pre>
- *   {basisViewName1: {snapshotUniqueId1: snapshotName1, snapshotUniqueId2: snapshotName2, ...},
- *    basisViewName2: {snapshotUniqueId3: snapshotName3, snapshotUniqueId4: snapshotName4, ...}}
+ *   [{basisViewName: basisViewName1, snapshots: [{id: snapshot1Id, name: snapshot1Name}, {id: snapshot2Id, name: snapshot2Name}, ...]},
+ *    {basisViewName: basisViewName2, snapshots: [{id: snapshot3Id, name: snapshot3Name}, {id: snapshot4Id, name: snapshot4Name}, ...]}, ...]
  * </pre>
  * <p>and</p>
  * <pre>

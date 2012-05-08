@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
@@ -116,6 +117,11 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
       return Collections.singleton(_curveCalculationMethod);
     }
     return null;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.SABR_NO_EXTRAPOLATION_DEFAULTS;
   }
 
 }

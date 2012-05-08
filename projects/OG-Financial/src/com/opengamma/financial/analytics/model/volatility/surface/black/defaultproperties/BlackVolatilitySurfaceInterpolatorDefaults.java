@@ -13,6 +13,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
@@ -76,6 +77,11 @@ public abstract class BlackVolatilitySurfaceInterpolatorDefaults extends Default
       return Collections.singleton(_timeRightExtrapolator);
     }
     return null;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.BLACK_VOLATILITY_SURFACE_INTERPOLATOR_DEFAULTS;
   }
 
 }

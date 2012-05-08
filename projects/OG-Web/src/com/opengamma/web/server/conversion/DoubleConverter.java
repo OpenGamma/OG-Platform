@@ -53,7 +53,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.VALUE_THETA, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.POSITION_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.VALUE_FAIR_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
-    addConversion(ValueRequirementNames.SECURITY_MARKET_PRICE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.SECURITY_MARKET_PRICE, DoubleValueSignificantFiguresFormatter.of(5, true));
     
     // PnL
     addConversion(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);

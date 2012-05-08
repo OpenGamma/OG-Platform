@@ -14,6 +14,7 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
@@ -47,6 +48,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private CachingComputationTargetResolver _computationTargetResolver;
   private CompiledFunctionService _functionCompilationService;
   private FunctionResolver _functionResolver;
+  private FunctionExclusionGroups _functionExclusionGroups;
   private MarketDataProviderResolver _marketDataProviderResolver;
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
@@ -120,6 +122,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   public void setFunctionResolver(FunctionResolver functionResolver) {
     _functionResolver = functionResolver;
+  }
+
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return _functionExclusionGroups;
+  }
+
+  public void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
+    _functionExclusionGroups = functionExclusionGroups;
   }
 
   public MarketDataProviderResolver getMarketDataProviderResolver() {
@@ -220,6 +230,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getComputationTargetResolver(),
         getFunctionCompilationService(),
         getFunctionResolver(),
+        getFunctionExclusionGroups(),
         getMarketDataProviderResolver(),
         getComputationCacheSource(),
         getComputationJobDispatcher(),

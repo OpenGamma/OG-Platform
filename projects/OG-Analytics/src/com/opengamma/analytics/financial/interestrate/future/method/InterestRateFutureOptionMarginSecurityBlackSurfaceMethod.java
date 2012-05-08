@@ -188,4 +188,27 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     return optionPriceGamma(security, (YieldCurveWithBlackCubeBundle) curves);
   }
 
+  /**
+   * Interpolates and returns the option's implied volatility 
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param curves The curve and Black volatility data.
+   * @return Lognormal Implied Volatility
+   */
+  public double impliedVolatility(InterestRateFutureOptionMarginSecurity security, YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return impliedVolatility(security, (YieldCurveWithBlackCubeBundle) curves);
+  }
+
+  /**
+   * Interpolates and returns the option's implied volatility 
+   * The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return Lognormal Implied Volatility.
+   */
+  public double impliedVolatility(InterestRateFutureOptionMarginSecurity security, YieldCurveWithBlackCubeBundle blackData) {
+    return blackData.getVolatility(security.getExpirationTime(), security.getStrike());
+  }
+
 }

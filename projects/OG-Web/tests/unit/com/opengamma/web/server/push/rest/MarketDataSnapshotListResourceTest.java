@@ -1,5 +1,9 @@
-package com.opengamma.web.server.push;
+package com.opengamma.web.server.push.rest;
 
+import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.BASIS_VIEW_NAME;
+import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.ID;
+import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.NAME;
+import static com.opengamma.web.server.push.rest.MarketDataSnapshotListResource.SNAPSHOTS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
@@ -8,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jetty.server.Server;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.context.WebApplicationContext;
@@ -21,7 +26,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
+import com.opengamma.web.server.push.WebPushTestUtils;
 
 public class MarketDataSnapshotListResourceTest {
 
@@ -50,12 +55,14 @@ public class MarketDataSnapshotListResourceTest {
         createSnapshot("basisView1", "snap2", UniqueId.of("Tst", "2")),
         createSnapshot("basisView2", "snap3", UniqueId.of("Tst", "3")));
 
-    JSONObject json = new JSONObject(resource.getMarketDataSnapshotList());
-    JSONObject basisView1 = json.getJSONObject("basisView1");
-    assertEquals("snap1", basisView1.get("Tst~1"));
-    assertEquals("snap2", basisView1.get("Tst~2"));
-    JSONObject basisView2 = json.getJSONObject("basisView2");
-    assertEquals("snap3", basisView2.get("Tst~3"));
+    String json = resource.getMarketDataSnapshotList();
+    JSONArray jsonArray = new JSONArray(json);
+
+    String expected =
+        "[{\"basisViewName\": \"basisView1\", \"snapshots\": [{\"id\": \"Tst~1\", \"name\": \"snap1\"}, {\"id\": \"Tst~2\", \"name\": \"snap2\"}]}, " +
+        " {\"basisViewName\": \"basisView2\", \"snapshots\": [{\"id\": \"Tst~3\", \"name\": \"snap3\"}]}]";
+    JSONArray expectedArray = new JSONArray(expected);
+    assertEquals(expectedArray.toString(), jsonArray.toString());
   }
 
   @Test
@@ -64,7 +71,7 @@ public class MarketDataSnapshotListResourceTest {
         createSnapshot("basisView", null, UniqueId.of("Tst", "1")),
         createSnapshot("basisView", "", UniqueId.of("Tst", "2")));
 
-    JSONObject json = new JSONObject(resource.getMarketDataSnapshotList());
+    JSONArray json = new JSONArray(resource.getMarketDataSnapshotList());
     assertEquals(0, json.length());
   }
 
@@ -73,7 +80,7 @@ public class MarketDataSnapshotListResourceTest {
     MarketDataSnapshotListResource resource = createResource(
         createSnapshot("basisView", "snap", null));
 
-    JSONObject json = new JSONObject(resource.getMarketDataSnapshotList());
+    JSONArray json = new JSONArray(resource.getMarketDataSnapshotList());
     assertEquals(0, json.length());
   }
 
@@ -83,7 +90,7 @@ public class MarketDataSnapshotListResourceTest {
         createSnapshot("basisView", "{12345678-1234-abcd-cdef-0123456789ab}", UniqueId.of("Tst", "1")),
         createSnapshot("basisView", "12345678-1234-abcd-cdef-0123456789ab", UniqueId.of("Tst", "2")));
 
-    JSONObject json = new JSONObject(resource.getMarketDataSnapshotList());
+    JSONArray json = new JSONArray(resource.getMarketDataSnapshotList());
     assertEquals(0, json.length());
   }
 
@@ -95,9 +102,15 @@ public class MarketDataSnapshotListResourceTest {
     WebApplicationContext context = serverAndContext.getSecond();
     InMemorySnapshotMaster snapshotMaster = context.getBean(InMemorySnapshotMaster.class);
     snapshotMaster.add(createSnapshot("basisView1", "snap1", null));
-    JSONObject json = new JSONObject(WebPushTestUtils.readFromPath("/jax/marketdatasnapshots"));
-    JSONObject basisView1Snapshots = json.getJSONObject("basisView1");
-    assertEquals("snap1", basisView1Snapshots.getString("MemSnap~1"));
+    JSONArray json = new JSONArray(WebPushTestUtils.readFromPath("/jax/marketdatasnapshots"));
+    assertEquals(1, json.length());
+    JSONObject basis1Map = json.getJSONObject(0);
+    assertEquals("basisView1", basis1Map.get(BASIS_VIEW_NAME));
+    JSONArray snapshots = basis1Map.getJSONArray(SNAPSHOTS);
+    assertEquals(1, snapshots.length());
+    JSONObject snap1 = snapshots.getJSONObject(0);
+    assertEquals("snap1", snap1.get(NAME));
+    assertEquals(UniqueId.of("MemSnap", "1").toString(), snap1.get(ID));
     server.stop();
   }
 }

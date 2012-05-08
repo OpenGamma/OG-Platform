@@ -16,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureCallSpreadBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.GammaSpotCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCallSpreadBlackForexCalculator;
@@ -337,9 +338,9 @@ public class ForexOptionDigitalCallSpreadMethodTest {
 
   @Test
   /**
-   * Tests the gamma for Forex option. Direct quote.
+   * Tests the gamma for Forex option. Payment in domestic currency.
    */
-  public void gammaDirect() {
+  public void gammaDomestic() {
     double strikeM = STRIKE * (1 - STANDARD_SPREAD);
     double strikeP = STRIKE * (1 + STANDARD_SPREAD);
     double notional = Math.abs(FOREX.getPaymentCurrency2().getAmount()) / (strikeP - strikeM);
@@ -351,14 +352,14 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     CurrencyAmount gammaM = METHOD_VANILLA_BLACK.gamma(vanillaM, SMILE_BUNDLE, true);
     CurrencyAmount gammaExpected = gammaM.plus(gammaP);
     CurrencyAmount gammaComputed = METHOD_DIGITAL_SPREAD.gamma(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: call spread method - gamma relative", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: call spread method - gamma", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test
   /**
-   * Tests the gamma for Forex option. Direct quote.
+   * Tests the gamma for Forex option. Payment in foreign currency.
    */
-  public void gammaReverse() {
+  public void gammaForeign() {
     ForexOptionDigitalDefinition digitalForeignDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
     ForexOptionDigital digitalForeign = digitalForeignDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     double strikeM = STRIKE * (1 - STANDARD_SPREAD);
@@ -375,7 +376,66 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     CurrencyAmount gammaM = METHOD_VANILLA_BLACK.gamma(vanillaM, SMILE_BUNDLE, false);
     CurrencyAmount gammaExpected = gammaM.plus(gammaP);
     CurrencyAmount gammaComputed = METHOD_DIGITAL_SPREAD.gamma(digitalForeign, SMILE_BUNDLE);
-    assertEquals("Forex Digital option: call spread method - gamma relative", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
+    assertEquals("Forex Digital option: call spread method - gamma", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option. Payment in domestic currency.
+   */
+  public void gammaSpotDomestic() {
+    double strikeM = STRIKE * (1 - STANDARD_SPREAD);
+    double strikeP = STRIKE * (1 + STANDARD_SPREAD);
+    double notional = Math.abs(FOREX.getPaymentCurrency2().getAmount()) / (strikeP - strikeM);
+    Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(notional), FOREX.getPaymentCurrency2().withAmount(-notional * strikeM));
+    Forex forexP = new Forex(FOREX.getPaymentCurrency1().withAmount(notional), FOREX.getPaymentCurrency2().withAmount(-notional * strikeP));
+    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
+    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, !IS_LONG);
+    CurrencyAmount gammaP = METHOD_VANILLA_BLACK.gammaSpot(vanillaP, SMILE_BUNDLE, true);
+    CurrencyAmount gammaM = METHOD_VANILLA_BLACK.gammaSpot(vanillaM, SMILE_BUNDLE, true);
+    CurrencyAmount gammaExpected = gammaM.plus(gammaP);
+    CurrencyAmount gammaComputed = METHOD_DIGITAL_SPREAD.gammaSpot(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - gamma spot", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option. Payment in foreign currency.
+   */
+  public void gammaSpotForeign() {
+    ForexOptionDigitalDefinition digitalForeignDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
+    ForexOptionDigital digitalForeign = digitalForeignDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    double strikeM = STRIKE * (1 - STANDARD_SPREAD);
+    double strikeP = STRIKE * (1 + STANDARD_SPREAD);
+    double amountPaid = Math.abs(digitalForeign.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    double strikeRelM = 1.0 / strikeP;
+    double strikeRelP = 1.0 / strikeM;
+    double amount = amountPaid / (strikeRelP - strikeRelM);
+    Forex forexM = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1().withAmount(-strikeRelM * amount));
+    Forex forexP = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1().withAmount(-strikeRelP * amount));
+    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, digitalForeign.getExpirationTime(), !IS_CALL, false);
+    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, digitalForeign.getExpirationTime(), !IS_CALL, true);
+    CurrencyAmount gammaP = METHOD_VANILLA_BLACK.gammaSpot(vanillaP, SMILE_BUNDLE, false);
+    CurrencyAmount gammaM = METHOD_VANILLA_BLACK.gammaSpot(vanillaM, SMILE_BUNDLE, false);
+    CurrencyAmount gammaExpected = gammaM.plus(gammaP);
+    CurrencyAmount gammaComputed = METHOD_DIGITAL_SPREAD.gammaSpot(digitalForeign, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - gamma spot", gammaExpected.getAmount(), gammaComputed.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the gamma for Forex option. Payment in foreign currency.
+   */
+  public void gammaSpotMethodVsCalculator() {
+    GammaSpotCallSpreadBlackForexCalculator calculator = new GammaSpotCallSpreadBlackForexCalculator(STANDARD_SPREAD);
+    ForexOptionDigitalDefinition digitalForeignDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
+    ForexOptionDigital digitalForeign = digitalForeignDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    CurrencyAmount gammaForeignMethod = METHOD_DIGITAL_SPREAD.gammaSpot(digitalForeign, SMILE_BUNDLE);
+    CurrencyAmount gammaForeignCalculator = calculator.visit(digitalForeign, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - gamma spot", gammaForeignCalculator.getAmount(), gammaForeignMethod.getAmount(), TOLERANCE_PRICE);
+    CurrencyAmount gammaDomesticMethod = METHOD_DIGITAL_SPREAD.gammaSpot(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
+    CurrencyAmount gammaDomesticCalculator = calculator.visit(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
+    assertEquals("Forex Digital option: call spread method - gamma spot", gammaDomesticCalculator.getAmount(), gammaDomesticMethod.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test

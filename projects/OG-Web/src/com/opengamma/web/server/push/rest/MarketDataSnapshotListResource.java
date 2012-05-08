@@ -1,6 +1,7 @@
 package com.opengamma.web.server.push.rest;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -11,10 +12,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
@@ -28,6 +33,12 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 public class MarketDataSnapshotListResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotListResource.class);
+
+  static final String BASIS_VIEW_NAME = "basisViewName";
+  static final String SNAPSHOTS = "snapshots";
+  static final String ID = "id";
+  static final String NAME = "name";
+
   private static final Pattern s_guidPattern =
       Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
 
@@ -38,7 +49,7 @@ public class MarketDataSnapshotListResource {
   }
 
   /**
-   * @return JSON: {@code {<basisViewName>: {<unique ID>: <name>}}}
+   * @return JSON {@code [{basisViewName: basisViewName1, snapshots: [{id: snapshot1Id, name: snapshot1Name}, ...]}, ...]}
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -47,8 +58,8 @@ public class MarketDataSnapshotListResource {
     snapshotSearchRequest.setIncludeData(false);
     MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
     List<ManageableMarketDataSnapshot> snapshots = snapshotSearchResult.getSnapshots();
+    Multimap<String, ManageableMarketDataSnapshot> snapshotsByBasisView = ArrayListMultimap.create();
 
-    Map<String, Map<String, String>> snapshotsByBasisView = new HashMap<String, Map<String, String>>();
     for (ManageableMarketDataSnapshot snapshot : snapshots) {
       if (snapshot.getUniqueId() == null) {
         s_logger.warn("Ignoring snapshot with null unique identifier {}", snapshot.getName());
@@ -63,13 +74,22 @@ public class MarketDataSnapshotListResource {
         continue;
       }
       String basisViewName = snapshot.getBasisViewName() != null ? snapshot.getBasisViewName() : "unknown";
-      Map<String, String> snapshotsForBasisView = snapshotsByBasisView.get(basisViewName);
-      if (snapshotsForBasisView == null) {
-        snapshotsForBasisView = new HashMap<String, String>();
-        snapshotsByBasisView.put(basisViewName, snapshotsForBasisView);
-      }
-      snapshotsForBasisView.put(snapshot.getUniqueId().toString(), snapshot.getName());
+      snapshotsByBasisView.put(basisViewName, snapshot);
     }
-    return new JSONObject(snapshotsByBasisView).toString();
+    // list of maps for each basis view: {"basisViewName": basisViewName, "snapshots", [...]}
+    List<Map<String, Object>> basisViewSnapshotList = new ArrayList<Map<String, Object>>();
+    for (String basisViewName : snapshotsByBasisView.keySet()) {
+      Collection<ManageableMarketDataSnapshot> viewSnapshots = snapshotsByBasisView.get(basisViewName);
+      // list of maps containing snapshot IDs and names: {"id", snapshotId, "name", snapshotName}
+      List<Map<String, Object>> snapshotsList = new ArrayList<Map<String, Object>>(viewSnapshots.size());
+      for (ManageableMarketDataSnapshot viewSnapshot : viewSnapshots) {
+        // map for a single snapshot: {"id", snapshotId, "name", snapshotName}
+        Map<String, Object> snapshotMap =
+            ImmutableMap.<String, Object>of(ID, viewSnapshot.getUniqueId(), NAME, viewSnapshot.getName());
+        snapshotsList.add(snapshotMap);
+      }
+      basisViewSnapshotList.add(ImmutableMap.of(BASIS_VIEW_NAME, basisViewName, SNAPSHOTS, snapshotsList));
+    }
+    return new JSONArray(basisViewSnapshotList).toString();
   }
 }

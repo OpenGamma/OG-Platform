@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * Combines a function repository and compiler to give access to compiled functions. 
+ * Combines a function repository and compiler to give access to compiled functions.
  */
 public class CompiledFunctionService {
 
