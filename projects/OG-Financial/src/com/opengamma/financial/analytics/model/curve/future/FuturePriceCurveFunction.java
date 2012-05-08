@@ -17,6 +17,9 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
@@ -51,6 +54,8 @@ import com.opengamma.util.money.Currency;
  */
 public class FuturePriceCurveFunction extends AbstractFunction {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  
   @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
       final String definitionName) {
@@ -154,6 +159,9 @@ public class FuturePriceCurveFunction extends AbstractFunction {
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
         final LocalDate valDate = now.toLocalDate();
+        if (inputs.getAllValues().isEmpty()) {
+          s_logger.warn("FunctionInputs to the execute method isEmpty!");
+        }
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;
           final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
