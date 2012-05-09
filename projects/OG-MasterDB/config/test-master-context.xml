@@ -152,7 +152,7 @@
   <!-- ============================================================================== -->
   <bean id="sqlserver2008DataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${sqlserver2008.jdbc.driver}"/>
-    <property name="jdbcUrl" value="${sqlserver2008.jdbc.url}/test_${user.name}"/>
+    <property name="jdbcUrl" value="${sqlserver2008.jdbc.url};databasename=test_${user.name}"/>
     <property name="username" value="${sqlserver2008.jdbc.username}"/>
     <property name="password" value="${sqlserver2008.jdbc.password}"/>
     <property name="poolName" value="FinancialTestsSqlServer2008"/>
