@@ -171,7 +171,6 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     }
     final SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
     final double[] strikes = smile.getStrike(forward);
-    //    ArrayInterpolator1DDataBundle volatilityInterpolation = new ArrayInterpolator1DDataBundle(strikes, volatilityT);
     final Interpolator1DDataBundle volatilityInterpolation = _interpolator.getDataBundle(strikes, volatilityT);
     final double volatility = _interpolator.interpolate(volatilityInterpolation, strike);
     return volatility;
