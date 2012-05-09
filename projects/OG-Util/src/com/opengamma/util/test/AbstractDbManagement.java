@@ -194,7 +194,7 @@ public abstract class AbstractDbManagement implements DbManagement {
     return getDbHost() + "/" + catalog;
   }
 
-  private List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
+  protected List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
     while (rs.next()) {
@@ -204,7 +204,7 @@ public abstract class AbstractDbManagement implements DbManagement {
     return tables;
   }
 
-  private List<String> getAllViews(String catalog, String schema, Statement statement) throws SQLException {
+  protected List<String> getAllViews(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllViewsSQL(catalog, schema));
     while (rs.next()) {

@@ -6,13 +6,23 @@
 package com.opengamma.util.test;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.SQLServerDialect;
+import org.hibernate.id.enhanced.SequenceStructure;
+import org.hibernate.mapping.ForeignKey;
+import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Database management for Postgres databases.
@@ -75,8 +85,13 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
 
   //-------------------------------------------------------------------------
   @Override
+  protected String getCatalogToConnectTo(String catalog) {
+    return getDbHost() + ";databasename=" + catalog;
+  }
+  
+  @Override
   public String getAllSchemasSQL(String catalog) {
-    return "SELECT nspname AS name from pg_namespace";
+    return "SELECT SCHEMA_NAME AS name FROM INFORMATION_SCHEMA.SCHEMATA";
   }
 
   @Override
@@ -94,8 +109,8 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
     if (schema == null) {
       schema = SQLSERVER2008_DEFAULT_SCHEMA;
     }
-    String sql = "SELECT sequence_name AS name FROM information_schema.sequences WHERE " + //////////////////////////////
-      "sequence_catalog = '" + catalog + "'" + " AND sequence_schema = '" + schema + "'";
+    String sql = "SELECT table_name AS name FROM information_schema.tables WHERE table_name LIKE '%_seq' AND " + 
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
 
@@ -104,7 +119,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
     if (schema == null) {
       schema = SQLSERVER2008_DEFAULT_SCHEMA;
     }
-    String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
+    String sql = "SELECT table_name AS name FROM information_schema.tables WHERE NOT table_name LIKE '%_seq' AND " +
       "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
@@ -138,31 +153,109 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
   @Override
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new SQLCatalogCreationStrategy(
-        getDbHost(), 
+        this, 
         getUser(), 
         getPassword(), 
-        "SELECT datname AS name FROM pg_database", ///////////////////////
+        "SELECT name FROM sys.databases WHERE name NOT IN ('master', 'model', 'msdb', 'tempdb')", 
         "template1");
   }
-
+  
   @Override
   public void dropSchema(String catalog, String schema) {
-    if (schema != null) {
-      super.dropSchema(catalog, schema);
-    } else {
-      try {
-        if (!getCatalogCreationStrategy().catalogExists(catalog)) {
-          return;
-        }
-        Connection conn = connect(catalog);
-        Statement statement = conn.createStatement();
-        //TODO default schema
-        statement.executeUpdate("DROP SCHEMA IF EXISTS public CASCADE;CREATE SCHEMA public;"); /////////////////////////
+    // Does not handle triggers or stored procedures yet
+    ArrayList<String> script = new ArrayList<String>();
+    
+    Connection conn = null;
+    try {
+      if (!getCatalogCreationStrategy().catalogExists(catalog)) {
+        System.out.println("Catalog " + catalog + " does not exist");
+        return; // nothing to drop
+      }
+      
+      conn = connect(catalog);
+      
+      if (schema != null) {
+        Statement statement = conn.createStatement(); 
+        Collection<String> schemas = getAllSchemas(catalog, statement);
         statement.close();
-        conn.close();
-      } catch (SQLException se) {
-        throw new OpenGammaRuntimeException("Failed to drop the default schema", se);
+        
+        if (!schemas.contains(schema)) {
+          System.out.println("Schema " + schema + " does not exist");
+          return; // nothing to drop
+        }
+      }
+
+      setActiveSchema(conn, schema);
+      Statement statement = conn.createStatement();
+      
+      // Drop constraints SQL
+      if (getHibernateDialect().dropConstraints()) {
+        for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
+          String name = constraint.getFirst();
+          String table = constraint.getSecond();
+          ForeignKey fk = new ForeignKey();
+          fk.setName(name);
+          fk.setTable(new Table(table));
+          
+          String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
+          script.add(dropConstraintSql);
+        }
+      }
+      
+      // Drop views SQL
+      for (String name : getAllViews(catalog, schema, statement)) {
+        Table table = new Table(name);
+        String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
+        dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
+        script.add(dropViewStr);
+      }
+      
+      // Drop tables SQL
+      for (String name : getAllTables(catalog, schema, statement)) {
+        Table table = new Table(name);
+        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
+        script.add(dropTableStr);
+      }
+      
+      // Now execute it all
+      statement.close();
+      statement = conn.createStatement();
+      for (String sql : script) {
+        //System.out.println("Executing \"" + sql + "\"");
+        statement.executeUpdate(sql);
+      }
+      
+      statement.close();
+      statement = conn.createStatement();
+      
+      // Drop sequences SQL
+      script.clear();
+      for (String name : getAllSequences(catalog, schema, statement)) {
+        Table table = new Table(name);
+        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
+        script.add(dropTableStr);
+      }
+      
+      //now execute drop sequence
+      statement.close();
+      statement = conn.createStatement();
+      for (String sql : script) {
+        //System.out.println("Executing \"" + sql + "\"");
+        statement.executeUpdate(sql);
+      }
+      
+      statement.close();
+    
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to drop schema", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
       }
     }
   }
+
 }
