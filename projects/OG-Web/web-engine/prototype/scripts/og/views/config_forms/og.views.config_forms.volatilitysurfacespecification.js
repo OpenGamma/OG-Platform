@@ -13,6 +13,8 @@ $.register_module({
                 ['0',                                   Form.type.STR],
                 ['currency',                            Form.type.STR],
                 ['name',                                Form.type.STR],
+                ['quote',                               Form.type.STR],
+                ['quoteUnits',                          Form.type.STR],
                 [[SFIP, '0'].join('.'),                 Form.type.STR],
                 [[SFIP, 'DATA_FIELD_NAME'].join('.'),   Form.type.STR],
                 [[SFIP, 'PREFIX'].join('.'),            Form.type.STR],
