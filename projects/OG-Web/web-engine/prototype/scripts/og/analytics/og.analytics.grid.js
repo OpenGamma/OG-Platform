@@ -44,27 +44,34 @@ $.register_module({
             });
         };
         var init_data = function (grid, config) {
-            grid.alive = function () {return $(grid.id).length ? true : !grid.style.remove();};
+            grid.alive = (function ($) { // cache this window's $
+                return function () {return $(grid.id).length ? true : !grid.elements.style.remove();};
+            })($);
+            grid.elements = {};
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
-            grid.style = null;
             (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
         };
         var init_grid = function (grid, config, metadata) {
-            var columns = metadata.columns, $style,
+            var columns = metadata.columns,
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
             grid.meta = metadata;
-            set_size(grid, config);
-            $(config.selector).html(templates.container({id: grid.id.substring(1)}))
+            grid.elements.style = $('<style type="text/css" />').appendTo('head');
+            (grid.elements.parent = $(config.selector)).html(templates.container({id: grid.id.substring(1)}))
                 .on('mousedown', mousedown_delegator).on('mouseup', mouseup_delegator);
-            $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
+            grid.elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
+            (grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll'))
+                .scroll(scroll_observer(grid, null, scroll_end));
+            grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
+            grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
+            set_size(grid, config);
             render_header(grid);
             grid.dataman.on('data', render_rows, grid);
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
-            var meta, columns, head_data = function (columns, offset) {
+            var head_data = function (meta, columns, offset) {
                 var width = meta.columns.width;
                 return {
                     width: offset ? width.scroll : width.fixed, padding_right: offset ? scrollbar_size : 0,
@@ -72,13 +79,13 @@ $.register_module({
                 };
             };
             return function (grid) {
-                (meta = grid.meta), (columns = meta.columns);
-                $(grid.id + ' .OG-g-h-fixed').html(templates.header(head_data(columns.fixed)));
-                $(grid.id + ' .OG-g-h-scroll').html(templates.header(head_data(columns.scroll, columns.fixed.length)));
+                var meta = grid.meta, columns = meta.columns;
+                grid.elements.fixed_head.html(templates.header(head_data(meta, columns.fixed)));
+                grid.elements.scroll_head.html(templates.header(head_data(meta, columns.scroll, columns.fixed.length)));
             };
         })();
         var render_rows = (function () {
-            var meta, row_data = function (data, fixed) {
+            var row_data = function (meta, data, fixed) {
                 var fixed_length = meta.columns.fixed.length;
                 return data.reduce(function (acc, row, idx) {
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
@@ -93,25 +100,22 @@ $.register_module({
                 }, {holder_height: meta.viewport.height + (fixed ? scrollbar_size : 0), rows: []});
             };
             return function (grid, data) {
-                meta = grid.meta;
                 if (grid.dataman.busy()) return;
-                $(grid.id + ' .OG-g-b-fixed').html(templates.row(row_data(data, true)));
-                $(grid.id + ' .OG-g-b-scroll').html(templates.row(row_data(data, false)));
+                grid.elements.fixed_body.html(templates.row(row_data(grid.meta, data, true)));
+                grid.elements.scroll_body.html(templates.row(row_data(grid.meta, data, false)));
             };
         })();
-        var scroll_observer = function (grid, timeout, update_viewport, $section, $fixed, $head) {
+        var scroll_observer = function (grid, timeout, update_viewport) {
             return function () { // sync scroll instantaneously and set viewport after scroll stops
                 grid.dataman.busy(true);
-                ($fixed || ($fixed = $(grid.id + ' .OG-g-b-fixed')))
-                    .scrollTop(($section || ($section = $(grid.id + ' .OG-g-b-scroll'))).scrollTop());
-                ($head || ($head = $(grid.id + ' .OG-g-h-scroll'))).scrollLeft($section.scrollLeft());
+                grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
+                grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
                 timeout = clearTimeout(timeout) || setTimeout(update_viewport, 200);
             }
         };
         var set_size = function (grid, config) {
-            var meta = grid.meta, css, $style, $parent = $(config.selector), width = config.width || $parent.width(),
-                height = config.height || $parent.height(), columns = meta.columns, id = grid.id;
-            grid.style = $style = grid.style || $('<style type="text/css" />').appendTo($('head'));
+            var meta = grid.meta, css, width = config.width || grid.elements.parent.width(),
+                height = config.height || grid.elements.parent.height(), columns = meta.columns, id = grid.id;
             meta.columns.width = {
                 fixed: meta.columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
                 scroll: meta.columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
@@ -127,12 +131,12 @@ $.register_module({
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
             });
             set_viewport(grid);
-            if ($style[0].styleSheet) return $style[0].styleSheet.cssText = css; // IE
-            $style[0].appendChild(document.createTextNode(css));
+            if (grid.elements.style[0].styleSheet) return grid.elements.style[0].styleSheet.cssText = css; // IE
+            grid.elements.style[0].appendChild(document.createTextNode(css));
         };
         var set_viewport = function (grid, handler) {
-            var top_position = $(grid.id + ' .OG-g-b-fixed').scrollTop(),
-                left_position = $(grid.id + ' .OG-g-h-scroll').scrollLeft(),
+            var top_position = grid.elements.scroll_body.scrollTop(),
+                left_position = grid.elements.scroll_head.scrollLeft(),
                 row_start, scroll_position = left_position + grid.meta.viewport.width;
             grid.meta.viewport.rows = [
                 row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
