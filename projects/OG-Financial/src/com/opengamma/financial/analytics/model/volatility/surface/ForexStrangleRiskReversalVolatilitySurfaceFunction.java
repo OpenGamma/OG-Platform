@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.volatility.surface;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -52,6 +53,10 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  /**
+   * 
+   */
+  private static final SmileDeltaParameter[] EMPTY_ARRAY = new SmileDeltaParameter[0];
   private static final Logger s_logger = LoggerFactory.getLogger(ForexStrangleRiskReversalVolatilitySurfaceFunction.class);
 
   @Override
@@ -72,8 +77,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     Arrays.sort(tenors);
     final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
     final Number[] deltaValues = getDeltaValues(quotes);
-    final int nPoints = tenors.length;
-    final SmileDeltaParameter[] smile = new SmileDeltaParameter[nPoints];
+    final ObjectArrayList<SmileDeltaParameter> smile = new ObjectArrayList<SmileDeltaParameter>();
     final int nSmileValues = deltaValues.length - 1;
     final Set<String> shifts = desiredValue.getConstraints().getValues(VolatilitySurfaceShiftFunction.SHIFT);
     final double shiftMultiplier;
@@ -84,39 +88,42 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
       // No shift requested
       shiftMultiplier = 1;
     }
-    for (int i = 0; i < tenors.length; i++) {
-      final Tenor tenor = tenors[i];
+    for (final Tenor tenor : tenors) {
       final double t = getTime(tenor);
       Double atm = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(deltaValues[0], FXVolQuoteType.ATM));
-      if (atm == null) {
-        throw new OpenGammaRuntimeException("Could not get ATM volatility data for surface");
-      }
-      if (shiftMultiplier != 1) {
-        atm = atm * shiftMultiplier;
-      }
-      final DoubleArrayList deltas = new DoubleArrayList();
-      final DoubleArrayList riskReversals = new DoubleArrayList();
-      final DoubleArrayList butterflies = new DoubleArrayList();
-      for (int j = 0; j < nSmileValues; j++) {
-        final Number delta = deltaValues[j + 1];
-        if (delta != null) {
-          Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
-          Double butterfly = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
-          if (rr != null && butterfly != null) {
-            rr = rr * shiftMultiplier;
-            butterfly = butterfly * shiftMultiplier;
-            deltas.add(delta.doubleValue() / 100.);
-            riskReversals.add(rr);
-            butterflies.add(butterfly);
-          }
-        } else {
-          s_logger.info("Had a null value for tenor number " + j);
+      if (atm != null) {
+        if (shiftMultiplier != 1) {
+          atm = atm * shiftMultiplier;
         }
+        final DoubleArrayList deltas = new DoubleArrayList();
+        final DoubleArrayList riskReversals = new DoubleArrayList();
+        final DoubleArrayList butterflies = new DoubleArrayList();
+        for (int j = 0; j < nSmileValues; j++) {
+          final Number delta = deltaValues[j + 1];
+          if (delta != null) {
+            Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+            Double butterfly = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+            if (rr != null && butterfly != null) {
+              rr = rr * shiftMultiplier;
+              butterfly = butterfly * shiftMultiplier;
+              deltas.add(delta.doubleValue() / 100.);
+              riskReversals.add(rr);
+              butterflies.add(butterfly);
+            }
+          } else {
+            s_logger.info("Had a null delta value for tenor {}", j);
+          }
+        }
+        smile.add(new SmileDeltaParameter(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray()));
+      } else {
+        s_logger.info("Could not get atm data for tenor {}", tenor);
       }
-      smile[i] = new SmileDeltaParameter(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray());
+    }
+    if (smile.size() == 0) {
+      throw new OpenGammaRuntimeException("Could not get any data for surface " + surfaceName);
     }
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile, interpolator);
+    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile.toArray(EMPTY_ARRAY), interpolator);
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
