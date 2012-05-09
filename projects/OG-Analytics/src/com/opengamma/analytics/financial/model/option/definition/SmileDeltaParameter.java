@@ -7,13 +7,12 @@ package com.opengamma.analytics.financial.model.option.definition;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing the data required to describe a delta dependent smile from ATM, risk reversal and strangle as used in Forex market.
- * The delta used is the delta with respect to forward. 
+ * The delta used is the delta with respect to forward.
  */
 public class SmileDeltaParameter {
 
@@ -37,9 +36,9 @@ public class SmileDeltaParameter {
    * @param volatility The volatilities.
    */
   public SmileDeltaParameter(final double timeToExpiration, final double[] delta, final double[] volatility) {
-    Validate.notNull(delta, "Delta");
-    Validate.notNull(volatility, "Volatility");
-    Validate.isTrue(2 * delta.length + 1 == volatility.length, "Length of delta should be coherent with volatility length");
+    ArgumentChecker.notNull(delta, "Delta");
+    ArgumentChecker.notNull(volatility, "Volatility");
+    ArgumentChecker.isTrue(2 * delta.length + 1 == volatility.length, "Length of delta {} should be coherent with volatility length {}", 2 * delta.length + 1, volatility.length);
     _timeToExpiry = timeToExpiration;
     _delta = delta;
     _volatility = volatility;
@@ -54,11 +53,11 @@ public class SmileDeltaParameter {
    * @param strangle The strangle volatility figures, in the same order as the delta.
    */
   public SmileDeltaParameter(final double timeToExpiry, final double atm, final double[] delta, final double[] riskReversal, final double[] strangle) {
-    Validate.notNull(delta, "Delta");
-    Validate.notNull(riskReversal, "Risk Reversal");
-    Validate.notNull(strangle, "Strangle");
-    Validate.isTrue(delta.length == riskReversal.length, "Length of delta should be equal to length of risk reversal");
-    Validate.isTrue(delta.length == strangle.length, "Length of delta should be equal to length of strangle");
+    ArgumentChecker.notNull(delta, "Delta");
+    ArgumentChecker.notNull(riskReversal, "Risk Reversal");
+    ArgumentChecker.notNull(strangle, "Strangle");
+    ArgumentChecker.isTrue(delta.length == riskReversal.length, "Length of delta {} should be equal to length of risk reversal {}", delta.length, riskReversal.length);
+    ArgumentChecker.isTrue(delta.length == strangle.length, "Length of delta {} should be equal to length of strangle {} ", delta.length, strangle.length);
     //TODO: check that delta is sorted (ascending).
     //REVIEW 6-7-2011 emcleod better to do a parallel sort of delta, risk reversal and strangle and have another constructor
     // with an isSorted parameter that will not attempt the sort
@@ -74,7 +73,7 @@ public class SmileDeltaParameter {
   }
 
   /**
-   * Computes the strikes in ascending order. Put with lower delta (in absolute value) first, ATM and call with larger delta first 
+   * Computes the strikes in ascending order. Put with lower delta (in absolute value) first, ATM and call with larger delta first
    * @param forward The forward.
    * @return The strikes.
    */
