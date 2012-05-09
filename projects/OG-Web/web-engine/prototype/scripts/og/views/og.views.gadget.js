@@ -7,24 +7,27 @@ $.register_module({
     dependencies: ['og.common', 'og.api'],
     obj: function () {
         var module = this, view, common = og.common, routes = common.routes,
-            gadgets = common.gadgets, $content = $('#gadget_content');
+            gadgets = common.gadgets, content = '#gadget_content', $content = $(content);
         return view = {
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             root: function () {$content.html('No gadget was specified.');},
+            grid: function (args) {
+                new og.analytics.Grid({selector: content});
+            },
             positions: function (args) {
                 $content.html('\
                     <section class="OG-details-positions og-js-positions"></section>\
                     <section class="og-js-trades"></section>\
                 ');
                 gadgets.positions({
-                    id: args.id, selector: '.og-js-positions', editable: false
+                    id: args.id, selector: '.og-js-positions', editable: false, external_links: true
                 });
                 if (args.trades === 'true')
                     gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});
             },
             securities: function (args) {
                 $content.html('<section></section>');
-                new gadgets.securities_identifiers({id: args.id, selector: '#gadget_content section'});
+                new gadgets.SecuritiesIdentifiers({id: args.id, selector: '#gadget_content section'});
             },
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-container', datapoints_link: false};
@@ -35,10 +38,11 @@ $.register_module({
                 gadgets.timeseries(options);
             },
             rules: {
-                root: {route: '/', method: module.name + '.root'},
-                positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
-                securities: {route: '/securities/:id', method: module.name + '.securities'},
-                timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}
+                root: {route: '/frame:?', method: module.name + '.root'},
+                grid: {route: '/grid/:id/frame:?', method: module.name + '.grid'},
+                positions: {route: '/positions/:id/trades:?/frame:?', method: module.name + '.positions'},
+                securities: {route: '/securities/:id/frame:?', method: module.name + '.securities'},
+                timeseries: {route: '/timeseries/id:?/key:?/frame:?', method: module.name + '.timeseries'}
             }
         }
     }
