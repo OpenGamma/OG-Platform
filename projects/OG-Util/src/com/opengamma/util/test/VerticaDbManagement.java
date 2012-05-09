@@ -71,7 +71,7 @@ public final class VerticaDbManagement extends AbstractDbManagement {
 
   //-------------------------------------------------------------------------
   @Override
-  protected String getCatalogToConnectTo(String catalog) {
+  public String getCatalogToConnectTo(String catalog) {
     return getDbHost();
   }
 

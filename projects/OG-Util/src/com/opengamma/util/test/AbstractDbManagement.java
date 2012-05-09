@@ -190,7 +190,8 @@ public abstract class AbstractDbManagement implements DbManagement {
     return conn;
   }
 
-  protected String getCatalogToConnectTo(String catalog) {
+  @Override
+  public String getCatalogToConnectTo(String catalog) {
     return getDbHost() + "/" + catalog;
   }
 

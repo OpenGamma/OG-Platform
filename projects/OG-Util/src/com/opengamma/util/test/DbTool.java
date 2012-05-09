@@ -401,7 +401,8 @@ public class DbTool extends Task {
   }
 
   public String getTestDatabaseUrl() {
-    return _dbServerHost + "/" + getTestCatalog();         
+    return _dialect.getCatalogToConnectTo(getTestCatalog());
+    //return _dbServerHost + "/" + getTestCatalog();         
   }
 
   public Dialect getHibernateDialect() {

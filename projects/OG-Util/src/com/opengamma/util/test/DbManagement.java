@@ -141,5 +141,13 @@ public interface DbManagement {
    * @return the schema used for tests
    */
   String getTestSchema();
+  
+  /*
+   * Gets the connection string for the given catalog
+   * 
+   * @param catalog the catalog(database) name, not null
+   * @return a dialect specific connection string
+   */
+  String getCatalogToConnectTo(String catalog);
 
 }

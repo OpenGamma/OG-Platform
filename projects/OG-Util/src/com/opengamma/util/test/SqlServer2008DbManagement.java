@@ -85,7 +85,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
 
   //-------------------------------------------------------------------------
   @Override
-  protected String getCatalogToConnectTo(String catalog) {
+  public String getCatalogToConnectTo(String catalog) {
     return getDbHost() + ";databasename=" + catalog;
   }
   
