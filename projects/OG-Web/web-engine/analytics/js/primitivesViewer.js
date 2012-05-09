@@ -10,7 +10,7 @@
 (function($) {
   
   /** @constructor */
-  function PrimitivesViewer(_$container, _primitivesDetails, _liveResultsClient, _userConfig) {
+  function PrimitivesViewer(_$container, _$layout, _$popupList, _primitivesDetails, _liveResultsClient, _userConfig) {
     
     var self = this;
     
@@ -46,6 +46,7 @@
           rowHeight: 50
         };
       _grid = new Slick.Grid(_$primitivesGridContainer, _dataView.rows, gridColumns, gridOptions);
+      _grid.onClick = onGridClicked;
       _grid.afterRender = afterGridRendered;
       
       _gridHelper = new SlickGridHelper(_grid, _dataView, _liveResultsClient.triggerImmediateUpdate, false);
@@ -62,6 +63,19 @@
     
     function beforeUpdateRequested(updateMetadata) {
       _gridHelper.populateViewportData(updateMetadata.primitiveViewport);
+    }
+    
+    function onGridClicked(e, rowIdx, colIdx) {     
+      var col = _grid.getColumns()[colIdx];
+      if (col.id != "name") {
+        var row = _dataView.rows[rowIdx];
+        var $cell = $(e.target).closest(".slick-cell");
+        var popupTitle = col.name + " on " + row['name'];
+        self.popupManager.openExplain($cell, col.id, row.rowId, popupTitle);
+        return true;
+      }
+      
+      return false;
     }
     
     function afterGridRendered(container) {
@@ -131,7 +145,7 @@
     
     init();
     
-    this.popupManager = new PopupManager(null, null, null, _primitivesDetails.name, _dataView, _liveResultsClient, _userConfig);
+    this.popupManager = new PopupManager(_$layout, _$popupList, _grid, _primitivesDetails.name, _dataView, _liveResultsClient, _userConfig);
     
   }
   

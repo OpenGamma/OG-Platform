@@ -81,7 +81,7 @@
       if (primitivesDetails) {
         var $primitivesContainer = $("<div id='primitives'></div>");
         _$tabsContainer.append($primitivesContainer);
-        _primitives = new PrimitivesViewer($primitivesContainer, primitivesDetails, _liveResultsClient, _userConfig);
+        _primitives = new PrimitivesViewer($primitivesContainer, _$layout, _$popupList, primitivesDetails, _liveResultsClient, _userConfig);
         _tabManager.registerTab("primitives", _primitives);
         _$tabsContainer.tabs("add", "#primitives", "Primitives");
       }
