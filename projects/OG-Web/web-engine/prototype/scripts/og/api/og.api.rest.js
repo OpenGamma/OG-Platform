@@ -522,7 +522,7 @@ $.register_module({
             }
         };
         common.clear_cache(module.name); // empty the cache from another session or window if it still exists
-        (subscribe = api.handshake.get.partial({handler: function (result) {
+        api.subscribe = subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
             if (result.error)
                 return warn(module.name + ': handshake failed\n', result.message), setTimeout(subscribe, RESUBSCRIBE);
@@ -551,7 +551,7 @@ $.register_module({
                     setTimeout(listen, INSTANT);
                 }});
             })();
-        }}))();
+        }});
         return api;
     }
 });
