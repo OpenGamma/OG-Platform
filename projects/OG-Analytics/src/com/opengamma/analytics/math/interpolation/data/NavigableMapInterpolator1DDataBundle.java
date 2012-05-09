@@ -21,7 +21,7 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
 
   public NavigableMapInterpolator1DDataBundle(final NavigableMap<Double, Double> backingMap) {
     ArgumentChecker.notNull(backingMap, "Backing map");
-    ArgumentChecker.isTrue(backingMap.size() > 1, "Must have at least two data points.");
+    ArgumentChecker.isTrue(backingMap.size() > 0, "Must have at least two data points.");
     _backingMap = backingMap;
   }
 

@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.model.option.definition;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -16,6 +15,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -57,7 +57,7 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * @param interpolator The interpolator used in the strike dimension.
    */
   public SmileDeltaTermStructureParameter(final SmileDeltaParameter[] volatilityTerm, final Interpolator1D interpolator) {
-    Validate.notNull(volatilityTerm, "Volatility term structure");
+    ArgumentChecker.notNull(volatilityTerm, "Volatility term structure");
     _volatilityTerm = volatilityTerm;
     final int nbExp = volatilityTerm.length;
     _timeToExpiration = new double[nbExp];
@@ -88,8 +88,8 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    */
   public SmileDeltaTermStructureParameter(final double[] timeToExpiration, final double[] delta, final double[][] volatility, final Interpolator1D interpolator) {
     final int nbExp = timeToExpiration.length;
-    Validate.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
-    Validate.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
+    ArgumentChecker.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
+    ArgumentChecker.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
     _timeToExpiration = timeToExpiration;
     _volatilityTerm = new SmileDeltaParameter[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
@@ -122,11 +122,11 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
   public SmileDeltaTermStructureParameter(final double[] timeToExpiration, final double[] delta, final double[] atm, final double[][] riskReversal, final double[][] strangle,
       final Interpolator1D interpolator) {
     final int nbExp = timeToExpiration.length;
-    Validate.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiration length");
-    Validate.isTrue(riskReversal.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
-    Validate.isTrue(strangle.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
-    Validate.isTrue(riskReversal[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
-    Validate.isTrue(strangle[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
+    ArgumentChecker.isTrue(atm.length == nbExp, "ATM length should be coherent with time to expiration length");
+    ArgumentChecker.isTrue(riskReversal.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
+    ArgumentChecker.isTrue(strangle.length == nbExp, "Risk reversal length should be coherent with time to expiration length");
+    ArgumentChecker.isTrue(riskReversal[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
+    ArgumentChecker.isTrue(strangle[0].length == delta.length, "Risk reversal size should be coherent with time to delta length");
     _timeToExpiration = timeToExpiration;
     _volatilityTerm = new SmileDeltaParameter[nbExp];
     for (int loopexp = 0; loopexp < nbExp; loopexp++) {
@@ -144,9 +144,11 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    * @return The volatility.
    */
   public double getVolatility(final double time, final double strike, final double forward) {
-    Validate.isTrue(time >= 0, "Positive time");
+    ArgumentChecker.isTrue(time >= 0, "Positive time");
     final int nbVol = _volatilityTerm[0].getVolatility().length;
+    ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
+    ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
     double[] volatilityT = new double[nbVol];
     if (time <= _timeToExpiration[0]) {
       volatilityT = _volatilityTerm[0].getVolatility();
@@ -187,7 +189,9 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
    */
   public double getVolatility(final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
     final int nbVol = _volatilityTerm[0].getVolatility().length;
+    ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
+    ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
     final ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
     final int indexLower = interpData.getLowerBoundIndex(time);
     // Forward sweep

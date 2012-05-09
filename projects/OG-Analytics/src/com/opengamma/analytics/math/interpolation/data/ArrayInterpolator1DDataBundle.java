@@ -26,7 +26,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     ArgumentChecker.notNull(keys, "Keys must not be null.");
     ArgumentChecker.notNull(values, "Values must not be null.");
     ArgumentChecker.isTrue((keys.length == values.length), "keys and values must be same length.");
-    ArgumentChecker.isTrue((keys.length > 1), "Must have at least two data points.");
+    ArgumentChecker.isTrue((keys.length > 0), "Must have at least two data points.");
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
     _n = keys.length;

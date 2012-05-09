@@ -16,7 +16,6 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
  * 
  */
 public abstract class LocalVolatilityForwardPDEStrikeGreeksGridCalculator implements PDELocalVolatilityCalculator<Interpolator1DDataBundle> {
-  private static final double SHIFT = 1e-2;
   private final LocalVolatilityForwardPDECalculator _pdeCalculator;
   private final Interpolator1D _interpolator;
 
