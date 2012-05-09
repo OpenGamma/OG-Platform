@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.util.money.CurrencyAmount;
 

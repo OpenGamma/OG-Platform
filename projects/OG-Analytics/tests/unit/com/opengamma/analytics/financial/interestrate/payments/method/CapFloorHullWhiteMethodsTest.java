@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.generator.EUR1YEURIBOR
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSHullWhiteApproximationMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSHullWhiteNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetsHullWhite;

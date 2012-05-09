@@ -14,11 +14,11 @@ import com.opengamma.analytics.financial.interestrate.annuity.definition.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.Swap;
@@ -73,7 +73,7 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
   }
 
   @Override
-  public AnnuityPaymentFixed visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
+  public AnnuityPaymentFixed visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());

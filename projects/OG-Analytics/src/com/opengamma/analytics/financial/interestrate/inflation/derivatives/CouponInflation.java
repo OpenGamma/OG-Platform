@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.util.money.Currency;
 
 /**

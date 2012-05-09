@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloorPricer;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingFunction;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingJacobian;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;

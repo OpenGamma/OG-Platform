@@ -23,9 +23,9 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -204,17 +204,17 @@ public class PresentValueCouponSensitivityCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
+    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
         ZERO_PC_CURVE_NAME, false);
-    final GenericAnnuity<CouponIbor> receiveLegUp = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME,
+    final GenericAnnuity<CouponIborSpread> receiveLegUp = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME,
         ZERO_PC_CURVE_NAME, false);
-    final GenericAnnuity<CouponIbor> receiveLegDown = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0,
+    final GenericAnnuity<CouponIborSpread> receiveLegDown = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0,
         FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, false);
 
-    final TenorSwap<?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
-    final TenorSwap<?> swapUp = new TenorSwap<CouponIbor>(payLeg, receiveLegUp);
-    final TenorSwap<?> swapDown = new TenorSwap<CouponIbor>(payLeg, receiveLegDown);
+    final TenorSwap<?> swap = new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
+    final TenorSwap<?> swapUp = new TenorSwap<CouponIborSpread>(payLeg, receiveLegUp);
+    final TenorSwap<?> swapDown = new TenorSwap<CouponIborSpread>(payLeg, receiveLegDown);
     final double pvUp = PVC.visit(swapUp, CURVES);
     final double pvDown = PVC.visit(swapDown, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;

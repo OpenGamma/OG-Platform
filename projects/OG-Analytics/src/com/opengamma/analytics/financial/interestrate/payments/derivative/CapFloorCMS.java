@@ -3,7 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.payments;
+package com.opengamma.analytics.financial.interestrate.payments.derivative;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -13,8 +16,16 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a caplet/floorlet on CMS rate.
  */
-public class CapFloorCMS extends CouponCMS implements CapFloor {
+public class CapFloorCMS extends CouponFloating implements CapFloor {
 
+  /**
+   * Swap underlying the CMS definition. The rate and notional are not used. The swap should be of vanilla type.
+   */
+  private final FixedCouponSwap<? extends Payment> _underlyingSwap;
+  /**
+   * The time (in years) to underlying swap settlement.
+   */
+  private final double _settlementTime;
   /**
    * The cap/floor strike.
    */
@@ -38,7 +49,11 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
    */
   public CapFloorCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime,
       double strike, boolean isCap) {
-    super(currency, paymentTime, paymentYearFraction, notional, fixingTime, underlyingSwap, settlementTime);
+    super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
+    Validate.notNull(underlyingSwap, "underlying swap");
+    Validate.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
+    _underlyingSwap = underlyingSwap;
+    _settlementTime = settlementTime;
     _strike = strike;
     _isCap = isCap;
   }
@@ -53,6 +68,22 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
   public static CapFloorCMS from(CouponCMS coupon, double strike, boolean isCap) {
     return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), coupon.getUnderlyingSwap(),
         coupon.getSettlementTime(), strike, isCap);
+  }
+
+  /**
+   * Gets the underlying swap.
+   * @return The underlying swap.
+   */
+  public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
+    return _underlyingSwap;
+  }
+
+  /**
+   * Gets the underlying swap settlement time.
+   * @return The swap settlement time.
+   */
+  public double getSettlementTime() {
+    return _settlementTime;
   }
 
   @Override
@@ -72,13 +103,21 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
   }
 
   @Override
+  public Coupon withNotional(double notional) {
+    return null;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + (_isCap ? 1231 : 1237);
     long temp;
+    temp = Double.doubleToLongBits(_settlementTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
 
@@ -97,7 +136,13 @@ public class CapFloorCMS extends CouponCMS implements CapFloor {
     if (_isCap != other._isCap) {
       return false;
     }
+    if (Double.doubleToLongBits(_settlementTime) != Double.doubleToLongBits(other._settlementTime)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
       return false;
     }
     return true;

@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueInflationCalcu
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.market.MarketBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**

@@ -25,14 +25,13 @@ import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDis
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborFixed;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -249,7 +248,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle data) {
     final String curveName = payment.getForwardCurveName();
     final YieldAndDiscountCurve curve = data.getCurve(curveName);
     //    final double ta = payment.getFixingTime();
@@ -274,17 +273,12 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
 
   @Override
   public Map<String, List<DoublesPair>> visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
-    return visitCouponIbor(payment, data);
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitCouponIborFixed(CouponIborFixed payment, YieldCurveBundle data) {
-    return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
   @Override

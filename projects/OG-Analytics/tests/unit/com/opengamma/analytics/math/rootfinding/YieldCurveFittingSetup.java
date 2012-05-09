@@ -37,11 +37,11 @@ import com.opengamma.analytics.financial.interestrate.annuity.definition.Generic
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
@@ -312,7 +312,7 @@ public abstract class YieldCurveFittingSetup {
     return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
   }
 
-  protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate, final double notional) {
+  protected static TenorSwap<CouponIborSpread> makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate, final double notional) {
 
     final int index = (int) Math.round(4 * time);
     final double[] paymentTimes = new double[index];
@@ -328,10 +328,10 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, DUMMY_INDEX, notional, fundCurveName, fundCurveName, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, notional,
+    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, DUMMY_INDEX, notional, fundCurveName, fundCurveName, true);
+    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, notional,
         fundCurveName, liborCurveName, false);
-    return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
+    return new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
   }
 
   protected static OISSwap makeOISSwap(final double time, final SimpleFrequency paymentFreq, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {

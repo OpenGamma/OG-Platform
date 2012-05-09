@@ -37,11 +37,11 @@ import com.opengamma.analytics.financial.interestrate.annuity.definition.Generic
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.OISSwap;
@@ -222,7 +222,7 @@ public class PresentValueSensitivityCalculatorTest {
     //produce a array of strictly ascending times
     final Set<Double> times = new TreeSet<Double>();
     for (int i = 0; i < iborAnnuity.getNumberOfPayments(); i++) {
-      final CouponIbor coupon = (CouponIbor) iborAnnuity.getNthPayment(i);
+      final CouponIborSpread coupon = (CouponIborSpread) iborAnnuity.getNthPayment(i);
       times.add(coupon.getPaymentTime());
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());
@@ -368,8 +368,8 @@ public class PresentValueSensitivityCalculatorTest {
     final double spread = 0.04;
     final double notional = 100000000;
 
-    final CouponIbor payment1Curve = new CouponIbor(CUR, paymentTime, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, IBOR_INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
-    final CouponIbor payment = new CouponIbor(CUR, paymentTime, ZERO_PC_CURVE_NAME, paymentYF, notional, resetTime, IBOR_INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
+    final CouponIborSpread payment1Curve = new CouponIborSpread(CUR, paymentTime, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, IBOR_INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
+    final CouponIborSpread payment = new CouponIborSpread(CUR, paymentTime, ZERO_PC_CURVE_NAME, paymentYF, notional, resetTime, IBOR_INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
 
     final double[] nodeTimes = new double[] {resetTime, paymentTime, maturity};
 
@@ -476,7 +476,7 @@ public class PresentValueSensitivityCalculatorTest {
       times.add(coupon.getPaymentTime());
     }
     for (int i = 0; i < floatLeg.getNumberOfPayments(); i++) {
-      final CouponIbor coupon = (CouponIbor) floatLeg.getNthPayment(i);
+      final CouponIborSpread coupon = (CouponIborSpread) floatLeg.getNthPayment(i);
       times.add(coupon.getPaymentTime());
       times.add(coupon.getFixingPeriodStartTime());
       times.add(coupon.getFixingPeriodEndTime());

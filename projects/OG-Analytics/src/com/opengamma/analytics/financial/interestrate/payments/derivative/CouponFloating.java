@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.payments;
+package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.Validate;
 

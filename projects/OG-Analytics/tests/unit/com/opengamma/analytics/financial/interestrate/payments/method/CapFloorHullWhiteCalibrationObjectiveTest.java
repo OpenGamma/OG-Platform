@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorHullWhiteCalibrationObjective;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorIborHullWhiteMethod;

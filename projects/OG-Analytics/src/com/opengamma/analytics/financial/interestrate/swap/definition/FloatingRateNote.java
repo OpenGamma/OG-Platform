@@ -10,21 +10,21 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
 //TODO: rewrite the FRN from scratch.
 /**
  * 
  */
-public class FloatingRateNote extends Swap<PaymentFixed, CouponIbor> {
+public class FloatingRateNote extends Swap<PaymentFixed, CouponIborSpread> {
 
-  public FloatingRateNote(final GenericAnnuity<CouponIbor> forwardLiborAnnuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+  public FloatingRateNote(final GenericAnnuity<CouponIborSpread> forwardLiborAnnuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
     super(setUpFixedLeg(forwardLiborAnnuity, initalPayment, finalPayment), forwardLiborAnnuity);
   }
 
-  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIbor> annuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIborSpread> annuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
 
     final String curveName = annuity.getDiscountCurve();
     //consistency checks on the inputs

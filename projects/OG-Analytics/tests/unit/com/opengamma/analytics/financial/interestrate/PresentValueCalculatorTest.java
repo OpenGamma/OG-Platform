@@ -29,12 +29,12 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
@@ -343,11 +343,11 @@ public class PresentValueCalculatorTest {
       yearFracs[i] = tau;
     }
 
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
+    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
+    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
         ZERO_PC_CURVE_NAME, false);
 
-    final Swap<?, ?> swap = new TenorSwap<CouponIbor>(payLeg, receiveLeg);
+    final Swap<?, ?> swap = new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
     final double pv = PVC.visit(swap, CURVES);
     assertEquals(0.0, pv, 1e-12);
   }
@@ -369,7 +369,7 @@ public class PresentValueCalculatorTest {
     temp = new CouponFixed(CUR, time, FIVE_PC_CURVE_NAME, yearFrac, notional, coupon);
     expected += notional * yearFrac * coupon * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
     list.add(temp);
-    temp = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, resetTime, INDEX, resetTime, time, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
+    temp = new CouponIborSpread(CUR, time, ZERO_PC_CURVE_NAME, yearFrac, notional, resetTime, INDEX, resetTime, time, yearFrac, 0.0, FIVE_PC_CURVE_NAME);
     expected += notional * (CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(resetTime) / CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time) - 1);
     list.add(temp);
 
@@ -411,12 +411,12 @@ public class PresentValueCalculatorTest {
     final double spread = 0.04;
     final double notional = 4.53;
 
-    CouponIbor payment = new CouponIbor(CUR, time, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, INDEX, resetTime, maturity, forwardYF, spread, ZERO_PC_CURVE_NAME);
+    CouponIborSpread payment = new CouponIborSpread(CUR, time, FIVE_PC_CURVE_NAME, paymentYF, notional, resetTime, INDEX, resetTime, maturity, forwardYF, spread, ZERO_PC_CURVE_NAME);
     double expected = notional * paymentYF * spread * CURVES.getCurve(FIVE_PC_CURVE_NAME).getDiscountFactor(time);
     double pv = PVC.visit(payment, CURVES);
     assertEquals(expected, pv, 1e-8);
 
-    payment = new CouponIbor(CUR, time, ZERO_PC_CURVE_NAME, paymentYF, 1.0, resetTime, INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
+    payment = new CouponIborSpread(CUR, time, ZERO_PC_CURVE_NAME, paymentYF, 1.0, resetTime, INDEX, resetTime, maturity, forwardYF, spread, FIVE_PC_CURVE_NAME);
     final double forward = (Math.exp(0.05 * (maturity - resetTime)) - 1) / forwardYF;
 
     expected = paymentYF * (forward + spread);

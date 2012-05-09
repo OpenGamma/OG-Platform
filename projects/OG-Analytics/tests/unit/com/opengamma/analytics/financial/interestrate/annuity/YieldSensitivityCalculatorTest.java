@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.annuity.YieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.util.money.Currency;
 
 /**

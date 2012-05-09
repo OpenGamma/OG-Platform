@@ -11,7 +11,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,7 +34,7 @@ import com.opengamma.util.money.Currency;
  * \end{equation*}
  * $$
  */
-public class CouponIborRatchet extends CouponIbor {
+public class CouponIborRatchet extends CouponIborSpread {
 
   /**
    * Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.

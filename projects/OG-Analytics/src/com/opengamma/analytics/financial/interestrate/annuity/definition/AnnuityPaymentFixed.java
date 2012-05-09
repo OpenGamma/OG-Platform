@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.annuity.definition;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 
 /**
  * A wrapper class for a GenericAnnuity containing PaymentFixed. Useful for amortized bond nominal repayments.

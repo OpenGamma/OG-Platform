@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 
 /**
  * 

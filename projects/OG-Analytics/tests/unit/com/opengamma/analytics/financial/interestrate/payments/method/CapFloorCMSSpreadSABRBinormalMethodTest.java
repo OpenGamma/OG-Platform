@@ -34,12 +34,12 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivit
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMSSpread;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -320,12 +320,12 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpread capBumpedForward = (CapFloorCMSSpread) CMS_CAP_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -344,11 +344,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(capBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -376,12 +376,12 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpread capBumpedForward = (CapFloorCMSSpread) CMS_CAP_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -401,11 +401,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(capBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -438,12 +438,12 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpread capBumpedForward = (CapFloorCMSSpread) CMS_CAP_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -462,11 +462,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(capBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -494,12 +494,12 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpread floorBumpedForward = (CapFloorCMSSpread) CMS_FLOOR_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -518,11 +518,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(floorBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR_SPREAD.getUnderlyingSwap1().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     for (int loopcpn = 0; loopcpn < CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIbor cpn = (CouponIbor) CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
+      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR_SPREAD.getUnderlyingSwap2().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();

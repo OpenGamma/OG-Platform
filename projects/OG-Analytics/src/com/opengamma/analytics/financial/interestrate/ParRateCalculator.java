@@ -18,14 +18,13 @@ import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -208,7 +207,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   }
 
   @Override
-  public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
     return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
   }
@@ -226,17 +225,12 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
 
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
-    return visitCouponIbor(payment, data);
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
-  }
-
-  @Override
-  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
-    return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
 }

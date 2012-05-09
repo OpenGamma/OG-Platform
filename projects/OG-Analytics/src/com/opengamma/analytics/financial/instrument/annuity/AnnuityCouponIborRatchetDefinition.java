@@ -16,12 +16,11 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -118,7 +117,7 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
     if (getPayments()[0] instanceof CouponFixedDefinition) { // CouponFixedDefinition
       isFixed[0] = true;
     } else { // CouponIborGearingDefinition
-      isFixed[0] = (indexFixingTS.getValue(((CouponIborDefinition) getPayments()[0]).getFixingDate())) != null;
+      isFixed[0] = (indexFixingTS.getValue(((CouponIborGearingDefinition) getPayments()[0]).getFixingDate())) != null;
     }
     for (int loopcpn = 1; loopcpn < getNumberOfPayments(); loopcpn++) {
       isFixed[loopcpn] = (indexFixingTS.getValue(((CouponIborRatchetDefinition) getPayments()[loopcpn]).getFixingDate())) != null;

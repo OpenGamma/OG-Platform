@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -269,7 +269,7 @@ public class ForwardLiborAnnuityTest {
     final int n = annuity.getNumberOfPayments();
     assertEquals(3, n, 0);
     int index = 0;
-    for (final CouponIbor p : annuity.getPayments()) {
+    for (final CouponIborSpread p : annuity.getPayments()) {
       assertEquals(p.getFixingTime(), indexFixing[index], 0);
       assertEquals(p.getFixingPeriodEndTime(), indexMaturity[index], 0);
       assertEquals(p.getFundingCurveName(), FUNDING);

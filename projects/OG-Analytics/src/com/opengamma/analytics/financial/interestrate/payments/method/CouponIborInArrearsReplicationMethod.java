@@ -10,8 +10,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -41,7 +41,7 @@ public class CouponIborInArrearsReplicationMethod implements PricingMethod {
    * @param sabrData The SABR data.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final CouponIbor coupon, final SABRInterestRateDataBundle sabrData) {
+  public CurrencyAmount presentValue(final CouponIborSpread coupon, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(coupon);
     Validate.notNull(sabrData);
     CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
@@ -51,9 +51,9 @@ public class CouponIborInArrearsReplicationMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof CouponIbor, "Coupon Ibor");
+    Validate.isTrue(instrument instanceof CouponIborSpread, "Coupon Ibor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
-    return presentValue((CouponIbor) instrument, (SABRInterestRateDataBundle) curves);
+    return presentValue((CouponIborSpread) instrument, (SABRInterestRateDataBundle) curves);
   }
 
 }

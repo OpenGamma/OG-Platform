@@ -21,9 +21,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -198,7 +198,7 @@ public class AnnuityCouponIborDefinitionTest {
     assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
     assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
     for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIborSpread);
     }
     date = REFERENCE_DATE;
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
@@ -210,7 +210,7 @@ public class AnnuityCouponIborDefinitionTest {
     assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
     assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
     for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIborSpread);
     }
   }
 
@@ -228,7 +228,7 @@ public class AnnuityCouponIborDefinitionTest {
     final GenericAnnuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
     assertEquals(referenceAnnuity, convertedDefinition);
     for (int i = 0; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
+      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIborSpread);
     }
   }
 

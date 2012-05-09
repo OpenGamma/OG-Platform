@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.payments;
+package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -79,7 +79,7 @@ public abstract class Payment implements InstrumentDerivative {
    * @return  True if IborCoupon or FixedCoupon 
    */
   public boolean isIborOrFixed() {
-    return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
+    return ((this instanceof CouponFixed) | (this instanceof CouponIborSpread));
   }
 
   @Override

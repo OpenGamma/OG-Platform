@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.interestrate.bond.definition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 
 /**
  * Describes a Ibor floating coupon bond (Floating Rate Note) issue.
