@@ -4,12 +4,17 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Gadgets_container',
-    dependencies: [],
+    dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var tabs_tmpl, hdr = ' .ui-layout-header';
+        var tabs_tmpl, hdr = ' .ui-layout-header', panels = {
+            '.OG-layout-analytics-south': 'south',
+            '.OG-layout-analytics-dock-north': 'dock-north',
+            '.OG-layout-analytics-dock-center': 'dock-center',
+            '.OG-layout-analytics-dock-south': 'dock-south'
+        };
         return function (container, gadgets_arr) {
-            var selector, initialized = false, live_id, counter = 1,
-                gadgets = [], gadgets_container = this;
+            var selector, pane, initialized = false, live_id, counter = 1,
+                layout = og.views.common.layout.inner, gadgets = [], gadgets_container = this;
             /**
              * @param {Number} id Active tab id
              */
@@ -26,27 +31,40 @@ $.register_module({
                     show_gadget(id);
                 }
             };
+            /**
+             * @param id Id of gadget to show, hide all others
+             */
             var show_gadget = function (id) {
-                var $gadgets = $(selector).find('.OG-gadget-container [class*=OG-gadget-]');
-                $gadgets.filter(function () {return $(this).hasClass('OG-gadget-' + id) ? false : true;}).hide();
-                $gadgets.filter('.OG-gadget-' + id).show();
+                $(selector).find('.OG-gadget-container [class*=OG-gadget-]').hide().filter('.OG-gadget-' + id).show();
                 live_id = id;
+            };
+            /**
+             * @param {String} pane Pane to toggle
+             * @param {Boolean} open_only Don't close, only open
+             */
+            var toggle_pane = function (pane, open_only) {
+                var max = '50%', min = $('.OG-layout-analytics-' + pane + ' .OG-gadget-tabs').height();
+                layout.state[pane].size === min
+                        ? layout.sizePane(pane, max)
+                        : open_only ? null : layout.sizePane(pane, min);
             };
             gadgets_container.init = function (container, gadgets_arr) {
                 $.when(og.api.text({module: 'og.analytics.tabs_tash'})).then(function (tmpl) {
                     selector = container;
+                    pane = panels[selector];
                     tabs_tmpl = tmpl;
                     initialized = true;
-                    // init tabs click handler
-                    (function () {
-                        $(selector + hdr).on('click', 'li', function () {
+                    // setup click handlers
+                    $(selector + hdr)
+                        .on('click', 'li', function () {
                             if (!$(this).hasClass('og-active')) {
                                 var id = +$(this).attr('class').replace(/og\-/, '');
                                 update_tabs(id);
                                 gadgets[id-1].gadget.resize();
+                                toggle_pane(pane, true);
                             }
-                        });
-                    }());
+                        })
+                        .on('click', '.og-minimize', function () {toggle_pane(pane);});
                     if (gadgets_arr === void 0) update_tabs();
                     else if ($.isArray(gadgets_arr)) gadgets_container.add(gadgets_arr);
                     else if (gadgets_arr && !$.isArray(gadgets_arr))
@@ -79,7 +97,9 @@ $.register_module({
             };
             gadgets_container.alive = function () {return !!$(selector).length};
             gadgets_container.resize = function () {
-                gadgets.forEach(function (obj) {if (obj.id === live_id) obj.gadget.resize();});
+                gadgets.forEach(function (obj) {
+                    if (obj.id === live_id) $(selector + ' .ui-layout-content').show(), obj.gadget.resize();
+                });
             }
         };
     }

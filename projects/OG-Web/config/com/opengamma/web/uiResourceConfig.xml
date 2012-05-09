@@ -313,7 +313,6 @@
       <bundle idref="common_module.js" />
       <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
       <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
-      <fragment>/scripts/og/analytics/og.analytics.layout_manager.js</fragment>
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
