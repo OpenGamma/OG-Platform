@@ -3,11 +3,11 @@
  * @license See distribution for license
  */
 $.register_module({
-    name: 'og.common.gadgets.securities_identifiers',
+    name: 'og.common.gadgets.SecuritiesIdentifiers',
     dependencies: [],
     obj: function () {
         var api = og.api, dependencies = ['id'], template, empty = ''.lang(),
-            prefix = 'securities_identifiers_', counter = 1;
+            prefix = 'SecuritiesIdentifiers_', counter = 1;
         return function (config) {
             var gadget = this, height = config.height || 150, render, alive = prefix + counter++,
                 version = config.version !== '*' ? config.version : void 0;
@@ -24,7 +24,7 @@ $.register_module({
             };
             $.when(
                 api.rest.securities.get({dependencies: dependencies, id: config.id, cache_for: 500, version: version}),
-                api.text({module: 'og.views.gadgets.securities_identifiers_tash'})
+                api.text({module: 'og.views.gadgets.securitiesidentifiers_tash'})
             ).then(render);
         };
     }

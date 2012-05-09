@@ -49,6 +49,10 @@ $.register_module({
                         'analytics2.ftl': common.layout.analytics2,
                         'admin.ftl': common.layout.admin
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();
+                    if (window.parent !== window && window.parent.og.api.rest)
+                        og.api.rest = window.parent.og.api.rest;
+                    else
+                        if (og.api.rest) og.api.rest.subscribe();
                     routes.handler();
                     set_title(routes.current().hash);
                 });

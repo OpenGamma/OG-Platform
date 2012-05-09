@@ -13,7 +13,12 @@ $.register_module({
         setTimeout((collector = function () {return manager.clean(), setTimeout(collector, interval);}), interval);
         $(function () {if (!(layout = !!og.views.common.layout)) $(window).on('resize', manager.resize);});
         return manager = {
-            clean: function () {return gadgets = gadgets.filter(function (gadget) {return gadget.alive();});},
+            clean: function () {
+                return gadgets = gadgets.filter(function (gadget) {
+                    // if context has been cleared (e.g. removed iframe, a compile-and-go error will be thrown)
+                    try {return gadget.alive();} catch (error) {return og.dev.warn(error), false;}
+                });
+            },
             gadgets: function () {return gadgets;},
             register: function (gadget) {manager.clean().push(gadget);},
             resize: (function (timeout) {
