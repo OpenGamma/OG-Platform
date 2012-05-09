@@ -6,7 +6,10 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.analytics.Data'],
     obj: function () {
-        var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
+        var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19,
+            templates = null, win = window, $ = win.$;
+        if (win.parent !== win && win.parent.og && win.parent.og.analytics && win.parent.og.analytics.Grid)
+            return win.parent.og.analytics.Grid.partial(undefined, win.$); // if already compiled, use that
         var background = function (columns, width) {
             var height = row_height, canvas = $('<canvas height="' + height + '" width="' + width + '" />')[0], context;
             if (!canvas.getContext) return ''; // don't bother with IE8
@@ -16,6 +19,8 @@ $.register_module({
                 .reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
             return canvas.toDataURL('image/png');
         };
+        var mousedown_delegator = function (event) {};
+        var mouseup_delegator = function (event) {};
         var col_css = function (id, columns, offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
@@ -51,7 +56,8 @@ $.register_module({
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
             grid.meta = metadata;
             set_size(grid, config);
-            $(config.selector).html(templates.container({id: grid.id.substring(1)}));
+            $(config.selector).html(templates.container({id: grid.id.substring(1)}))
+                .on('mousedown', mousedown_delegator).on('mouseup', mouseup_delegator);
             $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
             render_header(grid);
             grid.dataman.on('data', render_rows, grid);
@@ -71,7 +77,7 @@ $.register_module({
                 $(grid.id + ' .OG-g-h-scroll').html(templates.header(head_data(columns.scroll, columns.fixed.length)));
             };
         })();
-        var render_rows = (function ($fixed, $scroll) {
+        var render_rows = (function () {
             var meta, row_data = function (data, fixed) {
                 var fixed_length = meta.columns.fixed.length;
                 return data.reduce(function (acc, row, idx) {
@@ -89,9 +95,8 @@ $.register_module({
             return function (grid, data) {
                 meta = grid.meta;
                 if (grid.dataman.busy()) return;
-                if (!grid.alive()) return ($fixed = null), ($scroll = null), grid.dataman.kill();
-                ($fixed || ($fixed = $(grid.id + ' .OG-g-b-fixed'))).html(templates.row(row_data(data, true)));
-                ($scroll || ($scroll = $(grid.id + ' .OG-g-b-scroll'))).html(templates.row(row_data(data, false)));
+                $(grid.id + ' .OG-g-b-fixed').html(templates.row(row_data(data, true)));
+                $(grid.id + ' .OG-g-b-scroll').html(templates.row(row_data(data, false)));
             };
         })();
         var scroll_observer = function (grid, timeout, update_viewport, $section, $fixed, $head) {
@@ -126,24 +131,24 @@ $.register_module({
             $style[0].appendChild(document.createTextNode(css));
         };
         var set_viewport = function (grid, handler) {
-            var id = grid.id, meta = grid.meta, viewport = meta.viewport, dataman = grid.dataman, row_start,
-                top_position = $(id + ' .OG-g-b-fixed').scrollTop(),
-                left_position = $(id + ' .OG-g-h-scroll').scrollLeft(),
-                scroll_position = left_position + viewport.width;
-            viewport.rows = [
-                row_start = Math.floor((top_position / viewport.height) * meta.rows),
-                row_start + meta.visible_rows
+            var top_position = $(grid.id + ' .OG-g-b-fixed').scrollTop(),
+                left_position = $(grid.id + ' .OG-g-h-scroll').scrollLeft(),
+                row_start, scroll_position = left_position + grid.meta.viewport.width;
+            grid.meta.viewport.rows = [
+                row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
+                row_start + grid.meta.visible_rows
             ];
-            viewport.cols = meta.columns.scroll.reduce(function (acc, val, idx) {
+            grid.meta.viewport.cols = grid.meta.columns.scroll.reduce(function (acc, val, idx) {
                 if (!('scan' in acc)) return acc;
-                if ((acc.scan += val.width) >= left_position) acc.cols.push(idx + meta.columns.fixed.length);
+                if ((acc.scan += val.width) >= left_position) acc.cols.push(idx + grid.meta.columns.fixed.length);
                 if (acc.scan > scroll_position) delete acc.scan;
                 return acc;
             }, {scan: 0, cols: []}).cols;
-            dataman.viewport(viewport);
+            grid.dataman.viewport(grid.meta.viewport);
             if (handler) handler();
         };
-        return function (config) {
+        return function (config, dollar) {
+            if (dollar) $ = dollar;
             return templates ? init_data(this, config) : compile_templates(init_data.partial(this, config));
         };
     }
