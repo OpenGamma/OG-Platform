@@ -34,6 +34,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -73,11 +74,15 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
         final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
-        // System.out.println(identifier);
         result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }
     }
-    return result;
+    final ValueProperties specProperties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
+    result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, specification.getTarget(), specProperties));    return result;
   }
 
   @Override
@@ -144,33 +149,33 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       final VolatilitySurfaceSpecification specification = getSurfaceSpecification(target, surfaceName, instrumentType);
       return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
     }
-    //
-    //    @SuppressWarnings("synthetic-access")
-    //    @Override
-    //    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    //      String surfaceName = null;
-    //      String instrumentType = null;
-    //      String surfaceQuoteType = null;
-    //      String surfaceUnits = null;
-    //      for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-    //        final ValueSpecification spec = entry.getKey();
-    //        if (spec.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_SPEC)) {
-    //          surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
-    //          instrumentType = spec.getProperty(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-    //          surfaceQuoteType = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-    //          surfaceUnits = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
-    //          break;
-    //        }
-    //      }
-    //      assert surfaceName != null;
-    //      assert instrumentType != null;
-    //      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-    //          createValueProperties()
-    //          .with(ValuePropertyNames.SURFACE, surfaceName)
-    //          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-    //          .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-    //          .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceUnits).get()));
-    //    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+      String surfaceName = null;
+      String instrumentType = null;
+      String surfaceQuoteType = null;
+      String surfaceUnits = null;
+      for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+        final ValueSpecification spec = entry.getKey();
+        if (spec.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_SPEC)) {
+          surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
+          instrumentType = spec.getProperty(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
+          surfaceQuoteType = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+          surfaceUnits = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+          break;
+        }
+      }
+      assert surfaceName != null;
+      assert instrumentType != null;
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+          createValueProperties()
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+          .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+          .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceUnits).get()));
+    }
 
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {

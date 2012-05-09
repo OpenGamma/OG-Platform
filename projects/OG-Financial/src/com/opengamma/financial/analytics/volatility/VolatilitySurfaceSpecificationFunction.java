@@ -31,6 +31,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -50,11 +51,23 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
         final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-        final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();
-        final VolatilitySurfaceSpecification specification = source.getSpecification(fullSpecificationName, instrumentType);
+        final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
+        String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
+        String fullSpecificationName = surfaceName + "_" + name;
+        VolatilitySurfaceSpecification specification = source.getSpecification(fullSpecificationName, instrumentType);
         if (specification == null) {
-          throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + instrumentType);
+          name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
+          fullSpecificationName = surfaceName + "_" + name;
+          specification = source.getSpecification(fullSpecificationName, instrumentType);
+          if (specification == null) {
+            throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName);
+          }
         }
+        //        final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();
+        //        final VolatilitySurfaceSpecification specification = source.getSpecification(fullSpecificationName, instrumentType);
+        //        if (specification == null) {
+        //          throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + instrumentType);
+        //        }
         @SuppressWarnings("synthetic-access")
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(),
             createValueProperties()

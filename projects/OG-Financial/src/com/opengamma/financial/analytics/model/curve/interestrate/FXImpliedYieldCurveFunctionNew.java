@@ -16,6 +16,9 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -77,6 +80,7 @@ import com.opengamma.util.time.Tenor;
 public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiledInvoker {
   /** Property name for the calculation method */
   public static final String FX_IMPLIED = "FXImplied";
+  private static final Logger s_logger = LoggerFactory.getLogger(FXImpliedYieldCurveFunctionNew.class);
   private static final ParRateCalculator PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
@@ -250,7 +254,8 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig domesticCurveCalculationConfig = curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
-      throw new OpenGammaRuntimeException("Need an externally-supplied curve to imply data");
+      s_logger.info("Need an externally-supplied curve to imply data; tried {} " + domesticCurveCalculationConfigName);
+      return null;
     }
     if (domesticCurveCalculationConfig.getYieldCurveNames().length != 1) {
       throw new OpenGammaRuntimeException("Can only handle one curve at the moment");

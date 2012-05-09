@@ -80,6 +80,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Root finder absolute tolerance property name */
   public static final String PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE = "RootFinderAbsoluteTolerance";
   public static final String PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE = "RootFinderRelativeTolerance";
   public static final String PROPERTY_ROOT_FINDER_MAX_ITERATIONS = "RootFinderMaximumIterations";
