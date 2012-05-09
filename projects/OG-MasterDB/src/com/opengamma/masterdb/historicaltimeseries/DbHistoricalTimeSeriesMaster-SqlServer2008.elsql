@@ -26,3 +26,18 @@
     AND key_value = :key_value
 
 
+-- ==========================================================================
+@NAME(InsertCorrectDataPoint)
+  INSERT INTO hts_point
+    (doc_oid, point_date, ver_instant, corr_instant, point_value)
+  VALUES
+    (:doc_oid, :point_date,
+      COALESCE(
+        (SELECT TOP 1 ver_instant FROM hts_point
+         WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant
+         ORDER BY ver_instant ),
+        :corr_instant
+      ),
+    :corr_instant, :point_value)
+
+
