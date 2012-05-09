@@ -107,7 +107,12 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     } else if (surfaceQuoteUnits.equals(SurfacePropertyNames.PRICE_QUOTE)) {
       final NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
       final VolatilitySurfaceData<Double, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
-      return Collections.singleton(new ComputedValue(spec, volSurface));
+      if (volSurface != null) {
+        return Collections.singleton(new ComputedValue(spec, volSurface));
+      } else {
+        return Collections.emptySet();
+      }
+        
     } else {
       throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfacePropertyNames as VolatilityQuote or PriceQuote.");
     }
@@ -212,6 +217,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       int nFutures = futureExpiries.length;
       if (nFutures == 0) {
         s_logger.warn("No future prices found for surface : " + specification.getName());
+        return null;
       }
       Double underlyingExpiry;
       int i = 0;

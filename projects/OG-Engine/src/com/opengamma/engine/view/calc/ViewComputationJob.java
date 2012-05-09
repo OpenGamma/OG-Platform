@@ -515,6 +515,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   public void dirtyViewDefinition() {
     s_logger.info("Marking view definition as dirty for view process {}", getViewProcess());
     _viewDefinitionDirty = true;
+    triggerCycle();
   }
 
   /**

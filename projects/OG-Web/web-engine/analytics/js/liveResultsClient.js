@@ -226,9 +226,9 @@
       });
     }
     
-    function sendDepGraphMode(rowId, colId, enabled) {
+    function sendDepGraphMode(gridName, rowId, colId, enabled) {
       _cometd.publish('/service/updates/depgraph', {
-        gridName: "portfolio",
+        gridName: gridName,
         rowId: rowId,
         colId: colId,
         includeDepGraph: enabled
@@ -276,12 +276,12 @@
       sendUpdateMode(gridName, rowId, colId, "SUMMARY");
     }
     
-    this.startDepGraphExplain = function(rowId, colId) {
-      sendDepGraphMode(rowId, colId, true);
+    this.startDepGraphExplain = function(gridName, rowId, colId) {
+      sendDepGraphMode(gridName, rowId, colId, true);
     }
     
-    this.stopDepGraphExplain = function(rowId, colId) {
-      sendDepGraphMode(rowId, colId, false);
+    this.stopDepGraphExplain = function(gridName, rowId, colId) {
+      sendDepGraphMode(gridName, rowId, colId, false);
     }
     
     this.getCsvGridUrl = function(gridName) {

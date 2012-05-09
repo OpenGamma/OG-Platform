@@ -70,7 +70,7 @@
       }
       removePopup($popup);
       
-      _liveResultsClient.stopDepGraphExplain(rowId, colId);
+      _liveResultsClient.stopDepGraphExplain(_gridName, rowId, colId);
       var row = _dataView.getItemById(rowId);
       delete row.explainComponents[colId];
       $cell.unbind('mouseenter', handleExplainCellHoverIn);
@@ -78,7 +78,7 @@
       $cell.removeClass("explain");
       $cell.removeClass("explain-hover");
       
-      if ($.isEmptyObject(_$explains)) {
+      if (_$popupList.children().size() == 0) {
         _$layout.close('south');
       }
       
@@ -209,7 +209,7 @@
         $popup.data('rowId', rowId);
         $popup.data('colId', colId);
         _$popupList.append($popup);
-        var depGraphViewer = new DepGraphViewer($popupContent, rowId, colId, _liveResultsClient, _userConfig);
+        var depGraphViewer = new DepGraphViewer($popupContent, _gridName, rowId, colId, _liveResultsClient, _userConfig);
         $popupContent.resizable({
           handles: 'se',
           helper: 'ui-state-highlight ui-corner-bottom',
@@ -226,7 +226,7 @@
         }
         _$explains[rowId][colId] = $popup;
         
-        _liveResultsClient.startDepGraphExplain(rowId, colId);
+        _liveResultsClient.startDepGraphExplain(_gridName, rowId, colId);
         _liveResultsClient.triggerImmediateUpdate();
       }
       

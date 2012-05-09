@@ -205,8 +205,7 @@
   
   function populateSnapshots($snapshotSelect, specifications, snapshots, selectedView) {
     var $input = $snapshotSelect.next();
-    var currentVal = $input.val();
-    var currentValExists = false;
+    var previousVal = $input.val();
     var selectedViewSnapshots = snapshots[selectedView];
     
     $snapshotSelect.empty();
@@ -226,9 +225,6 @@
       if (selectedViewSnapshots) {
         $.each(selectedViewSnapshots, function(snapshotId, snapshotName) {
           $('<option value="' + snapshotId + '">' + snapshotName + '</option>').appendTo($snapshotSelect);
-          if (!currentValExists && snapshotName == currentVal) {
-            currentValExists = true;
-          }
         });
       }
       
@@ -250,11 +246,12 @@
         });
       });
     }
-    
-    if (!currentValExists && $snapshotSelect.children().size() > 1) {
+  
+    $input.val(previousVal);
+    if (!$input.val() && $snapshotSelect.children().size() > 1) {
       $input.val($snapshotSelect.children()[1].text);
-      $snapshotSelect.children()[1].selected = true;
     }
+    $snapshotSelect.val($input.val());
   }
   
   function initializeView() {

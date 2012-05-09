@@ -10,7 +10,7 @@
 (function($) {
   
   /** @constructor */
-  function DepGraphViewer(_$container, rowId, colId, _liveResultsClient, _userConfig) {
+  function DepGraphViewer(_$container, _parentGridName, rowId, colId, _liveResultsClient, _userConfig) {
     
     var self = this;
     var _logger = new Logger("DepGraphViewer", "debug");
@@ -94,9 +94,9 @@
     // Event handling
     
     function beforeUpdateRequested(updateMetadata) {
-      var cellId = rowId + "-" + colId;
-      updateMetadata.depGraphViewport[cellId] = {};
-      _gridHelper.populateViewportData(updateMetadata.depGraphViewport[cellId]);
+      var gridId = _parentGridName + "-" + rowId + "-" + colId;
+      updateMetadata.depGraphViewport[gridId] = {};
+      _gridHelper.populateViewportData(updateMetadata.depGraphViewport[gridId]);
     }
     
     function onGridClicked(e, row, cell) {
