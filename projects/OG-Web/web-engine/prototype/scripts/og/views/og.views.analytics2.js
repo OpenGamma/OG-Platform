@@ -21,8 +21,8 @@ $.register_module({
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
-                // TODO this is public!
-                grid_instance = new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
+                $('.OG-layout-analytics-center')
+                    .html('<iframe width="100%" height="100%" src="gadget.ftl#/grid/foo/frame=true"></iframe>');
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
