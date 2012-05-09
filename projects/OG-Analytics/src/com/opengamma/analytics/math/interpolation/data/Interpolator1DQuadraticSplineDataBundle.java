@@ -7,7 +7,7 @@ package com.opengamma.analytics.math.interpolation.data;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -18,7 +18,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   private final double[] _b;
 
   public Interpolator1DQuadraticSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
-    Validate.notNull(underlyingData);
+    ArgumentChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
     final double[] x = _underlyingData.getKeys();
     final double[] h = _underlyingData.getValues();
@@ -39,7 +39,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
       final double b = _a[i] * dx[i] * dx[i];
       final double c = _a[i] * _a[i] * dx[i] + h[i - 1] - h[i];
       double root = b * b - 4 * a * c;
-      Validate.isTrue(root >= 0, "root of neg");
+      ArgumentChecker.isTrue(root >= 0, "root of neg");
       root = Math.sqrt(root);
       final double temp1 = (-b + root) / 2 / a;
       _b[i] = temp1;

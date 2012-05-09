@@ -6,7 +6,6 @@
 package com.opengamma.analytics.math.interpolation.data;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +18,7 @@ public class Interpolator1DDoubleQuadraticDataBundle implements Interpolator1DDa
   private RealPolynomialFunction1D[] _quadratics;
 
   public Interpolator1DDoubleQuadraticDataBundle(final Interpolator1DDataBundle underlyingData) {
-    Validate.notNull(underlyingData);
+    ArgumentChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
   }
 

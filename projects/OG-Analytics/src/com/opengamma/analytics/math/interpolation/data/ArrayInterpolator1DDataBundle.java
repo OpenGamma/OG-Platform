@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.interpolation.data;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,10 +23,10 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
   }
 
   public ArrayInterpolator1DDataBundle(final double[] keys, final double[] values, final boolean inputsSorted) {
-    Validate.notNull(keys, "Keys must not be null.");
-    Validate.notNull(values, "Values must not be null.");
-    Validate.isTrue((keys.length == values.length), "keys and values must be same length.");
-    Validate.isTrue((keys.length > 0), "Must not have empty arrays.");
+    ArgumentChecker.notNull(keys, "Keys must not be null.");
+    ArgumentChecker.notNull(values, "Values must not be null.");
+    ArgumentChecker.isTrue((keys.length == values.length), "keys and values must be same length.");
+    ArgumentChecker.isTrue((keys.length > 1), "Must have at least two data points.");
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
     _n = keys.length;
@@ -40,7 +38,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   private void checkSameKeys() {
     for (int i = 1; i < _n; i++) {
-      Validate.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator");
+      ArgumentChecker.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator");
     }
   }
 

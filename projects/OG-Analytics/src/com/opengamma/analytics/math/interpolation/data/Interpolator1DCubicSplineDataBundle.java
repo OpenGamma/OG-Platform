@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.interpolation.data;
 import static com.opengamma.analytics.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.linearalgebra.InverseTridiagonalMatrixCalculator;
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
@@ -29,7 +28,7 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   private final boolean _rightNatural = true;
 
   public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
-    Validate.notNull(underlyingData);
+    ArgumentChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
   }
 

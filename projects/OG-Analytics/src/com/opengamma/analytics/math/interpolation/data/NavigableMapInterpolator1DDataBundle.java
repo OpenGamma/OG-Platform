@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,7 +20,8 @@ public class NavigableMapInterpolator1DDataBundle implements Interpolator1DDataB
   private final NavigableMap<Double, Double> _backingMap;
 
   public NavigableMapInterpolator1DDataBundle(final NavigableMap<Double, Double> backingMap) {
-    Validate.notNull(backingMap, "Backing map");
+    ArgumentChecker.notNull(backingMap, "Backing map");
+    ArgumentChecker.isTrue(backingMap.size() > 1, "Must have at least two data points.");
     _backingMap = backingMap;
   }
 

@@ -7,9 +7,8 @@ package com.opengamma.analytics.math.interpolation.data;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.MathException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -20,14 +19,14 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   private final double[] _b;
 
   public Interpolator1DMonotonicIncreasingDataBundle(final Interpolator1DDataBundle underlyingData) {
-    Validate.notNull(underlyingData);
+    ArgumentChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
     final double[] x = _underlyingData.getKeys();
     final double[] h = _underlyingData.getValues();
     final int n = _underlyingData.size();
 
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(h[i] >= h[i - 1], "Data note increasing");
+      ArgumentChecker.isTrue(h[i] >= h[i - 1], "Data not increasing");
     }
 
     final double[] dx = new double[n];
@@ -41,7 +40,7 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
 
     for (int i = 1; i < n; i++) {
       _a[i] = _a[i - 1] * Math.exp(_b[i - 1] * dx[i - 1]);
-      double temp = ((h[i] - h[i - 1]) / _a[i] - dx[i]) * 2 / dx[i] / dx[i];
+      final double temp = ((h[i] - h[i - 1]) / _a[i] - dx[i]) * 2 / dx[i] / dx[i];
       if (temp == 0) {
         _b[i] = 0.0;
       } else {
@@ -52,13 +51,13 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   private double solveForB(final double c, final double a, final double dx, final double startB) {
-    double eps = 1e-12;
+    final double eps = 1e-12;
     double f = c + a / startB * (Math.exp(startB * dx) - 1);
     double b = startB;
     int count = 0;
     while (Math.abs(f) > eps) {
-      double expB = Math.exp(b * dx);
-      double df = a * (dx * expB / b - (expB - 1) / b / b);
+      final double expB = Math.exp(b * dx);
+      final double df = a * (dx * expB / b - (expB - 1) / b / b);
       b = b - f / df;
       f = c + a / b * (Math.exp(b * dx) - 1);
       if (count > 50) {
@@ -157,7 +156,7 @@ public class Interpolator1DMonotonicIncreasingDataBundle implements Interpolator
   }
 
   @Override
-  public void setYValueAtIndex(int index, double y) {
+  public void setYValueAtIndex(final int index, final double y) {
   }
 
   public double getA(final int index) {
