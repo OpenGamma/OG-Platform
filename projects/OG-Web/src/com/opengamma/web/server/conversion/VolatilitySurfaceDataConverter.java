@@ -18,9 +18,10 @@ import com.opengamma.engine.value.ValueSpecification;
 public class VolatilitySurfaceDataConverter implements ResultConverter<VolatilitySurfaceData> {
 
   @Override
+  // TODO PLAT-2249 Add field to allow transposing the display surface 
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, VolatilitySurfaceData rawValue, ConversionMode mode) {
     @SuppressWarnings("unchecked")
-    VolatilitySurfaceData<Object, Object> value = (VolatilitySurfaceData<Object, Object>) rawValue;
+    VolatilitySurfaceData<Object, Object> value = rawValue;
     Map<String, Object> result = new HashMap<String, Object>();
     
     result.put("xCount", value.getXs().length);

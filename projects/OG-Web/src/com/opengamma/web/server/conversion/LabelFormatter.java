@@ -39,7 +39,8 @@ public class LabelFormatter {
     return Integer.toString(o);
   }
 
-  private static DoubleValueSizeBasedDecimalPlaceFormatter s_formatter = new DoubleValueSizeBasedDecimalPlaceFormatter(2, 0, 10, false);
+  //private static DoubleValueSizeBasedDecimalPlaceFormatter s_formatter = new DoubleValueSizeBasedDecimalPlaceFormatter(3, 0, 100, false);
+  private static DoubleValueSignificantFiguresFormatter s_formatter = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
   
   private static String formatDouble(Double o) {
     return s_formatter.format(BigDecimal.valueOf(o));

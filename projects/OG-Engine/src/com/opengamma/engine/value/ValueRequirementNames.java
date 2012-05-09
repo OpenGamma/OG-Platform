@@ -65,11 +65,14 @@ public final class ValueRequirementNames {
    * The mark as of the previous close (e.g. equity price)
    */
   public static final String MARK = "Mark";
-  
   /**
    * The spot rate for currency pair
    */
   public static final String SPOT_RATE = "SpotRate";
+  /**
+   * The market price of the security underlying a trade or position.
+   */
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
 
   ///// Curves
 
@@ -245,10 +248,6 @@ public final class ValueRequirementNames {
    * The implied volatility of a security.
    */
   public static final String SECURITY_IMPLIED_VOLATILITY = "Security Implied Volatility";
-  /**
-   * The market price of the security, as opposed to trade or position.
-   */
-  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
   /**
    * The model price of the security, as opposed to trade or position.
    */
