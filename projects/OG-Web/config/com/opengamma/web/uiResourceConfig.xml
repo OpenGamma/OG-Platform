@@ -237,7 +237,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
-    <fragment>/scripts/og/common/gadgets/og.common.gadgets.securities_identifiers.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
@@ -323,6 +323,8 @@
       <bundle idref="common.js" />
       <bundle idref="views_common.js" />
       <bundle idref="common_module.js" />
+      <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+      <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
       <fragment>/scripts/og/views/og.views.gadget.js</fragment>
   </bundle>
 </uiResourceConfig>
