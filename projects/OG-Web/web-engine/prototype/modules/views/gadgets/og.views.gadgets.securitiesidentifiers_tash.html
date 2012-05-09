@@ -1,0 +1,18 @@
+<table class="OG-table {{alive}}">
+  <col style="width: 40%" />
+  <col style="width: 60%" />
+    <thead>
+    <tr>
+      <th colspan="2"><span><em>Identifiers</em></span></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#if ids.length}}
+      {{#each ids}}
+        <tr><td><span>{{this.key}}</span></td><td>{{this.value}}</td></tr>
+      {{/each}}
+    {{else}}
+      <tr><td><span>{{{empty}}}</span></td><td></td></tr>
+    {{/if}}
+  </tbody>
+</table>
