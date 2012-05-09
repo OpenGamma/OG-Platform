@@ -9,7 +9,7 @@ $.register_module({
     name: 'og.common.gadgets.timeseries',
     dependencies: ['og.api.rest', 'og.common.gadgets.manager'],
     obj: function () {
-        var api = og.api;
+        var api = og.api, prefix = 'timeseries_', counter = 1;
         /**
          * @param {object} config
          * @param {String} config.selector
@@ -18,14 +18,25 @@ $.register_module({
          * if not supplied
          * @param {Boolean} config.datapoints
          * @param {Boolean} config.datapoints_link
+         * @param {Boolean} config.child Manage resizing gadget manualy
          * @param {Object} config.data Spoffed Data - temporary solution
          */
         return function (config) {
-            var handler, initial_preset, x_max, meta = {}, // object that stores the structure and data of the plots
-                prefix = 'timeseries_', counter = 1, // a unique class name, used to check if the gadget is alive
+            var timeseries = this, handler, x_max, alive = prefix + counter++, selector = config.selector,
+                load_plots, initial_preset, meta = {}, // object that stores the structure and data of the plots
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
                 colors_arr_p2 = ['#aaa', '#b1b1b1', '#969696', '#858585']; // line colors for plot 2 data sets
+            timeseries.resize = (function (timeout) {
+               var resize = function () {
+                   var height = config.height ? config.height : $(selector).parent().height();
+                   $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width($(selector).width() - 2 + 'px');
+                   $(selector).find('.og-js-p1').height(height - 104);
+                   load_plots();
+               };
+               return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
+            })(null);
+            timeseries.alive = function () {return !!$('.' + alive).length;};
             spoofed_data = (function (data) {
                 if (!data) return null;
                 data.forEach(function (val, idx) {
@@ -66,8 +77,6 @@ $.register_module({
             handler = function (result) {
                 if (result.error) return;
                 var data = result.data,
-                    selector = config.selector,
-                    alive = prefix + Math.floor(Math.random()*9999999),
                     show_datapoints_link = 'datapoints_link' in config ? config.datapoints_link : true,
                     init_data_field = data.template_data.data_field,
                     init_ob_time = data.template_data.observation_time,
@@ -85,7 +94,7 @@ $.register_module({
                     plot_selector = selector + ' .og-plot-header',
                     $legend, panning, hover_pos = null,
                     reset_options,
-                    build_menu, load_plots, empty_plots, update_legend, rescale_yaxis, resize,
+                    build_menu, empty_plots, update_legend, rescale_yaxis, resize,
                     calculate_y_values, load_data_points, get_legend;
                 $(selector).html((Handlebars.compile(plot_template))({alive: alive})).css({position: 'relative'});
                 $(plot_selector)
@@ -444,19 +453,8 @@ $.register_module({
                     }());
                 };
                 build_menu();
-                resize = (function (timeout) {
-                   var resize = function () {
-                       var height = config.height ? config.height : $(selector).parent().height();
-                       $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width($(selector).width() - 2 + 'px');
-                       $(selector).find('.og-js-p1').height(height - 104);
-                       load_plots();
-                   };
-                   return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
-                })(null);
-                og.common.gadgets.manager.register({
-                    alive: function () {return !!$('.' + alive).length;}, resize: resize
-                });
-                resize();
+                if (!config.child) og.common.gadgets.manager.register(timeseries);
+                timeseries.resize();
             };
             $.when(
                 api.text({module: 'og.views.gadgets.timeseries.plot_tash'}),

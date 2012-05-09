@@ -61,7 +61,7 @@ $.register_module({
                     },
                     east: {
                         spacing_open: 7, spacing_closed: 0, initClosed: false,
-                        paneClass: 'OG-layout-analytics-dock', size: 450
+                        paneClass: 'OG-layout-analytics-dock', size: "25%"
                     },
                     center: {
                         paneClass: 'OG-layout-analytics2'

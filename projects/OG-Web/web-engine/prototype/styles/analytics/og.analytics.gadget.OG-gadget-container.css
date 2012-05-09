@@ -1,0 +1,12 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+.OG-gadget-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+}

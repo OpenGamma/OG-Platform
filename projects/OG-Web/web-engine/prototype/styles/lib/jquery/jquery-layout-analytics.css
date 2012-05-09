@@ -21,3 +21,7 @@
     padding: 0;
     overflow-y: hidden;
 }
+
+.OG-layout-analytics-container .ui-layout-header {
+    min-height: 23px;
+}

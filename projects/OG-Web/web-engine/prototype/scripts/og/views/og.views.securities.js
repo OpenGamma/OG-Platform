@@ -167,7 +167,8 @@ $.register_module({
                         }
                         if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
                             selector: '.OG-timeseries-container',
-                            id: json.template_data.hts_id || args.timeseries
+                            id: json.template_data.hts_id || args.timeseries,
+                            height: "450"
                         });
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);

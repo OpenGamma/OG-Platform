@@ -45,7 +45,6 @@ $.register_module({
                         .find('.' + gadget_class)
                         .css({margin: config.margin ? 10 : 0}); // add margin if requested
                     config.gadget($.extend(true, config.options, {selector: gadget_selector}));
-                    console.log('p', panels.all_gadgets[config.panel]);
                     panels.all_gadgets[config.panel].push(config);
                     panels.update_tabs(config.panel, config.id);
                 },
@@ -77,7 +76,6 @@ $.register_module({
                     panels.show_gadget(panel, id);
                 },
                 'show_gadget': function (panel, id) {
-                    console.log(arguments);
                     var $p_gadgets = $(panels.panel_selectors[panel]).find('.OG-gadget-container [class*=OG-gadget-]');
                     $p_gadgets.filter(function () {return $(this).hasClass('OG-gadget-' + id) ? false : true;}).hide();
                     $p_gadgets.filter('.OG-gadget-' + id).show();
