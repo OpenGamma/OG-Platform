@@ -466,7 +466,7 @@
     <div id="viewcontrols">
       <div id="viewselector">
         <div id="views"></div>
-        <div id="changeView"></div>
+        <button id="changeView"></button>
         <div id="sparklines" class="imgbutton sparklines"></div>
       </div>
       <div id="currentviewcontrols" style="position: absolute; right: 5px; top: 7px;">
