@@ -12,6 +12,10 @@ $.register_module({
             '.OG-layout-analytics-dock-center': 'dock-center',
             '.OG-layout-analytics-dock-south': 'dock-south'
         };
+        /**
+         * @param {String} container Selector to initialize a GadgetsContainer in
+         * @param {Array} gadgets_arr Optional array of gadgets to initialize a GadgetsContainer with
+         */
         return function (container, gadgets_arr) {
             var selector, pane, initialized = false, live_id, counter = 1,
                 layout = og.views.common.layout.inner, gadgets = [], gadgets_container = this;
