@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRExtrapolat
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -184,7 +184,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
     for (final Payment pay : swaptionLongPayerHighStrike.getUnderlyingSwap().getSecondLeg().getPayments()) {
-      final CouponIborSpread coupon = (CouponIborSpread) pay;
+      final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }

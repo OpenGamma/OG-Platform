@@ -35,13 +35,12 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivit
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -211,7 +210,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
     for (final Payment pay : SWAPTION_LONG_PAYER.getUnderlyingSwap().getSecondLeg().getPayments()) {
-      final CouponIborSpread coupon = (CouponIborSpread) pay;
+      final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }

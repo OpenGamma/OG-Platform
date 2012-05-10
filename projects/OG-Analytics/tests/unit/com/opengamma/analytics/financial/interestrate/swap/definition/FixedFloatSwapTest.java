@@ -19,8 +19,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.definition.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -119,15 +118,14 @@ public class FixedFloatSwapTest {
       assertEquals(fixedLeg.getNthPayment(i).getFixedRate(), COUPON_RATE, 0);
     }
 
-    GenericAnnuity<CouponIborSpread> floatLeg = SWAP.getFloatingLeg();
+    GenericAnnuity<CouponIbor> floatLeg = SWAP.getFloatingLeg();
     assertEquals(floatLeg.getNumberOfPayments(), FLOAT_PAYMENTS.length, 0);
     for (int i = 0; i < FLOAT_PAYMENTS.length; i++) {
       assertEquals(floatLeg.getNthPayment(i).getPaymentTime(), FLOAT_PAYMENTS[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getFixingTime(), INDEX_FIXING[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getFixingPeriodEndTime(), INDEX_MATURITY[i], 0);
       assertEquals(floatLeg.getNthPayment(i).getPaymentYearFraction(), YEAR_FRACS[i], 0);
-      assertEquals(floatLeg.getNthPayment(i).getFixingYearFraction(), YEAR_FRACS[i], 0);
-      assertEquals(floatLeg.getNthPayment(i).getSpread(), 0.0, 0);
+      assertEquals(floatLeg.getNthPayment(i).getFixingAccrualFactor(), YEAR_FRACS[i], 0);
     }
 
   }

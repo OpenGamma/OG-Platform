@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
@@ -51,6 +52,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -153,11 +155,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitFloatingRateNote(FloatingRateNote frn, S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support  visitFloatingRateNote()");
-  }
-
-  @Override
   public T visitCrossCurrencySwap(final CrossCurrencySwap ccs, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
   }
@@ -173,13 +170,18 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitFixedCouponPayment(final CouponFixed payment, final S data) {
+  public T visitCouponFixed(final CouponFixed payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
   }
 
   @Override
-  public T visitCouponIborSpread(final CouponIborSpread payment, final S data) {
+  public T visitCouponIbor(final CouponIbor payment, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponIborSpread(final CouponIborSpread payment, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
   }
 
   @Override
@@ -303,11 +305,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitFloatingRateNote(final FloatingRateNote frn) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
-  }
-
-  @Override
   public T visitCrossCurrencySwap(final CrossCurrencySwap ccs) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCrossCurrencySwap()");
   }
@@ -328,13 +325,18 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitFixedCouponPayment(final CouponFixed payment) {
+  public T visitCouponFixed(final CouponFixed payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFixedCouponPayment()");
   }
 
   @Override
-  public T visitCouponIborSpread(final CouponIborSpread payment) {
+  public T visitCouponIbor(final CouponIbor payment) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIbor()");
+  }
+
+  @Override
+  public T visitCouponIborSpread(final CouponIborSpread payment) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitCouponIborSpread()");
   }
 
   @Override
@@ -579,6 +581,18 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondFutureOptionPremiumSecurity()");
   }
 
+  // -----     Annuity     -----
+
+  @Override
+  public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
+  }
+
+  @Override
+  public T visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitAnnuityCouponIborSpread()");
+  }
+
   // -----     Deposit     -----
 
   @Override
@@ -681,6 +695,18 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+  }
+
+  //  -----     Deprecated     -----
+
+  @Override
+  public T visitFloatingRateNote(final FloatingRateNote derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote");
+  }
+
+  @Override
+  public T visitFloatingRateNote(final FloatingRateNote derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFloatingRateNote()");
   }
 
 }

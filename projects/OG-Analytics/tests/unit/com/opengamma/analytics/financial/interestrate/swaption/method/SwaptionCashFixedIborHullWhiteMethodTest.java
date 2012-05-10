@@ -25,11 +25,9 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborHullWhiteApproximationMethod;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -215,7 +213,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     final SwaptionCashFixedIbor swptBumpedForward = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], bumpedCurveName});
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -233,7 +231,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(SWAPTION_PAYER_LONG.getSettlementTime());
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();

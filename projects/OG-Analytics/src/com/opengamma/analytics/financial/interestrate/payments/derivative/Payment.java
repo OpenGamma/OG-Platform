@@ -79,7 +79,7 @@ public abstract class Payment implements InstrumentDerivative {
    * @return  True if IborCoupon or FixedCoupon 
    */
   public boolean isIborOrFixed() {
-    return ((this instanceof CouponFixed) | (this instanceof CouponIborSpread));
+    return ((this instanceof CouponFixed) | (this instanceof CouponIbor));
   }
 
   @Override

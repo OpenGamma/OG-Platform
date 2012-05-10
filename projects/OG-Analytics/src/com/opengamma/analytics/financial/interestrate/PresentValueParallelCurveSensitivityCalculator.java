@@ -56,7 +56,7 @@ public final class PresentValueParallelCurveSensitivityCalculator extends Abstra
   }
 
   @Override
-  public StringValue visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle data) {
+  public StringValue visitCouponFixed(final CouponFixed payment, final YieldCurveBundle data) {
     return visitFixedPayment(payment.toPaymentFixed(), data);
   }
 

@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
@@ -49,6 +50,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -114,8 +116,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitTenorSwap(TenorSwap<? extends Payment> tenorSwap, S data);
 
-  T visitFloatingRateNote(FloatingRateNote frn, S data);
-
   T visitCrossCurrencySwap(CrossCurrencySwap ccs, S data);
 
   T visitForexForward(ForexForward fx, S data);
@@ -123,14 +123,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitCash(Cash cash, S data);
 
   T visitFixedPayment(PaymentFixed payment, S data);
-
-  T visitFixedCouponPayment(CouponFixed payment, S data);
-
-  T visitCouponIborSpread(CouponIborSpread payment, S data);
-
-  T visitCouponIborGearing(CouponIborGearing payment, S data);
-
-  T visitCouponOIS(CouponOIS payment, S data);
 
   T visitCouponCMS(CouponCMS payment, S data);
 
@@ -194,8 +186,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption);
 
-  T visitFloatingRateNote(FloatingRateNote frn);
-
   T visitCrossCurrencySwap(CrossCurrencySwap ccs);
 
   T visitForexForward(ForexForward fx);
@@ -205,14 +195,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitCash(Cash cash);
 
   T visitFixedPayment(PaymentFixed payment);
-
-  T visitFixedCouponPayment(CouponFixed payment);
-
-  T visitCouponIborSpread(CouponIborSpread payment);
-
-  T visitCouponIborGearing(CouponIborGearing payment);
-
-  T visitCouponOIS(CouponOIS payment);
 
   T visitCouponCMS(CouponCMS payment);
 
@@ -235,6 +217,34 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondCapitalIndexedSecurity(BondCapitalIndexedSecurity<?> bond);
 
   T visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond);
+
+  // -----     Coupons     -----
+
+  T visitCouponFixed(CouponFixed payment, S data);
+
+  T visitCouponFixed(CouponFixed payment);
+
+  T visitCouponIbor(CouponIbor payment, S data);
+
+  T visitCouponIbor(CouponIbor payment);
+
+  T visitCouponIborSpread(CouponIborSpread payment, S data);
+
+  T visitCouponIborSpread(CouponIborSpread payment);
+
+  T visitCouponIborGearing(CouponIborGearing payment);
+
+  T visitCouponIborGearing(CouponIborGearing payment, S data);
+
+  T visitCouponOIS(CouponOIS payment, S data);
+
+  T visitCouponOIS(CouponOIS payment);
+
+  // -----     Annuity     -----
+
+  T visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity, S data);
+
+  T visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity);
 
   // -----     Futures     -----
 
@@ -321,5 +331,11 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitForexOptionDigital(ForexOptionDigital derivative, S data);
 
   T visitForexOptionDigital(ForexOptionDigital derivative);
+
+  //  -----     Deprecated     -----
+
+  T visitFloatingRateNote(FloatingRateNote derivative, S data);
+
+  T visitFloatingRateNote(FloatingRateNote derivative);
 
 }

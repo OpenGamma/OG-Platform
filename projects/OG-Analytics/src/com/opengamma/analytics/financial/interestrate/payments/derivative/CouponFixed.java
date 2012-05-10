@@ -142,12 +142,12 @@ public class CouponFixed extends Coupon {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitFixedCouponPayment(this, data);
+    return visitor.visitCouponFixed(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitFixedCouponPayment(this);
+    return visitor.visitCouponFixed(this);
   }
 
   @Override

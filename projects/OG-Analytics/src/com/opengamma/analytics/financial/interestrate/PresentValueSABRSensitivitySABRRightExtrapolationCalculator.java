@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSABRExtrapolationRightReplicationMethod;
@@ -158,7 +159,7 @@ public final class PresentValueSABRSensitivitySABRRightExtrapolationCalculator e
   }
 
   @Override
-  public PresentValueSABRSensitivityDataBundle visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
+  public PresentValueSABRSensitivityDataBundle visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(coupon);
     final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
@@ -176,6 +177,14 @@ public final class PresentValueSABRSensitivitySABRRightExtrapolationCalculator e
     for (final Payment p : swap.getSecondLeg().getPayments()) {
       pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
     }
+    return pvss;
+  }
+
+  @Override
+  public PresentValueSABRSensitivityDataBundle visitCouponIbor(final CouponIbor coupon, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(coupon);
+    final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     return pvss;
   }
 

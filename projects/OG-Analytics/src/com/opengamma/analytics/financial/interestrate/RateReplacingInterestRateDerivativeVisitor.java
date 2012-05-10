@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -48,20 +48,20 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     final int n = payments.length;
     final CouponFixed[] temp = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
-      temp[i] = visitFixedCouponPayment(payments[i], rate);
+      temp[i] = visitCouponFixed(payments[i], rate);
     }
     return new AnnuityCouponFixed(temp);
   }
 
   @Override
-  public CouponFixed visitFixedCouponPayment(final CouponFixed payment, final Double rate) {
+  public CouponFixed visitCouponFixed(final CouponFixed payment, final Double rate) {
     return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate,
         payment.getAccrualStartDate(), payment.getAccrualEndDate());
   }
 
   // TODO is this really correct?
   @Override
-  public AnnuityCouponIbor visitForwardLiborAnnuity(final AnnuityCouponIbor annuity, final Double rate) {
+  public AnnuityCouponIborSpread visitAnnuityCouponIborSpread(final AnnuityCouponIborSpread annuity, final Double rate) {
     return annuity.withSpread(rate);
   }
 
@@ -73,10 +73,10 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public TenorSwap<? extends Payment> visitTenorSwap(final TenorSwap<? extends Payment> swap, final Double rate) {
-    return new TenorSwap<CouponIborSpread>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
+    return new TenorSwap<CouponIborSpread>((AnnuityCouponIborSpread) swap.getFirstLeg(), visitAnnuityCouponIborSpread((AnnuityCouponIborSpread) swap.getSecondLeg(), rate));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public FixedCouponSwap<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Double rate) {
     return new FixedCouponSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());

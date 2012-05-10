@@ -32,10 +32,9 @@ import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionS
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -130,7 +129,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     // 1. Forward curve sensitivity
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -141,7 +140,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     // 2. Discounting curve sensitivity
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();

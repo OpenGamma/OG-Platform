@@ -29,16 +29,14 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivit
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor.SwaptionPhysicalFixedIborCalibrationType;
@@ -214,7 +212,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final SwaptionPhysicalFixedIbor swptBumpedForward = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], bumpedCurveName});
     final DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      final CouponIborSpread cpn = (CouponIborSpread) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      final CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -231,7 +229,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(SWAPTION_PAYER_LONG.getSettlementTime());
     for (int loopcpn = 0; loopcpn < SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      final CouponIborSpread cpn = (CouponIborSpread) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      final CouponIbor cpn = (CouponIbor) SWAPTION_PAYER_LONG.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     final double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -325,16 +323,16 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     }
     final CouponFixed[] cpnFixed = new CouponFixed[swapTenorYear.length];
     final AnnuityCouponFixed legFixed = swaptionCalibration[swapTenorYear.length - 1].getUnderlyingSwap().getFixedLeg();
-    final CouponIborSpread[] cpnIbor = new CouponIborSpread[2 * swapTenorYear.length];
+    final CouponIbor[] cpnIbor = new CouponIbor[2 * swapTenorYear.length];
     @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> legIbor = (GenericAnnuity<Payment>) swaptionCalibration[swapTenorYear.length - 1].getUnderlyingSwap().getSecondLeg();
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
       cpnFixed[loopexp] = legFixed.getNthPayment(loopexp).withNotional(legFixed.getNthPayment(loopexp).getNotional() * amortization[loopexp]);
-      cpnIbor[2 * loopexp] = ((CouponIborSpread) legIbor.getNthPayment(2 * loopexp)).withNotional(((CouponIborSpread) legIbor.getNthPayment(2 * loopexp)).getNotional() * amortization[loopexp]);
-      cpnIbor[2 * loopexp + 1] = ((CouponIborSpread) legIbor.getNthPayment(2 * loopexp + 1)).withNotional(((CouponIborSpread) legIbor.getNthPayment(2 * loopexp + 1)).getNotional() * amortization[loopexp]);
+      cpnIbor[2 * loopexp] = ((CouponIbor) legIbor.getNthPayment(2 * loopexp)).withNotional(((CouponIbor) legIbor.getNthPayment(2 * loopexp)).getNotional() * amortization[loopexp]);
+      cpnIbor[2 * loopexp + 1] = ((CouponIbor) legIbor.getNthPayment(2 * loopexp + 1)).withNotional(((CouponIbor) legIbor.getNthPayment(2 * loopexp + 1)).getNotional() * amortization[loopexp]);
     }
 
-    final FixedFloatSwap swapAmortized = new FixedFloatSwap(new AnnuityCouponFixed(cpnFixed), new AnnuityCouponIbor(cpnIbor));
+    final FixedCouponSwap<Coupon> swapAmortized = new FixedCouponSwap<Coupon>(new AnnuityCouponFixed(cpnFixed), new GenericAnnuity<Coupon>(cpnIbor));
     final SwaptionPhysicalFixedIbor swaptionAmortized = SwaptionPhysicalFixedIbor.from(swaptionCalibration[0].getTimeToExpiry(), swapAmortized, swaptionCalibration[0].getSettlementTime(), IS_LONG);
 
     final InstrumentDerivative[] swaptionCalibration2 = swaptionAmortized.calibrationBasket(SwaptionPhysicalFixedIborCalibrationType.FIXEDLEG_STRIKE);

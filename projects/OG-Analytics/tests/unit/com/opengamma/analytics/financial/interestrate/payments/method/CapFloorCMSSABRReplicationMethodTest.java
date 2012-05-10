@@ -39,9 +39,8 @@ import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDi
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -147,8 +146,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
-        USD_GENERATOR.getIborIndex().isEndOfMonth());
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
+        .isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -188,7 +187,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final CapFloorCMS capBumpedForward = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_CAP.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -207,7 +206,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(capBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_CAP.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) CMS_CAP.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -236,7 +235,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final CapFloorCMS capBumpedForward = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       forwardTime.add(cpn.getFixingPeriodStartTime());
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
@@ -255,7 +254,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     discTime.add(capBumpedDisc.getPaymentTime());
     for (int loopcpn = 0; loopcpn < CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
-      CouponIborSpread cpn = (CouponIborSpread) CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
+      CouponIbor cpn = (CouponIbor) CMS_FLOOR.getUnderlyingSwap().getSecondLeg().getNthPayment(loopcpn);
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
@@ -275,8 +274,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivityAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
-        USD_GENERATOR.getIborIndex().isEndOfMonth());
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
+        .isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");

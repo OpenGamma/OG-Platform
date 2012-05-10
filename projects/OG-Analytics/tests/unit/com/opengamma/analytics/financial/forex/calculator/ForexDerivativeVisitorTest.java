@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
@@ -57,6 +58,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -395,7 +397,7 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitFixedCouponPayment(CouponFixed payment, T data) {
+    public String visitCouponFixed(CouponFixed payment, T data) {
       return null;
     }
 
@@ -605,7 +607,7 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitFixedCouponPayment(CouponFixed payment) {
+    public String visitCouponFixed(CouponFixed payment) {
       return null;
     }
 
@@ -778,6 +780,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitBondFutureOptionPremiumTransaction(BondFutureOptionPremiumTransaction option) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIbor payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIbor(CouponIbor payment) {
+      return null;
+    }
+
+    @Override
+    public String visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
       return null;
     }
 

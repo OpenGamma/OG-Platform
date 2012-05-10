@@ -35,7 +35,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -230,7 +230,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
     for (final Payment pay : CMS_CAP_LONG.getUnderlyingSwap().getSecondLeg().getPayments()) {
-      final CouponIborSpread coupon = (CouponIborSpread) pay;
+      final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }

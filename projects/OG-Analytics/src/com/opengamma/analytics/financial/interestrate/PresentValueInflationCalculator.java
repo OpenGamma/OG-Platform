@@ -79,7 +79,7 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
   }
 
   @Override
-  public CurrencyAmount visitFixedCouponPayment(final CouponFixed coupon, final MarketBundle market) {
+  public CurrencyAmount visitCouponFixed(final CouponFixed coupon, final MarketBundle market) {
     return CurrencyAmount.of(coupon.getCurrency(), market.getDiscountingFactor(coupon.getCurrency(), coupon.getPaymentTime()) * coupon.getAmount());
   }
 

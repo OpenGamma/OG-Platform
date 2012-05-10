@@ -15,10 +15,9 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
@@ -123,12 +122,11 @@ public abstract class SimpleInstrumentFactory {
 
     final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
 
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon });
-    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon }));
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
+    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
-  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName,
-      final double rate, final double notional) {
+  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
 
     final int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
     Validate.isTrue(floatPayments % 2 == 0, "need even number of float payments as fixed payments at half frequency");
@@ -214,16 +212,17 @@ public abstract class SimpleInstrumentFactory {
     final double[] indexFixing = new double[payments];
     final double[] indexMaturity = new double[payments];
     final double[] yearFrac = new double[payments];
+    final double[] spreadArray = new double[payments];
 
     for (int i = 0; i < payments; i++) {
       indexFixing[i] = i / freq.getPeriodsPerYear();
       indexMaturity[i] = (i + 1) / freq.getPeriodsPerYear();
       floatingPayments[i] = indexMaturity[i];
       yearFrac[i] = 1 / freq.getPeriodsPerYear();
+      spreadArray[i] = spread;
     }
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(notional.getCurrency(), floatingPayments, indexFixing, INDEX, indexMaturity, yearFrac, notional.getAmount(), discountCurve, indexCurve,
-        notional.getAmount() < 0.0).withSpread(spread);
-
+    final AnnuityCouponIborSpread floatingLeg = new AnnuityCouponIborSpread(notional.getCurrency(), floatingPayments, indexFixing, INDEX, indexFixing, indexMaturity, yearFrac, yearFrac, spreadArray,
+        notional.getAmount(), discountCurve, indexCurve, notional.getAmount() < 0.0);
     final PaymentFixed initialPayment = new PaymentFixed(notional.getCurrency(), 0.0, -notional.getAmount(), discountCurve);
     final PaymentFixed finalPayment = new PaymentFixed(notional.getCurrency(), nYears, notional.getAmount(), discountCurve);
 

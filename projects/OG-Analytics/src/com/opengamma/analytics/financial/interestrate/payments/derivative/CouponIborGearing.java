@@ -153,6 +153,12 @@ public class CouponIborGearing extends CouponFloating {
   }
 
   @Override
+  public String toString() {
+    return "CouponIborGearing: " + super.toString() + ", fixing: [" + _fixingPeriodStartTime + " - " + _fixingPeriodEndTime + " - " + _fixingAccrualFactor + "], spread: " + _spread + ", factor: "
+        + _factor + ",forward curve: " + _forwardCurveName;
+  }
+
+  @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborGearing(this, data);
   }

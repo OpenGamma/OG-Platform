@@ -16,7 +16,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -28,10 +28,12 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -77,7 +79,9 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   private static final ParRateCalculator PRC_CALCULATOR = ParRateCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
-  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
+  //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
 
   @Override
@@ -204,8 +208,8 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
    */
   @Override
   public Map<String, List<DoublesPair>> visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIbor payLeg = ((AnnuityCouponIbor) swap.getFirstLeg()).withZeroSpread();
-    final AnnuityCouponIbor receiveLeg = ((AnnuityCouponIbor) swap.getSecondLeg()).withZeroSpread();
+    final AnnuityCouponIborSpread payLeg = ((AnnuityCouponIborSpread) swap.getFirstLeg()).withZeroSpread();
+    final AnnuityCouponIborSpread receiveLeg = ((AnnuityCouponIborSpread) swap.getSecondLeg()).withZeroSpread();
     final AnnuityCouponFixed spreadLeg = receiveLeg.withUnitCoupons();
 
     final double a = PV_CALCULATOR.visit(receiveLeg, curves);
@@ -245,6 +249,11 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
       }
     }
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+    return METHOD_IBOR.parRateCurveSensitivity(payment, data).getSensitivities();
   }
 
   @Override

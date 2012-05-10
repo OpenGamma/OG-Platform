@@ -22,13 +22,13 @@ import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.definition.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -89,11 +89,6 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitFloatingRateNote(final FloatingRateNote frn) {
-    return visitSwap(frn);
-  }
-
-  @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra) {
     return fra.getFixingPeriodEndTime();
   }
@@ -106,6 +101,11 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   @Override
   public Double visitFixedPayment(final PaymentFixed payment) {
     return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponIbor(final CouponIbor payment) {
+    return Math.max(payment.getFixingPeriodEndTime(), payment.getPaymentTime());
   }
 
   @Override
@@ -131,7 +131,7 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitFixedCouponPayment(final CouponFixed payment) {
+  public Double visitCouponFixed(final CouponFixed payment) {
     return payment.getPaymentTime();
   }
 

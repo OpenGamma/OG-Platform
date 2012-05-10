@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.payments;
+package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CouponIborTest {
+public class CouponIborSpreadTest {
   private static final double PAYMENT_TIME = 0.67;
   private static final double RESET_TIME = 0.25;
   private static final double MATURITY = 0.52;

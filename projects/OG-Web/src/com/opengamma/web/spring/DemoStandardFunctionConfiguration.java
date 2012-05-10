@@ -772,6 +772,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_3M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "USD", "EUR"));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_3M", "PresentValue", "EUR", "USD"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "CHF", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "FUNDING", "FORWARD_6M", "PresentValue", "FUNDING", "FORWARD_6M", "PresentValue", "EUR", "CHF"));
   }
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {

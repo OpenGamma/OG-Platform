@@ -10,20 +10,22 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated When a SwapFixedIborDefinition is converted, the result is not necessarily a FixedFloatSwap as some Ibor coupons may have fixed already. 
+ * This instrument is never used in the natural flow "Definition->toDerivative->Derivative".
  */
-public class FixedFloatSwap extends FixedCouponSwap<CouponIborSpread> {
+@Deprecated
+public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
-  public FixedFloatSwap(final AnnuityCouponFixed fixedLeg, final GenericAnnuity<CouponIborSpread> floatingLeg) {
+  public FixedFloatSwap(final AnnuityCouponFixed fixedLeg, final GenericAnnuity<CouponIbor> floatingLeg) {
     super(fixedLeg, floatingLeg);
   }
 
