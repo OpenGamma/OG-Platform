@@ -156,11 +156,11 @@
     <property name="username" value="${sqlserver2008.jdbc.username}"/>
     <property name="password" value="${sqlserver2008.jdbc.password}"/>
     <property name="poolName" value="FinancialTestsSqlServer2008"/>
-    <property name="partitionCount" value="1"/>
+    <property name="partitionCount" value="2"/>
     <property name="acquireIncrement" value="1"/>
-    <property name="maxConnectionsPerPartition" value="1"/>
-    <property name="acquireRetryAttempts" value="2"/>
-    <property name="acquireRetryDelayInMs" value="2000"/>
+    <property name="maxConnectionsPerPartition" value="5"/>
+    <property name="acquireRetryAttempts" value="3"/>
+    <property name="acquireRetryDelayInMs" value="1000"/>
   </bean>
 
   <bean id="sqlserver2008DbConnector" parent="abstractDbConnector">
