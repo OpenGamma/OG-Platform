@@ -1,8 +1,24 @@
 #!/bin/bash
 
-if [ $# != 1 ]; then
-  echo "Usage: `basename $0` directory"
+usage() {
+  echo "Usage: `basename $0` [-f] directory"
   exit 1
+}
+
+while getopts ":f" opt; do
+  case $opt in
+    f)
+      RUNFETCH=yes
+      ;;
+    \?)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [ $# != 1 ]; then
+  usage
 fi
 
 upstream() {
@@ -23,6 +39,13 @@ lsuntrackedfiles() {
   printf "%10.10s" $(git ls-files --others --exclude-standard| wc -l)
 }
 
+showbranch() {
+  local b=''
+  b=$(git symbolic-ref -q HEAD) || b='(detached HEAD)'
+  b=${b##refs/heads/}
+  printf "%-15.15s" "${b}"
+}
+
 showstaged() {
   local w=''
   local i=''
@@ -36,6 +59,7 @@ showstaged() {
 }
 
 printf "%-25.25s" "Path"
+printf "%-15.15s" "branch"
 printf "%10.10s" "stage"
 printf "%10.10s" "untracked"
 printf "%8.8s %8.8s" "origin" "local"
@@ -48,7 +72,11 @@ do
   # Not needed really"
   if [ -d "${project}" -a -d "${project}/.git" ]; then
     pushd "${project}" >/dev/null; 
-    printf "%-25.25q" "$(basename "${project}")"
+    if [ ! -z $RUNFETCH ]; then
+      git fetch -q > /dev/null >& /dev/null
+    fi
+    printf "%-25.25s" "$(basename "${project}")"
+    showbranch
     showstaged
     lsuntrackedfiles
     upstream 
