@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.test.DbTest;
 
@@ -48,21 +49,24 @@ public class DbTimeTest extends DbTest {
   private static final Instant INSTANT3 = OffsetDateTime.of(2011, 3, 27, 1, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // Europe spring gap
   private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ssfnnnnnn");
 
+  private ElSqlBundle _elSqlBundle;
+  
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbTimeTest(final String databaseType, final String databaseVersion) {
     super(databaseType, databaseVersion);
+    _elSqlBundle = ElSqlBundle.of(getDbConnector().getDialect().getElSqlConfig(), DbTimeTest.class);
   }
 
   @Test
   public void test_writeRead_timestamp() {
     // create test table
-    String drop = "DROP TABLE IF EXISTS tst_times";
+    String drop = _elSqlBundle.getSql("DropTstTimes"); // "DROP TABLE IF EXISTS tst_times";
     getDbConnector().getJdbcTemplate().update(drop);
-    String create = "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
+    String create = _elSqlBundle.getSql("CreateTstTimes"); // "CREATE TABLE tst_times ( id bigint not null, ver timestamp without time zone not null )";
     getDbConnector().getJdbcTemplate().update(create);
     
     // insert data
-    String insert = "INSERT INTO tst_times VALUES (?,?)";
+    String insert = _elSqlBundle.getSql("InsertTstTimes"); // "INSERT INTO tst_times VALUES (?,?)";
     final Timestamp tsOut1 = DbDateUtils.toSqlTimestamp(INSTANT1);
     final Timestamp tsOut2 = DbDateUtils.toSqlTimestamp(INSTANT2);
     final Timestamp tsOut3 = DbDateUtils.toSqlTimestamp(INSTANT3);
@@ -72,7 +76,7 @@ public class DbTimeTest extends DbTest {
     getDbConnector().getJdbcTemplate().update(insert, 3, tsOut3);
     
     // pull back to check roundtripping
-    String select1 = "SELECT ver FROM tst_times WHERE id = ?";
+    String select1 = _elSqlBundle.getSql("SelectTstTimes"); // "SELECT ver FROM tst_times WHERE id = ?";
     
     Map<String, Object> result1 = getDbConnector().getJdbcTemplate().queryForMap(select1, 1);
     Map<String, Object> result2 = getDbConnector().getJdbcTemplate().queryForMap(select1, 2);

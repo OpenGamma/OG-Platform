@@ -1,0 +1,28 @@
+-- Time Test SQL code
+
+-- ==========================================================================
+@NAME(DropTstTimes)
+  DROP TABLE IF EXISTS 
+    tst_times
+
+-- ==========================================================================
+@NAME(CreateTstTimes)
+  CREATE TABLE 
+    tst_times ( id BIGINT NOT NULL, ver TIMESTAMP WITHOUT TIME ZONE NOT NULL )
+
+-- ==========================================================================
+@NAME(InsertTstTimes)
+  INSERT INTO tst_times 
+  VALUES 
+    (?,?)
+
+-- ==========================================================================
+@NAME(SelectTstTimes)
+  SELECT 
+    ver 
+  FROM 
+    tst_times 
+  WHERE id = ?
+
+
+
