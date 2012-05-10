@@ -47,20 +47,21 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
     }
     Validate.notNull(dates, "dates");
     ArgumentChecker.notEmpty(dates, "dates");
-    final double[] theta1 = theta == null ? null : new double[theta.length + 1];
     if (theta != null) {
+      final double[] theta1 = new double[theta.length + 1];
       theta1[0] = 0.;
       for (int i = 0; i < theta.length; i++) {
         theta1[i + 1] = theta[i];
+      }    
+      if (p == 0) {
+        return _maModel.getSeries(theta1, q, dates);
       }
+      if (q == 0) {
+        return _arModel.getSeries(phi, p, dates);
+      }
+      return (LocalDateDoubleTimeSeries) _arModel.getSeries(phi, p, dates).add(_maModel.getSeries(theta1, q, dates));    
     }
-    if (p == 0) {
-      return _maModel.getSeries(theta1, q, dates);
-    }
-    if (q == 0) {
-      return _arModel.getSeries(phi, p, dates);
-    }
-    return (LocalDateDoubleTimeSeries) _arModel.getSeries(phi, p, dates).add(_maModel.getSeries(theta1, q, dates));
+    return _arModel.getSeries(phi, p, dates);    
   }
 
 }

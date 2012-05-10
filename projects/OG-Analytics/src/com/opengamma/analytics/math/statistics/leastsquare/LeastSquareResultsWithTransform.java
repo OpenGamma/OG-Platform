@@ -12,8 +12,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  *  Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated

@@ -69,7 +69,9 @@ public class TaylorExpansionMultiplierCalculator {
           result = result * multiplier;
         }
       }
-      return result;
+      if (result != null) {
+        return result;
+      }
     }
     throw new IllegalArgumentException("Order was neither NthOrderUnderlying nor MixedOrderUnderlying: have " + underlying.getClass());
   }

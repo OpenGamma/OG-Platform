@@ -84,7 +84,7 @@ public class ExtremeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
         filteredData[i++] = entry.getValue();
       }
     }
-    return getFilteredSeries(ts, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
+    return getFilteredSeries(filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
 
 }

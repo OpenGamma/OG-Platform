@@ -97,8 +97,10 @@ public class CoupledFiniteDifference {
     }
 
     if (_showFullResults) {
-      full1[0] = Arrays.copyOfRange(f, 0, xNodes);
-      full2[0] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
+      if (full1 != null && full2 != null) {
+        full1[0] = Arrays.copyOfRange(f, 0, xNodes);
+        full2[0] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
+      }
     }
 
     for (int i = 0; i < xNodes - 2; i++) {
@@ -244,8 +246,10 @@ public class CoupledFiniteDifference {
       rho1 = rho2;
 
       if (_showFullResults) {
-        full1[n] = Arrays.copyOfRange(f, 0, xNodes);
-        full2[n] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
+        if (full1 != null && full2 != null) {
+          full1[n] = Arrays.copyOfRange(f, 0, xNodes);
+          full2[n] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
+        }
       }
 
     }

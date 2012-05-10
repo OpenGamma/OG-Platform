@@ -10,7 +10,6 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
 
 /**
  * Calculates the quartile skewness coefficient, which is given by:

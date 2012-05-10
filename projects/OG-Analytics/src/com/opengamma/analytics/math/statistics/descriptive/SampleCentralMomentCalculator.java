@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
 
 /**
  * Calculates the $n^th$ sample central moment of a series of data.

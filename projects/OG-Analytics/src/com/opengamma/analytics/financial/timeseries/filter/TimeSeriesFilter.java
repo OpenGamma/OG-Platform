@@ -18,9 +18,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  */
 public abstract class TimeSeriesFilter extends Function1D<LocalDateDoubleTimeSeries, FilteredTimeSeries> {
 
-  protected FilteredTimeSeries getFilteredSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i, final int[] rejectedDates,
-      final double[] rejectedData, final int j) {
-
+  protected FilteredTimeSeries getFilteredSeries(final int[] filteredDates, final double[] filteredData, final int i, final int[] rejectedDates, final double[] rejectedData, final int j) {
     final FastArrayIntDoubleTimeSeries filtered = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
         Arrays.trimToCapacity(filteredDates, i),
         Arrays.trimToCapacity(filteredData, i));

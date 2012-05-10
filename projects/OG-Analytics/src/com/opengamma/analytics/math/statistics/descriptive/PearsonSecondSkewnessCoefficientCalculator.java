@@ -8,9 +8,6 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
 
 /**
  * Given a series of data $x_1, x_2, \dots, x_n$ with mean $\overline{x}$, median $m$

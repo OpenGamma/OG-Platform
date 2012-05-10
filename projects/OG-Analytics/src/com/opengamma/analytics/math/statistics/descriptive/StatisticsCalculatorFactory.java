@@ -9,21 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.math.function.Function;
-import com.opengamma.analytics.math.statistics.descriptive.GeometricMeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.ModeCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PearsonFirstSkewnessCoefficientCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PearsonSecondSkewnessCoefficientCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PopulationStandardDeviationCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PopulationVarianceCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.QuartileSkewnessCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleCovarianceCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleFisherKurtosisCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SamplePearsonKurtosisCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleSkewnessCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 
 /**
  * Factory class for descriptive statistics calculators.

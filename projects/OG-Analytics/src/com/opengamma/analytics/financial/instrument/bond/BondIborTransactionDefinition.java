@@ -64,7 +64,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final GenericAnnuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
@@ -106,7 +105,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, indexFixingTS, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
     final GenericAnnuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);

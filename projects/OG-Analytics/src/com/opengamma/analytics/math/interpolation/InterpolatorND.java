@@ -52,6 +52,11 @@ public abstract class InterpolatorND implements Interpolator<InterpolatorNDDataB
     return data;
   }
   
+  /**
+   * @param data Interpolator data
+   * @param x The co-ordinate at which to calculate the sensitivities.
+   * @return The node sensitivities
+   */
   public Map<double[], Double> getNodeSensitivitiesForValue(final InterpolatorNDDataBundle data, final double[] x) {
     throw new NotImplementedException("Node sensitivities cannot be calculated by this interpolator");
   }
