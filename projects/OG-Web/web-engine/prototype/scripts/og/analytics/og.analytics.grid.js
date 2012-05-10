@@ -6,10 +6,9 @@ $.register_module({
     name: 'og.analytics.Grid',
     dependencies: ['og.api.text', 'og.analytics.Data'],
     obj: function () {
-        var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19,
-            templates = null, win = window, $ = win.$;
-        if (win.parent !== win && win.parent.og && win.parent.og.analytics && win.parent.og.analytics.Grid)
-            return win.parent.og.analytics.Grid.partial(undefined, win.$); // if already compiled, use that
+        var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
+        if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
+            return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
         var background = function (columns, width) {
             var height = row_height, canvas = $('<canvas height="' + height + '" width="' + width + '" />')[0], context;
             if (!canvas.getContext) return ''; // don't bother with IE8
@@ -44,9 +43,7 @@ $.register_module({
             });
         };
         var init_data = function (grid, config) {
-            grid.alive = (function ($) { // cache this window's $
-                return function () {return $(grid.id).length ? true : !grid.elements.style.remove();};
-            })($);
+            grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.elements = {};
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
@@ -54,7 +51,7 @@ $.register_module({
             (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
         };
         var init_grid = function (grid, config, metadata) {
-            var columns = metadata.columns,
+            var $ = grid.$, columns = metadata.columns,
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
             grid.meta = metadata;
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
@@ -152,7 +149,8 @@ $.register_module({
             if (handler) handler();
         };
         return function (config, dollar) {
-            if (dollar) $ = dollar;
+            // because the same code is used in multiple frames, each grid holds a reference to its frame's $
+            this.$ = dollar || $;
             return templates ? init_data(this, config) : compile_templates(init_data.partial(this, config));
         };
     }
