@@ -63,7 +63,7 @@ public class BloombergIRFuturePriceCurveInstrumentProvider implements FuturePric
 
   @Override
   public ExternalId getInstrument(final Number futureNumber) {
-    throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
+    throw new OpenGammaRuntimeException("Provider needs a curve date to create interest rate future identifier from futureNumber");
   }
 
   @Override

@@ -73,6 +73,10 @@ public final class ValueRequirementNames {
    * The market price of the security underlying a trade or position.
    */
   public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  /**
+   * The market price of the underlying security in a compound security, such as an option
+   */
+  public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
 
   ///// Curves
 
@@ -252,6 +256,10 @@ public final class ValueRequirementNames {
    * The model price of the security, as opposed to trade or position.
    */
   public static final String SECURITY_MODEL_PRICE = "Security Model Price";
+  /**
+   * The model price of the underlying security in a compound security, such as an option
+   */
+  public static final String UNDERLYING_MODEL_PRICE = "Underlying Model Price";
   /**
    * Generic valuation of a security, for example it might be FAIR_VALUE or PRESENT_VALUE depending on the asset class.
    */

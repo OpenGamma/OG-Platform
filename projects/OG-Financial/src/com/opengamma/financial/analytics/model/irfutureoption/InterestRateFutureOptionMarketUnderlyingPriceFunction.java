@@ -1,13 +1,15 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.equity;
+package com.opengamma.financial.analytics.model.irfutureoption;
 
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -21,23 +23,30 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.MarketSecurityVisitor;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 
 /**
  * Provides the market price for the security of a position as a value on the position
  */
-public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
+public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends AbstractFunction.NonCompiledInvoker {
   
-  private static MarketSecurityVisitor s_judgeOfMarketSecurities = new MarketSecurityVisitor();
-
+  private SecuritySource _securitySource;
+  
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+  }
+  
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    double marketValue = (Double) inputs.getValue(getRequirement(target));
+    Double marketValue = (Double) inputs.getValue(getRequirement(target));
     return Collections.singleton(new ComputedValue(getSpecification(target), marketValue));
   }
 
@@ -47,13 +56,11 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != getTargetType()) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.POSITION) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
-    
-    return security.accept(s_judgeOfMarketSecurities);
+    return target.getPositionOrTrade().getSecurity() instanceof IRFutureOptionSecurity;
   }
 
   @Override
@@ -76,12 +83,15 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
     } else {
       valueProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     }
-    return new ValueSpecification(new ValueRequirement(ValueRequirementNames.SECURITY_MARKET_PRICE,
+    return new ValueSpecification(new ValueRequirement(ValueRequirementNames.UNDERLYING_MARKET_PRICE,
         target.getPosition(), valueProperties), getUniqueId());
   }
   
   private ValueRequirement getRequirement(ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.getPosition().getSecurity());
+    final IRFutureOptionSecurity irfo = (IRFutureOptionSecurity) target.getPositionOrTrade().getSecurity();
+    final ExternalId underlyingID = irfo.getUnderlyingId();
+    final Security underlyingSec = _securitySource.getSecurity(ExternalIdBundle.of(underlyingID));
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingSec);
   }
 
 }

@@ -211,4 +211,19 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     return blackData.getVolatility(security.getExpirationTime(), security.getStrike());
   }
 
+  public double underlyingFuturePrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return underlyingFuturePrice(security, (YieldCurveWithBlackCubeBundle) curves);
+  }
+
+  /**
+   * Computes the underlying future security price. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return The security price.
+   */
+  public double underlyingFuturePrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    return METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+  }
+
 }

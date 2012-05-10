@@ -47,7 +47,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  *
  */
-public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOptionFunction {
+public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFutureOptionSABRFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(LINEAR, LINEAR);
   private ConfigDBVolatilitySurfaceDefinitionSource _volSurfaceDefinitionSource;

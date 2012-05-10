@@ -27,7 +27,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 /**
  * 
  */
-public class InterestRateFutureOptionPresentValueFunction extends InterestRateFutureOptionFunction {
+public class InterestRateFutureOptionSABRPresentValueFunction extends InterestRateFutureOptionSABRFunction {
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
   @Override

@@ -54,7 +54,7 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public abstract class InterestRateFutureOptionFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the surface fitting method */
   public static final String SURFACE_FITTING_NAME = "SABR";
   @SuppressWarnings("unchecked")

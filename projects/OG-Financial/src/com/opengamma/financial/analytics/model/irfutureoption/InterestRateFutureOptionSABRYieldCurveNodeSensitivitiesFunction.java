@@ -69,7 +69,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
+public class InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
   .getCalculator(VolatilityFunctionFactory.HAGAN);
@@ -292,7 +292,7 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionSABRFunction.SURFACE_FITTING_NAME).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
@@ -305,7 +305,7 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionSABRFunction.SURFACE_FITTING_NAME).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
@@ -319,7 +319,7 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionSABRFunction.SURFACE_FITTING_NAME).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
