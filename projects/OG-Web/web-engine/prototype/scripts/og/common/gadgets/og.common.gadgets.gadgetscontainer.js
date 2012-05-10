@@ -66,8 +66,8 @@ $.register_module({
                                 var id = +$(this).attr('class').replace(/og\-/, '');
                                 update_tabs(id);
                                 gadgets[id-1].gadget.resize();
-                                toggle_pane(pane, true);
                             }
+                            toggle_pane(pane, true);
                         })
                         .on('click', '.og-minimize', function () {toggle_pane(pane);});
                     if (!arr) update_tabs(); else container.add(arr);
