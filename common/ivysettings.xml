@@ -1,6 +1,7 @@
 <ivysettings>
   <settings defaultResolver="default"/>
   <include url="ivysettings-public.xml"/>
+  <include url="ivysettings-account.xml"/>
   <include url="ivysettings-shared.xml"/>
   <include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
   <include url="ivysettings-main-chain.xml"/>
