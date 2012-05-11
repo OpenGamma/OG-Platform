@@ -57,3 +57,12 @@
 .OG-g-h-fixed, .OG-g-b-fixed {
     background: #ecf5fa;
 }
+
+/* Selection Overlay */
+.OG-g-sel {
+    background: #42669a;
+    opacity: 0.4;
+    filter:alpha(opacity=40);
+    z-index: 2;
+    position: absolute;
+}

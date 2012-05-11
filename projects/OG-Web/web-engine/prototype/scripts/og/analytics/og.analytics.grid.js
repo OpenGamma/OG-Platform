@@ -18,8 +18,6 @@ $.register_module({
                 .reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
             return canvas.toDataURL('image/png');
         };
-        var mousedown_delegator = function (event) {};
-        var mouseup_delegator = function (event) {};
         var col_css = function (id, columns, offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
@@ -55,13 +53,12 @@ $.register_module({
                 scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
             grid.meta = metadata;
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
-            (grid.elements.parent = $(config.selector)).html(templates.container({id: grid.id.substring(1)}))
-                .on('mousedown', mousedown_delegator).on('mouseup', mouseup_delegator);
+            grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
             grid.elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
-            (grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll'))
-                .scroll(scroll_observer(grid, null, scroll_end));
+            grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
             grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
+            grid.selector = new og.analytics.Selector(grid);
             set_size(grid, config);
             render_header(grid);
             grid.dataman.on('data', render_rows, grid);
@@ -88,6 +85,7 @@ $.register_module({
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     acc.rows.push({
                         top: (idx + meta.viewport.rows[0]) * row_height,
+                        row: idx,
                         cells: slice.reduce(function (acc, val, idx) {
                             return val === null ? acc
                                 : acc.concat({column: fixed ? idx : fixed_length + idx, value: val});
@@ -151,7 +149,7 @@ $.register_module({
         return function (config, dollar) {
             // because the same code is used in multiple frames, each grid holds a reference to its frame's $
             this.$ = dollar || $;
-            return templates ? init_data(this, config) : compile_templates(init_data.partial(this, config));
+            if (templates) init_data(this, config); else compile_templates(init_data.partial(this, config));
         };
     }
 });
