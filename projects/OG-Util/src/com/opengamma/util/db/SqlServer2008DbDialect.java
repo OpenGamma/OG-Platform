@@ -35,9 +35,10 @@ public class SqlServer2008DbDialect extends DbDialect {
   //-------------------------------------------------------------------------
   @Override
   public Class<? extends Driver> getJDBCDriverClass() {
-    return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
-    // Alternative, open-source driver (LGPLed)
-    // return net.sourceforge.jtds.jdbc.Driver.class;
+    // Use the MS driver...
+    // return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
+    // ...or the open-source driver (LGPLed)
+    return net.sourceforge.jtds.jdbc.Driver.class;
   }
 
   @Override

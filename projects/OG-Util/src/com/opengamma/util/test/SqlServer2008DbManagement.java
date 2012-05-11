@@ -6,18 +6,12 @@
 package com.opengamma.util.test;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.SQLServerDialect;
-import org.hibernate.id.enhanced.SequenceStructure;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
@@ -75,7 +69,10 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
 
   @Override
   public Class<?> getJDBCDriverClass() {
-    return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
+    // Use the MS driver...
+    // return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
+    // ...or the open-source driver (LGPLed)
+    return net.sourceforge.jtds.jdbc.Driver.class;
   }
 
   @Override
