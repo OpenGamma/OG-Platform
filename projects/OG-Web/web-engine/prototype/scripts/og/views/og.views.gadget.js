@@ -12,7 +12,8 @@ $.register_module({
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
-                new og.analytics.Grid({selector: content});
+                // TODO this is a global ... remove it!
+                grid = new og.analytics.Grid({selector: content});
             },
             positions: function (args) {
                 $content.html('\

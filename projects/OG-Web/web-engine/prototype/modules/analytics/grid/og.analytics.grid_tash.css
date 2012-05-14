@@ -1,10 +1,5 @@
-{{id}} * {
-    -moz-user-select: -moz-none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+{{id}} ::selection {background: transparent;}
+{{id}} ::-moz-selection {background: transparent;}
 {{id}} .OG-g-b-scroll {width: {{viewport_width}}px; left: {{fixed_width}}px; height: {{height}}px;}
 {{id}} .OG-g-h-scroll {width: {{viewport_width}}px; height: {{header_height}}px; left: {{fixed_width}}px}
 {{id}} .OG-g-b-scroll .OG-g-rows {width: {{scroll_width}}px}

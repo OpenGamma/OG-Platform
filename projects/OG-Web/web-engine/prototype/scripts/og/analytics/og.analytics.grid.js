@@ -49,15 +49,18 @@ $.register_module({
             (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
         };
         var init_grid = function (grid, config, metadata) {
-            var $ = grid.$, columns = metadata.columns,
-                scroll_end = set_viewport.partial(grid, function () {grid.dataman.busy(false);});
+            var $ = grid.$, columns = metadata.columns;
             grid.meta = metadata;
+            grid.row_height = row_height;
+            grid.header_height = header_height;
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
             grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
+            grid.elements.main = $(grid.id);
             grid.elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
-            grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll').scroll(scroll_observer(grid, null, scroll_end));
+            grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll');
             grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
+            grid.set_viewport = set_viewport.partial(grid);
             grid.selector = new og.analytics.Selector(grid);
             set_size(grid, config);
             render_header(grid);
@@ -100,14 +103,6 @@ $.register_module({
                 grid.elements.scroll_body.html(templates.row(row_data(grid.meta, data, false)));
             };
         })();
-        var scroll_observer = function (grid, timeout, update_viewport) {
-            return function () { // sync scroll instantaneously and set viewport after scroll stops
-                grid.dataman.busy(true);
-                grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
-                grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
-                timeout = clearTimeout(timeout) || setTimeout(update_viewport, 200);
-            }
-        };
         var set_size = function (grid, config) {
             var meta = grid.meta, css, width = config.width || grid.elements.parent.width(),
                 height = config.height || grid.elements.parent.height(), columns = meta.columns, id = grid.id;
@@ -125,7 +120,7 @@ $.register_module({
                 height: height - header_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
             });
-            set_viewport(grid);
+            grid.set_viewport();
             if (grid.elements.style[0].styleSheet) return grid.elements.style[0].styleSheet.cssText = css; // IE
             grid.elements.style[0].appendChild(document.createTextNode(css));
         };
