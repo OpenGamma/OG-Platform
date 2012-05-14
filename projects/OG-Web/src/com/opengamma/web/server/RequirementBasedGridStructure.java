@@ -39,6 +39,7 @@ public class RequirementBasedGridStructure {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementBasedGridStructure.class);
 
+  /** Map of target to row index. */
   private final Map<ComputationTargetSpecification, Integer> _targetIdMap;
   private final List<WebViewGridColumn> _orderedColumns;
   private final Map<RequirementBasedColumnKey, Collection<WebViewGridColumn>> _specificationBasedColumns;

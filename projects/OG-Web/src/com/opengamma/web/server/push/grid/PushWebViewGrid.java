@@ -39,7 +39,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   private final ResultConverterCache _resultConverterCache;
   private final ViewClient _viewClient;
   
-  // Row-based state
+  /** Map of row index to timestamp of last update. */
   private final AtomicReference<SortedMap<Integer, Long>> _viewportMap = new AtomicReference<SortedMap<Integer, Long>>();
   
   // Cell-based state
@@ -62,13 +62,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   public String getName() {
     return _name;
   }
-  
-  public SortedMap<Integer, Long> getViewport() {
-    return _viewportMap.get();
-  }
 
   /**
-   * @param viewportMap
+   * @param viewportMap Map of row index to timestamp of the last update
    */
   protected void setViewport(SortedMap<Integer, Long> viewportMap) {
     _viewportMap.set(viewportMap);
@@ -136,15 +132,18 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   
   //-------------------------------------------------------------------------
 
+  /**
+   * Updates the history for a cell and returns the value to send the client if the cell is in the viewport.
+   * @return The value to send to the client for a cell or {@code null} if the cell isn't in the viewport
+   */
   protected Map<String, Object> getCellValue(WebGridCell cell,
                                              ValueSpecification specification,
                                              Object value,
                                              Long resultTimestamp,
                                              ResultConverter<Object> converter) {
-    // TODO getViewport is returning null. something needs to be initialised
-    boolean rowInViewport = getViewport().containsKey(cell.getRowId());
-    Long lastHistoryTimestamp = getViewport().get(cell.getRowId());
-    ConversionMode mode = getConversionMode(cell);    
+    boolean rowInViewport = _viewportMap.get().containsKey(cell.getRowId());
+    Long lastHistoryTimestamp = _viewportMap.get().get(cell.getRowId());
+    ConversionMode mode = getConversionMode(cell);
     boolean isHistoryOutput = isHistoryOutput(cell);
 
     if (isHistoryOutput) {

@@ -114,7 +114,6 @@ public class PushLiveResultsService implements ViewportManager {
                                  AnalyticsListener listener) {
     synchronized (_lock) {
       UniqueId baseViewDefinitionId = getViewDefinitionId(viewportDefinition.getViewDefinitionName());
-      // TODO only need the client ID so we can find the previous viewport. can't the client supply that instead?
       PushWebView webView;
       String aggregatorName = viewportDefinition.getAggregatorName();
 

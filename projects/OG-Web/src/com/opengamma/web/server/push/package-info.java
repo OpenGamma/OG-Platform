@@ -95,8 +95,6 @@
  *      "lastTimestamps": [timestamp1, timestamp2, ...],
  *      "dependencyGraphCells": [[row, col], [row, col], ...],
  *      "fullConversionModeCells": [[row, col], [row, col], ...]}</pre>
- * <p><em>Dependency graphs for primitives aren't supported in the UI at the moment but they probably will be eventually
- * so the viewport definition allows them.</em></p>
  * <ul>
  *   <li>{@code viewDefinitionName}: name of the view definition (see below)</li>
  *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}</li>
