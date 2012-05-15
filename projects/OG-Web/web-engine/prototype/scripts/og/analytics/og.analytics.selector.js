@@ -20,7 +20,6 @@ $.register_module({
             var deselect = function () {
                 if ($overlay_fixed) $overlay_fixed = $overlay_fixed.remove(), null;
                 if ($overlay_scroll) $overlay_scroll = $overlay_scroll.remove(), null;
-                selection = null;
                 selector.render.memo = null;
             };
             var mousemove_observer = function (event) {
@@ -34,7 +33,6 @@ $.register_module({
                 rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
                 rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                 rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
-                    grid.meta.row_height;
                 if (rectangle.top_left.left < fixed_width) areas.push({ // fixed overlay
                     position: {top: rectangle.top_left.top, left: rectangle.top_left.left},
                     dimensions: {
@@ -45,21 +43,19 @@ $.register_module({
                     fixed: true
                 });
                 if (rectangle.bottom_right.right > fixed_width) areas.push({ // scroll overlay
-                    position: {
-                        top: rectangle.top_left.top,
-                        left: areas[0] ? 0 : rectangle.top_left.left - fixed_width
-                    },
+                    position: {top: rectangle.top_left.top, left: areas[0] ? 0 : rectangle.top_left.left - fixed_width},
                     dimensions: {
                         height: rectangle.height,
                         width: areas[0] ? rectangle.width - areas[0].dimensions.width : rectangle.width
                     },
                     fixed: false
                 });
+                areas.rectangle = rectangle;
                 selector.render(areas);
             };
             var mouseup_observer = cleanup;
             var mousedown_observer = function (event) {
-                var $cell, $target, offset, position, fixed,
+                var $cell, $target, offset, position, fixed, areas = [],
                     right_click = event.which === 3 || event.button === 2,
                     scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop();
@@ -84,9 +80,14 @@ $.register_module({
                     right: (fixed ? grid.elements.fixed_body : grid.elements.scroll_body).width() -
                         position.left - $cell.width()
                 };
-                selector.render([{
+                areas.push({
                     position: position, dimensions: {width: $cell.width(), height: grid.meta.row_height}, fixed: fixed
-                }]);
+                });
+                areas.rectangle = {
+                    top_left: {top: start.top, left: start.left},
+                    bottom_right: {bottom: start.bottom, right: start.right}
+                };
+                selector.render(areas);
                 $(window).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var nearest_cell = function (x, y, label) {
@@ -127,7 +128,20 @@ $.register_module({
                 });
             };
             selector.render.memo = null;
-            selector.selection = function () {return selection;};
+            selector.selection = function () {
+                if (!selector.render.memo) return null;
+                var rectangle = selector.render.memo.rectangle, rows = [], cols = [],
+                    row_start = Math.floor(rectangle.top_left.top / grid.meta.row_height) - 1,
+                    row_end = Math.floor(rectangle.bottom_right.bottom / grid.meta.row_height) - 1,
+                    lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+                for (lcv = 0; lcv < len; lcv += 1)
+                    if (scan[lcv] <= rectangle.bottom_right.right && scan[lcv] > rectangle.top_left.left)
+                        cols.push(lcv);
+                    else
+                        if (scan[lcv] > rectangle.bottom_right.right) break;
+                for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
+                return {rows: rows, cols: cols};
+            };
             // initialize
             grid.elements.parent.on('mousedown', mousedown_observer);
             grid.elements.scroll_body.on('scroll', scroll_observer(null));
