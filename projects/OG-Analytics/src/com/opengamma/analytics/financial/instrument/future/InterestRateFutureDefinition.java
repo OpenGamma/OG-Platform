@@ -30,7 +30,7 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    */
   private final ZonedDateTime _transactionDate;
   /**
-   * The price at which the transaction was done.
+   * The price at which the transaction was done. Setter available for Curve fitting
    */
   private double _transactionPrice;
   /**
@@ -54,9 +54,9 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    */
   private final double _fixingPeriodAccrualFactor;
   /**
-   * Future notional.
+   * Future notional. Setter available for scaling in Curve fitting
    */
-  private final double _notional;
+  private double _notional;
   /**
    * Future payment accrual factor. Usually a standardized number of 0.25 for a 3M future.
    */
@@ -133,8 +133,17 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     return _transactionPrice;
   }
 
+  /**
+   * Set price to fair market value to fit curves to futures
+   * @param price Not scaled, eg 0.9875
+   */
   public void setTransactionPrice(double price) {
     _transactionPrice = price;
+  }
+
+  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian */
+  public void setUnitNotional() {
+    _notional = 1.0;
   }
 
   /**

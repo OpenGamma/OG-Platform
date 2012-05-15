@@ -196,8 +196,10 @@ public final class YieldCurveFunction {
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {
-    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), ValueProperties.with(
-        YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
+    return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), 
+        ValueProperties.builder()
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get());
   }
 
   public static ValueRequirement getCouponSensitivityRequirement(final Currency currency) {

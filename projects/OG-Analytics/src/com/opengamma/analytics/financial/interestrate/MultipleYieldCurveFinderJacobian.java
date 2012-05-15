@@ -5,11 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
@@ -18,6 +13,11 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -51,7 +51,8 @@ public class MultipleYieldCurveFinderJacobian extends Function1D<DoubleMatrix1D,
 
     final double[][] res = new double[_data.getNumInstruments()][totalNodes];
     for (int i = 0; i < _data.getNumInstruments(); i++) { // loop over all instruments
-      final Map<String, List<DoublesPair>> senseMap = _calculator.visit(_data.getDerivative(i), curves);
+      InstrumentDerivative deriv = _data.getDerivative(i);
+      final Map<String, List<DoublesPair>> senseMap = _calculator.visit(deriv, curves);
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
