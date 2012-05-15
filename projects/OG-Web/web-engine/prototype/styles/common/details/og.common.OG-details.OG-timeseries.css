@@ -36,6 +36,7 @@
     display: inline-block;
     z-index: 2;
     position: relative;
+    margin-right: 5px;
 }
 
 .OG-timeseries-gadget .og-plot-header .og-field span {
@@ -53,7 +54,6 @@
     position: relative;
     z-index: 2;
     margin-top: 3px;
-    margin-left: 5px;
     display: inline-block;
     text-shadow: none;
 }
