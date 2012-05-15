@@ -29,9 +29,14 @@ $.register_module({
                 colors_arr_p2 = ['#aaa', '#b1b1b1', '#969696', '#858585']; // line colors for plot 2 data sets
             timeseries.resize = (function (timeout) {
                var resize = function () {
-                   var height = config.height ? config.height : $(selector).parent().height();
-                   $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width($(selector).width() - 2 + 'px');
+                   var height = config.height ? config.height : $(selector).parent().height(),
+                       width = $(selector).width(),
+                       h_ticks = Math.ceil(width / 100),
+                       v_ticks = Math.ceil((height - 80) / 50);
+                   $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width(width - 2 + 'px');
                    $(selector).find('.og-js-p1').height(height - 104);
+                   top_plot_options.xaxis.ticks = bot_plot_options.xaxis.ticks = h_ticks;
+                   top_plot_options.yaxis.ticks = bot_plot_options.yaxis.ticks = v_ticks;
                    load_plots();
                };
                return function () {timeout = clearTimeout(timeout) || setTimeout(resize, 0);}
