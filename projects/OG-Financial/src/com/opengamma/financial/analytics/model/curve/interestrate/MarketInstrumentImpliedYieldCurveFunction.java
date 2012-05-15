@@ -33,7 +33,9 @@ import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCal
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCouponSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.PriceCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.payments.PriceCouponSensitivityCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
@@ -96,14 +98,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
   /** Label setting this function to use the par rate of the instruments in root-finding */
   public static final String PAR_RATE_STRING = "ParRate";
-
   /** Label setting this function to use the present value of the instruments in root-finding */
   public static final String PRESENT_VALUE_STRING = "PresentValue";
+  /** Label setting this function to use the price of the instruments in root-finding (effectively PV with Notional overridden to 1.0 when desired */
+  public static final String PRICE_STRING = "Price";
 
   private final InstrumentDerivativeVisitor<YieldCurveBundle, Double> _calculator;
   private final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _sensitivityCalculator;
   private final PresentValueCouponSensitivityCalculator _couponSensitivityCalculator;
   private final String _calculationType;
+  private final boolean _calcTypeParRate;
 
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
@@ -114,12 +118,21 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       _calculator = ParRateCalculator.getInstance();
       _sensitivityCalculator = ParRateCurveSensitivityCalculator.getInstance();
       _couponSensitivityCalculator = null;
+      _calcTypeParRate = true;
     } else if (calculationType.equals(PRESENT_VALUE_STRING)) {
       _calculator = PresentValueCalculator.getInstance();
-      _sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
-      _couponSensitivityCalculator = PresentValueCouponSensitivityCalculator.getInstance();
+      // _sensitivityCalculator = PriceCurveSensitivityCalculator.getInstance(); // !!!!!!!!!!CANNOT LEAVE LIKE THIS!!!!!!!!!!!!!!!!!!  
+      _sensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance(); // !!!!!!!!!!CANNOT LEAVE LIKE THIS!!!!!!!!!!!!!!!!!! 
+      // _couponSensitivityCalculator = PriceCouponSensitivityCalculator.getInstance(); // !!!!!!!!!!CANNOT LEAVE LIKE THIS!!!!!!!!!!!!!!!!!! 
+      _couponSensitivityCalculator = PresentValueCouponSensitivityCalculator.getInstance(); // !!!!!!!!!!CANNOT LEAVE LIKE THIS!!!!!!!!!!!!!!!!!! 
+      _calcTypeParRate = false;
+    } else if (calculationType.equals(PRICE_STRING)) {
+      _calculator = PresentValueCalculator.getInstance();
+      _sensitivityCalculator = PriceCurveSensitivityCalculator.getInstance();
+      _couponSensitivityCalculator = PriceCouponSensitivityCalculator.getInstance();
+      _calcTypeParRate = false;
     } else {
-      throw new IllegalArgumentException("Could not get calculator type " + calculationType);
+      throw new IllegalArgumentException("Unrecognized calculator type: " + calculationType + ". In order preference, try ParRate, Price, PresentValue");
     }
   }
 
@@ -182,10 +195,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         .with(RESULT_PROPERTY_TYPE, TYPE_FUNDING).get()));
     results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, getCalculationType()).get()));
-    if (getCouponSensitivityCalculator() != null) {
+    if (getCalculationType().equals(PRICE_STRING)) {
+      results.add(new ValueSpecification(ValueRequirementNames.PRICE_COUPON_SENSITIVITY, targetSpec, createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+          .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+    } else if (getCalculationType().equals(PRESENT_VALUE_STRING)) {
       results.add(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
           .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
     }
+    
     return results;
   }
 
@@ -277,9 +294,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, getCalculationType())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()));
-    if (getCouponSensitivityCalculator() != null) {
-      results.add(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties.get()));
-    }
+    if (getCalculationType().equals(PRICE_STRING)) {
+      results.add(new ValueSpecification(ValueRequirementNames.PRICE_COUPON_SENSITIVITY, targetSpec, createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+          .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+    } else if (getCalculationType().equals(PRESENT_VALUE_STRING)) {
+      results.add(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, createValueProperties().withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+          .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get()));
+    }  
     results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties.with(ValuePropertyNames.CURVE, forwardCurveName).get()));
     if (!forwardCurveName.equals(fundingCurveName)) {
       results.add(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fundingCurveName).get()));
@@ -313,6 +334,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       } else if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(desiredValue.getValueName())) {
         assert !createJacobian;
         createJacobian = true;
+      } else if (ValueRequirementNames.PRICE_COUPON_SENSITIVITY.equals(desiredValue.getValueName())) {
+        assert !createSensitivities;
+        createSensitivities = true;
       } else if (ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY.equals(desiredValue.getValueName())) {
         assert !createSensitivities;
         createSensitivities = true;
@@ -389,25 +413,19 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
       InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-        ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue);
-        if (getCalculationType().equals(PAR_RATE_STRING)) {
-          marketValue = 1 - marketValue;
-        }
+        ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue); // Set price to market value so that PV => 0
+        ((InterestRateFutureDefinition) definition).setUnitNotional(); // Scale to 1.0 to better condition Jacobian for _calculationType, PresentValue. Still scales with T. ParRate is preferable.
+        marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
       derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
-
-      
-      
-      if (PRESENT_VALUE_STRING.equals(getCalculationType())) {
-        marketValues[i] = 0;
-      } else {
+      if (_calcTypeParRate) {
         marketValues[i] = marketValue;
       }
       derivatives.add(derivative);
-      initialRatesGuess[i] = marketValues[i];
+      initialRatesGuess[i] = marketValue; // s[i];
       nodeTimes[i] = LAST_DATE_CALCULATOR.visit(derivative);
       i++;
     }
@@ -426,7 +444,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     double[] yields = null;
     try {
       // TODO have the decomposition as an optional input [FIN-146]
-      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME));
+      rootFinder = new BroydenVectorRootFinder(1e-7, 1e-7, 100, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
       final DoubleMatrix1D result = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess));
       yields = result.getData();
     } catch (final Exception eLU) {
@@ -450,6 +468,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveName);
     if (createJacobian) {
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
+      System.out.println(jacobianMatrix.toString());
       result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianMatrix.getData()));
     }
     if (createSensitivities) {
@@ -461,7 +480,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
       }
-      result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties.get()), new DoubleMatrix1D(couponSensitivities)));
+      final String valReqCouponSens = getCalculationType() == PRICE_STRING ? ValueRequirementNames.PRICE_COUPON_SENSITIVITY : ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY; 
+      result.add(new ComputedValue(new ValueSpecification(valReqCouponSens, targetSpec, properties.get()), new DoubleMatrix1D(couponSensitivities)));
     }
     if (createYieldCurve) {
       result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties.with(ValuePropertyNames.CURVE, curveName).get()), curve));
@@ -495,19 +515,18 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
       final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-        throw new OpenGammaRuntimeException("YieldCurves containing FUTURES currently do not fit to both forward and funding curve. Please specify only Curve, not FundingCurve and ForwardCurve.");
+        throw new OpenGammaRuntimeException("We do not currently support FundingCurves containing FUTURES. Contact QR if you desire this.");
       }
       derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       if (derivative == null) {
         throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
       }
-      if (PRESENT_VALUE_STRING.equals(getCalculationType())) {
-        marketValues[i] = 0;
-      } else {
+      if (_calcTypeParRate) { // set market value to the rate 
         marketValues[i] = marketValue;
-      }
+      } // else we want PV or Price to hit 0. 
+      
       derivatives.add(derivative);
-      initialRatesGuess[i] = marketValues[i];
+      initialRatesGuess[i] = marketValue; // OR s[i]; // !!! Should this be 0.0 for PresentValue and Price?!?
       i++;
       fundingNodeTimes[fundingIndex] = LAST_DATE_CALCULATOR.visit(derivative);
       fundingIndex++;
@@ -524,10 +543,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       try {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity); 
         if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-          ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue);
-          if (getCalculationType().equals(PAR_RATE_STRING)) {
-            marketValue = 1 - marketValue;
-          }
+          ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue); // Set price to market value so that PV => 0
+          ((InterestRateFutureDefinition) definition).setUnitNotional(); // Scale to 1.0 to better condition Jacobian for _calculationType, PresentValue. Still scales with T. ParRate is preferable.
+          marketValue = 1 - marketValue; // transform to rate for initial rates guess  
         }
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (final Exception e) {
@@ -536,13 +554,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       if (derivative == null) {
         throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);
       }
-      if (PRESENT_VALUE_STRING.equals(getCalculationType())) {
-        marketValues[i] = 0;
-      } else {
+      if (_calcTypeParRate) { // set market value to the rate 
         marketValues[i] = marketValue;
-      }
+      } // else we want pv or price to hit 0, so nothing to change
       derivatives.add(derivative);
-      initialRatesGuess[i] = marketValues[i];
+      initialRatesGuess[i] = marketValue; // OR s[i]; // !!! Should this be 0.0 for PresentValue and Price?!?
       i++;
       forwardNodeTimes[forwardIndex] = LAST_DATE_CALCULATOR.visit(derivative);
       forwardIndex++;
@@ -587,8 +603,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, getCalculationType())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     if (createJacobian) {
-      result
-          .add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianCalculator.evaluate(new DoubleMatrix1D(yields)).getData()));
+      DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
+      result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobian.getData()));
     }
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];
@@ -599,7 +615,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
       }
-      result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties.get()), new DoubleMatrix1D(couponSensitivities)));
+      ValueProperties couponProperties = createValueProperties()
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
+      final String valReqCouponSens = PRICE_STRING.equals(getCalculationType()) ? ValueRequirementNames.PRICE_COUPON_SENSITIVITY : ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY; 
+      result.add(new ComputedValue(new ValueSpecification(valReqCouponSens, targetSpec, couponProperties), new DoubleMatrix1D(couponSensitivities)));
     }
     if (createForwardYieldCurve) {
       result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties.with(ValuePropertyNames.CURVE, forwardCurveName).get()), forwardCurve));
