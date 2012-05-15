@@ -27,7 +27,7 @@ $.register_module({
                     return {
                         gadget: og.common.gadgets.timeseries,
                         options: {id: 'DbHts~' + num, datapoints_link: false, child: true},
-                        name: 'Timeseries ' + num,
+                        name: 'Timeseries ' + num + ' long name etc, etc...',
                         margin: true
                     }
                 };
@@ -36,7 +36,8 @@ $.register_module({
                 ]);
                 gc_r_north = (new GadgetsContainer('.OG-layout-analytics-dock-north')).add([timeseries_obj()]);
                 gc_r_center = (new GadgetsContainer('.OG-layout-analytics-dock-center')).add([
-                    timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj()
+                    timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(),
+                    timeseries_obj(), timeseries_obj(), timeseries_obj()
                 ]);
                 if (!args.id) view.default_details();
             },

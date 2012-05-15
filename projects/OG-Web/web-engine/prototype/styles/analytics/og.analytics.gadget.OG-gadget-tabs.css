@@ -87,7 +87,7 @@
         display: block;
         position: absolute;
         top: -2px;
-        border-top: 2px solid #80c696;
+        border-top: 2px solid #80c696!important;
         -webkit-border-top-left-radius: 1px;
         -webkit-border-top-right-radius: 1px;
         -moz-border-radius-topleft: 1px;

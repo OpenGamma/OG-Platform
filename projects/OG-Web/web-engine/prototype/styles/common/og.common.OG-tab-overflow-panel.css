@@ -6,17 +6,27 @@
 .OG-tab-overflow-panel {
     position: absolute;
     z-index: 121;
-    padding: 5px;
     background: #fff!important;
-    border: 1px solid #ccc;
+    border: 1px solid #ccc!important;
     display: none;
 }
 
-.OG-tab-overflow-panel.OG-gadget-tabs {
+.OG-tab-overflow-panel {
     height: auto;
+    -webkit-box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
 }
 
-.OG-tab-overflow-panel.OG-gadget-tabs li {
-    display: block;
-    float: none;
+.OG-tab-overflow-panel li {
+    padding: 2px 5px 2px 5px;
+    list-style: none;
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+.OG-tab-overflow-panel li:hover {
+    background-color: #80c696;
+    color: #fff;
+    cursor: default;
 }
