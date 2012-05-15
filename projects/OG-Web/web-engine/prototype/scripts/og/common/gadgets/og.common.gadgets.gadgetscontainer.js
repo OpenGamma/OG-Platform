@@ -65,14 +65,12 @@ $.register_module({
                             $overflow_button.show().on('click', function (e) {
                                 e.stopPropagation();
                                 $overflow_panel.toggle();
-                                if ($overflow_panel.is(":visible")) $(window).on('click.overflow_handler', function () {
+                                var wins = Array.prototype.concat.apply(window, window.frames);
+                                if ($overflow_panel.is(":visible")) $(wins).on('click.overflow_handler', function () {
                                     $overflow_panel.hide();
-                                    $(window).off('click.overflow_handler');
+                                    $(wins).off('click.overflow_handler');
                                 });
-                                else $(window).off('click.overflow_handler');
-                                // attach global click handler
-                                // close overflow panel on body click
-                                // remove global click handler
+                                else $(wins).off('click.overflow_handler');
                             });
                             space_needed = full_width - compressed_tabs_width;
                             num_tabs_to_hide = Math.ceil(Math.abs(space_needed) / new_tab_width);
