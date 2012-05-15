@@ -5,13 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -19,6 +12,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
@@ -78,7 +78,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
   }
 
   /**
-   * Compute the price sensitivity to rates of a interest rate future by discounting.
+   * Compute the price sensitivity to rates of an interest rate future by discounting.
    * @param future The future.
    * @param curves The yield curves. Should contain the forward curve associated.
    * @return The price rate sensitivity.
@@ -90,7 +90,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     final double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
-    // Backward sweep
+    // Partials - XBar => d(price)/dX
     final double priceBar = 1.0;
     final double forwardBar = -priceBar;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
