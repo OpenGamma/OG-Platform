@@ -75,8 +75,11 @@ public class CapFloorCMSSpreadSecurityGenerator extends SecurityGenerator<CapFlo
     final double strike = getRandom(STRIKES);
     final Frequency frequency = getRandom(FREQUENCY);
     final DayCount dayCount = getRandom(DAY_COUNT);
-    final CapFloorCMSSpreadSecurity security = new CapFloorCMSSpreadSecurity(startDate, maturityDate, notional, longIdentifier, shortIdentifier, strike, frequency, currency, dayCount, payer, cap);
-    security.setName(createName(cap, tenor1, tenor2, strike, startDate, maturityDate, frequency, currency, notional));
+    CapFloorCMSSpreadSecurity security = null;
+    if (shortIdentifier != null && longIdentifier != null) {
+      security = new CapFloorCMSSpreadSecurity(startDate, maturityDate, notional, longIdentifier, shortIdentifier, strike, frequency, currency, dayCount, payer, cap);
+      security.setName(createName(cap, tenor1, tenor2, strike, startDate, maturityDate, frequency, currency, notional));
+    }
     return security;
   }
 
