@@ -51,8 +51,8 @@ $.register_module({
         var init_grid = function (grid, config, metadata) {
             var $ = grid.$, columns = metadata.columns;
             grid.meta = metadata;
-            grid.row_height = row_height;
-            grid.header_height = header_height;
+            grid.meta.row_height = row_height;
+            grid.meta.header_height = header_height;
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
             grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
             grid.elements.main = $(grid.id);
@@ -101,6 +101,7 @@ $.register_module({
                 if (grid.dataman.busy()) return;
                 grid.elements.fixed_body.html(templates.row(row_data(grid.meta, data, true)));
                 grid.elements.scroll_body.html(templates.row(row_data(grid.meta, data, false)));
+                grid.selector.render();
             };
         })();
         var set_size = function (grid, config) {
@@ -110,6 +111,16 @@ $.register_module({
                 fixed: meta.columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
                 scroll: meta.columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
             };
+            meta.columns.scan = {
+                fixed: meta.columns.fixed.reduce(function (acc, val) {
+                    return acc.arr.push(acc.val += val.width), acc;
+                }, {arr: [], val: 0}).arr,
+                scroll: meta.columns.scroll.reduce(function (acc, val) {
+                    return acc.arr.push(acc.val += val.width), acc;
+                }, {arr: [], val: 0}).arr
+            };
+            meta.columns.scan.all = meta.columns.scan.fixed
+                .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
             meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
             meta.visible_rows = Math.ceil((height - header_height) / row_height);
             css = templates.css({

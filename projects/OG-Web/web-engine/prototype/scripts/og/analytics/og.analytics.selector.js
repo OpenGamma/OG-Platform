@@ -8,87 +8,134 @@ $.register_module({
     obj: function () {
         var module = this;
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset = grid.elements.parent.offset(),
-                $overlay, start_row, start_col, start_left, start_top, start_fixed,
-                start_width, start_height, start_x, start_y;
+            var selector = this, $ = grid.$, grid_offset, $overlay_fixed, $overlay_scroll, start = null;
             var cleanup = function () {
                 $(window).off('mousemove', mousemove_observer);
                 $('body').off('mouseup', mouseup_observer);
                 if (document.selection) document.selection.empty(); // IE
                 if (window.getSelection) window.getSelection().removeAllRanges(); // civilization
                 grid.dataman.busy(false);
-                selector.busy = false;
+                selector.busy(false);
                 grid.set_viewport();
             };
-            var render = function (position, dimensions) {
-                if (!$overlay) $overlay = $('<div class="OG-g-sel" />').click(function () {
-                    $(this).remove();
-                    selection = null;
-                }).appendTo(grid.elements.main);
-                $overlay.removeAttr('style').css($.extend(position, dimensions));
+            var deselect = function () {
+                if ($overlay_fixed) $overlay_fixed = $overlay_fixed.remove(), null;
+                if ($overlay_scroll) $overlay_scroll = $overlay_scroll.remove(), null;
+                selection = null;
+                selector.render.memo = null;
             };
             var mousemove_observer = function (event) {
-                var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, position = {},
-                    top = 0, left = 0, width = 0, height = grid.row_height;
-                if (x > start_x) { // rightward
-                    width = grid.meta.columns.fixed.concat(grid.meta.columns.scroll).reduce(function (acc, col, idx) {
-                        acc.scan += col.width;
-                        if (idx >= start_col && (Math.abs(acc.scan - x) < col.width || acc.scan < x))
-                            acc.width += col.width;
-                        return acc;
-                    }, {scan: 0, width: 0}).width;
-                    position = {left: start_left, top: start_top};
-                } else { // leftward
-                    position.right = grid.elements.main.width() - (start_left + start_width);
-                    width = grid.meta.columns.fixed.concat(grid.meta.columns.scroll).reduce(function (acc, col, idx) {
-                        acc.scan += col.width;
-                        console.log('idx', idx, 'acc.scan', acc.scan, 'x', x, 'position.right', position.right);
-                        if (idx < start_col && acc.scan > x && acc.scan < position.right) acc.width += col.width;
-                        return acc;
-                    }, {scan: 0, width: start_width}).width;
-                    position.top = start_top;
-                }
-                render(position, {width: width, height: height});
+                var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    scroll_top = grid.elements.scroll_body.scrollTop(),
+                    x = event.pageX - grid_offset.left + scroll_left,
+                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
+                    fixed_width = grid.meta.columns.width.fixed, scroll_width = grid.meta.columns.width.scroll,
+                    areas = [], rectangle = {};
+                rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
+                rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
+                rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
+                rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
+                    grid.meta.row_height;
+                if (rectangle.top_left.left < fixed_width) areas.push({ // fixed overlay
+                    position: {top: rectangle.top_left.top, left: rectangle.top_left.left},
+                    dimensions: {
+                        height: rectangle.height,
+                        width: rectangle.width + rectangle.top_left.left > fixed_width ?
+                            fixed_width - rectangle.top_left.left : rectangle.width
+                    },
+                    fixed: true
+                });
+                if (rectangle.bottom_right.right > fixed_width) areas.push({ // scroll overlay
+                    position: {
+                        top: rectangle.top_left.top,
+                        left: areas[0] ? 0 : rectangle.top_left.left - fixed_width
+                    },
+                    dimensions: {
+                        height: rectangle.height,
+                        width: areas[0] ? rectangle.width - areas[0].dimensions.width : rectangle.width
+                    },
+                    fixed: false
+                });
+                selector.render(areas);
             };
-            var mouseup_observer = function (event) {
-                cleanup();
-            };
+            var mouseup_observer = cleanup;
             var mousedown_observer = function (event) {
-                var $cell, $row, $target, offset, position,
-                    right_click =  event.which === 3 || event.button === 2;
+                var $cell, $target, offset, position, fixed, col_idx, row_idx,
+                    right_click = event.which === 3 || event.button === 2,
+                    scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    scroll_top = grid.elements.scroll_body.scrollTop();
                 if (right_click) return;
                 cleanup();
-                if ($overlay) return $overlay.remove(), $overlay = null;
                 $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
-                if (!$cell) return;
-                $row = $cell.parents('.OG-g-row:first');
+                if (!$cell.length) return;
+                grid_offset = grid.elements.parent.offset();
                 offset = $cell.offset();
-                start_width = $cell.width();
-                start_height = grid.row_height;
-                start_x = event.pageX - grid_offset.left;
-                start_y = event.pageY - grid_offset.top;
-                start_col = +$cell.attr('class').match(/\sc(\d+)\s?/)[1];
-                start_row = +$row.attr('class').match(/\svr(\d+)\s?/)[1];
-                start_fixed = start_col < grid.meta.columns.fixed.length;
+                col_idx = +$cell.attr('class').match(/\sc(\d+)\s?/)[1];
+                row_idx = +$cell.parents('.OG-g-row:first').attr('class').match(/\svr(\d+)\s?/)[1];
+                fixed = col_idx < grid.meta.columns.fixed.length;
                 grid.dataman.busy(true);
-                selector.busy = true;
-                position = {top: start_top = offset.top, left: start_left = offset.left};
-                render(position, {width: start_width, height: start_height}, start_fixed);
+                selector.busy(true);
+                position = {
+                    top: start_top = offset.top - grid.meta.header_height + scroll_top,
+                    left: offset.left - (fixed ? 0 : grid.meta.columns.width.fixed) +
+                        (fixed ? 0 : scroll_left)
+                };
+                start = {
+                    x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
+                    y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
+                    top: position.top, bottom: position.top + grid.meta.row_height,
+                    row: row_idx, col: col_idx, left: position.left,
+                    right: (fixed ? grid.elements.fixed_body : grid.elements.scroll_body).width() -
+                        position.left - $cell.width()
+                };
+                selector.render([{
+                    position: position, dimensions: {width: $cell.width(), height: grid.meta.row_height}, fixed: fixed
+                }]);
                 $('body').on('mouseup', mouseup_observer);
                 $(window).on('mousemove', mousemove_observer);
+            };
+            var nearest_cell = function (x, y, label) {
+                var top, left, bottom, right,
+                    fixed_width = grid.meta.columns.width.fixed,
+                    lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+                for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
+                right = scan[lcv];
+                left = scan[lcv - 1] || 0;
+                bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
+                top = bottom - grid.meta.row_height;
+                return {top: top, left: left, bottom: bottom, right: right};
             };
             var scroll_observer = function (timeout) {
                 return function () { // sync scroll instantaneously and set viewport after scroll stops
                     grid.dataman.busy(true);
                     grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
                     grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
-                    if (selector.busy) return;
-                    timeout = clearTimeout(timeout) || setTimeout(function () {
-                        grid.set_viewport(function () {grid.dataman.busy(false);})
-                    }, 200);
+                    if (selector.busy()) return;
+                    timeout = clearTimeout(timeout) ||
+                        setTimeout(function () {grid.set_viewport(function () {grid.dataman.busy(false);})}, 200);
                 }
             };
+            selector.busy = (function (busy) {
+                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
+            })(false);
+            selector.render = function (rectangles) {
+                if (!selector.render.memo && !rectangles) return;
+                if (rectangles) selector.render.memo = rectangles;
+                $(grid.id + ' .OG-g-sel').remove();
+                $overlay_fixed = null;
+                $overlay_scroll = null;
+                selector.render.memo.forEach(function (rectangle) {
+                    if (rectangle.fixed && !$overlay_fixed) $overlay_fixed = $('<div class="OG-g-sel" />')
+                        .click(deselect).appendTo(grid.elements.fixed_body);
+                    if (!rectangle.fixed && !$overlay_scroll) $overlay_scroll = $('<div class="OG-g-sel" />')
+                        .click(deselect).appendTo(grid.elements.scroll_body);
+                    (rectangle.fixed ? $overlay_fixed : $overlay_scroll).removeAttr('style')
+                        .css(rectangle.position).css(rectangle.dimensions);
+                });
+            };
+            selector.render.memo = null;
             selector.selection = function () {return selection;};
+            // initialize
             grid.elements.parent.on('mousedown', mousedown_observer);
             grid.elements.scroll_body.on('scroll', scroll_observer(null));
         };
