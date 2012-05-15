@@ -316,9 +316,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       } else if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(desiredValue.getValueName())) {
         assert !createJacobian;
         createJacobian = true;
-      } else if (ValueRequirementNames.PRICE_COUPON_SENSITIVITY.equals(desiredValue.getValueName())) {
-        assert !createSensitivities;
-        createSensitivities = true;
       } else if (ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY.equals(desiredValue.getValueName())) {
         assert !createSensitivities;
         createSensitivities = true;
