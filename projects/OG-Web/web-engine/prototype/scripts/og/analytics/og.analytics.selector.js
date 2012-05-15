@@ -10,8 +10,7 @@ $.register_module({
         return function (grid) {
             var selector = this, $ = grid.$, grid_offset, $overlay_fixed, $overlay_scroll, start = null;
             var cleanup = function () {
-                $(window).off('mousemove', mousemove_observer);
-                $('body').off('mouseup', mouseup_observer);
+                $(window).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
                 if (document.selection) document.selection.empty(); // IE
                 if (window.getSelection) window.getSelection().removeAllRanges(); // civilization
                 grid.dataman.busy(false);
@@ -60,7 +59,7 @@ $.register_module({
             };
             var mouseup_observer = cleanup;
             var mousedown_observer = function (event) {
-                var $cell, $target, offset, position, fixed, col_idx, row_idx,
+                var $cell, $target, offset, position, fixed,
                     right_click = event.which === 3 || event.button === 2,
                     scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop();
@@ -70,9 +69,7 @@ $.register_module({
                 if (!$cell.length) return;
                 grid_offset = grid.elements.parent.offset();
                 offset = $cell.offset();
-                col_idx = +$cell.attr('class').match(/\sc(\d+)\s?/)[1];
-                row_idx = +$cell.parents('.OG-g-row:first').attr('class').match(/\svr(\d+)\s?/)[1];
-                fixed = col_idx < grid.meta.columns.fixed.length;
+                fixed = +$cell.attr('class').match(/\sc(\d+)\s?/)[1] < grid.meta.columns.fixed.length;
                 grid.dataman.busy(true);
                 selector.busy(true);
                 position = {
@@ -83,21 +80,17 @@ $.register_module({
                 start = {
                     x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
                     y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                    top: position.top, bottom: position.top + grid.meta.row_height,
-                    row: row_idx, col: col_idx, left: position.left,
+                    top: position.top, bottom: position.top + grid.meta.row_height, left: position.left,
                     right: (fixed ? grid.elements.fixed_body : grid.elements.scroll_body).width() -
                         position.left - $cell.width()
                 };
                 selector.render([{
                     position: position, dimensions: {width: $cell.width(), height: grid.meta.row_height}, fixed: fixed
                 }]);
-                $('body').on('mouseup', mouseup_observer);
-                $(window).on('mousemove', mousemove_observer);
+                $(window).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var nearest_cell = function (x, y, label) {
-                var top, left, bottom, right,
-                    fixed_width = grid.meta.columns.width.fixed,
-                    lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+                var top, left, bottom, right, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
                 right = scan[lcv];
                 left = scan[lcv - 1] || 0;
