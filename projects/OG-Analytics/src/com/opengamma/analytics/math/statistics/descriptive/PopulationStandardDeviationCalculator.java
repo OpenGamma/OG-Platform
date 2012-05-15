@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.PopulationVarianceCalculator;
 
 /**
  * Calculates the population standard deviation of a series of data. The population standard deviation of a series of data is defined as the square root of 

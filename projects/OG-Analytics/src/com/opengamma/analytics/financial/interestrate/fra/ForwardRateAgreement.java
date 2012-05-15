@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFloating;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFloating;
 import com.opengamma.util.money.Currency;
 
 /**

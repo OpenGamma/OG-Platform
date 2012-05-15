@@ -225,7 +225,8 @@ public class ElSqlConfig {
     @Override
     public String addPaging(String selectToPage, int offset, int fetchLimit) {
       if (fetchLimit == 0 && offset == 0) {
-        return selectToPage;
+        // SQL Server needs a SELECT TOP with ORDER BY in an inner query, otherwise it complains
+        return selectToPage.replaceFirst("SELECT ", "SELECT TOP " + Integer.MAX_VALUE + " ");
       }
       int start = offset + 1;
       int end = offset + fetchLimit;

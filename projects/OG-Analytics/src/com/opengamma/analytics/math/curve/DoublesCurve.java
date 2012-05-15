@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -36,9 +36,9 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.length == yData.length);
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
     _n = xData.length;
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
@@ -55,19 +55,17 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
     _n = xData.length;
-    Validate.isTrue(_n == yData.length);
+    ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
       Double x = xData[i];
       Double y = yData[i];
-      if (x == null || y == null) {
-        Validate.notNull(x, "element " + i + " of x data");
-        Validate.notNull(y, "element " + i + " of y data");
-      }
+      ArgumentChecker.notNull(x, "x");
+      ArgumentChecker.notNull(y, "y");
       _xData[i] = x;
       _yData[i] = y;
     }
@@ -83,7 +81,7 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Map<Double, Double> data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
@@ -91,10 +89,8 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
       Double x = entry.getKey();
       Double y = entry.getValue();
-      if (x == null || y == null) {
-        Validate.notNull(x, "element " + i + " of x data");
-        Validate.notNull(y, "element " + i + " of y data");
-      }
+      ArgumentChecker.notNull(x, "x");
+      ArgumentChecker.notNull(y, "y");
       _xData[i] = x;
       _yData[i++] = y;
     }
@@ -110,15 +106,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final DoublesPair[] data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.length;
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
       DoublesPair pair = data[i];
-      if (pair == null) {
-        Validate.notNull(data[i], "element " + i + " of data");
-      }
+      ArgumentChecker.notNull(pair, "pair");
       _xData[i] = pair.first;
       _yData[i] = pair.second;
     }
@@ -134,15 +128,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
     int i = 0;
     for (final DoublesPair entry : data) {
-      if (entry == null) {
-        Validate.notNull(entry, "element " + i + " of data");
-      }
+      ArgumentChecker.notNull(entry, "entry");
       _xData[i] = entry.first;
       _yData[i++] = entry.second;
     }
@@ -159,19 +151,17 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
     super();
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.size() == yData.size());
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(xData.size() == yData.size(), "x data size {} must be equal to y data size {}", xData.size(), yData.size());
     _n = xData.size();
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
       Double x = xData.get(i);
       Double y = yData.get(i);
-      if (x == null || y == null) {
-        Validate.notNull(x, "element " + i + " of x data");
-        Validate.notNull(y, "element " + i + " of y data");
-      }
+      ArgumentChecker.notNull(x, "x");
+      ArgumentChecker.notNull(y, "y");
       _xData[i] = x;
       _yData[i] = y;
     }
@@ -187,8 +177,8 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
     super();
-    Validate.notNull(data, "data");
-    Validate.noNullElements(data, "data");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.noNulls(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
@@ -211,9 +201,9 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.length == yData.length);
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
     _n = xData.length;
     _xData = Arrays.copyOf(xData, _n);
     _yData = Arrays.copyOf(yData, _n);
@@ -231,17 +221,15 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(xData, "x data");
+    ArgumentChecker.notNull(xData, "x data");
     _n = xData.length;
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(_n == yData.length);
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      if (xData[i] == null || yData[i] == null) {
-        Validate.notNull(xData[i], "element " + i + " of x data");
-        Validate.notNull(yData[i], "element " + i + " of y data");
-      }
+      ArgumentChecker.notNull(xData[i], "x");
+      ArgumentChecker.notNull(yData[i], "y");
       _xData[i] = xData[i];
       _yData[i] = yData[i];
     }
@@ -258,14 +246,14 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
     int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      Validate.notNull(entry.getKey(), "element " + i + " of x data");
-      Validate.notNull(entry.getValue(), "element " + i + " of y data");
+      ArgumentChecker.notNull(entry.getKey(), "x");
+      ArgumentChecker.notNull(entry.getValue(), "y");
       _xData[i] = entry.getKey();
       _yData[i++] = entry.getValue();
     }
@@ -282,12 +270,12 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.length;
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(data[i], "element " + i + " of data");
+      ArgumentChecker.notNull(data[i], "entry");
       _xData[i] = data[i].first;
       _yData[i] = data[i].second;
     }
@@ -304,13 +292,13 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];
     int i = 0;
     for (final DoublesPair entry : data) {
-      Validate.notNull(entry, "element " + i + " of data");
+      ArgumentChecker.notNull(entry, "entry");
       _xData[i] = entry.first;
       _yData[i++] = entry.second;
     }
@@ -328,15 +316,15 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(xData, "x data");
-    Validate.notNull(yData, "y data");
-    Validate.isTrue(xData.size() == yData.size());
+    ArgumentChecker.notNull(xData, "x data");
+    ArgumentChecker.notNull(yData, "y data");
+    ArgumentChecker.isTrue(xData.size() == yData.size(), "x data size {} must be equal to y data size {}", xData.size(), yData.size());
     _n = xData.size();
     _xData = new double[_n];
     _yData = new double[_n];
     for (int i = 0; i < _n; i++) {
-      Validate.notNull(xData.get(i), "element " + i + " of data");
-      Validate.notNull(yData.get(i), "element " + i + " of data");
+      ArgumentChecker.notNull(xData.get(i), "x");
+      ArgumentChecker.notNull(yData.get(i), "y");
       _xData[i] = xData.get(i);
       _yData[i] = yData.get(i);
     }
@@ -353,8 +341,8 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public DoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
-    Validate.notNull(data, "data");
-    Validate.noNullElements(data, "data");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.noNulls(data, "data");
     _n = data.size();
     _xData = new double[_n];
     _yData = new double[_n];

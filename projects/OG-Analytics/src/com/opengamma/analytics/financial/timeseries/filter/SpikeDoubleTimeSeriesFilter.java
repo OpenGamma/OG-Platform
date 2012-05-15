@@ -75,6 +75,6 @@ public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
       }
       first = second;
     }
-    return getFilteredSeries(ts, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
+    return getFilteredSeries(filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
 }

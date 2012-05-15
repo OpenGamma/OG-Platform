@@ -10,9 +10,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.util.money.Currency;
@@ -21,8 +22,24 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Class describing a caplet/floorlet on Ibor. The notional is positive for long the option and negative for short the option.
  */
-public class CapFloorIborDefinition extends CouponIborDefinition implements CapFloor {
+public class CapFloorIborDefinition extends CouponFloatingDefinition implements CapFloor {
 
+  /**
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
+   */
+  private final IborIndex _index;
+  /**
+   * The start date of the fixing period.
+   */
+  private final ZonedDateTime _fixingPeriodStartDate;
+  /**
+   * The end date of the fixing period.
+   */
+  private final ZonedDateTime _fixingPeriodEndDate;
+  /**
+   * The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   */
+  private final double _fixingPeriodAccrualFactor;
   /**
    * The cap/floor strike.
    */
@@ -47,8 +64,13 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    */
   public CapFloorIborDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
-    Validate.isTrue(currency == index.getCurrency(), "payment currency should be same as the index currency");
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    Validate.notNull(index, "index");
+    Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    _index = index;
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _strike = strike;
     _isCap = isCap;
   }
@@ -96,6 +118,38 @@ public class CapFloorIborDefinition extends CouponIborDefinition implements CapF
    */
   public static CapFloorIborDefinition from(final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double strike, final boolean isCap) {
     return from(CouponIborDefinition.from(notional, fixingDate, index), strike, isCap);
+  }
+
+  /**
+   * Gets the Ibor index of the instrument.
+   * @return The index.
+   */
+  public IborIndex getIndex() {
+    return _index;
+  }
+
+  /**
+   * Gets the start date of the fixing period.
+   * @return The start date of the fixing period.
+   */
+  public ZonedDateTime getFixingPeriodStartDate() {
+    return _fixingPeriodStartDate;
+  }
+
+  /**
+   * Gets the end date of the fixing period.
+   * @return The end date of the fixing period.
+   */
+  public ZonedDateTime getFixingPeriodEndDate() {
+    return _fixingPeriodEndDate;
+  }
+
+  /**
+   * Gets the accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   * @return The accrual factor.
+   */
+  public double getFixingPeriodAccrualFactor() {
+    return _fixingPeriodAccrualFactor;
   }
 
   /**

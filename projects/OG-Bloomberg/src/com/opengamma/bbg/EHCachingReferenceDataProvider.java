@@ -25,7 +25,9 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * A cache decorating a {@code ReferenceDataProvider}.
+ * <p>
+ * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingReferenceDataProvider extends AbstractCachingReferenceDataProvider {
   

@@ -42,10 +42,16 @@ public class UnitPositionTradeScalingFunction extends PropertyPreservingFunction
   @Override
   protected Collection<String> getOptionalPreservedProperties() {
     return Arrays.asList(
+        ValuePropertyNames.CURRENCY,
+        ValuePropertyNames.CALCULATION_METHOD,
         ValuePropertyNames.CURVE,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
-        ValuePropertyNames.CALCULATION_METHOD);
+        ValuePropertyNames.PAY_CURVE,
+        ValuePropertyNames.RECEIVE_CURVE,
+        ValuePropertyNames.SURFACE,
+        ValuePropertyNames.CURVE_CALCULATION_METHOD,
+        ValuePropertyNames.CUBE);
   }
 
   private final String _requirementName;

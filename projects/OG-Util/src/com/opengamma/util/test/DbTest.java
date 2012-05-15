@@ -30,6 +30,7 @@ import com.opengamma.util.db.DbConnectorFactoryBean;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HSQLDbDialect;
 import com.opengamma.util.db.PostgresDbDialect;
+import com.opengamma.util.db.SqlServer2008DbDialect;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
 
@@ -48,6 +49,7 @@ public abstract class DbTest implements TableCreationCallback {
     DateUtils.initTimeZone();
     addDbDialect("hsqldb", new HSQLDbDialect());
     addDbDialect("postgres", new PostgresDbDialect());
+    addDbDialect("sqlserver2008", new SqlServer2008DbDialect());
   }
 
   static {

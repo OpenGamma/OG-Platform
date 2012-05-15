@@ -8,8 +8,6 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.PartialMomentCalculator;
 
 /**
  * The semi-standard deviation of a series of data is the partial moment (see {@link PartialMomentCalculator}) calculated with the mean as the threshold.

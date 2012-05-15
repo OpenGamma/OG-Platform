@@ -14,10 +14,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
@@ -26,8 +26,16 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Class describing a caplet/floorlet on CMS rate. The notional is positive for long the option and negative for short the option.
  */
-public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFloor {
+public class CapFloorCMSDefinition extends CouponFloatingDefinition implements CapFloor {
 
+  /**
+   * The swap underlying the CMS coupon.
+   */
+  private final SwapFixedIborDefinition _underlyingSwap;
+  /**
+   * The CMS index associated to the coupon.
+   */
+  private final IndexSwap _cmsIndex;
   /**
    * The cap/floor strike.
    */
@@ -53,7 +61,11 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
    */
   public CapFloorCMSDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap, final IndexSwap cmsIndex, final double strike, final boolean isCap) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, underlyingSwap, cmsIndex);
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    Validate.notNull(underlyingSwap, "underlying swap");
+    Validate.notNull(cmsIndex, "CMS index");
+    _underlyingSwap = underlyingSwap;
+    _cmsIndex = cmsIndex;
     _strike = strike;
     _isCap = isCap;
   }
@@ -112,6 +124,22 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   }
 
   /**
+   * Gets the underlying swap.
+   * @return The underlying swap
+   */
+  public SwapFixedIborDefinition getUnderlyingSwap() {
+    return _underlyingSwap;
+  }
+
+  /**
+   * Gets the CMS index associated to the coupon.
+   * @return The CMS index.
+   */
+  public IndexSwap getCMSIndex() {
+    return _cmsIndex;
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -144,8 +172,13 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     // CMS is not fixed yet, all the details are required.
-    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
-    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
+    //    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
+    //    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
   }
 
   @Override
@@ -173,8 +206,10 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
     // CMS is not fixed yet, all the details are required.
-    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(dateTime, indexFixingTimeSeries, yieldCurveNames);
-    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
+    final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
+    return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
   }
 
   @Override

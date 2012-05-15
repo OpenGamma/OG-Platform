@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.payments;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 
 /**
  * TODO This is a temporary class until ForexDerivative and InterestRateDerivative are in some way unified

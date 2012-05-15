@@ -84,8 +84,7 @@
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
     
-   
-  <!-- ============================================================================== -->
+   <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${postgres.jdbc.driver}"/>
     <property name="jdbcUrl" value="${postgres.jdbc.url}/test_${user.name}"/>
@@ -146,6 +145,71 @@
   
   <bean id="postgresDbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
     <constructor-arg ref="postgresDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
+  </bean>
+
+  
+  <!-- ============================================================================== -->
+  <bean id="sqlserver2008DataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${sqlserver2008.jdbc.driver}"/>
+    <property name="jdbcUrl" value="${sqlserver2008.jdbc.url};databasename=test_${user.name}"/>
+    <property name="username" value="${sqlserver2008.jdbc.username}"/>
+    <property name="password" value="${sqlserver2008.jdbc.password}"/>
+    <property name="poolName" value="FinancialTestsSqlServer2008"/>
+    <property name="partitionCount" value="2"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="maxConnectionsPerPartition" value="5"/>
+    <property name="acquireRetryAttempts" value="3"/>
+    <property name="acquireRetryDelayInMs" value="1000"/>
+  </bean>
+
+  <bean id="sqlserver2008DbConnector" parent="abstractDbConnector">
+    <property name="name" value="FinancialTestsSqlServer2008"/>
+    <property name="dataSource" ref="sqlserver2008DataSource"/>
+    <property name="dialectName" value="com.opengamma.util.db.SqlServer2008DbDialect"/>
+  </bean>
+
+  <bean id="sqlserver2008DbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+    <property name="detailProvider">
+      <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider" />
+    </property>
+  </bean>
+
+  <bean id="sqlserver2008DbHistoricalTimeSeriesMaster" class="com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbExchangeMaster" class="com.opengamma.masterdb.exchange.DbExchangeMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+  
+  <bean id="sqlserver2008DbMarketDataSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+
+  <bean id="sqlserver2008DbHolidayMaster" class="com.opengamma.masterdb.holiday.DbHolidayMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+  
+  <bean id="sqlserver2008DbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
+  
+  <bean id="sqlserver2008DbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
 

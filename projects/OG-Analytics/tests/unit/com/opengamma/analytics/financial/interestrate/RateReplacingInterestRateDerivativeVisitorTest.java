@@ -14,9 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
@@ -77,12 +75,12 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
     assertEquals(VISITOR.visit(c1, R2), c2);
   }
 
-  @Test
-  public void testForwardLiborAnnuity() {
-    final AnnuityCouponIbor a1 = new AnnuityCouponIbor(CUR, new double[] {1, 2}, INDEX, N1, N2, true);
-    final AnnuityCouponIbor a2 = a1.withSpread(R2);
-    assertEquals(VISITOR.visit(a1, R2), a2);
-  }
+  //  @Test
+  //  public void testForwardLiborAnnuity() {
+  //    final AnnuityCouponIbor a1 = new AnnuityCouponIbor(CUR, new double[] {1, 2}, INDEX, N1, N2, true);
+  //    final AnnuityCouponIbor a2 = a1.withSpread(R2);
+  //    assertEquals(VISITOR.visit(a1, R2), a2);
+  //  }
 
   @Test
   public void testFixedCouponAnnuity() {

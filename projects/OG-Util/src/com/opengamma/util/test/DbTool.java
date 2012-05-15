@@ -148,6 +148,7 @@ public class DbTool extends Task {
     addDbManagement("jdbc:postgresql", PostgresDbManagement.getInstance());
     addDbManagement("jdbc:derby", DerbyDbManagement.getInstance());
     addDbManagement("jdbc:hsqldb", HSQLDbManagement.getInstance());
+    addDbManagement("jdbc:sqlserver", SqlServer2008DbManagement.getInstance());
     
     String dbUrlLowercase = _dbServerHost.toLowerCase();
     for (Map.Entry<String, DbManagement> entry : s_url2Management.entrySet()) {
@@ -400,7 +401,8 @@ public class DbTool extends Task {
   }
 
   public String getTestDatabaseUrl() {
-    return _dbServerHost + "/" + getTestCatalog();         
+    return _dialect.getCatalogToConnectTo(getTestCatalog());
+    //return _dbServerHost + "/" + getTestCatalog();         
   }
 
   public Dialect getHibernateDialect() {
@@ -678,22 +680,26 @@ public class DbTool extends Task {
   public void createTables(String database, Map<Integer, Pair<File, File>> dbScripts, int version, int targetVersion, int createVersion, String catalog, String schema,
       final TableCreationCallback callback) {
     if (version < 1) {
-      throw new IllegalArgumentException("Invalid creation or target version (" + createVersion + "/" + targetVersion + ")");
+//      throw new IllegalArgumentException("Invalid creation or target version (" + createVersion + "/" + targetVersion + ")");
+      return;
     }
 
     if (targetVersion >= version) {
+      if (dbScripts.get(version) == null) {
+        return;
+      }
       final File createScript = dbScripts.get(version).getFirst();
       if (createVersion >= version && createScript.exists()) {
         s_logger.info("Creating DB version " + version);
-        s_logger.info("Executing create script " + createScript);
-        executeCreateScript(catalog, schema, createScript);
+        s_logger.info("Executing create script " + dbScripts.get(version).getFirst());
+        executeCreateScript(catalog, schema, dbScripts.get(version).getFirst());
         if (callback != null) {
           callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
         }
       } else {
         createTables(database, dbScripts, version - 1, targetVersion, createVersion, catalog, schema, callback);
         final File migrateScript = dbScripts.get(version).getSecond();
-        if (migrateScript.exists()) {
+        if (migrateScript != null && migrateScript.exists()) {
           s_logger.info("Upgrading to DB version " + version);
           s_logger.info("Executing upgrade script " + migrateScript);
           executeCreateScript(catalog, schema, migrateScript);

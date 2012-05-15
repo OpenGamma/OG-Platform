@@ -8,8 +8,6 @@ package com.opengamma.analytics.math.statistics.descriptive;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.SampleCentralMomentCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleStandardDeviationCalculator;
 
 /**
  * Calculates the $n^th$ normalized central moment of a series of data. Given

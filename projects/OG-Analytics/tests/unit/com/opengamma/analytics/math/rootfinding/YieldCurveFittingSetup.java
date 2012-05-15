@@ -33,15 +33,16 @@ import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateD
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
@@ -297,14 +298,12 @@ public abstract class YieldCurveFittingSetup {
    * @param notional the notional amount 
    * @return A FRA
    */
-  protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
-      final double notional) {
+  protected static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final double notional) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
     return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate, indexCurveName);
   }
 
-  protected static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate,
-      final int contracts) {
+  protected static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final int contracts) {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
     final InterestRateFuture underlyingFuture = new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, referencePrice, 1, tau, contracts, "N", fundCurveName, indexCurveName);
@@ -312,7 +311,7 @@ public abstract class YieldCurveFittingSetup {
     return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
   }
 
-  protected static TenorSwap<CouponIbor> makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate, final double notional) {
+  protected static TenorSwap<CouponIborSpread> makeBasisSwap(final double time, final String fundCurveName, final String liborCurveName, final double rate, final double notional) {
 
     final int index = (int) Math.round(4 * time);
     final double[] paymentTimes = new double[index];
@@ -328,10 +327,11 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIbor> payLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, DUMMY_INDEX, notional, fundCurveName, fundCurveName, true);
-    final GenericAnnuity<CouponIbor> receiveLeg = new AnnuityCouponIbor(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, notional,
-        fundCurveName, liborCurveName, false);
-    return new TenorSwap<CouponIbor>(payLeg, receiveLeg);
+    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs,
+        new double[yearFracs.length], notional, fundCurveName, fundCurveName, true);
+    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads,
+        notional, fundCurveName, liborCurveName, false);
+    return new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
   }
 
   protected static OISSwap makeOISSwap(final double time, final SimpleFrequency paymentFreq, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
@@ -364,12 +364,11 @@ public abstract class YieldCurveFittingSetup {
 
     final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
 
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon });
-    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon }));
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
+    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
-  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName,
-      final double rate, final double notional) {
+  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
 
     final int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
     Validate.isTrue(floatPayments % 2 == 0, "need even number of float payments as fixed payments at half frequency");
@@ -456,15 +455,17 @@ public abstract class YieldCurveFittingSetup {
     final double[] indexFixing = new double[payments];
     final double[] indexMaturity = new double[payments];
     final double[] yearFrac = new double[payments];
+    final double[] spreadArray = new double[payments];
 
     for (int i = 0; i < payments; i++) {
       indexFixing[i] = i / freq.getPeriodsPerYear();
       indexMaturity[i] = (i + 1) / freq.getPeriodsPerYear();
       floatingPayments[i] = indexMaturity[i];
       yearFrac[i] = 1 / freq.getPeriodsPerYear();
+      spreadArray[i] = spread;
     }
-    final AnnuityCouponIbor floatingLeg = new AnnuityCouponIbor(notional.getCurrency(), floatingPayments, indexFixing, DUMMY_INDEX, indexMaturity, yearFrac, notional.getAmount(), discountCurve,
-        indexCurve, notional.getAmount() < 0.0).withSpread(spread);
+    final AnnuityCouponIborSpread floatingLeg = new AnnuityCouponIborSpread(notional.getCurrency(), floatingPayments, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFrac, yearFrac,
+        spreadArray, notional.getAmount(), discountCurve, indexCurve, notional.getAmount() < 0.0);
 
     final PaymentFixed initialPayment = new PaymentFixed(notional.getCurrency(), 2.0 / 365, -notional.getAmount(), discountCurve);
     final PaymentFixed finalPayment = new PaymentFixed(notional.getCurrency(), nYears, notional.getAmount(), discountCurve);
@@ -473,9 +474,8 @@ public abstract class YieldCurveFittingSetup {
   }
 
   protected static CrossCurrencySwap makeCrossCurrencySwap(final CurrencyAmount domesticNotional, final CurrencyAmount foreignNotional, final int swapLength,
-      final SimpleFrequency domesticPaymentFreq,
-      final SimpleFrequency foreignPaymentFreq, final String domesticDiscountCurve, final String domesticIndexCurve, final String foreignDiscountCurve, final String foreignIndexCurve,
-      final double spread) {
+      final SimpleFrequency domesticPaymentFreq, final SimpleFrequency foreignPaymentFreq, final String domesticDiscountCurve, final String domesticIndexCurve, final String foreignDiscountCurve,
+      final String foreignIndexCurve, final double spread) {
 
     final FloatingRateNote domesticFRN = makeFRN(domesticNotional, swapLength, domesticPaymentFreq, domesticDiscountCurve, domesticIndexCurve, 0.0);
     final FloatingRateNote foreignFRN = makeFRN(foreignNotional, swapLength, foreignPaymentFreq, foreignDiscountCurve, foreignIndexCurve, spread);

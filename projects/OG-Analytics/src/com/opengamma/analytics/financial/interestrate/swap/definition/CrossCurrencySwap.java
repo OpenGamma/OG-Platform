@@ -10,16 +10,16 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 
-
 /**
- * 
+ * @deprecated When a SwapFixedIborDefinition is converted, the result is not necessarily a FixedFloatSwap as some Ibor coupons may have fixed already. 
+ * This instrument is never used in the natural flow "Definition->toDerivative->Derivative".
  */
+@Deprecated
 public class CrossCurrencySwap implements InstrumentDerivative {
 
   private final FloatingRateNote _domesticLeg;
   private final FloatingRateNote _foreignLeg;
-  private final double _spotFX; 
-
+  private final double _spotFX;
 
   /**
    * A float-float cross currency swap
@@ -36,7 +36,7 @@ public class CrossCurrencySwap implements InstrumentDerivative {
     _foreignLeg = foreignLeg;
     _spotFX = spotFx;
   }
-  
+
   public FloatingRateNote getDomesticLeg() {
     return _domesticLeg;
   }
@@ -44,14 +44,12 @@ public class CrossCurrencySwap implements InstrumentDerivative {
   public FloatingRateNote getForeignLeg() {
     return _foreignLeg;
   }
-  
+
   //TODO remove when possible 
   public double getSpotFX() {
     return _spotFX;
   }
 
-  
-  
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitCrossCurrencySwap(this, data);

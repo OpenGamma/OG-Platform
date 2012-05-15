@@ -32,8 +32,6 @@ import com.opengamma.analytics.math.statistics.distribution.fnlib.DERFC;
  */
 public class NormalDistribution implements ProbabilityDistribution<Double> {
   private static final double ROOT2 = Math.sqrt(2);
-  private static final double XMIN = -7.6; //-7.6
-  private static final double DELTA = 0.6; //0.05
 
   // TODO need a better seed
   private final double _mean;
@@ -75,38 +73,7 @@ public class NormalDistribution implements ProbabilityDistribution<Double> {
   @Override
   public double getCDF(final Double x) {
     Validate.notNull(x);
-
     return DERFC.getErfc(-x / ROOT2) / 2;
-
-    //    if (x <= XMIN) {
-    //      return tailApprox(x);
-    //    }
-    //    if (x < XMIN + DELTA) {
-    //      // smooth the two approximations together
-    //      final double a = tailApprox(x);
-    //      final double b = _normal.cdf(x);
-    //      final double w = weight(x);
-    //      final double temp = w * a + (1 - w) * b;
-    //      return temp;
-    //    }
-    //    if (x > -(XMIN + DELTA)) {
-    //      return 1.0 - getCDF(-x);
-    //    }
-    //    return _normal.cdf(x);
-  }
-
-  private double tailApprox(final double x) {
-    return _normal.pdf(x) / Math.sqrt(1 + x * x);
-  }
-
-  private double weight(final double x) {
-    if (x < XMIN) {
-      return 1.0;
-    } else if (x > XMIN + DELTA) {
-      return 0.0;
-    } else {
-      return (XMIN + DELTA - x) / DELTA;
-    }
   }
 
   /**

@@ -1,0 +1,17 @@
+-- Time Test SQL code
+
+-- ==========================================================================
+@NAME(DropTstTimes)
+  IF EXISTS (
+    SELECT table_name 
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE table_name='tst_times'
+  ) 
+  DROP TABLE
+    tst_times
+
+-- ==========================================================================
+@NAME(CreateTstTimes)
+  CREATE TABLE 
+    tst_times ( id BIGINT NOT NULL, ver DATETIME2(6) NOT NULL )
+

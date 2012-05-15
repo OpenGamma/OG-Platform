@@ -12,9 +12,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
@@ -23,8 +23,24 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * Class describing a Ibor-like floating coupon with a gearing (multiplicative) factor and a spread. The coupon payment is: notional * accrual factor * (factor * Ibor + spread).
  */
-public class CouponIborGearingDefinition extends CouponIborDefinition {
+public class CouponIborGearingDefinition extends CouponFloatingDefinition {
 
+  /**
+   * Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
+   */
+  private final IborIndex _index;
+  /**
+   * The start date of the fixing period.
+   */
+  private final ZonedDateTime _fixingPeriodStartDate;
+  /**
+   * The end date of the fixing period.
+   */
+  private final ZonedDateTime _fixingPeriodEndDate;
+  /**
+   * The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   */
+  private final double _fixingPeriodAccrualFactor;
   /**
    * The spread paid above the Ibor rate.
    */
@@ -54,7 +70,13 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
    */
   public CouponIborGearingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread, final double factor) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index);
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    Validate.notNull(index, "index");
+    Validate.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    _index = index;
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, _index.getSpotLag(), _index.getCalendar());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+    _fixingPeriodAccrualFactor = index.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     _spread = spread;
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
     _factor = factor;
@@ -94,8 +116,40 @@ public class CouponIborGearingDefinition extends CouponIborDefinition {
   }
 
   /**
+   * Gets the Ibor index of the instrument.
+   * @return The index.
+   */
+  public IborIndex getIndex() {
+    return _index;
+  }
+
+  /**
+   * Gets the start date of the fixing period.
+   * @return The start date of the fixing period.
+   */
+  public ZonedDateTime getFixingPeriodStartDate() {
+    return _fixingPeriodStartDate;
+  }
+
+  /**
+   * Gets the end date of the fixing period.
+   * @return The end date of the fixing period.
+   */
+  public ZonedDateTime getFixingPeriodEndDate() {
+    return _fixingPeriodEndDate;
+  }
+
+  /**
+   * Gets the accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
+   * @return The accrual factor.
+   */
+  public double getFixingPeriodAccrualFactor() {
+    return _fixingPeriodAccrualFactor;
+  }
+
+  /**
    * Gets the spread.
-   * @return The spread
+   * @return The spread.
    */
   public double getSpread() {
     return _spread;

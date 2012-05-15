@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  *
  */
-public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestRateFutureOptionFunction {
+public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestRateFutureOptionSABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private final String _valueRequirementName;
 

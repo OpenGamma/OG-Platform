@@ -51,6 +51,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -331,12 +332,12 @@ public class ForexDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborDefinition payment, T data) {
+    public String visitCouponIborSpread(CouponIborSpreadDefinition payment, T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborSpread(CouponIborDefinition payment) {
+    public String visitCouponIborSpread(CouponIborSpreadDefinition payment) {
       return null;
     }
 

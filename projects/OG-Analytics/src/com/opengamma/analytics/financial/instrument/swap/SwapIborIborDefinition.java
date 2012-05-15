@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -60,9 +60,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
 
   @Override
   public TenorSwap<Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> fixedLeg = (GenericAnnuity<Payment>) getLegWithoutSpread().toDerivative(date, yieldCurveNames);
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> iborLeg = (GenericAnnuity<Payment>) getLegWithSpread().toDerivative(date, yieldCurveNames);
     return new TenorSwap<Payment>(fixedLeg, iborLeg);
   }
@@ -71,9 +69,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
   public TenorSwap<Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
     Validate.notNull(indexDataTS, "index data time series array");
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> fixedLeg = (GenericAnnuity<Payment>) getLegWithoutSpread().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    @SuppressWarnings("unchecked")
     final GenericAnnuity<Payment> iborLeg = (GenericAnnuity<Payment>) getLegWithSpread().toDerivative(date, indexDataTS[1], yieldCurveNames);
     return new TenorSwap<Payment>(fixedLeg, iborLeg);
   }

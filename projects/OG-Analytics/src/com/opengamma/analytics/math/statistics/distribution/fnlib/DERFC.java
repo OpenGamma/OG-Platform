@@ -160,8 +160,8 @@ public class DERFC {
   private static int s_nterfc;
   private static int s_nterc2;
   private static double s_xsml;
-  private static double s_txmax;
-  private static double s_xmax;
+  //private static double s_txmax;
+  //private static double s_xmax;
   private static double s_sqeps;
   static {
     s_eta = 0.1 * D1MACH.three(); // slight variation from F77 SLATEC, comparing using doubles opposed to floats
@@ -169,8 +169,8 @@ public class DERFC {
     s_nterfc = INITDS.getInitds(s_erfccs, 59, s_eta);
     s_nterc2 = INITDS.getInitds(s_erc2cs, 49, s_eta);
     s_xsml = -Math.sqrt(-Math.log(SQRTPI * D1MACH.three()));
-    s_txmax = Math.sqrt(-Math.log(SQRTPI * D1MACH.one()));
-    s_xmax = s_txmax - 0.5d * Math.log(s_txmax) / s_txmax - 0.01d;
+    //s_txmax = Math.sqrt(-Math.log(SQRTPI * D1MACH.one()));
+    //s_xmax = s_txmax - 0.5d * Math.log(s_txmax) / s_txmax - 0.01d;
     s_sqeps = Math.sqrt(2d * D1MACH.three());
   }
 
@@ -184,9 +184,6 @@ public class DERFC {
     if (x <= s_xsml) {
       return 2.d;
     }
-    //    if (x > s_xmax) {
-    //      throw new MathException("x is so large that ERFC underflows");
-    //    }
     double y = Math.abs(x);
     if (y <= 1d) {
       if (y < s_sqeps) {

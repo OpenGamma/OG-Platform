@@ -21,6 +21,8 @@ import com.opengamma.engine.value.ValueSpecification;
  * The difference between this form and VolatilitySurfaceData is that the latter
  * will often be full of repeated values. Here we compute the distinct set of axes values, 
  * then query the surface for the z values.
+ * 
+ * TODO PLAT-2249 Add field to allow transposing the display surface  
  */
 public class VolatilitySurfaceConverter implements ResultConverter<VolatilitySurface> {
 

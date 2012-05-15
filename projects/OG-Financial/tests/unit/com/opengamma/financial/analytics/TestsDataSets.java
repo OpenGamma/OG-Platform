@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -30,13 +29,13 @@ public class TestsDataSets {
    */
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   /**
-   * The standard day count 30/360 used in the data set. 
+   * The standard day count 30/360 used in the data set.
    */
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
 
   /**
-   * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 10 years, maturity between 0 and 10 years. 
-   * Beta is 0.5.  Alpha 0.05 at 1Y and 0.06 at 10Y. Rho 0.50 at 1Y and 0.30 at 10Y. Nu -0.25 at 1Y and 0.00 at 10Y. 
+   * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 10 years, maturity between 0 and 10 years.
+   * Beta is 0.5.  Alpha 0.05 at 1Y and 0.06 at 10Y. Rho 0.50 at 1Y and 0.30 at 10Y. Nu -0.25 at 1Y and 0.00 at 10Y.
    * @param sabrFunction The SABR function.
    * @return The SABR parameters parameters.
    */
@@ -84,7 +83,7 @@ public class TestsDataSets {
     //    final VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(
-        LINEAR, LINEAR));
+            LINEAR, LINEAR));
     //    final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT, sabrFunction);
   }
@@ -123,7 +122,7 @@ public class TestsDataSets {
   public static SABRInterestRateParameters createSABR1RhoBumped(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double shift) {
     final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0,
         1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(
-        LINEAR, LINEAR));
+            LINEAR, LINEAR));
     //    final VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
     final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0,
         1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}, new GridInterpolator2D(LINEAR, LINEAR));
@@ -134,7 +133,7 @@ public class TestsDataSets {
     //    final VolatilitySurface rhoVolatility = new VolatilitySurface(rhoSurface);
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, new GridInterpolator2D(
-        LINEAR, LINEAR));
+            LINEAR, LINEAR));
     //    final VolatilitySurface nuVolatility = new VolatilitySurface(nuSurface);
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT, sabrFunction);
   }
@@ -174,7 +173,7 @@ public class TestsDataSets {
   public static SABRInterestRateParameters createSABR1NuBumped(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double shift) {
     final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0,
         1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, new GridInterpolator2D(
-        LINEAR, LINEAR));
+            LINEAR, LINEAR));
     //    final VolatilitySurface alphaVolatility = new VolatilitySurface(alphaSurface);
     final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10}, new double[] {0, 0, 0, 0, 0, 0,
         1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10}, new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}, new GridInterpolator2D(LINEAR, LINEAR));
@@ -219,28 +218,6 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a SABR surface with extrapolation parameters based on createSABR1.
-   * @param sabrFunction The SABR function.
-   * @param cutOffStrike The cut-off strike.
-   * @param mu The tail thickness parameter.
-   * @return The SABR surface with extrapolation parameters.
-   */
-  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double cutOffStrike, final double mu) {
-    final SABRInterestRateParameters sabr = createSABR1();
-    return SABRInterestRateExtrapolationParameters.from(sabr, cutOffStrike, mu);
-  }
-
-  /**
-   * Create a SABR surface with extrapolation and with Hagan volatility function parameters based on createSABR1.
-   * @param cutOffStrike The cut-off strike.
-   * @param mu The tail thickness parameter.
-   * @return The SABR surface with extrapolation parameters.
-   */
-  public static SABRInterestRateExtrapolationParameters createSABRExtrapolation1(final double cutOffStrike, final double mu) {
-    return createSABRExtrapolation1(new SABRHaganVolatilityFunction(), cutOffStrike, mu);
-  }
-
-  /**
    * Create a yield curve bundle with two curves. One called "Funding" with a constant rate of 5% and one called "Forward" with a constant rate of 4%;
    * @return The yield curve bundle.
    */
@@ -256,7 +233,7 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%,
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */
@@ -275,7 +252,7 @@ public class TestsDataSets {
   }
 
   /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 6%, one called "Discounting" with a constant rate of 5%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 6%, one called "Discounting" with a constant rate of 5%,
    * and one called "Forward" with a constant rate of 5.5%.
    * @return The yield curve bundle.
    */

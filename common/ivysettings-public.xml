@@ -10,7 +10,6 @@
   <property name="ivy.public.default.sources.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-src-[revision].[ext]" />
   <property name="ivy.public.default.javadocs.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-javadoc-[revision].[ext]" />
   <resolvers>
-
     <chain name="public" returnFirst="true">
       <url name="opengamma-ivyrepo">
         <ivy pattern="http://ivyrepos.opengamma.com/OG-PrivateIvy/${ivy.public.default.ivy.pattern}" />

@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.generator.EUR1YEURIBOR
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSHullWhiteApproximationMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSHullWhiteNumericalIntegrationMethod;

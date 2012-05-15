@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -48,7 +48,6 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
-  @SuppressWarnings("unchecked")
   public GenericAnnuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.notNull(pType);

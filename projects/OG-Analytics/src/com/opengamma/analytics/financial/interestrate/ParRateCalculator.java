@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -18,14 +18,15 @@ import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -65,7 +66,9 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    * The methods and calculators.
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
+  //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
@@ -141,8 +144,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    final AnnuityCouponIbor firstLeg = (AnnuityCouponIbor) swap.getFirstLeg();
-    final AnnuityCouponIbor secondLeg = (AnnuityCouponIbor) swap.getSecondLeg();
+    final AnnuityCouponIborSpread firstLeg = (AnnuityCouponIborSpread) swap.getFirstLeg();
+    final AnnuityCouponIborSpread secondLeg = (AnnuityCouponIborSpread) swap.getSecondLeg();
     final double pvFirst = PVC.visit(firstLeg.withZeroSpread(), curves);
     final double pvSecond = PVC.visit(secondLeg.withZeroSpread(), curves);
     final double pvSpread = PVC.visit(secondLeg.withUnitCoupons(), curves);
@@ -162,8 +165,8 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
     FloatingRateNote dFRN = ccs.getDomesticLeg();
     FloatingRateNote fFRN = ccs.getForeignLeg();
-    AnnuityCouponIbor dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
-    AnnuityCouponIbor fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
+    AnnuityCouponIborSpread dFloatLeg = dFRN.getFloatingLeg().withZeroSpread();
+    AnnuityCouponIborSpread fFloatLeg = fFRN.getFloatingLeg().withZeroSpread();
     AnnuityCouponFixed fAnnuity = fFRN.getFloatingLeg().withUnitCoupons();
 
     double dPV = PVC.visit(dFloatLeg, curves) + PVC.visit(dFRN.getFirstLeg(), curves); //this is in domestic currency
@@ -209,6 +212,11 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
 
   @Override
   public Double visitCouponIbor(final CouponIbor payment, final YieldCurveBundle data) {
+    return METHOD_IBOR.parRate(payment, data);
+  }
+
+  @Override
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle data) {
     final YieldAndDiscountCurve curve = data.getCurve(payment.getForwardCurveName());
     return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingYearFraction();
   }
@@ -226,17 +234,12 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
 
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor payment, final YieldCurveBundle data) {
-    return visitCouponIbor(payment, data);
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   @Override
   public Double visitFixedFloatSwap(final FixedFloatSwap swap, final YieldCurveBundle data) {
     return visitFixedCouponSwap(swap, data);
-  }
-
-  @Override
-  public Double visitCouponIborFixed(final CouponIborFixed payment, final YieldCurveBundle data) {
-    return visitCouponIbor(payment.toCouponIbor(), data);
   }
 
 }

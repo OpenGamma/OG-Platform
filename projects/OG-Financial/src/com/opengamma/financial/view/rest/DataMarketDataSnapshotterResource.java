@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.net.URI;
 import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
@@ -67,7 +69,7 @@ public class DataMarketDataSnapshotterResource extends AbstractDataResource {
     UniqueId viewCycleId = UniqueId.parse(viewCycleIdString);
     ViewClient client = _viewProcessor.getViewClient(viewClientId);
     EngineResourceReference<? extends ViewCycle> cycleReference = client.createCycleReference(viewCycleId);
-    
+
     if (cycleReference == null) {
       throw new IllegalArgumentException("Cycle is not available");
     }
@@ -82,6 +84,28 @@ public class DataMarketDataSnapshotterResource extends AbstractDataResource {
   @GET
   public Response get() {
     return responseOk("Snapshotter");
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriCreateSnapshot(URI baseUri, UniqueId viewClientId, UniqueId viewCycleId) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path(PATH_CREATE_SNAPSHOT + "/" + viewClientId + "/" + viewCycleId);
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriGetYieldCurveSpecs(URI baseUri, UniqueId viewClientId, UniqueId viewCycleId) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path(PATH_YIELD_CURVE_SPECS + "/" + viewClientId + "/" + viewCycleId);    
+    return bld.build();
   }
 
 }

@@ -14,11 +14,12 @@ import com.opengamma.analytics.financial.interestrate.annuity.definition.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIborGearing;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.definition.Swap;
@@ -66,7 +67,7 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
   }
 
   @Override
-  public AnnuityPaymentFixed visitFixedCouponPayment(final CouponFixed coupon, final YieldCurveBundle curves) {
+  public AnnuityPaymentFixed visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(coupon);
     return new AnnuityPaymentFixed(new PaymentFixed[] {coupon.toPaymentFixed()});
@@ -74,6 +75,24 @@ public class CashFlowEquivalentCalculator extends AbstractInstrumentDerivativeVi
 
   @Override
   public AnnuityPaymentFixed visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(payment);
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
+    double fixingStartTime = payment.getFixingPeriodStartTime();
+    double fixingEndTime = payment.getFixingPeriodEndTime();
+    double paymentTime = payment.getPaymentTime();
+    final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
+        / discountingCurve.getDiscountFactor(fixingStartTime);
+    PaymentFixed paymentStart = new PaymentFixed(payment.getCurrency(), fixingStartTime, beta * payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
+        payment.getFundingCurveName());
+    PaymentFixed paymentEnd = new PaymentFixed(payment.getCurrency(), paymentTime, -payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor(),
+        payment.getFundingCurveName());
+    return new AnnuityPaymentFixed(new PaymentFixed[] {paymentStart, paymentEnd});
+  }
+
+  @Override
+  public AnnuityPaymentFixed visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());

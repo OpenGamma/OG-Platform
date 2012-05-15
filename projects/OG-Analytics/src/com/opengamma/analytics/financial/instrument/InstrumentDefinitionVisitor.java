@@ -45,6 +45,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -168,9 +169,9 @@ public interface InstrumentDefinitionVisitor<T, U> {
 
   U visitCouponIbor(CouponIborDefinition payment);
 
-  U visitCouponIborSpread(CouponIborDefinition payment, T data);
+  U visitCouponIborSpread(CouponIborSpreadDefinition payment, T data);
 
-  U visitCouponIborSpread(CouponIborDefinition payment);
+  U visitCouponIborSpread(CouponIborSpreadDefinition payment);
 
   U visitCouponOISSimplified(CouponOISSimplifiedDefinition payment, T data);
 

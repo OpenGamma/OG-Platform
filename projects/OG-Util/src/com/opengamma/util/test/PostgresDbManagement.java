@@ -138,7 +138,7 @@ public final class PostgresDbManagement extends AbstractDbManagement {
   @Override
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new SQLCatalogCreationStrategy(
-        getDbHost(), 
+        this, 
         getUser(), 
         getPassword(), 
         "SELECT datname AS name FROM pg_database",

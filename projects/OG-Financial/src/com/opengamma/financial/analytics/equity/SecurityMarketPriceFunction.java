@@ -57,9 +57,7 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-      ValueRequirement desiredValue) {
-//    return Collections.emptySet();
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     ValueRequirement valueRequirement = getRequirement(target);
     return Collections.singleton(valueRequirement);
   }

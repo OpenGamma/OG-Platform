@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
 
-  private String _dbServerHost;
+  private AbstractDbManagement _dbManagement;
   private String _user;
   private String _password;
   private String _allCatalogsSql;
@@ -26,19 +26,19 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
 
   /**
    * Creates an instance.
-   * @param dbServerHost  the database server, not null
+   * @param dbManagement  the dialect-specific db management class
    * @param user  the user name
    * @param password  the password
    * @param getAllCatalogsSql  the SQL to get all catalogs, not null
    * @param blankCatalog  the catalog name to create, not null 
    */
   public SQLCatalogCreationStrategy(
-      String dbServerHost, 
+      AbstractDbManagement dbManagement,
       String user, 
       String password,
       String getAllCatalogsSql,
       String blankCatalog) {
-    _dbServerHost = dbServerHost;
+    _dbManagement = dbManagement;
     _user = user;
     _password = password;
     _allCatalogsSql = getAllCatalogsSql;
@@ -83,9 +83,9 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
 
   private String getCatalogToConnectTo() {
     if (_blankCatalog == null) {
-      return _dbServerHost;
+      return _dbManagement.getDbHost();
     } else {
-      return _dbServerHost + "/" + _blankCatalog;
+      return _dbManagement.getCatalogToConnectTo(_blankCatalog);
     }
   }
 

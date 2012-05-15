@@ -160,9 +160,13 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
 
   @Override
   public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
+    ManageableTrade trade = null;
     final SwapSecurity swap = createSecurity();
-    return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), ExternalId.of("CParty",
+    if (swap != null) {
+      trade = new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), ExternalId.of("CParty",
         swap.getCounterparty()));
+    }
+    return trade;
   }
 
 }

@@ -36,12 +36,11 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
-import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSABRReplicationMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -147,8 +146,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
-        USD_GENERATOR.getIborIndex().isEndOfMonth());
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
+        .isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
@@ -275,8 +274,8 @@ public class CapFloorCMSSABRReplicationMethodTest {
   public void presentValueCurveSensitivityAnnuity() {
     Period START_CMSCAP = Period.ofYears(5);
     Period LENGTH_CMSCAP = Period.ofYears(10);
-    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR,
-        USD_GENERATOR.getIborIndex().isEndOfMonth());
+    ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
+        .isEndOfMonth());
     ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
     Period capPeriod = Period.ofMonths(6);
     DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");

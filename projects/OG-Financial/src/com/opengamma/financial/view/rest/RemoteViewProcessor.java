@@ -13,6 +13,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -35,10 +36,10 @@ public class RemoteViewProcessor implements ViewProcessor {
   private final ScheduledExecutorService _heartbeatScheduler;
   private final FudgeRestClient _client;
   private final JmsConnector _jmsConnector;
-  
+
   /**
    * Constructs an instance.
-   * 
+   *
    * @param baseUri  the base URI of the remote view processor
    * @param jmsConnector  the JMS connector
    * @param heartbeatScheduler  the scheduler to be used to send heartbeats to the remote view processor
@@ -47,8 +48,13 @@ public class RemoteViewProcessor implements ViewProcessor {
     _baseUri = baseUri;
     _heartbeatScheduler = heartbeatScheduler;
     _client = FudgeRestClient.create();
-    _jmsConnector = jmsConnector;
+    _jmsConnector = jmsConnector;    
   }
+  
+    public MarketDataSnapshotter getMarketDataSnapshotter() {
+      URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_SNAPSHOTTER).build();
+      return new RemoteMarketDataSnapshotter(uri);
+    }
 
   @Override
   public String getName() {
@@ -67,7 +73,7 @@ public class RemoteViewProcessor implements ViewProcessor {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY).build();
     return new RemoteNamedMarketDataSpecificationRepository(uri);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ViewProcess getViewProcess(UniqueId viewProcessId) {

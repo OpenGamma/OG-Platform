@@ -9,13 +9,18 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.util.money.Currency;
 
 /**
  * A wrapper class for a GenericAnnuity containing CouponIbor.
  */
+/**
+ * @deprecated When a AnnuityCouponIborDefinition is converted, the result is not necessarily a AnnuityCouponIbor as some Ibor coupons may have fixed already. 
+ * This instrument is never used in the natural flow "Definition->toDerivative->Derivative".
+ */
+@Deprecated
 public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
 
   /**
@@ -69,8 +74,7 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
    */
   public AnnuityCouponIbor(Currency currency, final double[] paymentTimes, final double[] indexFixingTimes, IborIndex index, final double[] indexMaturityTimes, final double[] yearFraction,
       final double notional, final String fundingCurveName, final String liborCurveName, boolean isPayer) {
-    this(currency, paymentTimes, indexFixingTimes, index, indexFixingTimes, indexMaturityTimes, yearFraction, yearFraction, new double[paymentTimes == null ? 0 : paymentTimes.length], notional,
-        fundingCurveName, liborCurveName, isPayer);
+    this(currency, paymentTimes, indexFixingTimes, index, indexFixingTimes, indexMaturityTimes, yearFraction, yearFraction, notional, fundingCurveName, liborCurveName, isPayer);
   }
 
   /**
@@ -84,16 +88,14 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
    * @param indexMaturityTimes time in years from now to the maturity of the reference rate  
    * @param paymentYearFractions year fractions used to calculate payment amounts
    * @param forwardYearFractions year fractions used to calculate forward rates
-   * @param spreads fixed payments on top of variable amounts (can be negative)
    * @param notional the notional amount (OK to set to 1.0) 
    * @param fundingCurveName  Name of curve from which payments are discounted
    * @param liborCurveName Name of curve from which forward rates are calculated
    * @param isPayer Payer flag.
    */
   public AnnuityCouponIbor(Currency currency, final double[] paymentTimes, final double[] indexFixingTimes, IborIndex index, final double[] indexStartTimes, final double[] indexMaturityTimes,
-      final double[] paymentYearFractions, final double[] forwardYearFractions, final double[] spreads, final double notional, final String fundingCurveName, final String liborCurveName,
-      boolean isPayer) {
-    super(fullSetup(currency, paymentTimes, index, indexFixingTimes, indexStartTimes, indexMaturityTimes, paymentYearFractions, forwardYearFractions, spreads, notional * (isPayer ? -1.0 : 1.0),
+      final double[] paymentYearFractions, final double[] forwardYearFractions, final double notional, final String fundingCurveName, final String liborCurveName, boolean isPayer) {
+    super(fullSetup(currency, paymentTimes, index, indexFixingTimes, indexStartTimes, indexMaturityTimes, paymentYearFractions, forwardYearFractions, notional * (isPayer ? -1.0 : 1.0),
         fundingCurveName, liborCurveName));
 
   }
@@ -109,17 +111,16 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
       Validate.isTrue(paymentTimes[i] >= 0.0, "payment time is negative");
     }
     final CouponIbor[] res = new CouponIbor[n];
-    res[0] = new CouponIbor(currency, paymentTimes[0], fundingCurveName, paymentTimes[0], notional, 0.0, index, 0.0, paymentTimes[0], paymentTimes[0], 0.0, liborCurveName);
+    res[0] = new CouponIbor(currency, paymentTimes[0], fundingCurveName, paymentTimes[0], notional, 0.0, index, 0.0, paymentTimes[0], paymentTimes[0], liborCurveName);
     for (int i = 1; i < n; i++) {
       res[i] = new CouponIbor(currency, paymentTimes[i], fundingCurveName, paymentTimes[i] - paymentTimes[i - 1], notional, paymentTimes[i - 1], index, paymentTimes[i - 1], paymentTimes[i],
-          paymentTimes[i] - paymentTimes[i - 1], 0.0, liborCurveName);
+          paymentTimes[i] - paymentTimes[i - 1], liborCurveName);
     }
     return res;
   }
 
   private static CouponIbor[] fullSetup(Currency currency, final double[] paymentTimes, IborIndex index, final double[] indexFixingTimes, final double[] indexStartTimes,
-      final double[] indexMaturityTimes, final double[] paymentYearFraction, final double[] forwardYearFraction, final double[] spreads, final double notional, final String fundingCurveName,
-      final String liborCurveName) {
+      final double[] indexMaturityTimes, final double[] paymentYearFraction, final double[] forwardYearFraction, final double notional, final String fundingCurveName, final String liborCurveName) {
     Validate.notNull(fundingCurveName);
     Validate.notNull(liborCurveName);
     Validate.notNull(paymentTimes);
@@ -128,8 +129,6 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
     Validate.isTrue(paymentYearFraction.length > 0, "payment year array is empty");
     Validate.notNull(forwardYearFraction);
     Validate.isTrue(forwardYearFraction.length > 0, "payment year fraction is empty");
-    Validate.notNull(spreads);
-    Validate.isTrue(spreads.length > 0, "spreads array is empty");
     Validate.notNull(indexFixingTimes);
     Validate.isTrue(indexFixingTimes.length > 0, "index fixing times array is empty");
     Validate.notNull(indexMaturityTimes);
@@ -139,7 +138,6 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
     Validate.isTrue(indexMaturityTimes.length == n);
     Validate.isTrue(paymentYearFraction.length == n);
     Validate.isTrue(forwardYearFraction.length == n);
-    Validate.isTrue(spreads.length == n);
     // sanity checks
     //CouponIbor(paymentTimes[i], notional, indexFixingTimes[i], indexMaturityTimes[i], paymentYearFraction[i], forwardYearFraction[i], spreads[i], fundingCurveName, liborCurveName);
     for (int i = 0; i < n; i++) {
@@ -151,18 +149,9 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
     final CouponIbor[] res = new CouponIbor[n];
     for (int i = 0; i < n; i++) {
       res[i] = new CouponIbor(currency, paymentTimes[i], fundingCurveName, paymentYearFraction[i], notional, indexFixingTimes[i], index, indexStartTimes[i], indexMaturityTimes[i],
-          forwardYearFraction[i], spreads[i], liborCurveName);
+          forwardYearFraction[i], liborCurveName);
     }
     return res;
-  }
-
-  public AnnuityCouponIbor withZeroSpread() {
-    final int n = getNumberOfPayments();
-    final CouponIbor[] temp = new CouponIbor[n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = getNthPayment(i).withZeroSpread();
-    }
-    return new AnnuityCouponIbor(temp);
   }
 
   public AnnuityCouponFixed withUnitCoupons() {
@@ -172,15 +161,6 @@ public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
       temp[i] = getNthPayment(i).withUnitCoupon();
     }
     return new AnnuityCouponFixed(temp);
-  }
-
-  public AnnuityCouponIbor withSpread(final double rate) {
-    final int n = getNumberOfPayments();
-    final CouponIbor[] temp = new CouponIbor[n];
-    for (int i = 0; i < n; i++) {
-      temp[i] = getNthPayment(i).withSpread(rate);
-    }
-    return new AnnuityCouponIbor(temp);
   }
 
   @Override

@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * A Fudge reader that interprets JSON.
@@ -245,7 +246,11 @@ public class FudgeMsgJSONReader {
         if (dataArray.length() > 0) {
           if (isPrimitiveArray(metaValue)) {
             try {
-              final Object primitiveArray = jsonArrayToPrimitiveArray(dataArray, (String) metaValue);
+              final FudgeFieldType fieldType = getFieldType((String) metaValue);
+              if (fieldType == null) {
+                throw new OpenGammaRuntimeException("Unknown field type " + metaValue + " for " + fieldName + ":" + dataValue);
+              }
+              final Object primitiveArray = jsonArrayToPrimitiveArray(dataArray, fieldType);
               addField(fudgeMsg, fieldName, getFieldType((String) metaValue), primitiveArray);
             } catch (JSONException e) {
               wrapException("converting json array to primitive array", e);
@@ -256,7 +261,11 @@ public class FudgeMsgJSONReader {
           }
         }
       } else {
-        addField(fudgeMsg, fieldName, getFieldType((String) metaValue), dataValue);
+        final FudgeFieldType fieldType = getFieldType((String) metaValue);
+        if (fieldType == null) {
+          throw new OpenGammaRuntimeException("Unknown field type " + metaValue + " for " + fieldName + ":" + dataValue);
+        }
+        addField(fudgeMsg, fieldName, fieldType, dataValue);
       }
     }
     return fudgeMsg;
@@ -327,7 +336,11 @@ public class FudgeMsgJSONReader {
           final MutableFudgeMsg subMsg = processFields((JSONObject) arrValue, (JSONObject) metaValue);
           addField(fudgeMsg, fieldName, FudgeWireType.SUB_MESSAGE, subMsg);
         } else {
-          addField(fudgeMsg, fieldName, getFieldType((String) metaValue), arrValue);
+          FudgeFieldType fieldType = getFieldType((String) metaValue);
+          if (fieldType == null) {
+            throw new OpenGammaRuntimeException("Unknown field type " + metaValue + " for " + fieldName + ":" + arrValue);
+          }
+          addField(fudgeMsg, fieldName, fieldType, arrValue);
         }
       }
     } catch (JSONException e) {
@@ -340,8 +353,7 @@ public class FudgeMsgJSONReader {
     return getFudgeContext().getTypeDictionary().getByTypeId(typeId);
   }
   
-  private Object jsonArrayToPrimitiveArray(final JSONArray arr, final String metaType) throws JSONException {
-    FudgeFieldType fieldType = getFieldType(metaType);
+  private Object jsonArrayToPrimitiveArray(final JSONArray arr, final FudgeFieldType fieldType) throws JSONException {
     switch (fieldType.getTypeId()) {
       case FudgeWireType.BYTE_ARRAY_TYPE_ID:
       case FudgeWireType.BYTE_ARRAY_4_TYPE_ID:

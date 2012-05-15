@@ -5,263 +5,369 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
+import static com.google.common.collect.Lists.newArrayList;
 
-import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.map;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import javax.time.Instant;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatters;
 
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.component.BloombergTimeSeriesUpdateTool;
-import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.tool.BloombergToolContext;
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.financial.convention.ConventionBundle;
-import com.opengamma.financial.convention.ConventionBundleMaster;
-import com.opengamma.financial.convention.DefaultConventionBundleSource;
-import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.ExternalId;
-import com.opengamma.master.config.ConfigDocument;
+
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.calc.ViewCycleMetadata;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
+import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.financial.view.rest.RemoteViewProcessor;
+import com.opengamma.integration.component.RemoteEngineUtils;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.util.functional.Function1;
-import com.opengamma.util.money.Currency;
-
+import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 
 /**
+ * The entry point for running OpenGamma batches. 
  */
-public class MarketDataSnapshotTool extends AbstractTool {
-  /**
-   * Logger.
-   */
-  private static Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
+public class MarketDataSnapshotTool {
 
-  /** Portfolio name option flag*/
-  private static final String PORTFOLIO_NAME_OPT = "n";
-  /** Write option flag */
-  private static final String WRITE_OPT = "w";
-  /** Verbose option flag */
-  private static final String VERBOSE_OPT = "v";
-  /** Time series data provider option flag*/
-  private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
-  /** Time series data field option flag*/
-  private static final String TIME_SERIES_DATAFIELD_OPT = "d";
-  
-  //-------------------------------------------------------------------------
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
 
   /**
-   * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * Time format: yyyyMMdd
    */
-  public static void main(String[] args) {  // CSIGNORE
-    new MarketDataSnapshotTool().initAndRun(args);
-    System.exit(0);
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatters.pattern("HH:mm:ss");
+
+  static LocalTime parseTime(String date) {
+    return LocalTime.parse(date, TIME_FORMATTER);
   }
 
-  //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void doRun() {
-    
-    Set<ExternalId> curveNodesExternalIds;
-
-    Set<ExternalId> initialRateExternalIds;
-        
-    ConfigSource configSource = getToolContext().getConfigSource();
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
-
-    // Find all matching curves
-    List<YieldCurveDefinition> curves = getCurves(getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), configMaster);
-
-    // Get initial rate hts external ids for curves
-    Set<Currency> currencies = newHashSet();
-    for (YieldCurveDefinition curve : curves) {
-      currencies.add(curve.getCurrency());
+  private static Instant getValuationInstant(CommandLine line, Properties configProperties, String configPropertysFile) {
+    String valuationTime = getProperty("valuationTime", line, configProperties, configPropertysFile, false);
+    if (valuationTime != null) {
+      LocalTime time = parseTime(valuationTime);
+      return ZonedDateTime.now().withTime(time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute()).toInstant();
+    } else {
+      return Instant.now();
     }
-    initialRateExternalIds = getInitialRateExternalIds(currencies);
+  }
 
-    // Get all other required hts external ids for curves
-    List<LocalDate> dates = buildDates();
-    Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
+  private static String getViewDefinitionName(CommandLine line, Properties configProperties) {
+    String view = getProperty("view", line, configProperties);
+    if (view == null) {
+      throw new IllegalArgumentException("View definition unique Id is mandatory parameter");
+    }
+    return view;
+  }
+
+  static class SingleSnaphoter implements Callable<List<StructuredMarketDataSnapshot>> {
+    private ViewDefinition _viewDefinition;
+    private MarketDataSnapshotter _marketDataSnapshotter;
+    private ViewProcessor _viewProcessor;
+    private ViewExecutionOptions _viewExecutionOptions;
+    private FutureTask<List<StructuredMarketDataSnapshot>> _prev;
+
+    SingleSnaphoter(MarketDataSnapshotter marketDataSnapshotter, ViewProcessor viewProcessor, ViewDefinition viewDefinition, ViewExecutionOptions viewExecutionOptions, FutureTask<List<StructuredMarketDataSnapshot>> prev) {
+      _marketDataSnapshotter = marketDataSnapshotter;
+      _viewProcessor = viewProcessor;
+      _viewExecutionOptions = viewExecutionOptions;
+      _viewDefinition = viewDefinition;
+      _prev = prev;
+    }
+
+    @Override
+    public List<StructuredMarketDataSnapshot> call() throws Exception {
+      StructuredMarketDataSnapshot snapshot = makeSnapshot(_marketDataSnapshotter, _viewProcessor, _viewDefinition, _viewExecutionOptions);
+      if (_prev == null) {
+        return newArrayList(snapshot);
+      } else {
+        _prev.get();
+        List<StructuredMarketDataSnapshot> result = newArrayList(snapshot);
+        result.addAll(_prev.get());
+        return result;
+      }
+    }
+  }
+
+  public static void main(String[] args) throws Exception {  // CSIGNORE
+
+    final int cores = Math.min(1, Runtime.getRuntime().availableProcessors());
+    final ExecutorService execSvc = Executors.newFixedThreadPool(2 * cores);
+
+    if (args.length == 0) {
+      usage();
+      System.exit(-1);
+    }
+
+    CommandLine line = null;
+    Properties configProperties = null;
+
+    final String propertyFile = "snapshotter.properties";
+
+    String configPropertyFile = null;
+
+    if (System.getProperty(propertyFile) != null) {
+      configPropertyFile = System.getProperty(propertyFile);
+      try {
+        FileInputStream fis = new FileInputStream(configPropertyFile);
+        configProperties = new Properties();
+        configProperties.load(fis);
+        fis.close();
+      } catch (FileNotFoundException e) {
+        s_logger.error("The system cannot find " + configPropertyFile);
+        System.exit(-1);
+      }
+    } else {
+      try {
+        FileInputStream fis = new FileInputStream(propertyFile);
+        configProperties = new Properties();
+        configProperties.load(fis);
+        fis.close();
+        configPropertyFile = propertyFile;
+      } catch (FileNotFoundException e) {
+        // there is no config file so we expect command line arguments
+        try {
+          CommandLineParser parser = new PosixParser();
+          line = parser.parse(getOptions(), args);
+        } catch (ParseException e2) {
+          usage();
+          System.exit(-1);
+        }
+      }
+    }
+
+    RemoteEngineUtils remoteEngineUtils = new RemoteEngineUtils();
+
+    final String baseURI = getProperty("engineURI", line, configProperties, configPropertyFile);
+    final String brokerURI = getProperty("brokerURI", line, configProperties, configPropertyFile);
+
+
+    remoteEngineUtils.setBaseUri(baseURI);
+
+    remoteEngineUtils.setActiveMQBrokerUrl(brokerURI);
+
+
+    final String viewDefinitionName = getViewDefinitionName(line, configProperties);
+
+    List<RemoteViewProcessor> viewProcessors = remoteEngineUtils.getViewProcessors();
+
+    Instant valuationTime = getValuationInstant(line, configProperties, configPropertyFile);
+    MarketDataSpecification marketDataSpecification = MarketData.live();
+    ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationTime, marketDataSpecification, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
+
+    List<MarketDataSnapshotMaster> marketDataSnapshotMasters = getMarketDataSnapshotMasters(remoteEngineUtils);
+
+    if (viewProcessors.size() == 0) {
+      s_logger.warn("No view processors found at {}", remoteEngineUtils.getBaseURI());
+    } else {
+      if (marketDataSnapshotMasters.size() == 0) {
+        s_logger.warn("No market data snapshot masters at {}", remoteEngineUtils.getBaseURI());
+      } else {
+        // use first view processor
+        RemoteViewProcessor viewProcessor = viewProcessors.get(0);
+        MarketDataSnapshotMaster marketDataSnapshotMaster = marketDataSnapshotMasters.get(0);
+        try {
+          MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
+          FutureTask<List<StructuredMarketDataSnapshot>> task = null;
+          for (ConfigMaster configMaster : getConfigMasters(remoteEngineUtils)) {
+            for (ViewDefinition viewDefinition : findViewDefinitionsByName(viewDefinitionName, configMaster)) {
+              task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnaphoter(marketDataSnapshotter, viewProcessor, viewDefinition, viewExecutionOptions, task));
+              execSvc.execute(task);
+            }
+          }
+
+          if (task != null) {
+            for (StructuredMarketDataSnapshot snapshot : task.get()) {
+              MarketDataSnapshotDocument document = new MarketDataSnapshotDocument();
+              ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot.getBasisViewName() + "/" + valuationTime, snapshot.getGlobalValues(), snapshot.getYieldCurves());
+              marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
+            }
+          }
+
+        } finally {
+          remoteEngineUtils.getJmsConnector().close();
+        }
+      }
+    }
+  }
+
+  static private StructuredMarketDataSnapshot makeSnapshot(MarketDataSnapshotter marketDataSnapshotter, ViewProcessor viewProcessor, ViewDefinition viewDefinition, ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
+    final ViewClient vc = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
+    vc.setResultListener(new ViewResultListener() {
       @Override
-      public String execute(YieldCurveDefinition yieldCurveDefinition) {
-        return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
+      public UserPrincipal getUser() {
+        String ipAddress;
+        try {
+          ipAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+          ipAddress = "unknown";
+        }
+        return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
+      }
+
+      @Override
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      }
+
+      @Override
+      public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
+      }
+
+      @Override
+      public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+      }
+
+      @Override
+      public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+      }
+
+      @Override
+      public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+        s_logger.info("cycle completed");
+      }
+
+      @Override
+      public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
+      }
+
+      @Override
+      public void processCompleted() {
+      }
+
+      @Override
+      public void processTerminated(boolean executionInterrupted) {
+      }
+
+      @Override
+      public void clientShutdown(Exception e) {
       }
     });
-    curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
-     
-    // Load the required time series
-    loadHistoricalData(
-        getCommandLine().hasOption(WRITE_OPT),
-        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        initialRateExternalIds, 
-        curveNodesExternalIds);  
+    vc.setViewCycleAccessSupported(true);
+    vc.attachToViewProcess(viewDefinition.getUniqueId(), viewExecutionOptions);
+
+    vc.waitForCompletion();
+    vc.pause();
+    EngineResourceReference<? extends ViewCycle> cycleReference = null;
+    try {
+      cycleReference = vc.createLatestCycleReference();
+      return marketDataSnapshotter.createSnapshot(vc, cycleReference.get());
+    } finally {
+      cycleReference.release();
+      vc.shutdown();
+    }
   }
 
-  private Set<ExternalId> getInitialRateExternalIds(Set<Currency> currencies) {
-    ConventionBundleMaster cbm = new InMemoryConventionBundleMaster();
-    DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
-    Set<ExternalId> externalInitialRateId = newHashSet();
-    for (Currency currency : currencies) {
-      for (String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
-        String product = currency.getCode() + "_" + swapType;
-        ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
-        if (convention != null) {
-          ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
-          ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
-          externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
-        } else {
-          s_logger.warn("No convention for {} product", product);
-        }
+  static private List<ConfigMaster> getConfigMasters(RemoteEngineUtils remoteEngineUtils) {
+    List<ConfigMaster> configMasters = newArrayList();
+    for (ComponentInfo o : remoteEngineUtils.getRemoteComponentServer().getComponentServer().getComponentInfos()) {
+      if (ConfigMaster.class.isAssignableFrom(o.getType())) {
+        configMasters.add(new RemoteConfigMaster(o.getUri()));
       }
     }
-    return externalInitialRateId;
+    return configMasters;
   }
 
-  /**
-   * Generate quarterly dates +/- 2 years around today to cover futures from past and near future
-   * @return list of dates
-   */
-  private List<LocalDate> buildDates() {
-    Clock clock = Clock.systemDefaultZone();
-    List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate twoYearsAgo = clock.today().minusYears(2);
-    LocalDate twoYearsTime = clock.today().plusYears(2);
-    for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
-      dates.add(next);
-    }
-    return dates;
-  }
-
-  /**
-   * Get all the curves starting with FUNDING or FORWARD
-   * @param configMaster
-   * @return list of yield curve definition config object names
-   */
-  private List<YieldCurveDefinition> getCurves(String name, ConfigMaster configMaster) {
-    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, name);
-    return curves;
-  }
-
-  /**
-   * Get all the curve definition config object names specified by glob expression.
-   * @param configMaster
-   * @param nameExpr glob type expression - e.g. blah*
-   * @return list of names of config objects matching glob expression
-   */
-  private List<YieldCurveDefinition> getCurveDefinitionNames(ConfigMaster configMaster, String nameExpr) {
-    List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    ConfigSearchRequest<YieldCurveDefinition> searchReq = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
-    searchReq.setName(nameExpr);
-    ConfigSearchResult<YieldCurveDefinition> result = configMaster.search(searchReq);
-    for (ConfigDocument<YieldCurveDefinition> document : result.getDocuments()) {
-      results.add(document.getValue());
-    }
-    return results;
-  }
-
-  /**
-   * For a given list of curve names, on a given list of dates, get the superset of all ids required by those curves.
-   * @param configSource
-   * @param names
-   * @param dates
-   * @return list of all ids required by curves
-   */
-  private Set<ExternalId> getCurveRequiredExternalIds(ConfigSource configSource, Collection<String> names, List<LocalDate> dates) {
-    Set<ExternalId> externalIds = newHashSet();
-    for (String name : names) {
-      s_logger.info("Processing curve " + name);
-      YieldCurveDefinition curveDefinition = configSource.getByName(YieldCurveDefinition.class, name, null);
-      if (curveDefinition != null) {
-        InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-        for (LocalDate date : dates) {
-          s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
-          for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
-            s_logger.info("Processing strip " + strip.getSecurity());
-            externalIds.add(strip.getSecurity());
-          }
-        }
-      } else {
-        s_logger.warn("No curve definition with '{}' name", name);
+  static private List<MarketDataSnapshotMaster> getMarketDataSnapshotMasters(RemoteEngineUtils remoteEngineUtils) {
+    List<MarketDataSnapshotMaster> marketDataSnapshotMasters = newArrayList();
+    for (ComponentInfo o : remoteEngineUtils.getRemoteComponentServer().getComponentServer().getComponentInfos()) {
+      if (MarketDataSnapshotMaster.class.isAssignableFrom(o.getType())) {
+        marketDataSnapshotMasters.add(new RemoteMarketDataSnapshotMaster(o.getUri()));
       }
     }
-    return externalIds;
+    return marketDataSnapshotMasters;
   }
-  
-  private void loadHistoricalData(boolean write, String[] dataFields, String dataProvider, Set<ExternalId>... externalIdSets) {
-    if (!(getToolContext() instanceof BloombergToolContext)) {
-      throw new OpenGammaRuntimeException("The " + BloombergTimeSeriesUpdateTool.class.getSimpleName() +
-        " requires a tool context which implements " + BloombergToolContext.class.getName());
-    }
-    BloombergHistoricalLoader loader = new BloombergHistoricalLoader(
-      getToolContext().getHistoricalTimeSeriesMaster(),
-      ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
-      new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
-    loader.setReload(true);
 
-    for (Set<ExternalId> externalIds : externalIdSets) {
-      if (externalIds.size() > 0) {
-        for (String dataField : dataFields) {
-          s_logger.info("Loading time series (field: " + dataField + ", provider: " + dataProvider + ") with external IDs " + externalIds);
-          if (write) {
-            loader.addTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
-          }
-        }
+  static private List<ViewDefinition> findViewDefinitionsByName(final String name, ConfigMaster configMaster) {
+    ConfigSearchResult<ViewDefinition> searchResult = configMaster.search(new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class) {
+      {
+        setName(name);
+      }
+    });
+    return searchResult.getValues();
+  }
+
+  private static String getProperty(String property, CommandLine line, Properties properties) {
+    return getProperty(property, line, properties, null);
+  }
+
+  private static String getProperty(String property, CommandLine line, Properties properties, String configPropertysFile) {
+    return getProperty(property, line, properties, configPropertysFile, true);
+  }
+
+  private static String getProperty(String propertyName, CommandLine line, Properties properties, String configPropertysFile, boolean required) {
+    String optionValue = null;
+    if (line != null) {
+      optionValue = line.getOptionValue(propertyName);
+      if (optionValue != null) {
+        return optionValue;
       }
     }
+    if (properties != null) {
+      optionValue = properties.getProperty(propertyName);
+      if (optionValue == null && required) {
+        s_logger.error("Cannot find property " + propertyName + " in " + configPropertysFile);
+        System.exit(-1);
+      }
+    } else {
+      if (required) {
+        s_logger.error("Cannot find option " + propertyName + " in command line arguments");
+        System.exit(-1);
+      }
+    }
+    return optionValue;
   }
 
-  @Override
-  protected Options createOptions(boolean contextProvided) {
-    
-    Options options = super.createOptions(contextProvided);
-    
-    Option portfolioNameOption = new Option(
-        PORTFOLIO_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
-    portfolioNameOption.setRequired(true);
-    options.addOption(portfolioNameOption);
-    
-    Option writeOption = new Option(
-        WRITE_OPT, "write", false, 
-        "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
-    options.addOption(writeOption);
- 
-    Option verboseOption = new Option(
-        VERBOSE_OPT, "verbose", false, 
-        "Displays progress messages on the terminal");
-    options.addOption(verboseOption);
-   
-    Option timeSeriesDataProviderOption = new Option(
-        TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
-    options.addOption(timeSeriesDataProviderOption);
-    
-    Option timeSeriesDataFieldOption = new Option(
-        TIME_SERIES_DATAFIELD_OPT, "field", true, "The name(s) of the time series data field(s)");
-    options.addOption(timeSeriesDataFieldOption);
+  public static void usage() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp("java [-DbatchJob.properties={property file}] com.opengamma.financial.batch.BatchJobRunner [options]", getOptions());
+  }
+
+  private static Options getOptions() {
+    Options options = new Options();
+
+    options.addOption("valuationTime", true, "Valuation time. HH:mm[:ss] - for example, 16:22:09. Default - system clock.");
+
+    options.addOption("view", true, "View name in configuration database. You must specify this.");
+
+    options.addOption("engineURI", true, "URI to remote OG engine - for example 'http://localhost:8080/jax/components/ViewProcessor/main'. You must specify this.");
+    options.addOption("brokerURI", true, "URL to activeMQ broker - for example 'tcp://localhost:61616'. You must specify this.");
 
     return options;
   }

@@ -42,8 +42,15 @@ public class EuropeanPriceIntegrand {
     final Function1D<ComplexNumber, ComplexNumber> characteristicFunction = _ce.getFunction(t);
     final double k = Math.log(option.getStrike() / data.getForward());
     final double blackVol = data.getBlackVolatility();
-    final CharacteristicExponent gaussian = _useVarianceReduction ? new GaussianCharacteristicExponent(-0.5 * blackVol * blackVol, blackVol) : null;
-    final Function1D<ComplexNumber, ComplexNumber> gaussianFunction = _useVarianceReduction ? gaussian.getFunction(t) : null;
+    final CharacteristicExponent gaussian;
+    final Function1D<ComplexNumber, ComplexNumber> gaussianFunction;
+    if (_useVarianceReduction) {
+      gaussian = new GaussianCharacteristicExponent(-0.5 * blackVol * blackVol, blackVol);
+      gaussianFunction = gaussian.getFunction(t);
+    } else {
+      gaussian = null;
+      gaussianFunction = null;
+    }
     return new Function1D<Double, Double>() {
 
       @Override

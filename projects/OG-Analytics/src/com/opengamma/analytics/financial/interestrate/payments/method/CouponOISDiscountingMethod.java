@@ -24,7 +24,26 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and its sensitivities for OIS coupons.
  */
-public class CouponOISDiscountingMethod implements PricingMethod {
+public final class CouponOISDiscountingMethod implements PricingMethod {
+
+  /**
+   * The method unique instance.
+   */
+  private static final CouponOISDiscountingMethod INSTANCE = new CouponOISDiscountingMethod();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static CouponOISDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private CouponOISDiscountingMethod() {
+  }
 
   /**
    * Computes the present value.

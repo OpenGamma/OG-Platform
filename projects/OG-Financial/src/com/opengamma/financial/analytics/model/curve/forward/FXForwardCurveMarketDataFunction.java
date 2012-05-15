@@ -134,6 +134,9 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
             data.put(identifier, spot + spread);
           }
         }
+        if (data.isEmpty()) {
+          throw new OpenGammaRuntimeException("Could not get any market data for curve name " + curveName);
+        }
         return Collections.singleton(new ComputedValue(getResultSpec(target, curveName), data));
       }
 

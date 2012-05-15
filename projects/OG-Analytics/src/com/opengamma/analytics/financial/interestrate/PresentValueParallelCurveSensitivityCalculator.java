@@ -9,9 +9,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.Payment;
-import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.util.surface.StringValue;
 
@@ -56,7 +56,7 @@ public final class PresentValueParallelCurveSensitivityCalculator extends Abstra
   }
 
   @Override
-  public StringValue visitFixedCouponPayment(final CouponFixed payment, final YieldCurveBundle data) {
+  public StringValue visitCouponFixed(final CouponFixed payment, final YieldCurveBundle data) {
     return visitFixedPayment(payment.toPaymentFixed(), data);
   }
 

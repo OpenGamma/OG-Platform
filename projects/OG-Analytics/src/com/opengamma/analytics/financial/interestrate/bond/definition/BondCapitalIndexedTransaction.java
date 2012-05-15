@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.payments.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 
 /**
  * Describes a transaction on a capital indexed bond (inflation bond) issue.

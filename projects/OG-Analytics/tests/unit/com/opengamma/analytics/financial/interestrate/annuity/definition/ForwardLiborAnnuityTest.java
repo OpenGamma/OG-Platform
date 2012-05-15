@@ -12,8 +12,7 @@ import javax.time.calendar.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -46,8 +45,8 @@ public class ForwardLiborAnnuityTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   private static final AnnuityCouponIbor ANNUITY3 = new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
-  private static final AnnuityCouponIbor ANNUITY4 = new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR,
-      true);
+  private static final AnnuityCouponIborSpread ANNUITY4 = new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL,
+      FUNDING, LIBOR, true);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes1() {
@@ -66,7 +65,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentTimes4() {
-    new AnnuityCouponIbor(CUR, null, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, null, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -86,7 +85,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFundingName4() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, null, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, null, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -106,7 +105,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullLiborName4() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, null, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -126,7 +125,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyPaymentTimes4() {
-    new AnnuityCouponIbor(CUR, new double[0], INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, new double[0], INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -141,12 +140,12 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexFixing2() {
-    new AnnuityCouponIbor(CUR, T, null, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, null, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexFixing2() {
-    new AnnuityCouponIbor(CUR, T, new double[0], INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, new double[0], INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -161,12 +160,12 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexMaturity2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, null, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, null, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyIndexMaturity2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, new double[0], YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, new double[0], YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -176,12 +175,12 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexFixing2() {
-    new AnnuityCouponIbor(CUR, T, new double[] {1}, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, new double[] {1}, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexFixing3() {
-    new AnnuityCouponIbor(CUR, T, new double[] {1, 2, 3.1, 4}, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, new double[] {1, 2, 3.1, 4}, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -191,7 +190,7 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongIndexMaturity2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, new double[] {1}, YEAR_FRACTIONS, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -201,12 +200,12 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, null, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, null, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYearFraction3() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, null, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, null, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -216,12 +215,12 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, new double[0], YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, new double[0], YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyYearFraction3() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[0], SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[0], SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -231,27 +230,27 @@ public class ForwardLiborAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction2() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, new double[] {1}, YEAR_FRACTIONS, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongYearFraction3() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[] {1}, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, new double[] {1}, SPREADS, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSpreads() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, null, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, null, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptySpreads() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[0], NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[0], NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSpreads() {
-    new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[] {1}, NOTIONAL, FUNDING, LIBOR, true);
+    new AnnuityCouponIborSpread(CUR, T, INDEX_FIXING, INDEX, INDEX_FIXING, INDEX_MATURITY, YEAR_FRACTIONS, YEAR_FRACTIONS, new double[] {1}, NOTIONAL, FUNDING, LIBOR, true);
   }
 
   @Test
@@ -263,13 +262,13 @@ public class ForwardLiborAnnuityTest {
     final double[] paymentYearFractions = new double[] {.5, .49, .5};
     final double[] forwardYearFractions = new double[] {.51, .58, .52};
     final double[] spreads = new double[] {4, 6, 7};
-    final AnnuityCouponIbor annuity = new AnnuityCouponIbor(CUR, t, indexFixing, INDEX, indexFixing, indexMaturity, paymentYearFractions, forwardYearFractions, spreads, notional, FUNDING, LIBOR,
-        false);
+    final AnnuityCouponIborSpread annuity = new AnnuityCouponIborSpread(CUR, t, indexFixing, INDEX, indexFixing, indexMaturity, paymentYearFractions, forwardYearFractions, spreads, notional, FUNDING,
+        LIBOR, false);
 
     final int n = annuity.getNumberOfPayments();
     assertEquals(3, n, 0);
     int index = 0;
-    for (final CouponIbor p : annuity.getPayments()) {
+    for (final CouponIborSpread p : annuity.getPayments()) {
       assertEquals(p.getFixingTime(), indexFixing[index], 0);
       assertEquals(p.getFixingPeriodEndTime(), indexMaturity[index], 0);
       assertEquals(p.getFundingCurveName(), FUNDING);
@@ -288,8 +287,8 @@ public class ForwardLiborAnnuityTest {
     final AnnuityCouponIbor other = new AnnuityCouponIbor(CUR, T, INDEX_FIXING, INDEX, INDEX_MATURITY, YEAR_FRACTIONS, NOTIONAL, FUNDING, LIBOR, true);
     assertEquals(other, ANNUITY3);
     assertEquals(other.hashCode(), ANNUITY3.hashCode());
-    assertEquals(other, ANNUITY4);
-    assertEquals(other.hashCode(), ANNUITY4.hashCode());
+    //    assertEquals(other, ANNUITY4);
+    //    assertEquals(other.hashCode(), ANNUITY4.hashCode());
   }
 
 }
