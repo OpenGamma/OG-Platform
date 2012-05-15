@@ -89,12 +89,18 @@ $.register_module({
                         // set inactive tab widths to calculated value
                         $tabs.each(function () {if (!$(this).hasClass('og-active')) $(this).outerWidth(new_tab_width)});
                         // unset width of tabs in overflow panel
-                        if ($tabs_to_move) $tabs_to_move.each(function () {$(this).width('auto');});
+                        if ($tabs_to_move) $tabs_to_move.each(function () {$(this).attr('style', '');});
                         // set position of overflow panel
                         overflow.right = $(document).width() - ($overflow_button.offset().left + 25 - 5);
                         overflow.height = $overflow_button.height();
                         overflow.top = $overflow_button.offset().top + overflow.height + 4;
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
+                        // add tooltips to truncated tabs only
+                        $tabs.each(function () {
+                            var $this = $(this);
+                            if (!!$this.attr('style')) $this.attr('title', $this.text().trim());
+                        });
+
                     }
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
