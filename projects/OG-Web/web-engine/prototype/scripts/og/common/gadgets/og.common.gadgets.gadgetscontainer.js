@@ -38,7 +38,7 @@ $.register_module({
                 reflow = function () {
                     var overflow_buffer = 25, // space for the overflow button
                         buttons_buffer = {'south': 23}, // add extra buffer space if the tabs area has buttons
-                        min_tab_width = 30,
+                        min_tab_width = 50,
                         $tabs_container = $(selector + ' .OG-gadget-tabs'),
                         $tabs = $tabs_container.find('li[class^=og-tab-]'),
                         $active_tab = $(selector + ' .og-active'),
@@ -65,7 +65,7 @@ $.register_module({
                             $overflow_button.show().on('click', function (e) {
                                 e.stopPropagation();
                                 $overflow_panel.toggle();
-                                var wins = Array.prototype.concat.apply(window, window.frames);
+                                var wins = [window].concat(Array.prototype.slice.call(window.frames));
                                 if ($overflow_panel.is(":visible")) $(wins).on('click.overflow_handler', function () {
                                     $overflow_panel.hide();
                                     $(wins).off('click.overflow_handler');
