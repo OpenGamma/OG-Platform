@@ -11,10 +11,7 @@ $.register_module({
             check_state = og.views.common.state.check.partial('/' + page_name),
             GadgetsContainer = og.common.gadgets.GadgetsContainer,
             count = 0, counter = function () {return ('100' + count++);},
-            gc_south = new GadgetsContainer,
-            gc_r_north = new GadgetsContainer,
-            gc_r_center = new GadgetsContainer,
-            gc_r_south = new GadgetsContainer;
+            gc_south, gc_r_north, gc_r_center, gc_r_south;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -34,14 +31,13 @@ $.register_module({
                         margin: true
                     }
                 };
-                gc_south.init('.OG-layout-analytics-south');
-                gc_r_north.init('.OG-layout-analytics-dock-north');
-                gc_r_center.init('.OG-layout-analytics-dock-center');
-                gc_r_south.init('.OG-layout-analytics-dock-south');
-                gc_south.add([{gadget: og.analytics.Grid, name: 'grid down south'}]);
-                gc_r_center.add([timeseries_obj()]);
-                gc_r_south.add([timeseries_obj()]);
-                gc_r_north.add([timeseries_obj(), timeseries_obj()]);
+                gc_south = (new GadgetsContainer('.OG-layout-analytics-south')).add([
+                    timeseries_obj(), {gadget: og.analytics.Grid, name: 'grid down south'}
+                ]);
+                gc_r_north = (new GadgetsContainer('.OG-layout-analytics-dock-north')).add([timeseries_obj()]);
+                gc_r_center = (new GadgetsContainer('.OG-layout-analytics-dock-center')).add([
+                    timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj()
+                ]);
                 if (!args.id) view.default_details();
             },
             load_item: function (args) {

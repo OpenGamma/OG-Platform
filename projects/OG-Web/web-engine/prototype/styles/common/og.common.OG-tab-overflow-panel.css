@@ -1,0 +1,22 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-tab-overflow-panel {
+    position: absolute;
+    z-index: 121;
+    padding: 5px;
+    background: #fff!important;
+    border: 1px solid #ccc;
+    display: none;
+}
+
+.OG-tab-overflow-panel.OG-gadget-tabs {
+    height: auto;
+}
+
+.OG-tab-overflow-panel.OG-gadget-tabs li {
+    display: block;
+    float: none;
+}

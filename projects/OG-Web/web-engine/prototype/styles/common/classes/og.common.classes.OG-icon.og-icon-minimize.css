@@ -1,0 +1,9 @@
+.OG-icon.og-icon-minimize:after {
+  background-position: -79px -25px;
+  background-color: transparent;
+  height: 12px;
+  width: 7px;
+  z-index: 2;
+  position: absolute;
+  top: 5px;
+}

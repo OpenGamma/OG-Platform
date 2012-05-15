@@ -1,3 +1,8 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
 .OG-layout-analytics-container {
     height: 100%;
     background: #fff;
@@ -5,8 +10,9 @@
 }
 
 .OG-layout-analytics-footer {
-    background: #555;
+    background: #555 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAJ0lEQVQIW2MUFxf/b2BkzAADjO6eXv8vnDvLABMEC4BkYYJwAZggAPOTD9RNbjElAAAAAElFTkSuQmCC);
     color: #ccc;
+    border-top: 1px solid #555;
 }
 
 .OG-layout-analytics-center,
@@ -14,7 +20,21 @@
 .OG-layout-analytics-dock-north,
 .OG-layout-analytics-dock-center,
 .OG-layout-analytics-dock-south {
-  background: #f8f8f8;
+    background: #f8f8f8;
+}
+
+.OG-layout-analytics-south:before,
+.OG-layout-analytics-dock-north:before,
+.OG-layout-analytics-dock-center:before,
+.OG-layout-analytics-dock-south:before {
+    content: 'Empty';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 30px;
+    margin: -5px 0 0 -15px;
+    color: #ccc;
 }
 
 .OG-layout-analytics-container .ui-layout-content {

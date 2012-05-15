@@ -10,6 +10,8 @@
     text-shadow: 0 1px 0 #fff;
     background: #dadcdd;
     border-top: 1px solid #fff;
+    white-space: nowrap;
+    height: 23px;
 }
 
 .OG-gadget-tabs ul:before {
@@ -101,6 +103,9 @@
     .OG-gadget-tabs li div {
         position: relative;
         z-index: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .OG-gadget-tabs li:last-child {
@@ -130,3 +135,4 @@
     .OG-gadget-tabs li .og-delete:hover {
         background-position: -11px -35px;
     }
+

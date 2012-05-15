@@ -34,6 +34,7 @@
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
     <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
     <fragment>/styles/common/og.common.OG-g.css</fragment>
+    <fragment>/styles/common/og.common.OG-tab-overflow-panel.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -67,6 +68,8 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-unhook.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-download.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sync.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
   </bundle>
