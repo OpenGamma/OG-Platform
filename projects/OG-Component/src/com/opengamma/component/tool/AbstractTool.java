@@ -251,7 +251,7 @@ public abstract class AbstractTool {
     return getClass();
   }
 
-  private void usage(Options options) {
+  protected void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
     formatter.printHelp("java " + getEntryPointClass().getName(), options, true);
