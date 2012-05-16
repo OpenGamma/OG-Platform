@@ -51,11 +51,6 @@ public class RemoteViewProcessor implements ViewProcessor {
     _jmsConnector = jmsConnector;    
   }
   
-    public MarketDataSnapshotter getMarketDataSnapshotter() {
-      URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_SNAPSHOTTER).build();
-      return new RemoteMarketDataSnapshotter(uri);
-    }
-
   @Override
   public String getName() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_NAME).build();
@@ -105,6 +100,12 @@ public class RemoteViewProcessor implements ViewProcessor {
   public EngineResourceManager<ViewCycle> getViewCycleManager() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CYCLES).build();
     return new RemoteViewCycleManager(uri, _heartbeatScheduler);
+  }
+  
+  //-------------------------------------------------------------------------
+  public MarketDataSnapshotter getMarketDataSnapshotter() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_SNAPSHOTTER).build();
+    return new RemoteMarketDataSnapshotter(uri);
   }
 
 }
