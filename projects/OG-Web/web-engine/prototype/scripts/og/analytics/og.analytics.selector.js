@@ -8,13 +8,30 @@ $.register_module({
     obj: function () {
         var module = this;
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset;
+            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height;
+            var auto_scroll = function (event, scroll_top, scroll_left, rel_x, rel_y, start) {
+                var x = event.pageX - grid_offset.left, fixed_width = grid.meta.columns.width.fixed,
+                    y = event.pageY - grid_offset.top, increment = 35, interval = 100;
+                clearTimeout(auto_scroll.timeout);
+                if (x > grid_width) // scroll right
+                    grid.elements.scroll_body.scrollLeft(scroll_left + increment);
+                else
+                    if (x < fixed_width && start.x > fixed_width) // scroll left
+                        grid.elements.scroll_body.scrollLeft(scroll_left - increment);
+                if (y < 0) // scroll up
+                    grid.elements.scroll_body.scrollTop(scroll_top - increment);
+                else
+                    if (y > grid_height) // scroll down
+                        grid.elements.scroll_body.scrollTop(scroll_top + increment);
+                auto_scroll.timeout = setTimeout(function () {
+                    auto_scroll(event, grid.elements.scroll_body.scrollTop(), grid.elements.scroll_body.scrollLeft());
+                }, interval);
+            };
+            auto_scroll.timeout = null;
             var cleanup = function () {
                 $(window).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
-                if (document.selection) document.selection.empty(); // IE
-                if (window.getSelection) window.getSelection().removeAllRanges(); // civilization
+                clearTimeout(auto_scroll.timeout);
                 grid.dataman.busy(false);
-                selector.busy(false);
                 grid.set_viewport();
             };
             var deselect = function () {
@@ -22,12 +39,14 @@ $.register_module({
                 selector.render.memo = null;
             };
             var mousemove = function (start, event) {
+                event.preventDefault();
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
                     x = event.pageX - grid_offset.left + scroll_left,
                     y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                     fixed_width = grid.meta.columns.width.fixed, scroll_width = grid.meta.columns.width.scroll,
                     areas = [], rectangle = {};
+                auto_scroll(event, scroll_top, scroll_left, x, y, start);
                 rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
                 rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
                 rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
@@ -60,12 +79,14 @@ $.register_module({
                     scroll_top = grid.elements.scroll_body.scrollTop();
                 if (right_click) return;
                 cleanup();
+                if (selector.render.memo) return deselect();
                 $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
                 if (!$cell.length) return;
                 grid_offset = grid.elements.parent.offset();
+                grid_width = grid.elements.parent.width();
+                grid_height = grid.elements.parent.height();
                 fixed = +$cell.attr('class').match(/\sc(\d+)\s?/)[1] < grid.meta.columns.fixed.length;
                 grid.dataman.busy(true);
-                selector.busy(true);
                 start = {
                     x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
                     y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
@@ -86,14 +107,10 @@ $.register_module({
                     grid.dataman.busy(true);
                     grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
                     grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
-                    if (selector.busy()) return;
                     timeout = clearTimeout(timeout) ||
                         setTimeout(function () {grid.set_viewport(function () {grid.dataman.busy(false);})}, 200);
                 }
             };
-            selector.busy = (function (busy) {
-                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
-            })(false);
             selector.render = function (rectangles) {
                 if (!selector.render.memo && !rectangles) return;
                 if (rectangles) selector.render.memo = rectangles;
@@ -118,6 +135,7 @@ $.register_module({
                 return {rows: rows, cols: cols};
             };
             // initialize
+            grid.elements.parent[0].onselectstart = function () {return false;};
             grid.elements.parent.on('mousedown', mousedown_observer);
             grid.elements.scroll_body.on('scroll', scroll_observer(null));
         };
