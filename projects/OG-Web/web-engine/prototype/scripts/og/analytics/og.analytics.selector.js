@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this;
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset, $overlay_fixed, $overlay_scroll, start = null;
+            var selector = this, $ = grid.$, grid_offset, start = null;
             var cleanup = function () {
                 $(window).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
                 if (document.selection) document.selection.empty(); // IE
@@ -18,8 +18,7 @@ $.register_module({
                 grid.set_viewport();
             };
             var deselect = function () {
-                if ($overlay_fixed) $overlay_fixed = $overlay_fixed.remove(), null;
-                if ($overlay_scroll) $overlay_scroll = $overlay_scroll.remove(), null;
+                $(grid.id + ' .OG-g-sel').remove();
                 selector.render.memo = null;
             };
             var mousemove_observer = function (event) {
@@ -55,8 +54,7 @@ $.register_module({
             };
             var mouseup_observer = cleanup;
             var mousedown_observer = function (event) {
-                var $cell, $target, offset, position, fixed, areas = [],
-                    right_click = event.which === 3 || event.button === 2,
+                var $cell, $target, offset, position, fixed, right_click = event.which === 3 || event.button === 2,
                     scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop();
                 if (right_click) return;
@@ -70,8 +68,7 @@ $.register_module({
                 selector.busy(true);
                 position = {
                     top: start_top = offset.top - grid.meta.header_height + scroll_top,
-                    left: offset.left - (fixed ? 0 : grid.meta.columns.width.fixed) +
-                        (fixed ? 0 : scroll_left)
+                    left: offset.left - (fixed ? 0 : grid.meta.columns.width.fixed) + (fixed ? 0 : scroll_left)
                 };
                 start = {
                     x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
@@ -80,14 +77,7 @@ $.register_module({
                     right: (fixed ? grid.elements.fixed_body : grid.elements.scroll_body).width() -
                         position.left - $cell.width()
                 };
-                areas.push({
-                    position: position, dimensions: {width: $cell.width(), height: grid.meta.row_height}, fixed: fixed
-                });
-                areas.rectangle = {
-                    top_left: {top: start.top, left: start.left},
-                    bottom_right: {bottom: start.bottom, right: start.right}
-                };
-                selector.render(areas);
+                mousemove_observer(event);
                 $(window).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var nearest_cell = function (x, y, label) {
@@ -116,29 +106,22 @@ $.register_module({
                 if (!selector.render.memo && !rectangles) return;
                 if (rectangles) selector.render.memo = rectangles;
                 $(grid.id + ' .OG-g-sel').remove();
-                $overlay_fixed = null;
-                $overlay_scroll = null;
                 selector.render.memo.forEach(function (rectangle) {
-                    if (rectangle.fixed && !$overlay_fixed) $overlay_fixed = $('<div class="OG-g-sel" />')
-                        .click(deselect).appendTo(grid.elements.fixed_body);
-                    if (!rectangle.fixed && !$overlay_scroll) $overlay_scroll = $('<div class="OG-g-sel" />')
-                        .click(deselect).appendTo(grid.elements.scroll_body);
-                    (rectangle.fixed ? $overlay_fixed : $overlay_scroll).removeAttr('style')
-                        .css(rectangle.position).css(rectangle.dimensions);
+                    $('<div class="OG-g-sel" />').click(deselect).css(rectangle.position).css(rectangle.dimensions)
+                        .appendTo(grid.elements[rectangle.fixed ? 'fixed_body' : 'scroll_body']);
                 });
             };
             selector.render.memo = null;
             selector.selection = function () {
                 if (!selector.render.memo) return null;
-                var rectangle = selector.render.memo.rectangle, rows = [], cols = [],
-                    row_start = Math.floor(rectangle.top_left.top / grid.meta.row_height) - 1,
-                    row_end = Math.floor(rectangle.bottom_right.bottom / grid.meta.row_height) - 1,
-                    lcv, scan = grid.meta.columns.scan.all, len = scan.length;
-                for (lcv = 0; lcv < len; lcv += 1)
-                    if (scan[lcv] <= rectangle.bottom_right.right && scan[lcv] > rectangle.top_left.left)
-                        cols.push(lcv);
-                    else
-                        if (scan[lcv] > rectangle.bottom_right.right) break;
+                var bottom_right = selector.render.memo.rectangle.bottom_right,
+                    top_left = selector.render.memo.rectangle.top_left,
+                    row_start = Math.floor(top_left.top / grid.meta.row_height),
+                    row_end = Math.floor(bottom_right.bottom / grid.meta.row_height),
+                    lcv, scan = grid.meta.columns.scan.all, rows = [], cols = [];
+                for (lcv = 0; lcv < scan.length; lcv += 1)
+                    if (scan[lcv] <= bottom_right.right && scan[lcv] > top_left.left) cols.push(lcv);
+                    else if (scan[lcv] > bottom_right.right) break;
                 for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
                 return {rows: rows, cols: cols};
             };
