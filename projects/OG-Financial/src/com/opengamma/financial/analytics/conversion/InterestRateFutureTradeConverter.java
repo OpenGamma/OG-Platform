@@ -32,8 +32,8 @@ public class InterestRateFutureTradeConverter {
     final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
     final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception
-    return new InterestRateFutureDefinition(tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(), 0.0, securityDefinition.getNotional(),
-        securityDefinition.getPaymentAccrualFactor(), quantity, securityDefinition.getName());
+    return new InterestRateFutureDefinition(tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(), 
+        securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), quantity, securityDefinition.getName());
   }
 
 }
