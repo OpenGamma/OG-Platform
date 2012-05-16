@@ -81,13 +81,11 @@ $.register_module({
                 $(window).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var nearest_cell = function (x, y, label) {
-                var top, left, bottom, right, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
+                var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
-                right = scan[lcv];
-                left = scan[lcv - 1] || 0;
                 bottom = (Math.floor(y / grid.meta.row_height) + 1) * grid.meta.row_height;
                 top = bottom - grid.meta.row_height;
-                return {top: top, left: left, bottom: bottom, right: right};
+                return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
             };
             var scroll_observer = function (timeout) {
                 return function () { // sync scroll instantaneously and set viewport after scroll stops
