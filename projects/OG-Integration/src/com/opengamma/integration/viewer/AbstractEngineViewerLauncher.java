@@ -37,7 +37,7 @@ public abstract class AbstractEngineViewerLauncher extends SingleFrameApplicatio
     ViewClient viewClient = viewProcessor.createViewClient(user);
     PortfolioTreeTableModel treeTableModel = buildTreeTableModel();
     viewClient.setResultListener(treeTableModel);
-    viewClient.attachToViewProcess(viewProcessor.getViewDefinitionRepository().getDefinition("Equity Option Test View 1").getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+    viewClient.attachToViewProcess(viewProcessor.getViewDefinitionRepository().getDefinition("Equity Portfolio View").getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
 
     getMainFrame().setTitle("OpenGamma Viewer");
 
