@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -17,6 +13,10 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
+
+import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * Class describing the data required to describe a delta and expiration dependent smile from ATM, risk reversal and strangle as used in Forex market.
@@ -192,19 +192,37 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     ArgumentChecker.isTrue(nbVol > 1, "Need more than one volatility value to perform interpolation");
     final int nbTime = _timeToExpiration.length;
     ArgumentChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
-    final ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
-    final int indexLower = interpData.getLowerBoundIndex(time);
+
+    final int indexLower;
+    final double weightLow;
+
+    // Long Expiry Extrapolation : Flat
+    if (time >= _timeToExpiration[nbTime - 1]) {
+      indexLower = nbTime - 2;
+      weightLow = 0.0;
+      // Short Expiry Extrapolation : Flat
+    } else if (time < _timeToExpiration[0]) {
+      indexLower = 0;;
+      weightLow = 1.0;
+    } else {
+      final ArrayInterpolator1DDataBundle interpData = new ArrayInterpolator1DDataBundle(_timeToExpiration, new double[nbTime]);
+      //TODO Do NOT use the interpolator to find the lower bound index
+      indexLower = interpData.getLowerBoundIndex(time);
+      weightLow = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+    }
+    final double weightHigh = 1.0 - weightLow;
+
     // Forward sweep
     final double[] variancePeriodT = new double[nbVol];
     final double[] volatilityT = new double[nbVol];
     final double[] variancePeriod0 = new double[nbVol];
     final double[] variancePeriod1 = new double[nbVol];
-    final double weight0 = (_timeToExpiration[indexLower + 1] - time) / (_timeToExpiration[indexLower + 1] - _timeToExpiration[indexLower]);
+
     // Implementation note: Linear interpolation on variance over the period (s^2*t).
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
       variancePeriod0[loopvol] = _volatilityTerm[indexLower].getVolatility()[loopvol] * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower];
       variancePeriod1[loopvol] = _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1];
-      variancePeriodT[loopvol] = weight0 * variancePeriod0[loopvol] + (1 - weight0) * variancePeriod1[loopvol];
+      variancePeriodT[loopvol] = weightLow * variancePeriod0[loopvol] + weightHigh * variancePeriod1[loopvol];
       volatilityT[loopvol] = Math.sqrt(variancePeriodT[loopvol] / time);
     }
     final SmileDeltaParameter smile = new SmileDeltaParameter(time, _volatilityTerm[0].getDelta(), volatilityT);
@@ -221,8 +239,8 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
     for (int loopvol = 0; loopvol < nbVol; loopvol++) {
       volatilityTBar[loopvol] *= volBar;
       variancePeriodTBar[loopvol] = Math.pow(variancePeriodT[loopvol] / time, -0.5) / time / 2 * volatilityTBar[loopvol];
-      variancePeriod0Bar[loopvol] = variancePeriodTBar[loopvol] * weight0;
-      variancePeriod1Bar[loopvol] = variancePeriodTBar[loopvol] * (1 - weight0);
+      variancePeriod0Bar[loopvol] = variancePeriodTBar[loopvol] * weightLow;
+      variancePeriod1Bar[loopvol] = variancePeriodTBar[loopvol] * weightHigh;
       bucketSensitivity[indexLower][loopvol] = 2.0 * _volatilityTerm[indexLower].getVolatility()[loopvol] * _timeToExpiration[indexLower] * variancePeriod0Bar[loopvol];
       bucketSensitivity[indexLower + 1][loopvol] = 2.0 * _volatilityTerm[indexLower + 1].getVolatility()[loopvol] * _timeToExpiration[indexLower + 1] * variancePeriod1Bar[loopvol];
     }
