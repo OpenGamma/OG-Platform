@@ -152,9 +152,11 @@ public class InterestRateFutureLoader extends SecurityLoader {
     String bbgCode2 = bbgCode.substring(0, 2); // 2 first char
     String id = BBGCODE_UNDERLYING.get(bbgCode2);
     if (id == null) {
-      throw new OpenGammaRuntimeException("Cannot get underlying for future " + bbgCode2);
+      s_logger.warn("Cannot get underlying for future " + bbgCode2);
+      return null;
     }
     ExternalId underlyingIdentifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, id);
+    
     InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier);
     security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
     // set identifiers
