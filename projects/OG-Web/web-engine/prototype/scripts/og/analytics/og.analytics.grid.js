@@ -88,7 +88,6 @@ $.register_module({
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     acc.rows.push({
                         top: (idx + meta.viewport.rows[0]) * row_height,
-                        row: idx,
                         cells: slice.reduce(function (acc, val, idx) {
                             return val === null ? acc
                                 : acc.concat({column: fixed ? idx : fixed_length + idx, value: val});
