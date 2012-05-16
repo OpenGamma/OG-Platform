@@ -389,11 +389,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), curveName, curveName);
       
-
       InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-        ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue); // Set price to market value so that PV => 0
-        ((InterestRateFutureDefinition) definition).setUnitNotional(); // Scale to 1.0 to better condition Jacobian for _calculationType, PresentValue. Still scales with T. ParRate is preferable.
+        if (!_calcTypeParRate) {
+          // Scale notional to 1 - this is to better condition the jacobian matrix
+          // Set trade price to current market value - so the present value will be zero once fit
+          definition = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);  
+        }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
       derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
@@ -519,11 +521,16 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       InstrumentDerivative derivative = null;
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
       try {
-        final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity); 
+        InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity); 
+        
+        
         if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-          ((InterestRateFutureDefinition) definition).setTransactionPrice(marketValue); // Set price to market value so that PV => 0
-          ((InterestRateFutureDefinition) definition).setUnitNotional(); // Scale to 1.0 to better condition Jacobian for _calculationType, PresentValue. Still scales with T. ParRate is preferable.
-          marketValue = 1 - marketValue; // transform to rate for initial rates guess  
+          if (!_calcTypeParRate) {
+            // Scale notional to 1 - this is to better condition the jacobian matrix
+            // Set trade price to current market value - so the present value will be zero once fit
+            definition = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);  
+          }
+          marketValue = 1 - marketValue; // transform to rate for initial rates guess
         }
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (final Exception e) {
