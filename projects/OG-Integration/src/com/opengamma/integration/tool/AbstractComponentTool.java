@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.component.tool;
+package com.opengamma.integration.tool;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -16,19 +16,17 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.ComponentManager;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.component.RemoteComponentFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
 
 /**
- * Abstract class for command line tools.
- * <p>
- * The command line tools generally require access to key parts of the infrastructure. These are provided via {@link ToolContext} which is setup and closed by this class using {@link ComponentManager}
- * . Normally the file is named {@code toolcontext.ini}.
+ * Abstract base class for tools which operate on components obtained through an OpenGamma component server.
  */
-public abstract class AbstractTool {
-  
+public abstract class AbstractComponentTool {
+
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractTool.class);
   /**
    * Default logback file.
@@ -37,8 +35,8 @@ public abstract class AbstractTool {
 
   /** Help command line option. */
   private static final String HELP_OPTION = "h";
-  /** Configuration command line option. */
-  private static final String CONFIG_RESOURCE_OPTION = "c";
+  /** Component server URI command line option. */
+  private static final String COMPONENT_SERVER_URI_OPTION = "c";
   /** Logging command line option. */
   private static final String LOGBACK_RESOURCE_OPTION = "l";
 
@@ -47,9 +45,9 @@ public abstract class AbstractTool {
    */
   private CommandLine _commandLine;
   /**
-   * The tool context.
+   * The remote component factory.
    */
-  private ToolContext _toolContext;
+  private RemoteComponentFactory _remoteComponentFactory;
 
   /**
    * Initializes the tool statically.
@@ -64,7 +62,7 @@ public abstract class AbstractTool {
   /**
    * Creates an instance.
    */
-  protected AbstractTool() {
+  protected AbstractComponentTool() {
   }
 
   //-------------------------------------------------------------------------
@@ -72,7 +70,7 @@ public abstract class AbstractTool {
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
    * The base class defined three options:<br />
-   * c/config - the config file, mandatory<br />
+   * c/component server URI - the component server URI, mandatory<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
    * 
@@ -80,26 +78,25 @@ public abstract class AbstractTool {
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(String[] args) {
-    return initAndRun(args, null, null);
+    return initAndRun(args, null);
   }
 
   /**
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
    * The base class defined three options:<br />
-   * c/config - the config file, mandatory unless default specified<br />
+   * c/component server URI - the component server URI, mandatory<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
    * 
    * @param args the command-line arguments, not null
-   * @param defaultConfigResource the default configuration resource location, null if mandatory on command line
    * @param defaultLogbackResource the default logback resource, null to use tool-logback.xml as the default
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource) {
+  public boolean initAndRun(String[] args, String defaultLogbackResource) {
     ArgumentChecker.notNull(args, "args");
 
-    Options options = createOptions(defaultConfigResource == null);
+    Options options = createOptions();
     CommandLineParser parser = new PosixParser();
     CommandLine line;
     try {
@@ -115,9 +112,8 @@ public abstract class AbstractTool {
     }
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
     logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
-    String configResource = line.getOptionValue(CONFIG_RESOURCE_OPTION);
-    configResource = StringUtils.defaultString(configResource, defaultConfigResource);
-    return init(logbackResource) && run(configResource);
+    String componentServerUri = line.getOptionValue(COMPONENT_SERVER_URI_OPTION);
+    return init(logbackResource) && run(componentServerUri);
   }
 
   /**
@@ -125,38 +121,35 @@ public abstract class AbstractTool {
    * <p>
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
    * 
-   * @param configResource the config resource location, not null
+   * @param componentServerUri the config resource location, not null
    * @return true if successful
    */
-  public final boolean run(String configResource) {
+  public final boolean run(String componentServerUri) {
     try {
-      ArgumentChecker.notNull(configResource, "configResourceLocation");
+      ArgumentChecker.notNull(componentServerUri, "componentServerUri");
       s_logger.info("Starting " + getClass().getSimpleName());
-      ToolContext toolContext = ToolContextUtils.getToolContext(configResource);
+      componentServerUri = resolveComponentServerUri(componentServerUri);
+      RemoteComponentFactory remoteComponentFactory = new RemoteComponentFactory(componentServerUri);
       s_logger.info("Running " + getClass().getSimpleName());
-      run(toolContext);
+      run(remoteComponentFactory);
       s_logger.info("Finished " + getClass().getSimpleName());
       return true;
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;
-    } finally {
-      if (_toolContext != null) {
-        _toolContext.close();
-      }
     }
   }
-
+  
   /**
    * Runs the tool, calling {@code doRun}.
    * <p>
-   * This will catch not handle exceptions, but will convert checked exceptions to unchecked.
+   * This will catch unhandled exceptions, and will convert checked exceptions to unchecked.
    * 
-   * @param toolContext the tool context, not null
+   * @param remoteComponentFactory  the remote component factory, not null
    * @throws RuntimeException if an error occurs
    */
-  public final void run(ToolContext toolContext) {
-    _toolContext = toolContext;
+  public final void run(RemoteComponentFactory remoteComponentFactory) {
+    _remoteComponentFactory = remoteComponentFactory;
     try {
       doRun();
     } catch (RuntimeException ex) {
@@ -176,12 +169,12 @@ public abstract class AbstractTool {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the tool context.
+   * Gets the remote component factory.
    * 
-   * @return the context, not null during {@code doRun}
+   * @return the remote component factory, not null during {@code doRun}
    */
-  protected ToolContext getToolContext() {
-    return _toolContext;
+  protected RemoteComponentFactory getRemoteComponentFactory() {
+    return _remoteComponentFactory;
   }
 
   /**
@@ -199,13 +192,12 @@ public abstract class AbstractTool {
    * <p>
    * Subclasses may override this and add their own parameters. The base class defined the options h/help, c/config, l/logback.
    * 
-   * @param mandatoryConfigResource whether the config resource is mandatory
    * @return the set of command line options, not null
    */
-  protected Options createOptions(boolean mandatoryConfigResource) {
+  protected Options createOptions() {
     Options options = new Options();
     options.addOption(createHelpOption());
-    options.addOption(createConfigOption(mandatoryConfigResource));
+    options.addOption(createComponentServerOption());
     options.addOption(createLogbackOption());
     return options;
   }
@@ -214,10 +206,10 @@ public abstract class AbstractTool {
     return new Option(HELP_OPTION, "help", false, "prints this message");
   }
 
-  private static Option createConfigOption(boolean mandatoryConfigResource) {
-    Option option = new Option(CONFIG_RESOURCE_OPTION, "config", true, "the toolcontext configuration resource");
-    option.setArgName("resource");
-    option.setRequired(mandatoryConfigResource);
+  private static Option createComponentServerOption() {
+    Option option = new Option(COMPONENT_SERVER_URI_OPTION, "componentServer", true, "the component server, host[:port]");
+    option.setArgName("component server");
+    option.setRequired(true);
     return option;
   }
 
@@ -232,10 +224,22 @@ public abstract class AbstractTool {
     return getClass();
   }
 
-  protected void usage(Options options) {
+  private void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
     formatter.printHelp("java " + getEntryPointClass().getName(), options, true);
   }
-
+  
+  //-------------------------------------------------------------------------
+  private String resolveComponentServerUri(String componentServerUri) {
+    componentServerUri = componentServerUri.trim();
+    if (componentServerUri.contains("/")) {
+      // Assume it's the full URI
+      return componentServerUri;
+    } else {
+      // Assume it's host[:port]
+      return "http://" + componentServerUri + "/jax";
+    }
+  }
+  
 }
