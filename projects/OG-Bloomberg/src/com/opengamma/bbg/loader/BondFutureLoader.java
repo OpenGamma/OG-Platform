@@ -100,7 +100,13 @@ public class BondFutureLoader extends SecurityLoader {
     String lastDeliveryDateStr = fieldData.getString(FIELD_FUT_DLV_DT_LAST);
     String name = fieldData.getString(FIELD_FUT_LONG_NAME);
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
-    double unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
+    double unitAmount;
+    try {
+      unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
+    } catch (NumberFormatException ex) {
+      s_logger.warn("FIELD_FUT_VAL_PT does not contain a numeric value (" + fieldData.getString(FIELD_FUT_VAL_PT) + ")");
+      return null;
+    }
 
     if (!isValidField(bbgUnique)) {
       s_logger.warn("bbgUnique is null, cannot construct bond future security");
