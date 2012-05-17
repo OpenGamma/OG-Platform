@@ -1,0 +1,9 @@
+.OG-icon.og-icon-maximize:after {
+  background-position: -69px -25px;
+  background-color: transparent;
+  height: 9px;
+  width: 9px;
+  z-index: 2;
+  top: 5px;
+  position: absolute;
+}

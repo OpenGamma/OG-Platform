@@ -1,0 +1,24 @@
+/*
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-icon {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.OG-icon:before,
+.OG-icon:after {
+   background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
+   content: '';
+}
+
+.OG-icon:before {
+   float: left;
+}
+
+.OG-icon:after {
+  float: right;
+}
