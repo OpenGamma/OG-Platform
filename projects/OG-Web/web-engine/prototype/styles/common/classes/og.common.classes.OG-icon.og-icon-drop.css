@@ -1,9 +1,9 @@
-.OG-icon.og-icon-maximize:after {
-  background-position: -69px -25px;
+.OG-icon.og-icon-drop:after {
+  background-position: -37px -75px;
   background-color: transparent;
-  height: 9px;
-  width: 9px;
+  height: 15px;
+  width: 13px;
   z-index: 2;
-  top: 5px;
+  top: 0;
   position: absolute;
 }

@@ -6,17 +6,20 @@ $.register_module({
     name: 'og.common.gadgets.GadgetsContainer',
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
-        var api = og.api, tabs_template, overflow_template, header = ' .ui-layout-header', panels = {
+        var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
+            header = ' .ui-layout-header', panels = {
                 '.OG-layout-analytics-south': 'south',
                 '.OG-layout-analytics-dock-north': 'dock-north',
                 '.OG-layout-analytics-dock-center': 'dock-center',
                 '.OG-layout-analytics-dock-south': 'dock-south'
-            };
+            },
+            extract_pane = function (str) {return str.replace(/^OG\-layout\-analytics\-(.*?)\s(?:.*?)$/, '$1');},
+            extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
         /**
          * @param {String} selector Selector to initialize a GadgetsContainer in
          */
         return function (selector) {
-            var initialized = false, loading, counter = 1, gadgets = [], container = this,
+            var initialized = false, loading, gadgets = [], container = this,
                 pane, // layout pannel
                 live_id, // active tab id
                 overflow = {}, // document offet of overflow panel
@@ -95,20 +98,26 @@ $.register_module({
                         overflow.height = $overflow_button.height();
                         overflow.top = $overflow_button.offset().top + overflow.height + 4;
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
-                        // add tooltips to truncated tabs only
-                        $tabs.each(function () {
+                        $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
                             if (!!$this.attr('style')) $this.attr('title', $this.text().trim());
                         });
-
                     }
+                    // implement drag
+                    $tabs.each(function (i) {
+                        $(this).draggable({
+                            revert: 'invalid', cursor: 'move', zIndex: 3,
+                            iframeFix: true, appendTo: 'body', distance: 20,
+                            helper: function() {return dropbox_template({label: $(this).text().trim()});}
+                        }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
+                    });
                 };
                 if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
                 else {
                     if (id === void 0) id = live_id;
                     tabs = gadgets.reduce(function (acc, val) {
                         return acc.push({
-                            'name': val.name, 'active': (id === val.id), 'delete': true, 'id': val.id
+                            'name': val.config.name, 'active': (id === val.id), 'delete': true, 'id': val.id
                         }) && acc;
                     }, []);
                     if (pane === 'south') tabs.toggle = true; // add min/max toggle button
@@ -121,8 +130,7 @@ $.register_module({
              * @param id Id of gadget to show, hide all others
              */
             var show_gadget = function (id) {
-                $(selector).find('.OG-gadget-container [class*=OG-gadget-]')
-                    .hide().filter('.OG-gadget-' + id).show();
+                $(selector).find('.OG-gadget-container [class*=OG-gadget-]').hide().filter('.OG-gadget-' + id).show();
                 live_id = id;
             };
             /**
@@ -149,11 +157,13 @@ $.register_module({
                 loading = true;
                 $.when(
                     api.text({module: 'og.analytics.tabs_tash'}),
-                    api.text({module: 'og.analytics.tabs_overflow_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl) {
+                    api.text({module: 'og.analytics.tabs_overflow_tash'}),
+                    api.text({module: 'og.analytics.dropbox_tash'})
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl) {
                     pane = panels[selector];
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
+                    if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
                     if (!$overflow_panel) $overflow_panel = $(overflow_template({pane: pane})).appendTo('body');
                     initialized = true;
                     loading = false;
@@ -162,15 +172,41 @@ $.register_module({
                         // handler for tabs (including the ones in the overflow pane)
                         .on('click', 'li[class^=og-tab-]', function () {
                             if (!$(this).hasClass('og-active')) {
-                                var id = +$(this).attr('class').replace(/og\-tab\-/, '');
-                                update_tabs(id);
-                                gadgets[id - 1].gadget.resize();
+                                var id = extract_id($(this).attr('class'));
+                                update_tabs(id || null);
+                                if (id) {
+                                    var index = gadgets.reduce(function (acc, val, idx) {
+                                        return acc + (val.id === id ? idx : 0);
+                                    }, 0);
+                                    gadgets[index].gadget.resize();
+                                }
                             }
                             if (pane === 'south') toggle_pane(pane, true);
                         })
                         // handler for min/max toggle button
                         .on('click', '.og-js-toggle', function () {if (pane === 'south') toggle_pane(pane);});
                     if (!arr) update_tabs(null); else container.add(arr);
+                    // implement drop
+                    $('.OG-layout-analytics-' + pane).droppable({
+                        hoverClass: 'og-drop',
+                        accept: function (draggable) {
+                            var pane = extract_pane($(this).attr('class')),
+                                pane_class = 'OG-layout-analytics-' + pane,
+                                overflow_class = 'og-js-overflow-' + pane,
+                                has_ancestor = function (elm, sel) {
+                                    return $(elm).parentsUntil('.' + sel).parent().hasClass(sel);
+                                };
+                            return $(draggable).is('li[class^=og-tab-]') // is it a tab...
+                                && !has_ancestor(draggable, pane_class) // that isnt a child of the active pane...
+                                && !has_ancestor(draggable, overflow_class); // or a child of active overflow panel
+                        },
+                        drop: function(e, ui) {
+                            var data = ui.draggable.data(), gadget = data.gadget.config.options;
+                            gadget.selector = gadget.selector.replace(/analytics\-(.*?)\s/, 'analytics-' + pane + ' ');
+                            container.add([data.gadget.config]);
+                            setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt finishes
+                        }
+                    });
                     og.common.gadgets.manager.register(container);
                 });
             };
@@ -196,13 +232,21 @@ $.register_module({
                         .css({height: '100%', margin: obj.margin ? 10 : 0});
                     gadgets.push(gadget = {
                         id: id,
-                        name: obj.name,
+                        config: obj,
                         gadget: new obj.gadget($.extend(true, obj.options, {selector: gadget_selector}))
                     });
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
                 return container;
+            };
+            container.del = function (obj) {
+                $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
+                gadgets.splice(gadgets.indexOf(obj), 1);
+                update_tabs(gadgets.length
+                    ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
+                    : null
+                ); // new active tab or empty
             };
             container.alive = function () {return !!$(selector).length;};
             container.resize = function () {

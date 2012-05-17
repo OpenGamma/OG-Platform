@@ -39,6 +39,7 @@ $.register_module({
                     timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(),
                     timeseries_obj(), timeseries_obj(), timeseries_obj()
                 ]);
+                gc_r_south = (new GadgetsContainer('.OG-layout-analytics-dock-south').init());
                 if (!args.id) view.default_details();
             },
             load_item: function (args) {

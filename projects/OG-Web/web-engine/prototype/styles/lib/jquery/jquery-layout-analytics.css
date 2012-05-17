@@ -37,6 +37,32 @@
     color: #ccc;
 }
 
+/**
+  * 20x20
+  * @colordef #000 black @ 40% transparency (0)
+  * @colordef #fff white @ 10% transparency (1)
+  * 00000000001111111111
+  * 10000000000111111111
+  * 11000000000011111111
+  * ... etc ...
+  * 00000000011111111110
+  */
+.OG-layout-analytics-south.og-drop:after,
+.OG-layout-analytics-dock-north.og-drop:after,
+.OG-layout-analytics-dock-center.og-drop:after,
+.OG-layout-analytics-dock-south.og-drop:after {
+    content: '';
+    position: absolute;
+    display: block;
+    top: 2px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAa0lEQVQ4y63Uyw3AIAyD4X8sT8QIzN9bpaovJ/EhEuTwIQExwHJK0nYKSTuJci5CKJdNAOXWGKI8Ngcoryc1UT7vo4Hy+2pFFOtvFVDsCTBRSmPlgmG0EQAuGEIHUeWCQzQQqi7YRIPxD+sAmYYvMA+fMFoAAAAASUVORK5CYII=);
+    z-index: 12;
+}
+
 .OG-layout-analytics-container .ui-layout-content {
     padding: 0;
     overflow-y: hidden;

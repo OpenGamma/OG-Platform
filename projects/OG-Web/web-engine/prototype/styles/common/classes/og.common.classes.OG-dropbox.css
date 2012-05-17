@@ -3,22 +3,37 @@
  * @license See distribution for license
  */
 
-.OG-icon {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
+.OG-dropbox {
+    background: #fff;
+    border: 1px solid #999;
+    text-transform: uppercase;
+    font-size: 10px;
+    padding: 0 3px 0 22px;
+    -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
 }
 
-.OG-icon:before,
-.OG-icon:after {
-   background: url(/prototype/images/common/sprites/main-sprite-sheet.png);
-   content: '';
+/**
+  * @colordef #d1d1d1 light grey (1)
+  * @colordef transparent (0)
+  * 1000
+  * 0100
+  * 0010
+  * 0001
+  */
+.OG-dropbox span {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #e7e7e7 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAH0lEQVQIW2O8ePHif319fUYGKAAzkAXhMjBBuABMJQAYvA93/cwSzwAAAABJRU5ErkJggg==);
+    height: 19px;
+    width: 19px;
 }
 
-.OG-icon:before {
-   float: left;
-}
-
-.OG-icon:after {
-  float: right;
+.OG-dropbox .og-icon-drop:after {
+    left: 3px;
+    top: 2px;
 }
