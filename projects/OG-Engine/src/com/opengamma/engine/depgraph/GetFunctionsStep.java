@@ -78,6 +78,11 @@ import com.opengamma.util.tuple.Pair;
       return --_refCount;
     }
 
+    @Override
+    public ValueRequirement getValueRequirement() {
+      return _valueRequirement;
+    }
+
   }
 
   @Override

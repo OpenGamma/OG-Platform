@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +23,7 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
@@ -29,6 +32,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
+import com.opengamma.engine.depgraph.Housekeeper;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -39,12 +43,10 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each
- * {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements, is collected along
- * the way and exposed after compilation.
- * 
- * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the
- * referenced functions may not be valid at other timestamps.
+ * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements,
+ * is collected along the way and exposed after compilation.
+ * <p>
+ * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the referenced functions may not be valid at other timestamps.
  */
 public final class ViewDefinitionCompiler {
 
@@ -56,6 +58,62 @@ public final class ViewDefinitionCompiler {
   private ViewDefinitionCompiler() {
   }
 
+  /**
+   * Exposure of the completion status of a graph compilation. This is currently for debugging/diagnostic purposes. A full implementation should incorporate the "cancel"/"get" behavior of the Future
+   * returned by {@link #compileTask} with something that can return the progress of the task.
+   */
+  protected static final class CompilationCompletionEstimate implements Housekeeper.Callback<Supplier<Double>> {
+
+    private final String _label;
+    private final ConcurrentMap<String, Double> _buildEstimates;
+
+    private CompilationCompletionEstimate(final ViewCompilationContext context) {
+      final Collection<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> builders = context.getBuilders();
+      _buildEstimates = new ConcurrentHashMap<String, Double>();
+      for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : builders) {
+        _buildEstimates.put(builder.getFirst().getCalculationConfigurationName(), 0d);
+        Housekeeper.of(builder.getFirst(), this, builder.getFirst().buildFractionEstimate()).start();
+      }
+      _label = context.getViewDefinition().getName();
+    }
+
+    public double[] estimates() {
+      final double[] result = new double[_buildEstimates.size()];
+      int i = 0;
+      for (Double estimate : _buildEstimates.values()) {
+        result[i++] = estimate;
+      }
+      return result;
+    }
+
+    public double estimate() {
+      double result = 0;
+      for (Double estimate : _buildEstimates.values()) {
+        result += estimate;
+      }
+      return result / _buildEstimates.size();
+    }
+
+    @Override
+    public boolean tick(final DependencyGraphBuilder builder, final Supplier<Double> estimate) {
+      final Double estimateValue = estimate.get();
+      s_logger.debug("{}/{} building at {}", new Object[] {_label, builder.getCalculationConfigurationName(), estimateValue });
+      _buildEstimates.put(builder.getCalculationConfigurationName(), estimateValue);
+      return estimateValue < 1d;
+    }
+
+    @Override
+    public boolean cancelled(final DependencyGraphBuilder builder, final Supplier<Double> estimate) {
+      return false;
+    }
+
+    @Override
+    public boolean completed(final DependencyGraphBuilder builder, final Supplier<Double> estimate) {
+      return estimate.get() < 1d;
+    }
+
+  }
+
   //-------------------------------------------------------------------------
   public static Future<CompiledViewDefinitionWithGraphsImpl> compileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
       final VersionCorrection versionCorrection) {
@@ -64,6 +122,10 @@ public final class ViewDefinitionCompiler {
     s_logger.debug("Compiling {} for use with {}", viewDefinition.getName(), valuationTime);
     final OperationTimer timer = new OperationTimer(s_logger, "Compiling ViewDefinition: {}", viewDefinition.getName());
     final ViewCompilationContext viewCompilationContext = new ViewCompilationContext(viewDefinition, compilationServices, valuationTime);
+    if (s_logger.isDebugEnabled()) {
+      new CompilationCompletionEstimate(viewCompilationContext);
+    }
+    // TODO: return a Future that provides access to a completion metric to feedback to any interactive user
     return new Future<CompiledViewDefinitionWithGraphsImpl>() {
       
       private volatile CompiledViewDefinitionWithGraphsImpl _result;

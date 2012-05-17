@@ -23,17 +23,15 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Supplier;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -43,17 +41,14 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Cancelable;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Builds a dependency graph that describes how to calculate values that will satisfy a given
- * set of value requirements. Although a graph builder may itself use additional threads to
- * complete the graph it is only safe for a single calling thread to call any of the public
- * methods at any one time. If multiple threads are to attempt to add targets to the graph
- * concurrently, it is possible to synchronize on the builder instance.
+ * Builds a dependency graph that describes how to calculate values that will satisfy a given set of value requirements. Although a graph builder may itself use additional threads to complete the
+ * graph it is only safe for a single calling thread to call any of the public methods at any one time. If multiple threads are to attempt to add targets to the graph concurrently, it is possible to
+ * synchronize on the builder instance.
  */
 public final class DependencyGraphBuilder implements Cancelable {
 
@@ -75,11 +70,19 @@ public final class DependencyGraphBuilder implements Cancelable {
     return NO_BACKGROUND_THREADS ? 0 : (MAX_ADDITIONAL_THREADS >= 0) ? MAX_ADDITIONAL_THREADS : Runtime.getRuntime().availableProcessors();
   }
 
+  public static int getDefaultResolutionCacheSize() {
+    // TODO: want to flush the cache when memory is low, rather than at count thresholds
+    // 10K objects arbitrary choice from running Demo Equity Option Test View
+    return 10000;
+  }
+
+  public static int getDefaultMaxRunQueue() {
+    return (getDefaultMaxAdditionalThreads() + 1) * 8;
+  }
+
   /**
-   * Resolves an individual requirement by aggregating the results of any existing tasks
-   * already resolving that requirement. If these missed an exploration because of a
-   * recursion constraint introduced by their parent tasks, a "fallback" task is created
-   * to finish the job for the caller's parent.
+   * Resolves an individual requirement by aggregating the results of any existing tasks already resolving that requirement. If these missed an exploration because of a recursion constraint introduced
+   * by their parent tasks, a "fallback" task is created to finish the job for the caller's parent.
    */
   private static final class RequirementResolver extends AggregateResolvedValueProducer {
 
@@ -220,8 +223,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Wrapper for a hash map implementation that exposes the underlying entry so that the actual
-   * key value can be used.
+   * Wrapper for a hash map implementation that exposes the underlying entry so that the actual key value can be used.
    */
   private static final class MapEx<K, V> extends HashedMap {
 
@@ -235,9 +237,8 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Algorithm state. A context object is used by a single job thread. Objects referenced by the context may be shared with other
-   * contexts however. The root context from which all per-thread contexts are cloned is not used by any builder thread. The
-   * synchronization on the collation methods only is therefore sufficient.
+   * Algorithm state. A context object is used by a single job thread. Objects referenced by the context may be shared with other contexts however. The root context from which all per-thread contexts
+   * are cloned is not used by any builder thread. The synchronization on the collation methods only is therefore sufficient.
    */
   public final class GraphBuildingContext {
 
@@ -252,6 +253,7 @@ public final class DependencyGraphBuilder implements Cancelable {
 
     // The resolve task is ref-counted once for the map (it is being used as a set)
     private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
+    private final AtomicInteger _activeResolveTasks;
 
     // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
     private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications;
@@ -264,6 +266,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     private GraphBuildingContext() {
       s_loggerContext.info("Created new context");
       _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
+      _activeResolveTasks = new AtomicInteger();
       _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
     }
 
@@ -275,6 +278,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       setCompilationContext(copyFrom.getCompilationContext());
       setFunctionExclusionGroups(copyFrom.getFunctionExclusionGroups());
       _requirements = copyFrom._requirements;
+      _activeResolveTasks = copyFrom._activeResolveTasks;
       _specifications = copyFrom._specifications;
     }
 
@@ -342,8 +346,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     }
 
     /**
-     * Trigger an underlying pump operation. This may happen before returning or be deferred if the stack is past a
-     * depth threshold.
+     * Trigger an underlying pump operation. This may happen before returning or be deferred if the stack is past a depth threshold.
      * 
      * @param pump underlying operation
      */
@@ -358,8 +361,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     }
 
     /**
-     * Trigger an underlying close operation. This may happen before returning or be deferred if the stack is past a
-     * depth threshold.
+     * Trigger an underlying close operation. This may happen before returning or be deferred if the stack is past a depth threshold.
      * 
      * @param pump underlying operation
      */
@@ -384,7 +386,6 @@ public final class DependencyGraphBuilder implements Cancelable {
     public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
       s_loggerContext.debug("Resolved {} to {}", valueRequirement, resolvedValue);
       _stackDepth++;
-      // Note that NextFunctionStep does the finished transaction too early if we schedule resolved messages arbitrarily 
       callback.resolved(this, valueRequirement, resolvedValue, pump);
       _stackDepth--;
     }
@@ -405,8 +406,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     }
 
     /**
-     * Stores an exception that should be reported to the user. Only store the first copy of an exception; after that increment
-     * the count of times that it occurred.
+     * Stores an exception that should be reported to the user. Only store the first copy of an exception; after that increment the count of times that it occurred.
      * 
      * @param t exception to store, not null
      */
@@ -448,6 +448,11 @@ public final class DependencyGraphBuilder implements Cancelable {
           public synchronized int release(final GraphBuildingContext context) {
             assert _refCount > 0;
             return --_refCount;
+          }
+
+          @Override
+          public ValueRequirement getValueRequirement() {
+            return requirement;
           }
 
         };
@@ -500,6 +505,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         return task;
       } else {
         run(newTask);
+        _activeResolveTasks.incrementAndGet();
         return newTask;
       }
     }
@@ -552,6 +558,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         }
       }
       task.release(this);
+      _activeResolveTasks.decrementAndGet();
     }
 
     public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
@@ -640,8 +647,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     // Collation
 
     /**
-     * Merge information from the other context into this (a root context). The caller must be the thread
-     * that was working with the other context.
+     * Merge information from the other context into this (a root context). The caller must be the thread that was working with the other context.
      * 
      * @param context the other context
      */
@@ -672,13 +678,14 @@ public final class DependencyGraphBuilder implements Cancelable {
       return result;
     }
 
-    private void reportStateSize() {
+    // Housekeeping
+
+    public void reportStateSize() {
       if (!s_loggerContext.isInfoEnabled()) {
         return;
       }
       int count = 0;
-      for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
-        final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
+      for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
         synchronized (entries) {
           count += entries.size();
         }
@@ -691,9 +698,39 @@ public final class DependencyGraphBuilder implements Cancelable {
         }
       }
       s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
-      //final Runtime rt = Runtime.getRuntime();
-      //rt.gc();
-      //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
+    }
+
+    public int getActiveResolveTasks() {
+      return _activeResolveTasks.get();
+    }
+
+    public void flushCachedStates() {
+      // TODO: use heuristics to throw data away more sensibly
+      int resolversRemoved = 0;
+      final List<ResolveTask> resolverDiscard = new ArrayList<ResolveTask>();
+      for (Map<ResolveTask, ResolveTask> entries : _requirements.values()) {
+        synchronized (entries) {
+          final Iterator<ResolveTask> itr = entries.keySet().iterator();
+          while (itr.hasNext()) {
+            final ResolveTask task = itr.next();
+            if (task.isFinished()) {
+              itr.remove();
+              resolverDiscard.add(task);
+            }
+          }
+        }
+        if (!resolverDiscard.isEmpty()) {
+          resolversRemoved += resolverDiscard.size();
+          for (ResolveTask task : resolverDiscard) {
+            task.release(this);
+          }
+          resolverDiscard.clear();
+        }
+      }
+      if (resolversRemoved > 0) {
+        _activeResolveTasks.addAndGet(-resolversRemoved);
+        s_loggerResolver.info("Discarded {} resolve task(s) - {} still active", resolversRemoved, _activeResolveTasks);
+      }
     }
 
     private void discardIntermediateState() {
@@ -709,6 +746,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ContextRunnable> _runQueue = new ConcurrentLinkedQueue<ContextRunnable>();
+  private final Queue<ValueRequirement> _workQueue = new ConcurrentLinkedQueue<ValueRequirement>();
   private final Object _buildCompleteLock = new Object();
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
@@ -716,14 +754,25 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
       : ResolutionFailureVisitor.DEFAULT_INSTANCE);
   private final Executor _executor;
+  private final Housekeeper _contextCleaner = Housekeeper.of(this, ContextCleaner.INSTANCE);
+  //private final Pending _pending = new Pending(); // For debugging; comment out when checking in
 
   /**
-   * Number of additional threads to launch while requirements are being added or the graph is being built.
-   * The total number of threads used for graph construction may be up to this value or may be one higher
-   * as a thread blocked on graph construction in the call to {@link #getDependencyGraph} will join in with
-   * the remaining construction.
+   * Number of additional threads to launch while requirements are being added or the graph is being built. The total number of threads used for graph construction may be up to this value or may be
+   * one higher as a thread blocked on graph construction in the call to {@link #getDependencyGraph} will join in with the remaining construction.
    */
   private volatile int _maxAdditionalThreads = getDefaultMaxAdditionalThreads();
+
+  /**
+   * Number of resolution tasks to put into the run queue at any one time. The run queue will be drained of all tasks before the next batch is applied so that loop detection can be performed. This
+   * size can be used in conjunction with the cache flushing period to reduce the memory requirements when building large graphs.
+   */
+  private volatile int _maxRunQueue = getDefaultMaxRunQueue();
+
+  /**
+   * Flush the value resolver cache when there are more than a certain number of elements in it.
+   */
+  private volatile int _resolutionCacheSize = getDefaultResolutionCacheSize();
 
   /**
    * Flag to indicate when the build has been canceled.
@@ -745,6 +794,10 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected GraphBuildingContext getContext() {
     return _context;
+  }
+
+  protected GetTerminalValuesCallback getTerminalValuesCallback() {
+    return _getTerminalValuesCallback;
   }
 
   /**
@@ -840,9 +893,8 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Sets the maximum number of background threads to use for graph building. Set to zero to disable
-   * background building. When set to a non-zero amount, if there is additional pending work jobs may
-   * be started.
+   * Sets the maximum number of background threads to use for graph building. Set to zero to disable background building. When set to a non-zero amount, if there is additional pending work jobs may be
+   * started.
    * 
    * @param maxAdditionalThreads maximum number of background threads to use
    */
@@ -852,14 +904,31 @@ public final class DependencyGraphBuilder implements Cancelable {
     startBackgroundBuild();
   }
 
+  public int getResolutionCacheSize() {
+    return _resolutionCacheSize;
+  }
+
+  public void setResolutionCacheSize(final int resolutionCacheSize) {
+    ArgumentChecker.isTrue(resolutionCacheSize > 0, "resolutionCacheSize");
+    s_loggerContext.info("Resolution cache size set to {}", resolutionCacheSize);
+    _resolutionCacheSize = resolutionCacheSize;
+  }
+
+  public int getMaxRunQueue() {
+    return _maxRunQueue;
+  }
+
+  public void setMaxRunQueue(final int maxRunQueue) {
+    _maxRunQueue = maxRunQueue;
+  }
+
   /**
-   * Sets the visitor to receive resolution failures. If not set, a synthetic exception is created for
-   * each failure in the miscellaneous exception set.
+   * Sets the visitor to receive resolution failures. If not set, a synthetic exception is created for each failure in the miscellaneous exception set.
    * 
    * @param failureVisitor the visitor to use, or null to create synthetic exceptions
    */
   public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
-    _getTerminalValuesCallback.setResolutionFailureVisitor(failureVisitor);
+    getTerminalValuesCallback().setResolutionFailureVisitor(failureVisitor);
   }
 
   protected void checkInjectedInputs() {
@@ -869,114 +938,132 @@ public final class DependencyGraphBuilder implements Cancelable {
     ArgumentChecker.notNullInjected(getCalculationConfigurationName(), "calculationConfigurationName");
   }
 
+  // debugging code only
+  @SuppressWarnings("unused")
+  private final class Pending implements ResolvedValueCallback, Runnable {
+
+    private final Set<ValueRequirement> _valueRequirements = new HashSet<ValueRequirement>();
+    private boolean _running;
+
+    public Pending() {
+    }
+
+    @Override
+    public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+      synchronized (_valueRequirements) {
+        _valueRequirements.remove(valueRequirement);
+      }
+    }
+
+    @Override
+    public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
+      synchronized (_valueRequirements) {
+        _valueRequirements.remove(value);
+      }
+    }
+
+    @Override
+    public void run() {
+      do {
+        try {
+          Thread.sleep(10000);
+        } catch (InterruptedException e) {
+          throw new OpenGammaRuntimeException("interrupted", e);
+        }
+        synchronized (_valueRequirements) {
+          for (ValueRequirement requirement : _valueRequirements) {
+            s_loggerBuilder.info("Pending {}", requirement);
+          }
+        }
+      } while (!isGraphBuilt() && !isCancelled());
+      synchronized (_valueRequirements) {
+        _running = false;
+      }
+    }
+
+    public void watch(final ResolvedValueProducer producer) {
+      synchronized (_valueRequirements) {
+        _valueRequirements.add(producer.getValueRequirement());
+        if (!_running) {
+          new Thread(this).start();
+          _running = true;
+        }
+      }
+      producer.addCallback(getContext(), this);
+    }
+
+  }
+
   /**
-   * Adds a target requirement to the graph. The requirement is queued and the call returns; construction
-   * of the graph will happen on a background thread (if additional threads is non-zero), or when the
-   * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy the requirement that
-   * must be checked after graph construction is complete.
+   * Adds resolution of the given requirement to the run queue. Resolution will start as soon as possible and be available as pending for any tasks already running that require resolution of the
+   * requirement.
+   * 
+   * @param requirement the requirement to resolve
+   */
+  protected void addRunTargetImpl(final ValueRequirement requirement) {
+    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
+    resolvedValue.addCallback(getContext(), getTerminalValuesCallback());
+    //_pending.watch(resolvedValue);
+    resolvedValue.release(getContext());
+  }
+
+  /**
+   * Adds resolution of the given requirement to the work queue. If the run queue is below the maximum size the requirement is added directly to the run queue; otherwise it will become runnable when
+   * the run queue is empty.
+   * 
+   * @param requirement the requirement to resolve
+   */
+  protected void addWorkTargetImpl(final ValueRequirement requirement) {
+    if (_runQueue.size() < getMaxRunQueue()) {
+      addRunTargetImpl(requirement);
+    } else {
+      // Already over capacity on the run queue; add requirement to work queue instead 
+      _workQueue.add(requirement);
+      // Increment the scheduled steps so that progress estimates aren't complete bunk
+      _scheduledSteps.incrementAndGet();
+    }
+  }
+
+  /**
+   * Adds a target requirement to the graph. The requirement is queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
+   * the call to {@link #getDependencyGraph} is made. If it was not possible to satisfy the requirement that must be checked after graph construction is complete.
    * 
    * @param requirement requirement to add, not null
    */
-  public void addTarget(ValueRequirement requirement) {
+  public void addTarget(final ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
     checkInjectedInputs();
-    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
-    resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
-    resolvedValue.release(getContext());
+    // Hold the build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
+    synchronized (_buildCompleteLock) {
+      addWorkTargetImpl(requirement);
+    }
     // If the run-queue was empty, we won't have started a thread, so double check 
     startBackgroundConstructionJob();
   }
 
   /**
-   * Adds target requirements to the graph. The requirements are queued and the call returns; construction
-   * of the graph will happen on a background thread (if additional threads is non-zero), or when the
-   * call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements
-   * that must be checked after graph construction is complete.
+   * Adds target requirements to the graph. The requirements are queued and the call returns; construction of the graph will happen on a background thread (if additional threads is non-zero), or when
+   * the call to {@link #getDependencyGraph} is made. If it was not possible to satisfy one or more requirements that must be checked after graph construction is complete.
    * 
    * @param requirements requirements to add, not null and not containing nulls.
    */
   public void addTarget(Set<ValueRequirement> requirements) {
     ArgumentChecker.noNulls(requirements, "requirements");
     checkInjectedInputs();
-    for (ValueRequirement requirement : requirements) {
-      final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
-      resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
-      resolvedValue.release(getContext());
+    // Hold the build complete lock so that housekeeping thread cannot observe a "built" state within this atomic block of work
+    synchronized (_buildCompleteLock) {
+      for (ValueRequirement requirement : requirements) {
+        addWorkTargetImpl(requirement);
+      }
     }
     // If the run-queue was empty, we may not have started enough threads, so double check 
     startBackgroundConstructionJob();
   }
 
-  /**
-   * For compatibility with DependencyGraphBuilderFunctionalIntegrationTest in OG-Integration. Do not use this.
-   * 
-   * @param requirement requirement to add, not null
-   * @deprecated update OG-Integration and remove this
-   */
-  @Deprecated
-  protected void addTargetImpl(final ValueRequirement requirement) {
-    final ResolvedValueProducer resolvedValue = getContext().resolveRequirement(requirement, null, null);
-    resolvedValue.addCallback(getContext(), _getTerminalValuesCallback);
-    startBackgroundConstructionJob();
-    final CountDownLatch latch = new CountDownLatch(1);
-    final AtomicReference<RuntimeException> exception = new AtomicReference<RuntimeException>();
-    resolvedValue.addCallback(getContext(), new ResolvedValueCallback() {
-
-      @Override
-      public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
-        s_loggerBuilder.warn("Couldn't resolve {}", value);
-        exception.set(new UnsatisfiableDependencyGraphException(value));
-        latch.countDown();
-      }
-
-      @Override
-      public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-        s_loggerBuilder.info("Resolved target {} to {}", valueRequirement, resolvedValue.getValueSpecification());
-        exception.set(null);
-        context.close(pump);
-        latch.countDown();
-      }
-
-      @Override
-      public String toString() {
-        return "AddTargetImpl[" + requirement + "]";
-      }
-
-    });
-    resolvedValue.release(getContext());
-    try {
-      boolean failed = true;
-      for (int clock = 0; clock < 120; clock++) {
-        if (latch.await(250, TimeUnit.MILLISECONDS)) {
-          failed = false;
-          break;
-        }
-        if (isGraphBuilt()) {
-          if (!latch.await(0, TimeUnit.MILLISECONDS)) {
-            s_loggerBuilder.warn("Graph construction stopped without failure or resolution of {}", requirement);
-            throw new OpenGammaRuntimeException("Graph construction stopped without failure or resolution of " + requirement);
-          }
-          failed = false;
-          break;
-        }
-      }
-      if (failed) {
-        s_loggerBuilder.warn("Timeout waiting for failure or resolution of {}", requirement);
-        throw new OpenGammaRuntimeException("Timeout waiting for failure or resolution of " + requirement);
-      }
-    } catch (InterruptedException e) {
-      throw new OpenGammaRuntimeException("Interrupted", e);
-    }
-    ViewDefinitionCompiler.outputFailureReport(this);
-    RuntimeException ex = exception.get();
-    if (ex != null) {
-      throw ex;
-    }
-  }
-
   protected void addToRunQueue(final ContextRunnable runnable) {
     s_loggerBuilder.debug("Queuing {}", runnable);
-    final boolean dontSpawn = _runQueue.isEmpty();
+    final boolean dontSpawn = _runQueue.isEmpty() && _workQueue.isEmpty();
+    _scheduledSteps.incrementAndGet();
     _runQueue.add(runnable);
     // Don't start construction jobs if the queue is empty or a sequential piece of work bounces between two threads (i.e. there
     // is already a background thread that is running the caller which can then execute the task it has just put into the run
@@ -984,7 +1071,6 @@ public final class DependencyGraphBuilder implements Cancelable {
     if (!dontSpawn) {
       startBackgroundConstructionJob();
     }
-    _scheduledSteps.incrementAndGet();
   }
 
   protected boolean startBackgroundConstructionJob() {
@@ -1017,10 +1103,10 @@ public final class DependencyGraphBuilder implements Cancelable {
     @Override
     public void run() {
       s_loggerBuilder.info("Building job {} started for {}", _objectId, DependencyGraphBuilder.this);
+      _contextCleaner.start();
       boolean jobsLeftToRun;
       int completed = 0;
       do {
-        s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
         // Create a new context for each logical block so that an exception from the build won't leave us with
         // an inconsistent context.
         final GraphBuildingContext context = new GraphBuildingContext(getContext());
@@ -1028,9 +1114,6 @@ public final class DependencyGraphBuilder implements Cancelable {
           try {
             jobsLeftToRun = buildGraph(context);
             completed++;
-            /*if ((completed % 500) == 0) {
-              s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
-            }*/
           } catch (Throwable t) {
             s_loggerBuilder.warn("Graph builder exception", t);
             _context.exception(t);
@@ -1066,11 +1149,31 @@ public final class DependencyGraphBuilder implements Cancelable {
           // graph of tasks. Aborting them at this point is easier and possibly more efficient than
           // the overhead of trying to stop the loops forming in the first place.
           getContext().abortLoops();
-          // If any loops were aborted, new jobs will go onto the run queue, and possibly a new active
-          // job started (this one is officially dead but could be restarted using logic similar to
-          // above to update the activeJobCount and activeJobs set).
+          // If any loops were aborted, new jobs will go onto the run queue, possibly a new active job
+          // started. We are officially dead but could be restarted using logic similar to above to
+          // update the activeJobCount and activeJobs set.
+          int newWork = 0;
+          while (_runQueue.size() < getMaxRunQueue()) {
+            final ValueRequirement requirement = _workQueue.poll();
+            if (requirement != null) {
+              s_loggerBuilder.debug("Starting work on {}", requirement);
+              addRunTargetImpl(requirement);
+              newWork++;
+            } else {
+              break;
+            }
+          }
+          if (newWork > 0) {
+            s_loggerBuilder.info("Added {} items from work queue to run queue, {} remaining", newWork, _workQueue.size());
+            // Remove the synthetic scheduled steps that were added when the work was first registered
+            _scheduledSteps.addAndGet(-newWork);
+            // Flush the resolution cache
+            //_timeToFlush.set(getCacheFlushPeriod());
+            //getContext().flushCachedStates();
+          }
         }
       }
+      _contextCleaner.stop();
       s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
 
@@ -1087,9 +1190,8 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Main process loop, takes a runnable task and executes it. If the graph has not been built when
-   * getDependencyGraph is called, the calling thread will also join this. There are additional
-   * threads that also run in a pool to complete the work of the graph building.
+   * Main process loop, takes a runnable task and executes it. If the graph has not been built when getDependencyGraph is called, the calling thread will also join this. There are additional threads
+   * that also run in a pool to complete the work of the graph building.
    * 
    * @param context the calling thread's building context
    * @return true if there is more work still to do, false if all the work is done
@@ -1115,15 +1217,14 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (_cancelled) {
           throw new CancellationException();
         }
-        return _activeJobs.isEmpty() && _runQueue.isEmpty();
+        return _activeJobs.isEmpty() && _runQueue.isEmpty() && _workQueue.isEmpty();
       }
     }
   }
 
   /**
-   * Returns the dependency graph if it has been completed by background threads. If the graph has
-   * not been completed it will return null. If the number of additional threads is set to
-   * zero then the graph will not be built until {@link #getDependencyGraph} is called.
+   * Returns the dependency graph if it has been completed by background threads. If the graph has not been completed it will return null. If the number of additional threads is set to zero then the
+   * graph will not be built until {@link #getDependencyGraph} is called.
    * 
    * @return the graph if built, null otherwise
    */
@@ -1161,8 +1262,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * If there are runnable tasks but not as many active jobs as the requested number then additional threads
-   * will be started. This is called when the number of background threads is changed.
+   * If there are runnable tasks but not as many active jobs as the requested number then additional threads will be started. This is called when the number of background threads is changed.
    */
   protected void startBackgroundBuild() {
     if (_runQueue.isEmpty()) {
@@ -1175,31 +1275,72 @@ public final class DependencyGraphBuilder implements Cancelable {
     }
   }
 
-  /**
-   * Estimate the completion of the build, from 0 (nothing completed) to 1 (all done). The completion is based on
-   * the number of completed steps versus the currently known number of steps.
-   * 
-   * @return the completion estimate
-   */
-  public double estimateBuildFraction() {
-    // Note that this will break for big jobs that are > 2^63 steps. Is this a limit that can be reasonably hit?
-    // Loose synchronization okay; this is only a guesstimate
-    final long completed = _completedSteps.get();
-    final long scheduled = _scheduledSteps.get();
-    if (scheduled <= 0) {
-      return 100;
+  // TODO: factor this into an external class
+  private final class BuildFractionEstimate implements Supplier<Double> {
+
+    private long _maxRemaining;
+
+    @Override
+    public Double get() {
+      if (isCancelled()) {
+        return 1d;
+      }
+      // Note that this will break for big jobs that are > 2^63 steps. Is this a limit that can be reasonably hit?
+      // Loose synchronization okay; this is only a guesstimate
+      final long completed = getCompletedSteps();
+      long scheduled = getScheduledSteps();
+      if ((scheduled <= 0) || (completed <= 0)) {
+        return 0d;
+      }
+      while (completed >= scheduled) {
+        if (isGraphBuilt()) {
+          return 1d;
+        } else {
+          // spin and have another go; scheduled steps will eventually increase
+          scheduled = getScheduledSteps();
+          if (scheduled <= 0) {
+            // 2^63 overflow
+            return 0d;
+          }
+        }
+      }
+      s_loggerBuilder.info("Completed {} of {} scheduled steps", completed, scheduled);
+      getContext().reportStateSize();
+      // TODO: What can we do based on sampling the counters available and applying knowledge of typical graph shapes? Don't want anything too heavyweight.
+      final long remaining = scheduled - completed;
+      if (remaining > _maxRemaining) {
+        _maxRemaining = remaining;
+      }
+      return (double) (_maxRemaining - remaining) / (double) _maxRemaining;
     }
-    // TODO: need a better metric here; need to somehow predict/project the eventual number of "scheduled" steps
-    s_loggerBuilder.info("Completed {} of {} scheduled steps", completed, scheduled);
-    getContext().reportStateSize();
-    return (double) completed / (double) scheduled;
+
+    @Override
+    public String toString() {
+      return (get() * 100) + "%";
+    }
+
   }
 
   /**
-   * Returns the constructed dependency graph able to compute as many of the requirements requested as
-   * possible. If graph construction has not completed, will block the caller until it has and the
-   * calling thread will be used for the remaining graph construction work (which will be the full
-   * graph construction if additional threads is set to zero). For a non-blocking form see
+   * Estimate the completion of the build, from 0 (nothing completed) to 1 (all done). The completion is based on the number of completed steps versus the currently known number of steps.
+   * 
+   * @return the completion estimate
+   */
+  public Supplier<Double> buildFractionEstimate() {
+    return new BuildFractionEstimate();
+  }
+
+  protected long getScheduledSteps() {
+    return _scheduledSteps.get();
+  }
+
+  protected long getCompletedSteps() {
+    return _completedSteps.get();
+  }
+
+  /**
+   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, will block the caller until it has and the
+   * calling thread will be used for the remaining graph construction work (which will be the full graph construction if additional threads is set to zero). For a non-blocking form see
    * {@link #pollDependencyGraph} or {@link #getDependencyGraph(boolean)}.
    * 
    * @return the graph, not null
@@ -1209,15 +1350,12 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Returns the constructed dependency graph able to compute as many of the requirements requested as
-   * possible. If graph construction has not completed, the calling thread will participate in graph
-   * construction (which will be the full graph construction if additional threads is set to zero). When
-   * background threads are being used, the caller may optionally be blocked until all have completed.
-   * For a completely non-blocking form see {@link #pollDependencyGraph}.
+   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, the calling thread will participate in graph
+   * construction (which will be the full graph construction if additional threads is set to zero). When background threads are being used, the caller may optionally be blocked until all have
+   * completed. For a completely non-blocking form see {@link #pollDependencyGraph}.
    * 
-   * @param allowBackgroundContinuation  whether to block the caller until graph construction is complete.
-   *  If set to false the function may return null if background threads are still completing
-   *  but there was no work for the calling thread to do.
+   * @param allowBackgroundContinuation whether to block the caller until graph construction is complete. If set to false the function may return null if background threads are still completing but
+   *          there was no work for the calling thread to do.
    * @return the graph if built, null if still being built in the background
    */
   public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
@@ -1256,10 +1394,10 @@ public final class DependencyGraphBuilder implements Cancelable {
   protected DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
     s_loggerBuilder.debug("Converting internal representation to dependency graph");
-    for (DependencyNode node : _getTerminalValuesCallback.getGraphNodes()) {
+    for (DependencyNode node : getTerminalValuesCallback().getGraphNodes()) {
       graph.addDependencyNode(node);
     }
-    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _getTerminalValuesCallback.getTerminalValues().entrySet()) {
+    for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : getTerminalValuesCallback().getTerminalValues().entrySet()) {
       graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
     //graph.dumpStructureASCII(System.out);
@@ -1271,6 +1409,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     }
     // Clear out the build caches
     getContext().discardIntermediateState();
+    s_loggerBuilder.info("Graph built after {} steps", _completedSteps);
     return graph;
   }
 
@@ -1285,13 +1424,13 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   /**
-   * Returns a map of the originally requested value requirements to the value specifications that were put into the
-   * graph as terminal outputs. Any unsatisfied requirements will be absent from the map.
+   * Returns a map of the originally requested value requirements to the value specifications that were put into the graph as terminal outputs. Any unsatisfied requirements will be absent from the
+   * map.
    * 
    * @return the map of requirements to value specifications, not null
    */
   public Map<ValueRequirement, ValueSpecification> getValueRequirementMapping() {
-    return _getTerminalValuesCallback.getTerminalValues();
+    return getTerminalValuesCallback().getTerminalValues();
   }
 
   /**

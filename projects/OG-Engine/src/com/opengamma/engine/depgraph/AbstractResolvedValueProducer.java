@@ -127,24 +127,28 @@ import com.opengamma.engine.value.ValueSpecification;
 
   }
 
+  private static final ResolvedValue[] NO_RESULTS = new ResolvedValue[0];
+
   private final ValueRequirement _valueRequirement;
   private final Set<Callback> _pumped = new HashSet<Callback>();
   private final int _objectId = s_nextObjectId.getAndIncrement();
+  //private final InstanceCount _instanceCount = new InstanceCount(this);
   private final Set<ValueSpecification> _resolvedValues = new HashSet<ValueSpecification>();
   private int _refCount;
   private ResolvedValue[] _results;
   private boolean _finished;
   private ResolutionFailure _failure;
+  private boolean _failureCopied;
 
   public AbstractResolvedValueProducer(final ValueRequirement valueRequirement) {
     _valueRequirement = valueRequirement;
-    _results = new ResolvedValue[0];
+    _results = NO_RESULTS;
     _refCount = 1;
   }
 
   @Override
   public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback valueCallback) {
-    addRef();
+    addRef(); // reference held by the callback object
     final Callback callback = new Callback(valueCallback);
     ResolvedValue firstResult = null;
     boolean finished = false;
@@ -204,6 +208,11 @@ import com.opengamma.engine.value.ValueSpecification;
         pumped = new ArrayList<Callback>(_pumped);
         _pumped.clear();
       }
+      if (_failure != null) {
+        // Don't hold onto any failure state if there is a result
+        _failure = null;
+        _failureCopied = false;
+      }
     }
     if (pumped != null) {
       for (Callback callback : pumped) {
@@ -246,7 +255,7 @@ import com.opengamma.engine.value.ValueSpecification;
       for (Callback callback : pumped) {
         s_logger.debug("Pushing failure to {}", callback._callback);
         context.failed(callback._callback, getValueRequirement(), failure);
-        release(context);
+        release(context); // release the reference to this held by the Callback object
       }
     } else {
       s_logger.debug("No pumped callbacks");
@@ -256,11 +265,18 @@ import com.opengamma.engine.value.ValueSpecification;
   protected void storeFailure(final ResolutionFailure failure) {
     if (failure != null) {
       synchronized (this) {
-        if (_failure == null) {
-          _failure = (ResolutionFailure) failure.clone();
-          return;
+        if (_results.length == 0) {
+          // Only store failure info if there are no results to push
+          if (_failure == null) {
+            _failure = failure;
+            return;
+          }
+          if (!_failureCopied) {
+            _failure = (ResolutionFailure) _failure.clone();
+            _failureCopied = true;
+          }
+          _failure.merge(failure);
         }
-        _failure.merge(failure);
       }
     }
   }
@@ -276,6 +292,7 @@ import com.opengamma.engine.value.ValueSpecification;
     return _results;
   }
 
+  @Override
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
   }
@@ -296,7 +313,12 @@ import com.opengamma.engine.value.ValueSpecification;
     if (s_logger.isDebugEnabled()) {
       s_logger.debug("Release called on {}, refCount={}", this, _refCount);
     }
-    return --_refCount;
+    final int result = --_refCount;
+    if (result == 0) {
+      // help out the garbage collector
+      _failure = null;
+    }
+    return result;
   }
 
   @Override

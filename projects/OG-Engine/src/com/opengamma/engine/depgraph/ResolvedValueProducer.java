@@ -8,15 +8,27 @@ package com.opengamma.engine.depgraph;
 import java.util.Set;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.value.ValueRequirement;
 
 /**
  * Deferred source of a {@link ResolvedValue}.
  */
 /* package */interface ResolvedValueProducer {
 
+  // TODO: rename to ContextCancelable to match the ContextRunnable, better still use an external execution framework
+
   interface Cancelable {
+
     boolean cancel(GraphBuildingContext context);
+
   }
+
+  /**
+   * Queries the requirement this is producing a resolved value for.
+   * 
+   * @return the value requirement
+   */
+  ValueRequirement getValueRequirement();
 
   /**
    * Register a callback for notification when the value is produced. If the value has already

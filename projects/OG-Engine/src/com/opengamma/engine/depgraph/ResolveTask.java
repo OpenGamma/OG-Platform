@@ -38,6 +38,8 @@ import com.opengamma.engine.value.ValueSpecification;
     private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolveTask _task;
 
+    //private final InstanceCount _instanceCount = new InstanceCount(this);
+
     protected State(final ResolveTask task) {
       assert task != null;
       _task = task;
@@ -126,12 +128,6 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   /**
-   * Parent resolve task (i.e. chain of previous value requirements) so that loops can be detected and avoided. This is not
-   * ref-counted.
-   */
-  private final ResolveTask _parent;
-
-  /**
    * Parent value requirements.
    */
   private final Set<ValueRequirement> _parentRequirements;
@@ -159,11 +155,11 @@ import com.opengamma.engine.value.ValueSpecification;
   /**
    * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task.
    */
-  private Set<FunctionExclusionGroup> _functionExclusion;
+  private final Set<FunctionExclusionGroup> _functionExclusion;
 
   public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Set<FunctionExclusionGroup> functionExclusion) {
     super(valueRequirement);
-    _parent = parent;
+    final int hc;
     if (parent != null) {
       if (parent.getParentValueRequirements() != null) {
         _parentRequirements = new HashSet<ValueRequirement>(parent.getParentValueRequirements());
@@ -171,12 +167,18 @@ import com.opengamma.engine.value.ValueSpecification;
       } else {
         _parentRequirements = Collections.singleton(parent.getValueRequirement());
       }
-      _hashCode = valueRequirement.hashCode() * 31 + _parentRequirements.hashCode();
+      hc = valueRequirement.hashCode() * 31 + _parentRequirements.hashCode();
     } else {
       _parentRequirements = null;
-      _hashCode = valueRequirement.hashCode();
+      hc = valueRequirement.hashCode();
     }
-    _functionExclusion = (functionExclusion != null) ? new HashSet<FunctionExclusionGroup>(functionExclusion) : null;
+    if (functionExclusion != null) {
+      _functionExclusion = new HashSet<FunctionExclusionGroup>(functionExclusion);
+      _hashCode = hc * 31 + _functionExclusion.hashCode();
+    } else {
+      _functionExclusion = null;
+      _hashCode = hc;
+    }
     setState(new ResolveTargetStep(this));
   }
 
@@ -232,10 +234,6 @@ import com.opengamma.engine.value.ValueSpecification;
     release(context);
   }
 
-  private ResolveTask getParent() {
-    return _parent;
-  }
-
   private Set<ValueRequirement> getParentValueRequirements() {
     return _parentRequirements;
   }
@@ -262,8 +260,12 @@ import com.opengamma.engine.value.ValueSpecification;
     return _functionExclusion;
   }
 
-  // HashCode and Equality are to allow tasks to be considered equal iff they are for the same value requirement and
-  // correspond to the same resolution depth (i.e. the sets of parents are equal)
+  // TODO: could use a ResolveTaskKey instead of hash/equal here. Then the original resolve tasks (with failure & result info) can be discarded but the output productions still be cached
+
+  // HashCode and Equality are to allow tasks to be considered equal iff they
+  // are for the same value requirement, correspond to the same resolution
+  // depth (i.e. the sets of parents are equal), and have the same function
+  // exclusion set
 
   @Override
   public int hashCode() {
@@ -282,7 +284,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
-    return ObjectUtils.equals(getParentValueRequirements(), other.getParentValueRequirements());
+    return ObjectUtils.equals(getParentValueRequirements(), other.getParentValueRequirements()) && ObjectUtils.equals(getFunctionExclusion(), other.getFunctionExclusion());
   }
 
   @Override
@@ -294,20 +296,6 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public String toString() {
     return "ResolveTask" + getObjectId() + "[" + getValueRequirement() + ", " + getState() + "]";
-  }
-
-  private void toLongString(final StringBuilder sb) {
-    sb.append(getValueRequirement());
-    if (getParent() != null) {
-      sb.append("->");
-      getParent().toLongString(sb);
-    }
-  }
-
-  public String toLongString() {
-    final StringBuilder sb = new StringBuilder();
-    toLongString(sb);
-    return sb.toString();
   }
 
   @Override

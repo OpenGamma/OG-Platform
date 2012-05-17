@@ -16,8 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
- * If no currency is explicitly requested, inject the view's default currency. This function should never
- * be added to a dependency graph as the input will always match the output.
+ * If no currency is explicitly requested, inject the view's default currency. This function should never be added to a dependency graph as the input will always match the output.
  */
 public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
 

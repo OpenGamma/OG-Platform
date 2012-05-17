@@ -123,8 +123,8 @@ import com.opengamma.engine.value.ValueSpecification;
         if (_inputs.get(value) == null) {
           s_logger.info("Resolution of {} failed", value);
           if (_taskState != null) {
-            requirementFailure = _taskState.functionApplication().requirement(value, failure);
             if (_taskState.canHandleMissingInputs()) {
+              requirementFailure = _taskState.functionApplication().requirement(value, null);
               _inputs.remove(value);
               state = _taskState;
               if (_pendingInputs == 0) {
@@ -137,9 +137,11 @@ import com.opengamma.engine.value.ValueSpecification;
                 if (s_logger.isDebugEnabled()) {
                   s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
                 }
-                // Fall through so that the failure is still logged
+                // Fall through so that failure is logged
               }
               break;
+            } else {
+              requirementFailure = _taskState.functionApplication().requirement(value, failure);
             }
           }
         } else {
@@ -259,7 +261,8 @@ import com.opengamma.engine.value.ValueSpecification;
     super.storeFailure(failure);
   }
 
-  public void addInput(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValueProducer inputProducer) {
+  public void addInput(final GraphBuildingContext context, final ResolvedValueProducer inputProducer) {
+    final ValueRequirement valueRequirement = inputProducer.getValueRequirement();
     s_logger.debug("Adding input {} to {}", valueRequirement, this);
     synchronized (this) {
       _inputs.put(valueRequirement, null);

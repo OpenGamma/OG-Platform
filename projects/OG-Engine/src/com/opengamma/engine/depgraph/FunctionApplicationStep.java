@@ -521,7 +521,7 @@ import com.opengamma.util.tuple.Pair;
         final Set<FunctionExclusionGroup> functionExclusion = getFunctionExclusion(context, functionDefinition);
         for (ValueRequirement inputRequirement : inputRequirements) {
           final ResolvedValueProducer inputProducer = context.resolveRequirement(inputRequirement, getTask(), functionExclusion);
-          worker.addInput(context, inputRequirement, inputProducer);
+          worker.addInput(context, inputProducer);
           inputProducer.release(context);
         }
         worker.start(context);

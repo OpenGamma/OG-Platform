@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.riskfactor.option;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -31,6 +32,9 @@ public class UnderlyingTypeToValueRequirementMapper {
       switch (underlying) {
         case SPOT_PRICE:
           Security optionUnderlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+          if (optionUnderlying == null) {
+            throw new DataNotFoundException("Don't have security for underlying of " + option);
+          }
           return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, optionUnderlying.getUniqueId());
         case SPOT_VOLATILITY:
           throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueId());
