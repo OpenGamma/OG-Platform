@@ -9,44 +9,62 @@ $.register_module({
         var module = this;
         return function (grid) {
             var selector = this, $ = grid.$, grid_offset, grid_width, grid_height;
-            var auto_scroll = function (event, scroll_top, scroll_left, rel_x, rel_y, start) {
-                var x = event.pageX - grid_offset.left, fixed_width = grid.meta.columns.width.fixed,
-                    y = event.pageY - grid_offset.top, increment = 35, interval = 100;
+            var auto_scroll = function (event, scroll_top, scroll_left, start) {
+                var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top,
+                    fixed_width = grid.meta.columns.width.fixed, increment = 35, interval = 100,
+                    scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
                 clearTimeout(auto_scroll.timeout);
-                if (x > grid_width) // scroll right
-                    grid.elements.scroll_body.scrollLeft(scroll_left + increment);
+                if (x > grid_width) scroll_body.scrollLeft(scroll_left + increment);
+                else if (over_fixed && start.x > fixed_width) scroll_body.scrollLeft(scroll_left - increment);
                 else
-                    if (x < fixed_width && start.x > fixed_width) // scroll left
-                        grid.elements.scroll_body.scrollLeft(scroll_left - increment);
-                if (y < 0) // scroll up
-                    grid.elements.scroll_body.scrollTop(scroll_top - increment);
-                else
-                    if (y > grid_height) // scroll down
-                        grid.elements.scroll_body.scrollTop(scroll_top + increment);
+                    if (over_fixed && (auto_scroll.scroll = auto_scroll.scroll || scroll_body.find('.OG-g-sel').length))
+                        scroll_body.scrollLeft(scroll_left - increment);
+                if (y < grid.meta.header_height) scroll_body.scrollTop(scroll_top - increment);
+                else if (y > grid_height) scroll_body.scrollTop(scroll_top + increment);
                 auto_scroll.timeout = setTimeout(function () {
-                    auto_scroll(event, grid.elements.scroll_body.scrollTop(), grid.elements.scroll_body.scrollLeft());
+                    auto_scroll(event, scroll_body.scrollTop(), scroll_body.scrollLeft(), start);
                 }, interval);
             };
             auto_scroll.timeout = null;
+            auto_scroll.scroll = false;
             var cleanup = function () {
-                $(window).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
+                $(document).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
                 clearTimeout(auto_scroll.timeout);
-                grid.dataman.busy(false);
+                auto_scroll.scroll = false;
                 grid.set_viewport();
             };
             var deselect = function () {
                 $(grid.id + ' .OG-g-sel').remove();
                 selector.render.memo = null;
             };
+            var mousedown_observer = function (event) {
+                var $cell, $target, start, fixed, right_click = event.which === 3 || event.button === 2,
+                    scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    scroll_top = grid.elements.scroll_body.scrollTop();
+                if (right_click) return; else cleanup();
+                if (selector.render.memo) return deselect();
+                $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
+                if (!$cell.length) return;
+                grid_offset = grid.elements.parent.offset();
+                grid_width = grid.elements.parent.width();
+                grid_height = grid.elements.parent.height();
+                fixed = +$cell.attr('class').match(/\sc(\d+)\s?/)[1] < grid.meta.columns.fixed.length;
+                start = {
+                    x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
+                    y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
+                };
+                (mousemove_observer = function (event) {mousemove(start, event);})(event);
+                $(document).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
+            };
             var mousemove = function (start, event) {
                 event.preventDefault();
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
-                    x = event.pageX - grid_offset.left + scroll_left,
-                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                     fixed_width = grid.meta.columns.width.fixed, scroll_width = grid.meta.columns.width.scroll,
+                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
+                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                     areas = [], rectangle = {};
-                auto_scroll(event, scroll_top, scroll_left, x, y, start);
+                auto_scroll(event, scroll_top, scroll_left, start);
                 rectangle.top_left = nearest_cell(Math.min(start.x, x), Math.min(start.y, y));
                 rectangle.bottom_right = nearest_cell(Math.max(start.x, x), Math.max(start.y, y));
                 rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
@@ -73,28 +91,6 @@ $.register_module({
             };
             var mousemove_observer = $.noop;
             var mouseup_observer = cleanup;
-            var mousedown_observer = function (event) {
-                var $cell, $target, start, fixed, right_click = event.which === 3 || event.button === 2,
-                    scroll_left = grid.elements.scroll_body.scrollLeft(),
-                    scroll_top = grid.elements.scroll_body.scrollTop();
-                if (right_click) return;
-                cleanup();
-                if (selector.render.memo) return deselect();
-                $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
-                if (!$cell.length) return;
-                grid_offset = grid.elements.parent.offset();
-                grid_width = grid.elements.parent.width();
-                grid_height = grid.elements.parent.height();
-                fixed = +$cell.attr('class').match(/\sc(\d+)\s?/)[1] < grid.meta.columns.fixed.length;
-                grid.dataman.busy(true);
-                start = {
-                    x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
-                    y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                };
-                mousemove_observer = function (event) {mousemove(start, event);};
-                mousemove_observer(event);
-                $(window).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
-            };
             var nearest_cell = function (x, y) {
                 var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
