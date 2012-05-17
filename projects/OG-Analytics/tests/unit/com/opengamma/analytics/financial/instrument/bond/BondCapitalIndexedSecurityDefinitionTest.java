@@ -21,10 +21,10 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDef
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflation;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.market.MarketDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -130,8 +130,8 @@ public class BondCapitalIndexedSecurityDefinitionTest {
       assertEquals("Capital Index Bond: toDerivative", ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(loopcpn)).getIndexStartValue(), INDEX_START_GILT_1);
       assertEquals("Capital Index Bond: toDerivative", ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(loopcpn)).getPriceIndex(), PRICE_INDEX_UKRPI);
     }
-    final GenericAnnuity<Coupon> nominal = (GenericAnnuity<Coupon>) bondFromDefinition.getNominal().toDerivative(pricingDate, "Not used");
-    final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) bondFromDefinition.getCoupon().toDerivative(pricingDate, ukRpi, "Not used");
+    final Annuity<Coupon> nominal = (Annuity<Coupon>) bondFromDefinition.getNominal().toDerivative(pricingDate, "Not used");
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) bondFromDefinition.getCoupon().toDerivative(pricingDate, ukRpi, "Not used");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
     final double settleTime = TimeCalculator.getTimeBetween(pricingDate, spot);
     final AnnuityDefinition<CouponDefinition> couponDefinition = (AnnuityDefinition<CouponDefinition>) bondFromDefinition.getCoupon().trimBefore(spot);

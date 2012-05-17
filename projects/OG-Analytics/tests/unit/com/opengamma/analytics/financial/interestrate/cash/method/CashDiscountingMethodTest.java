@@ -19,10 +19,10 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -57,6 +57,7 @@ public class CashDiscountingMethodTest {
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_PRICE = 1.0E-2;
+  private static final double TOLERANCE_SPREAD = 1.0E-10;
 
   @Test
   /**
@@ -174,6 +175,33 @@ public class CashDiscountingMethodTest {
     final DoublesPair pairPv = sensiPvDisc.get(0);
     assertEquals("Sensitivity coupon pv to forward curve: Node " + 0, nodeTimesDisc[0], pairPv.getFirst(), 1E-8);
     AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[0], deltaTolerancePrice);
+  }
+
+  @Test
+  /**
+   * Tests parSpread.
+   */
+  public void parSpread() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    double parSpread = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE + parSpread, DEPOSIT_AF);
+    Cash deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
+    CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
+    assertEquals("DepositDefinition: present value", 0, pv0.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests parSpread.
+   */
+  public void parSpreadMethodVsCalculator() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    double parSpreadMethod = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
+    double parSpreadCalculator = PSC.visit(deposit, CURVES);
+    assertEquals("DepositDefinition: present value", parSpreadMethod, parSpreadCalculator, TOLERANCE_SPREAD);
   }
 
 }

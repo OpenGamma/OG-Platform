@@ -23,9 +23,9 @@ import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTes
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorIborLMMDDMethod;
@@ -138,7 +138,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
         FIRST_CPN_RATE, mainIbor, floorIbor, capIbor);
     AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     AnnuityCouponIborDefinition iborDefinition = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX_EURIBOR3M, IS_PAYER);
-    GenericAnnuity<? extends Coupon> ibor = iborDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
+    Annuity<? extends Coupon> ibor = iborDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     Coupon[] iborFirstFixed = new Coupon[ibor.getNumberOfPayments()];
     iborFirstFixed[0] = ratchetFixed.getNthPayment(0);
     for (int loopcpn = 1; loopcpn < ibor.getNumberOfPayments(); loopcpn++) {
@@ -148,7 +148,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     LiborMarketModelDisplacedDiffusionDataBundle bundleLMM = new LiborMarketModelDisplacedDiffusionDataBundle(parameterLMM, CURVES);
     LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     CurrencyAmount pvIborMC = methodMC.presentValue(ratchetFixed, EUR, CURVES.getCurve(CURVES_NAMES[0]), bundleLMM);
-    double pvIborExpected = PVC.visit(new GenericAnnuity<Payment>(iborFirstFixed), CURVES);
+    double pvIborExpected = PVC.visit(new Annuity<Payment>(iborFirstFixed), CURVES);
     assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo - Degenerate in Ibor leg", pvIborExpected, pvIborMC.getAmount(), 1.0E+4);
     // For 500,000 path the difference is 755.92
   }
@@ -168,7 +168,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
         FIRST_CPN_RATE, mainIbor, floorIbor, capIbor);
     AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     AnnuityCapFloorIborDefinition capDefinition = AnnuityCapFloorIborDefinition.from(SETTLEMENT_DATE, SETTLEMENT_DATE.plus(ANNUITY_TENOR), NOTIONAL, INDEX_EURIBOR3M, IS_PAYER, strike, true);
-    GenericAnnuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
+    Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAMES);
     LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     CapFloorIborLMMDDMethod methodCapLMM = new CapFloorIborLMMDDMethod();
     AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, INDEX_EURIBOR3M.getTenor(), TARGET, INDEX_EURIBOR3M.getDayCount(),

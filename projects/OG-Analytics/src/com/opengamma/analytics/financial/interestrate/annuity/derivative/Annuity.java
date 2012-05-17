@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.annuity.definition;
+package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * There payments can be known in advance, or depend on the future value of some (possibly several) indices, e.g. the Libor.
  * @param <P> The payment type 
  */
-public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
+public class Annuity<P extends Payment> implements InstrumentDerivative {
 
   /**
    * The list of the annuity payments.
@@ -35,7 +35,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    */
   private final boolean _isPayer;
 
-  public GenericAnnuity(final P[] payments) {
+  public Annuity(final P[] payments) {
     Validate.noNullElements(payments);
     Validate.isTrue(payments.length > 0, "Have no payments in annuity");
     final Currency currency0 = payments[0].getCurrency();
@@ -48,7 +48,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
-  public GenericAnnuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
+  public Annuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.notNull(pType);
     Validate.isTrue(payments.size() > 0);
@@ -114,7 +114,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    * @return The trimmed annuity.
    */
   @SuppressWarnings("unchecked")
-  public GenericAnnuity<P> trimBefore(final double trimTime) {
+  public Annuity<P> trimBefore(final double trimTime) {
     final List<P> list = new ArrayList<P>();
     list.clear();
     for (final P payment : _payments) {
@@ -122,7 +122,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
         list.add(payment);
       }
     }
-    return new GenericAnnuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
   }
 
   /**
@@ -131,14 +131,14 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
    * @return The trimmed annuity.
    */
   @SuppressWarnings("unchecked")
-  public GenericAnnuity<P> trimAfter(final double trimTime) {
+  public Annuity<P> trimAfter(final double trimTime) {
     final List<P> list = new ArrayList<P>();
     for (final P payment : _payments) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
-    return new GenericAnnuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
   }
 
   @Override
@@ -169,7 +169,7 @@ public class GenericAnnuity<P extends Payment> implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final GenericAnnuity<?> other = (GenericAnnuity<?>) obj;
+    final Annuity<?> other = (Annuity<?>) obj;
     if (_payments.length != other._payments.length) {
       return false;
     }

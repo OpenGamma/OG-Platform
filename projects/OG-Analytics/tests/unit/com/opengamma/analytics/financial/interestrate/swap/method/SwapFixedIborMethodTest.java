@@ -15,11 +15,11 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -63,12 +63,12 @@ public class SwapFixedIborMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final FixedCouponSwap<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Yield curves
   private static final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
   private static final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
 
-  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
+  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   @Test
   public void testAnnuityCash() {
@@ -106,7 +106,7 @@ public class SwapFixedIborMethodTest {
     // 2. Funding curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesName = {bumpedCurveName, FORWARD_CURVE_NAME};
-    final FixedCouponSwap<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
+    final SwapFixedCoupon<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
     final double[] yieldsFunding = new double[nbPayDate + 1];
     final double[] nodeTimes = new double[nbPayDate + 1];
     yieldsFunding[0] = curveFunding.getInterestRate(0.0);
@@ -143,7 +143,7 @@ public class SwapFixedIborMethodTest {
     curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     // Constant rate
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curves);
-    double couponEquiv = SwapFixedDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, curves);
+    double couponEquiv = SwapFixedCouponDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, curves);
     assertEquals(RATE, couponEquiv, 1E-10);
     couponEquiv = METHOD_SWAP.couponEquivalent(SWAP_PAYER, curves);
     assertEquals(RATE, couponEquiv, 1E-10);
@@ -156,7 +156,7 @@ public class SwapFixedIborMethodTest {
           * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
     }
     final AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
-    final FixedCouponSwap<Coupon> swapStepup = new FixedCouponSwap<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
+    final SwapFixedCoupon<Coupon> swapStepup = new SwapFixedCoupon<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
     couponEquiv = METHOD_SWAP.couponEquivalent(swapStepup, curves);
     double expectedCouponEquivalent = 0;
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {

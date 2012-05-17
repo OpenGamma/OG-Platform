@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister;
 
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet.RatchetIborCalibrationType;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet.RatchetIborCalibrationType;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorHullWhiteCalibrationObjective;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine;

@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
@@ -17,9 +17,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -47,13 +47,13 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    final GenericAnnuity<CouponFixed> coupons = bond.getCoupon();
+    final Annuity<CouponFixed> coupons = bond.getCoupon();
     final int n = coupons.getNumberOfPayments();
     final CouponFixed[] unitCoupons = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
-    final GenericAnnuity<CouponFixed> unitCouponAnnuity = new GenericAnnuity<CouponFixed>(unitCoupons);
+    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
     return PVC.visit(unitCouponAnnuity, curves);
   }
 
@@ -75,7 +75,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
   }
 
   @Override
-  public Double visitFixedCouponSwap(final FixedCouponSwap<?> swap, final YieldCurveBundle curves) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return PVC.visit(REPLACE_RATE.visitFixedCouponAnnuity(swap.getFixedLeg(), 1.0), curves);
   }
 
@@ -97,7 +97,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
   }
 
   @Override
-  public Double visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle data) {
+  public Double visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
     double sum = 0;
     for (final Payment p : annuity.getPayments()) {
       sum += visit(p, data);

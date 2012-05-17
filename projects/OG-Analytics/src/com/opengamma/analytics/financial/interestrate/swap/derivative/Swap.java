@@ -3,26 +3,38 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
- * Class describing a generic swap with two legs. One should be payer and the other receiver.
+ * Class describing a generic swap with two legs. One should be payer and the other receiver. The two legs currencies can be different.
  * @param <P1> The type of the payments in the payLeg
  * @param <P2> The type of the payments in the receiveLeg
  */
 public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentDerivative {
-  private final GenericAnnuity<P1> _firstLeg;
-  private final GenericAnnuity<P2> _secondLeg;
 
-  public Swap(final GenericAnnuity<P1> firstLeg, final GenericAnnuity<P2> secondLeg) {
+  /**
+   * The swap first leg.
+   */
+  private final Annuity<P1> _firstLeg;
+  /**
+   * The swap second leg. The two leg should have opposite payer flags.
+   */
+  private final Annuity<P2> _secondLeg;
+
+  /**
+   * Constructor from two legs.
+   * @param firstLeg The swap first leg.
+   * @param secondLeg The swap second leg. The two leg should have opposite payer flags.
+   */
+  public Swap(final Annuity<P1> firstLeg, final Annuity<P2> secondLeg) {
     Validate.notNull(firstLeg);
     Validate.notNull(secondLeg);
     Validate.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
@@ -30,11 +42,19 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
     _secondLeg = secondLeg;
   }
 
-  public GenericAnnuity<P1> getFirstLeg() {
+  /**
+   * Gets the swap first leg.
+   * @return The leg.
+   */
+  public Annuity<P1> getFirstLeg() {
     return _firstLeg;
   }
 
-  public GenericAnnuity<P2> getSecondLeg() {
+  /**
+   * Gets the swap second leg.
+   * @return The leg.
+   */
+  public Annuity<P2> getSecondLeg() {
     return _secondLeg;
   }
 
@@ -60,8 +80,8 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
   @Override
   public String toString() {
     String result = "Swap : \n";
-    result += "First leg: " + _firstLeg.toString();
-    result += "\nSecond leg: " + _secondLeg.toString();
+    result += "First leg: \n" + _firstLeg.toString() + "\n";
+    result += "Second leg: \n" + _secondLeg.toString();
     return result;
   }
 

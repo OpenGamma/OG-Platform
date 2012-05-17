@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.time.Expiry;
@@ -81,7 +81,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     Validate.notNull(yieldCurveNames, "yield curve names");
     final double expiryTime = TimeCalculator.getTimeBetween(date, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(date, _settlementDate);
-    final FixedCouponSwap<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 

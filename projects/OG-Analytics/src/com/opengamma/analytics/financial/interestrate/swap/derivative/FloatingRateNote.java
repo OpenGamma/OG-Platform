@@ -4,13 +4,13 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
@@ -21,11 +21,11 @@ import com.opengamma.util.money.Currency;
 @Deprecated
 public class FloatingRateNote extends Swap<PaymentFixed, CouponIborSpread> {
 
-  public FloatingRateNote(final GenericAnnuity<CouponIborSpread> forwardLiborAnnuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+  public FloatingRateNote(final Annuity<CouponIborSpread> forwardLiborAnnuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
     super(setUpFixedLeg(forwardLiborAnnuity, initalPayment, finalPayment), forwardLiborAnnuity);
   }
 
-  private static GenericAnnuity<PaymentFixed> setUpFixedLeg(final GenericAnnuity<CouponIborSpread> annuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
+  private static Annuity<PaymentFixed> setUpFixedLeg(final Annuity<CouponIborSpread> annuity, final PaymentFixed initalPayment, final PaymentFixed finalPayment) {
 
     final String curveName = annuity.getDiscountCurve();
 
@@ -53,7 +53,7 @@ public class FloatingRateNote extends Swap<PaymentFixed, CouponIborSpread> {
 
     fixedPayments[1] = finalPayment;
 
-    return new GenericAnnuity<PaymentFixed>(fixedPayments);
+    return new Annuity<PaymentFixed>(fixedPayments);
 
   }
 

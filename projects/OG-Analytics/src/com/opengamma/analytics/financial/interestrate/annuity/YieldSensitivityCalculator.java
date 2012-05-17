@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.interestrate.annuity;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.math.function.Function1D;
@@ -38,7 +38,7 @@ public final class YieldSensitivityCalculator {
    * @param pv The present value of the future cash flows. Also know as dirty or full price
    * @return continuously compounded yield (as a fraction) 
    */
-  public double calculateYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double pv) {
+  public double calculateYield(final Annuity<? extends PaymentFixed> annuity, final double pv) {
     Validate.notNull(annuity, "annuity");
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
@@ -81,7 +81,7 @@ public final class YieldSensitivityCalculator {
    * @param yield Continuously compounded constant interest rate 
    * @return Present value (dirty price)
    */
-  public double calculatePriceForYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double yield) {
+  public double calculatePriceForYield(final Annuity<? extends PaymentFixed> annuity, final double yield) {
     Validate.notNull(annuity, "annuity");
     double sum = 0;
 
@@ -121,7 +121,7 @@ public final class YieldSensitivityCalculator {
    *@param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n
    */
-  public double calculateNthOrderSensitivity(final GenericAnnuity<? extends PaymentFixed> annuity, final double pv, final int order) {
+  public double calculateNthOrderSensitivity(final Annuity<? extends PaymentFixed> annuity, final double pv, final int order) {
     Validate.notNull(annuity, "annuity");
     final double yield = calculateYield(annuity, pv);
     return calculateNthOrderSensitivityFromYield(annuity, yield, order);
@@ -149,7 +149,7 @@ public final class YieldSensitivityCalculator {
    * @param order The order of the derivative 
    * @return nth order yield sensitivity (times (-1)^n)
    */
-  public double calculateNthOrderSensitivityFromYield(final GenericAnnuity<? extends PaymentFixed> annuity, final double yield, final int order) {
+  public double calculateNthOrderSensitivityFromYield(final Annuity<? extends PaymentFixed> annuity, final double yield, final int order) {
     Validate.notNull(annuity, "annuity");
     Validate.isTrue(order >= 0, "order must be positive");
     double sum = 0;

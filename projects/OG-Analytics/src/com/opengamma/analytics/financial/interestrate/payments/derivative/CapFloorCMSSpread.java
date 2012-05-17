@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -24,7 +24,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   /**
    * The swap underlying the first CMS. The rate and notional are not used. The swap should be of vanilla type.
    */
-  private final FixedCouponSwap<? extends Payment> _underlyingSwap1;
+  private final SwapFixedCoupon<? extends Payment> _underlyingSwap1;
   /**
    * The index associated to the first CMS.
    */
@@ -32,7 +32,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
   /**
    * The swap underlying the second CMS. The rate and notional are not used. The swap should be of vanilla type.
    */
-  private final FixedCouponSwap<? extends Payment> _underlyingSwap2;
+  private final SwapFixedCoupon<? extends Payment> _underlyingSwap2;
   /**
    * The index associated to the second CMS.
    */
@@ -67,7 +67,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param fundingCurveName The discounting curve name. Should be compatible with the swaps dicsounting curve.
    */
   public CapFloorCMSSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
-      final FixedCouponSwap<? extends Payment> underlyingSwap1, final IndexSwap cmsIndex1, final FixedCouponSwap<? extends Payment> underlyingSwap2, final IndexSwap cmsIndex2,
+      final SwapFixedCoupon<? extends Payment> underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedCoupon<? extends Payment> underlyingSwap2, final IndexSwap cmsIndex2,
       final double settlementTime, final double strike, final boolean isCap, final String fundingCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap1, "underlying swap");
@@ -97,7 +97,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS spread cap/floor.
    */
-  public static CapFloorCMSSpread from(final CouponFloating coupon, final FixedCouponSwap<Coupon> underlyingSwap1, final IndexSwap cmsIndex1, final FixedCouponSwap<Coupon> underlyingSwap2,
+  public static CapFloorCMSSpread from(final CouponFloating coupon, final SwapFixedCoupon<Coupon> underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedCoupon<Coupon> underlyingSwap2,
       final IndexSwap cmsIndex2, final double settlementTime, final double strike, final boolean isCap) {
     Validate.notNull(coupon, "floating coupon");
     Validate.isTrue(coupon.getFundingCurveName() == underlyingSwap2.getFixedLeg().getDiscountCurve(), "coherence in pricing");
@@ -109,7 +109,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * Gets the swap underlying the first CMS.
    * @return The underlying swap.
    */
-  public FixedCouponSwap<? extends Payment> getUnderlyingSwap1() {
+  public SwapFixedCoupon<? extends Payment> getUnderlyingSwap1() {
     return _underlyingSwap1;
   }
 
@@ -125,7 +125,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * Gets the swap underlying the second CMS.
    * @return The underlying swap.
    */
-  public FixedCouponSwap<? extends Payment> getUnderlyingSwap2() {
+  public SwapFixedCoupon<? extends Payment> getUnderlyingSwap2() {
     return _underlyingSwap2;
   }
 

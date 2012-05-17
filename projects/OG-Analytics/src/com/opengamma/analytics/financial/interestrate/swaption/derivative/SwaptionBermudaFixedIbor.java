@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
@@ -23,7 +23,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    * The swaps underlying the swaption. There is one swap for each expiration date. All swaps shoud have the same currency.
    * The swap do not need to be identical; this allow to incorporate fees or changing margins in the description.
    */
-  private final FixedCouponSwap<? extends Coupon>[] _underlyingSwap;
+  private final SwapFixedCoupon<? extends Coupon>[] _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
@@ -44,7 +44,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    * @param expiryTime The swaption expiration times.
    * @param settlementTime The times (in year) to the swaps settlement.
    */
-  public SwaptionBermudaFixedIbor(FixedCouponSwap<? extends Coupon>[] underlyingSwap, boolean isLong, double[] expiryTime, double[] settlementTime) {
+  public SwaptionBermudaFixedIbor(SwapFixedCoupon<? extends Coupon>[] underlyingSwap, boolean isLong, double[] expiryTime, double[] settlementTime) {
     Validate.notNull(expiryTime, "Expiry time");
     Validate.notNull(underlyingSwap, "Underlying swap");
     Validate.notNull(settlementTime, "Settlement time");
@@ -60,7 +60,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    * Gets the swaps underlying the swaption. There is one swap for each expiration date. 
    * @return The underlying swaps.
    */
-  public FixedCouponSwap<? extends Coupon>[] getUnderlyingSwap() {
+  public SwapFixedCoupon<? extends Coupon>[] getUnderlyingSwap() {
     return _underlyingSwap;
   }
 

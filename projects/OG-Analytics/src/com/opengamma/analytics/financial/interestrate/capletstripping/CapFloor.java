@@ -5,13 +5,13 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 
 /**
  * 
  */
-public class CapFloor extends GenericAnnuity<CapFloorIbor> {
+public class CapFloor extends Annuity<CapFloorIbor> {
 
   /**
    * @param payments The series of payments

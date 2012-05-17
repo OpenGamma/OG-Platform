@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -21,7 +21,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
   /**
    * Swap underlying the CMS definition. The rate and notional are not used. The swap should be of vanilla type.
    */
-  private final FixedCouponSwap<? extends Payment> _underlyingSwap;
+  private final SwapFixedCoupon<? extends Payment> _underlyingSwap;
   /**
    * The time (in years) to underlying swap settlement.
    */
@@ -47,7 +47,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * @param strike The strike.
    * @param isCap The cap (true) /floor (false) flag.
    */
-  public CapFloorCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime,
+  public CapFloorCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime,
       double strike, boolean isCap) {
     super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
     Validate.notNull(underlyingSwap, "underlying swap");
@@ -74,7 +74,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * Gets the underlying swap.
    * @return The underlying swap.
    */
-  public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
+  public SwapFixedCoupon<? extends Payment> getUnderlyingSwap() {
     return _underlyingSwap;
   }
 

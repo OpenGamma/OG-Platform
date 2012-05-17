@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.annuity.definition;
+package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 /**
  * A wrapper class for a GenericAnnuity containing PaymentFixed. Useful for amortized bond nominal repayments.
  */
-public class AnnuityPaymentFixed extends GenericAnnuity<PaymentFixed> {
+public class AnnuityPaymentFixed extends Annuity<PaymentFixed> {
 
   /**
    * Constructor from an array of fixed payments.

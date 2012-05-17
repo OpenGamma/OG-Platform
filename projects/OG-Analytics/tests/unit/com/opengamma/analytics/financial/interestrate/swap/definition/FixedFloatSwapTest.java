@@ -15,11 +15,12 @@ import javax.time.calendar.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -111,14 +112,14 @@ public class FixedFloatSwapTest {
 
   @Test
   public void testGetters() {
-    GenericAnnuity<CouponFixed> fixedLeg = SWAP.getFixedLeg();
+    Annuity<CouponFixed> fixedLeg = SWAP.getFixedLeg();
     assertEquals(fixedLeg.getNumberOfPayments(), FIXED_PAYMENTS.length, 0);
     for (int i = 0; i < FIXED_PAYMENTS.length; i++) {
       assertEquals(fixedLeg.getNthPayment(i).getPaymentTime(), FIXED_PAYMENTS[i], 0);
       assertEquals(fixedLeg.getNthPayment(i).getFixedRate(), COUPON_RATE, 0);
     }
 
-    GenericAnnuity<CouponIbor> floatLeg = SWAP.getFloatingLeg();
+    Annuity<CouponIbor> floatLeg = SWAP.getFloatingLeg();
     assertEquals(floatLeg.getNumberOfPayments(), FLOAT_PAYMENTS.length, 0);
     for (int i = 0; i < FLOAT_PAYMENTS.length; i++) {
       assertEquals(floatLeg.getNthPayment(i).getPaymentTime(), FLOAT_PAYMENTS[i], 0);

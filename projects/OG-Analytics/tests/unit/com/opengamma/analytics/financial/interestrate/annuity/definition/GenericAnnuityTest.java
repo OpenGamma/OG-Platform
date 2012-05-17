@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
@@ -57,46 +57,46 @@ public class GenericAnnuityTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
-    new GenericAnnuity<CouponFixed>(null);
+    new Annuity<CouponFixed>(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
-    new GenericAnnuity<CouponFixed>(new CouponFixed[0]);
+    new Annuity<CouponFixed>(new CouponFixed[0]);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPayment() {
-    new GenericAnnuity<CouponFixed>(new CouponFixed[] {null});
+    new Annuity<CouponFixed>(new CouponFixed[] {null});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullList() {
-    new GenericAnnuity<CouponFixed>(null, CouponFixed.class, true);
+    new Annuity<CouponFixed>(null, CouponFixed.class, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullClass() {
-    new GenericAnnuity<CouponFixed>(LIST_PAYMENTS, null, true);
+    new Annuity<CouponFixed>(LIST_PAYMENTS, null, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyList() {
-    new GenericAnnuity<CouponFixed>(new ArrayList<CouponFixed>(), CouponFixed.class, true);
+    new Annuity<CouponFixed>(new ArrayList<CouponFixed>(), CouponFixed.class, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentInList() {
     final List<CouponFixed> list = new ArrayList<CouponFixed>();
     list.add(null);
-    new GenericAnnuity<CouponFixed>(list, CouponFixed.class, true);
+    new Annuity<CouponFixed>(list, CouponFixed.class, true);
   }
 
   @Test
   public void testArrayConstruction() {
-    final GenericAnnuity<Payment> temp1 = new GenericAnnuity<Payment>(PAYMENTS);
+    final Annuity<Payment> temp1 = new Annuity<Payment>(PAYMENTS);
     //    final GenericAnnuity<PaymentFixed> temp2 = new GenericAnnuity<PaymentFixed>(PAYMENTS);
-    final GenericAnnuity<CouponFixed> temp3 = new GenericAnnuity<CouponFixed>(PAYMENTS);
+    final Annuity<CouponFixed> temp3 = new Annuity<CouponFixed>(PAYMENTS);
     assertTrue(Arrays.equals(PAYMENTS, temp1.getPayments()));
     //    assertTrue(Arrays.equals(PAYMENTS, temp2.getPayments()));
     assertTrue(Arrays.equals(PAYMENTS, temp3.getPayments()));
@@ -105,9 +105,9 @@ public class GenericAnnuityTest {
 
   @Test
   public void testListConstruction() {
-    final GenericAnnuity<Payment> temp1 = new GenericAnnuity<Payment>(LIST_PAYMENTS, Payment.class, true);
+    final Annuity<Payment> temp1 = new Annuity<Payment>(LIST_PAYMENTS, Payment.class, true);
     //    final GenericAnnuity<PaymentFixed> temp2 = new GenericAnnuity<PaymentFixed>(LIST_PAYMENTS, PaymentFixed.class);
-    final GenericAnnuity<CouponFixed> temp3 = new GenericAnnuity<CouponFixed>(LIST_PAYMENTS, CouponFixed.class, true);
+    final Annuity<CouponFixed> temp3 = new Annuity<CouponFixed>(LIST_PAYMENTS, CouponFixed.class, true);
     assertTrue(Arrays.equals(PAYMENTS, temp1.getPayments()));
     //    assertTrue(Arrays.equals(PAYMENTS, temp2.getPayments()));
     assertTrue(Arrays.equals(PAYMENTS, temp3.getPayments()));
@@ -131,8 +131,8 @@ public class GenericAnnuityTest {
 
   @Test
   public void test() {
-    final GenericAnnuity<CouponFixed> annuity = new GenericAnnuity<CouponFixed>(PAYMENTS);
-    GenericAnnuity<CouponFixed> other = new GenericAnnuity<CouponFixed>(PAYMENTS);
+    final Annuity<CouponFixed> annuity = new Annuity<CouponFixed>(PAYMENTS);
+    Annuity<CouponFixed> other = new Annuity<CouponFixed>(PAYMENTS);
     assertEquals(annuity, other);
     assertEquals(annuity.hashCode(), other.hashCode());
     assertEquals(annuity.getNumberOfPayments(), PAYMENTS.length);
@@ -140,7 +140,7 @@ public class GenericAnnuityTest {
     for (int i = 0; i < PAYMENTS.length; i++) {
       assertEquals(annuity.getNthPayment(i), PAYMENTS[i]);
     }
-    other = new GenericAnnuity<CouponFixed>(new CouponFixed[] {PAYMENTS[0], PAYMENTS[1]});
+    other = new Annuity<CouponFixed>(new CouponFixed[] {PAYMENTS[0], PAYMENTS[1]});
     assertFalse(annuity.equals(other));
   }
 }

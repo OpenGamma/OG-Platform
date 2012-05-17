@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -113,12 +113,12 @@ public class AnnuityCouponIborRatchetDefinitionTest {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         FIRST_CPN_RATE,
         MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    final GenericAnnuity<Payment> annuity = (GenericAnnuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final Annuity<Payment> annuity = (Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
       cpn[loopcpn] = (Coupon) annuityDefinition.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, CURVES_NAMES);
     }
-    final GenericAnnuity<Payment> annuity2 = new GenericAnnuity<Payment>(cpn);
+    final Annuity<Payment> annuity2 = new Annuity<Payment>(cpn);
     assertTrue("Annuity Ratchet Ibor: toDerivatives", annuity2.equals(annuity));
   }
 
@@ -130,12 +130,12 @@ public class AnnuityCouponIborRatchetDefinitionTest {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         MAIN_COEF,
         FLOOR_COEF, CAP_COEF);
-    final GenericAnnuity<Payment> annuity = (GenericAnnuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
+    final Annuity<Payment> annuity = (Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
       cpn[loopcpn] = (Coupon) annuityDefinition.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, CURVES_NAMES);
     }
-    final GenericAnnuity<Payment> annuity2 = new GenericAnnuity<Payment>(cpn);
+    final Annuity<Payment> annuity2 = new Annuity<Payment>(cpn);
     assertTrue("Annuity Ratchet Ibor: toDerivatives", annuity2.equals(annuity));
   }
 
@@ -210,7 +210,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
         MAIN_COEF, FLOOR_COEF, CAP_COEF);
     final double fixing = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 12, 5) }, new double[] {fixing });
-    final GenericAnnuity<Coupon> annuity = annuityDefinition.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
+    final Annuity<Coupon> annuity = annuityDefinition.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON - 1];
     double rate = MAIN_COEF[0] * FIRST_CPN_RATE + MAIN_COEF[1] * fixing + MAIN_COEF[2];
     rate = Math.max(rate, FLOOR_COEF[0] * FIRST_CPN_RATE + FLOOR_COEF[1] * fixing + FLOOR_COEF[2]);

@@ -16,7 +16,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -199,7 +199,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
   }
 
   @Override
-  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponIborDefinition[] payments = getPayments();
@@ -208,11 +208,11 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
         resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
+    return new Annuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
   }
 
   @Override
-  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final List<Coupon> resultList = new ArrayList<Coupon>();
     for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
@@ -220,7 +220,7 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
         resultList.add(getPayments()[loopcoupon].toDerivative(date, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
+    return new Annuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
   }
 
   @Override

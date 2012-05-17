@@ -21,11 +21,11 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
@@ -49,10 +49,10 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthlyGearing;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
@@ -65,13 +65,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.definition.OISSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.Swap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapCouponCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -102,9 +103,9 @@ public class InstrumentDerivativeVisitorTest {
   private static final PaymentFixed FIXED_PAYMENT_2 = new PaymentFixed(CUR, 1, -1, CURVE_NAME);
   private static final CouponIborSpread LIBOR_PAYMENT_2 = new CouponIborSpread(CUR, 1.0, CURVE_NAME, 0, -1, 1, INDEX, 1, 1, 0, CURVE_NAME);
   //  private static final CouponFloating FLOATING_COUPON = new CouponFloating(CUR, 1, CURVE_NAME, 1, 1, 1);
-  private static final GenericAnnuity<Payment> GA = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
-  private static final GenericAnnuity<Payment> GA_2 = new GenericAnnuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
-  private static final FixedCouponSwap<CouponIbor> FCS = new FixedCouponSwap<CouponIbor>(FIXED_LEG, FLOAT_LEG);
+  private static final Annuity<Payment> GA = new Annuity<Payment>(new Payment[] {FIXED_PAYMENT, LIBOR_PAYMENT});
+  private static final Annuity<Payment> GA_2 = new Annuity<Payment>(new Payment[] {FIXED_PAYMENT_2, LIBOR_PAYMENT_2});
+  private static final SwapFixedCoupon<CouponIbor> FCS = new SwapFixedCoupon<CouponIbor>(FIXED_LEG, FLOAT_LEG);
   private static final AnnuityCouponFixed FCA = new AnnuityCouponFixed(CUR, new double[] {1}, 0.05, CURVE_NAME, true);
   private static final AnnuityCouponIbor FLA = new AnnuityCouponIbor(CUR, new double[] {1}, INDEX, 0.05, CURVE_NAME, CURVE_NAME, true);
   private static final CouponFixed FCP = new CouponFixed(CUR, 1, CURVE_NAME, 1, 0.04);
@@ -142,7 +143,7 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Object anything) {
+    public Class<?> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final Object anything) {
       return visit(swap, anything);
     }
 
@@ -157,7 +158,7 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitGenericAnnuity(final GenericAnnuity<? extends Payment> annuity, final Object anything) {
+    public Class<?> visitGenericAnnuity(final Annuity<? extends Payment> annuity, final Object anything) {
       return visit(annuity, anything);
     }
 
@@ -182,7 +183,7 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap) {
+    public Class<?> visitFixedCouponSwap(final SwapFixedCoupon<?> swap) {
       return visit(swap);
     }
 
@@ -247,7 +248,7 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitGenericAnnuity(final GenericAnnuity<? extends Payment> genericAnnuity) {
+    public Class<?> visitGenericAnnuity(final Annuity<? extends Payment> genericAnnuity) {
       return visit(genericAnnuity);
     }
 
@@ -737,6 +738,16 @@ public class InstrumentDerivativeVisitorTest {
     public Class<?> visitAnnuityCouponIborSpread(AnnuityCouponIborSpread annuity) {
       return null;
     }
+
+    @Override
+    public Class<?> visitSwapCouponCoupon(SwapCouponCoupon<?, ?> swap, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitSwapCouponCoupon(SwapCouponCoupon<?, ?> swap) {
+      return null;
+    }
   };
 
   @Test
@@ -752,9 +763,9 @@ public class InstrumentDerivativeVisitorTest {
     assertEquals(LIBOR_PAYMENT.accept(VISITOR, curves), CouponIborSpread.class);
     assertEquals(FCA.accept(VISITOR, curves), AnnuityCouponFixed.class);
     assertEquals(FLA.accept(VISITOR, curves), AnnuityCouponIbor.class);
-    assertEquals(FCS.accept(VISITOR, curves), FixedCouponSwap.class);
+    assertEquals(FCS.accept(VISITOR, curves), SwapFixedCoupon.class);
     assertEquals(FCP.accept(VISITOR, curves), CouponFixed.class);
-    assertEquals(GA.accept(VISITOR, curves), GenericAnnuity.class);
+    assertEquals(GA.accept(VISITOR, curves), Annuity.class);
     assertEquals(FIXED_FIXED.accept(VISITOR, curves), Swap.class);
     assertEquals(VISITOR.visit(CASH), Cash.class);
     assertEquals(FRA.accept(VISITOR), ForwardRateAgreement.class);
@@ -764,10 +775,10 @@ public class InstrumentDerivativeVisitorTest {
     assertEquals(TENOR_SWAP.accept(VISITOR), TenorSwap.class);
     assertEquals(FIXED_PAYMENT.accept(VISITOR), PaymentFixed.class);
     assertEquals(LIBOR_PAYMENT.accept(VISITOR), CouponIborSpread.class);
-    assertEquals(GA.accept(VISITOR), GenericAnnuity.class);
+    assertEquals(GA.accept(VISITOR), Annuity.class);
     assertEquals(FCA.accept(VISITOR), AnnuityCouponFixed.class);
     assertEquals(FLA.accept(VISITOR), AnnuityCouponIbor.class);
-    assertEquals(FCS.accept(VISITOR), FixedCouponSwap.class);
+    assertEquals(FCS.accept(VISITOR), SwapFixedCoupon.class);
     assertEquals(FCP.accept(VISITOR), CouponFixed.class);
     assertEquals(IR_FUT_SECURITY.accept(VISITOR), InterestRateFuture.class);
     assertEquals(BNDFUT_SECURITY.accept(VISITOR), BondFuture.class);

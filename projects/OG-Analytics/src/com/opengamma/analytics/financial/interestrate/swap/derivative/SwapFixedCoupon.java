@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 
@@ -15,14 +15,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 * A generalisation of a vanilla fixed for floating interest rate swap - here you must have a leg of FixedCouponPayment, but the other leg can be any payment 
 * @param <R> The type of the payments on the receive leg 
 */
-public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
+public class SwapFixedCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
 
   /**
    * This sets up a generalised payer swap (i.e. pay the fixed leg and receive the other leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param receiveLeg a variable (floating) annuity for the pay leg
    */
-  public FixedCouponSwap(final GenericAnnuity<CouponFixed> fixedLeg, final GenericAnnuity<R> receiveLeg) {
+  public SwapFixedCoupon(final Annuity<CouponFixed> fixedLeg, final Annuity<R> receiveLeg) {
     super(fixedLeg, receiveLeg);
   }
 
@@ -48,13 +48,13 @@ public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
    * @return The new swap.
    */
   @SuppressWarnings("unchecked")
-  public FixedCouponSwap<R> withNotional(double notional) {
+  public SwapFixedCoupon<R> withNotional(double notional) {
     AnnuityCouponFixed legFixedNotional = getFixedLeg().withNotional(notional * Math.signum(getFixedLeg().getNthPayment(0).getNotional()));
     Coupon[] cpn = new Coupon[getSecondLeg().getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < getSecondLeg().getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getSecondLeg().getNthPayment(loopcpn).withNotional(notional * Math.signum(getSecondLeg().getNthPayment(loopcpn).getNotional()));
     }
-    return new FixedCouponSwap<R>(legFixedNotional, new GenericAnnuity<R>((R[]) cpn));
+    return new SwapFixedCoupon<R>(legFixedNotional, new Annuity<R>((R[]) cpn));
   }
 
   /**
@@ -62,9 +62,9 @@ public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
    * @param rate The rate.
    * @return The new swap.
    */
-  public FixedCouponSwap<R> withCoupon(double rate) {
+  public SwapFixedCoupon<R> withCoupon(double rate) {
     AnnuityCouponFixed legFixedNotional = getFixedLeg().withCoupon(rate);
-    return new FixedCouponSwap<R>(legFixedNotional, getSecondLeg());
+    return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
   }
 
   /**
@@ -73,8 +73,8 @@ public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
    * @return The trimmed annuity.
    */
   @Override
-  public FixedCouponSwap<R> trimAfter(double trimTime) {
-    return new FixedCouponSwap<R>(getFixedLeg().trimAfter(trimTime), getSecondLeg().trimAfter(trimTime));
+  public SwapFixedCoupon<R> trimAfter(double trimTime) {
+    return new SwapFixedCoupon<R>(getFixedLeg().trimAfter(trimTime), getSecondLeg().trimAfter(trimTime));
   }
 
   @Override

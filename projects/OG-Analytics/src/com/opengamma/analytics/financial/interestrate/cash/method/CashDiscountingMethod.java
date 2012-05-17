@@ -104,4 +104,19 @@ public final class CashDiscountingMethod implements PricingMethod {
     return (dsc.getDiscountFactor(startTime) / dsc.getDiscountFactor(endTime) - 1) / af;
   }
 
+  /**
+   * Computes the spread to be added to the deposit rate to have a zero present value.
+   * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
+   * @param deposit The deposit.
+   * @param curves The curves.
+   * @return The spread.
+   */
+  public double parSpread(final Cash deposit, final YieldCurveBundle curves) {
+    Validate.notNull(deposit);
+    Validate.notNull(curves);
+    double dfStart = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getStartTime());
+    double dfEnd = curves.getCurve(deposit.getYieldCurveName()).getDiscountFactor(deposit.getEndTime());
+    return (deposit.getInitialAmount() * dfStart - (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor() * dfEnd);
+  }
+
 }

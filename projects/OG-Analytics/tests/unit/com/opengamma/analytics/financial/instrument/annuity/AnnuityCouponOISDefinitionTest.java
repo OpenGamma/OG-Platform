@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
@@ -92,7 +92,7 @@ public class AnnuityCouponOISDefinitionTest {
     ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.withTime(12, 0);
     assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour",
         valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
-    GenericAnnuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
+    Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
     assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
     assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
 

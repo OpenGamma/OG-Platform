@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
@@ -40,7 +40,7 @@ public final class ZSpreadCalculator {
     return CALCULATOR;
   }
 
-  public double calculateZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double price) {
+  public double calculateZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double price) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
@@ -55,7 +55,7 @@ public final class ZSpreadCalculator {
     return ROOT_FINDER.getRoot(f, range[0], range[1]);
   }
 
-  public double calculatePriceForZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+  public double calculatePriceForZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
@@ -71,7 +71,7 @@ public final class ZSpreadCalculator {
     return sum;
   }
 
-  public double calculatePriceSensitivityToZSpread(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+  public double calculatePriceSensitivityToZSpread(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
@@ -88,7 +88,7 @@ public final class ZSpreadCalculator {
     return sum;
   }
 
-  public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+  public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
@@ -109,7 +109,7 @@ public final class ZSpreadCalculator {
     return result;
   }
 
-  public Map<String, List<DoublesPair>> calculateZSpreadSensitivityToCurve(final GenericAnnuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
+  public Map<String, List<DoublesPair>> calculateZSpreadSensitivityToCurve(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves, final double zSpread) {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 

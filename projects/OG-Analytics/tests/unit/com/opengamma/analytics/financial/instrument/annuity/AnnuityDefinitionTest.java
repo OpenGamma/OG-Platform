@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFloating;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -147,8 +147,8 @@ public class AnnuityDefinitionTest {
   @Test
   public void testConversionFixed() {
     final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
-    final GenericAnnuity<? extends Payment> annuity1 = FIXED_DEFINITION.toDerivative(date, "A");
-    final GenericAnnuity<? extends Payment> annuity2 = FIXED_DEFINITION.toDerivative(date, FIXING_TS, "A");
+    final Annuity<? extends Payment> annuity1 = FIXED_DEFINITION.toDerivative(date, "A");
+    final Annuity<? extends Payment> annuity2 = FIXED_DEFINITION.toDerivative(date, FIXING_TS, "A");
     assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
     assertEquals(annuity1.getNumberOfPayments(), 5);
     for (int i = 0; i < annuity1.getNumberOfPayments(); i++) {
@@ -161,7 +161,7 @@ public class AnnuityDefinitionTest {
   @Test
   public void testConversionFixedFloat() {
     final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
-    final GenericAnnuity<? extends Payment> annuity = FIXED_FLOAT_DEFINITION.toDerivative(date, FIXING_TS, "A", "N");
+    final Annuity<? extends Payment> annuity = FIXED_FLOAT_DEFINITION.toDerivative(date, FIXING_TS, "A", "N");
     assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
     assertEquals(annuity.getNumberOfPayments(), 5);
     for (int i = 0; i < annuity.getNumberOfPayments(); i++) {

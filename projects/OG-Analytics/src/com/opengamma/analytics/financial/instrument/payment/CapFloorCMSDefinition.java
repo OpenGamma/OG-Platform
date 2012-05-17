@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
@@ -175,7 +175,7 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
     //    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, yieldCurveNames);
     //    return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
@@ -208,7 +208,7 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     // CMS is not fixed yet, all the details are required.
     final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<Coupon> swap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
+    final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
     return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
   }
 

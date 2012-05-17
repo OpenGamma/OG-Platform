@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -25,7 +25,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * @param <P> The payment type 
  *
  */
-public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<GenericAnnuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
+public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<Annuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
   /** Empty array for array conversion of list */
   protected static final Payment[] EMPTY_ARRAY = new Payment[0];
   /** 
@@ -151,7 +151,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   }
 
   @Override
-  public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     final List<Payment> resultList = new ArrayList<Payment>();
     for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
@@ -159,12 +159,12 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
         resultList.add(_payments[loopcoupon].toDerivative(date, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+    return new Annuity<Payment>(resultList.toArray(EMPTY_ARRAY));
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -179,7 +179,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
         }
       }
     }
-    return new GenericAnnuity<Payment>(resultList.toArray(EMPTY_ARRAY));
+    return new Annuity<Payment>(resultList.toArray(EMPTY_ARRAY));
   }
 
   @Override

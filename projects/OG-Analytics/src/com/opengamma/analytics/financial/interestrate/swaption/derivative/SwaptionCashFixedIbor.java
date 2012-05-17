@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.util.money.Currency;
 
@@ -23,7 +23,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   /**
    * Swap underlying the swaption. The swap should be of vanilla type.
    */
-  private final FixedCouponSwap<? extends Payment> _underlyingSwap;
+  private final SwapFixedCoupon<? extends Payment> _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
@@ -42,7 +42,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionCashFixedIbor(double expiryTime, double strike, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isCall, boolean isLong) {
+  private SwaptionCashFixedIbor(double expiryTime, double strike, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime, boolean isCall, boolean isLong) {
     super(strike, expiryTime, isCall);
     Validate.notNull(underlyingSwap, "underlying swap");
     Validate.isTrue(underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate() == strike, "Strike not in line with underlying");
@@ -60,7 +60,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionCashFixedIbor from(double expiryTime, FixedCouponSwap<? extends Payment> underlyingSwap, double settlementTime, boolean isLong) {
+  public static SwaptionCashFixedIbor from(double expiryTime, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime, boolean isLong) {
     Validate.notNull(underlyingSwap, "underlying swap");
     double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
@@ -71,7 +71,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * Gets the underlying swap.
    * @return The underlying swap.
    */
-  public FixedCouponSwap<? extends Payment> getUnderlyingSwap() {
+  public SwapFixedCoupon<? extends Payment> getUnderlyingSwap() {
     return _underlyingSwap;
   }
 

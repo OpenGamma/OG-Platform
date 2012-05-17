@@ -31,10 +31,10 @@ import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFu
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -43,11 +43,11 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.swap.definition.CrossCurrencySwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.definition.OISSwap;
-import com.opengamma.analytics.financial.interestrate.swap.definition.TenorSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -327,9 +327,9 @@ public abstract class YieldCurveFittingSetup {
       spreads[i] = rate;
       yearFracs[i] = 0.25;
     }
-    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs,
+    final Annuity<CouponIborSpread> payLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs,
         new double[yearFracs.length], notional, fundCurveName, fundCurveName, true);
-    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads,
+    final Annuity<CouponIborSpread> receiveLeg = new AnnuityCouponIborSpread(DUMMY_CUR, paymentTimes, indexFixing, DUMMY_INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads,
         notional, fundCurveName, liborCurveName, false);
     return new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
   }
@@ -353,7 +353,7 @@ public abstract class YieldCurveFittingSetup {
     }
 
     final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, paymentTimes, notional, rate, fundingCurveName, true);
-    final GenericAnnuity<CouponOIS> payLeg = new GenericAnnuity<CouponOIS>(oisCoupons);
+    final Annuity<CouponOIS> payLeg = new Annuity<CouponOIS>(oisCoupons);
 
     return new OISSwap(fixedLeg, payLeg);
   }
@@ -365,7 +365,7 @@ public abstract class YieldCurveFittingSetup {
     final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
 
     final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
-    return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
+    return new OISSwap(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {

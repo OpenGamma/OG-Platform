@@ -3,13 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.util.money.Currency;
 
@@ -18,14 +18,14 @@ import com.opengamma.util.money.Currency;
  * This instrument is never used in the natural flow "Definition->toDerivative->Derivative".
  */
 @Deprecated
-public class FixedFloatSwap extends FixedCouponSwap<CouponIbor> {
+public class FixedFloatSwap extends SwapFixedCoupon<CouponIbor> {
 
   /**
    * This sets up a payer swap (i.e. pay the fixed leg and receive the floating leg)
    * @param fixedLeg a fixed annuity for the receive leg
    * @param floatingLeg a variable (floating) annuity for the pay leg
    */
-  public FixedFloatSwap(final AnnuityCouponFixed fixedLeg, final GenericAnnuity<CouponIbor> floatingLeg) {
+  public FixedFloatSwap(final AnnuityCouponFixed fixedLeg, final Annuity<CouponIbor> floatingLeg) {
     super(fixedLeg, floatingLeg);
   }
 

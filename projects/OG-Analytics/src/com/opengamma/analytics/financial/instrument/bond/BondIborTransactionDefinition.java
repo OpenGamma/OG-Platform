@@ -13,8 +13,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
@@ -64,11 +64,11 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, couponCurveName);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
-    final GenericAnnuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
+    final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
-    final GenericAnnuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
+    final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
     final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
     final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();
@@ -105,11 +105,11 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
       settlementTime = actAct.getDayCountFraction(date, getSettlementDate());
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getUnderlyingBond().getNominal().toDerivative(date, creditCurveName);
-    final GenericAnnuity<Coupon> coupon = (GenericAnnuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, indexFixingTS, couponCurveName);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) getUnderlyingBond().getCoupon().toDerivative(date, indexFixingTS, couponCurveName);
     final AnnuityPaymentFixed nominalPurchase = nominal.trimBefore(settlementTime);
-    final GenericAnnuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
+    final Annuity<Coupon> couponPurchase = coupon.trimBefore(settlementTime);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(spotTime);
-    final GenericAnnuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
+    final Annuity<Coupon> couponStandard = coupon.trimBefore(spotTime);
     final BondIborSecurity bondPurchase = new BondIborSecurity(nominalPurchase, couponPurchase, settlementTime, discountingCurveName);
     final BondIborSecurity bondStandard = new BondIborSecurity(nominalStandard, couponStandard, spotTime, discountingCurveName);
     final int nbCoupon = getUnderlyingBond().getCoupon().getNumberOfPayments();

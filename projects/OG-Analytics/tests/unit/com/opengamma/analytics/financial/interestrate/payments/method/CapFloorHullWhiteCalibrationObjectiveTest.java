@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCapFloorIborD
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinderCalibrationEngine;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorHullWhiteCalibrationObjective;
@@ -62,7 +62,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
-  private static final GenericAnnuity<? extends Payment> CAP = CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final Annuity<? extends Payment> CAP = CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CapFloorIborSABRMethod METHOD_CAP_SABR = CapFloorIborSABRMethod.getInstance();
   private static final CapFloorIborHullWhiteMethod METHOD_CAP_HW = new CapFloorIborHullWhiteMethod();

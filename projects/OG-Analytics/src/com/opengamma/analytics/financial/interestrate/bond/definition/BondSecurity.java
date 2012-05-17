@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.money.Currency;
@@ -23,11 +23,11 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   /**
    * The nominal payments. For bullet bond, it is restricted to a single payment.
    */
-  private final GenericAnnuity<N> _nominal;
+  private final Annuity<N> _nominal;
   /**
    * The bond coupons. The coupons notional should be in line with the bond nominal. The discounting curve should be the same for the nominal and the coupons.
    */
-  private final GenericAnnuity<C> _coupon;
+  private final Annuity<C> _coupon;
   /**
    * The time (in years) to settlement date. Used for dirty/clean price computation.
    */
@@ -49,7 +49,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
    * @param issuer The bond issuer name.
    */
-  public BondSecurity(GenericAnnuity<N> nominal, GenericAnnuity<C> coupon, double settlementTime, String discountingCurveName, String issuer) {
+  public BondSecurity(Annuity<N> nominal, Annuity<C> coupon, double settlementTime, String discountingCurveName, String issuer) {
     Validate.notNull(nominal, "Nominal");
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(discountingCurveName, "Repo curve name");
@@ -65,7 +65,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * Gets the nominal payments.
    * @return The nominal payments.
    */
-  public GenericAnnuity<N> getNominal() {
+  public Annuity<N> getNominal() {
     return _nominal;
   }
 
@@ -73,7 +73,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * Gets the coupons.
    * @return The coupons.
    */
-  public GenericAnnuity<C> getCoupon() {
+  public Annuity<C> getCoupon() {
     return _coupon;
   }
 

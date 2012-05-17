@@ -13,17 +13,11 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class ContinuousInterestRate extends InterestRate {
-  private final double _annualEquivalent;
+  //  private final double _annualEquivalent;
 
   public ContinuousInterestRate(final double rate) {
     super(rate);
-    _annualEquivalent = Math.exp(getRate()) - 1;
-  }
-
-  @Override
-  public InterestRate fromAnnual(final AnnualInterestRate annual) {
-    Validate.notNull(annual);
-    return new ContinuousInterestRate(Math.log(1 + annual.getRate()));
+    //    _annualEquivalent = Math.exp(getRate()) - 1;
   }
 
   @Override
@@ -48,11 +42,6 @@ public class ContinuousInterestRate extends InterestRate {
   @Override
   public double getDiscountFactor(final double t) {
     return Math.exp(-getRate() * t);
-  }
-
-  @Override
-  public AnnualInterestRate toAnnual() {
-    return new AnnualInterestRate(_annualEquivalent);
   }
 
   @Override

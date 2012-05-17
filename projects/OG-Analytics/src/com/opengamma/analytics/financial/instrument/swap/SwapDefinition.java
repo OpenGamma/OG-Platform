@@ -14,9 +14,9 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -105,8 +105,8 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
-    final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
+    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
+    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
     return new Swap(firstLeg, secondLeg);
   }
 
@@ -114,8 +114,8 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     Validate.notNull(data, "index data time series array");
-    final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
-    final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
+    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
+    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
     return new Swap(firstLeg, secondLeg);
   }
 }

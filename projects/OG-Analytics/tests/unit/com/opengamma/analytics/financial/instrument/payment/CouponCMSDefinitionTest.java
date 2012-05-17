@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -163,7 +163,7 @@ public class CouponCMSDefinitionTest {
     final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
     final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
     final double settlementTime = actAct.getDayCountFraction(REFERENCE_DATE, SWAP_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final FixedCouponSwap<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final SwapFixedCoupon<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
     assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME));
     assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME));
