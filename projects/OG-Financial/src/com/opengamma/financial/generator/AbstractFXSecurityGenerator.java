@@ -167,7 +167,10 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    return new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    trade.setPremium(security.getCallAmount());
+    trade.setPremiumCurrency(security.getCallCurrency());
+    return trade;
   }
 
   protected ManageableTrade createFXDigitalOptionSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister) {
@@ -175,7 +178,10 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    return new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    trade.setPremium(security.getCallAmount());
+    trade.setPremiumCurrency(security.getCallCurrency());
+    return trade;
   }
 
   protected ManageableTrade createFXForwardSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister) {
@@ -183,7 +189,11 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    return new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    trade.setPremium(security.getPayAmount());
+    trade.setPremiumCurrency(security.getPayCurrency());
+    return trade;
+    
   }
 
   protected ManageableTrade createFXOptionSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister) {
@@ -191,7 +201,10 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     if (security == null) {
       return null;
     }
-    return new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    ManageableTrade trade = new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+    trade.setPremium(security.getCallAmount());
+    trade.setPremiumCurrency(security.getCallCurrency());
+    return trade;
   }
 
 }
