@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A class to facilitate importing portfolio data from comma-separated value files
+ * A class to facilitate importing portfolio data from a JDBC query result
  */
 public class JdbcSheetReader extends SheetReader {
 
