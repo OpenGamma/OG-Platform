@@ -642,12 +642,12 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
   }
 
   @Override
   public T visitForexOptionDigital(final ForexOptionDigital derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionDigital()");
   }
 
   //  -----     Deprecated     -----
