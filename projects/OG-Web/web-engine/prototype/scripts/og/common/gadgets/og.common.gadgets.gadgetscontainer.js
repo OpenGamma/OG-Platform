@@ -170,14 +170,15 @@ $.register_module({
                     // setup click handlers
                     $(selector + header + ' , .og-js-overflow-' + pane)
                         // handler for tabs (including the ones in the overflow pane)
-                        .on('click', 'li[class^=og-tab-]', function () {
-                            if (!$(this).hasClass('og-active')) {
-                                var id = extract_id($(this).attr('class'));
+                        .on('click', 'li[class^=og-tab-]', function (e) {
+                            var id = extract_id($(this).attr('class')),
+                                index = gadgets.reduce(function (acc, val, idx) {
+                                    return acc + (val.id === id ? idx : 0);
+                                }, 0);
+                            if ($(e.target).hasClass('og-delete')) {container.del(gadgets[index]);}
+                            else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) {
-                                    var index = gadgets.reduce(function (acc, val, idx) {
-                                        return acc + (val.id === id ? idx : 0);
-                                    }, 0);
                                     gadgets[index].gadget.resize();
                                 }
                             }
