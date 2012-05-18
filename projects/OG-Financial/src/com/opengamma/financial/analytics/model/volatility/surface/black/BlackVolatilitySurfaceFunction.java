@@ -92,7 +92,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveName);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits());
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(target, desiredValue);
-    return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
+    return Sets.newHashSet(interpolatorRequirement, volatilitySurfaceRequirement, forwardCurveRequirement);
   }
 
   protected abstract boolean isCorrectIdType(final ComputationTarget target);
