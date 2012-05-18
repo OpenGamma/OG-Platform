@@ -32,7 +32,7 @@ $.register_module({
                     }
                 };
                 gc_south = (new GadgetsContainer('.OG-layout-analytics-south')).add([
-                    timeseries_obj(), {gadget: og.analytics.Grid, name: 'grid down south'}
+                    timeseries_obj(), {gadget: og.analytics.Grid, name: 'grid down south', options: {}}
                 ]);
                 gc_r_north = (new GadgetsContainer('.OG-layout-analytics-dock-north')).add([timeseries_obj()]);
                 gc_r_center = (new GadgetsContainer('.OG-layout-analytics-dock-center')).add([
