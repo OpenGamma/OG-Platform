@@ -7,7 +7,6 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Set;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**

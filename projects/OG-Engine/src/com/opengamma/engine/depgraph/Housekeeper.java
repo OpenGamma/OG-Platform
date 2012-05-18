@@ -23,6 +23,9 @@ public final class Housekeeper {
 
   /**
    * Callback for receiving housekeeping notifications.
+   * <p>
+   * Note that the data object that is registered with the housekeeper must not have a strong reference to the dependency graph builder. The data will be held from the timer thread which can prevent
+   * garbage collection of the graph builder.
    */
   public interface Callback<D> {
 
@@ -99,6 +102,7 @@ public final class Housekeeper {
       _cancel.cancel(false);
       _cancel = null;
     }
+    _startCount = 0;
   }
 
   private boolean housekeep() {

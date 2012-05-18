@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.depgraph;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 
 /**
  * Variation of the {@link Runnable} interface that accepts a {@link GraphBuildingContext}. This is the

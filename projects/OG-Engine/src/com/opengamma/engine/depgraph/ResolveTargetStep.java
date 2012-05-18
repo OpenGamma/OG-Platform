@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 
 /* package */final class ResolveTargetStep extends ResolveTask.State {
 

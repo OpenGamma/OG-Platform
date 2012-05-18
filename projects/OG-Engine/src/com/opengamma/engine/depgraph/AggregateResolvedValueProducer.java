@@ -13,7 +13,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.value.ValueRequirement;
 

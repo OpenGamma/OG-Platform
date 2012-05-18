@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
