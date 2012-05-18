@@ -20,7 +20,7 @@ public class CapFloorCMSSpreadPortfolioGeneratorTool extends AbstractPortfolioGe
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
     final CapFloorCMSSpreadSecurityGenerator securities = createCapFloorCMSSpreadSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SimplePositionGenerator<CapFloorCMSSpreadSecurity>(securities, getSecurityPersister());
+    final PositionGenerator positions = new SimplePositionGenerator<CapFloorCMSSpreadSecurity>(securities, getSecurityPersister(), getCounterPartyGenerator());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor CMS Spread"), positions, size);
   }
 

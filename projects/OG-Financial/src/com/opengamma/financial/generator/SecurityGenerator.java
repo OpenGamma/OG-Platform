@@ -459,9 +459,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    * 
    * @param quantityGenerator the supplied quantity generator
    * @param securityPersister the supplied security persister
+   * @param counterPartyGenerator the supplied counter party generator
    * @return the new trade, or null if no trade can be generated
    */
-  public ManageableTrade createSecurityTrade(final QuantityGenerator quantityGenerator, final SecurityPersister securityPersister) {
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantityGenerator, final SecurityPersister securityPersister, final NameGenerator counterPartyGenerator) {
     return null;
   }
 
