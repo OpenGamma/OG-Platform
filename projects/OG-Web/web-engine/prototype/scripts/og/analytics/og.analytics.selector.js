@@ -42,7 +42,6 @@ $.register_module({
                     scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop();
                 if (right_click) return; else cleanup();
-                if (selector.render.memo) return deselect();
                 $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
                 if (!$cell.length) return;
                 grid_offset = grid.elements.parent.offset();
