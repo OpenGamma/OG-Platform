@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -463,7 +464,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    * @return the new trade, or null if no trade can be generated
    */
   public ManageableTrade createSecurityTrade(final QuantityGenerator quantityGenerator, final SecurityPersister securityPersister, final NameGenerator counterPartyGenerator) {
-    return null;
+    ManageableTrade trade = null;
+    T security = createSecurity();
+    if (security != null) {
+      ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
+      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(), 
+          ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
+    }
+    return trade;
   }
 
 }

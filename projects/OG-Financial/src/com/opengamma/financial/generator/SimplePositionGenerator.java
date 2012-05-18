@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.generator;
 
-import java.math.BigDecimal;
-
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -79,20 +77,27 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
 
   @Override
   public Position createPosition() {
+//    final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister(), getCounterPartyGenerator());
+//    if (trade == null) {
+//      final BigDecimal quantity = getQuantityGenerator().createQuantity();
+//      if (quantity == null) {
+//        return null;
+//      }
+//      final T security = getSecurityGenerator().createSecurity();
+//      if (security == null) {
+//        return null;
+//      }
+//      return new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
+//    } else {
+//      return createPositionFromTrade(trade);
+//    }
+    
+    Position position = null;
     final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister(), getCounterPartyGenerator());
-    if (trade == null) {
-      final BigDecimal quantity = getQuantityGenerator().createQuantity();
-      if (quantity == null) {
-        return null;
-      }
-      final T security = getSecurityGenerator().createSecurity();
-      if (security == null) {
-        return null;
-      }
-      return new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
-    } else {
-      return createPositionFromTrade(trade);
+    if (trade != null) {
+      position = createPositionFromTrade(trade);
     }
+    return position;
   }
 
 }
