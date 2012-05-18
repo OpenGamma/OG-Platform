@@ -12,13 +12,18 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Collection;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.test.MockSecuritySource;
+import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.RawSecurity;
 
 /**
@@ -33,6 +38,17 @@ public class PortfolioGeneratorTest {
       public RawSecurity createSecurity() {
         return new RawSecurity();
       }
+
+      @Override
+      public ManageableTrade createSecurityTrade(QuantityGenerator quantityGenerator, SecurityPersister securityPersister, NameGenerator counterPartyGenerator) {
+        ManageableTrade trade = null;
+        RawSecurity security = createSecurity();
+        ZonedDateTime tradeDate = ZonedDateTime.now();
+        trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(), 
+            ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
+        return trade;
+      }
+      
     }, new MockSecurityPersister(source));
   }
 

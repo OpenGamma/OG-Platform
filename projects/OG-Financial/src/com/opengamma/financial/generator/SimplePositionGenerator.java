@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.generator;
 
-import java.math.BigDecimal;
-
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -20,21 +18,35 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SimplePositionGenerator<T extends ManageableSecurity> implements PositionGenerator {
 
+  private static final String DEFAULT_COUNTER_PARTY = "COUNTERPARTY";
+  
   private final QuantityGenerator _quantityGenerator;
   private final SecurityGenerator<? extends T> _securityGenerator;
   private final SecurityPersister _securityPersister;
+  private final NameGenerator _counterPartyGenerator;
 
-  public SimplePositionGenerator(final QuantityGenerator quantityGenerator, final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister) {
+  public SimplePositionGenerator(final QuantityGenerator quantityGenerator, final SecurityGenerator<? extends T> securityGenerator, 
+      final SecurityPersister securityPersister, final NameGenerator counterPartyGenerator) {
     ArgumentChecker.notNull(quantityGenerator, "quantityGenerator");
     ArgumentChecker.notNull(securityGenerator, "securityGenerator");
     ArgumentChecker.notNull(securityPersister, "securityPersister");
+    ArgumentChecker.notNull(counterPartyGenerator, "counterPartyGenerator");
     _quantityGenerator = quantityGenerator;
     _securityGenerator = securityGenerator;
     _securityPersister = securityPersister;
+    _counterPartyGenerator = counterPartyGenerator;
   }
 
+  public SimplePositionGenerator(final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister, final NameGenerator counterPartyGenerator) {
+    this(new StaticQuantityGenerator(1), securityGenerator, securityPersister,  counterPartyGenerator);
+  }
+  
   public SimplePositionGenerator(final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister) {
     this(new StaticQuantityGenerator(1), securityGenerator, securityPersister);
+  }
+  
+  public SimplePositionGenerator(final QuantityGenerator quantityGenerator, final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister) {
+    this(quantityGenerator, securityGenerator, securityPersister, new StaticNameGenerator(DEFAULT_COUNTER_PARTY));
   }
 
   protected QuantityGenerator getQuantityGenerator() {
@@ -47,6 +59,10 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
 
   protected SecurityPersister getSecurityPersister() {
     return _securityPersister;
+  }
+  
+  protected NameGenerator getCounterPartyGenerator() {
+    return _counterPartyGenerator;
   }
 
   public static Position createPositionFromTrade(final ManageableTrade trade) {
@@ -61,20 +77,27 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
 
   @Override
   public Position createPosition() {
-    final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister());
-    if (trade == null) {
-      final BigDecimal quantity = getQuantityGenerator().createQuantity();
-      if (quantity == null) {
-        return null;
-      }
-      final T security = getSecurityGenerator().createSecurity();
-      if (security == null) {
-        return null;
-      }
-      return new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
-    } else {
-      return createPositionFromTrade(trade);
+//    final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister(), getCounterPartyGenerator());
+//    if (trade == null) {
+//      final BigDecimal quantity = getQuantityGenerator().createQuantity();
+//      if (quantity == null) {
+//        return null;
+//      }
+//      final T security = getSecurityGenerator().createSecurity();
+//      if (security == null) {
+//        return null;
+//      }
+//      return new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
+//    } else {
+//      return createPositionFromTrade(trade);
+//    }
+    
+    Position position = null;
+    final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister(), getCounterPartyGenerator());
+    if (trade != null) {
+      position = createPositionFromTrade(trade);
     }
+    return position;
   }
 
 }

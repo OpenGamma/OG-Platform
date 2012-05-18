@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -170,11 +171,11 @@ public class ForwardSwapSecurityGenerator extends SecurityGenerator<ForwardSwapS
   }
 
   @Override
-  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
     final ForwardSwapSecurity swap = createSecurity();
     if (swap != null) {
-      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), ExternalId.of("CParty",
-          swap.getCounterparty()));
+      return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), 
+          ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     } else {
       return null;
     }

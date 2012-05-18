@@ -19,8 +19,8 @@ public class FXForwardSecurityGenerator extends AbstractFXSecurityGenerator<FXFo
   }
 
   @Override
-  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
-    return createFXForwardSecurityTrade(createBundle(), quantity.createQuantity(), persister);
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
+    return createFXForwardSecurityTrade(createBundle(), quantity.createQuantity(), persister, counterPartyGenerator);
   }
 
 }

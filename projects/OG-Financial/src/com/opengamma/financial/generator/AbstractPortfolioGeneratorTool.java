@@ -39,6 +39,10 @@ import com.opengamma.master.security.ManageableSecurityLink;
 public abstract class AbstractPortfolioGeneratorTool {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractPortfolioGeneratorTool.class);
+  /**
+   * Default counter party name
+   */
+  public static final String DEFAULT_COUNTER_PARTY = "COUNTERPARTY";
 
   /**
    * Default portfolio size used by sub-classes.
@@ -50,6 +54,7 @@ public abstract class AbstractPortfolioGeneratorTool {
   private ToolContext _toolContext;
   private Class<? extends AbstractPortfolioGeneratorTool> _classContext;
   private AbstractPortfolioGeneratorTool _objectContext;
+  private NameGenerator _counterPartyGenerator;
 
   public AbstractPortfolioGeneratorTool() {
     _classContext = getClass();
@@ -102,6 +107,14 @@ public abstract class AbstractPortfolioGeneratorTool {
 
   public void setSecurityPersister(final SecurityPersister securityPersister) {
     _securityPersister = securityPersister;
+  }
+  
+  public NameGenerator getCounterPartyGenerator() {
+    return _counterPartyGenerator;
+  }
+  
+  public void setCounterPartyGenerator(final NameGenerator counterPartyGenerator) {
+    _counterPartyGenerator = counterPartyGenerator;
   }
 
   public ToolContext getToolContext() {
@@ -158,6 +171,10 @@ public abstract class AbstractPortfolioGeneratorTool {
    * Command line option to specify to write to the database masters.
    */
   public static final String WRITE_OPT = "write";
+  /**
+   * Command line option to specifying the name of the counter party to use for trades.
+   */
+  public static final String COUNTER_PARTY_OPT = "counterPty";
 
   private AbstractPortfolioGeneratorTool getInstance(final Class<?> clazz, final String security) {
     if (!AbstractPortfolioGeneratorTool.class.isAssignableFrom(clazz)) {
@@ -181,6 +198,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       s_logger.info("Loading {}", className);
       final AbstractPortfolioGeneratorTool tool = (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
       tool.setContext(getClassContext(), this);
+      tool.setCounterPartyGenerator(getCounterPartyGenerator());
       return tool;
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
@@ -190,7 +208,7 @@ public abstract class AbstractPortfolioGeneratorTool {
   protected AbstractPortfolioGeneratorTool getInstance(final String security) {
     return getInstance(getClassContext(), security);
   }
-
+  
   public void run(final ToolContext context, final String portfolioName, final String security, final boolean write) {
     final AbstractPortfolioGeneratorTool instance = getInstance(security);
     instance.setToolContext(context);
@@ -206,6 +224,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       instance.setSecurityPersister(securityPersister);
       securitySource = securityPersister.getMockSecuritySource();
     }
+    
     s_logger.info("Creating portfolio {}", portfolioName);
     final Portfolio portfolio = instance.createPortfolio(portfolioName);
     if (write) {
@@ -273,6 +292,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     options.addOption(required(new Option("p", PORTFOLIO_OPT, true, "sets the name of the portfolio to create")));
     options.addOption(required(new Option("s", SECURITY_OPT, true, "selects the asset class to populate the portfolio with")));
     options.addOption(new Option("w", WRITE_OPT, false, "writes the portfolio and securities to the masters"));
+    options.addOption(new Option("cp", COUNTER_PARTY_OPT, true, "sets the name of the counter party"));
   }
 
   public void run(final ToolContext context, final CommandLine commandLine) {

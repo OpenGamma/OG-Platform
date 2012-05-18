@@ -19,8 +19,8 @@ public class FXBarrierOptionSecurityGenerator extends AbstractFXSecurityGenerato
   }
 
   @Override
-  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
-    return createFXBarrierOptionSecurityTrade(createBundle(), quantity.createQuantity(), persister);
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
+    return createFXBarrierOptionSecurityTrade(createBundle(), quantity.createQuantity(), persister, counterPartyGenerator);
   }
 
 }

@@ -41,10 +41,10 @@ public class MixedFXPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     public PortfolioNode createPortfolioNode() {
       final SimplePortfolioNode node = new SimplePortfolioNode("Strategy " + _count);
       final Bundle bundle = createBundle();
-      add(node, createFXBarrierOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
-      add(node, createFXDigitalOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
-      add(node, createFXForwardSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
-      add(node, createFXOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
+      add(node, createFXBarrierOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister(), getCounterPartyGenerator()));
+      add(node, createFXDigitalOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister(), getCounterPartyGenerator()));
+      add(node, createFXForwardSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister(), getCounterPartyGenerator()));
+      add(node, createFXOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister(), getCounterPartyGenerator()));
       if (node.getPositions().isEmpty()) {
         return null;
       }

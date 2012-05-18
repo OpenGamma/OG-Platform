@@ -19,8 +19,8 @@ public class FXDigitalOptionSecurityGenerator extends AbstractFXSecurityGenerato
   }
 
   @Override
-  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
-    return createFXDigitalOptionSecurityTrade(createBundle(), quantity.createQuantity(), persister);
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
+    return createFXDigitalOptionSecurityTrade(createBundle(), quantity.createQuantity(), persister, counterPartyGenerator);
   }
 
 }
