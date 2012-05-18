@@ -46,6 +46,8 @@ public class DependencyGraphBuilderFactory {
 
   private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
   private int _maxAdditionalThreads = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();
+  private int _resolutionCacheSize = DependencyGraphBuilder.getDefaultResolutionCacheSize();
+  private int _maxRunQueue = DependencyGraphBuilder.getDefaultMaxRunQueue();
   private final Executor _executor = createExecutor();
 
   public DependencyGraphBuilderFactory() {
@@ -67,6 +69,22 @@ public class DependencyGraphBuilderFactory {
     return _maxAdditionalThreads;
   }
 
+  public void setMaxRunQueue(final int maxRunQueue) {
+    _maxRunQueue = maxRunQueue;
+  }
+
+  public int getMaxRunQueue() {
+    return _maxRunQueue;
+  }
+
+  public void setResolutionCacheSize(final int resolutionCacheSize) {
+    _resolutionCacheSize = resolutionCacheSize;
+  }
+
+  public int getResolutionCacheSize() {
+    return _resolutionCacheSize;
+  }
+
   public DependencyGraphBuilder newInstance() {
     final DependencyGraphBuilder builder = new DependencyGraphBuilder(getExecutor());
     configureBuilder(builder);
@@ -75,6 +93,8 @@ public class DependencyGraphBuilderFactory {
 
   protected void configureBuilder(final DependencyGraphBuilder builder) {
     builder.setMaxAdditionalThreads(getMaxAdditionalThreadsPerBuilder());
+    builder.setMaxRunQueue(getMaxRunQueue());
+    builder.setResolutionCacheSize(getResolutionCacheSize());
   }
 
   protected Executor createExecutor() {

@@ -15,10 +15,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
-import com.opengamma.analytics.financial.interestrate.AnnualInterestRate;
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
-import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -107,7 +106,7 @@ public class DepositZeroTest {
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
     modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF + 0.01, RATE, INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
-    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, new AnnualInterestRate(RATE_FIGURE), INTEREST_AMOUNT, CURVE_NAME);
+    modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE, 1), INTEREST_AMOUNT, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));
     modified = new DepositZero(EUR, START_TIME, END_TIME, NOTIONAL, NOTIONAL, DEPOSIT_AF, RATE, INTEREST_AMOUNT + 10, CURVE_NAME);
     assertFalse("DepositZero: equal-hash code", DEPOSIT.equals(modified));

@@ -65,6 +65,10 @@ public abstract class StandardOptionDataAnalyticOptionModelFunction extends Anal
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final SecuritySource secMaster = context.getSecuritySource();
     final Security underlying = secMaster.getSecurity(ExternalIdBundle.of(option.getUnderlyingId()));
+    if (underlying == null) {
+      s_logger.warn("Don't have security for underlying of {}", option);
+      return null;
+    }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
     requirements.add(getYieldCurveMarketDataRequirement(option.getCurrency().getUniqueId(), curveName));

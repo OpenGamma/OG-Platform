@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import org.apache.commons.lang.Validate;
 

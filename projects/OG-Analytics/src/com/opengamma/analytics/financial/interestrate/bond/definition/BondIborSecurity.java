@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 
@@ -23,7 +23,7 @@ public class BondIborSecurity extends BondSecurity<PaymentFixed, Coupon> {
    * @param settlementTime The time (in years) to settlement date. 
    * @param discountCurveName The name of the curve used for settlement amount discounting.
    */
-  public BondIborSecurity(AnnuityPaymentFixed nominal, GenericAnnuity<Coupon> coupon, double settlementTime, String discountCurveName) {
+  public BondIborSecurity(AnnuityPaymentFixed nominal, Annuity<Coupon> coupon, double settlementTime, String discountCurveName) {
     super(nominal, coupon, settlementTime, discountCurveName, "");
   }
 

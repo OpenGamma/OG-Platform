@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDef
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -62,7 +62,7 @@ public class BondIborSecurityTest {
 
   private static final AnnuityPaymentFixed NOMINAL = NOMINAL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
-  private static final GenericAnnuity<Coupon> COUPON;
+  private static final Annuity<Coupon> COUPON;
   private static final BondIborSecurity BOND_DESCRIPTION;
 
   static {
@@ -75,7 +75,7 @@ public class BondIborSecurityTest {
       }
     }
     FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(fixingDates, fixingRates);
-    COUPON = (GenericAnnuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
+    COUPON = (Annuity<Coupon>) COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME);
     BOND_DESCRIPTION = new BondIborSecurity(NOMINAL, COUPON, STANDARD_SETTLEMENT_TIME, DISCOUNTING_CURVE_NAME);
   }
 

@@ -3,10 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swap.definition;
+package com.opengamma.analytics.financial.interestrate.swap.derivative;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 @Deprecated
 public class TenorSwap<R extends Payment> extends Swap<R, R> {
 
-  public TenorSwap(final GenericAnnuity<R> payLeg, final GenericAnnuity<R> receiveLeg) {
+  public TenorSwap(final Annuity<R> payLeg, final Annuity<R> receiveLeg) {
     super(payLeg, receiveLeg);
   }
 

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;

@@ -5,14 +5,12 @@
  */
 package com.opengamma.integration.component;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.fudgemsg.FudgeContext;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
@@ -29,7 +27,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
@@ -43,93 +40,83 @@ import com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource;
 import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
 import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
-import com.opengamma.financial.view.rest.RemoteMarketDataSnapshotter;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
- * Configuration tools for remote processors
+ * Constructs components exposed by a remote component server. =
  */
-public class RemoteEngineUtils {
+public class RemoteComponentFactory {
 
-  public static final RemoteEngineUtils INSTANCE = new RemoteEngineUtils();
+  private final URI _baseUri;
+  private final ComponentServer _componentServer;
 
-  private final FudgeContext _fudgeContext;
-
-
-  public RemoteEngineUtils() {
-    _fudgeContext = OpenGammaFudgeContext.getInstance();
+  /**
+   * Constructs an instance.
+   * 
+   * @param componentServerUri  the URI of the remote component server, not null
+   */
+  public RemoteComponentFactory(String componentServerUri) {
+    this(URI.create(componentServerUri));
+  }
+  
+  /**
+   * Constructs an instance.
+   * 
+   * @param componentServerUri  the URI of the remote component server, not null
+   */
+  public RemoteComponentFactory(URI componentServerUri) {
+    ArgumentChecker.notNull(componentServerUri, "componentServerUri");
+    RemoteComponentServer remoteComponentServer = new RemoteComponentServer(componentServerUri);
+    _baseUri = componentServerUri;
+    _componentServer = remoteComponentServer.getComponentServer();
+  }
+  
+  //-------------------------------------------------------------------------
+  public URI getBaseUri() {
+    return _baseUri;
   }
 
-  private URI _baseURI;
-  private URI _activeMQBrokerURI;
-
-  public void setBaseUri(String baseUrl) {
-    _baseURI = URI.create(baseUrl);
-  }
-
-  public URI getBaseURI() {
-    return _baseURI;
-  }
-
-  public URI getActiveMQBrokerURI() {
-    return _activeMQBrokerURI;
-  }
-
-  public void setActiveMQBrokerUrl(String activeMQBrokerUrl) {
-    _activeMQBrokerURI = URI.create(activeMQBrokerUrl);
-  }
-
-  public JmsConnector getJmsConnector() {
-    ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(_activeMQBrokerURI);
-    JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();
-    factory.setName(getClass().getSimpleName());
-    factory.setConnectionFactory(cf);
-    factory.setClientBrokerUri(_activeMQBrokerURI);
-    return factory.getObjectCreating();
-  }
-
-  public RemoteComponentServer getRemoteComponentServer() {
-    return new RemoteComponentServer(_baseURI);
-  }
-
-  private ComponentServer getComponentServer() {
-    return getRemoteComponentServer().getComponentServer();
-  }
-
-
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
+  //-------------------------------------------------------------------------
   public RemoteViewProcessor getViewProcessor(String vpId) {
-    URI uri = getComponentServer().getComponentInfo(ViewProcessor.class, "main").getUri();
-    return new RemoteViewProcessor(uri, getJmsConnector(), Executors.newSingleThreadScheduledExecutor());
+    ComponentInfo info = getComponentServer().getComponentInfo(ViewProcessor.class, "main");
+    URI uri = info.getUri();
+    JmsConnector jmsConnector = getJmsConnector(info);
+    return new RemoteViewProcessor(uri, jmsConnector, Executors.newSingleThreadScheduledExecutor());
   }
 
   public List<RemoteViewProcessor> getViewProcessors() {
-    List<RemoteViewProcessor> viewProcessors = newArrayList();
-    for (ComponentInfo o : getRemoteComponentServer().getComponentServer().getComponentInfos()) {
-      if (ViewProcessor.class.isAssignableFrom(o.getType())) {
-        RemoteViewProcessor vp = new RemoteViewProcessor(
-          o.getUri(), getJmsConnector(), Executors.newSingleThreadScheduledExecutor());
-        viewProcessors.add(vp);
-      }
+    List<RemoteViewProcessor> result = new ArrayList<RemoteViewProcessor>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(ViewProcessor.class)) {
+      URI uri = info.getUri();
+      JmsConnector jmsConnector = getJmsConnector(info);
+      RemoteViewProcessor vp = new RemoteViewProcessor(uri, jmsConnector, Executors.newSingleThreadScheduledExecutor());
+      result.add(vp);
     }
-    return viewProcessors;
+    return result;
   }
 
   public ConfigMaster getConfigMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(ConfigMaster.class, name).getUri();
     return new RemoteConfigMaster(uri);
+  }
+  
+  public List<ConfigMaster> getConfigMasters() {
+    List<ConfigMaster> result = new ArrayList<ConfigMaster>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(ConfigMaster.class)) {
+      result.add(new RemoteConfigMaster(info.getUri()));
+    }
+    return result;
   }
 
   public PortfolioMaster getPortfolioMaster(final String name) {
@@ -147,6 +134,18 @@ public class RemoteEngineUtils {
     return new RemoteFinancialSecuritySource(uri);
   }
 
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster(String name) {
+    URI uri = getComponentServer().getComponentInfo(MarketDataSnapshotMaster.class, name).getUri();
+    return new RemoteMarketDataSnapshotMaster(uri);
+  }
+  
+  public List<MarketDataSnapshotMaster> getMarketDataSnapshotMasters() {
+    List<MarketDataSnapshotMaster> result = new ArrayList<MarketDataSnapshotMaster>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(MarketDataSnapshotMaster.class)) {
+      result.add(new RemoteMarketDataSnapshotMaster(info.getUri()));
+    }
+    return result;
+  }
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesSource.class, name).getUri();
@@ -202,6 +201,26 @@ public class RemoteEngineUtils {
   public RemoteAvailableOutputsProvider getRemoteAvailableOutputs() {
     URI uri = getComponentServer().getComponentInfo(AvailableOutputsProvider.class, "main").getUri();
     return new RemoteAvailableOutputsProvider(uri);
+  }
+  
+  //-------------------------------------------------------------------------
+  private JmsConnector getJmsConnector(URI activeMQBrokerUri) {
+    ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(activeMQBrokerUri);
+    JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();
+    factory.setName(getClass().getSimpleName());
+    factory.setConnectionFactory(cf);
+    factory.setClientBrokerUri(activeMQBrokerUri);
+    return factory.getObjectCreating();
+  }
+
+  private JmsConnector getJmsConnector(ComponentInfo info) {
+    URI jmsBrokerUri = URI.create(info.getAttribute("jmsBrokerUri"));
+    JmsConnector jmsConnector = getJmsConnector(jmsBrokerUri);
+    return jmsConnector;
+  }
+  
+  private ComponentServer getComponentServer() {
+    return _componentServer;
   }
 
 }

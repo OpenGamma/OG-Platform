@@ -1,0 +1,374 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.depgraph;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
+import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.tuple.Pair;
+
+/**
+ * Algorithm state. A context object is used by a single job thread. The root context is not used by any builder thread. The synchronization on the collation methods only is therefore sufficient.
+ */
+/* package */final class GraphBuildingContext {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(GraphBuildingContext.class);
+
+  private static final int MAX_CALLBACK_DEPTH = 16;
+
+  private final DependencyGraphBuilder _builder;
+  private Map<ExceptionWrapper, ExceptionWrapper> _exceptions;
+  private int _stackDepth;
+
+  public GraphBuildingContext(final DependencyGraphBuilder builder) {
+    _builder = builder;
+  }
+
+  private DependencyGraphBuilder getBuilder() {
+    return _builder;
+  }
+
+  // Configuration & resources
+
+  public MarketDataAvailabilityProvider getMarketDataAvailabilityProvider() {
+    return getBuilder().getMarketDataAvailabilityProvider();
+  }
+
+  public ComputationTargetResolver getTargetResolver() {
+    return getBuilder().getTargetResolver();
+  }
+
+  public CompiledFunctionResolver getFunctionResolver() {
+    return getBuilder().getFunctionResolver();
+  }
+
+  public FunctionCompilationContext getCompilationContext() {
+    return getBuilder().getCompilationContext();
+  }
+
+  public FunctionExclusionGroups getFunctionExclusionGroups() {
+    return getBuilder().getFunctionExclusionGroups();
+  }
+
+  // Operations
+
+  /**
+   * Schedule the task for execution.
+   * 
+   * @param runnable task to execute, not null
+   */
+  public void run(final ResolveTask runnable) {
+    s_logger.debug("Running {}", runnable);
+    runnable.addRef();
+    getBuilder().addToRunQueue(runnable);
+  }
+
+  /**
+   * Trigger an underlying pump operation. This may happen before returning or be deferred if the stack is past a depth threshold.
+   * 
+   * @param pump underlying operation
+   */
+  public void pump(final ResolutionPump pump) {
+    s_logger.debug("Pumping {}", pump);
+    if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+      getBuilder().addToRunQueue(new ResolutionPump.Pump(pump));
+    } else {
+      pump.pump(this);
+    }
+    _stackDepth--;
+  }
+
+  /**
+   * Trigger an underlying close operation. This may happen before returning or be deferred if the stack is past a depth threshold.
+   * 
+   * @param pump underlying operation
+   */
+  public void close(final ResolutionPump pump) {
+    s_logger.debug("Closing {}", pump);
+    if (++_stackDepth > MAX_CALLBACK_DEPTH) {
+      getBuilder().addToRunQueue(new ResolutionPump.Close(pump));
+    } else {
+      pump.close(this);
+    }
+    _stackDepth--;
+  }
+
+  /**
+   * Trigger a resolved callback.
+   * 
+   * @param callback callback object
+   * @param valueRequirement requirement resolved
+   * @param resolvedValue value resolved to
+   * @param pump source of the next value
+   */
+  public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+    s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue);
+    _stackDepth++;
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    callback.resolved(this, valueRequirement, resolvedValue, pump);
+    _stackDepth--;
+  }
+
+  /**
+   * Trigger a resolution failure.
+   * 
+   * @param callback callback object
+   * @param valueRequirement requirement that failed to resolve or for which there are no further resolutions
+   * @param failure description of the failure
+   */
+  public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolutionFailure failure) {
+    s_logger.debug("Couldn't resolve {}", valueRequirement);
+    _stackDepth++;
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    callback.failed(this, valueRequirement, failure);
+    _stackDepth--;
+  }
+
+  /**
+   * Stores an exception that should be reported to the user. Only store the first copy of an exception; after that increment the count of times that it occurred.
+   * 
+   * @param t exception to store, not null
+   */
+  public void exception(final Throwable t) {
+    s_logger.debug("Caught exception", t);
+    if (_exceptions == null) {
+      _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
+    }
+    ExceptionWrapper.createAndPut(t, _exceptions);
+  }
+
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
+    s_logger.debug("Resolve requirement {}", requirement);
+    if ((dependent != null) && dependent.hasParent(requirement)) {
+      dependent.setRecursionDetected();
+      s_logger.debug("Can't introduce a ValueRequirement loop");
+      return new ResolvedValueProducer() {
+
+        private int _refCount = 1;
+
+        @Override
+        public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
+          context.failed(callback, requirement, ResolutionFailure.recursiveRequirement(requirement));
+          return null;
+        }
+
+        @Override
+        public String toString() {
+          return "ResolvedValueProducer[" + requirement + "]";
+        }
+
+        @Override
+        public synchronized void addRef() {
+          assert _refCount > 0;
+          _refCount++;
+        }
+
+        @Override
+        public synchronized int release(final GraphBuildingContext context) {
+          assert _refCount > 0;
+          return --_refCount;
+        }
+
+        @Override
+        public ValueRequirement getValueRequirement() {
+          return requirement;
+        }
+
+      };
+    }
+    RequirementResolver resolver = null;
+    final ResolveTask[] tasks = getTasksResolving(requirement);
+    if (tasks != null) {
+      for (ResolveTask task : tasks) {
+        if ((dependent == null) || !dependent.hasParent(task)) {
+          if (resolver == null) {
+            resolver = new RequirementResolver(requirement, dependent);
+          }
+          resolver.addTask(this, task);
+        }
+        task.release(this);
+      }
+    }
+    if (resolver != null) {
+      resolver.start(this);
+      return resolver;
+    } else {
+      s_logger.debug("Using direct resolution {}/{}", requirement, dependent);
+      return getOrCreateTaskResolving(requirement, dependent, functionExclusion);
+    }
+  }
+
+  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
+    ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
+    ResolveTask task;
+    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getOrCreateTasks(valueRequirement);
+    synchronized (tasks) {
+      task = tasks.get(newTask);
+      if (task == null) {
+        newTask.addRef();
+        tasks.put(newTask, newTask);
+      } else {
+        task.addRef();
+      }
+    }
+    if (task != null) {
+      s_logger.debug("Using existing task {}", task);
+      newTask.release(this);
+      return task;
+    } else {
+      run(newTask);
+      getBuilder().incrementActiveResolveTasks();
+      return newTask;
+    }
+  }
+
+  private ResolveTask[] getTasksResolving(final ValueRequirement valueRequirement) {
+    final ResolveTask[] result;
+    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(valueRequirement);
+    if (tasks == null) {
+      return null;
+    }
+    synchronized (tasks) {
+      result = new ResolveTask[tasks.size()];
+      int i = 0;
+      for (ResolveTask task : tasks.keySet()) {
+        result[i++] = task;
+        task.addRef();
+      }
+    }
+    return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  public Pair<ResolveTask[], ResolvedValueProducer[]> getTasksProducing(final ValueSpecification valueSpecification) {
+    final ResolveTask[] resultTasks;
+    final ResolvedValueProducer[] resultProducers;
+    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
+    if (tasks == null) {
+      return null;
+    }
+    synchronized (tasks) {
+      resultTasks = new ResolveTask[tasks.size()];
+      resultProducers = new ResolvedValueProducer[tasks.size()];
+      int i = 0;
+      for (Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
+        // Don't ref-count the tasks; they're just used for parent comparisons
+        resultTasks[i] = task.getKey();
+        resultProducers[i++] = task.getValue();
+        task.getValue().addRef();
+      }
+    }
+    return Pair.of(resultTasks, resultProducers);
+  }
+
+  public void discardTask(final ResolveTask task) {
+    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(task.getValueRequirement());
+    synchronized (tasks) {
+      if (tasks.remove(task) == null) {
+        // Wasn't in the set
+        return;
+      }
+    }
+    task.release(this);
+    getBuilder().decrementActiveResolveTasks();
+  }
+
+  public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
+    ResolvedValueProducer discard = null;
+    ResolvedValueProducer result = null;
+    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getOrCreateTasks(valueSpecification);
+    synchronized (tasks) {
+      if (!tasks.isEmpty()) {
+        final Map.Entry<ResolveTask, ResolvedValueProducer> resolveTask = tasks.getHashEntry(task);
+        if (resolveTask != null) {
+          if (resolveTask.getKey() == task) {
+            // Replace an earlier attempt from this task with the new producer
+            discard = resolveTask.getValue();
+            producer.addRef();
+            resolveTask.setValue(producer);
+            result = producer;
+          } else {
+            // An equivalent task is doing the work
+            result = resolveTask.getValue();
+          }
+          result.addRef();
+        }
+      }
+      if (result == null) {
+        // No matching tasks
+        producer.addRef();
+        tasks.put(task, producer);
+        result = producer;
+        result.addRef();
+      }
+    }
+    if (discard != null) {
+      discard.release(this);
+    }
+    return result;
+  }
+
+  public void discardTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
+    final ResolvedValueProducer producer;
+    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
+    synchronized (tasks) {
+      producer = (ResolvedValueProducer) tasks.remove(task);
+      if (producer == null) {
+        // Wasn't in the set
+        return;
+      }
+    }
+    producer.release(this);
+  }
+
+  // Collation
+
+  /**
+   * Merge information from the other context into this (a root context). The caller must be the thread that was working with the other context.
+   * 
+   * @param context the other context
+   */
+  public synchronized void mergeThreadContext(final GraphBuildingContext context) {
+    if (_exceptions == null) {
+      _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
+    }
+    if (context._exceptions != null) {
+      for (ExceptionWrapper exception : context._exceptions.keySet()) {
+        final ExceptionWrapper existing = _exceptions.get(exception);
+        if (existing != null) {
+          existing.incrementCount(exception.getCount());
+        } else {
+          _exceptions.put(exception, exception);
+        }
+      }
+    }
+  }
+
+  public synchronized Map<Throwable, Integer> getExceptions() {
+    if (_exceptions == null) {
+      return Collections.emptyMap();
+    }
+    final Map<Throwable, Integer> result = new HashMap<Throwable, Integer>();
+    for (ExceptionWrapper exception : _exceptions.keySet()) {
+      result.put(exception.getException(), exception.getCount());
+    }
+    return result;
+  }
+
+}

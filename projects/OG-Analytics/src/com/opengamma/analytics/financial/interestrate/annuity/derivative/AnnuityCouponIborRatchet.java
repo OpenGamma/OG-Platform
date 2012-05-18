@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.annuity.definition;
+package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixed or a CouponIborGearing.
  * The other coupons should be CouponFixed or a CouponIborRatchet.
  */
-public class AnnuityCouponIborRatchet extends GenericAnnuity<Coupon> {
+public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
 
   /**
    * List of calibration types for the Ratchet Ibor coupon annuity.

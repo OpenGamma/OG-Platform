@@ -152,7 +152,7 @@ public class Cash implements InstrumentDerivative {
 
   @Override
   public String toString() {
-    return "Cash " + _currency.toString() + "[" + _startTime + " - " + _endTime + "], r = " + _rate + ", notional = " + _notional + "curve = " + _discountingCurveName;
+    return "Cash " + _currency.toString() + "[" + _startTime + " - " + _endTime + "], r: " + _rate + ", notional: " + _notional + ", curve: " + _discountingCurveName;
   }
 
   @Override

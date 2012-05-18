@@ -82,6 +82,9 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   
   private ValueRequirement getRequirement(ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.getPosition().getSecurity());
+    // TESTING: The following will use BLOOMBERG_TICKER_WEAK, hence will not put a strain on the amount of data requested from BBG in a day
+    // ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, 
+    //     ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, target.getPosition().getSecurity().getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER)));
   }
 
 }

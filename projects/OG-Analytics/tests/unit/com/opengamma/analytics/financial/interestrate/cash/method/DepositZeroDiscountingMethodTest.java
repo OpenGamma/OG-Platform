@@ -19,18 +19,18 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
-import com.opengamma.analytics.financial.interestrate.AnnualInterestRate;
 import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
-import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -58,7 +58,7 @@ public class DepositZeroDiscountingMethodTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE_FIGURE = 0.0250;
-  private static final InterestRate RATE = new AnnualInterestRate(RATE_FIGURE);
+  private static final InterestRate RATE = new PeriodicInterestRate(RATE_FIGURE, 1);
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
@@ -164,7 +164,7 @@ public class DepositZeroDiscountingMethodTest {
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     DepositZero depositBunped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
-    final double[] nodeTimesDisc = new double[] {deposit.getStartTime(), deposit.getEndTime() };
+    final double[] nodeTimesDisc = new double[] {deposit.getStartTime(), deposit.getEndTime()};
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(depositBunped, CURVES, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_DEPOSIT);
     final List<DoublesPair> sensiPvDisc = pvcsMethod.getSensitivities().get(CURVES_NAME[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
@@ -193,7 +193,7 @@ public class DepositZeroDiscountingMethodTest {
     // Discounting curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     DepositZero depositBumped = DEPOSIT_DEFINITION.toDerivative(referenceDate, bumpedCurveName);
-    final double[] nodeTimesDisc = new double[] {deposit.getEndTime() };
+    final double[] nodeTimesDisc = new double[] {deposit.getEndTime()};
     final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(depositBumped, CURVES, CURVES_NAME[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_DEPOSIT);
     final List<DoublesPair> sensiPvDisc = pvcsMethod.getSensitivities().get(CURVES_NAME[0]);
     final DoublesPair pairPv = sensiPvDisc.get(0);
@@ -308,6 +308,23 @@ public class DepositZeroDiscountingMethodTest {
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(PRCSC.visit(deposit, CURVES));
     assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(prcsMethod, prcsCalculator, TOLERANCE_RATE));
+  }
+
+  @Test
+  /**
+   * Tests the par spread when the valuation date is on trade date.
+   */
+  public void parSpreadTrade() {
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    double psMethod = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    DepositZeroDefinition deposit0Definition = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, new PeriodicInterestRate(RATE_FIGURE + psMethod, 1));
+    DepositZero deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
+    CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
+    assertEquals("DepositZero: par spread", 0, pv0.getAmount(), TOLERANCE_PRICE);
+    ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
+    double psCalculator = PSC.visit(deposit, CURVES);
+    assertEquals("DepositZero: par rate", psMethod, psCalculator, TOLERANCE_RATE);
   }
 
 }

@@ -54,7 +54,7 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
 
   @Override
   public String getShortName() {
-    return "TradeDailyPnL";
+    return "PositionDailyPnL";
   }
 
   @Override

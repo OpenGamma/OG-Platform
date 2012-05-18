@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 
@@ -105,7 +105,7 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
     final double[] expiryTime = new double[nbExpiry];
     final double[] settleTime = new double[nbExpiry];
     @SuppressWarnings("unchecked")
-    final FixedCouponSwap<Coupon>[] expirySwap = new FixedCouponSwap[nbExpiry];
+    final SwapFixedCoupon<Coupon>[] expirySwap = new SwapFixedCoupon[nbExpiry];
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       expiryTime[loopexp] = TimeCalculator.getTimeBetween(date, _expiryDate[loopexp]);
       expirySwap[loopexp] = _underlyingSwap[loopexp].toDerivative(date, yieldCurveNames);

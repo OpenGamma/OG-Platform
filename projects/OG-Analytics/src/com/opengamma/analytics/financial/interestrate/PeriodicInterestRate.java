@@ -28,14 +28,6 @@ public class PeriodicInterestRate extends InterestRate {
   }
 
   @Override
-  public InterestRate fromAnnual(final AnnualInterestRate annual) {
-    Validate.notNull(annual, "annual");
-    final int m = getCompoundingPeriodsPerYear();
-    final double r = m * (Math.pow(1 + annual.getRate(), 1. / m) - 1);
-    return new PeriodicInterestRate(r, m);
-  }
-
-  @Override
   public InterestRate fromContinuous(final ContinuousInterestRate continuous) {
     Validate.notNull(continuous, "continuous");
     final int m = getCompoundingPeriodsPerYear();
@@ -60,11 +52,6 @@ public class PeriodicInterestRate extends InterestRate {
   @Override
   public double getDiscountFactor(final double t) {
     return Math.pow(_oneYearValue, -t);
-  }
-
-  @Override
-  public AnnualInterestRate toAnnual() {
-    return new AnnualInterestRate(_oneYearValue - 1);
   }
 
   @Override

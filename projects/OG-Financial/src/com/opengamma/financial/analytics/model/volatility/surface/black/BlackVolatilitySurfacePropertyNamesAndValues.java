@@ -59,7 +59,7 @@ public class BlackVolatilitySurfacePropertyNamesAndValues {
   public static final String PROPERTY_SPLINE_INTERPOLATOR = "SplineInterpolator";
   /** Property name for the left spline extrapolator */
   public static final String PROPERTY_SPLINE_LEFT_EXTRAPOLATOR = "SplineLeftExtrapolator";
-  /** Property name for the right spline extrpolator */
+  /** Property name for the right spline extrapolator */
   public static final String PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR = "SplineRightExtrapolator";
 
   // Properties for mixed log normal interpolation

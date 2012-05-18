@@ -10,14 +10,14 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -55,7 +55,7 @@ public class CashFlowEquivalentCalculatorTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final FixedCouponSwap<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculator
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -115,7 +115,7 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a Ibor leg.
    */
   public void iborLeg() {
-    GenericAnnuity<Coupon> leg = SWAP.getSecondLeg();
+    Annuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
     AnnuityPaymentFixed cfe = CFEC.visit(leg, CURVES);
     assertEquals("Ibor leg: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());
@@ -146,7 +146,7 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a fixed-Ibor swap.
    */
   public void swapFixedIbor() {
-    GenericAnnuity<Coupon> leg = SWAP.getSecondLeg();
+    Annuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
     AnnuityPaymentFixed cfe = CFEC.visit(SWAP, CURVES);
     assertEquals("Swap: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());

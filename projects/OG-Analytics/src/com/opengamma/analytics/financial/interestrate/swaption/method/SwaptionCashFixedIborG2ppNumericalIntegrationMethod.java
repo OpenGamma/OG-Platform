@@ -8,11 +8,11 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -43,7 +43,7 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
   /**
    * The swap method.
    */
-  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
+  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
     final YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
@@ -127,13 +127,13 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
     private final double[][] _alphaIbor;
     private final double[] _tau2Ibor;
     private final double _rhobar;
-    private final FixedCouponSwap<? extends Payment> _swap;
+    private final SwapFixedCoupon<? extends Payment> _swap;
     private final double _strike;
     //    private final double _notional;
     private final double _omega;
 
     public SwaptionIntegrant(final double[] discountedCashFlowFixed, final double[][] alphaFixed, final double[] tau2Fixed, final double[] discountedCashFlowIbor, final double[][] alphaIbor,
-        final double[] tau2Ibor, final double rhobar, final FixedCouponSwap<? extends Payment> swap, final double strike) {
+        final double[] tau2Ibor, final double rhobar, final SwapFixedCoupon<? extends Payment> swap, final double strike) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _tau2Fixed = tau2Fixed;

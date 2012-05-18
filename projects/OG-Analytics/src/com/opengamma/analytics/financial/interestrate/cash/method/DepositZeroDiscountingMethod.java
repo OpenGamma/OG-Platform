@@ -131,4 +131,21 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     return new InterestRateCurveSensitivity(resultMapDsc);
   }
 
+  /**
+   * Computes the spread to be added to the deposit rate to have a zero present value.
+   * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
+   * @param deposit The deposit.
+   * @param curves The curves.
+   * @return The spread.
+   */
+  public double parSpread(final DepositZero deposit, final YieldCurveBundle curves) {
+    Validate.notNull(deposit);
+    Validate.notNull(curves);
+    final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
+    final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
+    double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
+    InterestRate rs = deposit.getRate().fromContinuous(new ContinuousInterestRate(ccrs));
+    return rs.getRate() - deposit.getRate().getRate();
+  }
+
 }

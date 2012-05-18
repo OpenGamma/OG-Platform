@@ -49,7 +49,7 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
     return _securityPersister;
   }
 
-  protected static Position createPositionFromTrade(final ManageableTrade trade) {
+  public static Position createPositionFromTrade(final ManageableTrade trade) {
     if (trade != null) {
       final SimplePosition position = new SimplePosition(trade.getQuantity(), trade.getSecurityLink().getExternalId());
       position.addTrade(trade);

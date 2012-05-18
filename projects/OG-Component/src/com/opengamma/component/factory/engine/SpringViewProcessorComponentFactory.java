@@ -194,6 +194,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
+    repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     ComputationTargetResolver targetResolver = appContext.getBean(ComputationTargetResolver.class);
     ComponentInfo infoTR = new ComponentInfo(ComputationTargetResolver.class, getClassifier());
     repo.registerComponent(infoTR, targetResolver);

@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -86,7 +86,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
   }
 
   @Override
-  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valZdt, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -100,7 +100,7 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
         resultList.add(payments[loopcoupon].toDerivative(valZdt, indexFixingTS, yieldCurveNames));
       }
     }
-    return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
+    return new Annuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));
   }
 
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.annuity.definition;
+package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import org.apache.commons.lang.Validate;
 
@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
  * This instrument is never used in the natural flow "Definition->toDerivative->Derivative".
  */
 @Deprecated
-public class AnnuityCouponIbor extends GenericAnnuity<CouponIbor> {
+public class AnnuityCouponIbor extends Annuity<CouponIbor> {
 
   /**
    * Constructor from an array of Ibor coupons.

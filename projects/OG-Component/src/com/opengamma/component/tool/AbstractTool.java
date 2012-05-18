@@ -5,8 +5,6 @@
  */
 package com.opengamma.component.tool;
 
-import java.net.URL;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -18,12 +16,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 import com.opengamma.component.ComponentManager;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.LogUtils;
 
 /**
  * Abstract class for command line tools.
@@ -62,22 +58,7 @@ public abstract class AbstractTool {
    * @return true if successful
    */
   public static final boolean init(String logbackResource) {
-    try {
-      ArgumentChecker.notNull(logbackResource, "logbackResource");
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset();
-      URL logbackResourceUrl = AbstractTool.class.getClassLoader().getResource(logbackResource);
-      if (logbackResourceUrl == null) {
-        throw new IllegalArgumentException("Logback file not found: " + logbackResource);
-      }
-      configurator.doConfigure(logbackResourceUrl);
-      return true;
-    } catch (Exception ex) {
-      ex.printStackTrace();
-      return false;
-    }
+    return LogUtils.configureLogger(logbackResource);
   }
 
   /**

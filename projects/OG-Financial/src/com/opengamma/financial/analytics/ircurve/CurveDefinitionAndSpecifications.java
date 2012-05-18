@@ -391,9 +391,9 @@ public class CurveDefinitionAndSpecifications {
         buildStandardBloombergOISSwapInstrumentProvider("USSO"), null, null, null);
     configurations.put(Currency.USD, usdConfig);
     final CurveSpecificationBuilderConfiguration eurConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("EU"),
-        buildStandardBloomberg3MFRAInstrumentProvider("EU"), buildStandardBloomberg6MFRAInstrumentProvider("EU"), null, buildStandardBloombergEuriborInstrumentProvider(), null, null, null,
-        buildStandardBloombergFutureInstrumentProvider("ER"), buildStandardBloomberg6MSwapInstrumentProvider("EUSA"), buildStandardBloomberg3MSwapInstrumentProvider("EU", "V3"), null, null,
-        buildStandardBloombergOISSwapInstrumentProvider("EUSWE"), null, null, null);
+        buildStandardBloomberg3MFRAInstrumentProvider("EU"), buildStandardBloomberg6MFRAInstrumentProvider("EU"), buildStandardBloombergLiborInstrumentProvider("EU", "O/N", "T/N"), 
+        buildStandardBloombergEuriborInstrumentProvider(), null, null, null, buildStandardBloombergFutureInstrumentProvider("ER"), buildStandardBloomberg6MSwapInstrumentProvider("EUSA"), 
+        buildStandardBloomberg3MSwapInstrumentProvider("EU", "V3"), null, null, buildStandardBloombergOISSwapInstrumentProvider("EUSWE"), null, null, null);
     configurations.put(Currency.EUR, eurConfig);
     final CurveSpecificationBuilderConfiguration gbpConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("BP"),
         buildStandardBloomberg3MFRAInstrumentProvider("BP"), buildStandardBloomberg6MFRAInstrumentProvider("BP"), buildStandardBloombergLiborInstrumentProvider("BP", "O/N", "T/N"), null, null, null,

@@ -183,6 +183,20 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   }
 
   /**
+   * Returns the maximal set of value requirement names that are defined (if the defaults are not dependent on compilation context information or a target)
+   * 
+   * @return the set of value requirement names, shouldn't be null
+   * @throws NullPointerException if the implementation of getDefaults expected a compilation context or target
+   * @deprecated this is for debugging only - it is likely to be removed or unavailable in future versions
+   */
+  @Deprecated
+  public final Set<String> getMaximalValueRequirementNames() {
+    final PropertyDefaults defaults = new PropertyDefaults(null, null);
+    getDefaults(defaults);
+    return defaults.getValueName2PropertyNames().keySet();
+  }
+
+  /**
    * Returns the default value(s) to set for the property. If a default value is
    * not available, must return null.
    * 

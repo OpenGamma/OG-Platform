@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.depgraph;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**

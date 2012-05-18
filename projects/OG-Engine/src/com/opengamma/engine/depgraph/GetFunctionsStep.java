@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -76,6 +75,11 @@ import com.opengamma.util.tuple.Pair;
     public synchronized int release(final GraphBuildingContext context) {
       assert _refCount > 0;
       return --_refCount;
+    }
+
+    @Override
+    public ValueRequirement getValueRequirement() {
+      return _valueRequirement;
     }
 
   }

@@ -10,8 +10,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivatives.CouponInflation;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.financial.convention.yield.YieldConvention;
 
@@ -60,7 +60,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param indexStartValue The index value at the start of the bond.
    * @param issuer The bond issuer name.
    */
-  public BondCapitalIndexedSecurity(GenericAnnuity<C> nominal, GenericAnnuity<C> coupon, double settlementTime, double accruedInterest, double factorToNextCoupon, YieldConvention yieldConvention,
+  public BondCapitalIndexedSecurity(Annuity<C> nominal, Annuity<C> coupon, double settlementTime, double accruedInterest, double factorToNextCoupon, YieldConvention yieldConvention,
       int couponPerYear, CouponInflation settlement, double indexStartValue, String issuer) {
     super(nominal, coupon, settlementTime, "Not used", issuer);
     Validate.notNull(yieldConvention, "Yield convention");

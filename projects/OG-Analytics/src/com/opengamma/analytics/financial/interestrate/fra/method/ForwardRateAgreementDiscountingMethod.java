@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * today using the discounting curve.
  * $$
  * \begin{equation*}
- * P^D(0,t_1)\frac{\delta_P(F-K)}{1+\delta_F F} \quad \mbox{and}\quad F = \frac{1}{\delta_F}\left( \frac{P^j(0,t_1)}{P^j(0,t_2)}-1\right)
+ * P^D(0,t_1)\frac{\delta_P(F-K)}{1+\delta_P F} \quad \mbox{and}\quad F = \frac{1}{\delta_F}\left( \frac{P^j(0,t_1)}{P^j(0,t_2)}-1\right)
  * \end{equation*}
  * $$
  * This approach is valid subject to a independence hypothesis between the
@@ -156,6 +156,20 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fwdAlpha;
     final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * discountAlpha / (1 + forward * discountAlpha);
     return res;
+  }
+
+  /**
+   * Computes the par spread (spread to be added to the fixed rate to have a present value of 0).
+   * @param fra The FRA.
+   * @param curves The yield curve bundle.
+   * @return The par spread.
+   */
+  public double parSpread(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    Validate.notNull(fra, "FRA");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
+    final double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
+    return forward - fra.getRate();
   }
 
 }

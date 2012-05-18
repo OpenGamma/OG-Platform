@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.annuity.definition;
+package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A wrapper class for a GenericAnnuity containing FixedCouponPayment.
  */
-public class AnnuityCouponFixed extends GenericAnnuity<CouponFixed> {
+public class AnnuityCouponFixed extends Annuity<CouponFixed> {
 
   /**
    * Constructor from an array of fixed coupons.
