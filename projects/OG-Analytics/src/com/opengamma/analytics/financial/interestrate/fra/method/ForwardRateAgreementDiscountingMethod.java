@@ -168,8 +168,34 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
-    final double forward = (forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1) / fra.getFixingYearFraction();
+    double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
+    double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
+    final double forward = (dfStart / dfEnd - 1) / fra.getFixingYearFraction();
     return forward - fra.getRate();
+  }
+
+  /**
+   * Computes the par spread curve sensitivity.
+   * @param fra The FRA.
+   * @param curves The yield curve bundle.
+   * @return The par spread sensitivity.
+   */
+  public InterestRateCurveSensitivity parSpreadCurveSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    Validate.notNull(fra, "FRA");
+    Validate.notNull(curves, "Curves");
+    final YieldAndDiscountCurve forwardCurve = curves.getCurve(fra.getForwardCurveName());
+    double dfStart = forwardCurve.getDiscountFactor(fra.getFixingPeriodStartTime());
+    double dfEnd = forwardCurve.getDiscountFactor(fra.getFixingPeriodEndTime());
+    // Backward sweep
+    double parSpreadBar = 1.0;
+    double dfEndBar = -dfStart / (dfEnd * dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
+    double dfStartBar = 1 / (dfEnd * fra.getFixingYearFraction()) * parSpreadBar;
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    listDiscounting.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfEnd * dfEndBar));
+    resultMapDsc.put(fra.getForwardCurveName(), listDiscounting);
+    return new InterestRateCurveSensitivity(resultMapDsc);
   }
 
 }

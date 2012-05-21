@@ -14,14 +14,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
-import com.opengamma.analytics.financial.instrument.index.generator.EUR1YEURIBOR6M;
+import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSHullWhiteApproximationMethod;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSHullWhiteNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -39,7 +36,8 @@ import com.opengamma.util.time.DateUtils;
 public class CouponCMSHullWhiteMethodsTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final GeneratorSwap GENERATOR_EUR1YEURIBOR6M = new EUR1YEURIBOR6M(TARGET);
+  private static final GeneratorSwapTestsMaster GENERATOR_SWAP_MASTER = GeneratorSwapTestsMaster.getInstance();
+  private static final GeneratorSwap GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
   private static final Period TENOR_SWAP = Period.ofYears(10);
   private static final IndexSwap SWAP_EUR10Y = new IndexSwap(GENERATOR_EUR1YEURIBOR6M, TENOR_SWAP);
 

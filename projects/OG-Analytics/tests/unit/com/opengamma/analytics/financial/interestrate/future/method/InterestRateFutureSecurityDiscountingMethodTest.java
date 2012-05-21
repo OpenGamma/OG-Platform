@@ -17,11 +17,11 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -31,6 +31,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -71,6 +72,8 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final InterestRateFutureDiscountingMethod METHOD = InterestRateFutureDiscountingMethod.getInstance();
   private static final PriceFromCurvesDiscountingCalculator PRICE_CALCULATOR = PriceFromCurvesDiscountingCalculator.getInstance();
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+
+  private static final double TOLERANCE_PV = 1.0E-2;
 
   @Test
   /**
@@ -114,6 +117,18 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
     final ParRateCalculator calculator = ParRateCalculator.getInstance();
     final double rateCalculator = calculator.visit(ERU2, CURVES);
     assertEquals("Future price from curves", rateMethod, rateCalculator, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Test the par spread.
+   */
+  public void parSpread() {
+    final double parSpread = ParSpreadCalculator.getInstance().visit(ERU2, CURVES);
+    InterestRateFuture futures0 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR,
+        QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+    CurrencyAmount pv0 = METHOD.presentValue(futures0, CURVES);
+    assertEquals("Future par spread", pv0.getAmount(), 0, TOLERANCE_PV);
   }
 
 }

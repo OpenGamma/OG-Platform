@@ -10,13 +10,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
-import com.opengamma.analytics.financial.instrument.index.generator.USD6MLIBOR3M;
+import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.index.generator.USDDeposit;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
-import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSpreadG2ppNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.model.interestrate.G2ppTestsDataSet;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
@@ -31,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorSwap GEN_USD6MLIBOR3M = new USD6MLIBOR3M(NYC);
+  private static final GeneratorSwap GEN_USD6MLIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final GeneratorDeposit GEN_USD_DEPOSIT = new USDDeposit(NYC);
   private static final IndexSwap SWAP_USD10Y = new IndexSwap(GEN_USD6MLIBOR3M, Period.ofYears(10));
   private static final IndexSwap SWAP_USD2Y = new IndexSwap(GEN_USD6MLIBOR3M, Period.ofYears(2));

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapCouponCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -60,18 +60,18 @@ public class SwapIborIborDefinition extends SwapDefinition {
   }
 
   @Override
-  public SwapCouponCoupon<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
-    return new SwapCouponCoupon<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
   }
 
   @Override
-  public SwapCouponCoupon<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
+  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
     Validate.notNull(indexDataTS, "index data time series array");
     Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], yieldCurveNames);
-    return new SwapCouponCoupon<Coupon, Coupon>(firstLeg, secondLeg);
+    return new Swap<Coupon, Coupon>(firstLeg, secondLeg);
   }
 }

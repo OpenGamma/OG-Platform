@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
@@ -72,10 +73,13 @@ public class DepositZeroDiscountingMethodTest {
   private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final ParRateCurveSensitivityCalculator PRCSC = ParRateCurveSensitivityCalculator.getInstance();
+  private static final ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
+  private static final ParSpreadCurveSensitivityCalculator PSCSC = ParSpreadCurveSensitivityCalculator.getInstance();
 
   private static final double TOLERANCE_PRICE = 1.0E-2;
   private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double TOLERANCE_TIME = 1.0E-6;
+  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-10;
 
   @Test
   /**
@@ -322,9 +326,45 @@ public class DepositZeroDiscountingMethodTest {
     DepositZero deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
     CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
     assertEquals("DepositZero: par spread", 0, pv0.getAmount(), TOLERANCE_PRICE);
-    ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
     double psCalculator = PSC.visit(deposit, CURVES);
     assertEquals("DepositZero: par rate", psMethod, psCalculator, TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests parSpread curve sensitivity.
+   */
+  public void parSpreadCurveSensitivity() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    InterestRateCurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, CURVES);
+    final List<DoublesPair> sensiPvDisc = pscsMethod.getSensitivities().get(CURVES_NAME[0]);
+    double ps = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+    final YieldAndDiscountCurve curveToBump = CURVES.getCurve(CURVES_NAME[0]);
+    double deltaShift = 0.0001;
+    int nbNode = 2;
+    double[] result = new double[nbNode];
+    final double[] nodeTimesExtended = new double[nbNode + 1];
+    nodeTimesExtended[1] = deposit.getStartTime();
+    nodeTimesExtended[2] = deposit.getEndTime();
+    final double[] yields = new double[nbNode + 1];
+    yields[0] = curveToBump.getInterestRate(0.0);
+    yields[1] = curveToBump.getInterestRate(nodeTimesExtended[1]);
+    yields[2] = curveToBump.getInterestRate(nodeTimesExtended[2]);
+    final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+      final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
+      CURVES.replaceCurve(CURVES_NAME[0], curveBumped);
+      final double psBumped = METHOD_DEPOSIT.parSpread(deposit, CURVES);
+      result[loopnode] = (psBumped - ps) / deltaShift;
+      final DoublesPair pairPv = sensiPvDisc.get(loopnode);
+      assertEquals("Sensitivity par spread to curve: Node " + loopnode, nodeTimesExtended[loopnode + 1], pairPv.getFirst(), TOLERANCE_TIME);
+      assertEquals("Sensitivity par spread to curve: Node", pairPv.second, result[loopnode], TOLERANCE_PRICE);
+    }
+    CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
+    InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(deposit, CURVES);
+    prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
+    assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA));
   }
 
 }

@@ -148,4 +148,30 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     return rs.getRate() - deposit.getRate().getRate();
   }
 
+  /**
+   * Computes the par spread curve sensitivity.
+   * @param deposit The deposit.
+   * @param curves The curves.
+   * @return The spread curve sensitivity.
+   */
+  public InterestRateCurveSensitivity parSpreadCurveSensitivity(final DepositZero deposit, final YieldCurveBundle curves) {
+    Validate.notNull(deposit);
+    Validate.notNull(curves);
+    final double dfStart = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getStartTime());
+    final double dfEnd = curves.getCurve(deposit.getDiscountingCurveName()).getDiscountFactor(deposit.getEndTime());
+    double ccrs = Math.log(deposit.getInitialAmount() * dfStart / (deposit.getNotional() * dfEnd)) / deposit.getPaymentAccrualFactor();
+    // Backward sweep
+    double parSpreadBar = 1.0;
+    double rsBar = parSpreadBar;
+    double ccrsBar = deposit.getRate().fromContinuousDerivative(new ContinuousInterestRate(ccrs)) * rsBar;
+    double dfEndBar = -1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
+    double dfStartBar = 1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
+    return new InterestRateCurveSensitivity(resultMapDsc);
+  }
+
 }
