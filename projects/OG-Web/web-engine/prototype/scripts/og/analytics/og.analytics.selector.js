@@ -49,7 +49,9 @@ $.register_module({
                 if (right_click) return; else cleanup();
                 $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
                 if (!$cell.length && !$target.is('.OG-g-sel')) return;
-                (mousemove_observer = function (event) {mousemove({x: x, y: y}, event);})(event);
+                (mousemove_observer = (function (x, y) {
+                    return function (event) {mousemove({x: x, y: y}, event);};
+                })(x, y))(event);
                 $(document).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var mousemove = function (start, event) {
