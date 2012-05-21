@@ -63,7 +63,6 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloat
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapCouponCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
@@ -534,16 +533,6 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitSwap(final Swap<?, ?> swap) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwap()");
-  }
-
-  @Override
-  public T visitSwapCouponCoupon(final SwapCouponCoupon<?, ?> swap, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwapCouponCoupon()");
-  }
-
-  @Override
-  public T visitSwapCouponCoupon(final SwapCouponCoupon<?, ?> swap) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitSwapCouponCoupon()");
   }
 
   // -----     Deposit     -----

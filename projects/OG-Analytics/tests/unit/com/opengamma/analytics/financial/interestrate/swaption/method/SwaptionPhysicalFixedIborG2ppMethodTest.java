@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
-import com.opengamma.analytics.financial.instrument.index.generator.EUR1YEURIBOR6M;
+import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
@@ -26,8 +26,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborG2ppApproximationMethod;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.model.interestrate.G2ppTestsDataSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -54,6 +52,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   // Swaption 5Yx5Y
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final GeneratorSwapTestsMaster GENERATOR_SWAP_MASTER = GeneratorSwapTestsMaster.getInstance();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final int SETTLEMENT_DAYS = 2;
@@ -167,7 +166,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   public void approximationNumericalIntegrationGrid() {
     G2ppPiecewiseConstantParameters parametersG2pp = G2ppTestsDataSet.createG2ppParameters2();
     G2ppPiecewiseConstantDataBundle bundleG2pp = new G2ppPiecewiseConstantDataBundle(parametersG2pp, CURVES);
-    GeneratorSwap generator = new EUR1YEURIBOR6M(CALENDAR);
+    GeneratorSwap generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
     Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
     int nbExpiry = expiry.length;
     Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};

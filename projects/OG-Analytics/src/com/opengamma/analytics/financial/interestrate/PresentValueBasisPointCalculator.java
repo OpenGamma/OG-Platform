@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.interestrate;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -22,7 +24,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
  * For PaymentFixed, it is 0 (there is no rate).
  * For annuities, it is the sum of all payments.
  */
-// TODO: Review overlap with PresentvalueCouponSensitivityCalculator.
+// TODO: Review overlap with PresentValueCouponSensitivityCalculator.
 public final class PresentValueBasisPointCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
@@ -56,28 +58,26 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
     return 0.0;
   }
 
-  @Override
-  public Double visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
+  public Double visitCoupon(final Coupon coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(coupon);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(coupon.getFundingCurveName());
     return fundingCurve.getDiscountFactor(coupon.getPaymentTime()) * coupon.getPaymentYearFraction() * coupon.getNotional();
+  }
+
+  @Override
+  public Double visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
+    return visitCoupon(coupon, curves);
   }
 
   @Override
   public Double visitCouponIbor(final CouponIbor coupon, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(coupon);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(coupon.getFundingCurveName());
-    return fundingCurve.getDiscountFactor(coupon.getPaymentTime()) * coupon.getPaymentYearFraction() * coupon.getNotional();
+    return visitCoupon(coupon, curves);
   }
 
   @Override
   public Double visitCouponIborSpread(final CouponIborSpread coupon, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(coupon);
-    final YieldAndDiscountCurve fundingCurve = curves.getCurve(coupon.getFundingCurveName());
-    return fundingCurve.getDiscountFactor(coupon.getPaymentTime()) * coupon.getPaymentYearFraction() * coupon.getNotional();
+    return visitCoupon(coupon, curves);
   }
 
   @Override
@@ -89,6 +89,11 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
       pvbp += visit(p, curves);
     }
     return pvbp;
+  }
+
+  @Override
+  public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
+    return visitGenericAnnuity(annuity, curves);
   }
 
 }

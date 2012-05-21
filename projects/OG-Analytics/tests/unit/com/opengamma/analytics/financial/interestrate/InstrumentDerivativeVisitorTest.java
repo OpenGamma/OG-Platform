@@ -70,7 +70,6 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloat
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapCouponCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
@@ -739,15 +738,6 @@ public class InstrumentDerivativeVisitorTest {
       return null;
     }
 
-    @Override
-    public Class<?> visitSwapCouponCoupon(SwapCouponCoupon<?, ?> swap, Object data) {
-      return null;
-    }
-
-    @Override
-    public Class<?> visitSwapCouponCoupon(SwapCouponCoupon<?, ?> swap) {
-      return null;
-    }
   };
 
   @Test

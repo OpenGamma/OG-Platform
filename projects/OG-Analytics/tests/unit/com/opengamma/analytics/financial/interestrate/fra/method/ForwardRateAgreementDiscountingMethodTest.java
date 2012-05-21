@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.fra.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -18,12 +19,13 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -67,38 +69,47 @@ public class ForwardRateAgreementDiscountingMethodTest {
       FIXING_DATE, INDEX, FRA_RATE);
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 10, 9);
-  private static final String FUNDING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
+
+  private static final YieldCurveBundle CURVES_1 = TestsDataSetsSABR.createCurves1();
+  private static final String[] CURVE_NAME_1 = TestsDataSetsSABR.curves1Names();
+  private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
+  private static final String[] CURVE_NAME_2 = TestsDataSetsSABR.curves2Names();
+  private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_1);
   private static final ForwardRateAgreementDiscountingMethod FRA_METHOD = ForwardRateAgreementDiscountingMethod.getInstance();
+  private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
+  private static final ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
+  private static final ParSpreadCurveSensitivityCalculator PSCSC = ParSpreadCurveSensitivityCalculator.getInstance();
+
+  private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-6;
+  private static final double TOLERANCE_TIME = 1.0E-6;
 
   @Test
   public void parRate() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
-    final double dfForwardCurveStart = curves.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(FRA.getFixingPeriodStartTime());
-    final double dfForwardCurveEnd = curves.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(FRA.getFixingPeriodEndTime());
+    final double dfForwardCurveStart = curves.getCurve(CURVE_NAME_1[1]).getDiscountFactor(FRA.getFixingPeriodStartTime());
+    final double dfForwardCurveEnd = curves.getCurve(CURVE_NAME_1[1]).getDiscountFactor(FRA.getFixingPeriodEndTime());
     final double forwardExpected = (dfForwardCurveStart / dfForwardCurveEnd - 1) / FRA.getFixingYearFraction();
-    assertEquals("FRA discounting: par rate", forwardExpected, forward, 1.0E-10);
+    assertEquals("FRA discounting: par rate", forwardExpected, forward, TOLERANCE_RATE);
   }
 
   @Test
   public void presentValue() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
-    final double dfSettle = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(FRA.getPaymentTime());
+    final double dfSettle = curves.getCurve(CURVE_NAME_1[0]).getDiscountFactor(FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
     final CurrencyAmount pv = FRA_METHOD.presentValue(FRA, curves);
-    assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), 1.0E-2);
+    assertEquals("FRA discounting: present value", expectedPv, pv.getAmount(), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final CurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, curves);
-    final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
-    final double pvCalculator = calculator.visit(FRA, curves);
+    final double pvCalculator = PVC.visit(FRA, curves);
     assertEquals("FRA discounting: present value calculator vs method", pvCalculator, pvMethod.getAmount(), 1.0E-2);
   }
 
@@ -107,7 +118,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, INDEX, FRA_RATE);
-    final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVES);
+    final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVE_NAME_1);
     final CurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, curves);
     final CurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, curves);
     assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(), -pvBuy.getAmount(), 1.0E-2);
@@ -128,9 +139,9 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {CURVE_NAME_1[0], bumpedCurveName};
     final ForwardRateAgreement fraBumpedForward = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
-    final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
+    final YieldAndDiscountCurve curveForward = curves.getCurve(CURVE_NAME_1[1]);
     final double[] timeForward = new double[2];
     timeForward[0] = FRA.getFixingPeriodStartTime();
     timeForward[1] = FRA.getFixingPeriodEndTime();
@@ -143,8 +154,8 @@ public class ForwardRateAgreementDiscountingMethodTest {
       yieldsForward[i + 1] = curveForward.getInterestRate(nodeTimesForward[i + 1]);
     }
     final YieldAndDiscountCurve tempCurveForward = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesForward, yieldsForward, new LinearInterpolator1D()));
-    final List<DoublesPair> sensiForwardForward = prsFra.getSensitivities().get(FORWARD_CURVE_NAME);
-    final List<DoublesPair> sensiPvForward = pvsFra.getSensitivities().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensiForwardForward = prsFra.getSensitivities().get(CURVE_NAME_1[1]);
+    final List<DoublesPair> sensiPvForward = pvsFra.getSensitivities().get(CURVE_NAME_1[1]);
     final double[] sensiForwardForwardFD = new double[nbForwardDate];
     final double[] sensiPvForwardFD = new double[nbForwardDate];
     for (int i = 0; i < nbForwardDate; i++) {
@@ -164,16 +175,16 @@ public class ForwardRateAgreementDiscountingMethodTest {
       assertEquals("Sensitivity pv to forward curve: Node " + i, sensiPvForwardFD[i], pairPv.getSecond(), deltaTolerancePrice);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, CURVE_NAME_1[1]};
     final ForwardRateAgreement fraBumped = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
-    final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
+    final YieldAndDiscountCurve curveFunding = curves.getCurve(CURVE_NAME_1[0]);
     final double[] yieldsFunding = new double[2];
     final double[] nodeTimesFunding = new double[2];
     yieldsFunding[0] = curveFunding.getInterestRate(0.0);
     nodeTimesFunding[1] = FRA.getPaymentTime();
     yieldsFunding[1] = curveFunding.getInterestRate(nodeTimesFunding[1]);
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesFunding, yieldsFunding, new LinearInterpolator1D()));
-    final List<DoublesPair> tempFunding = pvsFra.getSensitivities().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvsFra.getSensitivities().get(CURVE_NAME_1[0]);
     final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimesFunding[1], deltaShift);
     final YieldCurveBundle curvesBumped = new YieldCurveBundle();
     curvesBumped.addAll(curves);
@@ -193,9 +204,9 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {CURVE_NAME_1[0], bumpedCurveName};
     final ForwardRateAgreement fraBumpedForward = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
-    final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
+    final YieldAndDiscountCurve curveForward = curves.getCurve(CURVE_NAME_1[1]);
     final double[] timeForward = new double[2];
     timeForward[0] = FRA.getFixingPeriodStartTime();
     timeForward[1] = FRA.getFixingPeriodEndTime();
@@ -219,16 +230,16 @@ public class ForwardRateAgreementDiscountingMethodTest {
     }
 
     final double[] nodeTimesForwardMethod = new double[] {FRA.getFixingPeriodStartTime(), FRA.getFixingPeriodEndTime()};
-    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(fraBumpedForward, curves, pv, CURVE_NAME_1[1], bumpedCurveName, nodeTimesForwardMethod, deltaShift, FRA_METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       assertEquals("Sensitivity finite difference method: node sensitivity", sensiPvForwardFD[loopnode], sensiForwardMethod[loopnode]);
     }
 
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, CURVE_NAME_1[1]};
     final ForwardRateAgreement fraBumped = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
-    final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
+    final YieldAndDiscountCurve curveFunding = curves.getCurve(CURVE_NAME_1[0]);
     final double[] yieldsFunding = new double[2];
     final double[] nodeTimesFunding = new double[2];
     yieldsFunding[0] = curveFunding.getInterestRate(0.0);
@@ -244,7 +255,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     resDsc[0] = (bumpedPvDsc - pv) / deltaShift;
 
     final double[] nodeTimesFundingMethod = new double[] {FRA.getPaymentTime()};
-    final double[] sensiFundingMethod = SensitivityFiniteDifference.curveSensitivity(fraBumped, curves, pv, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesFundingMethod, deltaShift, FRA_METHOD);
+    final double[] sensiFundingMethod = SensitivityFiniteDifference.curveSensitivity(fraBumped, curves, pv, CURVE_NAME_1[0], bumpedCurveName, nodeTimesFundingMethod, deltaShift, FRA_METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiFundingMethod.length);
     for (int loopnode = 0; loopnode < sensiFundingMethod.length; loopnode++) {
       assertEquals("Sensitivity finite difference method: node sensitivity", resDsc[loopnode], sensiFundingMethod[loopnode]);
@@ -253,11 +264,61 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void presentValueSensitivityMethodVsCalculator() {
-    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
-    final InterestRateCurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
+    final InterestRateCurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, CURVES_1);
     final PresentValueCurveSensitivityCalculator calculator = PresentValueCurveSensitivityCalculator.getInstance();
-    final Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, curves);
+    final Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, CURVES_1);
     assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivities());
+  }
+
+  public void parSpread() {
+    final double parSpread = FRA_METHOD.parSpread(FRA, CURVES_2);
+    ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
+        FRA_RATE + parSpread);
+    ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    final double pv0 = PVC.visit(fra0, CURVES_2);
+    assertEquals("FRA discounting: par spread", pv0, 0, TOLERANCE_PV);
+  }
+
+  public void parSpreadMethodVsCalculator() {
+    final double parSpreadMethod = FRA_METHOD.parSpread(FRA, CURVES_2);
+    final double parSpreadCalculator = PSC.visit(FRA, CURVES_2);
+    assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Tests parSpread curve sensitivity.
+   */
+  public void parSpreadCurveSensitivity() {
+    ForwardRateAgreement fra = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    InterestRateCurveSensitivity pscsMethod = FRA_METHOD.parSpreadCurveSensitivity(fra, CURVES_2);
+    final List<DoublesPair> sensiPsFwd = pscsMethod.getSensitivities().get(CURVE_NAME_2[1]);
+    double ps = FRA_METHOD.parSpread(fra, CURVES_2);
+    final YieldAndDiscountCurve curveToBump = CURVES_2.getCurve(CURVE_NAME_2[1]);
+    double deltaShift = 0.000001;
+    int nbNode = 2;
+    double[] result = new double[nbNode];
+    final double[] nodeTimesExtended = new double[nbNode + 1];
+    nodeTimesExtended[1] = fra.getFixingPeriodStartTime();
+    nodeTimesExtended[2] = fra.getFixingPeriodEndTime();
+    final double[] yields = new double[nbNode + 1];
+    yields[0] = curveToBump.getInterestRate(0.0);
+    yields[1] = curveToBump.getInterestRate(nodeTimesExtended[1]);
+    yields[2] = curveToBump.getInterestRate(nodeTimesExtended[2]);
+    final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+      final YieldAndDiscountCurve curveBumped = curveNode.withSingleShift(nodeTimesExtended[loopnode + 1], deltaShift);
+      CURVES_2.replaceCurve(CURVE_NAME_2[1], curveBumped);
+      final double psBumped = FRA_METHOD.parSpread(fra, CURVES_2);
+      result[loopnode] = (psBumped - ps) / deltaShift;
+      final DoublesPair pairPv = sensiPsFwd.get(loopnode);
+      assertEquals("Sensitivity par spread to curve: Node " + loopnode, nodeTimesExtended[loopnode + 1], pairPv.getFirst(), TOLERANCE_TIME);
+      assertEquals("Sensitivity par spread to curve: Node", pairPv.second, result[loopnode], TOLERANCE_SPREAD_DELTA);
+    }
+    CURVES_2.replaceCurve(CURVE_NAME_2[1], curveToBump);
+    InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(fra, CURVES_2);
+    prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
+    assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA));
   }
 
 }

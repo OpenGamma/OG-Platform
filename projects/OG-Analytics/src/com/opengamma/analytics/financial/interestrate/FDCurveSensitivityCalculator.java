@@ -65,6 +65,11 @@ public abstract class FDCurveSensitivityCalculator {
     return res;
   }
 
+  //  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+  //      final YieldCurveBundle curves, final String curveName, final Double[] times, final double absTol) {
+  //    return curveSensitvityFDCalculator(ird, calculator, curves, curveName, times, absTol);
+  //  }
+
   /**
    * Gives the sensitivity of the some metric of an IRD to a points on a one of the family of curves by finite difference
      * @param ird The Interest Rate Derivative
@@ -76,8 +81,8 @@ public abstract class FDCurveSensitivityCalculator {
    * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
    * @return Sensitivities at a given points 
    */
-  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName,
-      final double[] times, final double absTol) {
+  public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, PricingMethod method, final YieldCurveBundle curves, final String curveName, final double[] times,
+      final double absTol) {
 
     Validate.notNull(times, "null times");
     Validate.notNull(ird, "null ird");
