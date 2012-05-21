@@ -33,33 +33,30 @@ $.register_module({
                 auto_scroll.scroll = false;
                 grid.set_viewport();
             };
-            var deselect = function () {
-                $(grid.id + ' .OG-g-sel').remove();
-                selector.render.memo = null;
-            };
-            var mousedown_observer = function (event) {
-                var $cell, $target, start, fixed, right_click = event.which === 3 || event.button === 2,
-                    scroll_left = grid.elements.scroll_body.scrollLeft(),
-                    scroll_top = grid.elements.scroll_body.scrollTop();
-                if (right_click) return; else cleanup();
-                $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
-                if (!$cell.length) return;
+            var initialize = function () {
                 grid_offset = grid.elements.parent.offset();
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
-                fixed = +$cell.attr('class').match(/\sc(\d+)\s?/)[1] < grid.meta.columns.fixed.length;
-                start = {
-                    x: event.pageX - grid_offset.left + (fixed ? 0 : scroll_left),
-                    y: event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
-                };
-                (mousemove_observer = function (event) {mousemove(start, event);})(event);
+            };
+            var mousedown_observer = function (event) {
+                initialize();
+                var $cell, $target, right_click = event.which === 3 || event.button === 2,
+                    scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    scroll_top = grid.elements.scroll_body.scrollTop(),
+                    fixed_width = grid.meta.columns.width.fixed,
+                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
+                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
+                if (right_click) return; else cleanup();
+                $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
+                if (!$cell.length && !$target.is('.OG-g-sel')) return;
+                (mousemove_observer = function (event) {mousemove({x: x, y: y}, event);})(event);
                 $(document).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var mousemove = function (start, event) {
                 event.preventDefault();
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
-                    fixed_width = grid.meta.columns.width.fixed, scroll_width = grid.meta.columns.width.scroll,
+                    fixed_width = grid.meta.columns.width.fixed,
                     x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
                     y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                     areas = [], rectangle = {};
@@ -111,7 +108,7 @@ $.register_module({
                 if (rectangles) selector.render.memo = rectangles;
                 $(grid.id + ' .OG-g-sel').remove();
                 selector.render.memo.forEach(function (rectangle) {
-                    $('<div class="OG-g-sel" />').click(deselect).css(rectangle.position).css(rectangle.dimensions)
+                    $('<div class="OG-g-sel" />').css(rectangle.position).css(rectangle.dimensions)
                         .appendTo(grid.elements[rectangle.fixed ? 'fixed_body' : 'scroll_body']);
                 });
             };
