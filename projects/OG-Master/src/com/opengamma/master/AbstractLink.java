@@ -231,12 +231,6 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
    */
   public Set<ExternalId> getAllExternalIds() {
     Set<ExternalId> identifiers = getExternalId().getExternalIds();
-    ObjectId objectId = getObjectId();
-    if (objectId != null) {
-      Set<ExternalId> set = new HashSet<ExternalId>(identifiers);
-      set.add(ExternalId.of(ObjectId.EXTERNAL_SCHEME, objectId.toString()));
-      return set;
-    }
     return identifiers;
   }
 
