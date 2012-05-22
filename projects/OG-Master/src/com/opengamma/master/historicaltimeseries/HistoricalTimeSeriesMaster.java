@@ -29,7 +29,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * For more user friendly wrappers to this master see below:
  * </p> 
  * @see com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource
- * @see com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesWriter 
+ * @see com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesMasterUtils 
  */
 @PublicSPI
 public interface HistoricalTimeSeriesMaster extends AbstractMaster<HistoricalTimeSeriesInfoDocument>, ChangeProvider {

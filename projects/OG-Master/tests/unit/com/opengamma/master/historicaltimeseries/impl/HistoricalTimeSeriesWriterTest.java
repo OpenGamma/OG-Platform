@@ -24,7 +24,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
- * Test {@link HistoricalTimeSeriesWriter}.
+ * Test {@link HistoricalTimeSeriesMasterUtils}.
  */
 @Test
 public class HistoricalTimeSeriesWriterTest {
@@ -37,13 +37,13 @@ public class HistoricalTimeSeriesWriterTest {
   private static final ExternalId ID = ExternalId.of("Test", "1");
   
   private HistoricalTimeSeriesMaster _htsMaster;
-  private HistoricalTimeSeriesWriter _htsWriter;
+  private HistoricalTimeSeriesMasterUtils _htsWriter;
   private LocalDate _today;
   
   @BeforeMethod
   public void setup() {
     _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    _htsWriter = new HistoricalTimeSeriesWriter(_htsMaster);
+    _htsWriter = new HistoricalTimeSeriesMasterUtils(_htsMaster);
     _today = LocalDate.now();
   }
   

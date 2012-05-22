@@ -7,7 +7,10 @@ package com.opengamma.integration.component;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -43,6 +46,8 @@ import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -150,6 +155,19 @@ public class RemoteComponentFactory {
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesSource.class, name).getUri();
     return new RemoteHistoricalTimeSeriesSource(uri);
+  }
+  
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster(final String name) {
+    URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesMaster.class, name).getUri();
+    return new RemoteHistoricalTimeSeriesMaster(uri);
+  }
+  
+  public Map<String, HistoricalTimeSeriesMaster> getHistoricalTimeSeriesMasters() {
+    Map<String, HistoricalTimeSeriesMaster> result = new LinkedHashMap<String, HistoricalTimeSeriesMaster>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(HistoricalTimeSeriesMaster.class)) {
+      result.put(info.getClassifier(), new RemoteHistoricalTimeSeriesMaster(info.getUri()));
+    }
+    return result;
   }
 
   public CurrencyMatrixSource getCurrencyMatrixSource(final String name) {
