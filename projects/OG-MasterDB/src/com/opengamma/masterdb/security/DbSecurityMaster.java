@@ -267,6 +267,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   @Override
   protected SecurityDocument insert(final SecurityDocument document) {
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
+    ArgumentChecker.notEmpty(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
     
     final long docId = nextId("sec_security_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
