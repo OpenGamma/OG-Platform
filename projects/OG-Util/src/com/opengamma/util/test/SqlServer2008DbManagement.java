@@ -70,9 +70,9 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
   @Override
   public Class<?> getJDBCDriverClass() {
     // Use the MS driver...
-    // return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
+    return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
     // ...or the open-source driver (LGPLed)
-    return net.sourceforge.jtds.jdbc.Driver.class;
+    // return net.sourceforge.jtds.jdbc.Driver.class;
   }
 
   @Override
