@@ -20,6 +20,7 @@ $.register_module({
          */
         return function (selector) {
             var initialized = false, loading, gadgets = [], container = this,
+                layout = og.views.common.layout.inner,
                 pane, // layout pannel
                 live_id, // active tab id
                 overflow = {}, // document offet of overflow panel
@@ -31,14 +32,25 @@ $.register_module({
              *        if id is null set tabs to a single empty tab
              */
             var update_tabs = function (id) {
-                var $header = $(selector + header), tabs, reflow;
+                var $header = $(selector + header), tabs;
+                /**
+                 * @param id Id of gadget to show, hide all others
+                 */
+                var show_gadget = function (id) {
+                    $(selector).find('.OG-gadget-container [class*=OG-gadget-]').hide()
+                        .filter('.OG-gadget-' + id).show();
+                    live_id = id;
+                };
+                var is_south_pane_open = function () {
+                    return layout.state.south.size !== $('.OG-layout-analytics-south .OG-gadget-tabs').height();
+                };
                 /** Manages the widths of the tabs when the panel is resized, the following stages exist:
                  *  0 - all tabs are full size
                  *  1 - all but the active tab are truncated
                  *  2 - tabs are truncated plus some/all are moved to an overflow panel
                  *  3 - same as above with active tab being truncated
                  */
-                reflow = function () {
+                var reflow = function () {
                     var overflow_buffer = 25, // space for the overflow button
                         buttons_buffer = {'south': 23}, // add extra buffer space if the tabs area has buttons
                         min_tab_width = 50,
@@ -120,40 +132,25 @@ $.register_module({
                             'name': val.config.name, 'active': (id === val.id), 'delete': true, 'id': val.id
                         }) && acc;
                     }, []);
-                    if (pane === 'south') tabs.toggle = true; // add min/max toggle button
+                    if (pane === 'south') tabs.toggle = is_south_pane_open() ? 'minimize' : 'maximize'; // add toggle
                     $header.html(tabs_template({'tabs': tabs}));
                     reflow();
                     show_gadget(id);
                 }
             };
-            /**
-             * @param id Id of gadget to show, hide all others
-             */
-            var show_gadget = function (id) {
-                $(selector).find('.OG-gadget-container [class*=OG-gadget-]').hide().filter('.OG-gadget-' + id).show();
-                live_id = id;
-            };
-            /**
-             * @param {String} pane Pane to toggle
-             * @param {Boolean} open_only Don't close, only open
-             */
-            var toggle_pane = function (pane, open_only) {
-                var max = '50%', min = $('.OG-layout-analytics-' + pane + ' .OG-gadget-tabs').height(),
-                    minimize = function () {
-                        og.views.common.layout.inner.sizePane(pane, min);
-                        $('.OG-layout-analytics-' + pane + ' .og-js-toggle')
-                            .toggleClass('og-icon-minimize og-icon-maximize');
-                    },
-                    maximize = function () {
-                        og.views.common.layout.inner.sizePane(pane, max);
-                        $('.OG-layout-analytics-' + pane + ' .og-js-toggle')
-                            .toggleClass('og-icon-minimize og-icon-maximize');
-                    };
-                og.views.common.layout.inner.state[pane].size === min
+            container.init = function (arr) {
+                /**
+                 * @param {String} pane Pane to toggle
+                 * @param {Boolean} open_only Don't close, only open
+                 */
+                var toggle_pane = function (pane, open_only) {
+                    var max = '50%', min = $('.OG-layout-analytics-' + pane + ' .OG-gadget-tabs').height(),
+                        minimize = layout.sizePane.partial(pane, min),
+                        maximize = layout.sizePane.partial(pane, max);
+                    layout.state[pane].size === min
                         ? maximize()
                         : open_only ? null : minimize();
-            };
-            container.init = function (arr) {
+                };
                 loading = true;
                 $.when(
                     api.text({module: 'og.analytics.tabs_tash'}),
@@ -175,12 +172,10 @@ $.register_module({
                                 index = gadgets.reduce(function (acc, val, idx) {
                                     return acc + (val.id === id ? idx : 0);
                                 }, 0);
-                            if ($(e.target).hasClass('og-delete')) {container.del(gadgets[index]);}
+                            if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
-                                if (id) {
-                                    gadgets[index].gadget.resize();
-                                }
+                                if (id) gadgets[index].gadget.resize();
                             }
                             if (pane === 'south') toggle_pane(pane, true);
                         })
