@@ -21,7 +21,6 @@
       var input,
         self = this,
         select = this.element,
-        selectWidth = Math.min(250, select.width() + 15),
         selected = select.children(":selected"),
         value = selected.val() ? selected.text() : "",
         wrapper = $("<span>")
@@ -29,7 +28,7 @@
           .insertAfter(select);
         select.hide();
 
-      input = $("<input style='width:" + selectWidth + "px'>")
+      input = $("<input>")
         .appendTo(wrapper)
         .val(value)
         .autocomplete({
@@ -155,14 +154,15 @@
     $backingViewList.combobox({
       change: function(item) {
         populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, $(item).val());
-        sizeList($backingSnapshotList);
       }
     });
+    getInput($backingViewList).width(200);
     
     $("<span class='viewlabel'>aggregated by</span>").appendTo($views);
     $backingAggregatorsList.appendTo($views);
-    $backingAggregatorsList.combobox();
     populateAggregators($backingAggregatorsList, initData.aggregatorNames);
+    $backingAggregatorsList.combobox();
+    getInput($backingAggregatorsList).width(130);
 
     $("<span class='viewlabel'>using</span>").appendTo($views);
     $backingSnapshotList.appendTo($views);
@@ -175,6 +175,7 @@
         }
       }
     });
+    getInput($backingSnapshotList).width(220);
     populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, null);
     
     $("<span class='viewlabel'>at time</span>").appendTo($views);
@@ -264,8 +265,6 @@
     });
     
     $('#viewcontrols').hide().show(500);
-    sizeList($backingAggregatorsList);
-    sizeList($backingSnapshotList);
     $('#loadingviews').remove();
     _init = true;
   }
@@ -329,10 +328,6 @@
     });
     getInput($aggregatorsSelect).val($aggregatorsSelect.children()[1].text);
     $aggregatorsSelect.children()[1].selected = true;
-  }
-  
-  function sizeList($backingList) {
-    getInput($backingList).width(Math.min(250, $backingList.width() + 15));
   }
   
   function getInput($backingList) {
