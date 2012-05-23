@@ -140,6 +140,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.fudgemsg/fudge-proto/jars/fudge-proto-0.3.9.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.time/jsr-310-ri/jars/threeten-TZDB-all-0.6.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.time/jsr-310-ri/jars/threeten-core-0.6.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.microsoft/sqljdbc/jars/sqljdbc4-3.0.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
