@@ -25,6 +25,9 @@ $.register_module({
                 live_id, // active tab id
                 overflow = {}, // document offet of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
+            var get_index = function (id) {
+                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0)
+            };
             /**
              * @param {Number|Null} id
              *        if id is a Number set the active tab to that ID
@@ -168,10 +171,7 @@ $.register_module({
                     $(selector + header + ' , .og-js-overflow-' + pane)
                         // handler for tabs (including the ones in the overflow pane)
                         .on('click', 'li[class^=og-tab-]', function (e) {
-                            var id = extract_id($(this).attr('class')),
-                                index = gadgets.reduce(function (acc, val, idx) {
-                                    return acc + (val.id === id ? idx : 0);
-                                }, 0);
+                            var id = extract_id($(this).attr('class')), index = get_index(id);
                             if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
@@ -237,12 +237,14 @@ $.register_module({
                 return container;
             };
             container.del = function (obj) {
+                var id;
                 $(selector + ' .OG-gadget-container .OG-gadget-' + obj.id).remove();
                 gadgets.splice(gadgets.indexOf(obj), 1);
-                update_tabs(gadgets.length
+                id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
-                    : null
-                ); // new active tab or empty
+                    : null;
+                if (id) gadgets[get_index(id)].gadget.resize();
+                update_tabs(id); // new active tab or empty
             };
             container.alive = function () {return !!$(selector).length;};
             container.resize = function () {
