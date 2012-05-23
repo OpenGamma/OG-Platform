@@ -49,6 +49,7 @@ import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
 import com.opengamma.web.server.push.MasterChangeManager;
 import com.opengamma.web.server.push.WebPushServletContextUtils;
+import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.grid.PushLiveResultsService;
 import com.opengamma.web.server.push.reports.CsvReportGenerator;
 import com.opengamma.web.server.push.reports.ReportFactory;
@@ -60,6 +61,11 @@ import com.opengamma.web.server.push.rest.ReportMessageBodyWriter;
 import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 import com.opengamma.web.server.push.rest.ViewportsResource;
+import com.opengamma.web.server.push.rest.ViewsResource;
+import com.opengamma.web.server.push.rest.json.AnalyticsGridStructureMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.AnalyticsResultsMessageBodyWriter;
+import com.opengamma.web.server.push.rest.json.DependencyGraphRequestMessageBodyReader;
+import com.opengamma.web.server.push.rest.json.ViewRequestMessageBodyReader;
 
 /**
  * Component factory for the main website viewports (for analytics).
@@ -167,10 +173,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
+    repo.getRestComponents().publishResource(new ViewsResource(new AnalyticsViewManager()));
 
     repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
+    repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
+    repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
+    repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new AnalyticsResultsMessageBodyWriter());
     repo.getRestComponents().publishHelper(new ReportMessageBodyWriter());
-    
+
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {
       @Override
