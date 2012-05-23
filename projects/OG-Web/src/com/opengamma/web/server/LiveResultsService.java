@@ -15,6 +15,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
+import javax.time.Instant;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatters;
+
 import org.apache.commons.lang.StringUtils;
 import org.cometd.Bayeux;
 import org.cometd.Client;
@@ -25,6 +31,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -43,7 +50,11 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
@@ -59,6 +70,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 public class LiveResultsService extends BayeuxService implements ClientBayeuxListener {
   
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);
+  private static final DateTimeFormatter s_snapshotDateTimeFormatter = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ss");
   private static final Pattern s_guidPattern = Pattern.compile("(\\{?([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\\}?)");
   
   private final Map<String, WebView> _clientViews = new HashMap<String, WebView>();
@@ -117,6 +129,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     
     s_logger.info("Subscribing to services");
     subscribe("/service/getInitData", "processInitDataRequest");
+    subscribe("/service/getSnapshotVersions", "processSnapshotVersionsRequest");
     subscribe("/service/changeView", "processChangeViewRequest");
     subscribe("/service/updates", "processUpdateRequest");
     subscribe("/service/updates/mode", "processUpdateModeRequest");
@@ -326,11 +339,39 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         snapshotsForBasisView = new HashMap<String, String>();
         snapshotsByBasisView.put(basisViewName, snapshotsForBasisView);
       }
-      snapshotsForBasisView.put(snapshot.getUniqueId().toString(), snapshot.getName());
+      snapshotsForBasisView.put(snapshot.getUniqueId().getObjectId().toString(), snapshot.getName());
     }
     return snapshotsByBasisView;
   }
 
+  @SuppressWarnings("unchecked")
+  public void processSnapshotVersionsRequest(Client remote, Message message) {
+    s_logger.info("processSnapshotVersionsRequest");
+    
+    Map<String, Object> data = (Map<String, Object>) message.getData();
+    String snapshotIdString = (String) data.get("snapshotId");
+    UniqueId snapshotId = UniqueId.parse(snapshotIdString);
+    
+    MarketDataSnapshotHistoryRequest snapshotHistoryRequest = new MarketDataSnapshotHistoryRequest(snapshotId.getObjectId(), null, Instant.now());
+    snapshotHistoryRequest.setIncludeData(false);
+    MarketDataSnapshotHistoryResult snapshotSearchResult = _snapshotMaster.history(snapshotHistoryRequest);
+    
+    String[][] versions = new String[snapshotSearchResult.getDocuments().size()][2];
+    int i = 0;
+    for (MarketDataSnapshotDocument doc : snapshotSearchResult.getDocuments()) {
+      ZonedDateTime snapshotDateTime = ZonedDateTime.ofInstant(doc.getVersionFromInstant(), TimeZone.UTC);
+      versions[i][0] = doc.getUniqueId().toString();
+      versions[i][1] = snapshotDateTime.toString(s_snapshotDateTimeFormatter);
+      i++;
+    }
+    
+    Map<String, Object> response = new HashMap<String, Object>();
+    response.put("snapshotId", snapshotIdString);
+    response.put("versions", versions);
+    
+    remote.deliver(getClient(), "/snapshotVersions", response, null);
+  }
+  
   @SuppressWarnings("unchecked")
   public void processChangeViewRequest(Client remote, Message message) {
     try {
@@ -350,9 +391,17 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       }
       String aggregatorName = (String) data.get("aggregatorName");
       String marketDataType = (String) data.get("marketDataType");
+      String versionDateTime = (String) data.get("versionDateTime");
       
       MarketDataSpecification marketDataSpec;
       EnumSet<ViewExecutionFlags> flags;
+      VersionCorrection versionCorrection;
+      if (versionDateTime != null) {
+        Instant versionAsOf = Instant.parse(versionDateTime);
+        versionCorrection = VersionCorrection.ofVersionAsOf(versionAsOf);
+      } else {
+        versionCorrection = VersionCorrection.LATEST;
+      }
       if ("snapshot".equals(marketDataType)) {
         String snapshotIdString = (String) data.get("snapshotId");
         if (StringUtils.isBlank(snapshotIdString)) {
@@ -360,7 +409,23 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
           return;
         }
         UniqueId snapshotId = UniqueId.parse(snapshotIdString);
-        marketDataSpec = MarketData.user(snapshotId.toLatest());
+        if (snapshotId.isVersioned()) {
+          if (versionCorrection != VersionCorrection.LATEST) {
+            throw new OpenGammaRuntimeException("Cannot specify both a versioned snapshot and a custom verion-correction");
+          }
+          // If the version-correction is to be based on a snapshot then use the time at which the snapshot was created
+          MarketDataSnapshotDocument snapshotDoc = _snapshotMaster.get(snapshotId.getObjectId(), versionCorrection);
+          versionCorrection = VersionCorrection.ofVersionAsOf(snapshotDoc.getVersionFromInstant());
+        } else {
+          try {
+            MarketDataSnapshotDocument snapshotDoc = _snapshotMaster.get(snapshotId.getObjectId(), versionCorrection);
+            snapshotId = snapshotDoc.getUniqueId();
+          } catch (DataNotFoundException e) {
+            s_logger.error("Snapshot " + snapshotId.getObjectId() + " not found for version-correction " + versionCorrection, e);
+            throw new OpenGammaRuntimeException("selected snapshot not valid at chosen version date and time");
+          }
+        }
+        marketDataSpec = MarketData.user(snapshotId);
         flags = ExecutionFlags.none().triggerOnMarketData().get();
       } else if ("live".equals(marketDataType)) {
         String liveMarketDataProvider = (String) data.get("provider");
@@ -369,7 +434,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       } else {
         throw new OpenGammaRuntimeException("Unknown market data type: " + marketDataType);
       }
-      ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
+      ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags, versionCorrection);
       s_logger.info("Initializing view '{}', aggregated by '{}' with execution options '{}' for client '{}'", new Object[] {baseViewDefinitionId, aggregatorName, executionOptions, remote});
       initializeClientView(remote, baseViewDefinitionId, aggregatorName, executionOptions, getUser(remote));
     } catch (Exception e) {

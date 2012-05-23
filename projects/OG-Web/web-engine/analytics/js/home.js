@@ -10,19 +10,28 @@
   var _userConfig;
   var _resultsViewer = null;
   
+  var _versionDateTime = null;
+  var _versionFromSnapshot = null;
+  
   //-----------------------------------------------------------------------
   // Views
   
-  $.widget("ui.combobox", {
+  $.widget( "ui.combobox", {
     _create: function() {
-      var self = this,
+      var input,
+        self = this,
         select = this.element,
         selectWidth = Math.min(250, select.width() + 15),
         selected = select.children(":selected"),
-        value = selected.val() ? selected.text() : "";
-      select.hide();
-      var input = $("<input style='width:" + selectWidth + "px'>")
-        .insertAfter(select)
+        value = selected.val() ? selected.text() : "",
+        wrapper = $("<span>")
+          .addClass("ui-combobox")
+          .insertAfter(select);
+        select.hide();
+
+      input = $("<input style='width:" + selectWidth + "px'>")
+        .appendTo(wrapper)
+        .val(value)
         .autocomplete({
           delay: 0,
           minLength: 0,
@@ -37,14 +46,14 @@
                       "(?![^&;]+;)(?!<[^<>]*)(" +
                       $.ui.autocomplete.escapeRegex(request.term) +
                       ")(?![^<>]*>)(?![^&;]+;)", "gi"
-                    ), "<strong>$1</strong>" ),
+                    ), "<strong>$1</strong>"),
                   value: text,
                   option: this
                 };
             }) );
           },
           select: function(event, ui) {
-            select.val(ui.item.option.value);
+            ui.item.option.selected = true;
             self._trigger("selected", event, {
               item: ui.item.option
             });
@@ -54,10 +63,10 @@
           },
           change: function(event, ui) {
             if (!ui.item) {
-              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i");
-              var valid = false;
+              var matcher = new RegExp("^" + $.ui.autocomplete.escapeRegex($(this).val()) + "$", "i"),
+                valid = false;
               select.children("option").each(function() {
-                if (this.value.match(matcher)) {
+                if ($(this).text().match(matcher)) {
                   this.selected = valid = true;
                   if (self.options.change) {
                     self.options.change(this);
@@ -65,28 +74,37 @@
                   return false;
                 }
               });
-              if (!valid) {
+              if ( !valid ) {
                 // remove invalid value, as it didn't match anything
+                $(this).val("");
                 select.val("");
+                input.data("autocomplete").term = "";
                 return false;
               }
             }
           }
         })
         .addClass("ui-widget ui-widget-content ui-corner-left");
-      
-      input.data("autocomplete")._renderItem = function(ul, item) {
-        return $("<li></li>")
-          .data("item.autocomplete", item )
-          .append("<a>" + item.label + "</a>")
-          .attr("class", $(item.option).attr("class"))
-          .appendTo(ul);
-      };
 
-      $("<button>&nbsp;</button>")
-        .attr( "tabIndex", -1 )
-        .attr( "title", "Show All Items" )
-        .insertAfter(input)
+        input.data("autocomplete")._renderItem = function(ul, item) {
+          return $("<li></li>")
+            .data("item.autocomplete", item)
+            .append("<a>" + item.label + "</a>")
+            .appendTo(ul);
+        };
+      
+        input.data("autocomplete")._renderItem = function(ul, item) {
+          return $("<li></li>")
+            .data("item.autocomplete", item )
+            .append("<a>" + item.label + "</a>")
+            .attr("class", $(item.option).attr("class"))
+            .appendTo(ul);
+        };
+
+        $("<a>")
+        .attr("tabIndex", -1)
+        .attr("title", "Show All Items")
+        .appendTo(wrapper)
         .button({
           icons: {
             primary: "ui-icon-triangle-1-s"
@@ -95,7 +113,6 @@
         })
         .removeClass("ui-corner-all")
         .addClass("ui-corner-right ui-button-icon")
-        .addClass("ui-autocomplete-button")
         .click(function() {
           // close if already visible
           if (input.autocomplete("widget").is(":visible")) {
@@ -103,10 +120,18 @@
             return;
           }
 
+          // work around a bug (likely same cause as #5265)
+          $(this).blur();
+
           // pass empty string as value to search for, displaying all results
-          input.autocomplete("search", "");
+          input.autocomplete( "search", "" );
           input.focus();
         });
+    },
+
+    destroy: function() {
+      this.element.show();
+      $.Widget.prototype.destroy.call(this);
     }
   });
   
@@ -141,8 +166,77 @@
 
     $("<span class='viewlabel'>using</span>").appendTo($views);
     $backingSnapshotList.appendTo($views);
-    $backingSnapshotList.combobox();
+    $backingSnapshotList.combobox({
+      change: function() {
+        if (_versionFromSnapshot) {
+          _versionFromSnapshot = null;
+          $('#datenow').attr('checked', 'checked');
+          $('#datesource').buttonset('refresh');
+        }
+      }
+    });
     populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, null);
+    
+    $("<span class='viewlabel'>at time</span>").appendTo($views);
+    
+    $('#datesource').buttonset();
+    $('#dateInput').datepicker({
+      dateFormat: "yy-mm-dd"
+    });
+    $('#dateSetButton')
+      .button( { label: 'OK' })
+      .click(function() {
+        var d = $('#dateInput').datepicker('getDate');
+        var timeStr = $('#timeInput').val();
+        if (!timeStr) {
+          showError("A time must be specified");
+          return;
+        }
+        var timeParts = timeStr.split(':');
+        if (timeParts.length != 3) {
+          showError("Invalid time format. Expected 'hh:mm:ss'");
+          return;
+        }
+        var hours = parseInt(timeParts[0]);
+        var minutes = parseInt(timeParts[1]);
+        var seconds = parseInt(timeParts[2]);
+        if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+          showError("Unable to interpret time '" + timeStr + "'");
+          return;
+        }
+        d.setHours(hours);
+        d.setMinutes(minutes);
+        d.setSeconds(seconds);
+        _versionDateTime = d;
+        _versionFromSnapshot = null;
+        $('#snapshotversionscontrols').empty();
+        $('#versionDateTime').dialog('close');
+      });
+    var dialogCancel = function() {
+      if (!_versionDateTime && !_versionFromSnapshot) {
+        $('#datenow').attr('checked', 'checked');
+        $('#datesource').buttonset('refresh');
+      }
+    }
+    $('#versionDateTime').dialog({
+      autoOpen: false,
+      buttons: {
+        Cancel : function() {
+          dialogCancel();
+          $(this).dialog("close");
+        }
+      },
+      modal: true,
+      focusSelector: null,
+      resizable: false,
+      width: 340,
+      close: dialogCancel
+    });
+    $('#datenow').click(function() {
+      _versionDateTime = null;
+      _versionFromSnapshot = null;
+    });
+    $('#datecustom').click(function() { showVersionDateTimeDialog(); });
     
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
@@ -156,7 +250,7 @@
           setTimeout(function() { initializeView(); }, 0);
         }
       });
-    $backingViewList.next().focus();
+    getInput($backingViewList).focus();
     
     $('#changeView').button({ label: 'Load View' })
     .click(function(event) {
@@ -174,6 +268,44 @@
     sizeList($backingSnapshotList);
     $('#loadingviews').remove();
     _init = true;
+  }
+  
+  function showVersionDateTimeDialog() {
+    var $versionControls = $('#snapshotversionscontrols');
+    var $versionMsg = $('<p>');
+    $versionControls.empty().append($versionMsg);
+    
+    var $selectedMarketData = $('#snapshotlist option:selected');
+    var marketDataId = $selectedMarketData.attr('value');
+    if (marketDataId && !$selectedMarketData.hasClass('standard-entry')) {
+      _liveResultsClient.getSnapshotVersions(marketDataId);
+      $versionMsg.text('Loading snapshot versions...');
+    } else {
+      $versionMsg.text('No snapshot selected');
+    }
+    
+    var dialogDate = _versionDateTime == null ? new Date() : _versionDateTime;
+    setDialogCustomDateTime(dialogDate);
+    $('#versionDateTime').dialog('open');
+  }
+  
+  function parseDateTimeString(dtStr) {
+    var dtParts = dtStr.split(' ');
+    var dParts = dtParts[0].split('-');
+    var tParts = dtParts[1].split(':');
+    return new Date(dParts[0], dParts[1] - 1, dParts[2], tParts[0], tParts[1], tParts[2], 0)
+  }
+  
+  function setDialogCustomDateTime(d) {
+    $('#timeInput').val(formatTime(d));
+    $('#dateInput').datepicker('setDate', d);
+  }
+  
+  function formatTime(d) {
+    var hours = d.getHours() < 10 ? "0" + d.getHours(): d.getHours();
+    var minutes = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
+    var seconds = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
+    return hours + ":" + minutes + ":" + seconds;
   }
   
   function updateViewDefinitions($backingList, contents) {
@@ -195,16 +327,20 @@
     $.each(aggregators, function(idx, aggregator) {
       $('<option value="' + aggregator + '">' + aggregator + '</option>').appendTo($aggregatorsSelect);
     });
-    $aggregatorsSelect.next().val($aggregatorsSelect.children()[1].text);
+    getInput($aggregatorsSelect).val($aggregatorsSelect.children()[1].text);
     $aggregatorsSelect.children()[1].selected = true;
   }
   
   function sizeList($backingList) {
-    $backingList.next().width(Math.min(250, $backingList.width() + 15));
+    getInput($backingList).width(Math.min(250, $backingList.width() + 15));
+  }
+  
+  function getInput($backingList) {
+    return $backingList.next().children(':first');
   }
   
   function populateSnapshots($snapshotSelect, specifications, snapshots, selectedView) {
-    var $input = $snapshotSelect.next();
+    var $input = getInput($snapshotSelect)
     var previousVal = $input.val();
     var selectedViewSnapshots = snapshots[selectedView];
     
@@ -261,7 +397,7 @@
     
     var viewId = $('#viewlist option:selected').attr('value');
     var viewText = $('#viewlist option:selected').attr('text');
-    var viewInputText = $('#viewlist').next().val();
+    var viewInputText = getInput($('#viewlist')).val();
     
     if (!viewId || viewText != viewInputText) {
       // Assume the user has manually entered an ID
@@ -292,11 +428,15 @@
       marketDataSpecification.provider = marketDataId;
     } else {
       marketDataSpecification.marketDataType = "snapshot";
-      marketDataSpecification.snapshotId = marketDataId;
+      if (_versionFromSnapshot) {
+        marketDataSpecification.snapshotId = _versionFromSnapshot;
+      } else {
+        marketDataSpecification.snapshotId = marketDataId;
+      }
     }
     
     prepareChangeView();
-    _liveResultsClient.changeView(viewId, aggregatorName, marketDataSpecification);
+    _liveResultsClient.changeView(viewId, aggregatorName, marketDataSpecification, _versionDateTime);
   }
   
   function prepareChangeView() {
@@ -349,11 +489,50 @@
       buttons: {
         Ok: function() {
           $(this).dialog("close");
-          $('#viewlist').next().focus();
+          getInput($('#viewlist')).focus();
         }
       },
       resizable: false
     });    
+  }
+  
+  function showError(errorMessage) {
+    $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>" + errorMessage + "</div></div>").dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $(this).dialog("close");
+        }
+      },
+      resizable: false
+    });
+  }
+  
+  function onSnapshotVersionsReceived(message) {
+    var $versionControls = $('#snapshotversionscontrols');
+    $versionControls.empty();
+    
+    var $versionsSelect = $('<select>').appendTo($versionControls);
+    var $versionsSetButton = $('<span style="margin-left:0.3em">').appendTo($versionControls);
+    $versionsSetButton
+      .button({ label: 'OK' })
+      .click(function() {
+        var versionedSnapshotId = $versionsSelect.val();
+        if (versionedSnapshotId) {
+          _versionFromSnapshot = versionedSnapshotId;
+          _versionDateTime = null;
+        }
+        $('#versionDateTime').dialog('close');
+      });
+    
+    var $snapshotVersion = $("#snapshotversion");
+    $snapshotVersion.empty();
+    $.each(message.versions, function(idx, version) {
+      $versionsSelect.append($("<option />").val(version[0]).text(version[1]));
+    });
+    $versionsSelect.combobox();
+    getInput($versionsSelect).val($versionsSelect.children()[0].text);
+    $versionsSelect.children()[0].selected = true;
   }
   
   //-----------------------------------------------------------------------
@@ -441,6 +620,7 @@
     _liveResultsClient.onConnected.subscribe(onConnected);
     _liveResultsClient.onDisconnected.subscribe(onDisconnected);
     _liveResultsClient.onInitDataReceived.subscribe(onInitDataReceived);
+    _liveResultsClient.onSnapshotVersionsReceived.subscribe(onSnapshotVersionsReceived);
     _liveResultsClient.onViewChanged.subscribe(onViewChanged);
     _liveResultsClient.onViewChangeFailed.subscribe(onViewChangeFailed);
     _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);

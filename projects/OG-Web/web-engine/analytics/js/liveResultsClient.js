@@ -53,7 +53,8 @@
         _cometd.batch(function() {
           _cometd.subscribe('/status', handleStatusUpdate);
           _cometd.subscribe('/initData', handleInitDataUpdate);
-          _cometd.subscribe('/changeView', handleChangeViewResponse);          
+          _cometd.subscribe('/changeView', handleChangeViewResponse);  
+          _cometd.subscribe('/snapshotVersions', handleSnapshotVersionsResponse);
           
           _cometd.subscribe('/updates/portfolio', handlePortfolioUpdate);
           _cometd.subscribe('/updates/primitives', handlePrimitivesUpdate);
@@ -126,6 +127,10 @@
     function handlePrimitivesGridColumns(message) {
       assignFormatters(message.data);
       $.extend(true, _gridStructures.primitives.columns, message.data);
+    }
+    
+    function handleSnapshotVersionsResponse(message) {
+      self.onSnapshotVersionsReceived.fire(message.data);
     }
     
     function handleUpdatesControlMessage(message) {
@@ -238,7 +243,7 @@
     //-----------------------------------------------------------------------
     // Public API
     
-    this.changeView = function(viewId, aggregatorName, marketDataSpec) {
+    this.changeView = function(viewId, aggregatorName, marketDataSpec, versionDateTime) {
       _logger.info("Sending change view request");
       _portfolioDetails = null;
       _primitiveDetails = null;
@@ -248,8 +253,25 @@
       var changeViewRequest = {};
       changeViewRequest["viewId"] = viewId;
       changeViewRequest["aggregatorName"] = aggregatorName;
+      if (versionDateTime) {
+        var year, month, day, hours, minutes, seconds, versionDateTimeStr;
+        year = versionDateTime.getFullYear();
+        month = versionDateTime.getMonth() < 9 ? "0" + (versionDateTime.getMonth() + 1) : versionDateTime.getMonth() + 1;
+        day = versionDateTime.getDate() < 10 ? "0" + versionDateTime.getDate() : versionDateTime.getDate();
+        hours = versionDateTime.getHours() < 10 ? "0" + versionDateTime.getHours() : versionDateTime.getHours();
+        minutes = versionDateTime.getMinutes() < 10 ? "0" + versionDateTime.getMinutes() : versionDateTime.getMinutes();
+        seconds = versionDateTime.getSeconds() < 10 ? "0" + versionDateTime.getSeconds() : versionDateTime.getSeconds();
+        versionDateTimeStr = year + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":" + seconds + "Z";
+        changeViewRequest["versionDateTime"] = versionDateTimeStr;
+      }
       $.extend(changeViewRequest, marketDataSpec);
       _cometd.publish('/service/changeView', changeViewRequest);
+    }
+    
+    this.getSnapshotVersions = function(snapshotId, callback) {
+      var snapshotVersionsRequest = {};
+      snapshotVersionsRequest["snapshotId"] = snapshotId;
+      _cometd.publish('/service/getSnapshotVersions', snapshotVersionsRequest);
     }
     
     this.pause = function() {
@@ -308,6 +330,7 @@
     this.beforeUpdateRequested = new EventManager();
     
     this.onInitDataReceived = new EventManager();
+    this.onSnapshotVersionsReceived = new EventManager();
     this.onViewChanged = new EventManager();
     this.onViewChangeFailed = new EventManager();
     this.onStatusUpdateReceived = new EventManager();
