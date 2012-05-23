@@ -266,13 +266,13 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     final double deltaTolerancePrice = 1.0E+4;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     HullWhiteMonteCarloMethod methodMC;
-    int nbPath = 50000; // In line with calculator.
+    int nbPath = 50000;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(ANNUITY_RATCHET_FIXED, CURVES_NAMES[0], BUNDLE_HW);
     pvcsMC = pvcsMC.cleaned(1.0E-10, 1.0E-2); // (1.0E-10, 1.0E-2);
 
-    PresentValueHullWhiteMonteCarloCalculator calculator = PresentValueHullWhiteMonteCarloCalculator.getInstance();
+    PresentValueHullWhiteMonteCarloCalculator calculator = new PresentValueHullWhiteMonteCarloCalculator(nbPath);
 
     // Dsc curve
     DoubleAVLTreeSet dscTime = new DoubleAVLTreeSet();
