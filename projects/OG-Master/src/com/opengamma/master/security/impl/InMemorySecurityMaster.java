@@ -155,8 +155,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public SecurityDocument add(final SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    ArgumentChecker.notNull(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
-
+    
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
     final ManageableSecurity security = document.getSecurity();
@@ -176,8 +175,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
-    ArgumentChecker.notNull(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
-
+    
     final UniqueId uniqueId = document.getUniqueId();
     final Instant now = Instant.now();
     final SecurityDocument storedDocument = _store.get(uniqueId.getObjectId());
