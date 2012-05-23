@@ -54,6 +54,23 @@ public class ExecutionOptions implements ViewExecutionOptions {
     ArgumentChecker.notNull(flags, "flags");
     return new ExecutionOptions(cycleExecutionSequence, flags, defaultCycleOptions);
   }
+  
+  /**
+   * Creates a custom execution sequence.
+   * 
+   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param defaultCycleOptions  the default view cycle execution options, may be null
+   * @param flags  the execution flags, not null
+   * @param versionCorrection  the version-correction instants, not null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions of(ViewCycleExecutionSequence cycleExecutionSequence,
+      ViewCycleExecutionOptions defaultCycleOptions, EnumSet<ViewExecutionFlags> flags, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(cycleExecutionSequence, "cycleExecutionSequence");
+    ArgumentChecker.notNull(flags, "flags");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    return new ExecutionOptions(cycleExecutionSequence, flags, null, defaultCycleOptions, versionCorrection);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -85,6 +102,21 @@ public class ExecutionOptions implements ViewExecutionOptions {
     ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
     defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data.
+   * Execution will continue for as long as there is demand.
+   * 
+   * @param marketDataSpec  the market data specification, not null
+   * @param flags  the execution flags, not null
+   * @param versionCorrection  the version-correction instants, not null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags, VersionCorrection versionCorrection) {
+    ViewCycleExecutionOptions defaultExecutionOptions = new ViewCycleExecutionOptions();
+    defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
+    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
