@@ -519,7 +519,7 @@
     <div id="versionDateTime" title="Use Custom Version">
       <form>
         <p>Modifies the <strong>version</strong> date and time used throughout the calculations.</p>
-        <p>This applies to the view definition, the portfolio, and any chosen market data snapshot.</p>
+        <p>This applies to the portfolio, position, securities, and any chosen market data snapshot.</p>
         <div class="controlsection">
           <p class="controltitle">Date and time of version to use</p>
           <div class="controlblock">
