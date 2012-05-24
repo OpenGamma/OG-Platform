@@ -24,7 +24,7 @@ public interface AnalyticsView {
 
   void updateResults(ViewComputationResultModel fullResult);
 
-  // -------- portfolio grid --------
+  // -------- main grid --------
 
   AnalyticsGridStructure getGridStructure(GridType gridType);
 
@@ -36,8 +36,12 @@ public interface AnalyticsView {
 
   AnalyticsResults getData(GridType gridType, String viewportId);
 
-  // -------- portfolio dependency graph grids --------
+  // -------- dependency graph grids --------
 
+  // TODO specifying by row and col is a problem for two reasons
+  // 1) if the structure changes we don't know if the cell has moved and where to
+  // 2) there's a race condition if the structure changes as the client requests a depgraph - they might not get what they want
+  // would be better to specify the row and col in a way that persists across recompilation of the view def
   String openDependencyGraph(GridType gridType, int row, int col);
 
   void closeDependencyGraph(GridType gridType, String dependencyGraphId);

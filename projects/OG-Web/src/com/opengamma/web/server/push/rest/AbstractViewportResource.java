@@ -37,7 +37,7 @@ public abstract class AbstractViewportResource {
   public abstract void update(ViewportRequest viewportRequest);
 
   @DELETE
-  public abstract void delete(String viewportId);
+  public abstract void delete();
 
   @GET
   @Path("data")

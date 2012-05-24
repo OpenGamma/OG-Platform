@@ -24,8 +24,8 @@ public class MainGridViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public void delete(String viewportId) {
-    _view.deleteViewport(_gridType, viewportId);
+  public void delete() {
+    _view.deleteViewport(_gridType, _viewportId);
   }
 
   @Override

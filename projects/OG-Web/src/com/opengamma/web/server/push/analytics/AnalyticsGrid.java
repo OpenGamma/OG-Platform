@@ -8,13 +8,15 @@ package com.opengamma.web.server.push.analytics;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
 /**
  * TODO should this be split into 2 classes?
  * rows, cols, history and viewports apply to all grids including dependency graphs - AnalyticsGrid
- * depGraphs only apply to the two top level grids - what should the class be called?
+ * depGraphs only apply to the two top level grids - what should the class be called? MainGrid? extends AnalyticsGrid?
  */
 /* package */ class AnalyticsGrid {
 
@@ -22,9 +24,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   private final AnalyticsRows _rows;
   private final AnalyticsHistory _history = new AnalyticsHistory();
   private final Map<String, AnalyticsViewport> _viewports = new HashMap<String, AnalyticsViewport>();
-  private final Map<String, DependencyGraphGrid> _depGraphs = new HashMap<String, DependencyGraphGrid>();
 
-  private AnalyticsGrid(AnalyticsColumns cols, AnalyticsRows rows) {
+  private int nextViewportId = 0;
+  private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
+
+  protected AnalyticsGrid(AnalyticsColumns cols, AnalyticsRows rows) {
     _cols = cols;
     _rows = rows;
   }
@@ -40,73 +44,47 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
     return new AnalyticsGrid(AnalyticsColumns.create(compiledViewDef), AnalyticsRows.create(compiledViewDef));
   }
 
+  private AnalyticsViewport getViewport(String viewportId) {
+    AnalyticsViewport viewport = _viewports.get(viewportId);
+    if (viewport == null) {
+      throw new DataNotFoundException("No viewport found with ID " + viewportId);
+    }
+    return viewport;
+  }
+
   /* package */ void updateResults(ViewComputationResultModel fullResult) {
+    _latestResults = fullResult;
     _history.addResults(fullResult);
     for (AnalyticsViewport viewport : _viewports.values()) {
       viewport.updateResults(fullResult, _history);
     }
   }
 
-  // -------- main grid --------
-
   /* package */ void updateStructure(CompiledViewDefinition compiledViewDef) {
     throw new UnsupportedOperationException("updateStructure not implemented");
-
   }
   /* package */ AnalyticsGridStructure getGridStructure() {
-    throw new UnsupportedOperationException("getGridStructure() not implemented");
+    return new AnalyticsGridStructure(_rows, _cols);
   }
 
-  /* package */ String createViewport(ViewportRequest request) {
-    throw new UnsupportedOperationException("createViewport not implemented");
+  /* package */ String createViewport(ViewportRequest viewportRequest) {
+    String viewportId = Integer.toString(nextViewportId++);
+    _viewports.put(viewportId, new AnalyticsViewport(viewportRequest, _history, _latestResults));
+    return viewportId;
   }
 
-  /* package */ void updateViewport(String viewportId, ViewportRequest request) {
-    throw new UnsupportedOperationException("updateViewport not implemented");
-
+  /* package */ void updateViewport(String viewportId, ViewportRequest viewportRequest) {
+    getViewport(viewportId).update(viewportRequest);
   }
 
   /* package */ void deleteViewport(String viewportId) {
-    throw new UnsupportedOperationException("deleteViewport not implemented");
-
+    AnalyticsViewport viewport = _viewports.remove(viewportId);
+    if (viewport == null) {
+      throw new DataNotFoundException("No viewport found with ID " + viewportId);
+    }
   }
 
   /* package */ AnalyticsResults getData(String viewportId) {
-
-    throw new UnsupportedOperationException("getData not implemented");
-  }
-
-  // -------- dependency graph grids --------
-
-  /* package */ String openDependencyGraph(int row, int col) {
-
-    throw new UnsupportedOperationException("openDependencyGraph not implemented");
-  }
-
-  /* package */ void closeDependencyGraph(String graphId) {
-    throw new UnsupportedOperationException("closeDependencyGraph not implemented");
-  }
-
-  /* package */ AnalyticsGridStructure getGridStructure(String dependencyGraphId) {
-
-    throw new UnsupportedOperationException("getGridStructure not implemented");
-  }
-
-  /* package */ String createViewport(String dependencyGraphId, ViewportRequest request) {
-
-    throw new UnsupportedOperationException("createViewport not implemented");
-  }
-
-  /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportRequest request) {
-    throw new UnsupportedOperationException("updateViewport not implemented");
-  }
-
-  /* package */ void deleteViewport(String dependencyGraphId, String viewportId) {
-    throw new UnsupportedOperationException("deleteViewport not implemented");
-  }
-
-  /* package */ AnalyticsResults getData(String dependencyGraphId, String viewportId) {
-
-    throw new UnsupportedOperationException("getData not implemented");
+    return getViewport(viewportId).getData();
   }
 }

@@ -9,12 +9,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.DataNotFoundException;
 
 /**
  *
  */
 public class AnalyticsViewManager {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewManager.class);
 
   private final Map<String, AnalyticsView> _views = new ConcurrentHashMap<String, AnalyticsView>();
   private final AtomicLong _nextViewId = new AtomicLong(0);
@@ -23,6 +28,7 @@ public class AnalyticsViewManager {
     long viewId = _nextViewId.getAndIncrement();
     String viewIdStr = Long.toString(viewId);
     _views.put(viewIdStr, new SimpleAnalyticsView(request));
+    s_logger.debug("Created new view with ID {}", viewId);
     return viewIdStr;
   }
 

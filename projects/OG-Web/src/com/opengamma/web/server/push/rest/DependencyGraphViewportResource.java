@@ -29,8 +29,8 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public void delete(String viewportId) {
-    _view.deleteViewport(_gridType, _graphId, viewportId);
+  public void delete() {
+    _view.deleteViewport(_gridType, _graphId, _viewportId);
   }
 
   @Override

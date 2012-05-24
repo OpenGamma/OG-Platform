@@ -6,7 +6,6 @@
 package com.opengamma.web.server.push.rest;
 
 import javax.ws.rs.DELETE;
-import javax.ws.rs.PathParam;
 
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
