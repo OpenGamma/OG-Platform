@@ -10,13 +10,19 @@ package com.opengamma.web.server.push.analytics;
  */
 public class DependencyGraphRequest {
 
+  private final int _row;
+  private final int _column;
+
+  public DependencyGraphRequest(int row, int column) {
+    _row = row;
+    _column = column;
+  }
+
   public int getRow() {
-    // TODO implement DependencyGraphRequest.getRow()
-    throw new UnsupportedOperationException("getRow not implemented");
+    return _row;
   }
 
   public int getColumn() {
-    // TODO implement DependencyGraphRequest.getColumn()
-    throw new UnsupportedOperationException("getColumn not implemented");
+    return _column;
   }
 }

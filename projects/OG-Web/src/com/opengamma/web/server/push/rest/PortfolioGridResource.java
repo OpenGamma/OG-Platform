@@ -41,7 +41,7 @@ public class PortfolioGridResource extends AbstractGridResource implements Depen
   @Override
   public Response openDependencyGraph(UriInfo uriInfo, DependencyGraphRequest request) {
     String graphId = _view.openPortfolioDependencyGraph(request.getRow(), request.getColumn());
-    return RestUtils.createdResponse(uriInfo, graphId);
+    return createdResponse(uriInfo, graphId);
   }
 
   @Override

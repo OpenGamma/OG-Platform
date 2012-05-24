@@ -41,7 +41,7 @@ public class PrimitivesGridResource extends AbstractGridResource implements Depe
   @Override
   public Response openDependencyGraph(UriInfo uriInfo, DependencyGraphRequest request) {
     String graphId = _view.openPrimitivesDependencyGraph(request.getRow(), request.getColumn());
-    return RestUtils.createdResponse(uriInfo, graphId);
+    return createdResponse(uriInfo, graphId);
   }
 
   @Override

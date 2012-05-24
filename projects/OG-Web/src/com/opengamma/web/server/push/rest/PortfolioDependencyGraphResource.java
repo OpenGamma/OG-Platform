@@ -7,7 +7,6 @@ package com.opengamma.web.server.push.rest;
 
 import javax.ws.rs.PathParam;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.ViewportRequest;
@@ -15,14 +14,10 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
 /**
  *
  */
-public class PortfolioDependencyGraphResource extends AbstractGridResource {
-
-  private final String _graphId;
+public class PortfolioDependencyGraphResource extends DependencyGraphResource {
 
   public PortfolioDependencyGraphResource(AnalyticsView view, String graphId) {
-    super(view);
-    ArgumentChecker.notNull(graphId, "graphId");
-    _graphId = graphId;
+    super(view, graphId);
   }
 
   @Override
@@ -38,5 +33,10 @@ public class PortfolioDependencyGraphResource extends AbstractGridResource {
   @Override
   public AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId) {
     return new PortfolioDependencyGraphViewportResource(_view, _graphId, viewportId);
+  }
+
+  @Override
+  public void close() {
+    _view.closePortfolioDependencyGraph(_graphId);
   }
 }

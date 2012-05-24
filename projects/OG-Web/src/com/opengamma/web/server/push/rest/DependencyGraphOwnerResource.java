@@ -28,6 +28,7 @@ public interface DependencyGraphOwnerResource {
   @Path("depgraphs/{graphId}")
   public AbstractGridResource getDependencyGraph(@PathParam("graphId") String graphId);
 
+  // TODO this won't work. need to return a DependencyGraphGridResource from getDependencyGraph and have a @DELETE method on that
   @DELETE
   @Path("depgraphs/{graphId}")
   public void closeDependencyGraph(@PathParam("graphId") String graphId);

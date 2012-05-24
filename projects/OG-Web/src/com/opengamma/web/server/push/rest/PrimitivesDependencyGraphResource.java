@@ -15,14 +15,10 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
 /**
  *
  */
-public class PrimitivesDependencyGraphResource extends AbstractGridResource {
-
-  private final String _graphId;
+public class PrimitivesDependencyGraphResource extends DependencyGraphResource {
 
   public PrimitivesDependencyGraphResource(AnalyticsView view, String graphId) {
-    super(view);
-    ArgumentChecker.notNull(graphId, "graphId");
-    _graphId = graphId;
+    super(view, graphId);
   }
 
   @Override
@@ -38,5 +34,10 @@ public class PrimitivesDependencyGraphResource extends AbstractGridResource {
   @Override
   public AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId) {
     return new PrimitivesDependencyGraphViewportResource(_view, _graphId, viewportId);
+  }
+
+  @Override
+  public void close() {
+    _view.closePrimitivesDependencyGraph(_graphId);
   }
 }
