@@ -5,10 +5,13 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 
 /**
  *
@@ -16,9 +19,12 @@ import com.opengamma.web.server.push.analytics.AnalyticsView;
 public class ViewResource {
 
   private final AnalyticsView _view;
+  private final AnalyticsViewManager _viewManager;
 
-  public ViewResource(AnalyticsView view) {
+  public ViewResource(AnalyticsView view, AnalyticsViewManager viewManager) {
+    ArgumentChecker.notNull(viewManager, "viewManager");
     ArgumentChecker.notNull(view, "view");
+    _viewManager = viewManager;
     _view = view;
   }
 
@@ -30,5 +36,10 @@ public class ViewResource {
   @Path("primitives")
   public PrimitivesGridResource getPrimitivesGrid() {
     return new PrimitivesGridResource(_view);
+  }
+
+  @DELETE
+  public void deleteView(@PathParam("viewId") String viewId) {
+    _viewManager.deleteView(viewId);
   }
 }

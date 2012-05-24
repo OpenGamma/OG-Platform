@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.reports;
 
 /**
  * Contains the raw data for a portfolio or primitives grid.
+ * @deprecated Reports are being redesigned
  */
 public class GridData {
 

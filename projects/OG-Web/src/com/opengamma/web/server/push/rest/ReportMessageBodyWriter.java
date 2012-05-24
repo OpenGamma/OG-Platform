@@ -23,6 +23,7 @@ import com.opengamma.web.server.push.reports.Report;
 
 /**
  * Writes {@link Report} instance into the body of an HTTP reponse.
+ * @deprecated reports are going to be redesigned
  */
 @Provider
 public class ReportMessageBodyWriter implements MessageBodyWriter<Report> {

@@ -16,7 +16,6 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -26,28 +25,33 @@ import com.opengamma.web.server.PortfolioRow;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * Represents a portfolio grid TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * Represents a portfolio grid
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * @deprecated This class isn't needed for the new analytics web UI
  */
-/* package */class PushWebViewPortfolioGrid extends PushRequirementBasedWebViewGrid {
-
+/* package */ class PushWebViewPortfolioGrid extends PushRequirementBasedWebViewGrid {
+  
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 
-  public PushWebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
-      ComputationTargetResolver computationTargetResolver) {
-    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, computationTargetResolver);
+  public PushWebViewPortfolioGrid(ViewClient viewClient,
+                                  CompiledViewDefinition compiledViewDefinition,
+                                  ResultConverterCache resultConverterCache) {
+    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache);
   }
 
-  private PushWebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<PortfolioRow> rows, ResultConverterCache resultConverterCache,
-      ComputationTargetResolver computationTargetResolver) {
+  private PushWebViewPortfolioGrid(ViewClient viewClient,
+                                   CompiledViewDefinition compiledViewDefinition,
+                                   List<PortfolioRow> rows,
+                                   ResultConverterCache resultConverterCache) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...", computationTargetResolver);
+        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...");
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget());
       _rowIdToRowMap.put(rowId, row);
     }
   }
-
+  
   @Override
   protected void addRowDetails(UniqueId target, int rowId, Map<String, Object> details) {
     PortfolioRow row = _rowIdToRowMap.get(rowId);
@@ -81,7 +85,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return targets;
   }
-
+  
   private static List<PortfolioRow> flattenPortfolio(final Portfolio portfolio) {
     List<PortfolioRow> rows = new ArrayList<PortfolioRow>();
     if (portfolio == null) {
@@ -90,13 +94,13 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     flattenPortfolio(portfolio.getRootNode(), null, 0, portfolio.getName(), rows);
     return rows;
   }
-
+    
   private static void flattenPortfolio(final PortfolioNode portfolio, final PortfolioRow parentRow, final int depth,
       final String nodeName, final List<PortfolioRow> rows) {
     PortfolioRow aggregateRow = new PortfolioRow(depth, parentRow,
         new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, portfolio.getUniqueId()), null, nodeName);
     rows.add(aggregateRow);
-
+    
     for (Position position : portfolio.getPositions()) {
       PortfolioRow portfolioRow = new PortfolioRow(depth + 1, aggregateRow,
           new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId()), position, null);
@@ -109,9 +113,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
       }
     }
   }
-
+  
   //-------------------------------------------------------------------------
-
+  
   @Override
   protected int getAdditionalCsvColumnCount() {
     return 3;

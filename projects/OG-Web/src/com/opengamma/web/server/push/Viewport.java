@@ -11,6 +11,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
 
 /**
  * A view onto a subset of the analytics data from a view client.
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 public interface Viewport {
 

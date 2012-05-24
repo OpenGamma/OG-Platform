@@ -44,14 +44,7 @@ public class ViewsResource {
   }
 
   @Path("{viewId}")
-  @DELETE
-  public Response deleteView(@PathParam("viewId") String viewId) {
-    _viewManager.deleteView(viewId);
-    return Response.status(Response.Status.NO_CONTENT).build();
-  }
-
-  @Path("{viewId}")
   public ViewResource getView(@PathParam("viewId") String viewId) {
-    return new ViewResource(_viewManager.getView(viewId));
+    return new ViewResource(_viewManager.getView(viewId), _viewManager);
   }
 }
