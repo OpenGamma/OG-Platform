@@ -121,7 +121,21 @@ $.register_module({
                     // implement drag
                     $tabs.each(function (i) {
                         $(this).draggable({
-                            revert: 'invalid', cursor: 'move', zIndex: 3,
+                            revert: function (dropped) {
+                                var prefix = 'gadget.ftl#/', url,
+                                    index = get_index(extract_id($(this).attr('class'))),
+                                    id = gadgets[index].config.options.id,
+                                    type = gadgets[index].type;
+                                switch (type) {
+                                    case 'timeseries': url = prefix + type + '/id=' + id; break;
+                                    case 'grid': url = prefix + type + '/' + id; break;
+                                }
+                                if (!dropped) {
+                                    window.open(url);
+                                    setTimeout(container.del.partial(gadgets[i]));
+                                }
+                            },
+                            cursor: 'move', zIndex: 3,
                             iframeFix: true, appendTo: 'body', distance: 20,
                             helper: function() {return dropbox_template({label: $(this).text().trim()});}
                         }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
@@ -153,7 +167,14 @@ $.register_module({
                     layout.state[pane].size === min
                         ? maximize()
                         : open_only ? null : minimize();
-                };
+                    },
+                    toggle_dropbox = function () {
+                        if ($('.og-drop').length) { //overlay exists
+                            $('.OG-dropbox span').removeClass('og-icon-new-window').addClass('og-icon-drop');
+                        } else {
+                            $('.OG-dropbox span').removeClass('og-icon-drop').addClass('og-icon-new-window');
+                        }
+                    };
                 loading = true;
                 $.when(
                     api.text({module: 'og.analytics.tabs_tash'}),
@@ -194,8 +215,10 @@ $.register_module({
                                 };
                             return $(draggable).is('li[class^=og-tab-]') // is it a tab...
                                 && !has_ancestor(draggable, pane_class) // that isnt a child of the active pane...
-                                && !has_ancestor(draggable, overflow_class); // or a child of active overflow panel
+                                && !has_ancestor(draggable, overflow_class);
                         },
+                        over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
+                        out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
                             var data = ui.draggable.data(), gadget = data.gadget.config.options;
                             gadget.selector = gadget.selector.replace(/analytics\-(.*?)\s/, 'analytics-' + pane + ' ');
@@ -221,16 +244,15 @@ $.register_module({
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 new_gadgets = arr.map(function (obj) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
-                        gadget_selector = panel_container + ' .' + gadget_class;
+                        gadget_selector = panel_container + ' .' + gadget_class,
+                        options = $.extend(true, obj.options || {}, {selector: gadget_selector}),
+                        constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
+                        type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container)
                         .append('<div class="' + gadget_class + '" />')
                         .find('.' + gadget_class)
                         .css({height: '100%', margin: obj.margin ? 10 : 0});
-                    gadgets.push(gadget = {
-                        id: id,
-                        config: obj,
-                        gadget: new obj.gadget($.extend(true, obj.options, {selector: gadget_selector}))
-                    });
+                    gadgets.push(gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);

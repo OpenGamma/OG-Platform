@@ -71,6 +71,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>

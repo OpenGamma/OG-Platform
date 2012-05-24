@@ -37,3 +37,8 @@
     left: 3px;
     top: 2px;
 }
+
+.OG-dropbox .og-icon-new-window:after {
+    left: 2px;
+    top: 2px;
+}
