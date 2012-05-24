@@ -29,13 +29,13 @@ public class ViewResource {
   }
 
   @Path("portfolio")
-  public PortfolioGridResource getPortfolioGrid() {
-    return new PortfolioGridResource(_view);
+  public MainGridResource getPortfolioGrid() {
+    return new MainGridResource(AnalyticsView.GridType.PORTFORLIO, _view);
   }
 
   @Path("primitives")
-  public PrimitivesGridResource getPrimitivesGrid() {
-    return new PrimitivesGridResource(_view);
+  public MainGridResource getPrimitivesGrid() {
+    return new MainGridResource(AnalyticsView.GridType.PRIMITIVES, _view);
   }
 
   @DELETE

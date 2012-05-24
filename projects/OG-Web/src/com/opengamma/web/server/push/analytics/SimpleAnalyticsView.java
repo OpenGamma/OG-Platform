@@ -41,123 +41,75 @@ import com.opengamma.util.ArgumentChecker;
     // TODO notify listener
   }
 
-  @Override
-  public AnalyticsGridStructure getPortfolioGridStructure() {
-    return _portfolioGrid.getGridStructure();
+  private AnalyticsGrid getGrid(GridType gridType) {
+    switch (gridType) {
+      case PORTFORLIO:
+        return _portfolioGrid;
+      case PRIMITIVES:
+        return _primitivesGrid;
+      default:
+        throw new IllegalArgumentException("Unexpected grid type " + gridType);
+    }
   }
 
   @Override
-  public String createPortfolioViewport(ViewportRequest request) {
-    return _portfolioGrid.createViewport(request);
+  public AnalyticsGridStructure getGridStructure(GridType gridType) {
+    return getGrid(gridType).getGridStructure();
   }
 
   @Override
-  public void updatePortfolioViewport(String viewportId, ViewportRequest request) {
-    _portfolioGrid.updateViewport(viewportId, request);
+  public String createViewport(GridType gridType, ViewportRequest request) {
+    return getGrid(gridType).createViewport(request);
   }
 
   @Override
-  public void deletePortfolioViewport(String viewportId) {
-    _portfolioGrid.deleteViewport(viewportId);
+  public void updateViewport(GridType gridType, String viewportId, ViewportRequest viewportRequest) {
+    getGrid(gridType).updateViewport(viewportId, viewportRequest);
   }
 
   @Override
-  public AnalyticsResults getPortfolioData(String viewportId) {
-    return _portfolioGrid.getData(viewportId);
+  public void deleteViewport(GridType gridType, String viewportId) {
+    getGrid(gridType).deleteViewport(viewportId);
   }
 
   @Override
-  public String openPortfolioDependencyGraph(int row, int col) {
-    return _portfolioGrid.openDependencyGraph(row, col);
+  public AnalyticsResults getData(GridType gridType, String viewportId) {
+    return getGrid(gridType).getData(viewportId);
   }
 
   @Override
-  public void closePortfolioDependencyGraph(String dependencyGraphId) {
-    _portfolioGrid.closeDependencyGraph(dependencyGraphId);
+  public String openDependencyGraph(GridType gridType, int row, int col) {
+    return getGrid(gridType).openDependencyGraph(row, col);
   }
 
   @Override
-  public AnalyticsGridStructure getPortfolioGridStructure(String dependencyGraphId) {
-    return _portfolioGrid.getGridStructure(dependencyGraphId);
+  public void closeDependencyGraph(GridType gridType, String dependencyGraphId) {
+    getGrid(gridType).closeDependencyGraph(dependencyGraphId);
   }
 
   @Override
-  public String createPortfolioViewport(String dependencyGraphId, ViewportRequest request) {
-    return _portfolioGrid.createViewport(dependencyGraphId, request);
+  public AnalyticsGridStructure getGridStructure(GridType gridType, String dependencyGraphId) {
+    return getGrid(gridType).getGridStructure(dependencyGraphId);
   }
 
   @Override
-  public void updatePortfolioViewport(String dependencyGraphId, String viewportId, ViewportRequest request) {
-    _portfolioGrid.updateViewport(dependencyGraphId, viewportId, request);
+  public String createViewport(GridType gridType, String dependencyGraphId, ViewportRequest request) {
+    return getGrid(gridType).createViewport(dependencyGraphId, request);
   }
 
   @Override
-  public void deletePortfolioViewport(String dependencyGraphId, String viewportId) {
-    _portfolioGrid.deleteViewport(dependencyGraphId, viewportId);
+  public void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportRequest viewportRequest) {
+    getGrid(gridType).updateViewport(dependencyGraphId, viewportId, viewportRequest);
   }
 
   @Override
-  public AnalyticsResults getPortfolioData(String dependencyGraphId, String viewportId) {
-    return _portfolioGrid.getData(dependencyGraphId, viewportId);
+  public void deleteViewport(GridType gridType, String dependencyGraphId, String viewportId) {
+    getGrid(gridType).deleteViewport(dependencyGraphId, viewportId);
   }
 
   @Override
-  public AnalyticsGridStructure getPrimitivesGridStructure() {
-    return _primitivesGrid.getGridStructure();
+  public AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId) {
+    return getGrid(gridType).getData(dependencyGraphId, viewportId);
   }
 
-  @Override
-  public String createPrimitivesViewport(ViewportRequest request) {
-    return _primitivesGrid.createViewport(request);
-  }
-
-  @Override
-  public void updatePrimitivesViewport(String viewportId, ViewportRequest request) {
-    _primitivesGrid.updateViewport(viewportId, request);
-  }
-
-  @Override
-  public void deletePrimitivesViewport(String viewportId) {
-    _primitivesGrid.deleteViewport(viewportId);
-  }
-
-  @Override
-  public AnalyticsResults getPrimitivesData(String viewportId) {
-    return _primitivesGrid.getData(viewportId);
-  }
-
-  @Override
-  public AnalyticsGridStructure getPrimitivesGridStructure(String dependencyGraphId) {
-    return _primitivesGrid.getGridStructure(dependencyGraphId);
-  }
-
-  @Override
-  public String openPrimitivesDependencyGraph(int row, int col) {
-    return _primitivesGrid.openDependencyGraph(row, col);
-  }
-
-  @Override
-  public void closePrimitivesDependencyGraph(String dependencyGraphId) {
-    _primitivesGrid.closeDependencyGraph(dependencyGraphId);
-  }
-
-  @Override
-  public String createPrimitivesViewport(String dependencyGraphId, ViewportRequest request) {
-    return _primitivesGrid.createViewport(dependencyGraphId, request);
-  }
-
-  @Override
-  public void updatePrimitivesViewport(String dependencyGraphId, String viewportId, ViewportRequest request) {
-    _primitivesGrid.updateViewport(dependencyGraphId, viewportId, request);
-  }
-
-  @Override
-  public void deletePrimitivesViewport(String dependencyGraphId, String viewportId) {
-    _primitivesGrid.deleteViewport(dependencyGraphId, viewportId);
-  }
-
-  @Override
-  public AnalyticsResults getPrimitivesData(String dependencyGraphId, String viewportId) {
-    return _primitivesGrid.getData(dependencyGraphId, viewportId);
-  }
 }

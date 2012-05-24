@@ -13,6 +13,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 public interface AnalyticsView {
 
+  public enum GridType {
+    PORTFORLIO,
+    PRIMITIVES
+  }
+  
   void close();
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
@@ -21,57 +26,29 @@ public interface AnalyticsView {
 
   // -------- portfolio grid --------
 
-  AnalyticsGridStructure getPortfolioGridStructure();
+  AnalyticsGridStructure getGridStructure(GridType gridType);
 
-  String createPortfolioViewport(ViewportRequest request);
+  String createViewport(GridType gridType, ViewportRequest request);
 
-  void updatePortfolioViewport(String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String viewportId, ViewportRequest request);
 
-  void deletePortfolioViewport(String viewportId);
+  void deleteViewport(GridType gridType, String viewportId);
 
-  AnalyticsResults getPortfolioData(String viewportId);
+  AnalyticsResults getData(GridType gridType, String viewportId);
 
   // -------- portfolio dependency graph grids --------
 
-  String openPortfolioDependencyGraph(int row, int col);
+  String openDependencyGraph(GridType gridType, int row, int col);
 
-  void closePortfolioDependencyGraph(String dependencyGraphId);
+  void closeDependencyGraph(GridType gridType, String dependencyGraphId);
 
-  AnalyticsGridStructure getPortfolioGridStructure(String dependencyGraphId);
+  AnalyticsGridStructure getGridStructure(GridType gridType, String dependencyGraphId);
 
-  String createPortfolioViewport(String dependencyGraphId, ViewportRequest request);
+  String createViewport(GridType gridType, String dependencyGraphId, ViewportRequest request);
 
-  void updatePortfolioViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportRequest request);
 
-  void deletePortfolioViewport(String dependencyGraphId, String viewportId);
+  void deleteViewport(GridType gridType, String dependencyGraphId, String viewportId);
 
-  AnalyticsResults getPortfolioData(String dependencyGraphId, String viewportId);
-
-  // -------- primitives grid --------
-
-  AnalyticsGridStructure getPrimitivesGridStructure();
-
-  String createPrimitivesViewport(ViewportRequest request);
-
-  void updatePrimitivesViewport(String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String viewportId);
-
-  AnalyticsResults getPrimitivesData(String viewportId);
-
-  // -------- primitives dependency graph grids --------
-
-  AnalyticsGridStructure getPrimitivesGridStructure(String dependencyGraphId);
-
-  String openPrimitivesDependencyGraph(int row, int col);
-
-  void closePrimitivesDependencyGraph(String dependencyGraphId);
-
-  String createPrimitivesViewport(String dependencyGraphId, ViewportRequest request);
-
-  void updatePrimitivesViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String dependencyGraphId, String viewportId);
-
-  AnalyticsResults getPrimitivesData(String dependencyGraphId, String viewportId);
+  AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId);
 }

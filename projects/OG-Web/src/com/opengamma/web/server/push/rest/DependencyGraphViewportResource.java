@@ -13,28 +13,28 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
 /**
  *
  */
-public class PortfolioDependencyGraphViewportResource extends AbstractViewportResource {
+public class DependencyGraphViewportResource extends AbstractViewportResource {
 
   private final String _graphId;
 
-  public PortfolioDependencyGraphViewportResource(AnalyticsView view, String graphId, String viewportId) {
-    super(view, viewportId);
+  public DependencyGraphViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId, String viewportId) {
+    super(gridType,  view, viewportId);
     ArgumentChecker.notNull(graphId, "graphId");
     _graphId = graphId;
   }
 
   @Override
   public void update(ViewportRequest viewportRequest) {
-    _view.updatePortfolioViewport(_graphId, _viewportId, viewportRequest);
+    _view.updateViewport(_gridType, _graphId, _viewportId, viewportRequest);
   }
 
   @Override
   public void delete(String viewportId) {
-    _view.deletePortfolioViewport(_graphId, viewportId);
+    _view.deleteViewport(_gridType, _graphId, viewportId);
   }
 
   @Override
   public AnalyticsResults getData() {
-    return _view.getPortfolioData(_graphId, _viewportId);
+    return _view.getData(_gridType, _graphId, _viewportId);
   }
 }

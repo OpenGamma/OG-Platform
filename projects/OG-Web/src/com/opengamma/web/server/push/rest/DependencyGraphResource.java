@@ -7,9 +7,6 @@ package com.opengamma.web.server.push.rest;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
@@ -18,19 +15,37 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
 /**
  *
  */
-public abstract class DependencyGraphResource extends AbstractGridResource {
+public class DependencyGraphResource extends AbstractGridResource {
 
-  protected final String _graphId;
+  private final String _graphId;
 
   /**
+   * @param gridType
    * @param view The view whose data the grid displays.
    * @param graphId The ID of the dependency graph
    */
-  public DependencyGraphResource(AnalyticsView view, String graphId) {
-    super(view);
+  public DependencyGraphResource(AnalyticsView.GridType gridType, AnalyticsView view, String graphId) {
+    super(gridType, view);
     _graphId = graphId;
   }
 
+  @Override
+  public AnalyticsGridStructure getGridStructure() {
+    return _view.getGridStructure(_gridType, _graphId);
+  }
+
+  @Override
+  public String createViewport(ViewportRequest viewportRequest) {
+    return _view.createViewport(_gridType, _graphId, viewportRequest);
+  }
+
+  @Override
+  public AbstractViewportResource getViewport(String viewportId) {
+    return new DependencyGraphViewportResource(_gridType, _view, _graphId, viewportId);
+  }
+
   @DELETE
-  public abstract void close();
+  public void close() {
+    _view.closeDependencyGraph(_gridType, _graphId);
+  }
 }

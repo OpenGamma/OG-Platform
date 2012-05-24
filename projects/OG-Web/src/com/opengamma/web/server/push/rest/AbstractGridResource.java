@@ -32,11 +32,16 @@ public abstract class AbstractGridResource {
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
 
+  protected final AnalyticsView.GridType _gridType;
+
   /**
+   * @param gridType The type of grid
    * @param view The view whose data the grid displays.
-  */
-  public AbstractGridResource(AnalyticsView view) {
+   */
+  public AbstractGridResource(AnalyticsView.GridType gridType, AnalyticsView view) {
+    ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
+    _gridType = gridType;
     _view = view;
   }
 
