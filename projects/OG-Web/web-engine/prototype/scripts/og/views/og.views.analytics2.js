@@ -9,9 +9,7 @@ $.register_module({
         var api = og.api.rest, routes = og.common.routes, module = this, view,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            GadgetsContainer = og.common.gadgets.GadgetsContainer,
-            count = 0, counter = function () {return ('100' + count++);},
-            gc_south, gc_r_north, gc_r_center, gc_r_south;
+            GadgetsContainer = og.common.gadgets.GadgetsContainer;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -21,35 +19,50 @@ $.register_module({
                     $('.OG-layout-analytics-center').html(template({}));
                 });
             },
-            load: function (args) {
-                var timeseries_obj = function () {
-                    var num = counter();
-                    return {
-                        gadget: 'og.common.gadgets.timeseries',
-                        options: {id: 'DbHts~' + num, datapoints_link: false, child: true},
-                        name: 'Timeseries ' + num + ' long name etc, etc...',
-                        margin: true
-                    }
-                };
-                gc_south = (new GadgetsContainer('.OG-layout-analytics-south')).add([
-                    timeseries_obj(), {gadget: 'og.analytics.Grid', name: 'grid down south', options: {}}
-                ]);
-                gc_r_north = (new GadgetsContainer('.OG-layout-analytics-dock-north')).add([timeseries_obj()]);
-                gc_r_center = (new GadgetsContainer('.OG-layout-analytics-dock-center')).add([
-                    timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(), timeseries_obj(),
-                    timeseries_obj(), timeseries_obj(), timeseries_obj()
-                ]);
-                gc_r_south = (new GadgetsContainer('.OG-layout-analytics-dock-south').init());
-                if (!args.id) view.default_details();
-            },
+            load: function (args) {if (!args.id) view.default_details();},
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
+                var convert_args = function (str) {
+                        if (!str) return;
+                        return str.split(';').reduce(function (acc, val) {
+                            var data = val.split(':');
+                            acc[data[0]] = data[1].split(',');
+                            return acc;
+                        }, {});
+                    },
+                    init_panel = function (name, obj) {
+                        var selector = '.OG-layout-analytics-' + name, type, gadgets = [], options = {};
+                        options.t = function (id) {
+                            return {
+                                gadget: 'og.common.gadgets.timeseries',
+                                options: {id: id, datapoints_link: false, child: true},
+                                name: 'Timeseries ' + id,
+                                margin: true
+                            }
+                        };
+                        options.g = function (id) {
+                            return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
+                        };
+                        if (!obj) return new GadgetsContainer(selector).init();
+                        else {
+                            for (type in obj) {
+                                obj[type].forEach(function (val) {
+                                    gadgets.push(options[type](val));
+                                });
+                            }
+                            new GadgetsContainer(selector).add(gadgets);
+                        }
+                    };
                 new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
+                init_panel('south', convert_args(args[1]));
+                init_panel('dock-north', convert_args(args[2]));
+                init_panel('dock-center', convert_args(args[3]));
+                init_panel('dock-south', convert_args(args[4]));
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
                 load: {route: '/', method: module.name + '.load'},
-                load_item: {route: '/:id', method: module.name + '.load_item'}
+                load_item: {route: '/:id/1:?/2:?/3:?/4:?', method: module.name + '.load_item'}
             }
         };
     }
