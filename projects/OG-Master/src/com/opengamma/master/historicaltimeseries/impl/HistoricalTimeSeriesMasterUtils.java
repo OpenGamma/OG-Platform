@@ -26,13 +26,13 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * Provides functionality to ensure that a time-series is present in a historical time-series master while avoiding
  * duplicates.
  */
-public class HistoricalTimeSeriesWriter {
+public class HistoricalTimeSeriesMasterUtils {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesMasterUtils.class);
   
   private final HistoricalTimeSeriesMaster _htsMaster;
   
-  public HistoricalTimeSeriesWriter(HistoricalTimeSeriesMaster htsMaster) {
+  public HistoricalTimeSeriesMasterUtils(HistoricalTimeSeriesMaster htsMaster) {
     _htsMaster = htsMaster;
   }
 
@@ -73,6 +73,36 @@ public class HistoricalTimeSeriesWriter {
     }
     
     return uId;
+  }
+  
+  /**
+   * Updates an existing time-series in the master.
+   * @param uid  the unique identifier of the time-series to be updated, not null
+   * @param timeSeries  the time-series, not null
+   * @return the unique identifier of the time-series
+   */
+  public UniqueId writeTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeSeries) {
+    
+    ManageableHistoricalTimeSeries existingManageableTs = _htsMaster.getTimeSeries(uniqueId);
+    LocalDateDoubleTimeSeries existingTs = existingManageableTs.getTimeSeries();
+   
+    // There is a matching time-series already in the master so update it to reflect the new time-series
+    // 1: 'correct' any differences in the subseries already present
+    LocalDateDoubleTimeSeries tsIntersection = timeSeries.subSeries(existingTs.getEarliestTime(), true, existingTs.getLatestTime(), true);
+    if (!tsIntersection.equals(existingTs)) {
+      s_logger.info("Correcting time series " + uniqueId + " from " + existingTs.getEarliestTime() + " to " + existingTs.getLatestTime());
+      uniqueId = _htsMaster.correctTimeSeriesDataPoints(uniqueId.getObjectId(), tsIntersection);
+    }
+    // 2: 'update' the time-series to add any new, later points
+    if (existingTs.getLatestTime().isBefore(timeSeries.getLatestTime())) {
+      LocalDateDoubleTimeSeries newSeries = timeSeries.subSeries(existingTs.getLatestTime(), false, timeSeries.getLatestTime(), true);
+      if (newSeries.size() > 0) {
+        s_logger.info("Updating time series " + uniqueId + " from " + newSeries.getEarliestTime() + " to " + newSeries.getLatestTime());
+        uniqueId = _htsMaster.updateTimeSeriesDataPoints(uniqueId, newSeries);
+      }
+    }
+    
+    return uniqueId;
   }
   
   //-------------------------------------------------------------------------

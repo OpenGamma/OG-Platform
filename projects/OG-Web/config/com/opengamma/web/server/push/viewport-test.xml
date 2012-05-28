@@ -16,11 +16,11 @@
         <constructor-arg><map/></constructor-arg>
       </bean>
     </constructor-arg>
-    <constructor-arg index="2" ref="viewportFactory"/>
+    <constructor-arg index="2" ref="viewportManager"/>
     <constructor-arg index="3" ref="longPollingConnectionManager"/>
   </bean>
 
-  <bean id="viewportFactory" class="com.opengamma.web.server.push.TestViewportManager"/>
+  <bean id="viewportManager" class="com.opengamma.web.server.push.TestViewportManager"/>
 
   <bean id="viewportsResource" class="com.opengamma.web.server.push.rest.ViewportsResource">
     <constructor-arg index="0" ref="updateManager"/>

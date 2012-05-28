@@ -81,6 +81,8 @@
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
+    @AND(:sql_search_object_ids)
+      oid IN ( @INCLUDE(:sql_search_object_ids) )
 
 
 -- ==========================================================================

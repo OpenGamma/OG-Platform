@@ -278,8 +278,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
 
         Object[] expiries = getExpirySet(atInstant.toLocalDate()).toArray();
         Object[] strikes = getStrikes(underlyingSpot, 0.6, 5);
-        for (final Object x : expiries) { // FIXME Was: _definition.getXs()
-          for (final Object y : strikes) { // FIXME Was: _definition.getYs()) {
+//        for (final Object x : expiries) { // FIXME Was: _definition.getXs()
+//          for (final Object y : strikes) { // FIXME Was: _definition.getYs()) {
+        for (final Object x : _definition.getXs()) { 
+          for (final Object y : _definition.getYs()) { 
             final double strike = (Double) y;
             final LocalDate expiry = (LocalDate) x;
             final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) _specification.getSurfaceInstrumentProvider();

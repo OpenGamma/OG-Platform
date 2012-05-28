@@ -11,7 +11,6 @@ import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -19,15 +18,10 @@ import com.opengamma.id.ExternalScheme;
 /**
  * Provides ExternalId's for IRFutureOptions used to build the Volatility Surface  
  */
-public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Number, Double> {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
   static { FORMATTER.setMinimumFractionDigits(3); }
-
-  private final String _futureOptionPrefix;
-  private final String _postfix;
-  private final String _dataFieldName; 
-  private final Double _useCallAboveStrike;
 
   /**
    * @param futureOptionPrefix the prefix to the resulting code
@@ -36,77 +30,28 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
    * @param useCallAboveStrike the strike above which to use calls rather than puts
    */
   public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike) {
-    Validate.notNull(futureOptionPrefix, "future option prefix");
-    Validate.notNull(postfix, "postfix");
-    Validate.notNull(dataFieldName, "data field name");
-    Validate.notNull(useCallAboveStrike, "use call above this strike");
-    _futureOptionPrefix = futureOptionPrefix;
-    _postfix = postfix;
-    _dataFieldName = dataFieldName;
-    _useCallAboveStrike = useCallAboveStrike;
-  }
-
-  @Override
-  public ExternalId getInstrument(final Number futureOptionNumber, final Double strike) {
-    throw new OpenGammaRuntimeException("Need a surface date to create an interest rate future option surface");
+    super(futureOptionPrefix, postfix, dataFieldName, useCallAboveStrike);
   }
 
   @Override
   /**
    * Provides ExternalID for Bloomberg ticker, eg EDZ3C  99.250 Comdty,
-   * given a reference date and an integer offset, the n'th subsequent future
-   * The format is _futurePrefix + month + year + _postfix
+   * given a reference date and an integer offset, the n'th subsequent option
+   * The format is futurePrefix + month + year + callPutFlag + strike + postfix
    * 
    * @param futureNumber n'th future following curve date
    * @param strike option's strike, expressed as price in %, e.g. 98.750
    * @param surfaceDate date of curve validity; valuation date
    */
   public ExternalId getInstrument(final Number futureOptionNumber, final Double strike, final LocalDate surfaceDate) {
+    Validate.notNull(futureOptionNumber, "futureOptionNumber");
     final StringBuffer ticker = new StringBuffer();
-    ticker.append(_futureOptionPrefix);
-    ticker.append(BloombergIRFutureUtils.getExpiryCodeForFutureOptions(_futureOptionPrefix, futureOptionNumber.intValue(), surfaceDate));
-    ticker.append(strike > _useCallAboveStrike ? "C " : "P ");
+    ticker.append(getFutureOptionPrefix());
+    ticker.append(BloombergIRFutureUtils.getExpiryCodeForFutureOptions(getFutureOptionPrefix(), futureOptionNumber.intValue(), surfaceDate));
+    ticker.append(strike > useCallAboveStrike() ? "C " : "P ");
     ticker.append(FORMATTER.format(strike));
     ticker.append(" ");
-    ticker.append(_postfix);
+    ticker.append(getPostfix());
     return ExternalId.of(SCHEME, ticker.toString());
-  }
-
-  public String getFutureOptionPrefix() {
-    return _futureOptionPrefix;
-  }
-
-  public String getPostfix() {
-    return _postfix;
-  }
-
-  @Override
-  public Double useCallAboveStrike() {
-    return _useCallAboveStrike;
-  }
-
-  @Override
-  public String getDataFieldName() {
-    return _dataFieldName;
-  }
-
-  @Override
-  public int hashCode() {
-    return getFutureOptionPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode() + useCallAboveStrike().hashCode();
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider)) {
-      return false;
-    }
-    final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider other = (BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) obj;
-    return getFutureOptionPrefix().equals(other.getFutureOptionPrefix()) &&
-        getPostfix().equals(other.getPostfix()) &&
-        useCallAboveStrike().equals(other.useCallAboveStrike()) &&
-        getDataFieldName().equals(other.getDataFieldName());
   }
 }

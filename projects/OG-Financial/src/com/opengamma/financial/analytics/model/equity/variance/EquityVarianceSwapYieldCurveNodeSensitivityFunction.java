@@ -11,6 +11,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -35,11 +36,11 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
   private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
 
   public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
     final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, market);
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(derivative.getCurrency()));
     if (curveSpecObject == null) {
@@ -47,7 +48,9 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final ValueSpecification resultSpec = getValueSpecification(target);
-    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(market.getDiscountCurve(), sensitivities, curveSpec, resultSpec);
+    YieldCurveBundle curveMap = new YieldCurveBundle();
+    curveMap.setCurve(getCurveDefinitionName(), market.getDiscountCurve());
+    return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(getCurveDefinitionName(), curveMap, sensitivities, curveSpec, resultSpec);
   }
 
   @Override

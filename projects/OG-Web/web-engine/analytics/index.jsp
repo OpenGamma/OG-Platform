@@ -408,8 +408,40 @@
         display: inline-block;
       }
       
+      #datesource {
+        display: inline-block;
+      }
+      
+      #versionDateTime {
+        display: none;      
+      }
+      
+      #dateInput {
+        width: 8em;
+      }
+      
+      #timeInput {
+        width: 6em;
+      }
+      
       .viewlabel {
         margin: 0 0.5em;
+      }
+      
+      .controltitle {
+        font-weight: bold;
+      }
+      
+      #snapshotversionscontrols p {
+        font-style: italic;
+      }
+      
+      .controlsection {
+        margin-top: 1em;
+      }
+      
+      .controlblock {
+        display: block;
       }
       
       .standard-entry {
@@ -445,6 +477,11 @@
       .ui-button .ui-button-text {
         display: inline;
       }
+
+      .ui-combobox {
+        position: relative;
+        display: inline-block;
+      }
       
       .ui-autocomplete {
         max-height: 200px;
@@ -456,7 +493,7 @@
         font-size: 1em;
         height: 16px;
         margin: 0;
-        padding: 0 0.2em;
+        padding: 0 0.3em;
       }
 
    </style>
@@ -466,6 +503,10 @@
     <div id="viewcontrols">
       <div id="viewselector">
         <div id="views"></div>
+        <div id="datesource">
+          <input id="datenow" type="radio" name="dateSource" value="now" checked="checked" /><label for="datenow">Now</label>
+          <input id="datecustom" type="radio" name="dateSource" value="custom" /><label for="datecustom">Custom...</label>
+        </div>
         <button id="changeView"></button>
         <div id="sparklines" class="imgbutton sparklines"></div>
       </div>
@@ -474,6 +515,24 @@
         <div id="resume" class="imgbutton resume"></div>
         <div id="pause" class="imgbutton pause"></div>
       </div>
+    </div>
+    <div id="versionDateTime" title="Use Custom Version">
+      <form>
+        <p>Modifies the <strong>version</strong> date and time used throughout the calculations.</p>
+        <p>This applies to the portfolio, position, securities, and any chosen market data snapshot.</p>
+        <div class="controlsection">
+          <p class="controltitle">Date and time of version to use</p>
+          <div class="controlblock">
+            <input id="dateInput" tabindex="-1"></input>
+            <input id="timeInput" tabindex="-1"></input>
+            <span id="dateSetButton"></span>
+          </div>
+        </div>
+        <div class="controlsection">
+          <p class="controltitle">Snapshot versions</p>
+          <div id="snapshotversionscontrols" class="controlblock"></div>
+        </div>
+      </form>
     </div>
 
     <div id="resultsViewer"></div>

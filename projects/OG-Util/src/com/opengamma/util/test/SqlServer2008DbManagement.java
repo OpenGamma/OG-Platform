@@ -6,6 +6,7 @@
 package com.opengamma.util.test;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -67,12 +68,18 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
     return _hibernateDialect;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Class<?> getJDBCDriverClass() {
+    try {
+      return (Class<? extends Driver>) Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Could not load the Microsoft JDBC driver: " + ex.getMessage());
+    }
     // Use the MS driver...
     // return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
     // ...or the open-source driver (LGPLed)
-    return net.sourceforge.jtds.jdbc.Driver.class;
+    // return net.sourceforge.jtds.jdbc.Driver.class;
   }
 
   @Override

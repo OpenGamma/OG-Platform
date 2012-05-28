@@ -35,7 +35,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
   private final AtomicLong _clientConnectionId = new AtomicLong();
 
   /** Creates and stores viewports */
-  private final ViewportManager _viewportFactory;
+  private final ViewportManager _viewportManager;
 
   /** Provides a connection to the long-polling HTTP connections */
   private final LongPollingConnectionManager _longPollingConnectionManager;
@@ -63,19 +63,20 @@ public class ConnectionManagerImpl implements ConnectionManager {
 
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportManager viewportFactory,
+                               ViewportManager viewportManager,
                                LongPollingConnectionManager longPollingConnectionManager) {
-    this(changeManager, masterChangeManager, viewportFactory, longPollingConnectionManager, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
+    this(changeManager, masterChangeManager,
+         viewportManager, longPollingConnectionManager, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
   }
 
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportManager viewportFactory,
+                               ViewportManager viewportManager,
                                LongPollingConnectionManager longPollingConnectionManager,
                                long timeout,
                                long timeoutCheckPeriod) {
     _changeManager = changeManager;
-    _viewportFactory = viewportFactory;
+    _viewportManager = viewportManager;
     _longPollingConnectionManager = longPollingConnectionManager;
     _timeout = timeout;
     _timeoutCheckPeriod = timeoutCheckPeriod;
@@ -95,7 +96,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
     ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(this, userId, clientId, _timeout);
     LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId, timeoutTask);
-    ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportFactory, timeoutTask);
+    ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportManager, timeoutTask);
     _changeManager.addChangeListener(connection);
     _masterChangeManager.addChangeListener(connection);
     _connectionsByClientId.put(clientId, connection);
@@ -128,7 +129,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
     // TODO check args
     if (clientId == null) {
       // TODO check the viewport is owned by the user
-      return _viewportFactory.getViewport(viewportId);
+      return _viewportManager.getViewport(viewportId);
     } else {
       return getConnectionByViewportId(userId, viewportId).getViewport(viewportId);
     }
@@ -142,7 +143,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
                              String dataUrl,
                              String gridStructureUrl) {
     if (clientId == null) {
-      _viewportFactory.createViewport(viewportId, viewportDefinition);
+      _viewportManager.createViewport(viewportId, viewportDefinition);
     } else {
       ClientConnection connection = getConnectionByClientId(userId, clientId);
       connection.createViewport(viewportDefinition, viewportId, dataUrl, gridStructureUrl);

@@ -307,10 +307,18 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     s_dataProviders.put(ExternalIdBundle.class, new TestDataProvider<ExternalIdBundle>() {
       @Override
       public void getValues(final Collection<ExternalIdBundle> values) {
-        values.add(ExternalIdBundle.EMPTY);
-        values.add(ExternalIdBundle.of(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
-        values.add(ExternalIdBundle.of(ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), ExternalId.of(RandomStringUtils.randomAlphanumeric(8),
-            RandomStringUtils.randomAlphanumeric(16))));
+        values.add(
+            ExternalIdBundle.of(
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
+        values.add(
+            ExternalIdBundle.of(
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
+        values.add(
+            ExternalIdBundle.of(
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
       }
     });
     s_dataProviders.put(Currency.class, new TestDataProvider<Currency>() {

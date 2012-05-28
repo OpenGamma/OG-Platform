@@ -47,7 +47,7 @@ import com.opengamma.web.server.push.rest.MasterType;
   /** Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes */
   private final RestUpdateListener _listener;
   /** For creating and returning viewports on the analytics data */
-  private final ViewportManager _viewportFactory;
+  private final ViewportManager _viewportManager;
   private final Object _lock = new Object();
 
   /** URLs which should be published when a master changes, keyed by the type of the master */
@@ -78,7 +78,7 @@ import com.opengamma.web.server.push.rest.MasterType;
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(timeoutTask, "timeoutTask");
     s_logger.debug("Creating new client connection. userId: {}, clientId: {}", userId, clientId);
-    _viewportFactory = viewportManager;
+    _viewportManager = viewportManager;
     _userId = userId;
     _listener = listener;
     _clientId = clientId;
@@ -109,7 +109,7 @@ import com.opengamma.web.server.push.rest.MasterType;
       String previousViewportId = _viewportId;
       _viewportId = viewportId;
       AnalyticsListener listener = new AnalyticsListenerImpl(dataUrl, gridStructureUrl, _listener);
-      _viewportFactory.createViewport(viewportId, previousViewportId, viewportDefinition, listener);
+      _viewportManager.createViewport(viewportId, previousViewportId, viewportDefinition, listener);
     }
   }
 
@@ -125,7 +125,7 @@ import com.opengamma.web.server.push.rest.MasterType;
       if (!_viewportId.equals(viewportId)) {
         throw new DataNotFoundException("Viewport ID " + viewportId + " not assiociated with client ID " + _clientId);
       }
-      return _viewportFactory.getViewport(_viewportId);
+      return _viewportManager.getViewport(_viewportId);
     }
   }
 
@@ -136,7 +136,7 @@ import com.opengamma.web.server.push.rest.MasterType;
     s_logger.debug("Disconnecting client connection, userId: {}, clientId: {}", _userId, _clientId);
     synchronized (_lock) {
       _timeoutTask.reset();
-      _viewportFactory.closeViewport(_viewportId);
+      _viewportManager.closeViewport(_viewportId);
     }
   }
 

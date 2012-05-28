@@ -8,7 +8,7 @@ package com.opengamma.web.server.push;
 /**
  * Listener for changes in the analytics for a particular view.
  */
-/* package */ public interface AnalyticsListener {
+public interface AnalyticsListener {
 
   /**
    * Invoked when the view's analytics data changes.

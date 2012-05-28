@@ -33,12 +33,18 @@ public class SqlServer2008DbDialect extends DbDialect {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   @Override
   public Class<? extends Driver> getJDBCDriverClass() {
+    try {
+      return (Class<? extends Driver>) Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    } catch (ClassNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Could not load the Microsoft JDBC driver: " + ex.getMessage());
+    }
     // Use the MS driver...
     // return com.microsoft.sqlserver.jdbc.SQLServerDriver.class;
     // ...or the open-source driver (LGPLed)
-    return net.sourceforge.jtds.jdbc.Driver.class;
+    // return net.sourceforge.jtds.jdbc.Driver.class;
   }
 
   @Override

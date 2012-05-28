@@ -29,6 +29,7 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapsh
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -45,6 +46,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.paging.Paging;
 
 /**
  * A snapshot master implementation using a database for persistence.
@@ -102,6 +104,11 @@ public class DbMarketDataSnapshotMaster
     s_logger.debug("search {}", request);
     
     final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+    final List<ObjectId> snapshotIds = request.getSnapshotIds();
+    if (snapshotIds != null && snapshotIds.size() == 0) {
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
+      return result;
+    }
     
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
@@ -109,6 +116,15 @@ public class DbMarketDataSnapshotMaster
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
     args.addValue("details", request.isIncludeData());
+    if (snapshotIds != null) {
+      StringBuilder buf = new StringBuilder(snapshotIds.size() * 10);
+      for (ObjectId snapshotId : snapshotIds) {
+        checkScheme(snapshotId);
+        buf.append(extractOid(snapshotId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      args.addValue("sql_search_object_ids", buf.toString());
+    }
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     

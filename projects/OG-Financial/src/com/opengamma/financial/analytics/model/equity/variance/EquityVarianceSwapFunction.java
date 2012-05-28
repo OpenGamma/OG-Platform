@@ -12,6 +12,8 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -45,39 +47,46 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
-/**
- * 
+/** 
+ * Base class for Functions for EquityVarianceSwapSecurity.
+ * These functions price using Static Replication 
  */
 public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
 
-  /**
-   */
-  public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
-
-  private EquityVarianceSwapConverter _converter; // set in init()
-
+  
+  private final String _valueRequirementName;
   private final String _curveDefinitionName;
   private final String _surfaceDefinitionName;
   @SuppressWarnings("unused")
   private final String _forwardCalculationMethod;
-
-  // private final StrikeParameterization _strikeParameterizationMethod;
-
-  public EquityVarianceSwapFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
+  private EquityVarianceSwapConverter _converter; // set in init()
+  
+  /** CalculationMethod constraint used in configuration to choose this model */
+  public static final String CALCULATION_METHOD = "StaticReplication";
+  /** Method may be Strike or Moneyness TODO Confirm */
+  public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
+  
+  
+  public EquityVarianceSwapFunction(final String valueRequirementName, final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
+    Validate.notNull(valueRequirementName, "value requirement name");
     Validate.notNull(curveDefinitionName, "curve definition name");
     Validate.notNull(surfaceDefinitionName, "surface definition name");
     Validate.notNull(forwardCalculationMethod, "forward calculation method");
 
+    _valueRequirementName = valueRequirementName;
     _curveDefinitionName = curveDefinitionName;
     _surfaceDefinitionName = surfaceDefinitionName;
     _forwardCalculationMethod = forwardCalculationMethod;
   }
 
+  
+  
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
@@ -126,16 +135,27 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
     // final double forward = spot / discountFactor;
     final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this
-    //
     final VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, forwardCurve);
-    //    // 3. Compute and return the value (ComputedValue)
-    return getResults(target, inputs, deriv, market);
+    
+    // 3. Compute and return the value (ComputedValue)
+    return computeValues(target, inputs, deriv, market);
   }
 
-  protected abstract Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
+  protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
 
-  protected abstract ValueSpecification getValueSpecification(final ComputationTarget target);
+  protected ValueSpecification getValueSpecification(final ComputationTarget target) {
+    final ValueProperties properties = getValueProperties(target);
+    final ValueProperties allProperties = properties.with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    return new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
+  }
 
+  protected ValueProperties getValueProperties(final ComputationTarget target) {
+    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
+    return createValueProperties()
+      .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
+      .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD).get();
+  }
+  
   protected String getCurveDefinitionName() {
     return _curveDefinitionName;
   }
@@ -197,7 +217,9 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
+    
     return Sets.newHashSet(getDiscountCurveRequirement(security), getVolatilitySurfaceRequirement(security), getSpotRequirement(security));
     //TODO
     //    return Sets.newHashSet(getForwardRequirement(security), getSpotRequirement(security), getDiscountRequirement(security), getVolatilitySurfaceRequirement(security));
@@ -207,4 +229,6 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(getValueSpecification(target));
   }
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 }

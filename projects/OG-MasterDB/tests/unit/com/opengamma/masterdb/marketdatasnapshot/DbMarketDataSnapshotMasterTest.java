@@ -18,6 +18,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
@@ -103,10 +104,10 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_complex_example() throws Exception {
-    ManageableMarketDataSnapshot marketDataSnapshot = new ManageableMarketDataSnapshot();
-    marketDataSnapshot.setName("Test");
+    ManageableMarketDataSnapshot snapshot1 = new ManageableMarketDataSnapshot();
+    snapshot1.setName("Test");
     ManageableUnstructuredMarketDataSnapshot globalValues = new ManageableUnstructuredMarketDataSnapshot();
-    marketDataSnapshot.setGlobalValues(globalValues);
+    snapshot1.setGlobalValues(globalValues);
     
     HashMap<MarketDataValueSpecification,Map<String, ValueSnapshot>> values = new HashMap<MarketDataValueSpecification,Map<String, ValueSnapshot>>();
     
@@ -130,7 +131,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     yieldCurves.put(new YieldCurveKey(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
     
     globalValues.setValues(values);
-    marketDataSnapshot.setYieldCurves(yieldCurves);
+    snapshot1.setYieldCurves(yieldCurves);
     
     HashMap<Pair<Tenor,Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor,Tenor>, ValueSnapshot>();
     strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), new ValueSnapshot(12.0, 12.0));
@@ -145,25 +146,43 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.MONTH, -1), new ValueSnapshot(null,null));
     
     volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);
-    marketDataSnapshot.setVolatilityCubes(volCubes);
+    snapshot1.setVolatilityCubes(volCubes);
+
+    MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);
+    doc1 = _snpMaster.add(doc1);
     
-    MarketDataSnapshotDocument addDoc = new MarketDataSnapshotDocument(marketDataSnapshot);
-    MarketDataSnapshotDocument added = _snpMaster.add(addDoc);
+    ManageableMarketDataSnapshot snapshot2 = new ManageableMarketDataSnapshot();
+    snapshot2.setName("SS 2");
+    MarketDataSnapshotDocument doc2 = new MarketDataSnapshotDocument(snapshot2);
+    doc2 = _snpMaster.add(doc2);
     
-    MarketDataSnapshotDocument loaded = _snpMaster.get(added.getUniqueId());
+    MarketDataSnapshotDocument doc1Loaded = _snpMaster.get(doc1.getUniqueId());
+    assertEquivalent(doc1, doc1Loaded);
     
-    assertEquivalent(added, loaded);
+    MarketDataSnapshotDocument doc2Loaded = _snpMaster.get(doc2.getUniqueId());
+    assertEquivalent(doc2, doc2Loaded);
     
-    // search
-    MarketDataSnapshotSearchRequest request = new MarketDataSnapshotSearchRequest();
-    request.setIncludeData(true);
-    request.setName(added.getName());
-    MarketDataSnapshotSearchResult result = _snpMaster.search(request);
-    assertTrue(result.getDocuments().size() > 0);
+    // Search by name with data
+    MarketDataSnapshotSearchRequest request1 = new MarketDataSnapshotSearchRequest();
+    request1.setIncludeData(true);
+    request1.setName(doc1.getName());
+    MarketDataSnapshotSearchResult result1 = _snpMaster.search(request1);
+    assertTrue(result1.getDocuments().size() > 0);
+
+    // Search by name without data
+    MarketDataSnapshotSearchRequest request2 = new MarketDataSnapshotSearchRequest();
+    request2.setIncludeData(false);
+    request2.setName(doc1.getName());
+    MarketDataSnapshotSearchResult result2 = _snpMaster.search(request2);
+    assertTrue(result2.getDocuments().size() > 0);
+    assertEquals(result1.getDocuments().size(), result2.getDocuments().size());
     
-    request.setIncludeData(false);
-    result = _snpMaster.search(request);
-    assertTrue(result.getDocuments().size() > 0);
+    // Search by ID
+    MarketDataSnapshotSearchRequest request3 = new MarketDataSnapshotSearchRequest();
+    request3.setSnapshotIds(ImmutableSet.of(doc1.getUniqueId().getObjectId()));
+    MarketDataSnapshotSearchResult result3 = _snpMaster.search(request3);
+    assertEquals(1, result3.getDocuments().size());
+    assertEquals(doc1.getUniqueId(), result3.getFirstDocument().getUniqueId());
   }
 
   private void assertEquivalent(MarketDataSnapshotDocument added, MarketDataSnapshotDocument loaded) {

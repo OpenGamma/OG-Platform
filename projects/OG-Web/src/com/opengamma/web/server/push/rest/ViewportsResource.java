@@ -41,13 +41,13 @@ public class ViewportsResource {
   private final AtomicLong _nextId = new AtomicLong(1);
 
   /** For creating and looking up {@link Viewport}s */
-  private final ConnectionManager _restUpdateManager;
+  private final ConnectionManager _connectionManager;
 
   /** For passing to {@link ViewportResource} instances */
   private final ReportFactory _reportGeneratorFactory;
 
-  public ViewportsResource(ConnectionManager restUpdateManager, ReportFactory reportGeneratorFactory) {
-    _restUpdateManager = restUpdateManager;
+  public ViewportsResource(ConnectionManager connectionManager, ReportFactory reportGeneratorFactory) {
+    _connectionManager = connectionManager;
     _reportGeneratorFactory = reportGeneratorFactory;
   }
 
@@ -70,7 +70,7 @@ public class ViewportsResource {
     String viewportUrl = generateViewportUrl(viewportId, request);
     String gridUrl = generateGridUrl(viewportId, viewportUrl);
     String dataUrl = generateDataUrl(viewportId, viewportUrl);
-    _restUpdateManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
+    _connectionManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
     JSONObject jsonObject = new JSONObject();
     try {
       jsonObject.put("viewportUrl", viewportUrl);
@@ -94,7 +94,7 @@ public class ViewportsResource {
                                        @PathParam("viewportId") String viewportId,
                                        @Context HttpServletRequest request) {
     String userId = request.getRemoteUser();
-    Viewport viewport = _restUpdateManager.getViewport(userId, clientId, viewportId);
+    Viewport viewport = _connectionManager.getViewport(userId, clientId, viewportId);
     if (viewport != null) {
       return new ViewportResource(viewport, _reportGeneratorFactory);
     } else {

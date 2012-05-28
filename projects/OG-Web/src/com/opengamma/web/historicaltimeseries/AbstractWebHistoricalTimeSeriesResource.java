@@ -40,6 +40,7 @@ public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPe
     _data = new WebHistoricalTimeSeriesData();
     data().setHistoricalTimeSeriesMaster(master);
     data().setHistoricalTimeSeriesLoader(loader);
+    data().setConfigSource(configSource);
   }
 
   /**

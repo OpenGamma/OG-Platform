@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -103,7 +104,10 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final String scheme = target.getUniqueId().getScheme();
+    return (scheme.equals(Currency.OBJECT_SCHEME) 
+         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
 
   @Override
