@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVFunctionData;
-
 /**
  * 
  */
@@ -29,9 +27,9 @@ public class CEVFunctionDataTest {
 
   @Test
   public void test() {
-    assertEquals(DATA.getDiscountFactor(), DF, 0);
+    assertEquals(DATA.getNumeraire(), DF, 0);
     assertEquals(DATA.getForward(), F, 0);
-    assertEquals(DATA.getBlackVolatility(), SIGMA, 0);
+    assertEquals(DATA.getVolatility(), SIGMA, 0);
     assertEquals(DATA.getBeta(), BETA, 0);
     CEVFunctionData other = new CEVFunctionData(F, DF, SIGMA, BETA);
     assertEquals(DATA, other);

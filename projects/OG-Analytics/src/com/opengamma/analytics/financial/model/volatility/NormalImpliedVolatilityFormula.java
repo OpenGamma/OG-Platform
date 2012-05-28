@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.model.volatility;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
@@ -40,19 +40,19 @@ public class NormalImpliedVolatilityFormula {
    * @param optionPrice The option price.
    * @return The implied volatility.
    */
-  public double getImpliedVolatility(final BlackFunctionData data, final EuropeanVanillaOption option, final double optionPrice) {
-    final double discountFactor = data.getDiscountFactor();
+  public double getImpliedVolatility(final NormalFunctionData data, final EuropeanVanillaOption option, final double optionPrice) {
+    final double numeraire = data.getNumeraire();
     final boolean isCall = option.isCall();
     final double f = data.getForward();
     final double k = option.getStrike();
-    final double intrinsicPrice = discountFactor * Math.max(0, (isCall ? 1 : -1) * (f - k));
+    final double intrinsicPrice = numeraire * Math.max(0, (isCall ? 1 : -1) * (f - k));
     Validate.isTrue(optionPrice > intrinsicPrice || CompareUtils.closeEquals(optionPrice, intrinsicPrice, 1e-6), "option price (" + optionPrice + ") less than intrinsic value (" + intrinsicPrice
         + ")");
     if (optionPrice == intrinsicPrice) {
       return 0.0;
     }
-    double sigma = (Math.abs(data.getBlackVolatility()) < 1E-10 ? 0.3 * f : data.getBlackVolatility());
-    BlackFunctionData newData = new BlackFunctionData(f, discountFactor, sigma);
+    double sigma = (Math.abs(data.getNormalVolatility()) < 1E-10 ? 0.3 * f : data.getNormalVolatility());
+    NormalFunctionData newData = new NormalFunctionData(f, numeraire, sigma);
     final double maxChange = 0.5 * f;
     double[] priceDerivative = new double[3];
     double price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData, priceDerivative);
@@ -66,7 +66,7 @@ public class NormalImpliedVolatilityFormula {
     int count = 0;
     while (Math.abs(change) > EPS) {
       sigma -= change;
-      newData = new BlackFunctionData(f, discountFactor, sigma);
+      newData = new NormalFunctionData(f, numeraire, sigma);
       price = NORMAL_PRICE_FUNCTION.getPriceAdjoint(option, newData, priceDerivative);
       vega = priceDerivative[1];
       change = (price - optionPrice) / vega;
@@ -79,10 +79,10 @@ public class NormalImpliedVolatilityFormula {
         final BracketRoot bracketer = new BracketRoot();
         final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
         final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-          @SuppressWarnings({"synthetic-access" })
+          @SuppressWarnings({"synthetic-access"})
           @Override
           public Double evaluate(final Double volatility) {
-            final BlackFunctionData myData = new BlackFunctionData(data.getForward(), data.getDiscountFactor(), volatility);
+            final NormalFunctionData myData = new NormalFunctionData(data.getForward(), data.getNumeraire(), volatility);
             return NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(myData) - optionPrice;
           }
         };

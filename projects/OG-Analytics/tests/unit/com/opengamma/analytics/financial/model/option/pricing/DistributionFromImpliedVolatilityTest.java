@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.DistributionFromImpliedVolatility;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.math.function.Function1D;
@@ -49,9 +50,10 @@ public class DistributionFromImpliedVolatilityTest {
     @Override
     public Double evaluate(final Double x) {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(x, T, true);
-      final BlackFunctionData data = new BlackFunctionData(F, 1, NORMAL_VOL);
-      final double price = NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(data);
-      return BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+      final NormalFunctionData dataNormal = new NormalFunctionData(F, 1, NORMAL_VOL);
+      final double price = NORMAL_PRICE_FUNCTION.getPriceFunction(option).evaluate(dataNormal);
+      final BlackFunctionData dataBlack = new BlackFunctionData(F, 1, VOL);
+      return BLACK_IMPLIED_VOL.getImpliedVolatility(dataBlack, option, price);
     }
   };
 

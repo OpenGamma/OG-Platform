@@ -9,9 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
@@ -41,7 +38,7 @@ public class CEVPriceFunctionTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
       final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, sigma, beta);
       final double price = CEV.getPriceFunction(option).evaluate(cevData);
-      final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, price);
+      final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(f, 1.0, sigma), option, price);
       final SABRFormulaData sabrData = new SABRFormulaData(sigma, beta, 0.0, 0.0);
       final double sabrVol = SABR.getVolatilityFunction(option, f).evaluate(sabrData);
       assertEquals(sabrVol, vol, 1e-4);//TODO this used to work with 1e-5????
@@ -62,7 +59,7 @@ public class CEVPriceFunctionTest {
       final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
       final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, sigma, beta);
       final double price = CEV.getPriceFunction(option).evaluate(cevData);
-      final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, price);
+      final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(f, 1.0, sigma), option, price);
       final SABRFormulaData sabrData = new SABRFormulaData(sigma, beta, 0.0, 0.0);
       final double sabrVol = SABR.getVolatilityFunction(option, f).evaluate(sabrData);
       assertEquals(sabrVol, vol, 1e-4);
@@ -86,7 +83,7 @@ public class CEVPriceFunctionTest {
         final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
         final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, sigma, beta);
         final double price = CEV.getPriceFunction(option).evaluate(cevData);
-        final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, price);
+        final double vol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(f, 1.0, sigma), option, price);
         final SABRFormulaData sabrData = new SABRFormulaData(sigma, beta, 0.0, 0.0);
         final double sabrVol = SABR.getVolatilityFunction(option, f).evaluate(sabrData);
         assertEquals(sabrVol, vol, 1e-4);//TODO this used to work with 1e-5????
@@ -113,7 +110,7 @@ public class CEVPriceFunctionTest {
       final CEVFunctionData cevData = new CEVFunctionData(f, 1.0, volBeta, beta);
       final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
       @SuppressWarnings("unused")
-      final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+      final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(f, 1.0, volBeta), option, cevPrice);
 
       // System.out.println(f +"\t"+cevPrice+"\t"+cevVol);
     }
@@ -136,7 +133,7 @@ public class CEVPriceFunctionTest {
     final CEVFunctionData cevData = new CEVFunctionData(forward, Math.exp(-r * t), volBeta, beta);
     final double cevPrice = CEV.getPriceFunction(option).evaluate(cevData);
     @SuppressWarnings("unused")
-    final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, cevPrice);
+    final double cevVol = BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(forward, Math.exp(-r * t), volBeta), option, cevPrice);
 
     //System.out.println(cevPrice+"\t"+cevVol);
 

@@ -44,8 +44,8 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.NormalImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -188,16 +188,16 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final double cmsCap1Price = methodCmsCap.presentValue(cmsCap1, SABR_BUNDLE).getAmount();
     final double cmsCap2Price = methodCmsCap.presentValue(cmsCap2, SABR_BUNDLE).getAmount();
     final EuropeanVanillaOption optionCap1 = new EuropeanVanillaOption(forward1, FIXING_TIME, true);
-    final BlackFunctionData dataCap1 = new BlackFunctionData(expectedRate1, 1.0, 0.0);
+    final NormalFunctionData dataCap1 = new NormalFunctionData(expectedRate1, 1.0, 0.0);
     final double cmsCap1IV = impliedVolatility.getImpliedVolatility(dataCap1, optionCap1, cmsCap1Price / discountFactorPayment / cmsCoupon1.getNotional() / cmsCoupon1.getPaymentYearFraction());
     final EuropeanVanillaOption optionCap2 = new EuropeanVanillaOption(forward2, FIXING_TIME, true);
-    final BlackFunctionData dataCap2 = new BlackFunctionData(expectedRate2, 1.0, 0.0);
+    final NormalFunctionData dataCap2 = new NormalFunctionData(expectedRate2, 1.0, 0.0);
     final double cmsCap2IV = impliedVolatility.getImpliedVolatility(dataCap2, optionCap2, cmsCap2Price / discountFactorPayment / cmsCoupon2.getNotional() / cmsCoupon2.getPaymentYearFraction());
     double spreadVol = cmsCap1IV * cmsCap1IV - 2 * correlation * cmsCap1IV * cmsCap2IV + cmsCap2IV * cmsCap2IV;
     spreadVol = Math.sqrt(spreadVol);
     final EuropeanVanillaOption optionSpread = new EuropeanVanillaOption(STRIKE, FIXING_TIME, IS_CAP);
-    final BlackFunctionData dataSpread = new BlackFunctionData(expectedRate1 - expectedRate2, 1.0, spreadVol);
-    final Function1D<BlackFunctionData, Double> priceFunction = normalPrice.getPriceFunction(optionSpread);
+    final NormalFunctionData dataSpread = new NormalFunctionData(expectedRate1 - expectedRate2, 1.0, spreadVol);
+    final Function1D<NormalFunctionData, Double> priceFunction = normalPrice.getPriceFunction(optionSpread);
     final double cmsSpreadPriceExpected = discountFactorPayment * priceFunction.evaluate(dataSpread) * CMS_CAP_SPREAD.getNotional() * CMS_CAP_SPREAD.getPaymentYearFraction();
     assertEquals("CMS spread: price with constant correlation", cmsSpreadPriceExpected, cmsSpreadPrice, TOLERANCE_PRICE);
   }
