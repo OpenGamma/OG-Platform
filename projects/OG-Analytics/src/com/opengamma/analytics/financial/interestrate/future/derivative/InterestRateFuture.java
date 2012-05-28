@@ -215,7 +215,7 @@ public class InterestRateFuture implements InstrumentDerivative {
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitInterestRateFutureSecurity(this);
+    return visitor.visitInterestRateFuture(this);
   }
 
   @Override

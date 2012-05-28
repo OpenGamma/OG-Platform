@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
+import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
@@ -35,6 +36,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -63,6 +65,7 @@ public class CashDiscountingMethodTest {
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final ParSpreadCalculator PSC = ParSpreadCalculator.getInstance();
   private static final ParSpreadCurveSensitivityCalculator PSCSC = ParSpreadCurveSensitivityCalculator.getInstance();
+  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
   private static final double TOLERANCE_PRICE = 1.0E-2;
   private static final double TOLERANCE_SPREAD = 1.0E-10;
@@ -275,6 +278,54 @@ public class CashDiscountingMethodTest {
     InterestRateCurveSensitivity prcsCalculator = PSCSC.visit(deposit, CURVES);
     prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
     assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(pscsMethod, prcsCalculator, TOLERANCE_SPREAD_DELTA));
+  }
+
+  @Test
+  /**
+   * Tests today payment amount when the present is before the deposit start date.
+   */
+  public void todayPaymentBeforeStart() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    MultipleCurrencyAmount cash = TPC.visit(deposit);
+    assertEquals("DepositDefinition: today payment", 0.0, cash.getAmount(deposit.getCurrency()), TOLERANCE_PRICE);
+    assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
+  }
+
+  @Test
+  /**
+   * Tests today payment amount when the present is on the deposit start date.
+   */
+  public void todayPaymentOnStart() {
+    ZonedDateTime referenceDate = SPOT_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    MultipleCurrencyAmount cash = TPC.visit(deposit);
+    assertEquals("DepositDefinition: today payment", -NOTIONAL, cash.getAmount(deposit.getCurrency()), TOLERANCE_PRICE);
+    assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
+  }
+
+  @Test
+  /**
+   * Tests today payment amount when the present is on the deposit start date.
+   */
+  public void todayPaymentBetweenStartAndEnd() {
+    ZonedDateTime referenceDate = SPOT_DATE.plusDays(2);
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    MultipleCurrencyAmount cash = TPC.visit(deposit);
+    assertEquals("DepositDefinition: today payment", 0.0, cash.getAmount(deposit.getCurrency()), TOLERANCE_PRICE);
+    assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
+  }
+
+  @Test
+  /**
+   * Tests today payment amount when the present is on the deposit end date.
+   */
+  public void todayPaymentOnEnd() {
+    ZonedDateTime referenceDate = END_DATE;
+    Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    MultipleCurrencyAmount cash = TPC.visit(deposit);
+    assertEquals("DepositDefinition: today payment", NOTIONAL + deposit.getInterestAmount(), cash.getAmount(deposit.getCurrency()), TOLERANCE_PRICE);
+    assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
   }
 
 }

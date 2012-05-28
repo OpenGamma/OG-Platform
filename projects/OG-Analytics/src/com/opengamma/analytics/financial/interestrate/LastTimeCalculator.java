@@ -94,7 +94,7 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFuture future) {
+  public Double visitInterestRateFuture(final InterestRateFuture future) {
     return future.getFixingPeriodEndTime();
   }
 

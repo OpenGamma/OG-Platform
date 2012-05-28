@@ -317,7 +317,7 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitInterestRateFutureSecurity(final InterestRateFuture future) {
+    public Class<?> visitInterestRateFuture(final InterestRateFuture future) {
       return visit(future);
     }
 
