@@ -36,7 +36,7 @@ public class EquityOptionSurfaceConfigPopulator {
         LocalDate.of(2012, 12, 22), LocalDate.of(2013, 6, 22) };
     final Double[] strikes = new Double[21];
     int j = 0;
-    for (int i = 50; i <= 150; i += 5) {
+    for (int i = 50; i <= 200; i += 5) {
       strikes[j++] = (double) i;
     }
     final VolatilitySurfaceDefinition<LocalDate, Double> usVolSurfaceDefinition =
