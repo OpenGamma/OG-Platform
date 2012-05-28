@@ -28,12 +28,14 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
+import com.opengamma.financial.analytics.volatility.surface.EquityFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.InterpolatedVolatilitySurfaceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawEquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawIRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawSwaptionATMVolatilitySurfaceDataFunction;
@@ -74,7 +76,9 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName());    
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawSwaptionATMVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, RawEquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, EquityFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
     addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});

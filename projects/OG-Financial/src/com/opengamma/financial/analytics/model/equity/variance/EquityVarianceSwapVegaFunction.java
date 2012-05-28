@@ -32,11 +32,11 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
 
   public EquityVarianceSwapVegaFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
+    super(ValueRequirementNames.VEGA_QUOTE_MATRIX, curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();
