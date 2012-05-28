@@ -15,7 +15,7 @@ import javax.time.calendar.MonthOfYear;
 /**
  * A {@code DateAdjuster} that moves the date to the next March/June/September/December.
  */
-class NextQuarterAdjuster implements DateAdjuster {
+public class NextQuarterAdjuster implements DateAdjuster {
 
   /**
    * The expiry months.
