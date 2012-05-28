@@ -6,14 +6,12 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: ['og.views.common.state', 'og.common.routes', 'og.common.gadgets.GadgetsContainer'],
     obj: function () {
-        var api = og.api.rest, routes = og.common.routes, module = this, view,
-            page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name),
+        var routes = og.common.routes, module = this, view,
             GadgetsContainer = og.common.gadgets.GadgetsContainer;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
-            default_details: function (args) {
+            default_details: function () {
                 og.api.text({module: 'og.analytics.grid.configure_tash'}).pipe(function (markup) {
                     var template = Handlebars.compile(markup);
                     $('.OG-layout-analytics-center').html(template({}));
