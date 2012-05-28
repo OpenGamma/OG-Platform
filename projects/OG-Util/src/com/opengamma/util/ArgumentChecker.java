@@ -46,7 +46,7 @@ public final class ArgumentChecker {
    */
   public static void isTrue(boolean trueIfValid, String message, Object... arg) {
     if (trueIfValid == false) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
     }
   }  
 
@@ -75,7 +75,7 @@ public final class ArgumentChecker {
    */
   public static void isFalse(boolean falseIfValid, String message, Object... arg) {
     if (falseIfValid) {
-      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg).getMessage());
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
     }
   }
   
