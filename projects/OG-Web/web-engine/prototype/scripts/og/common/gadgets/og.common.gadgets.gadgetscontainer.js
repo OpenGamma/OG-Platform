@@ -116,13 +116,13 @@ $.register_module({
                     $tabs.each(function (i) {
                         $(this).draggable({
                             revert: function (dropped) {
-                                var prefix = 'gadget.ftl#/', url,
+                                var prefix = 'gadget.ftl#/gadgetscontainer/', url,
                                     index = extract_index(extract_id($(this).attr('class'))),
                                     id = gadgets[index].config.options.id,
                                     type = gadgets[index].type;
                                 switch (type) {
-                                    case 'timeseries': url = prefix + type + '/id=' + id; break;
-                                    case 'grid': url = prefix + type + '/' + id; break;
+                                    case 'timeseries': url = prefix + type + ':' + id; break;
+                                    case 'grid': url = prefix + type + ':' + id; break;
                                 }
                                 if (!dropped) {
                                     window.open(url);
@@ -228,7 +228,7 @@ $.register_module({
                         return acc;
                     }, {});
                     // TODO: move default options to gadgets
-                    options.t = function (id) {
+                    options.timeseries = function (id) {
                         return {
                             gadget: 'og.common.gadgets.timeseries',
                             options: {id: id, datapoints_link: false, child: true},
@@ -236,7 +236,7 @@ $.register_module({
                             margin: true
                         }
                     };
-                    options.g = function (id) {
+                    options.grid = function (id) {
                         return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
                     };
                     for (type in obj) if (obj.hasOwnProperty(type))
