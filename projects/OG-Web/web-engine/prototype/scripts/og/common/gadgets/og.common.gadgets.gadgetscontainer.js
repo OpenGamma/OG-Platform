@@ -150,11 +150,9 @@ $.register_module({
             };
             container.init = function () {
                 var toggle_dropbox = function () {
-                        if ($('.og-drop').length) { //overlay exists
-                            $('.OG-dropbox span').removeClass('og-icon-new-window').addClass('og-icon-drop');
-                        } else {
-                            $('.OG-dropbox span').removeClass('og-icon-drop').addClass('og-icon-new-window');
-                        }
+                        var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
+                        if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
+                        else $dbs_span.removeClass('og-icon-drop').addClass('og-icon-new-window');
                     };
                 loading = true;
                 $.when(
