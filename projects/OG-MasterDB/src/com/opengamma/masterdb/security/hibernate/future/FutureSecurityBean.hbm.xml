@@ -1,50 +1,83 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.future">
-  <union-subclass name="FutureSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_future">
-    <property name="futureType" column="future_type" type="com.opengamma.masterdb.security.hibernate.future.FutureTypeUserType" not-null="true" />
+  <class name="FutureSecurityBean" table="sec_future">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <discriminator column="future_type" type="string"/>
+    <property name="securityId" type="long" column="security_id"/>
+
+
     <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
-			<component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-				<property name="date" column="expiry_date" type="timestamp" not-null="true" />
-				<property name="zone" column="expiry_zone" type="string" not-null="true" />
-			</component>
-			<property name="accuracy" column="expiry_accuracy" type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true" />
-	</component>
-    <many-to-one name="tradingExchange" column="tradingexchange_id" class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true" />
-    <many-to-one name="settlementExchange" column="settlementexchange_id" class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true" />
-    <many-to-one name="currency1" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
-    <many-to-one name="currency2" column="currency2_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
-    <many-to-one name="currency3" column="currency3_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" />
-    <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean" />
-    <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
-    <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
-    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
-      <property name="scheme" column="underlying_scheme" type="string" />
-      <property name="identifier" column="underlying_identifier" type="string" />
+      <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+        <property name="date" column="expiry_date" type="timestamp" not-null="true"/>
+        <property name="zone" column="expiry_zone" type="string" not-null="true"/>
+      </component>
+      <property name="accuracy" column="expiry_accuracy"
+                type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true"/>
     </component>
-    <property name="unitNumber" column="unitnumber" type="double" />
-    <property name="unitAmount" column="unit_amount" type="double" />
+    
+    <many-to-one name="tradingExchange" column="tradingexchange_id"
+                 class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>
+    <many-to-one name="settlementExchange" column="settlementexchange_id"
+                 class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>
+    
+    <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>    
+    
+    <many-to-one name="unitName" column="unitname_id" class="UnitBean"/>
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="underlying_scheme" type="string"/>
+      <property name="identifier" column="underlying_identifier" type="string"/>
+    </component>
+    <property name="unitNumber" column="unitnumber" type="double"/>
+    <property name="unitAmount" column="unit_amount" type="double"/>
     <component name="firstDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-      <property name="date" column="bondFutureFirstDeliveryDate" type="timestamp" not-null="false" />
-      <property name="zone" column="bondFutureFirstDeliveryDate_zone" type="string" not-null="false" />
+      <property name="date" column="bondFutureFirstDeliveryDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondFutureFirstDeliveryDate_zone" type="string" not-null="false"/>
     </component>
     <component name="lastDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-      <property name="date" column="bondFutureLastDeliveryDate" type="timestamp" not-null="false" />
-      <property name="zone" column="bondFutureLastDeliveryDate_zone" type="string" not-null="false" />
+      <property name="date" column="bondFutureLastDeliveryDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondFutureLastDeliveryDate_zone" type="string" not-null="false"/>
     </component>
-  </union-subclass>
 
-  <query name="FutureSecurityBean.one.bySecurityId"><![CDATA[
-    from 
-      FutureSecurityBean as s
-    where
-      s.securityId = :securityId
-  ]]></query>
+    <subclass name="BondFutureBean" discriminator-value="Bond">
+      <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean"/>
+    </subclass>
 
-  <query name="FutureSecurityBean.all">
-    from FutureSecurityBean
-  </query>
+    <subclass name="com.opengamma.masterdb.security.hibernate.future.CommodityFutureBean">
+      <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean"/>
+      
+      <subclass name="AgricultureFutureBean" discriminator-value="Agriculture">
+      </subclass>
 
+      <subclass name="MetalFutureBean" discriminator-value="Metal">
+      </subclass>
+
+    </subclass>
+
+    <subclass name="EnergyFutureBean" discriminator-value="Energy">
+    </subclass>
+
+    <subclass name="ForeignExchangeFutureBean" discriminator-value="FX">
+      <many-to-one name="numerator" column="currency2_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+      <many-to-one name="denominator" column="currency3_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+    </subclass>
+
+    <subclass name="InterestRateFutureBean" discriminator-value="Interest Rate">
+    </subclass>
+
+    <subclass name="StockFutureBean" discriminator-value="Stock">
+    </subclass>
+    <subclass name="IndexFutureBean" discriminator-value="Index">
+    </subclass>
+    <subclass name="EquityFutureBean" discriminator-value="Equity">
+    </subclass>
+    <subclass name="EquityIndexDividendFutureBean" discriminator-value="Equity Index Dividend">
+    </subclass>
+
+
+  </class>
 </hibernate-mapping>
