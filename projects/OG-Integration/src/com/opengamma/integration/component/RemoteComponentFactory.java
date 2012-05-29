@@ -138,19 +138,26 @@ public class RemoteComponentFactory {
   // Configs
   
   /**
-   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first)
-   * @return the best matching master available
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
    */
   public ConfigMaster getConfigMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, ConfigMaster.class).getUri();
     return new RemoteConfigMaster(uri);
   }
 
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public ConfigMaster getConfigMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(ConfigMaster.class, name).getUri();
     return new RemoteConfigMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, ConfigMaster> getConfigMasters() {
     Map<String, ConfigMaster> result = new LinkedHashMap<String, ConfigMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(ConfigMaster.class)) {
@@ -159,16 +166,27 @@ public class RemoteComponentFactory {
     return result;
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching master available
+   */  
   public ConfigSource getConfigSource(final List<String> preferredClassifiers) {
     ComponentInfo componentInfo = getTopLevelComponent(preferredClassifiers, ConfigSource.class);
     return new RemoteConfigSource(componentInfo.getUri());
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public ConfigSource getConfigSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(ConfigSource.class, name).getUri();
     return new RemoteConfigSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, ConfigSource> getConfigSources() {
     Map<String, ConfigSource> result = new LinkedHashMap<String, ConfigSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(ConfigSource.class)) {
@@ -178,17 +196,27 @@ public class RemoteComponentFactory {
   }
 
   // Portfolios
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public PortfolioMaster getPortfolioMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(PortfolioMaster.class, name).getUri();
     return new RemotePortfolioMaster(uri);
   }
-  
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public PortfolioMaster getPortfolioMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, PortfolioMaster.class).getUri();
     return new RemotePortfolioMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, PortfolioMaster> getPortfolioMasters() {
     Map<String, PortfolioMaster> result = new LinkedHashMap<String, PortfolioMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(PortfolioMaster.class)) {
@@ -198,17 +226,27 @@ public class RemoteComponentFactory {
   }
 
   // Positions
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public PositionMaster getPositionMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(PositionMaster.class, name).getUri();
     return new RemotePositionMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public PositionMaster getPositionMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, PositionMaster.class).getUri();
     return new RemotePositionMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, PositionMaster> getPositionMasters() {
     Map<String, PositionMaster> result = new LinkedHashMap<String, PositionMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(PositionMaster.class)) {
@@ -217,16 +255,27 @@ public class RemoteComponentFactory {
     return result;
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public PositionSource getPositionSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(PositionSource.class, name).getUri();
     return new RemotePositionSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public PositionSource getPositionSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, PositionSource.class).getUri();
     return new RemotePositionSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, PositionSource> getPositionSources() {
     Map<String, PositionSource> result = new LinkedHashMap<String, PositionSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(PositionSource.class)) {
@@ -236,17 +285,27 @@ public class RemoteComponentFactory {
   }
   
   // Securities
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public SecuritySource getSecuritySource(final String name) {
     URI uri = getComponentServer().getComponentInfo(SecuritySource.class, name).getUri();
     return new RemoteFinancialSecuritySource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public SecuritySource getSecuritySource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, SecuritySource.class).getUri();
     return new RemoteSecuritySource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, SecuritySource> getSecuritySources() {
     Map<String, SecuritySource> result = new LinkedHashMap<String, SecuritySource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecuritySource.class)) {
@@ -255,16 +314,26 @@ public class RemoteComponentFactory {
     return result;
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public SecurityMaster getSecurityMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(SecurityMaster.class, name).getUri();
     return new RemoteSecurityMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public SecurityMaster getSecurityMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, SecurityMaster.class).getUri();
     return new RemoteSecurityMaster(uri);
   }
-  
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, SecurityMaster> getSecurityMasters() {
     Map<String, SecurityMaster> result = new LinkedHashMap<String, SecurityMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityMaster.class)) {
@@ -274,17 +343,27 @@ public class RemoteComponentFactory {
   }
 
   // Market Data Snapshots
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(MarketDataSnapshotMaster.class, name).getUri();
     return new RemoteMarketDataSnapshotMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, MarketDataSnapshotMaster.class).getUri();
     return new RemoteMarketDataSnapshotMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, MarketDataSnapshotMaster> getMarketDataSnapshotMasters() {
     Map<String, MarketDataSnapshotMaster> result = new LinkedHashMap<String, MarketDataSnapshotMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(MarketDataSnapshotMaster.class)) {
@@ -293,16 +372,27 @@ public class RemoteComponentFactory {
     return result;
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public MarketDataSnapshotSource getMarketDataSnapshotSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(MarketDataSnapshotSource.class, name).getUri();
     return new RemoteMarketDataSnapshotSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public MarketDataSnapshotSource getMarketDataSnapshotSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, MarketDataSnapshotSource.class).getUri();
     return new RemoteMarketDataSnapshotSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, MarketDataSnapshotSource> getMarketDataSnapshotSources() {
     Map<String, MarketDataSnapshotSource> result = new LinkedHashMap<String, MarketDataSnapshotSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(MarketDataSnapshotSource.class)) {
@@ -312,17 +402,27 @@ public class RemoteComponentFactory {
   }
 
   // Historical Time Series
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesSource.class, name).getUri();
     return new RemoteHistoricalTimeSeriesSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, HistoricalTimeSeriesSource.class).getUri();
     return new RemoteHistoricalTimeSeriesSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, HistoricalTimeSeriesSource> getHistoricalTimeSeriesSources() {
     Map<String, HistoricalTimeSeriesSource> result = new LinkedHashMap<String, HistoricalTimeSeriesSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(HistoricalTimeSeriesSource.class)) {
@@ -331,16 +431,27 @@ public class RemoteComponentFactory {
     return result;    
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(HistoricalTimeSeriesMaster.class, name).getUri();
     return new RemoteHistoricalTimeSeriesMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, HistoricalTimeSeriesMaster.class).getUri();
     return new RemoteHistoricalTimeSeriesMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, HistoricalTimeSeriesMaster> getHistoricalTimeSeriesMasters() {
     Map<String, HistoricalTimeSeriesMaster> result = new LinkedHashMap<String, HistoricalTimeSeriesMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(HistoricalTimeSeriesMaster.class)) {
@@ -350,17 +461,27 @@ public class RemoteComponentFactory {
   }
 
   // Currency Matrices
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public CurrencyMatrixSource getCurrencyMatrixSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(CurrencyMatrixSource.class, name).getUri();
     return new RemoteCurrencyMatrixSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public CurrencyMatrixSource getCurrencyMatrixSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, CurrencyMatrixSource.class).getUri();
     return new RemoteCurrencyMatrixSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, CurrencyMatrixSource> getCurrencyMatrixSources() {
     Map<String, CurrencyMatrixSource> result = new LinkedHashMap<String, CurrencyMatrixSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(CurrencyMatrixSource.class)) {
@@ -370,17 +491,27 @@ public class RemoteComponentFactory {
   }
   
   // Repository Configurations
-
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public RepositoryConfigurationSource getRepositoryConfigurationSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(RepositoryConfigurationSource.class, name).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public RepositoryConfigurationSource getRepositoryConfigurationSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, RepositoryConfigurationSource.class).getUri();
     return new RemoteRepositoryConfigurationSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, RepositoryConfigurationSource> getRepositoryConfigurationSources() {
     Map<String, RepositoryConfigurationSource> result = new LinkedHashMap<String, RepositoryConfigurationSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(RepositoryConfigurationSource.class)) {
@@ -390,17 +521,27 @@ public class RemoteComponentFactory {
   }
   
   // Exchanges
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public ExchangeSource getExchangeSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(ExchangeSource.class, name).getUri();
     return new RemoteExchangeSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public ExchangeSource getExchangeSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, ExchangeSource.class).getUri();
     return new RemoteExchangeSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, ExchangeSource> getExchangeSources() {
     Map<String, ExchangeSource> result = new LinkedHashMap<String, ExchangeSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(ExchangeSource.class)) {
@@ -409,16 +550,27 @@ public class RemoteComponentFactory {
     return result;    
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public ExchangeMaster getExchangeMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(ExchangeMaster.class, name).getUri();
     return new RemoteExchangeMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public ExchangeMaster getExchangeMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, ExchangeMaster.class).getUri();
     return new RemoteExchangeMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, ExchangeMaster> getExchangeMasters() {
     Map<String, ExchangeMaster> result = new LinkedHashMap<String, ExchangeMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(ExchangeMaster.class)) {
@@ -428,17 +580,27 @@ public class RemoteComponentFactory {
   }
 
   // Regions
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public RegionSource getRegionSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(RegionSource.class, name).getUri();
     return new RemoteRegionSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public RegionSource getRegionSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, RegionSource.class).getUri();
     return new RemoteRegionSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, RegionSource> getRegionSources() {
     Map<String, RegionSource> result = new LinkedHashMap<String, RegionSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(RegionSource.class)) {
@@ -447,16 +609,27 @@ public class RemoteComponentFactory {
     return result;    
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public RegionMaster getRegionMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(RegionMaster.class, name).getUri();
     return new RemoteRegionMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public RegionMaster getRegionMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, RegionMaster.class).getUri();
     return new RemoteRegionMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, RegionMaster> getRegionMasters() {
     Map<String, RegionMaster> result = new LinkedHashMap<String, RegionMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(RegionMaster.class)) {
@@ -466,17 +639,27 @@ public class RemoteComponentFactory {
   }
 
   // Holidays
-  
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public HolidaySource getHolidaySource(final String name) {
     URI uri = getComponentServer().getComponentInfo(HolidaySource.class, name).getUri();
     return new RemoteHolidaySource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public HolidaySource getHolidaySource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, HolidaySource.class).getUri();
     return new RemoteHolidaySource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, HolidaySource> getHolidaySources() {
     Map<String, HolidaySource> result = new LinkedHashMap<String, HolidaySource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(HolidaySource.class)) {
@@ -485,16 +668,27 @@ public class RemoteComponentFactory {
     return result;    
   }
   
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public HolidayMaster getHolidayMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(HolidayMaster.class, name).getUri();
     return new RemoteHolidayMaster(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public HolidayMaster getHolidayMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, HolidayMaster.class).getUri();
     return new RemoteHolidayMaster(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, HolidayMaster> getHolidayMasters() {
     Map<String, HolidayMaster> result = new LinkedHashMap<String, HolidayMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(HolidayMaster.class)) {
@@ -506,16 +700,27 @@ public class RemoteComponentFactory {
   // Interpolated Yield Curve Definitions
   
   /* REVIEW: jim 28-May-2012 -- Why are we not just using the config source for this stuff? */
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(InterpolatedYieldCurveDefinitionSource.class, name).getUri();
     return new RemoteInterpolatedYieldCurveDefinitionSource(uri);
   }
   
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, InterpolatedYieldCurveDefinitionSource.class).getUri();
     return new RemoteInterpolatedYieldCurveDefinitionSource(uri);
   }
   
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, InterpolatedYieldCurveDefinitionSource> getInterpolatedYieldCurveDefinitionSources() {
     Map<String, InterpolatedYieldCurveDefinitionSource> result = new LinkedHashMap<String, InterpolatedYieldCurveDefinitionSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(InterpolatedYieldCurveDefinitionSource.class)) {
@@ -532,18 +737,29 @@ public class RemoteComponentFactory {
   // Interpolated Yield Curve Specification Builders
   
   /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
   public InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final String name) {
     URI uri = getComponentServer().getComponentInfo(InterpolatedYieldCurveSpecificationBuilder.class, name).getUri();
     return new RemoteInterpolatedYieldCurveSpecificationBuilder(uri);
   }
   
   /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
   public InterpolatedYieldCurveSpecificationBuilder getInterpolatedYieldCurveSpecificationBuilder(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, InterpolatedYieldCurveSpecificationBuilder.class).getUri();
     return new RemoteInterpolatedYieldCurveSpecificationBuilder(uri);
   }
   
-  /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */  
+  /* REVIEW: jim 28-May-2012 -- What on earth is this stuff - this is a data structure, not a service! */
+  /**
+   * @return a map of classifier names to requested interface type
+   */
   public Map<String, InterpolatedYieldCurveSpecificationBuilder> getInterpolatedYieldCurveSpecificationBuidlers() {
     Map<String, InterpolatedYieldCurveSpecificationBuilder> result = new LinkedHashMap<String, InterpolatedYieldCurveSpecificationBuilder>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(InterpolatedYieldCurveSpecificationBuilder.class)) {
