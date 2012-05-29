@@ -7,24 +7,22 @@ $.register_module({
     dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
         var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
-            header = ' .ui-layout-header', panels = {
-                '.OG-layout-analytics-south': 'south',
-                '.OG-layout-analytics-dock-north': 'dock-north',
-                '.OG-layout-analytics-dock-center': 'dock-center',
-                '.OG-layout-analytics-dock-south': 'dock-south'
-            },
-            extract_pane = function (str) {return str.replace(/^OG\-layout\-analytics\-(.*?)\s(?:.*?)$/, '$1');},
-            extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
+            header = ' .ui-layout-header';
         /**
          * @param {String} selector Selector to initialize a GadgetsContainer in
          */
-        return function (selector) {
-            var initialized = false, loading, gadgets = [], container = this,
-                pane, // layout pannel
+        return function (selector_prefix, pane) {
+            var initialized = false, loading, gadgets = [], container = this, selector = selector_prefix + pane,
+                class_prefix = selector_prefix.substring(1),
                 live_id, // active tab id
                 overflow = {}, // document offet of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
-            var get_index = function (id) {
+            var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
+            var extract_pane = function (str) {
+                var re = new RegExp('^' + class_prefix.replace(/\-/g, '\\-') + '(.*?)\\s(?:.*?)$');
+                return str.replace(re, '$1');
+            };
+            var extract_index = function (id) {
                 return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0)
             };
             /**
@@ -119,7 +117,7 @@ $.register_module({
                         $(this).draggable({
                             revert: function (dropped) {
                                 var prefix = 'gadget.ftl#/', url,
-                                    index = get_index(extract_id($(this).attr('class'))),
+                                    index = extract_index(extract_id($(this).attr('class'))),
                                     id = gadgets[index].config.options.id,
                                     type = gadgets[index].type;
                                 switch (type) {
@@ -150,7 +148,7 @@ $.register_module({
                     show_gadget(id);
                 }
             };
-            container.init = function (arr) {
+            container.init = function () {
                 var toggle_dropbox = function () {
                         if ($('.og-drop').length) { //overlay exists
                             $('.OG-dropbox span').removeClass('og-icon-new-window').addClass('og-icon-drop');
@@ -164,7 +162,6 @@ $.register_module({
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
                     api.text({module: 'og.analytics.dropbox_tash'})
                 ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl) {
-                    pane = panels[selector];
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
@@ -175,20 +172,19 @@ $.register_module({
                     $(selector + header + ' , .og-js-overflow-' + pane)
                         // handler for tabs (including the ones in the overflow pane)
                         .on('click', 'li[class^=og-tab-]', function (e) {
-                            var id = extract_id($(this).attr('class')), index = get_index(id);
+                            var id = extract_id($(this).attr('class')), index = extract_index(id);
                             if ($(e.target).hasClass('og-delete')) container.del(gadgets[index]);
                             else if (!$(this).hasClass('og-active')) {
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
                         });
-                    if (!arr) update_tabs(null); else container.add(arr);
                     // implement drop
-                    $('.OG-layout-analytics-' + pane).droppable({
+                    $(selector).droppable({
                         hoverClass: 'og-drop',
                         accept: function (draggable) {
                             var pane = extract_pane($(this).attr('class')),
-                                pane_class = 'OG-layout-analytics-' + pane,
+                                pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
                                 has_ancestor = function (elm, sel) {
                                     return $(elm).parentsUntil('.' + sel).parent().hasClass(sel);
@@ -200,8 +196,9 @@ $.register_module({
                         over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
-                            var data = ui.draggable.data(), gadget = data.gadget.config.options;
-                            gadget.selector = gadget.selector.replace(/analytics\-(.*?)\s/, 'analytics-' + pane + ' ');
+                            var data = ui.draggable.data(), gadget = data.gadget.config.options,
+                                re = new RegExp(selector_prefix + '(.*?)\\s');
+                            gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
                             container.add([data.gadget.config]);
                             setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt finishes
                         }
@@ -272,7 +269,7 @@ $.register_module({
                 id = gadgets.length
                     ? live_id === obj.id ? gadgets[gadgets.length - 1].id : live_id
                     : null;
-                if (id) gadgets[get_index(id)].gadget.resize();
+                if (id) gadgets[extract_index(id)].gadget.resize();
                 update_tabs(id); // new active tab or empty
             };
             container.alive = function () {return !!$(selector).length;};

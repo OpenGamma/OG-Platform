@@ -22,7 +22,7 @@ $.register_module({
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
-                    new GadgetsContainer('.OG-layout-analytics-' + val).add(args[val]);
+                    new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
