@@ -8,9 +8,6 @@ $.register_module({
     obj: function () {
         var api = og.api, tabs_template, overflow_template, dropbox_template, counter = 1,
             header = ' .ui-layout-header';
-        /**
-         * @param {String} selector Selector to initialize a GadgetsContainer in
-         */
         return function (selector_prefix, pane) {
             var initialized = false, loading, gadgets = [], container = this, selector = selector_prefix + pane,
                 class_prefix = selector_prefix.substring(1),
