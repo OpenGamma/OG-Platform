@@ -9,14 +9,12 @@ $.register_module({
         var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
         if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
             return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
-        var background = function (columns, width) {
-            var height = row_height, canvas = $('<canvas height="' + height + '" width="' + width + '" />')[0], context;
-            if (!canvas.getContext) return ''; // don't bother with IE8
-            (context = canvas.getContext('2d')).fillStyle = '#dadcdd';
-            context.fillRect(0, height - 1, width, 1);
-            columns
-                .reduce(function (acc, col) {return context.fillRect((acc += col.width) - 1, 0, 1, height), acc;}, 0);
-            return canvas.toDataURL('image/png');
+        var background = function (columns, width, background) {
+            var height = row_height, pixels = [], lcv, foreground = 'dadcdd', dots = columns
+                .reduce(function (acc, col) {return acc.concat([[background, col.width - 1], [foreground, 1]]);}, []);
+            for (lcv = 0; lcv < height - 1; lcv += 1) Array.prototype.push.apply(pixels, dots);
+            pixels.push([foreground, width]);
+            return BMP.rle8(width, height, pixels);
         };
         var col_css = function (id, columns, offset) {
             var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
@@ -124,8 +122,8 @@ $.register_module({
             meta.visible_rows = Math.ceil((height - header_height) / row_height);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
-                fixed_bg: background(columns.fixed, meta.columns.width.fixed),
-                scroll_bg: background(columns.scroll, meta.columns.width.scroll),
+                fixed_bg: background(columns.fixed, meta.columns.width.fixed, 'ecf5fa'),
+                scroll_bg: background(columns.scroll, meta.columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
@@ -152,8 +150,7 @@ $.register_module({
             if (handler) handler();
         };
         return function (config, dollar) {
-            // because the same code is used in multiple frames, each grid holds a reference to its frame's $
-            this.$ = dollar || $;
+            this.$ = dollar || $; // each grid holds a reference to its frame/window's $
             if (templates) init_data(this, config); else compile_templates(init_data.partial(this, config));
         };
     }

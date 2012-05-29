@@ -166,6 +166,7 @@
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
     <fragment>/scripts/lib/handlebars-1.0.0.beta.6.js</fragment>
+    <fragment>/scripts/lib/jsbmp.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-1.7.1.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>

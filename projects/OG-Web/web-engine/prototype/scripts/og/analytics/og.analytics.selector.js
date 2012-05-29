@@ -29,29 +29,29 @@ $.register_module({
             auto_scroll.scroll = false;
             var cleanup = function () {
                 $(document).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
-                clearTimeout(auto_scroll.timeout);
+                auto_scroll.timeout = clearTimeout(auto_scroll.timeout);
                 auto_scroll.scroll = false;
                 grid.set_viewport();
             };
             var initialize = function () {
+                cleanup();
                 grid_offset = grid.elements.parent.offset();
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
             };
             var mousedown_observer = function (event) {
-                initialize();
-                var $cell, $target, right_click = event.which === 3 || event.button === 2,
+                if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
+                var $cell, $target,
                     scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
                     fixed_width = grid.meta.columns.width.fixed,
                     x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
                     y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
-                if (right_click) return; else cleanup();
+                $(grid.id + ' .OG-g-sel').remove();
                 $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
                 if (!$cell.length && !$target.is('.OG-g-sel')) return;
-                (mousemove_observer = (function (x, y) {
-                    return function (event) {mousemove({x: x, y: y}, event);};
-                })(x, y))(event);
+                (mousemove_observer = 
+                    (function (x, y) {return function (event) {mousemove({x: x, y: y}, event);};})(x, y))(event);
                 $(document).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
             };
             var mousemove = function (start, event) {
@@ -68,19 +68,22 @@ $.register_module({
                 rectangle.width = rectangle.bottom_right.right - rectangle.top_left.left;
                 rectangle.height = rectangle.bottom_right.bottom - rectangle.top_left.top;
                 if (rectangle.top_left.left < fixed_width) areas.push({ // fixed overlay
-                    position: {top: rectangle.top_left.top, left: rectangle.top_left.left},
+                    position: {top: rectangle.top_left.top, left: rectangle.top_left.left - 1},
                     dimensions: {
-                        height: rectangle.height,
-                        width: rectangle.width + rectangle.top_left.left > fixed_width ?
-                            fixed_width - rectangle.top_left.left : rectangle.width
+                        height: rectangle.height + 1,
+                        width: (rectangle.width + rectangle.top_left.left > fixed_width ?
+                            fixed_width - rectangle.top_left.left : rectangle.width) + 1
                     },
                     fixed: true
                 });
                 if (rectangle.bottom_right.right > fixed_width) areas.push({ // scroll overlay
-                    position: {top: rectangle.top_left.top, left: areas[0] ? 0 : rectangle.top_left.left - fixed_width},
+                    position: {
+                        top: rectangle.top_left.top,
+                        left: (areas[0] ? 0 : rectangle.top_left.left - fixed_width) - 1
+                    },
                     dimensions: {
-                        height: rectangle.height,
-                        width: areas[0] ? rectangle.width - areas[0].dimensions.width : rectangle.width
+                        height: rectangle.height + 1,
+                        width: (areas[0] ? rectangle.width - areas[0].dimensions.width : rectangle.width) + 1
                     },
                     fixed: false
                 });
