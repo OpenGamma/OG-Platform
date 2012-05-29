@@ -56,7 +56,8 @@ $.register_module({
                         $active_tab = $(selector + ' .og-active'),
                         $overflow_button = $(selector + ' .og-overflow'),
                         active_tab_width = $active_tab.outerWidth(),
-                        num_inactive_tabs = $tabs.length - 1,
+                        num_tabs = $tabs.length,
+                        num_inactive_tabs = num_tabs - 1,
                         new_tab_width, // new truncated width of a tab
                         compressed_tabs_width, // new full width of all tabs
                         space_needed, // number of pixles needed to reclaim
@@ -74,23 +75,25 @@ $.register_module({
                         compressed_tabs_width = (num_inactive_tabs * new_tab_width) + active_tab_width;
                         // stage 2
                         if (compressed_tabs_width > full_width) {
-                            $overflow_button.show().on('click', function (e) {
-                                e.stopPropagation();
-                                $overflow_panel.toggle();
-                                var wins = [window].concat(Array.prototype.slice.call(window.frames));
-                                if ($overflow_panel.is(":visible")) $(wins).on('click.overflow_handler', function () {
-                                    $overflow_panel.hide();
-                                    $(wins).off('click.overflow_handler');
+                            if (num_tabs > 1) {
+                                $overflow_button.show().on('click', function (e) {
+                                    e.stopPropagation();
+                                    $overflow_panel.toggle();
+                                    var wins = [window].concat(Array.prototype.slice.call(window.frames));
+                                    if ($overflow_panel.is(":visible")) $(wins).on('click.overflow_handler', function () {
+                                        $overflow_panel.hide();
+                                        $(wins).off('click.overflow_handler');
+                                    });
+                                    else $(wins).off('click.overflow_handler');
                                 });
-                                else $(wins).off('click.overflow_handler');
-                            });
+                            }
                             space_needed = full_width - compressed_tabs_width;
                             num_tabs_to_hide = Math.ceil(Math.abs(space_needed) / new_tab_width);
                             if (num_tabs_to_hide) $overflow_panel.find('ul').html(
                                 $tabs_to_move = $tabs.filter(':not(.og-active):lt(' + num_tabs_to_hide + ')')
                             );
                             // stage 3
-                            if (num_tabs_to_hide >= $tabs.length) $active_tab.width(
+                            if (num_tabs_to_hide >= num_tabs) $active_tab.width(
                                 active_tab_width
                                 + (space_needed + ((num_inactive_tabs * min_tab_width) - overflow_buffer))
                                 + 'px'

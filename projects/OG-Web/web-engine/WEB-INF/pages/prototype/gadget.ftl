@@ -6,7 +6,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </style>
 </head>
 <body>
-  <div class="OG-layout-gadget" style="height: 100%">
+  <div class="OG-layout-gadget-container" style="height: 100%">
     <div class="ui-layout-center">
       <#include "modules/common/og.common.gadget_container.ftl">
     </div>

@@ -48,7 +48,7 @@ $.register_module({
                 })
             };},
             gadget: function () {return {
-                main: $('.OG-layout-gadget').layout({
+                main: $('.OG-layout-gadget-container').layout({
                     defaults: {enableCursorHotkey: false},
                     center: {paneClass: 'OG-layout-analytics'}
                 })

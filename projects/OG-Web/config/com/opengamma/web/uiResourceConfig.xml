@@ -114,7 +114,6 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-admin.css</fragment>
-    <fragment>/styles/lib/jquery/jquery-layout-analytics.css</fragment>
   </bundle>
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
@@ -132,6 +131,8 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
