@@ -437,7 +437,7 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   }
 
   @Override
-  public T visitInterestRateFutureSecurity(final InterestRateFuture future) {
+  public T visitInterestRateFuture(final InterestRateFuture future) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
   }
 

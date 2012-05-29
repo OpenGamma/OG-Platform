@@ -48,6 +48,7 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
+  @SuppressWarnings("unchecked")
   public Annuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     Validate.noNullElements(payments);
     Validate.notNull(pType);

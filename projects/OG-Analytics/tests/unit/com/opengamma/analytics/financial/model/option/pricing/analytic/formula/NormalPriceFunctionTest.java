@@ -9,14 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
-
 /**
  * 
  */
 public class NormalPriceFunctionTest {
+
   private static final double T = 4.5;
   private static final double F = 104;
   private static final double DELTA = 10;
@@ -26,8 +23,8 @@ public class NormalPriceFunctionTest {
   private static final EuropeanVanillaOption OTM_PUT = new EuropeanVanillaOption(F - DELTA, T, false);
   private static final double DF = 0.9;
   private static final double SIGMA = 20.0;
-  private static final BlackFunctionData VOL_DATA = new BlackFunctionData(F, DF, SIGMA);
-  private static final BlackFunctionData ZERO_VOL_DATA = new BlackFunctionData(F, DF, 0);
+  private static final NormalFunctionData VOL_DATA = new NormalFunctionData(F, DF, SIGMA);
+  private static final NormalFunctionData ZERO_VOL_DATA = new NormalFunctionData(F, DF, 0);
   private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -42,7 +39,7 @@ public class NormalPriceFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData1() {
-    FUNCTION.getPriceFunction(ITM_CALL).evaluate((BlackFunctionData) null);
+    FUNCTION.getPriceFunction(ITM_CALL).evaluate((NormalFunctionData) null);
   }
 
   @Test
@@ -67,8 +64,8 @@ public class NormalPriceFunctionTest {
     assertEquals(price0, price0Adjoint, 1E-10);
     // Derivative forward.
     double deltaF = 0.01;
-    BlackFunctionData dataFP = new BlackFunctionData(F + deltaF, DF, SIGMA);
-    BlackFunctionData dataFM = new BlackFunctionData(F - deltaF, DF, SIGMA);
+    NormalFunctionData dataFP = new NormalFunctionData(F + deltaF, DF, SIGMA);
+    NormalFunctionData dataFM = new NormalFunctionData(F - deltaF, DF, SIGMA);
     double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
     double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
     double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
@@ -83,8 +80,8 @@ public class NormalPriceFunctionTest {
     assertEquals(derivativeK_FD, priceDerivative[2], 1E-7);
     // Derivative volatility.
     double deltaV = 0.0001;
-    BlackFunctionData dataVP = new BlackFunctionData(F, DF, SIGMA + deltaV);
-    BlackFunctionData dataVM = new BlackFunctionData(F, DF, SIGMA - deltaV);
+    NormalFunctionData dataVP = new NormalFunctionData(F, DF, SIGMA + deltaV);
+    NormalFunctionData dataVM = new NormalFunctionData(F, DF, SIGMA - deltaV);
     double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
     double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);

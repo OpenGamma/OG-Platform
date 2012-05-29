@@ -577,7 +577,7 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitInterestRateFutureSecurity(InterestRateFuture future) {
+    public String visitInterestRateFuture(InterestRateFuture future) {
       return null;
     }
 

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -62,7 +63,7 @@ public class SABRJohnsonVolatilityFunction extends VolatilityFunctionProvider<SA
           final double sigmaCEV = sigmaBlend * Math.pow(forward, 1 - beta) / beta;
           final CEVFunctionData cevData = new CEVFunctionData(forward, 1, sigmaCEV, beta);
           final double price = priceFunction.evaluate(cevData);
-          return BLACK_IMPLIED_VOL.getImpliedVolatility(cevData, option, price);
+          return BLACK_IMPLIED_VOL.getImpliedVolatility(new BlackFunctionData(forward, 1, sigmaCEV), option, price);
         }
         throw new NotImplementedException("Have not implemented the case where b <= 0");
       }

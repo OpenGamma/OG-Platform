@@ -264,7 +264,7 @@ public interface InstrumentDerivativeVisitor<S, T> {
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
-  T visitInterestRateFutureSecurity(InterestRateFuture future);
+  T visitInterestRateFuture(InterestRateFuture future);
 
   T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, S data);
 

@@ -9,6 +9,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -71,6 +73,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   /** Time format: yyyyMMdd */
   private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatters.pattern("HH:mm:ss");
 
+  private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central", "main", "default", "shared", "combined");
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -114,12 +117,12 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
       s_logger.warn("No view processors found at {}", getRemoteComponentFactory().getBaseUri());
       return;
     }
-    List<MarketDataSnapshotMaster> marketDataSnapshotMasters = getRemoteComponentFactory().getMarketDataSnapshotMasters();
-    if (marketDataSnapshotMasters.size() == 0) {
+    MarketDataSnapshotMaster marketDataSnapshotMaster = getRemoteComponentFactory().getMarketDataSnapshotMaster(DEFAULT_PREFERRED_CLASSIFIERS);
+    if (marketDataSnapshotMaster == null) {
       s_logger.warn("No market data snapshot masters found at {}", getRemoteComponentFactory().getBaseUri());
       return;
     }
-    List<ConfigMaster> configMasters = getRemoteComponentFactory().getConfigMasters();
+    Collection<ConfigMaster> configMasters = getRemoteComponentFactory().getConfigMasters().values();
     if (configMasters.size() == 0) {
       s_logger.warn("No config masters found at {}", getRemoteComponentFactory().getBaseUri());
       return;
@@ -129,7 +132,6 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     ExecutorService executor = Executors.newFixedThreadPool(cores);
     
     RemoteViewProcessor viewProcessor = viewProcessors.get(0);
-    MarketDataSnapshotMaster marketDataSnapshotMaster = marketDataSnapshotMasters.get(0);
     MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
     FutureTask<List<StructuredMarketDataSnapshot>> task = null;
     for (ConfigMaster configMaster : configMasters) {

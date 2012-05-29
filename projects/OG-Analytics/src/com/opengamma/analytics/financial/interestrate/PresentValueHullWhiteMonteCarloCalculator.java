@@ -31,18 +31,25 @@ public class PresentValueHullWhiteMonteCarloCalculator extends PresentValueCalcu
   /**
    * The default number of path in the Monte Carlo simulation.
    */
-  private static final int DEFAULT_NB_PATH = 50000; // 12500;
+  private static final int DEFAULT_NB_PATH = 12500;
+  /**
+   * The number of paths used in the simulation.
+   */
+  private final int _nbPath;
 
   /**
-   * The calculator unique instance.
+   * Calculator constructor using the default number of paths.
    */
-  private static final PresentValueHullWhiteMonteCarloCalculator INSTANCE = new PresentValueHullWhiteMonteCarloCalculator();
-
-  public static PresentValueHullWhiteMonteCarloCalculator getInstance() {
-    return INSTANCE;
+  public PresentValueHullWhiteMonteCarloCalculator() {
+    _nbPath = DEFAULT_NB_PATH;
   }
 
-  PresentValueHullWhiteMonteCarloCalculator() {
+  /**
+   * Constructor with a given number of simulation paths.
+   * @param nbPath The number of paths.
+   */
+  public PresentValueHullWhiteMonteCarloCalculator(final int nbPath) {
+    _nbPath = nbPath;
   }
 
   @Override
@@ -57,7 +64,7 @@ public class PresentValueHullWhiteMonteCarloCalculator extends PresentValueCalcu
     if (!(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle)) {
       throw new UnsupportedOperationException("The PresentValueHullWhiteMonteCarloCalculator visitor visitSwaptionPhysicalFixedIbor requires a HullWhiteOneFactorPiecewiseConstantDataBundle as data.");
     }
-    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
+    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), _nbPath);
     CurrencyAmount pvMC = methodMC
         .presentValue(swaption, swaption.getCurrency(), swaption.getUnderlyingSwap().getFirstLeg().getDiscountCurve(), (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
     return pvMC.getAmount();
@@ -70,7 +77,7 @@ public class PresentValueHullWhiteMonteCarloCalculator extends PresentValueCalcu
     if (!(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle)) {
       throw new UnsupportedOperationException("The PresentValueHullWhiteMonteCarloCalculator visitor visitSwaptionPhysicalFixedIbor requires a HullWhiteOneFactorPiecewiseConstantDataBundle as data.");
     }
-    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);
+    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), _nbPath);
     CurrencyAmount pvMC = methodMC.presentValue(annuity, annuity.getCurrency(), annuity.getDiscountCurve(), (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
     return pvMC.getAmount();
   }

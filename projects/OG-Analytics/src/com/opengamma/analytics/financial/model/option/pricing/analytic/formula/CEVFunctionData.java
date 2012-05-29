@@ -10,13 +10,43 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class CEVFunctionData extends BlackFunctionData {
+public class CEVFunctionData {
+
+  /**
+   * The forward.
+   */
+  private final double _forward;
+  /**
+   * The numeraire.
+   */
+  private final double _numeraire;
+  /**
+   * The normal volatility.
+   */
+  private final double _volatility;
+  /**
+   * The elasticity parameter.
+   */
   private final double _beta;
 
   public CEVFunctionData(final double f, final double df, final double sigma, final double beta) {
-    super(f, df, sigma);
+    _forward = f;
+    _numeraire = df;
+    _volatility = sigma;
     Validate.isTrue(beta >= 0.0, "beta less than zero not supported");
     _beta = beta;
+  }
+
+  public double getForward() {
+    return _forward;
+  }
+
+  public double getNumeraire() {
+    return _numeraire;
+  }
+
+  public double getVolatility() {
+    return _volatility;
   }
 
   public double getBeta() {
@@ -26,26 +56,41 @@ public class CEVFunctionData extends BlackFunctionData {
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = super.hashCode();
+    int result = 1;
     long temp;
     temp = Double.doubleToLongBits(_beta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_forward);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_numeraire);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_volatility);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
-    if (!super.equals(obj)) {
+    if (obj == null) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CEVFunctionData other = (CEVFunctionData) obj;
+    CEVFunctionData other = (CEVFunctionData) obj;
     if (Double.doubleToLongBits(_beta) != Double.doubleToLongBits(other._beta)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_forward) != Double.doubleToLongBits(other._forward)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_numeraire) != Double.doubleToLongBits(other._numeraire)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_volatility) != Double.doubleToLongBits(other._volatility)) {
       return false;
     }
     return true;

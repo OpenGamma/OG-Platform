@@ -35,7 +35,7 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     Tenor.ONE_MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS, 
     Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS};
 
-  protected String createName(final boolean ibor, final boolean cap, final double strike, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final Frequency frequency,
+  public static String createName(final boolean ibor, final boolean cap, final double strike, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final Frequency frequency,
       final Currency currency, final double notional) {
     final StringBuilder sb = new StringBuilder();
     sb.append(ibor ? "Ibor " : "CMS ");
