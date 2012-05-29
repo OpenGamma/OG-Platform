@@ -20,7 +20,6 @@ $.register_module({
          */
         return function (selector) {
             var initialized = false, loading, gadgets = [], container = this,
-                layout = og.views.common.layout.inner,
                 pane, // layout pannel
                 live_id, // active tab id
                 overflow = {}, // document offet of overflow panel
@@ -45,7 +44,7 @@ $.register_module({
                     live_id = id;
                 };
                 var is_south_pane_open = function () {
-                    return layout.state.south.size !== $('.OG-layout-analytics-south .OG-gadget-tabs').height();
+                    return og.views.common.layout.inner.state.south.size !== $('.OG-layout-analytics-south .OG-gadget-tabs').height();
                 };
                 /** Manages the widths of the tabs when the panel is resized, the following stages exist:
                  *  0 - all tabs are full size
@@ -162,9 +161,9 @@ $.register_module({
                  */
                 var toggle_pane = function (pane, open_only) {
                     var max = '50%', min = $('.OG-layout-analytics-' + pane + ' .OG-gadget-tabs').height(),
-                        minimize = layout.sizePane.partial(pane, min),
-                        maximize = layout.sizePane.partial(pane, max);
-                    layout.state[pane].size === min
+                        minimize = og.views.common.layout.inner.sizePane.partial(pane, min),
+                        maximize = og.views.common.layout.inner.sizePane.partial(pane, max);
+                    og.views.common.layout.inner.state[pane].size === min
                         ? maximize()
                         : open_only ? null : minimize();
                     },
@@ -230,18 +229,45 @@ $.register_module({
                 });
             };
             /**
-             * @param {Array}          arr An array of gadget configuration objects
-             * @param {Function}       arr[x].gadget
-             * @param {Object}         arr[x].options
-             * @param {String}         arr[x].name Tab name
-             * @param {Boolean}        arr[x].margin Add margin to the container
+             * @param {String|Array} data A String that defines what gadgets to load, or an Array of gadgets to load
+             *
+             * The data Array is a list of objects that describe the gadgets to load
+             *     obj.gadget   Function
+             *     obj.options  Object
+             *     obj.name     String
+             *     obj.margin   Boolean
              */
-            container.add = function (arr) {
+            container.add = function (data) {
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets, arr;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(arr), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(arr), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data), 10), container;
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets;
+                if (data === void 0) return; // no gadgets for this container
+                var generate_arr = function (data) { // create gadgets object array from url args using default settings
+                    var obj, type, gadgets = [], options = {};
+                    obj = data.split(';').reduce(function (acc, val) {
+                        var data = val.split(':');
+                        acc[data[0]] = data[1].split(',');
+                        return acc;
+                    }, {});
+                    // TODO: move default options to gadgets
+                    options.t = function (id) {
+                        return {
+                            gadget: 'og.common.gadgets.timeseries',
+                            options: {id: id, datapoints_link: false, child: true},
+                            name: 'Timeseries ' + id,
+                            margin: true
+                        }
+                    };
+                    options.g = function (id) {
+                        return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
+                    };
+                    for (type in obj) if (obj.hasOwnProperty(type))
+                        obj[type].forEach(function (val) {gadgets.push(options[type](val));});
+                    return gadgets;
+                };
+                arr = typeof data === 'string' ? generate_arr(data) : data;
                 new_gadgets = arr.map(function (obj) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget,
                         gadget_selector = panel_container + ' .' + gadget_class,

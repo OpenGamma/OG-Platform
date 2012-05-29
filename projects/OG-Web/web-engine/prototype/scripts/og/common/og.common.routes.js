@@ -47,6 +47,7 @@ $.register_module({
                     common.layout = (({
                         'analytics.ftl': common.layout.analytics,
                         'analytics2.ftl': common.layout.analytics2,
+                        'gadget.ftl': common.layout.gadget,
                         'admin.ftl': common.layout.admin
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();
                     if (window.parent !== window && window.parent.og.api.rest)

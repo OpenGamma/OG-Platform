@@ -47,6 +47,12 @@ $.register_module({
                     center: {paneClass: 'OG-layout-analytics', contentSelector: '.ui-layout-content'}
                 })
             };},
+            gadget: function () {return {
+                main: $('.OG-layout-gadget').layout({
+                    defaults: {enableCursorHotkey: false},
+                    center: {paneClass: 'OG-layout-analytics'}
+                })
+            };},
             analytics2: function () {return {
                 main: $('.OG-layout-analytics-container').layout({
                     defaults: {
