@@ -1,6 +1,6 @@
 /*
- * @copyright 2012 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  *
  * Array pluck method ... does not do any error handling right now, can be expanded if necessary
  */

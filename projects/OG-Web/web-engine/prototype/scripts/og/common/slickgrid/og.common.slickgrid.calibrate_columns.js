@@ -1,6 +1,6 @@
 /*
- * @copyright 2011 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  *
  * sets the last slick column to remainder of the width of its container
  */

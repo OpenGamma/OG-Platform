@@ -1,6 +1,6 @@
 /*
- * @copyright 2012 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 
 .OG-layout-analytics-container {
@@ -27,7 +27,7 @@
 .OG-layout-analytics-dock-north:before,
 .OG-layout-analytics-dock-center:before,
 .OG-layout-analytics-dock-south:before {
-    content: '';
+    content: 'Empty';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -54,12 +54,13 @@
     content: '';
     position: absolute;
     display: block;
-    z-index: 3;
     top: 2px;
     right: 0;
     bottom: 0;
     left: 0;
+    width: 100%;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAa0lEQVQ4y63Uyw3AIAyD4X8sT8QIzN9bpaovJ/EhEuTwIQExwHJK0nYKSTuJci5CKJdNAOXWGKI8Ngcoryc1UT7vo4Hy+2pFFOtvFVDsCTBRSmPlgmG0EQAuGEIHUeWCQzQQqi7YRIPxD+sAmYYvMA+fMFoAAAAASUVORK5CYII=);
+    z-index: 12;
 }
 
 .OG-layout-analytics-container .ui-layout-content {
@@ -67,15 +68,6 @@
     overflow-y: hidden;
 }
 
-.ie8 .OG-layout-analytics-container .ui-layout-content {
-    z-index: -1;
-}
-
 .OG-layout-analytics-container .ui-layout-header {
     min-height: 23px;
-}
-
-.ie8 .OG-layout-analytics-container .ui-layout-header {
-    position: relative;
-    z-index: -1;
 }
