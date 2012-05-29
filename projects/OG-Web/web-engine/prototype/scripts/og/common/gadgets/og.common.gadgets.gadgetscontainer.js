@@ -43,9 +43,6 @@ $.register_module({
                         .filter('.OG-gadget-' + id).show();
                     live_id = id;
                 };
-                var is_south_pane_open = function () {
-                    return og.views.common.layout.inner.state.south.size !== $('.OG-layout-analytics-south .OG-gadget-tabs').height();
-                };
                 /** Manages the widths of the tabs when the panel is resized, the following stages exist:
                  *  0 - all tabs are full size
                  *  1 - all but the active tab are truncated
@@ -148,26 +145,13 @@ $.register_module({
                             'name': val.config.name, 'active': (id === val.id), 'delete': true, 'id': val.id
                         }) && acc;
                     }, []);
-                    if (pane === 'south') tabs.toggle = is_south_pane_open() ? 'minimize' : 'maximize'; // add toggle
                     $header.html(tabs_template({'tabs': tabs}));
                     reflow();
                     show_gadget(id);
                 }
             };
             container.init = function (arr) {
-                /**
-                 * @param {String} pane Pane to toggle
-                 * @param {Boolean} open_only Don't close, only open
-                 */
-                var toggle_pane = function (pane, open_only) {
-                    var max = '50%', min = $('.OG-layout-analytics-' + pane + ' .OG-gadget-tabs').height(),
-                        minimize = og.views.common.layout.inner.sizePane.partial(pane, min),
-                        maximize = og.views.common.layout.inner.sizePane.partial(pane, max);
-                    og.views.common.layout.inner.state[pane].size === min
-                        ? maximize()
-                        : open_only ? null : minimize();
-                    },
-                    toggle_dropbox = function () {
+                var toggle_dropbox = function () {
                         if ($('.og-drop').length) { //overlay exists
                             $('.OG-dropbox span').removeClass('og-icon-new-window').addClass('og-icon-drop');
                         } else {
@@ -197,10 +181,7 @@ $.register_module({
                                 update_tabs(id || null);
                                 if (id) gadgets[index].gadget.resize();
                             }
-                            if (pane === 'south') toggle_pane(pane, true);
-                        })
-                        // handler for min/max toggle button
-                        .on('click', '.og-js-toggle', function () {if (pane === 'south') toggle_pane(pane);});
+                        });
                     if (!arr) update_tabs(null); else container.add(arr);
                     // implement drop
                     $('.OG-layout-analytics-' + pane).droppable({
