@@ -6,7 +6,7 @@
 package com.opengamma.util.functional;
 
 /**
- * Simple functional interface taking one parameter.
+ * Simple functional interface taking two parameter.
  * 
  * @param <A> the input parameter type
  * @param <B> the input parameter type
