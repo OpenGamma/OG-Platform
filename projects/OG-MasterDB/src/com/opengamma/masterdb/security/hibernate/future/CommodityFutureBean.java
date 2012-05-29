@@ -7,8 +7,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
