@@ -465,6 +465,21 @@ CREATE TABLE sec_bond (
 );
 CREATE INDEX ix_sec_bond_security_id ON sec_bond(security_id);
 
+CREATE TABLE sec_contract_category (
+    id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE,
+    description varchar(255),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE sec_contract_deliverable (
+    id bigint NOT NULL,
+    category_id bigint NOT NULL,
+    name varchar(255) NOT NULL UNIQUE
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_contract_deliverable2contract_category FOREIGN KEY (category_id) REFERENCES sec_contract_category (id)
+);
+
 CREATE TABLE sec_future (
     id bigint NOT NULL,
     security_id bigint NOT NULL,
@@ -488,6 +503,7 @@ CREATE TABLE sec_future (
     bondFutureFirstDeliveryDate_zone varchar(50),
     bondFutureLastDeliveryDate timestamp without time zone,
     bondFutureLastDeliveryDate_zone varchar(50),
+    contract_deliverable_id bigint NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_future2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_future2exchange1 FOREIGN KEY (tradingexchange_id) REFERENCES sec_exchange (id),
@@ -497,8 +513,11 @@ CREATE TABLE sec_future (
     CONSTRAINT sec_fk_future2currency3 FOREIGN KEY (currency3_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_future2bondfuturetype FOREIGN KEY (bondtype_id) REFERENCES sec_bondfuturetype (id),
     CONSTRAINT sec_fk_future2commodityfuturetype FOREIGN KEY (commoditytype_id) REFERENCES sec_commodityfuturetype (id),
-    CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id)
+    CONSTRAINT sec_fk_future2unit FOREIGN KEY (unitname_id) REFERENCES sec_unit (id),
+    CONSTRAINT sec_fk_future2contract_deliverable FOREIGN KEY (contract_deliverable_id) REFERENCES sec_contract_deliverable (id)
 );
+
+
 CREATE INDEX ix_sec_future_security_id ON sec_future(security_id);
 
 CREATE TABLE sec_futurebundle (

@@ -18,6 +18,9 @@ namespace com.opengamma.financial.security.future {
     required com.opengamma.util.money.Currency currency;
     // required string settlementType [default = "CASH"];
     required double unitAmount;
+    
+    required string futureCategory;
+    required string name;
   }
 
 }
