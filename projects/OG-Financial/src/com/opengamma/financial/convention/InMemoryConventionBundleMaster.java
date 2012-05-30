@@ -15,8 +15,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -65,6 +63,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     GBConventions.addTreasuryBondConvention(this);
     GBConventions.addCorporateBondConvention(this);
     GBConventions.addBondFutureConvention(this);
+    INConventions.addFixedIncomeInstrumentConventions(this);
     JPConventions.addFixedIncomeInstrumentConventions(this);
     NZConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addFixedIncomeInstrumentConventions(this);

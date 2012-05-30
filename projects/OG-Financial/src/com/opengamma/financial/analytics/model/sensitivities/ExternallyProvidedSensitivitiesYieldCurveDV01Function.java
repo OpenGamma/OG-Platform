@@ -41,10 +41,9 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends AbstractFunction.NonCompiledInvoker {
-  /**
-   * The value name calculated by this function.
-   */
+  /** The value name for the yield curve node sensitivities required by this function */
   public static final String YCNS_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+  /** The value name for the DV01 produced by this function */
   public static final String DV01_REQUIREMENT = ValueRequirementNames.DV01;
 
   @Override

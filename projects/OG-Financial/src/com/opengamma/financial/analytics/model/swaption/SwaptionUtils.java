@@ -9,7 +9,7 @@ import javax.time.calendar.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SwaptionUtils {
 
-  public static GeneratorSwap getSwapGenerator(final SwaptionSecurity security, final InstrumentDefinition<?> swaption, final SecuritySource securitySource) {
+  public static GeneratorSwapFixedIbor getSwapGenerator(final SwaptionSecurity security, final InstrumentDefinition<?> swaption, final SecuritySource securitySource) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(securitySource, "security source");
@@ -60,6 +60,6 @@ public class SwaptionUtils {
     } else {
       throw new OpenGammaRuntimeException("Can only handle PeriodFrequency or SimpleFrequency");
     }
-    return new GeneratorSwap(fixedLegPeriod, fixedLegDayCount, iborIndex);
+    return new GeneratorSwapFixedIbor(fixedLegPeriod, fixedLegDayCount, iborIndex);
   }
 }

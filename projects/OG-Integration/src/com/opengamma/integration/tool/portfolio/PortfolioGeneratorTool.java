@@ -25,7 +25,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
-    securityGenerator.setCurrencyCurveName("FORWARD");
+    securityGenerator.setCurrencyCurveName("DEFAULT");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override

@@ -5,20 +5,19 @@
  */
 package com.opengamma.financial.conversion;
 
-import com.opengamma.financial.analytics.LabelledMatrix1D;
-import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
-
-import javax.time.calendar.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
 /**
  * 
  */
-public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix1D> {
+public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix1D<?, ?>> {
 
   @Override
-  public Map<String, Double> convert(String valueName, LabelledMatrix1D value) {
+  public Map<String, Double> convert(String valueName, LabelledMatrix1D<?, ?> value) {
     Map<String, Double> returnValue = new HashMap<String, Double>();
     Object[] keys = value.getKeys();
     double[] values = value.getValues();

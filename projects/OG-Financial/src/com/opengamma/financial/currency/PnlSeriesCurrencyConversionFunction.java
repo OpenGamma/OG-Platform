@@ -28,7 +28,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
@@ -42,7 +41,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  */
-public class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String CONVERSION_CCY_PROPERTY = "ConversionCurrency";
   
@@ -106,19 +105,6 @@ public class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCom
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURRENCY)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION).get();
-    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.size() != 1) {
@@ -128,7 +114,7 @@ public class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCom
         .withoutAny(ValuePropertyNames.CURRENCY).withAny(ValuePropertyNames.CURRENCY)
         .with(CONVERSION_CCY_PROPERTY, Iterables.getOnlyElement(desiredCurrencyValues))
         .withOptional(CONVERSION_CCY_PROPERTY).get();
-    return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.PNL_SERIES, desiredValue.getTargetSpecification(), constraints));
+    return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), constraints));
   }
 
   @Override
@@ -138,12 +124,7 @@ public class PnlSeriesCurrencyConversionFunction extends AbstractFunction.NonCom
     return ImmutableSet.of(getValueSpec(inputSpec, inputRequirement.getConstraint(CONVERSION_CCY_PROPERTY)));
   }
 
-  private ValueSpecification getValueSpec(ValueSpecification inputSpec, String currencyCode) {
-    ValueProperties properties = inputSpec.getProperties().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, currencyCode).get();
-    return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);
-  }
+  protected abstract ValueSpecification getValueSpec(ValueSpecification inputSpec, String currencyCode);
   
   private LocalDateDoubleTimeSeries convertSeries(LocalDateDoubleTimeSeries sourceTs, HistoricalTimeSeriesSource htsSource, Currency sourceCurrency, Currency targetCurrency) {
     CurrencyMatrixValue fxConversion = getCurrencyMatrix().getConversion(sourceCurrency, targetCurrency);

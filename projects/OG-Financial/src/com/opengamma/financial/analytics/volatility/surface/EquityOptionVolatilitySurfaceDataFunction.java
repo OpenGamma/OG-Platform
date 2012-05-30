@@ -129,8 +129,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
 
   /**
    * // Computes active expiry dates, which fall on the Saturday following the 3rd Friday of an expiry month
-   * @param valDate
-   * @return 
+   * @param valDate The evaluation date
+   * @return The expiry dates
    */
   public static TreeSet<LocalDate> getExpirySet(final LocalDate valDate) {
     
@@ -277,9 +277,6 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
 
         Object[] expiries = getExpirySet(atInstant.toLocalDate()).toArray();
-        Object[] strikes = getStrikes(underlyingSpot, 0.6, 5);
-//        for (final Object x : expiries) { // FIXME Was: _definition.getXs()
-//          for (final Object y : strikes) { // FIXME Was: _definition.getYs()) {
         for (final Object x : _definition.getXs()) { 
           for (final Object y : _definition.getYs()) { 
             final double strike = (Double) y;

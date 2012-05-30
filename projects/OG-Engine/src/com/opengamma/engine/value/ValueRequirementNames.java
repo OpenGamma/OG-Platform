@@ -941,6 +941,22 @@ public final class ValueRequirementNames {
    * The sensitivity of the present value of an instrument to the nu parameter of the SABR model.
    */
   public static final String PRESENT_VALUE_SABR_NU_SENSITIVITY = "Present Value SABR Nu Sensitivity";
+  /**
+   * The sensitivity of the present value of an instrument to the alpha parameter of the SABR model. Sensitivity to the grid node points.
+   */
+  public static final String PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY = "Present Value SABR Alpha Node Sensitivity";
+  /**
+   * The sensitivity of the present value of an instrument to the beta parameter of the SABR model. Sensitivity to the grid node points.
+   */
+  public static final String PRESENT_VALUE_SABR_BETA_NODE_SENSITIVITY = "Present Value SABR Beta Node Sensitivity";
+  /**
+   * The sensitivity of the present value of an instrument to the rho parameter of the SABR model. Sensitivity to the grid node points.
+   */
+  public static final String PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY = "Present Value SABR Rho Node Sensitivity";
+  /**
+   * The sensitivity of the present value of an instrument to the nu parameter of the SABR model. Sensitivity to the grid node points.
+   */
+  public static final String PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY = "Present Value SABR Nu Node Sensitivity";
 
   ///// FX
   /**

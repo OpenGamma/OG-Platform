@@ -64,10 +64,6 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
     final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
 
-    ConfigDBVolatilitySurfaceDefinitionSource defnSrc = new ConfigDBVolatilitySurfaceDefinitionSource(configSrc);
-    @SuppressWarnings("rawtypes")
-    VolatilitySurfaceDefinition volDefn = defnSrc.getDefinition(fullName, InstrumentTypeProperties.EQUITY_OPTION);
-    
     // 3. Get the RawEquityVolatilitySurfaceData object
     final ValueProperties surfaceProperties = ValueProperties.builder() // createValueProperties() 
       .with(ValuePropertyNames.SURFACE, surfaceName)

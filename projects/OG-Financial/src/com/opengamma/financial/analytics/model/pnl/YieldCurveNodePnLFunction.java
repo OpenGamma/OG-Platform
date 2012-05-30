@@ -26,6 +26,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -52,24 +53,19 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCompiledInvoker {
+public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
+  public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
-  private final String _resolutionKey;
 
-  public YieldCurveNodeSensitivityPnLFunction(final String resolutionKey) {
-    ArgumentChecker.notNull(resolutionKey, "resolution key");
-    _resolutionKey = resolutionKey;
-  }
-  //private static final LocalDate MAGIC_DATE = LocalDate.of(2009, 06, 05);
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
@@ -99,14 +95,8 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     }
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
-    final ValueProperties forwardCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
-        .with(ValuePropertyNames.CURVE, forwardCurveName).get();
-    final ValueProperties fundingCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
-        .with(ValuePropertyNames.CURVE, fundingCurveName).get();
+    final ValueProperties forwardCurveProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, forwardCurveName);
+    final ValueProperties fundingCurveProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, fundingCurveName);
     final Object forwardCurveSensitivitiesObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardCurveProperties));
     if (forwardCurveSensitivitiesObject == null) {
       throw new OpenGammaRuntimeException("Could not get sensitivities for " + forwardCurveName);
@@ -126,12 +116,15 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
         .add(getPnLSeries(fundingCurveSpec, fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
     result = result.multiply(position.getQuantity().doubleValue());
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
-    final ValueSpecification resultSpec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.POSITION) {
+      return false;
+    }
     final Security security = target.getPosition().getSecurity();
     if (!(security instanceof FinancialSecurity)) {
       return false;
@@ -168,14 +161,8 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     final String curveCalculationMethodName = getPropertyName(curveCalculationMethodNames);
     final String forwardCurveName = getPropertyName(forwardCurveNames);
     final String fundingCurveName = getPropertyName(fundingCurveNames);
-    final ValueProperties forwardSensitivityProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
-        .with(ValuePropertyNames.CURVE, forwardCurveName).get();
-    final ValueProperties fundingSensitivityProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
-        .with(ValuePropertyNames.CURVE, fundingCurveName).get();
+    final ValueProperties forwardSensitivityProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, forwardCurveName);
+    final ValueProperties fundingSensitivityProperties = getSensitivityProperties(currencyString, forwardCurveName, fundingCurveName, curveCalculationMethodName, fundingCurveName);
     final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, forwardSensitivityProperties);
     final ValueRequirement fundingCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, position, fundingSensitivityProperties);
     final ValueProperties.Builder forwardCurveSpecProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, forwardCurveName);
@@ -198,8 +185,9 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .with(PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
         .get();
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId()));
+    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override
@@ -216,6 +204,7 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
+        .with(PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
         .get();
   }
 
@@ -265,9 +254,9 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
       }
       final double sensitivity = values[i];
       final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) idObject);
-      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", id, _resolutionKey, startDate, true, now, true);
+      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
       if (dbNodeTimeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
+        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = nodeTimeSeries.divide(getNormalizationFactor(stripList.get(i)));
@@ -292,5 +281,16 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
       default:
         return 100.;
     }
+  }
+  
+  private ValueProperties getSensitivityProperties(final String currencyString, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethodName,
+      final String curveName) {
+    return ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, currencyString)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currencyString)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
   }
 }

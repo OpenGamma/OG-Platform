@@ -41,10 +41,9 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends AbstractFunction.NonCompiledInvoker {
-  /**
-   * The value name calculated by this function.
-   */
+  /** The value name for the credit sensitivities required by this function */
   public static final String CREDIT_REQUIREMENT = ValueRequirementNames.CREDIT_SENSITIVITIES;
+  /** The value name for CS01 */
   public static final String CS01_REQUIREMENT = ValueRequirementNames.CS01;
 
   @Override

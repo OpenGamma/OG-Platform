@@ -13,7 +13,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  * 
  *
  */
-public class PortfolioHistoricalVaRFunction extends NormalHistoricalVaRFunction {
+public class NormalPortfolioHistoricalVaRFunction extends NormalHistoricalVaRFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {

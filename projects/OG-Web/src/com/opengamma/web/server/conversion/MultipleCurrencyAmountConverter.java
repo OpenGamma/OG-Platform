@@ -5,9 +5,13 @@
  */
 package com.opengamma.web.server.conversion;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -23,41 +27,43 @@ public class MultipleCurrencyAmountConverter implements ResultConverter<Multiple
   }
   @Override
   public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value, ConversionMode mode) {
-//    Map<String, Object> result = new HashMap<String, Object>();
-//    System.err.println(value);
-//    int size = value.size();
-//    result.put("summary", size);
-//    if (mode == ConversionMode.FULL) {
-//      Set<Object> values = new LinkedHashSet<Object>();
-//      for (CurrencyAmount entry : value) {
-//        Object converted = context.convert(entry, mode);
-//        values.add(converted);
-//      }
-//      result.put("full", values);
-//    }
-    StringBuilder sb = new StringBuilder();
-    Iterator<CurrencyAmount> iterator = value.iterator();
-    while (iterator.hasNext()) {
-      sb.append(_doubleConverter.convertForDisplay(context, valueSpec, iterator.next(), mode));
-      if (iterator.hasNext()) {
-        sb.append(", ");
+    Map<String, Object> result = new HashMap<String, Object>();
+    int length = value.size();
+    result.put("summary", length);
+    
+    if (mode == ConversionMode.FULL) {
+      Map<Object, Object> labelledValues = new LinkedHashMap<Object, Object>();
+      Iterator<CurrencyAmount> iter = value.iterator();
+      while (iter.hasNext()) {
+        CurrencyAmount ca = iter.next();
+        String label = ca.getCurrency().getCode(); 
+        Object currentLabel = context.convert(label, ConversionMode.SUMMARY);
+        Object currentValue = _doubleConverter.convertForDisplay(context, valueSpec, ca.getAmount(), ConversionMode.SUMMARY);
+        labelledValues.put(currentLabel, currentValue);
       }
+      result.put("full", labelledValues);
     }
-    return sb.toString();
+    
+    return result;
+//    StringBuilder sb = new StringBuilder();
+//    Iterator<CurrencyAmount> iterator = value.iterator();
+//    while (iterator.hasNext()) {
+//      sb.append(_doubleConverter.convertForDisplay(context, valueSpec, iterator.next(), mode));
+//      if (iterator.hasNext()) {
+//        sb.append(", ");
+//      }
+//    }
+//    return sb.toString();
   }
 
   @Override
   public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, MultipleCurrencyAmount value) {
-    if (value.size() > 0) {
-      return _doubleConverter.convertForHistory(context, valueSpec, value.iterator().next()); 
-    } else {
-      return 0;
-    }
+    return null;
   }
 
   @Override
   public String getFormatterName() {
-    return "MULTIPLE_CURRENCY_AMOUNT";
+    return "LABELLED_MATRIX_1D";
   }
 
   @Override

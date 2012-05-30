@@ -12,16 +12,17 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 /**
  * 
  */
-public class PositionHistoricalVaRDefaultPropertiesFunction extends NormalHistoricalVaRDefaultPropertiesFunction {
+public class NormalPortfolioHistoricalVaRDefaultPropertiesFunction extends NormalHistoricalVaRDefaultPropertiesFunction {
 
-  public PositionHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, 
+  public NormalPortfolioHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, 
       final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon) {
     super(samplingPeriod, scheduleCalculator, samplingCalculator, meanCalculator, stdDevCalculator, confidenceLevel, horizon,
-        ComputationTargetType.POSITION);
+        ComputationTargetType.PORTFOLIO_NODE);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
+    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
+
 }
