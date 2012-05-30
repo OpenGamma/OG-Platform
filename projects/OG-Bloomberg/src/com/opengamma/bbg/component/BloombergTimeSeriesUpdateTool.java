@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg.component;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
@@ -27,7 +30,15 @@ public class BloombergTimeSeriesUpdateTool extends AbstractTool {
         ((BloombergToolContext) getToolContext()).getBloombergHistoricalTimeSeriesSource(),
         new BloombergIdentifierProvider(((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider()));
     loader.setUpdateDb(true);
+    loader.setReload(getCommandLine().hasOption("reload"));
     loader.run();
+  }
+  
+  @Override
+  protected Options createOptions(boolean mandatoryConfigResource) {
+    Options options = super.createOptions(mandatoryConfigResource);
+    options.addOption(new Option("r", "reload", false, "Reload complete time series"));
+    return options;
   }
   
   /**
