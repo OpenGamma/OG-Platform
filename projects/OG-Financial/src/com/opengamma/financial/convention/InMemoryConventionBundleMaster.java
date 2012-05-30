@@ -65,6 +65,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     GBConventions.addTreasuryBondConvention(this);
     GBConventions.addCorporateBondConvention(this);
     GBConventions.addBondFutureConvention(this);
+    INConventions.addFixedIncomeInstrumentConventions(this);
     JPConventions.addFixedIncomeInstrumentConventions(this);
     NZConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addFixedIncomeInstrumentConventions(this);
