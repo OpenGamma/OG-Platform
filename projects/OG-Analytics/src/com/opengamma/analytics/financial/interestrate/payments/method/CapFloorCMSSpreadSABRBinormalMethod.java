@@ -369,6 +369,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
 
     @Override
     public Double evaluate(Double x) {
+      @SuppressWarnings("synthetic-access")
       CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(new RealPolynomialFunction1D(new double[] {x}), _methodCmsCap, _methodCmsCoupon);
       return method.presentValue(_cmsSpread, _sabrData).getAmount() - _price;
     }

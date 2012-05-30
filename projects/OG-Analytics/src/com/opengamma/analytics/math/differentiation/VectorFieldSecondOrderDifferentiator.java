@@ -54,6 +54,7 @@ public class VectorFieldSecondOrderDifferentiator implements Differentiator<Doub
     };
   }
 
+  @Override
   public Function1D<DoubleMatrix1D, DoubleMatrix2D[]> differentiate(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, Boolean> domain) {
     Validate.notNull(function);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = _vectorFieldDiff.differentiate(function, domain);

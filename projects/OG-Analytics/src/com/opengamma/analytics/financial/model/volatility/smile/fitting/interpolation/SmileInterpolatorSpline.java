@@ -56,6 +56,7 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     final Interpolator1DDataBundle data = _interpolator.getDataBundle(x, impliedVols);
 
     final Function1D<Double, Double> interpFunc = new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double k) {
         final double m = Math.log(k / forward);

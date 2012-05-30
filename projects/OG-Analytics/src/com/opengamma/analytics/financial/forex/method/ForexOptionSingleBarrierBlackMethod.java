@@ -175,6 +175,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @param curves The volatility and curves description (SmileDeltaTermStructureDataBundle).
    * @return The curve sensitivity.
    */
+  @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");

@@ -105,8 +105,8 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    * @param isPayer The payer flag of the fixed leg.
    * @return The vanilla swap.
    */
-  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final GeneratorSwapFixedIbor generator, final double notional, final double fixedRate,
-      final boolean isPayer) {
+  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final GeneratorSwapFixedIbor generator, 
+      final double notional, final double fixedRate, final boolean isPayer) {
     Validate.notNull(settlementDate, "Settlement date");
     Validate.notNull(maturityDate, "Maturity date");
     Validate.notNull(generator, "Swap generator");
