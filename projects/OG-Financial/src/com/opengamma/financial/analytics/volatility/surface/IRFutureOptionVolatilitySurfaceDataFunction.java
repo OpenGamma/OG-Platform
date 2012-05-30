@@ -216,7 +216,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       Double[] futureExpiries = futurePrices.getXData();
       int nFutures = futureExpiries.length;
       if (nFutures == 0) {
-        s_logger.warn("No future prices found for surface : " + specification.getName());
+        s_logger.info("No future prices found for surface : " + specification.getName());
         return null;
       }
       Double underlyingExpiry;
