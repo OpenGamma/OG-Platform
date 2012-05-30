@@ -45,10 +45,10 @@ public class INConventions {
     final BusinessDayConvention swapFixedBusinessDay = modified;
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_SWAP")), "IND_SWAP", act365, modified, semiAnnual, 0, in, act365,
-        modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "BOI Bank Bill 6m"), in, true);
+        modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR SWAP INDEX"), in, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_OIS_SWAP")), "IND_OIS_SWAP", act365, modified, annual, 0, in,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "BOI OVERNIGHT CASH RATE"), in, true, overnightPublicationLag);
+        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR OVERNIGHT CASH RATE"), in, true, overnightPublicationLag);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_SWAPTION")), "IND_SWAPTION", false);
   }
