@@ -216,10 +216,10 @@ $.register_module({
             container.add = function (data) {
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets, arr;
                 if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data), 10), container;
+                    return container.init(), setTimeout(container.add.partial(data || null), 10), container;
+                if (!initialized) return setTimeout(container.add.partial(data || null), 10), container;
+                if (!data) return container; // no gadgets for this container
                 if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
-                if (data === void 0) return; // no gadgets for this container
                 var generate_arr = function (data) { // create gadgets object array from url args using default settings
                     var obj, type, gadgets = [], options = {};
                     obj = data.split(';').reduce(function (acc, val) {
