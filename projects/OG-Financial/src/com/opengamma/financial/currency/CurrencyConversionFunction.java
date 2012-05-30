@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Converts a value from one currency to another, preserving all other properties.
@@ -142,7 +143,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   protected DoubleLabelledMatrix1D convertDoubleLabelledMatrix1D(final DoubleLabelledMatrix1D value, final double conversionRate) {
     return new DoubleLabelledMatrix1D(value.getKeys(), value.getLabels(), convertDoubleArray(value.getValues(), conversionRate));
   }
-
+  
   /**
    * Delegates off to the other convert methods depending on the type of value.
    * 
@@ -156,8 +157,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (value instanceof Double) {
       return convertDouble((Double) value, conversionRate);
     } else if (value instanceof DoubleLabelledMatrix1D) {
-      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);
-    } else {
+      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);    
+    } else { 
       s_logger.warn("Can't convert {} to {}", inputValue, desiredValue);
       return null;
     }
@@ -183,8 +184,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
             if (!(rate instanceof Double)) {
               s_logger.warn("Invalid rate {} for {}", rate, rateRequirement);
               continue desiredValueLoop;
-            }
-            final Object converted = convertValue(inputValue, desiredValue, (Double) rate);
+            } 
+            Object converted = convertValue(inputValue, desiredValue, (Double) rate);
             if (converted != null) {
               results.add(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
             }
