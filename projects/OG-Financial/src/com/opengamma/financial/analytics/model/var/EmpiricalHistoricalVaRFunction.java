@@ -12,6 +12,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
+import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRCalculator;
+import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRParameters;
 import com.opengamma.analytics.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.analytics.financial.var.NormalVaRParameters;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
@@ -32,8 +34,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-  public static final String NORMAL_VAR = "Normal";
+public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  public static final String EMPIRICAL_VAR = "Empirical";
+  private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
   
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -48,13 +51,10 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> scheduleCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    final Set<String> meanCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.MEAN_CALCULATOR);
-    final Set<String> stdDevCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
     final Set<String> confidenceLevelNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CONFIDENCE_LEVEL);
     final Set<String> horizonNames = desiredValue.getConstraints().getValues(ValuePropertyNames.HORIZON);
-    final NormalVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
-    final NormalLinearVaRCalculator<DoubleTimeSeries<?>> varCalculator = getVaRCalculator(meanCalculatorNames, stdDevCalculatorNames);
-    final double var = varCalculator.evaluate(parameters, pnlSeries);
+    final EmpiricalDistributionVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
+    final double var = CALCULATOR.evaluate(parameters, pnlSeries);
     final ValueProperties resultProperties = getResultProperties(currency, desiredValues.iterator().next());
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
   }
@@ -77,12 +77,10 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.MEAN_CALCULATOR)
-        .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
-        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
@@ -144,11 +142,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.MEAN_CALCULATOR)
-        .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR);
+        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -161,19 +157,17 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-        .with(ValuePropertyNames.MEAN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.MEAN_CALCULATOR))
-        .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
         .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
-        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR);
-    final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);    
+        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR);
+    final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
     return properties.get();
   }
 
-  private NormalVaRParameters getParameters(final Set<String> scheduleCalculatorNames, final Set<String> horizonNames, final Set<String> confidenceLevelNames) {
+  private EmpiricalDistributionVaRParameters getParameters(final Set<String> scheduleCalculatorNames, final Set<String> horizonNames, final Set<String> confidenceLevelNames) {
     if (scheduleCalculatorNames == null || scheduleCalculatorNames.isEmpty() || scheduleCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique schedule calculator name: " + scheduleCalculatorNames);
     }
@@ -183,22 +177,8 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     if (confidenceLevelNames == null || confidenceLevelNames.isEmpty() || confidenceLevelNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique confidence level name: " + confidenceLevelNames);
     }
-    return new NormalVaRParameters(Double.valueOf(horizonNames.iterator().next()),
+    return new EmpiricalDistributionVaRParameters(Double.valueOf(horizonNames.iterator().next()),
         VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
   }
 
-  private NormalLinearVaRCalculator<DoubleTimeSeries<?>> getVaRCalculator(final Set<String> meanCalculatorNames,
-      final Set<String> stdDevCalculatorNames) {
-    if (meanCalculatorNames == null || meanCalculatorNames.isEmpty() || meanCalculatorNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique mean calculator name: " + meanCalculatorNames);
-    }
-    if (stdDevCalculatorNames == null || stdDevCalculatorNames.isEmpty() || stdDevCalculatorNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique standard deviation calculator name: " + stdDevCalculatorNames);
-    }
-    final DoubleTimeSeriesStatisticsCalculator meanCalculator =
-        new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(meanCalculatorNames.iterator().next()));
-    final DoubleTimeSeriesStatisticsCalculator stdDevCalculator =
-        new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(stdDevCalculatorNames.iterator().next()));
-    return new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(meanCalculator, stdDevCalculator);
-  }
 }
