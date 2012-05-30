@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * Swap generator for the GBP Annual ACT/365 vs Libor 3M.
  */
-public class GBP1YLIBOR3M extends GeneratorSwap {
+public class GBP1YLIBOR3M extends GeneratorSwapFixedIbor {
 
   /**
    * Constructor.

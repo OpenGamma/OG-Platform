@@ -25,7 +25,7 @@ public class IndexSwap {
   /**
    * The swap generator associated to the swap index.
    */
-  private final GeneratorSwap _swapGenerator;
+  private final GeneratorSwapFixedIbor _swapGenerator;
   /**
    * The tenor of the swap index. Usually a integer number of years (1Y, 5Y, 10Y).
    */
@@ -40,7 +40,7 @@ public class IndexSwap {
    */
   public IndexSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, Period tenor) {
     Validate.notNull(tenor, "Swap tenor");
-    _swapGenerator = new GeneratorSwap(fixedLegPeriod, fixedLegDayCount, iborIndex);
+    _swapGenerator = new GeneratorSwapFixedIbor(fixedLegPeriod, fixedLegDayCount, iborIndex);
     _tenor = tenor;
     _name = tenor.toString() + _swapGenerator.getName();
   }
@@ -50,7 +50,7 @@ public class IndexSwap {
    * @param swapGenerator The underlying swap generator.
    * @param tenor The swap tenor.
    */
-  public IndexSwap(GeneratorSwap swapGenerator, Period tenor) {
+  public IndexSwap(GeneratorSwapFixedIbor swapGenerator, Period tenor) {
     Validate.notNull(swapGenerator, "swap generator");
     Validate.notNull(tenor, "tenor");
     _swapGenerator = swapGenerator;

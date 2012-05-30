@@ -18,7 +18,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwap {
+public class GeneratorSwapFixedIbor {
 
   /**
    * Name of the index.
@@ -57,7 +57,7 @@ public class GeneratorSwap {
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
    */
-  public GeneratorSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
+  public GeneratorSwapFixedIbor(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
     Validate.notNull(iborIndex, "ibor index");
@@ -79,7 +79,7 @@ public class GeneratorSwap {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapFixedIbor(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
     Validate.notNull(iborIndex, "ibor index");
@@ -194,7 +194,7 @@ public class GeneratorSwap {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwap other = (GeneratorSwap) obj;
+    GeneratorSwapFixedIbor other = (GeneratorSwapFixedIbor) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
