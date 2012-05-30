@@ -5,20 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_FIRST_TRADE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_UNITS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
-import static com.opengamma.bbg.BloombergConstants.FIELD_LAST_TRADEABLE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_QUOTED_CRNCY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_QUOTE_UNITS;
+import static com.opengamma.bbg.BloombergConstants.*;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -92,7 +79,8 @@ public class FXFutureLoader extends SecurityLoader {
   @Override
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String category = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String expiryDate = fieldData.getString(FIELD_LAST_TRADEABLE_DT);
     String futureTradingHours = fieldData.getString(FIELD_FUT_TRADING_HRS);
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
@@ -148,10 +136,7 @@ public class FXFutureLoader extends SecurityLoader {
     Currency tradingCurrency = Currency.parse(tradingCurrencyCode);
     Currency quotedCurrency = Currency.parse(quotedCurrencyCode);
     
-    FXFutureSecurity security = new FXFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, tradingCurrency, quotedCurrency);
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
+    FXFutureSecurity security = new FXFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, tradingCurrency, quotedCurrency, name, category);    
     
     parseIdentifiers(fieldData, security, FIELD_FUT_FIRST_TRADE_DT, FIELD_LAST_TRADEABLE_DT);
     return security;

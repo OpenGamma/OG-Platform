@@ -95,10 +95,10 @@ public class BondFutureLoader extends SecurityLoader {
     String futureTradingHours = fieldData.getString(FIELD_FUT_TRADING_HRS);
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
     String currencyStr = fieldData.getString(FIELD_CRNCY);
-    String category = fieldData.getString(FIELD_FUTURES_CATEGORY);
+    String category = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");
     String firstDeliveryDateStr = fieldData.getString(FIELD_FUT_DLV_DT_FIRST);
     String lastDeliveryDateStr = fieldData.getString(FIELD_FUT_DLV_DT_LAST);
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     double unitAmount;
     try {
@@ -149,11 +149,7 @@ public class BondFutureLoader extends SecurityLoader {
     ZonedDateTime lastDeliverDate = decodeDeliveryDate(firstDeliveryDateStr);
     Set<BondFutureDeliverable> basket = createBondDeliverables(fieldData);
     BondFutureSecurity security = new BondFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, basket, category,
-                                                         firstDeliverDate, lastDeliverDate);
-
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
+                                                         firstDeliverDate, lastDeliverDate, name, category);
 
     // set identifiers
     parseIdentifiers(fieldData, security);

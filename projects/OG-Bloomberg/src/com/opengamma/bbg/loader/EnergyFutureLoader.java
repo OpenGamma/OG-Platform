@@ -88,12 +88,12 @@ public final class EnergyFutureLoader extends SecurityLoader {
     String expiryDate = fieldData.getString(FIELD_FUT_LAST_TRADE_DT);
     String futureTradingHours = fieldData.getString(FIELD_FUT_TRADING_HRS);
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
-    String currencyStr = fieldData.getString(FIELD_CRNCY);
-    String category = fieldData.getString(FIELD_FUTURES_CATEGORY);
+    String currencyStr = fieldData.getString(FIELD_CRNCY);    
+    String category = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");
     Double unitNumber = fieldData.getDouble(FIELD_FUT_CONT_SIZE);
     String unitName = fieldData.getString(FIELD_FUT_TRADING_UNITS);
     String underlyingTicker = fieldData.getString(FIELD_UNDL_SPOT_TICKER);
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     double unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
 
@@ -144,13 +144,10 @@ public final class EnergyFutureLoader extends SecurityLoader {
     }
     Currency currency = Currency.parse(currencyStr);
 
-    EnergyFutureSecurity security = new EnergyFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, category);
+    EnergyFutureSecurity security = new EnergyFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, name, category);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);
-    security.setUnderlyingId(underlying);
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
+    security.setUnderlyingId(underlying);    
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

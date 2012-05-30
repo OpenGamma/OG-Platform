@@ -40,8 +40,8 @@ public class StockFutureSecurity extends FutureSecurity {
     super();
   }
 
-  public StockFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+  public StockFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String name, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
   }
 
   //-------------------------------------------------------------------------

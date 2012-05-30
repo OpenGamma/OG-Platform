@@ -144,7 +144,8 @@ public final class WebResourceTestUtils {
     
     BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", Currency.USD, 1000, basket, "Bond",
                                                     ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC), 
-                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC));
+                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC),
+                                                    "Bond", "Bond");
     sec.setName("US LONG BOND(CBT) Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX8530684-0"));

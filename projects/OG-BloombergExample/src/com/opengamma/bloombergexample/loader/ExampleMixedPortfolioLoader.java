@@ -120,15 +120,14 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     addPosition(portfolioNode, equityVarianceSwap, BigDecimal.ONE);
     
     EquityIndexDividendFutureSecurity dividendFuture = new EquityIndexDividendFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "HSBA"));
-    dividendFuture.setName("HSBC Holdings SSDF Dec11");
+        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "HSBA"), "HSBC Holdings SSDF Dec11", "STOCK FUTURE");
+    
     dividendFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
     storeFinancialSecurity(dividendFuture);
     addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
     
     EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalSchemes.bloombergTickerSecurityId("SPX Index"));
-    equityFuture.setName("S&P 500 FUTURE Dec12");
+        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalSchemes.bloombergTickerSecurityId("SPX Index"), "S&P 500 FUTURE Dec12", "Equity Index");    
     equityFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "SPZ2"));
     storeFinancialSecurity(equityFuture);
     addPosition(portfolioNode, equityFuture, BigDecimal.ONE);
@@ -195,8 +194,7 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     
     final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
         "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
-    bond4.setName("US LONG BOND(CBT) Mar12");
+        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), "US LONG BOND(CBT) Mar12", "Bond");
     bond4.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USH12"));
     storeFinancialSecurity(bond4);
     addPosition(portfolioNode, bond4, BigDecimal.valueOf(10));
@@ -215,9 +213,8 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     
     InterestRateFutureSecurity edu12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 20, 0), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
-    edu12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"));
-    edu12.setName("90DAY EURO$ FUTR Sep12");
+      "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M, "90DAY EURO$ FUTR Sep12", "Interest Rate");
+    edu12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"));    
     storeFinancialSecurity(edu12);
     
     AmericanExerciseType exerciseType = new AmericanExerciseType();
@@ -229,9 +226,8 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     securities.add(optionSec1);
     
     InterestRateFutureSecurity edz12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 20, 0), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
+        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M, "90DAY EURO$ FUTR Dec12", "Interest Rate");
     edz12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ12"));
-    edz12.setName("90DAY EURO$ FUTR Dec12");
     storeFinancialSecurity(edz12);
     
     IRFutureOptionSecurity optionSec2 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 0, 0), TimeZone.UTC)), 
@@ -685,27 +681,28 @@ public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
     securities.add(sec2);
     return securities;
   }
-  
+
   private static Collection<FinancialSecurity> getSimpleFixedIncome() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
-    final FRASecurity fra = new FRASecurity(Currency.USD, 
-                                            ExternalSchemes.countryRegionId(Country.of("US")), 
-                                            ZonedDateTime.of(LocalDateTime.of(2012, 1, 14, 11, 0), TimeZone.UTC), 
-                                            ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC), 
-                                            0.01, 
-                                            15000000, 
-                                            USDLIBOR3M, 
-                                            ZonedDateTime.of(LocalDateTime.of(2011, 1, 14, 11, 0), TimeZone.UTC));
+    final FRASecurity fra = new FRASecurity(Currency.USD,
+      ExternalSchemes.countryRegionId(Country.of("US")),
+      ZonedDateTime.of(LocalDateTime.of(2012, 1, 14, 11, 0), TimeZone.UTC),
+      ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC),
+      0.01,
+      15000000,
+      USDLIBOR3M,
+      ZonedDateTime.of(LocalDateTime.of(2011, 1, 14, 11, 0), TimeZone.UTC));
     fra.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     fra.setName("FRA: pay 1% vs 3m Libor, start=1/14/2012, maturity=4/14/2012, notional=USD 15MM");
-    final InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), 
-                                                                               "CME", 
-                                                                               "CME", 
-                                                                               Currency.USD, 
-                                                                               1000, 
-                                                                               USDLIBOR3M);
+    final InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)),
+      "CME",
+      "CME",
+      Currency.USD,
+      1000,
+      USDLIBOR3M,
+      "90DAY EURO$ FUTR Jun13",
+      "Interest Rate");
     irFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ13"));
-    irFuture.setName("90DAY EURO$ FUTR Jun13");
     securities.add(fra);
     securities.add(irFuture);
     return securities;

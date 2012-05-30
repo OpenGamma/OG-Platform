@@ -5,20 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
-import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_SPOT_TICKER;
+import static com.opengamma.bbg.BloombergConstants.*;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -82,7 +69,8 @@ public class EquityFutureLoader extends SecurityLoader {
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
     String currencyStr = fieldData.getString(FIELD_CRNCY);
     String underlyingTicker = fieldData.getString(FIELD_UNDL_SPOT_TICKER);
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
+    String category = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
     String unitAmount = fieldData.getString(FIELD_FUT_VAL_PT);
@@ -123,11 +111,8 @@ public class EquityFutureLoader extends SecurityLoader {
     s_logger.warn("Creating EquityFutureSecurity - settlementDate set equal to expiryDate. Missing lag.");
     ZonedDateTime settlementDate = expiry.getExpiry();
 
-    EquityFutureSecurity security = new EquityFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), settlementDate, underlying);
+    EquityFutureSecurity security = new EquityFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), settlementDate, underlying, name, category);
 
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

@@ -666,6 +666,30 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
     timer.finished();
   }
 
+  @Override
+  public ContractCategoryBean getOrCreateContractCategoryBean(String name) {
+    Query query = getSession().getNamedQuery("ContractCategoryBean.one");
+    query.setString("name", name);
+    ContractCategoryBean contractCategory = (ContractCategoryBean) query.uniqueResult();
+    if (contractCategory == null) {
+      contractCategory = persistBean(new ContractCategoryBean(name));
+    }
+    return contractCategory;
+
+  }
+
+  @Override
+  public ContractDeliverableBean getOrCreateContractDeliverableBean(String name, String category) {
+    Query query = getSession().getNamedQuery("ContractDeliverableBean.one");
+    query.setString("name", name);
+    ContractDeliverableBean contractDeliverable = (ContractDeliverableBean) query.uniqueResult();
+    if (contractDeliverable == null) {
+      ContractCategoryBean contractCategory = getOrCreateContractCategoryBean(category);
+      contractDeliverable = persistBean(new ContractDeliverableBean(name, contractCategory));
+    } 
+    return contractDeliverable;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Extracts the security row id.

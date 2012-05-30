@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
+  <class name="ContractDeliverableBean" table="sec_contract_deliverable">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+
+    <property name="name" type="string" column="name"/>
+
+    <many-to-one name="category" column="category_id"
+                 class="com.opengamma.masterdb.security.hibernate.ContractCategoryBean" not-null="true"/>
+
+
+  </class>
+  <query name="ContractDeliverableBean.one">
+    from ContractDeliverableBean as e where e.name=:name
+  </query>
+</hibernate-mapping>

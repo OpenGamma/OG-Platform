@@ -78,13 +78,13 @@ public final class AgricultureFutureLoader extends SecurityLoader {
   //-------------------------------------------------------------------------
   @Override
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String expiryDate = fieldData.getString(FIELD_FUT_LAST_TRADE_DT);
     String futureTradingHours = fieldData.getString(FIELD_FUT_TRADING_HRS);
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
     Double unitNumber = fieldData.getDouble(FIELD_FUT_CONT_SIZE);
     String currencyStr = fieldData.getString(FIELD_CRNCY);
-    String category = fieldData.getString(FIELD_FUTURES_CATEGORY);
+    String futureCategory = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");    
     String unitName = fieldData.getString(FIELD_FUT_TRADING_UNITS);
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     double unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
@@ -114,8 +114,8 @@ public final class AgricultureFutureLoader extends SecurityLoader {
       s_logger.info("currency is null, cannot construct agriculture future security");
       return null;
     }
-    if (!isValidField(category)) {
-      s_logger.info("category is null, cannot construct agriculture future security");
+    if (!isValidField(futureCategory)) {
+      s_logger.info("futureCategory is null, cannot construct agriculture future security");
       return null;
     }
     if (!isValidField(unitName)) {
@@ -134,12 +134,9 @@ public final class AgricultureFutureLoader extends SecurityLoader {
 
     final Currency currency = Currency.parse(currencyStr);
     final AgricultureFutureSecurity security = new AgricultureFutureSecurity(expiry, micExchangeCode, micExchangeCode,
-        currency, unitAmount, category);
+        currency, unitAmount, name, futureCategory);
     security.setUnitNumber(unitNumber);
-    security.setUnitName(unitName);
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
+    security.setUnitName(unitName);    
 
     // set identifiers
     parseIdentifiers(fieldData, security);

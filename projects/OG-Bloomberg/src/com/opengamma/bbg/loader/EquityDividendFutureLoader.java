@@ -5,20 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
-import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
-import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
-import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
-import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
-import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_SPOT_TICKER;
+import static com.opengamma.bbg.BloombergConstants.*;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -92,11 +79,11 @@ public class EquityDividendFutureLoader extends SecurityLoader {
     String micExchangeCode = fieldData.getString(FIELD_ID_MIC_PRIM_EXCH);
     String currencyStr = fieldData.getString(FIELD_CRNCY);
     String settleDate = fieldData.getString(FIELD_SETTLE_DT);
-//    String category = fieldData.getString(FIELD_FUTURES_CATEGORY);
+    String category = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUTURES_CATEGORY), " ");
 //    Double unitNumber = fieldData.getDouble(FIELD_FUT_CONT_SIZE);
 //    String unitName = fieldData.getString(FIELD_FUT_TRADING_UNITS);
     String underlyingTicker = fieldData.getString(FIELD_UNDL_SPOT_TICKER);
-    String name = fieldData.getString(FIELD_FUT_LONG_NAME);
+    String name = BloombergDataUtils.removeDuplicateWhiteSpace(fieldData.getString(FIELD_FUT_LONG_NAME), " ");
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     double unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
     
@@ -128,10 +115,6 @@ public class EquityDividendFutureLoader extends SecurityLoader {
       s_logger.info("currency is null, cannot construct equity dividend future security");
       return null;
     }
-//    if (!isValidField(category)) {
-//      s_logger.info("category is null, cannot construct equity dividend future security");
-//      return null;
-//    }
 //    if (!isValidField(unitName)) {
 //      s_logger.info("unitName is null, cannot construct equity dividend future security");
 //      return null;
@@ -158,11 +141,8 @@ public class EquityDividendFutureLoader extends SecurityLoader {
       return null;
     }
     Currency currency = Currency.parse(currencyStr);
-    EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, settle.getExpiry(), underlying);
-
-    if (isValidField(name)) {
-      security.setName(BloombergDataUtils.removeDuplicateWhiteSpace(name, " "));
-    }
+    EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, settle.getExpiry(), underlying, name, category);
+    
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

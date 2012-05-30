@@ -69,7 +69,10 @@ public final class FutureSecurityBeanOperation extends
             basket,
             bean.getBondType().getName(),
             zonedDateTimeBeanToDateTimeWithZone(bean.getFirstDeliveryDate()),
-            zonedDateTimeBeanToDateTimeWithZone(bean.getLastDeliveryDate()));
+            zonedDateTimeBeanToDateTimeWithZone(bean.getLastDeliveryDate()),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName()
+          );
         }
 
         @Override
@@ -81,7 +84,9 @@ public final class FutureSecurityBeanOperation extends
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
             currencyBeanToCurrency(bean.getNumerator()),
-            currencyBeanToCurrency(bean.getDenominator()));
+            currencyBeanToCurrency(bean.getDenominator()),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           security.setMultiplicationFactor(bean.getUnitNumber());
           return security;
         }
@@ -94,7 +99,9 @@ public final class FutureSecurityBeanOperation extends
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
-            externalIdBeanToExternalId(bean.getUnderlying()));
+            externalIdBeanToExternalId(bean.getUnderlying()),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
         }
 
         @Override
@@ -105,7 +112,8 @@ public final class FutureSecurityBeanOperation extends
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
-            bean.getCommodityType().getName());
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
 
           security.setUnitNumber(bean.getUnitNumber());
           if (bean.getUnitName() != null) {
@@ -122,7 +130,8 @@ public final class FutureSecurityBeanOperation extends
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
-            bean.getCommodityType().getName());
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           security.setUnitNumber(bean.getUnitNumber());
           if (bean.getUnitName() != null) {
             security.setUnitName(bean.getUnitName().getName());
@@ -140,7 +149,8 @@ public final class FutureSecurityBeanOperation extends
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
-            bean.getCommodityType().getName());
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           security.setUnitNumber(bean.getUnitNumber());
           if (bean.getUnitName() != null) {
             security.setUnitName(bean.getUnitName().getName());
@@ -157,7 +167,9 @@ public final class FutureSecurityBeanOperation extends
             bean.getTradingExchange().getName(),
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
-            bean.getUnitAmount());
+            bean.getUnitAmount(),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           security.setUnderlyingId(externalIdBeanToExternalId(bean
             .getUnderlying()));
           return security;
@@ -170,7 +182,9 @@ public final class FutureSecurityBeanOperation extends
             bean.getTradingExchange().getName(),
             bean.getSettlementExchange().getName(),
             currencyBeanToCurrency(bean.getCurrency()),
-            bean.getUnitAmount());
+            bean.getUnitAmount(),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           security.setUnderlyingId(externalIdBeanToExternalId(bean
             .getUnderlying()));
           return security;
@@ -185,7 +199,9 @@ public final class FutureSecurityBeanOperation extends
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
             expiryBeanToExpiry(bean.getExpiry()).getExpiry(), // TODO: this is a temporary hack as settlementDate isn't being stored in database
-            externalIdBeanToExternalId(bean.getUnderlying()));
+            externalIdBeanToExternalId(bean.getUnderlying()),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           return security;
         }
 
@@ -198,7 +214,9 @@ public final class FutureSecurityBeanOperation extends
             currencyBeanToCurrency(bean.getCurrency()),
             bean.getUnitAmount(),
             expiryBeanToExpiry(bean.getExpiry()).getExpiry(), // TODO: this is a temporary hack as settlementDate isn't being stored in database
-            externalIdBeanToExternalId(bean.getUnderlying()));
+            externalIdBeanToExternalId(bean.getUnderlying()),
+            bean.getContractDeliverable().getName(),
+            bean.getContractDeliverable().getCategory().getName());
           return security;
         }
 
@@ -211,7 +229,7 @@ public final class FutureSecurityBeanOperation extends
                                     final HibernateSecurityMasterDao secMasterSession, final Date now,
                                     final FutureSecurityBean bean) {
     return bean.accept(
-      new FutureSecurityBean.Visitor<FutureSecurityBean>() {                
+      new FutureSecurityBean.Visitor<FutureSecurityBean>() {
 
         @Override
         public FutureSecurityBean visitAgricultureFutureType(AgricultureFutureBean bean) {
@@ -219,7 +237,7 @@ public final class FutureSecurityBeanOperation extends
         }
 
         @Override
-        public FutureSecurityBean visitBondFutureType(BondFutureBean bean) {          
+        public FutureSecurityBean visitBondFutureType(BondFutureBean bean) {
           final List<FutureBundleBean> basket = secMasterSession.getFutureBundleBeans(now, bean);
           bean.setBasket(new HashSet<FutureBundleBean>(basket));
           return bean;
@@ -351,7 +369,7 @@ public final class FutureSecurityBeanOperation extends
                                        final FutureSecurity security) {
     return security.accept(new FutureSecurityVisitor<FutureSecurityBean>() {
 
-      private <F extends FutureSecurityBean> F createFutureBean(final F bean, final FutureSecurity security) {        
+      private <F extends FutureSecurityBean> F createFutureBean(final F bean, final FutureSecurity security) {
         bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
         bean.setTradingExchange(secMasterSession
           .getOrCreateExchangeBean(security.getTradingExchange(),
@@ -363,15 +381,14 @@ public final class FutureSecurityBeanOperation extends
           .getOrCreateCurrencyBean(security.getCurrency()
             .getCode()));
         bean.setUnitAmount(security.getUnitAmount());
+        bean.setContractDeliverable(secMasterSession.getOrCreateContractDeliverableBean(security.getName(), security.getContractCategory()));
         return bean;
       }
 
       private <F extends CommodityFutureBean> F createCommodityFutureBean(
         final F futureSecurityBean, final CommodityFutureSecurity security) {
         final F bean = createFutureBean(futureSecurityBean, security);
-        bean.setCommodityType(secMasterSession
-          .getOrCreateCommodityFutureTypeBean(security
-            .getCommodityType()));
+        bean.setCommodityType(secMasterSession.getOrCreateCommodityFutureTypeBean(security.getContractCategory()));
         if (security.getUnitName() != null) {
           bean.setUnitName(secMasterSession
             .getOrCreateUnitNameBean(security.getUnitName()));

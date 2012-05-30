@@ -30,8 +30,8 @@ public class AgricultureFutureSecurity extends CommodityFutureSecurity {
     super();
   }
 
-  public AgricultureFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String commodityType) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, commodityType);
+  public AgricultureFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String name, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name , category);
   }
 
   //-------------------------------------------------------------------------
