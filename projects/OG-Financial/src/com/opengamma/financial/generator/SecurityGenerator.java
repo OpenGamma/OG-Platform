@@ -110,8 +110,11 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
+  private String _alternateCurrencyCurveName;
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
+
+
 
   public Random getRandom() {
     return _random;
@@ -210,7 +213,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
-    return getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    CurveSpecificationBuilderConfiguration config = getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    return config;
   }
 
   public Function2<Currency, Currency, ExternalId> getSpotRateIdentifier() {
