@@ -38,19 +38,19 @@ public class INConventions {
 
     ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     // IR FUTURES
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_IR_FUTURE")), "IND_IR_FUTURE", act365, modified, Period.ofMonths(3),
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, Period.ofMonths(3),
         0, true, in);
 
     final DayCount swapFixedDayCount = act365;
     final BusinessDayConvention swapFixedBusinessDay = modified;
 
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_SWAP")), "IND_SWAP", act365, modified, semiAnnual, 0, in, act365,
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_SWAP")), "INR_SWAP", act365, modified, semiAnnual, 0, in, act365,
         modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR SWAP INDEX"), in, true);
 
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_OIS_SWAP")), "IND_OIS_SWAP", act365, modified, annual, 0, in,
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_OIS_SWAP")), "INR_OIS_SWAP", act365, modified, annual, 0, in,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR OVERNIGHT CASH RATE"), in, true, overnightPublicationLag);
 
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "IND_SWAPTION")), "IND_SWAPTION", false);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_SWAPTION")), "INR_SWAPTION", false);
   }
 
 }
