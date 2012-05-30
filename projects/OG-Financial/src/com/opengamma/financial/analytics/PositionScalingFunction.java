@@ -6,8 +6,6 @@
 package com.opengamma.financial.analytics;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,99 +18,30 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.bond.BondFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
-import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
-import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
  */
-public class PositionScalingFunction extends PropertyPreservingFunction {
-
-  @Override
-  protected Collection<String> getPreservedProperties() {
-    // TODO [PLAT-1356] PositionScalingFunction should propagate everything
-    return Arrays.asList(ValuePropertyNames.CUBE, ValuePropertyNames.CURRENCY, ValuePropertyNames.CURVE, ValuePropertyNames.CURVE_CURRENCY, YieldCurveFunction.PROPERTY_FORWARD_CURVE,
-        YieldCurveFunction.PROPERTY_FUNDING_CURVE, ValuePropertyNames.CURVE_CALCULATION_METHOD, ValuePropertyNames.CALCULATION_METHOD, ValuePropertyNames.SURFACE, ValuePropertyNames.PAY_CURVE,
-        ValuePropertyNames.RECEIVE_CURVE, ValuePropertyNames.SMILE_FITTING_METHOD, InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE,
-        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, ValuePropertyNames.SAMPLING_PERIOD, ValuePropertyNames.RETURN_CALCULATOR, ValuePropertyNames.SCHEDULE_CALCULATOR,
-        ValuePropertyNames.SAMPLING_FUNCTION, ValuePropertyNames.MEAN_CALCULATOR, ValuePropertyNames.STD_DEV_CALCULATOR, ValuePropertyNames.CONFIDENCE_LEVEL, ValuePropertyNames.HORIZON,
-        ValuePropertyNames.ORDER, ValuePropertyNames.COVARIANCE_CALCULATOR, ValuePropertyNames.VARIANCE_CALCULATOR, ValuePropertyNames.EXCESS_RETURN_CALCULATOR, BondFunction.PROPERTY_CREDIT_CURVE,
-        BondFunction.PROPERTY_RISK_FREE_CURVE, ForexOptionBlackFunction.PROPERTY_PUT_CURVE, ForexOptionBlackFunction.PROPERTY_CALL_CURVE, ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE,
-        ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD, ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD,
-        ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE, ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE, ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE,
-        ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD, ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_MIXED_LOG_NORMAL_WEIGHTING_FUNCTION,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_EXTERNAL_BETA, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_MODEL,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SABR_WEIGHTING_FUNCTION, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_INTERPOLATOR,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_LEFT_EXTRAPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_AXIS, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_INTERPOLATOR,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_LEFT_EXTRAPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_TIME_RIGHT_EXTRAPOLATOR,
-        BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_VOLATILITY_TRANSFORM, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS,
-        LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_DERIVATIVE_EPS, LocalVolatilitySurfacePropertyNamesAndValues.PROPERTY_Y_AXIS_PARAMETERIZATION,
-        PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION, PDEPropertyNamesAndValues.PROPERTY_CENTRE_MONEYNESS, PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME,
-        PDEPropertyNamesAndValues.PROPERTY_MAX_MONEYNESS, PDEPropertyNamesAndValues.PROPERTY_MAX_PROXY_DELTA, PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS,
-        PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS, PDEPropertyNamesAndValues.PROPERTY_SPACE_DIRECTION_INTERPOLATOR, PDEPropertyNamesAndValues.PROPERTY_SPACE_STEPS_BUNCHING,
-        PDEPropertyNamesAndValues.PROPERTY_THETA, PDEPropertyNamesAndValues.PROPERTY_TIME_STEP_BUNCHING, SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE,
-        SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD,
-        CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL);
-  }
-
-  @Override
-  protected Collection<String> getOptionalPreservedProperties() {
-    return Collections.emptySet();
-  }
+public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _requirementName;
 
   public PositionScalingFunction(final String requirementName) {
     Validate.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Position position = target.getPosition();
-    final Security security = position.getSecurity();
-    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), getInputConstraint(desiredValue));
-    return Collections.singleton(requirement);
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties());
-    return Collections.singleton(specification);
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(inputs.keySet().iterator().next()));
-    return Collections.singleton(specification);
   }
 
   @Override
@@ -123,6 +52,36 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return true;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    return Collections.singleton(new ValueSpecification(_requirementName, target.toSpecification(), ValueProperties.all()));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Position position = target.getPosition();
+    final Security security = position.getSecurity();
+    final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), desiredValue.getConstraints().withoutAny(
+        ValuePropertyNames.FUNCTION));
+    return Collections.singleton(requirement);
+  }
+
+  protected ValueProperties getResultProperties(final ValueSpecification input) {
+    return input.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueSpecification input = inputs.keySet().iterator().next();
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(input));
+    return Collections.singleton(specification);
   }
 
   @Override
