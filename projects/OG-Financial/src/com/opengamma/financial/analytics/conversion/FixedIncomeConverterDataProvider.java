@@ -108,7 +108,7 @@ public class FixedIncomeConverterDataProvider {
     }
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
-      throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
+      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.toLocalDate());
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
     return definition.toDerivative(now, lastMarginPrice, curveNames);
