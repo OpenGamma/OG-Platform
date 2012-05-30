@@ -82,9 +82,13 @@ import com.opengamma.util.money.Currency;
 public class MultiYieldCurvePresentValueMethodFunction extends AbstractFunction.NonCompiledInvoker {
   /** Root finder absolute tolerance property name */
   public static final String PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE = "RootFinderAbsoluteTolerance";
+  /** Relative tolerance property name */
   public static final String PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE = "RootFinderRelativeTolerance";
+  /** Absolute tolerance property name */
   public static final String PROPERTY_ROOT_FINDER_MAX_ITERATIONS = "RootFinderMaximumIterations";
+  /** Matrix decomposition property name */
   public static final String PROPERTY_DECOMPOSITION = "MatrixDecomposition";
+  /** Property name denoting whether or not to use finite difference for sensitivity calculations */
   public static final String PROPERTY_USE_FINITE_DIFFERENCE = "UseFiniteDifferenceSensitivities";
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();

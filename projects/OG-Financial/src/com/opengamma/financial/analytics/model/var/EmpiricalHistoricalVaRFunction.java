@@ -11,12 +11,8 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRCalculator;
 import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRParameters;
-import com.opengamma.analytics.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.analytics.financial.var.NormalVaRParameters;
-import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,6 +31,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name for the empirical historical VaR calculation method */
   public static final String EMPIRICAL_VAR = "Empirical";
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
   

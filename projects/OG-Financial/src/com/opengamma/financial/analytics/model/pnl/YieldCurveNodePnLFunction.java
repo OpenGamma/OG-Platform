@@ -60,6 +60,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
   public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");

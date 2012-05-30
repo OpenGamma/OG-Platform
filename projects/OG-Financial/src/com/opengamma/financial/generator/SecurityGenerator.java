@@ -110,7 +110,6 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
-  private String _alternateCurrencyCurveName;
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
 

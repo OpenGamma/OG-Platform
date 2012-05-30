@@ -33,6 +33,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name for the normal historical VaR calculation method */
   public static final String NORMAL_VAR = "Normal";
   
   @Override

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
 
@@ -62,8 +61,6 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
     return createQuarterlyIRFutureStrips(curveDate, tenor, numQuarterlyFuturesFromTenor, _futurePrefix, " " + _marketSector);
   }
-
-  private static final DateAdjuster s_nextExpiryAdjuster = new NextExpiryAdjuster();
 
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
 
