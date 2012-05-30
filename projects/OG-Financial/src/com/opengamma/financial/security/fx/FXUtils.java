@@ -16,6 +16,8 @@ import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -76,6 +78,44 @@ public class FXUtils {
     return bloomberg;
   }
 
+  /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity.
+   * The identifier respect the market base/quote currencies.
+   * @param fxForwardSecurity the fx option security
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  // TODO: review: Should Bbg code be in Financial?
+  public static final ExternalId getSpotIdentifier(final FXForwardSecurity fxForwardSecurity) {
+    final Currency putCurrency = fxForwardSecurity.getPayCurrency();
+    final Currency callCurrency = fxForwardSecurity.getReceiveCurrency();
+    ExternalId bloomberg;
+    if (isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+  
+  /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity.
+   * The identifier respect the market base/quote currencies.
+   * @param fxDigitalOptionSecurity the fx option security
+   * @return an Identifier containing identifier for the spot rate, not null
+   */
+  // TODO: review: Should Bbg code be in Financial?
+  public static final ExternalId getSpotIdentifier(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
+    final Currency putCurrency = fxDigitalOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxDigitalOptionSecurity.getCallCurrency();
+    ExternalId bloomberg;
+    if (isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
+    } else {
+      bloomberg = ExternalSchemes.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
+    }
+    return bloomberg;
+  }
+  
   public static String getFormattedStrike(final double strike, final Pair<Currency, Currency> pair) {
     if (pair.getFirst().compareTo(pair.getSecond()) < 0) {
       return STRIKE_FORMATTER.format(strike) + " " + pair.getFirst() + "/" + pair.getSecond();
@@ -120,7 +160,13 @@ public class FXUtils {
   }
 
   public static boolean isFXSecurity(final Security security) {
-    return security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity;
+    return security instanceof FXForwardSecurity || 
+        security instanceof FXOptionSecurity || 
+        security instanceof FXBarrierOptionSecurity || 
+        security instanceof FXDigitalOptionSecurity ||
+        security instanceof NonDeliverableFXForwardSecurity ||
+        security instanceof NonDeliverableFXOptionSecurity || 
+        security instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
 }
