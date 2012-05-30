@@ -445,6 +445,9 @@
 		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
 			<fileset dir="${basedir}/config" />
 		</copy>
+        <copy todir="${dist.dir}/${dist.name}/bin" failonerror="false">
+            <fileset dir="${basedir}/bin" />
+        </copy>
 		<!--
     <copy todir="${dist.dir}/${dist.name}/install" failonerror="false">
       <fileset dir="${basedir}/install" />
