@@ -6,6 +6,7 @@
 package com.opengamma.util.map;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -179,7 +180,110 @@ public class SoftValueHashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   @Override
   public Set<Map.Entry<Pair<K1, K2>, V>> entrySet() {
-    throw new UnsupportedOperationException();
+    return new Set<Map.Entry<Pair<K1, K2>, V>>() {
+
+      @Override
+      public int size() {
+        return _data.size();
+      }
+
+      @Override
+      public boolean isEmpty() {
+        return _data.isEmpty();
+      }
+
+      @Override
+      public boolean contains(Object o) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Iterator<java.util.Map.Entry<Pair<K1, K2>, V>> iterator() {
+        final Iterator<Map.Entry<Key, V>> itr = _data.entrySet().iterator();
+        return new Iterator<Map.Entry<Pair<K1, K2>, V>>() {
+
+          @Override
+          public boolean hasNext() {
+            return itr.hasNext();
+          }
+
+          @Override
+          public java.util.Map.Entry<Pair<K1, K2>, V> next() {
+            final Map.Entry<Key, V> entry = itr.next();
+            return new Map.Entry<Pair<K1, K2>, V>() {
+
+              @SuppressWarnings("unchecked")
+              @Override
+              public Pair<K1, K2> getKey() {
+                return (Pair<K1, K2>) Pair.of(entry.getKey()._key1, entry.getKey()._key2);
+              }
+
+              @Override
+              public V getValue() {
+                return entry.getValue();
+              }
+
+              @Override
+              public V setValue(final V value) {
+                throw new UnsupportedOperationException();
+              }
+
+            };
+          }
+
+          @Override
+          public void remove() {
+          }
+
+        };
+      }
+
+      @Override
+      public Object[] toArray() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public <T> T[] toArray(T[] a) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean add(java.util.Map.Entry<Pair<K1, K2>, V> e) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean remove(Object o) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean containsAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean addAll(Collection<? extends java.util.Map.Entry<Pair<K1, K2>, V>> c) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public void clear() {
+        _data.clear();
+      }
+
+    };
   }
 
   @Override
