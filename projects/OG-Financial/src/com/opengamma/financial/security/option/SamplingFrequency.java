@@ -22,5 +22,9 @@ public enum SamplingFrequency {
    * Weekly close.
    */
   WEEKLY_CLOSE,
+  /**
+   * Continuous (for continuous monitoring)
+   */
+  CONTINUOUS
 
 }
