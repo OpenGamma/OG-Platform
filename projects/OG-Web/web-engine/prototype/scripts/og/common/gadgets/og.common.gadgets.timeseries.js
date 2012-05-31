@@ -273,6 +273,7 @@ $.register_module({
                     $(p1_selector).unbind('plothover').bind('plothover', function (e, pos) {
                         if (!panning) hover_pos = pos, setTimeout(update_legend, 50);
                     });
+                    $(selector + ' .og-plots').css('visibility', 'visible');
                     $legend = get_legend(), $legend.css({visibility: 'hidden'});
                     rescale_yaxis();
                     load_data_points();

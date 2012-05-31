@@ -127,6 +127,7 @@
 .OG-timeseries-gadget .og-plots {
     top: 0;
     background-color: #fff;
+    visibility: hidden;
 }
 
 .OG-timeseries-gadget .og-timeseries-plot {
