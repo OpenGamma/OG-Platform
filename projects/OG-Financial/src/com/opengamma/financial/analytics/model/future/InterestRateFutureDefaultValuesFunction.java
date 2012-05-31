@@ -25,9 +25,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.PV01,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.VALUE_THETA };
 
   private final String[] _applicableCurrencyNames;
   private final String _curveCalculationMethod;

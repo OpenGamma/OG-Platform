@@ -51,7 +51,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeEpochMillisConverter;
 
 /**
- * Convert an OG-Financial Security to it's OG-Analytics Derivative form as seen from now
+ * Convert an OG-Financial Security to its OG-Analytics Derivative form as seen from now
  */
 public class FixedIncomeConverterDataProvider {
   private final ConventionBundleSource _conventionSource;
