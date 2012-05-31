@@ -117,7 +117,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final SwaptionPhysicalFixedIbor swaptionTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = swaptionTomorrow.accept(_paymentCalculator);
     if (paymentTomorrow.size() != 1 || !paymentTomorrow.getCurrencyAmounts()[0].getCurrency().equals(definition.getUnderlyingSwap().getCurrency())) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
+      throw new IllegalStateException("Expecting a single payment in the currency of the swaption");
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
@@ -132,7 +132,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final SwaptionCashFixedIbor swaptionTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = swaptionTomorrow.accept(_paymentCalculator);
     if (paymentTomorrow.size() != 1 || !paymentTomorrow.getCurrencyAmounts()[0].getCurrency().equals(definition.getUnderlyingSwap().getCurrency())) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
+      throw new IllegalStateException("Expecting a single payment in the currency of the swaption");
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
@@ -148,7 +148,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, lastMarginPrice, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
     if (paymentTomorrow.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
+      throw new IllegalStateException("Expecting a single payment in the currency of the interest rate future");
     }
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
@@ -164,7 +164,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, lastMarginPrice, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
     if (paymentTomorrow.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
+      throw new IllegalStateException("Expecting a single payment in the currency of the interest rate future option");
     }
     final YieldCurveWithBlackCubeBundle tomorrowData = getDateShiftedYieldCurveWithBlackCubeBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
