@@ -279,7 +279,10 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   protected void pumpImpl(final GraphBuildingContext context) {
     s_logger.debug("Pump called on {}", this);
-    getState().pump(context);
+    final State state = getState();
+    if (state != null) {
+      state.pump(context);
+    }
   }
 
   @Override
