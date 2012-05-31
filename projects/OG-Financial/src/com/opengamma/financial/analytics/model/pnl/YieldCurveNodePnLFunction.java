@@ -114,7 +114,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
     DoubleTimeSeries<?> result = getPnLSeries(forwardCurveSpec, forwardCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction).add(
         getPnLSeries(fundingCurveSpec, fundingCurveSensitivities, historicalSource, startDate, now, schedule, samplingFunction));
-    result = result.multiply(position.getQuantity().doubleValue());
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
@@ -244,6 +243,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       }
       double sensitivity = values[i];
       if (stripList.get(i) == StripInstrumentType.FUTURE) {
+        // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivity *= -1;
       }
       final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) idObject);
