@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -54,7 +55,7 @@ public class WebView {
   private final ViewExecutionOptions _executionOptions;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
-
+  private final ComputationTargetResolver _computationTargetResolver;
   private final ReentrantLock _updateLock = new ReentrantLock();
 
   private boolean _awaitingNextUpdate;
@@ -71,7 +72,7 @@ public class WebView {
 
   public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId baseViewDefinitionId,
                  final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-                 final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {
+                 final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache, final ComputationTargetResolver computationTargetResolver) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
@@ -83,7 +84,7 @@ public class WebView {
     _executorService = executorService;
     _resultConverterCache = resultConverterCache;
     _gridsByName = new HashMap<String, WebViewGrid>();
-
+    _computationTargetResolver = computationTargetResolver;
     _client.setResultListener(new AbstractViewResultListener() {
 
       @Override
@@ -123,7 +124,7 @@ public class WebView {
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     _isInit.set(true);
 
-    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
     } else {
@@ -131,7 +132,7 @@ public class WebView {
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
 
-    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
+    RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote(), getComputationTargetResolver());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
     } else {
@@ -452,6 +453,10 @@ public class WebView {
 
   private ResultConverterCache getResultConverterCache() {
     return _resultConverterCache;
+  }
+
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
   }
 
 }

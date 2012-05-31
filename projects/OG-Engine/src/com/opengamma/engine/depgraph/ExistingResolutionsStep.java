@@ -40,15 +40,21 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     s_logger.debug("Resolved {} from {}", value, this);
-    synchronized (this) {
-      _pump = pump;
-    }
-    if (!pushResult(context, value)) {
+    if (pump != null) {
       synchronized (this) {
-        assert _pump == pump;
-        _pump = null;
+        _pump = pump;
       }
-      context.pump(pump);
+      if (!pushResult(context, value, false)) {
+        synchronized (this) {
+          assert _pump == pump;
+          _pump = null;
+        }
+        context.pump(pump);
+      }
+    } else {
+      if (!pushResult(context, value, true)) {
+        context.failed(this, valueRequirement, null);
+      }
     }
   }
 
@@ -62,6 +68,18 @@ import com.opengamma.util.tuple.Pair;
     if (pump != null) {
       s_logger.debug("Pumping underlying delegate");
       context.pump(pump);
+    }
+  }
+
+  @Override
+  protected void onDiscard(final GraphBuildingContext context) {
+    final ResolutionPump pump;
+    synchronized (this) {
+      pump = _pump;
+      _pump = null;
+    }
+    if (pump != null) {
+      context.close(pump);
     }
   }
 

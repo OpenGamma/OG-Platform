@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.util.PublicAPI;
@@ -22,6 +22,10 @@ import com.opengamma.util.PublicAPI;
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
+   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   */
+  public static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
+  /**
    * The name under which the {@link ComputationTargetResults} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
@@ -29,10 +33,6 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which an instance of {@link SecuritySource} should be bound.
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
-  /**
-   * The name under which an instance of {@link PositionSource} should be bound.
-   */
-  public static final String POSITION_SOURCE_NAME = "positionSource";
   /**
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
@@ -65,7 +65,25 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     super(copyFrom);
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets the computation target resolver. Functions should not need to access this directly - their computation target will always be resolved when they are invoked. It may be used to access the full
+   * target object referenced by a "desiredValue".
+   * 
+   * @return the computation target resolver, null if not in the context
+   */
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return (ComputationTargetResolver) get(COMPUTATION_TARGET_RESOLVER);
+  }
+
+  /**
+   * Sets the computation target resolver.
+   * 
+   * @param computationTargetResolver the target resolver
+   */
+  public void setComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+    put(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  }
+
   /**
    * Gets the source of result information on a target.
    * 
@@ -106,24 +124,6 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     put(SECURITY_SOURCE_NAME, securitySource);
   }
   
-  /**
-   * Gets the source of positions.
-   * 
-   * @return the source of positions, null if not in the context
-   */
-  public PositionSource getPositionSource() {
-    return (PositionSource) get(POSITION_SOURCE_NAME);
-  }
-  
-  /**
-   * Sets the source of positions.
-   * 
-   * @param positionSource  the source of positions to bind
-   */
-  public void setPositionSource(PositionSource positionSource) {
-    put(POSITION_SOURCE_NAME, positionSource);
-  }
-
   /**
    * Gets the source of portfolio structure information.
    * 

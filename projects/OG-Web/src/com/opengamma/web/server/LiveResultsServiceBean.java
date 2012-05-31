@@ -14,6 +14,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -31,6 +32,7 @@ public class LiveResultsServiceBean {
   private ViewProcessor _viewProcessor;
   private PositionSource _positionSource;
   private SecuritySource _securitySource;
+  private ComputationTargetResolver _computationTargetResolver;
   private PortfolioMaster _userPortfolioMaster;
   private PositionMaster _userPositionMaster;
   private ManageableViewDefinitionRepository _userViewDefinitionRepository;
@@ -68,6 +70,14 @@ public class LiveResultsServiceBean {
     _securitySource = securitySource;
   }
   
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  public void setComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+    _computationTargetResolver = computationTargetResolver;
+  }
+
   public PortfolioMaster getUserPortfolioMaster() {
     return _userPortfolioMaster;
   }
@@ -186,7 +196,7 @@ public class LiveResultsServiceBean {
     return new LiveResultsService(getBayeux(), getViewProcessor(), getPositionSource(), getSecuritySource(),
         getUserPortfolioMaster(), getUserPositionMaster(), getUserViewDefinitionRepository(), getSnapshotMaster(),
         getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getNamedMarketDataSpecificationRepository(),
-        getPortfolioAggregators());
+        getPortfolioAggregators(), getComputationTargetResolver());
   }
 
 }

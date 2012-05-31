@@ -90,6 +90,7 @@
   </bean>
   
   <!-- Config Source -->
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
   <bean id="configSource" class="com.opengamma.core.config.impl.RemoteConfigSource">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -113,15 +114,21 @@
   </bean>
   
   <!-- Holiday Source -->
-  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.RemoteHolidaySource">
+  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.EHCachingHolidaySource">
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
-        <property name="uri" value="${opengamma.engine.configuration.url}/holidaySource" />
+      <bean class="com.opengamma.core.holiday.impl.RemoteHolidaySource">
+        <constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/holidaySource" />
+          </bean>
+        </constructor-arg>
       </bean>
     </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- Currency conversions -->
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
   <bean id="currencyMatrixSource" class="com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -131,6 +138,7 @@
   </bean>
 
   <!-- Curves -->
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function compilation -->
   <bean id="interpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionSource">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -138,6 +146,7 @@
       </bean>
     </constructor-arg>
   </bean>
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function compilation -->
   <bean id="interpolatedYieldCurveSpecificationBuilder" class="com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveSpecificationBuilder">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -147,7 +156,7 @@
   </bean>
 
   <!-- Volatility cubes -->
-  
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function compilation -->
   <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.rest.RemoteVolatilityCubeDefinitionSource">
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
@@ -193,9 +202,14 @@
   </bean>
 
   <!-- Target resolver -->
-  <bean id="targetResolver" class="com.opengamma.engine.DefaultComputationTargetResolver">
-    <constructor-arg ref="positionSource" />
-    <constructor-arg ref="securitySource" />
+  <bean id="targetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
+    <constructor-arg>
+      <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
+        <constructor-arg ref="positionSource" />
+        <constructor-arg ref="securitySource" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- View processor query -->
@@ -230,6 +244,7 @@
     <property name="positionSource" ref="positionSource" />
     <property name="regionSource" ref="regionSource"/>
     <property name="securitySource" ref="securitySource" />
+    <property name="computationTargetResolver" ref="targetResolver" />
   </bean>
   <bean id="functionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="configSource" ref="configSource" />

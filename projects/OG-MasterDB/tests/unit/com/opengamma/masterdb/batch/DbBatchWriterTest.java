@@ -13,6 +13,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +59,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.PagingRequest;
@@ -113,20 +113,9 @@ public class DbBatchWriterTest extends DbTest {
       }
 
       @Override
-      public Collection<com.opengamma.engine.ComputationTarget> getComputationTargets(String calcConfName) {
+      public Collection<com.opengamma.engine.ComputationTargetSpecification> getComputationTargets(String calcConfName) {
         if (calcConfName.equals(calculationConfigName)) {
-          return newArrayList(
-            new com.opengamma.engine.ComputationTarget(ComputationTargetType.PRIMITIVE, new UniqueIdentifiable() {
-              @Override
-              public UniqueId getUniqueId() {
-                return UniqueId.of("Primitive", "Value");
-              }
-            }),
-            new com.opengamma.engine.ComputationTarget(
-              _compTargetSpec.getType(),
-              security
-            )
-          );
+          return Arrays.asList(new ComputationTargetSpecification(UniqueId.of("Primitive", "Value")), _compTargetSpec);
         } else {
           return emptyList();
         }

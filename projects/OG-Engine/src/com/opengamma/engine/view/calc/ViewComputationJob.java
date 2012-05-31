@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -284,9 +284,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
         final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
 
-        final HashMap<String, Collection<ComputationTarget>> configToComputationTargets = new HashMap<String, Collection<ComputationTarget>>();
+        final HashMap<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<String, Collection<ComputationTargetSpecification>>();
         for (String configName : configurationNames) {
-          DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
+          final DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
           configToComputationTargets.put(configName, dependencyGraph.getAllComputationTargets());
         }
 

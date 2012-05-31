@@ -12,7 +12,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
-import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
@@ -49,7 +48,6 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
       @Override
       protected void doRun() throws Exception {
         final CommandLine commandLine = getCommandLine();
-        _instance.setCounterPartyGenerator(new StaticNameGenerator(commandLine.getOptionValue(COUNTER_PARTY_OPT, DEFAULT_COUNTER_PARTY)));
         _instance.run(getToolContext(), commandLine);
       }
 

@@ -33,6 +33,8 @@ import com.opengamma.bloombergexample.loader.ExampleViewsPopulator;
 import com.opengamma.bloombergexample.loader.PortfolioLoaderHelper;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
+import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
+import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
@@ -98,6 +100,12 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadViews();       
   }
   
+  private PortfolioGeneratorTool portfolioGeneratorTool() {
+    final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
+    tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
+    return tool;
+  }
+
   private void loadEquityOptionPortfolio(){
     DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();    
     loader.setNumOptions(2);
@@ -188,9 +196,8 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   }
 
   private void loadFXPortfolio() {
-    PortfolioGeneratorTool generator = new PortfolioGeneratorTool();
     System.out.println("Creating FX portfolio");
-    generator.run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true, getAllCurrencies().toArray(new Currency[] {}));
+    portfolioGeneratorTool().run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true, getAllCurrencies().toArray(new Currency[] {}));
     System.out.println("Finished");
   }
 

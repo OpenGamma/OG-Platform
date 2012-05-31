@@ -11,11 +11,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 import org.testng.annotations.Test;
 
 import com.opengamma.bloombergexample.DBTestUtils;
-import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMixedPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleSwapPortfolioLoader;
+import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;

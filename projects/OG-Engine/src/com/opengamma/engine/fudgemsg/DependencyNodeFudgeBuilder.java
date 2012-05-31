@@ -20,6 +20,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -66,7 +67,7 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
   @SuppressWarnings("unchecked")
   @Override
   public DependencyNode buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ComputationTarget target = deserializer.fieldValueToObject(ComputationTarget.class, msg.getByName(COMPUTATION_TARGET_FIELD));
+    ComputationTargetSpecification target = deserializer.fieldValueToObject(ComputationTargetSpecification.class, msg.getByName(COMPUTATION_TARGET_FIELD));
     
     String parameterizedFunctionUniqueId = msg.getString(PARAMETERIZED_FUNCTION_UNIQUE_ID_FIELD);
     FudgeField functionParametersField = msg.getByName(FUNCTION_PARAMETERS_FIELD);

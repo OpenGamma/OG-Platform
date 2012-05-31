@@ -95,8 +95,9 @@ public class MultipleNodeExecutorTest {
     _testGraph = new DependencyGraph("Default");
     _testNode = new DependencyNode[5];
     for (int i = 0; i < _testNode.length; i++) {
-      _testNode[i] = new DependencyNode(new ComputationTarget(Integer.toString(i)));
-      _testNode[i].setFunction(MockFunction.getMockFunction(_testNode[i].getComputationTarget(), "foo"));
+      final ComputationTarget target = new ComputationTarget(Integer.toString(i));
+      _testNode[i] = new DependencyNode(target);
+      _testNode[i].setFunction(MockFunction.getMockFunction(target, "foo"));
     }
     _testNode[0].addOutputValue(_testValue0x);
     _testNode[1].addOutputValue(_testValue1x);
@@ -459,12 +460,15 @@ public class MultipleNodeExecutorTest {
    * Should be broken into N{5, 2} or N{5, 3} and others at 1x concurrency
    */
   public void testTailGraphColouring() {
-    final DependencyNode n5 = new DependencyNode(new ComputationTarget("5"));
-    n5.setFunction(MockFunction.getMockFunction(n5.getComputationTarget(), "foo"));
-    final DependencyNode n6 = new DependencyNode(new ComputationTarget("6"));
-    n6.setFunction(MockFunction.getMockFunction(n6.getComputationTarget(), "foo"));
-    final DependencyNode n7 = new DependencyNode(new ComputationTarget("7"));
-    n7.setFunction(MockFunction.getMockFunction(n6.getComputationTarget(), "foo"));
+    final ComputationTarget t5 = new ComputationTarget("5");
+    final DependencyNode n5 = new DependencyNode(t5);
+    n5.setFunction(MockFunction.getMockFunction(t5, "foo"));
+    final ComputationTarget t6 = new ComputationTarget("6");
+    final DependencyNode n6 = new DependencyNode(t6);
+    n6.setFunction(MockFunction.getMockFunction(t6, "foo"));
+    final ComputationTarget t7 = new ComputationTarget("7");
+    final DependencyNode n7 = new DependencyNode(t7);
+    n7.setFunction(MockFunction.getMockFunction(t7, "foo"));
     _testNode[0].addInputNode(n6);
     _testNode[1].addInputNode(_testNode[3]);
     _testNode[2].addInputNode(n5);

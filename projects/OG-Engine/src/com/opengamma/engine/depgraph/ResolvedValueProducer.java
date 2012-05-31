@@ -53,6 +53,13 @@ import com.opengamma.engine.value.ValueRequirement;
    */
   int release(GraphBuildingContext context);
 
+  /**
+   * Tests if there are active callbacks registered on the object that may hold a pump on the producer.
+   * 
+   * @return true if there are one or more callbacks active on the object, false if there are none
+   */
+  boolean hasActiveCallbacks();
+
   interface Chain {
 
     /**

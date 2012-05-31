@@ -18,13 +18,13 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
@@ -89,8 +89,8 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext _functionCompilationContext;
   private ViewDefinition _viewDefinition;
   private FunctionRepository _functionRepository;
-  private FunctionExclusionGroups _functionExclusionGroups;
   private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
+  private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
 
   // Environment
   private ViewProcessorImpl _viewProcessor;
@@ -159,10 +159,10 @@ public class ViewProcessorTestEnvironment {
     ViewCompilationServices compilationServices = new ViewCompilationServices(
         getMarketDataProvider().getAvailabilityProvider(),
         getFunctionResolver(),
-        getFunctionExclusionGroups(),
         getFunctionCompilationContext(),
         getCachingComputationTargetResolver(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
+        (getDependencyGraphBuilderFactory() != null) ? getDependencyGraphBuilderFactory() : generateDependencyGraphBuilderFactory(),
         getSecuritySource(),
         getPositionSource());
     return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
@@ -260,12 +260,18 @@ public class ViewProcessorTestEnvironment {
     return functionRepository;
   }
   
-  public FunctionExclusionGroups getFunctionExclusionGroups() {
-    return _functionExclusionGroups;
+  public DependencyGraphBuilderFactory getDependencyGraphBuilderFactory() {
+    return _dependencyGraphBuilderFactory;
   }
 
-  public void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
-    _functionExclusionGroups = functionExclusionGroups;
+  public void setDependencyGraphBuilderFactory(final DependencyGraphBuilderFactory dependencyGraphBuilderFactory) {
+    _dependencyGraphBuilderFactory = dependencyGraphBuilderFactory;
+  }
+
+  private DependencyGraphBuilderFactory generateDependencyGraphBuilderFactory() {
+    final DependencyGraphBuilderFactory factory = new DependencyGraphBuilderFactory();
+    setDependencyGraphBuilderFactory(factory);
+    return factory;
   }
 
   public DependencyGraphExecutorFactory<CalculationJobResult> getDependencyGraphExecutorFactory() {

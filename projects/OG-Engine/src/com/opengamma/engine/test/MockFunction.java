@@ -176,7 +176,7 @@ public class MockFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public String getShortName() {
-    return "Fn for " + _target;
+    return getUniqueId() + " for " + _target;
   }
 
   @Override

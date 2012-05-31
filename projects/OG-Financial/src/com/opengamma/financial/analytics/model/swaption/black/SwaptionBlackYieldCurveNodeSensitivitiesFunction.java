@@ -172,11 +172,6 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
-      return null;
-    }
     final Set<String> forwardCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
@@ -193,12 +188,22 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
+    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String fundingCurveName = fundingCurveNames.iterator().next();
-    final String curveName = curveNames.iterator().next();
-    if (!(curveName.equals(forwardCurveName) || curveName.equals(fundingCurveName))) {
-      s_logger.error("Did not specify a curve to which this instrument is sensitive; asked for {}, {} and {} are allowed", new String[] {curveName, forwardCurveName, fundingCurveName});
-      return null;
+    final String curveName;
+    if ((curves == null) || curves.isEmpty()) {
+      // Curve not constrained, so make arbitrary choice.
+      curveName = forwardCurveName;
+    } else {
+      if (curves.contains(forwardCurveName)) {
+        curveName = forwardCurveName;
+      } else if (curves.contains(fundingCurveName)) {
+        curveName = fundingCurveName;
+      } else {
+        // Instrument isn't sensitive to the requested curve.
+        return null;
+      }
     }
     final String surfaceName = surfaceNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();

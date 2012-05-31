@@ -11,6 +11,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
@@ -36,6 +37,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private CurrencyMatrixSource _currencyMatrixSource;
   private HolidaySource _holidaySource;
   private ExchangeSource _exchangeSource;
+  private ComputationTargetResolver _targetResolver;
 
   public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
@@ -51,6 +53,14 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
 
   public PositionSource getPositionSource() {
     return _positionSource;
+  }
+
+  public void setComputationTargetResolver(final ComputationTargetResolver targetResolver) {
+    _targetResolver = targetResolver;
+  }
+
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _targetResolver;
   }
 
   public void setRegionSource(final RegionSource regionSource) {
@@ -138,7 +148,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     OpenGammaCompilationContext.setHolidaySource(context, _holidaySource);
     OpenGammaCompilationContext.setExchangeSource(context, _exchangeSource);
     context.setSecuritySource(getSecuritySource());
-    context.setPositionSource(getPositionSource());
+    context.setComputationTargetResolver(getComputationTargetResolver());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
   }
 

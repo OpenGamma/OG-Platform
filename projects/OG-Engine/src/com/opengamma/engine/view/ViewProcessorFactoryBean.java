@@ -13,8 +13,8 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.DummyOverrideOperationCompiler;
@@ -48,11 +48,11 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private CachingComputationTargetResolver _computationTargetResolver;
   private CompiledFunctionService _functionCompilationService;
   private FunctionResolver _functionResolver;
-  private FunctionExclusionGroups _functionExclusionGroups;
   private MarketDataProviderResolver _marketDataProviderResolver;
   private ViewComputationCacheSource _computationCacheSource;
   private JobDispatcher _computationJobDispatcher;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
+  private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory = new DependencyGraphBuilderFactory();
   private DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
@@ -124,12 +124,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _functionResolver = functionResolver;
   }
 
-  public FunctionExclusionGroups getFunctionExclusionGroups() {
-    return _functionExclusionGroups;
+  public DependencyGraphBuilderFactory getDependencyGraphBuilderFactory() {
+    return _dependencyGraphBuilderFactory;
   }
 
-  public void setFunctionExclusionGroups(final FunctionExclusionGroups functionExclusionGroups) {
-    _functionExclusionGroups = functionExclusionGroups;
+  public void setDependencyGraphBuilderFactory(final DependencyGraphBuilderFactory dependencyGraphBuilderFactory) {
+    _dependencyGraphBuilderFactory = dependencyGraphBuilderFactory;
   }
 
   public MarketDataProviderResolver getMarketDataProviderResolver() {
@@ -230,11 +230,11 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getComputationTargetResolver(),
         getFunctionCompilationService(),
         getFunctionResolver(),
-        getFunctionExclusionGroups(),
         getMarketDataProviderResolver(),
         getComputationCacheSource(),
         getComputationJobDispatcher(),
         getViewProcessorQueryReceiver(),
+        getDependencyGraphBuilderFactory(),
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
         getViewPermissionProvider(),

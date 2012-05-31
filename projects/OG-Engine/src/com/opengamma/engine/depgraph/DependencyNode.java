@@ -11,6 +11,8 @@ import java.util.Set;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -35,7 +37,7 @@ public class DependencyNode {
 
   // BELOW: COMPLETELY IMMUTABLE VARIABLES
 
-  private final ComputationTarget _computationTarget;
+  private final ComputationTargetSpecification _computationTarget;
 
   // COMPLETELY IMMUTABLE VARIABLES END
 
@@ -62,7 +64,16 @@ public class DependencyNode {
    * 
    * @param target the computation target, not null
    */
-  public DependencyNode(ComputationTarget target) {
+  public DependencyNode(final ComputationTarget target) {
+    this(MemoryUtils.instance(target.toSpecification()));
+  }
+
+  /**
+   * Creates a new node.
+   * 
+   * @param target the computation target specification, not null
+   */
+  public DependencyNode(final ComputationTargetSpecification target) {
     ArgumentChecker.notNull(target, "Computation Target");
     _computationTarget = target;
   }
@@ -314,7 +325,7 @@ public class DependencyNode {
    * 
    * @return the computation target
    */
-  public ComputationTarget getComputationTarget() {
+  public ComputationTargetSpecification getComputationTarget() {
     return _computationTarget;
   }
 
@@ -365,7 +376,7 @@ public class DependencyNode {
       sb.append("<null function>");
     }
     sb.append(" on ");
-    sb.append(getComputationTarget().toSpecification());
+    sb.append(getComputationTarget());
     sb.append("]");
     return sb.toString();
   }

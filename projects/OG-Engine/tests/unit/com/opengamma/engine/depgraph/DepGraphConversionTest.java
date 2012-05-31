@@ -403,9 +403,9 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
         return 0;
       }
     });
-    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target1);
-    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target2);
-    ((MapComputationTargetResolver) builder.getTargetResolver()).addTarget(target3);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target1);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target2);
+    ((MapComputationTargetResolver) builder.getCompilationContext().getComputationTargetResolver()).addTarget(target3);
     builder.addTarget(new ValueRequirement("C", target3.toSpecification()));
     builder.addTarget(new ValueRequirement("C", target2.toSpecification()));
     builder.addTarget(new ValueRequirement("C", target1.toSpecification()));

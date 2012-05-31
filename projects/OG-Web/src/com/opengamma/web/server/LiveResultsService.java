@@ -38,6 +38,7 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -86,6 +87,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private final ResultConverterCache _resultConverterCache;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
   private final AggregatedViewDefinitionManager _aggregatedViewDefinitionManager;
+  private final ComputationTargetResolver _computationTargetResolver;
   
   public LiveResultsService(final Bayeux bayeux, final ViewProcessor viewProcessor,
       final PositionSource positionSource, final SecuritySource securitySource,
@@ -93,7 +95,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       final ManageableViewDefinitionRepository userViewDefinitionRepository,
       final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService,
       final FudgeContext fudgeContext, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
-      final PortfolioAggregationFunctions portfolioAggregators) {
+      final PortfolioAggregationFunctions portfolioAggregators, final ComputationTargetResolver computationTargetResolver) {
     super(bayeux, "processPortfolioRequest");
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
@@ -107,6 +109,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(namedMarketDataSpecificationRepository, "namedMarketDataSpecificationRepository");
     ArgumentChecker.notNull(portfolioAggregators, "portfolioAggregators");
+    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     
     _viewProcessor = viewProcessor;
     _snapshotMaster = snapshotMaster;
@@ -117,7 +120,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource, securitySource,
         viewProcessor.getViewDefinitionRepository(), userViewDefinitionRepository, userPortfolioMaster, userPositionMaster,
         portfolioAggregators.getMappedFunctions());
-    
+    _computationTargetResolver = computationTargetResolver;
     viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
 
       @Override
@@ -180,7 +183,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       try {
         UniqueId viewDefinitionId = _aggregatedViewDefinitionManager.getViewDefinitionId(baseViewDefinitionId, aggregatorName);
         webView = new WebView(getClient(), remote, viewClient, baseViewDefinitionId, aggregatorName, viewDefinitionId,
-            executionOptions, user, getExecutorService(), getResultConverterCache());
+            executionOptions, user, getExecutorService(), getResultConverterCache(), getComputationTargetResolver());
       } catch (Exception e) {
         _aggregatedViewDefinitionManager.releaseViewDefinition(baseViewDefinitionId, aggregatorName);
         viewClient.shutdown();
@@ -211,6 +214,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     return _resultConverterCache;
   }
   
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
   public void processUpdateRequest(Client remote, Message message) {
     s_logger.info("Received portfolio data request from {}, getting client view...", remote);
     WebView webView = getClientView(remote.getId());

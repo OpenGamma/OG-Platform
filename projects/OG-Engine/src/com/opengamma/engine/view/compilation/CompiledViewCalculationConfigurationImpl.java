@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
 public class CompiledViewCalculationConfigurationImpl implements CompiledViewCalculationConfiguration {
   
   private final String _name;
-  private final Set<ComputationTarget> _computationTargets;
+  private final Set<ComputationTargetSpecification> _computationTargets;
   private final Map<ValueSpecification, Set<ValueRequirement>> _terminalOutputSpecifications;
   private final Map<ValueRequirement, ValueSpecification> _marketDataRequirements;
   
@@ -37,7 +37,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
    * @param terminalOutputSpecifications  the output specifications, not null
    * @param marketDataRequirements  the market data requirements, not null
    */
-  public CompiledViewCalculationConfigurationImpl(String name, Set<ComputationTarget> computationTargets,
+  public CompiledViewCalculationConfigurationImpl(String name, Set<ComputationTargetSpecification> computationTargets,
       Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications,
       Map<ValueRequirement, ValueSpecification> marketDataRequirements) {
     ArgumentChecker.notNull(name, "name");
@@ -81,7 +81,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   }
   
   @Override
-  public Set<ComputationTarget> getComputationTargets() {
+  public Set<ComputationTargetSpecification> getComputationTargets() {
     return _computationTargets;
   }
   
@@ -105,7 +105,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
     return dependencyGraph.getTerminalOutputs();
   }
   
-  private static Set<ComputationTarget> processComputationTargets(DependencyGraph dependencyGraph) {
+  private static Set<ComputationTargetSpecification> processComputationTargets(DependencyGraph dependencyGraph) {
     ArgumentChecker.notNull(dependencyGraph, "dependencyGraph");
     return dependencyGraph.getAllComputationTargets();
   }

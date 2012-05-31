@@ -117,7 +117,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget().toSpecification(), inputs, node.getOutputRequirements());
+          node.getComputationTarget(), inputs, node.getOutputRequirements());
       items.add(jobItem);
       getContext().registerJobItem(jobItem, node);
     }

@@ -8,6 +8,7 @@ package com.opengamma.web.server.push.grid;
 import java.util.EnumSet;
 import java.util.Map;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -16,15 +17,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * Represents a primitives grid
- * TODO temporary name just to distinguish it from the similarly named class in the parent package
-*/
-/* package */ class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
+ * Represents a primitives grid TODO temporary name just to distinguish it from the similarly named class in the parent package
+ */
+/* package */class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
 
-  public PushWebViewPrimitivesGrid(ViewClient viewClient,
-                                   CompiledViewDefinition compiledViewDefinition,
-                                   ResultConverterCache resultConverterCache) {
-    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "");
+  public PushWebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
+      ComputationTargetResolver computationTargetResolver) {
+    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "", computationTargetResolver);
   }
 
   @Override
@@ -32,7 +31,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     // TODO: resolve the target and use a more sensible name
     details.put("name", target.toString());
   }
-  
+
   //-------------------------------------------------------------------------
 
   @Override
@@ -54,5 +53,5 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   protected int getCsvDataColumnOffset() {
     return 1;
   }
-  
+
 }

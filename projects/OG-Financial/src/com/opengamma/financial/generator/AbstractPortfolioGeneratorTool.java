@@ -74,7 +74,7 @@ public abstract class AbstractPortfolioGeneratorTool {
   public PortfolioNodeGenerator createPortfolioNodeGenerator(int portfolioSize) {
     throw new UnsupportedOperationException();
   }
-  
+
   public PortfolioNode createPortfolioNode(final int size) {
     return createPortfolioNodeGenerator(size).createPortfolioNode();
   }
@@ -90,11 +90,11 @@ public abstract class AbstractPortfolioGeneratorTool {
   public void setRandom(final Random random) {
     _random = random;
   }
-  
+
   public Currency[] getCurrencies() {
     return _currencies;
   }
-  
+
   public void setCurrencies(Currency[] currencies) {
     _currencies = currencies;
   }
@@ -119,11 +119,11 @@ public abstract class AbstractPortfolioGeneratorTool {
   public void setSecurityPersister(final SecurityPersister securityPersister) {
     _securityPersister = securityPersister;
   }
-  
+
   public NameGenerator getCounterPartyGenerator() {
     return _counterPartyGenerator;
   }
-  
+
   public void setCounterPartyGenerator(final NameGenerator counterPartyGenerator) {
     _counterPartyGenerator = counterPartyGenerator;
   }
@@ -171,6 +171,9 @@ public abstract class AbstractPortfolioGeneratorTool {
     if (getSecurityPersister() != null) {
       tool.setSecurityPersister(getSecurityPersister());
     }
+    if (getCounterPartyGenerator() != null) {
+      tool.setCounterPartyGenerator(getCounterPartyGenerator());
+    }
   }
 
   /**
@@ -213,7 +216,6 @@ public abstract class AbstractPortfolioGeneratorTool {
       s_logger.info("Loading {}", className);
       final AbstractPortfolioGeneratorTool tool = (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
       tool.setContext(getClassContext(), this);
-      tool.setCounterPartyGenerator(getCounterPartyGenerator());
       return tool;
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
@@ -223,10 +225,11 @@ public abstract class AbstractPortfolioGeneratorTool {
   protected AbstractPortfolioGeneratorTool getInstance(final String security) {
     return getInstance(getClassContext(), security);
   }
-  
+
   public void run(final ToolContext context, final String portfolioName, final String security, final boolean write, final Currency[] currencies) {
     final AbstractPortfolioGeneratorTool instance = getInstance(security);
     instance.setToolContext(context);
+    instance.setCounterPartyGenerator(getCounterPartyGenerator());
     instance.setRandom(new SecureRandom());
     final SecuritySource securitySource;
     if (write) {
@@ -242,7 +245,6 @@ public abstract class AbstractPortfolioGeneratorTool {
     if (currencies != null && currencies.length > 0) {
       instance.setCurrencies(currencies);
     }
-    
     s_logger.info("Creating portfolio {}", portfolioName);
     final Portfolio portfolio = instance.createPortfolio(portfolioName);
     if (write) {
@@ -318,7 +320,7 @@ public abstract class AbstractPortfolioGeneratorTool {
                                    .withLongOpt(CURRENCIES_OPT)
                                    .create("ccy"));
   }
-  
+
   private Currency[] parseCurrencies(CommandLine commandLine) {
     if (commandLine.hasOption(CURRENCIES_OPT)) {
       String[] currencies = commandLine.getOptionValues(CURRENCIES_OPT);
@@ -334,9 +336,9 @@ public abstract class AbstractPortfolioGeneratorTool {
   }
 
   public void run(final ToolContext context, final CommandLine commandLine) {
-
-    run(context, commandLine.getOptionValue(PORTFOLIO_OPT), commandLine.getOptionValue(SECURITY_OPT), 
-                 commandLine.hasOption(WRITE_OPT), parseCurrencies(commandLine));
+    setCounterPartyGenerator(new StaticNameGenerator(commandLine.getOptionValue(COUNTER_PARTY_OPT, DEFAULT_COUNTER_PARTY)));
+    run(context, commandLine.getOptionValue(PORTFOLIO_OPT), commandLine.getOptionValue(SECURITY_OPT),
+        commandLine.hasOption(WRITE_OPT), parseCurrencies(commandLine));
   }
 
 }

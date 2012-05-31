@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function.resolver;
 
+import java.util.Collection;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
@@ -138,7 +139,7 @@ public class ResolutionRule {
    * the function. The specification is not composed against the requirement
    * constraints.
    */
-  public ValueSpecification getResult(final ValueRequirement output, final ComputationTarget target, final Set<ValueSpecification> resultSpecs) {
+  public ValueSpecification getResult(final ValueRequirement output, final ComputationTarget target, final Collection<ValueSpecification> resultSpecs) {
     // Of the maximal outputs, is one valid for the requirement
     ValueSpecification validSpec = null;
     for (ValueSpecification resultSpec : resultSpecs) {

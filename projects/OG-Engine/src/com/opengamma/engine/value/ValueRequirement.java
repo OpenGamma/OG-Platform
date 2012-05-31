@@ -217,7 +217,7 @@ public final class ValueRequirement implements Serializable {
     if (getValueName() != valueSpecification.getValueName()) {
       return false;
     }
-    if (!getTargetSpecification().equals(getTargetSpecification())) {
+    if (!getTargetSpecification().equals(valueSpecification.getTargetSpecification())) {
       return false;
     }
     if (!getConstraints().isSatisfiedBy(valueSpecification.getProperties())) {

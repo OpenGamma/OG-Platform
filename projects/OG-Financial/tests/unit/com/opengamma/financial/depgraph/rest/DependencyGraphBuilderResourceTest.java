@@ -97,6 +97,7 @@ public class DependencyGraphBuilderResourceTest {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     final MockSecuritySource securities = new MockSecuritySource();
     context.setSecuritySource(securities);
+    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities));
     return new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), context);
   }
 
@@ -104,7 +105,6 @@ public class DependencyGraphBuilderResourceTest {
     final DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
     final CompiledFunctionService cfs = createFunctionCompilationService ();
     cfs.initialize();
-    bean.setComputationTargetResolver(new DefaultComputationTargetResolver(cfs.getFunctionCompilationContext().getSecuritySource()));
     bean.setFunctionCompilationContext(cfs.getFunctionCompilationContext());
     bean.setFunctionResolver (new DefaultFunctionResolver(cfs));
     bean.setMarketDataProviderResolver(new SingleMarketDataProviderResolver(new MarketDataProvider() {

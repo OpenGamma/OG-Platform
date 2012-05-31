@@ -56,15 +56,6 @@
       </bean>
     </constructor-arg>
   </bean>
-  <bean id="mainComputationTargetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
-        <constructor-arg ref="combinedSecuritySource" />
-        <constructor-arg ref="combinedPositionSource" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="standardCacheManager" />
-  </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
@@ -77,7 +68,7 @@
 				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
 				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
 				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-				    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
+				    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
 				    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
 				      <null/> <!-- The cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
@@ -156,21 +147,27 @@
     <property name="namedMarketDataSpecificationRepository" ref="simulatedNamedMarketDataSpecificationRepository" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
+    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
-    <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
     <property name="computationCacheSource" ref="mainComputationCacheSource" />
     <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
     <property name="viewProcessorQueryReceiver" ref="mainViewProcessorQueryReceiver" />
+    <property name="dependencyGraphBuilderFactory">
+      <bean class="com.opengamma.engine.depgraph.DependencyGraphBuilderFactory">
+        <property name="runQueueFactory">
+          <bean class="com.opengamma.engine.depgraph.RunQueueFactory" factory-method="getConcurrentLinkedQueue" />
+        </property>
+        <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />
+      </bean>
+    </property>
     <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
-
     <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
   </bean>
   

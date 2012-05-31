@@ -47,7 +47,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     assertTrue(node.getOutputValues().contains(helper.getSpec1()));
     assertTrue(node.getOutputValues().contains(helper.getSpec2()));
     assertTrue(node.getInputNodes().isEmpty());
-    assertEquals(helper.getTarget(), node.getComputationTarget());
+    assertEquals(helper.getTarget().toSpecification(), node.getComputationTarget());
     graph.removeUnnecessaryValues();
     nodes = graph.getDependencyNodes();
     assertNotNull(nodes);
@@ -112,7 +112,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
         assertFalse(node.getOutputValues().contains(helper.getSpec2()));
         assertTrue(node.getInputValues().contains(helper.getSpec2()));
         assertEquals(1, node.getInputNodes().size());
-        assertEquals(helper.getTarget(), node.getComputationTarget());
+        assertEquals(helper.getTarget().toSpecification(), node.getComputationTarget());
       } else if (ObjectUtils.equals(node.getFunction().getFunction(), fn2)) {
         assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertTrue(node.getOutputValues().contains(helper.getSpec2()));
@@ -144,7 +144,7 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
         ValueSpecification inputSpec = node.getInputValues().iterator().next();
         assertEquals(helper.getSpec2().getValueName(), inputSpec.getValueName());
         assertEquals(helper.getSpec2().getTargetSpecification(), inputSpec.getTargetSpecification());
-        assertEquals(helper.getTarget(), node.getComputationTarget());
+        assertEquals(helper.getTarget().toSpecification(), node.getComputationTarget());
       } else if (node.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
         assertFalse(node.getOutputValues().contains(helper.getSpec1()));
         assertEquals(1, node.getOutputValues().size());

@@ -159,6 +159,8 @@ public class DepGraphTestHelper {
       _builder = new DependencyGraphBuilder();
       _builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
       final FunctionCompilationContext context = new FunctionCompilationContext();
+      final MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+      context.setComputationTargetResolver(targetResolver);
       _builder.setCompilationContext(context);
       final CompiledFunctionService compilationService = new CompiledFunctionService(_functionRepo, new CachingFunctionRepositoryCompiler(), context);
       compilationService.initialize();
@@ -169,9 +171,7 @@ public class DepGraphTestHelper {
         resolver = new DefaultFunctionResolver(compilationService);
       }
       _builder.setFunctionResolver(resolver.compile(Instant.now()));
-      MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
       targetResolver.addTarget(_target);
-      _builder.setTargetResolver(targetResolver);
       _builder.setCalculationConfigurationName("testCalcConf");
     }
     return _builder;

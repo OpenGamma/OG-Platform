@@ -31,10 +31,12 @@ import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -83,8 +85,8 @@ public class ViewDefinitionCompilerTest {
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
         EHCacheUtils.createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, null, functionCompilationContext, computationTargetResolver, executorService, securitySource,
-        positionSource);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
+        new DependencyGraphBuilderFactory(), securitySource, positionSource);
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
@@ -119,9 +121,10 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource),
         EHCacheUtils.createCacheManager());
+    functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, null, functionCompilationContext, computationTargetResolver, executorService, securitySource,
-        positionSource);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
+        new DependencyGraphBuilderFactory(), securitySource, positionSource);
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -165,9 +168,10 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils
         .createCacheManager());
+    functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, null, functionCompilationContext, computationTargetResolver, executorService, securitySource,
-        positionSource);
+    ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
+        new DependencyGraphBuilderFactory(), securitySource, positionSource);
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
@@ -200,8 +204,10 @@ public class ViewDefinitionCompilerTest {
     cfs.initialize();
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(), EHCacheUtils.createCacheManager());
+    compilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, null, compilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService,
+        new DependencyGraphBuilderFactory());
     // We'll require r1 which can be satisfied by f1
     calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
@@ -234,8 +240,10 @@ public class ViewDefinitionCompilerTest {
     DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(cfs);
     DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource), EHCacheUtils
         .createCacheManager());
+    compilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
-    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, null, compilationContext, computationTargetResolver, executorService);
+    ViewCompilationServices compilationServices = new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext, computationTargetResolver, executorService,
+        new DependencyGraphBuilderFactory());
     // We'll require r2 which can be satisfied by f2, which in turn requires the output of f1
     // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
     // source.
@@ -271,8 +279,8 @@ public class ViewDefinitionCompilerTest {
     final DefaultCachingComputationTargetResolver computationTargetResolver = new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource),
         EHCacheUtils.createCacheManager());
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.compileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver, null,
-        compilationContext, computationTargetResolver, executorService), Instant.now(), VersionCorrection.LATEST);
+    final Future<CompiledViewDefinitionWithGraphsImpl> future = ViewDefinitionCompiler.compileTask(viewDefinition, new ViewCompilationServices(snapshotProvider, functionResolver, compilationContext,
+        computationTargetResolver, executorService, new DependencyGraphBuilderFactory()), Instant.now(), VersionCorrection.LATEST);
     assertFalse(future.isDone());
     assertFalse(future.isCancelled());
     assertTrue(future.cancel(true));
@@ -287,9 +295,9 @@ public class ViewDefinitionCompilerTest {
 
   private void assertTargets(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, UniqueId... targets) {
     Set<UniqueId> expectedTargets = new HashSet<UniqueId>(Arrays.asList(targets));
-    Set<ComputationTarget> actualTargets = compiledViewDefinition.getComputationTargets();
+    Set<ComputationTargetSpecification> actualTargets = compiledViewDefinition.getComputationTargets();
     assertEquals(expectedTargets.size(), actualTargets.size());
-    for (ComputationTarget actualTarget : actualTargets) {
+    for (ComputationTargetSpecification actualTarget : actualTargets) {
       assertTrue(expectedTargets.contains(actualTarget.getUniqueId()));
     }
   }

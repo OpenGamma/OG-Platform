@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -48,44 +49,39 @@ import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * An abstract base class for dynamically-structured, requirement-based grids.
- * TODO temporary name just to distinguish it from the similarly named class in the parent package
-*/
-/* package */ abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
+ * An abstract base class for dynamically-structured, requirement-based grids. TODO temporary name just to distinguish it from the similarly named class in the parent package
+ */
+/* package */abstract class PushRequirementBasedWebViewGrid extends PushWebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushRequirementBasedWebViewGrid.class);
 
   private final RequirementBasedGridStructure _gridStructure;
   private final String _nullCellValue;
-  
+  private final ComputationTargetResolver _computationTargetResolver;
+
   // Column-based state: few entries expected so using an array set 
   private final LongSet _historyOutputs = new LongArraySet();
-  
+
   // Cell-based state
   private final Map<WebGridCell, PushWebViewDepGraphGrid> _depGraphGrids = new HashMap<WebGridCell, PushWebViewDepGraphGrid>();
 
-  protected PushRequirementBasedWebViewGrid(String name,
-                                            ViewClient viewClient,
-                                            CompiledViewDefinition compiledViewDefinition,
-                                            List<ComputationTargetSpecification> targets,
-                                            EnumSet<ComputationTargetType> targetTypes,
-                                            ResultConverterCache resultConverterCache,
-                                            String nullCellValue) {
+  protected PushRequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
+      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, String nullCellValue, ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache);
-    
+
     List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
     _gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _nullCellValue = nullCellValue;
+    _computationTargetResolver = computationTargetResolver;
   }
-  
+
   //-------------------------------------------------------------------------
 
   /**
    * @param target The target whose result is required
    * @param resultModel The model containing the results
    * @param resultTimestamp The timestamp of the results
-   * @return {@code {"rowId": rowId, "0": col0Val, "1": col1Val, ...}}
-   * cell values: {@code {"v": value, "h": [historyVal1, historyVal2, ...]}}
+   * @return {@code "rowId": rowId, "0": col0Val, "1": col1Val, ...} cell values: {@code "v": value, "h": [historyVal1, historyVal2, ...]}
    */
   public Map<String, Object> getTargetResult(ComputationTargetSpecification target,
                                              ViewTargetResultModel resultModel,
@@ -137,8 +133,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 
   /**
    * Creates a blank set of results for a row.
+   * 
    * @param rowId The zero-based index of the row
-   * @return {@code {rowId: rowId}}
+   * @return {@code rowId: rowId}
    */
   private Map<String, Object> createTargetResult(Integer rowId) {
     Map<String, Object> valuesToSend = new HashMap<String, Object>();
@@ -148,12 +145,15 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 
   /**
    * Returns all the dependency graphs for the grid.
+   * 
    * @param resultTimestamp Timestamp of the set of results
-   * @return <pre>[{"rowId": "1", "1": {"dg": depGraphForRow1Col1}},
+   * @return <pre>
+   * [{"rowId": "1", "1": {"dg": depGraphForRow1Col1}},
    * {"rowId": "1", "2": {"dg": depGraphForRow1Col2}},
-   * {"rowId": "2", "1": {"dg": depGraphForRow2Col1}}]</pre>
-   * TODO the return value is ugly but is based on the current Cometd impl to reduce changes in the web client.
-   * It's probably worth revisting it at some point
+   * {"rowId": "2", "1": {"dg": depGraphForRow2Col1}}]
+   * </pre>
+   * 
+   *         TODO the return value is ugly but is based on the current Cometd impl to reduce changes in the web client. It's probably worth revisting it at some point
    */
   public List<Map<String, Object>> getDepGraphs(long resultTimestamp) {
     if (_depGraphGrids.isEmpty()) {
@@ -205,7 +205,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return results;
   }
-  
+
   // TODO this publishes to the client. not nice for a method named get*
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
@@ -224,7 +224,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     gridStructure.put("columns", getJsonColumnStructures(getGridStructure().getColumns()));
     return gridStructure;
   }
-  
+
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
@@ -238,7 +238,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return rowStructures;
   }
-  
+
   private Map<String, Object> getJsonColumnStructures(Collection<WebViewGridColumn> columns) {
     Map<String, Object> columnStructures = new HashMap<String, Object>(columns.size());
     for (WebViewGridColumn columnDetails : columns) {
@@ -246,7 +246,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return columnStructures;
   }
-  
+
   private Map<String, Object> getJsonColumnStructure(WebViewGridColumn column) {
     Map<String, Object> detailsToSend = new HashMap<String, Object>();
     long colId = column.getId();
@@ -254,12 +254,12 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     detailsToSend.put("header", column.getHeader());
     detailsToSend.put("description", column.getValueName() + ":\n" + column.getDescription());
     detailsToSend.put("nullValue", _nullCellValue);
-    
+
     String resultType = getConverterCache().getKnownResultTypeName(column.getValueName());
     if (resultType != null) {
       column.setTypeKnown(true);
       detailsToSend.put("dataType", resultType);
-      
+
       // Hack - the client should decide which columns it requires history for, taking into account the capabilities of
       // the renderer.
       if (resultType.equals("DOUBLE")) {
@@ -268,17 +268,19 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return detailsToSend;
   }
-  
+
   protected abstract void addRowDetails(UniqueId target, int rowId, Map<String, Object> details);
-  
+
   //-------------------------------------------------------------------------
-  
+
   public RequirementBasedGridStructure getGridStructure() {
     return _gridStructure;
   }
   
-  //-------------------------------------------------------------------------
-  
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
   private void addHistoryOutput(long colId) {
     _historyOutputs.add(colId);
   }
@@ -287,21 +289,21 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   protected boolean isHistoryOutput(WebGridCell cell) {
     return _historyOutputs.contains(cell.getColumnId());
   }
-  
+
   //-------------------------------------------------------------------------
 
   /**
-   * Returns the dependency graph grid for the specified cell or {@code null} if that cell doesn't have a
-   * dependency graph grid.
+   * Returns the dependency graph grid for the specified cell or null if that cell doesn't have a dependency graph grid.
+   * 
    * @param row The cell's row index
    * @param col The cell's column index
-   * @return The cell's depdency graph grid or {@code null} if it doesn't have one
+   * @return The cell's depdency graph grid or null if it doesn't have one
    */
-  /* package */ PushWebViewGrid getDepGraphGrid(int row, int col) {
+  /* package */PushWebViewGrid getDepGraphGrid(int row, int col) {
     return _depGraphGrids.get(new WebGridCell(row, col));
   }
 
-  /* package */ void updateDepGraphCells(Set<WebGridCell> newCells) {
+  /* package */void updateDepGraphCells(Set<WebGridCell> newCells) {
     Set<WebGridCell> currentCells = _depGraphGrids.keySet();
     Set<WebGridCell> cellsToRemove = Sets.difference(currentCells, newCells);
     Set<WebGridCell> cellsToAdd = Sets.difference(newCells, currentCells);
@@ -317,19 +319,15 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
       s_logger.debug("includeDepGraph took {}", timer.finished());
       // TODO should this ever happen? it is currently
       if (columnMappingPair != null) {
-        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
-                                                                   getViewClient(),
-                                                                   getConverterCache(),
-                                                                   cell,
-                                                                   columnMappingPair.getFirst(),
-                                                                   columnMappingPair.getSecond());
+        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(),
+            getComputationTargetResolver());
         _depGraphGrids.put(cell, grid);
       }
     }
-}
-  
+  }
+
   //-------------------------------------------------------------------------
-  
+
   @Override
   protected String[][] getRawDataColumnHeaders() {
     Collection<WebViewGridColumn> columns = getGridStructure().getColumns();
@@ -343,7 +341,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
       header1[offset + column.getId()] = column.getHeader();
       header2[offset + column.getId()] = column.getDescription();
     }
-    return new String[][] {header1, header2};
+    return new String[][] {header1, header2 };
   }
 
   @Override
@@ -387,17 +385,17 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   protected int getAdditionalCsvColumnCount() {
     return 0;
   }
-  
+
   protected int getCsvDataColumnOffset() {
     return 0;
   }
-  
+
   protected void supplementCsvColumnHeaders(String[] headers) {
   }
-  
+
   protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
   }
-  
+
   //-------------------------------------------------------------------------
 
   private static List<RequirementBasedColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
@@ -412,7 +410,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
           result.add(columnKey);
         }
       }
-      
+
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
         if (!targetTypes.contains(specificRequirement.getTargetSpecification().getType())) {
           continue;

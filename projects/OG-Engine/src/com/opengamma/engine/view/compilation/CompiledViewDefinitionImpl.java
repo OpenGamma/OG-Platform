@@ -20,7 +20,7 @@ import javax.time.InstantProvider;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -105,8 +105,8 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   }
 
   @Override
-  public Set<ComputationTarget> getComputationTargets() {
-    Set<ComputationTarget> allTargets = new HashSet<ComputationTarget>();
+  public Set<ComputationTargetSpecification> getComputationTargets() {
+    Set<ComputationTargetSpecification> allTargets = new HashSet<ComputationTargetSpecification>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       allTargets.addAll(compiledCalcConfig.getComputationTargets());
     }

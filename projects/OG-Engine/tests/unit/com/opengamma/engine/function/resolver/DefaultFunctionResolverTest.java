@@ -56,6 +56,7 @@ public class DefaultFunctionResolverTest {
     private final ComputationTarget _match;
 
     public Filter(final ComputationTarget match) {
+      super(null);
       _match = match;
     }
 

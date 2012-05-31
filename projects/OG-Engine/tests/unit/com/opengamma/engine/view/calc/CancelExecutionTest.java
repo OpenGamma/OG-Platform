@@ -35,6 +35,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
@@ -164,9 +165,9 @@ public class CancelExecutionTest {
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     MockViewDefinitionRepository viewDefinitionRepository = new MockViewDefinitionRepository();
     viewDefinitionRepository.addDefinition(viewDefinition);
-    final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, null, positionSource,
+    final ViewProcessContext vpc = new ViewProcessContext(viewDefinitionRepository, viewPermissionProvider, marketDataProviderResolver, compilationService, functionResolver, positionSource,
         securitySource, new DefaultCachingComputationTargetResolver(new DefaultComputationTargetResolver(securitySource, positionSource), EHCacheUtils.createCacheManager()), computationCacheSource,
-        jobDispatcher, viewProcessorQueryReceiver, factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
+        jobDispatcher, viewProcessorQueryReceiver, new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler());
     final DependencyGraph graph = new DependencyGraph("Default");
     DependencyNode previous = null;
     for (int i = 0; i < JOB_SIZE; i++) {
