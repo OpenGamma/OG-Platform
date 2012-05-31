@@ -21,13 +21,15 @@
 .OG-layout-analytics-dock-center,
 .OG-layout-analytics-dock-south {
     background: #f8f8f8;
+   -moz-box-shadow: inset 0 0 10px #ddd;
+   -webkit-box-shadow: inset 0 0 10px #ddd;
+   box-shadow: inset 0 0 10px #ddd;
 }
 
 .OG-layout-analytics-south:before,
 .OG-layout-analytics-dock-north:before,
 .OG-layout-analytics-dock-center:before,
 .OG-layout-analytics-dock-south:before {
-    content: 'Empty';
     position: absolute;
     top: 50%;
     left: 50%;
