@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.var;
 
+import com.opengamma.analytics.math.function.Function;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.math.function.Function;
 
 /**
  * 
@@ -39,7 +39,9 @@ public class NormalLinearVaRCalculator<T> implements VaRCalculator<NormalVaRPara
     Validate.notNull(data, "data");
     double z = parameters.getZ();
     double mult = parameters.getTimeScaling();
-    return z * mult * _stdCalculator.evaluate(data) - mult * mult * _meanCalculator.evaluate(data);
+    double mean = _meanCalculator.evaluate(data);
+    double stddev = _stdCalculator.evaluate(data);
+    return z * mult * stddev - mult * mult * mean;
   }
 
   @Override

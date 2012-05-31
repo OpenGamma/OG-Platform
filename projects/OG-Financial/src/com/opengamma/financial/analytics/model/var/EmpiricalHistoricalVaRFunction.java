@@ -175,7 +175,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Missing or non-unique confidence level name: " + confidenceLevelNames);
     }
     return new EmpiricalDistributionVaRParameters(Double.valueOf(horizonNames.iterator().next()),
-        VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
+        VaRFunctionUtils.getBusinessDaysPerPeriod(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
   }
 
 }

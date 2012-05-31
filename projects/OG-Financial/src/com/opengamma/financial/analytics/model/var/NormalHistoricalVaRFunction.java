@@ -185,7 +185,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       throw new OpenGammaRuntimeException("Missing or non-unique confidence level name: " + confidenceLevelNames);
     }
     return new NormalVaRParameters(Double.valueOf(horizonNames.iterator().next()),
-        VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
+        VaRFunctionUtils.getBusinessDaysPerPeriod(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
   }
 
   private NormalLinearVaRCalculator<DoubleTimeSeries<?>> getVaRCalculator(final Set<String> meanCalculatorNames,
