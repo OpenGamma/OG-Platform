@@ -5,6 +5,12 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -193,4 +199,41 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
     ArgumentChecker.notNull(swaption, "instrument");
     return MultipleCurrencyAmount.of(swaption.getCurrency(), 0.0);
   }
+
+  @Override
+  public MultipleCurrencyAmount visitForex(final Forex forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return visitFixedPayment(forex.getPaymentCurrency1()).plus(visitFixedPayment(forex.getPaymentCurrency2()));
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexSwap(final ForexSwap forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return visitForex(forex.getNearLeg()).plus(visitForex(forex.getFarLeg()));
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return MultipleCurrencyAmount.of(forex.getCurrency1(), 0.0);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return MultipleCurrencyAmount.of(forex.getCurrency1(), 0.0);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexOptionDigital(final ForexOptionDigital forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return MultipleCurrencyAmount.of(forex.getCurrency1(), 0.0);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward forex) {
+    ArgumentChecker.notNull(forex, "instrument");
+    return MultipleCurrencyAmount.of(forex.getCurrency1(), 0.0);
+  }
+
 }

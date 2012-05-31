@@ -13,10 +13,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -110,7 +109,7 @@ public class ForexSwapDefinitionTest {
     Forex fxNear = FX_NEAR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     Forex fxFar = FX_FAR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final ForexSwap fxSwapExpected = new ForexSwap(fxNear, fxFar);
-    ForexSwap fxSwap = FX_SWAP_DEFINITION_FIN.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    InstrumentDerivative fxSwap = FX_SWAP_DEFINITION_FIN.toDerivative(REFERENCE_DATE, CURVES_NAME);
     assertEquals(fxSwapExpected, fxSwap);
   }
 

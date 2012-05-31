@@ -19,12 +19,9 @@ import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalcul
 import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithFXBundle;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
@@ -56,10 +53,14 @@ public class ForexDiscountingMethodTest {
 
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
   private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator.getInstance();
-  private static final com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator.getInstance();
+  private static final com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator
+      .getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
+  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
+
+  private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
 
   @Test
   /**
@@ -114,8 +115,8 @@ public class ForexDiscountingMethodTest {
     final Forex fxReverse = fxReverseDefinition.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[1], CURVES_NAME[0]});
     final MultipleCurrencyAmount pv = METHOD.presentValue(FX, CURVES);
     final MultipleCurrencyAmount pvReverse = METHOD.presentValue(fxReverse, CURVES);
-    assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), 1.0E-2);
-    assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_2), pvReverse.getAmount(CUR_2), 1.0E-2);
+    assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_1), pvReverse.getAmount(CUR_1), TOLERANCE_PV);
+    assertEquals("Forex present value: Reverse description", pv.getAmount(CUR_2), pvReverse.getAmount(CUR_2), TOLERANCE_PV);
   }
 
   @Test
@@ -157,6 +158,30 @@ public class ForexDiscountingMethodTest {
     ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
     double fwdCalculator = FWDC.visit(FX, curvesFx);
     assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
+  }
+
+  @Test
+  /**
+   * Tests the TodayPaymentCalculator for forex transactions.
+   */
+  public void forexTodayPaymentBeforePayment() {
+    Forex fx = FX_DEFINITION.toDerivative(PAYMENT_DATE.minusDays(1), CURVES_NAME);
+    MultipleCurrencyAmount cash = TPC.visit(fx);
+    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(fx.getCurrency1()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(fx.getCurrency2()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
+  }
+
+  @Test
+  /**
+   * Tests the TodayPaymentCalculator for forex transactions.
+   */
+  public void forexTodayPaymentOnPayment() {
+    Forex fx = FX_DEFINITION.toDerivative(PAYMENT_DATE, CURVES_NAME);
+    MultipleCurrencyAmount cash = TPC.visit(fx);
+    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency1().getAmount(), cash.getAmount(fx.getCurrency1()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_DEFINITION.getPaymentCurrency2().getAmount(), cash.getAmount(fx.getCurrency2()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 
 }

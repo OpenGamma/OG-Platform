@@ -22,6 +22,7 @@ import com.opengamma.util.money.Currency;
  * The transaction is XXX/YYY where YYY is the currency for the cash-settlement. A NDF KRW/USD with USD cash settlement is stored with KRW as currency1 and USD as currency2.
  */
 // TODO: Review: Should the transaction be stored as KRW/USD or USD/KRW?
+// REVIEW: should we have a "fixing process" like we have for CouponIbor?
 public class ForexNonDeliverableForwardDefinition implements InstrumentDefinition<InstrumentDerivative> {
 
   /**

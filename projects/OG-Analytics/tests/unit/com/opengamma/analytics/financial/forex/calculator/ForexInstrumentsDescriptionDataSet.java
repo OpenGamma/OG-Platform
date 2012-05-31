@@ -69,7 +69,7 @@ public class ForexInstrumentsDescriptionDataSet {
   }
 
   public static ForexSwap createForexSwap() {
-    return createForexSwapDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    return (ForexSwap) createForexSwapDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
 
   public static ForexOptionVanillaDefinition createForexOptionVanillaDefinition() {
