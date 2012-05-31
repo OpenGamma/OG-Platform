@@ -12,7 +12,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -28,10 +30,12 @@ public class BlackSwaptionSensitivityNodeCalculator {
    */
   public PresentValueBlackSwaptionSensitivity calculateNodeSensitivities(final PresentValueBlackSwaptionSensitivity sensitivities, final BlackSwaptionParameters parameters) {
     Validate.isTrue(parameters.getGeneratorSwap().equals(sensitivities.getGeneratorSwap()), "Sensitivities and parameters should refer to the same swap generator");
-    final Map<Double, Interpolator1DDataBundle> volatilityData = (Map<Double, Interpolator1DDataBundle>) parameters.getVolatilitySurface().getInterpolatorData();
+    ArgumentChecker.isTrue(parameters.getVolatilitySurface() instanceof InterpolatedDoublesSurface, "Can only calculate node sensitivities for interpolated double surfaces");
+    final InterpolatedDoublesSurface interpolatedSurface = (InterpolatedDoublesSurface) parameters.getVolatilitySurface();
+    final Map<Double, Interpolator1DDataBundle> volatilityData = (Map<Double, Interpolator1DDataBundle>) interpolatedSurface.getInterpolatorData();
     SurfaceValue volatilityNode = new SurfaceValue();
     for (final Entry<DoublesPair, Double> entry : sensitivities.getSensitivity().getMap().entrySet()) {
-      final Map<DoublesPair, Double> weight = parameters.getVolatilitySurface().getInterpolator().getNodeSensitivitiesForValue(volatilityData, entry.getKey());
+      final Map<DoublesPair, Double> weight = interpolatedSurface.getInterpolator().getNodeSensitivitiesForValue(volatilityData, entry.getKey());
       volatilityNode = SurfaceValue.plus(volatilityNode, SurfaceValue.multiplyBy(SurfaceValue.from(weight), entry.getValue()));
     }
     return new PresentValueBlackSwaptionSensitivity(volatilityNode, parameters.getGeneratorSwap());
