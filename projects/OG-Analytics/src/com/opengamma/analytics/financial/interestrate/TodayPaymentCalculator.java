@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
@@ -102,6 +103,12 @@ public final class TodayPaymentCalculator extends AbstractInstrumentDerivativeVi
   public MultipleCurrencyAmount visitInterestRateFuture(final InterestRateFuture future) {
     ArgumentChecker.notNull(future, "instrument");
     return MultipleCurrencyAmount.of(future.getCurrency(), 0.0);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futureOption) {
+    ArgumentChecker.notNull(futureOption, "instrument");
+    return MultipleCurrencyAmount.of(futureOption.getUnderlyingOption().getCurrency(), 0.0);
   }
 
   @Override

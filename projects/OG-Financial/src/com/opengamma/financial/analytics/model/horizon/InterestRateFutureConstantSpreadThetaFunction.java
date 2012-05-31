@@ -53,8 +53,6 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  /** Property value for constant spread theta calculations */
-  public static final String CONSTANT_SPREAD = "ConstantSpread";
   private static final double DAYS_PER_YEAR = 365;
   private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = new ConstantSpreadHorizonThetaCalculator(DAYS_PER_YEAR);
   private InterestRateFutureTradeConverter _converter;
@@ -151,7 +149,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, CONSTANT_SPREAD);
+        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
     return properties;
   }
 
@@ -161,7 +159,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, CONSTANT_SPREAD);
+        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
     return properties;
   }
 

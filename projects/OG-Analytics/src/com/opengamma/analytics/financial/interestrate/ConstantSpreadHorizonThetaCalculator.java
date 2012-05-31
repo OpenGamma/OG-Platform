@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -58,7 +59,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, data) - instrumentToday.accept(pvCalculator, tomorrowData) + paymentTomorrow.getAmount(currency);
+    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -75,7 +76,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, data) - instrumentToday.accept(pvCalculator, tomorrowData) + paymentTomorrow.getAmount(currency);
+    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -92,7 +93,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, data) - instrumentToday.accept(pvCalculator, tomorrowData) + paymentTomorrow.getAmount(currency);
+    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -106,7 +107,8 @@ public class ConstantSpreadHorizonThetaCalculator {
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final double result = swaptionTomorrow.accept(pvCalculator, data) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
+    final YieldCurveWithBlackSwaptionBundle tomorrowData = getDateShiftedYieldCurveWithBlackSwaptionBundle(data);
+    final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -120,7 +122,8 @@ public class ConstantSpreadHorizonThetaCalculator {
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final double result = swaptionTomorrow.accept(pvCalculator, data) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
+    final YieldCurveWithBlackSwaptionBundle tomorrowData = getDateShiftedYieldCurveWithBlackSwaptionBundle(data);
+    final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -136,12 +139,12 @@ public class ConstantSpreadHorizonThetaCalculator {
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, data) - instrumentToday.accept(pvCalculator, tomorrowData) + paymentTomorrow.getAmount(currency);
+    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
   public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
-      final YieldCurveBundle data, final Double lastMarginPrice) {
+      final YieldCurveWithBlackCubeBundle data, final Double lastMarginPrice) {
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, lastMarginPrice, yieldCurveNames);
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, lastMarginPrice, yieldCurveNames);
@@ -149,10 +152,10 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swap");
     }
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveWithBlackCubeBundle tomorrowData = getDateShiftedYieldCurveWithBlackCubeBundle(data);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
-    final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, data) - instrumentToday.accept(pvCalculator, tomorrowData) + paymentTomorrow.getAmount(currency);
+    final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
+    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
@@ -181,6 +184,22 @@ public class ConstantSpreadHorizonThetaCalculator {
       shifted.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
     }
     return shifted;
+  }
+
+  private YieldCurveWithBlackSwaptionBundle getDateShiftedYieldCurveWithBlackSwaptionBundle(final YieldCurveWithBlackSwaptionBundle bundle) {
+    final YieldCurveBundle shifted = getDateShiftedYieldCurveBundle(bundle);
+    for (final String name : bundle.getAllNames()) {
+      shifted.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
+    }
+    return bundle;
+  }
+
+  private YieldCurveWithBlackCubeBundle getDateShiftedYieldCurveWithBlackCubeBundle(final YieldCurveWithBlackCubeBundle bundle) {
+    final YieldCurveBundle shifted = getDateShiftedYieldCurveBundle(bundle);
+    for (final String name : bundle.getAllNames()) {
+      shifted.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
+    }
+    return bundle;
   }
 
   private YieldAndDiscountCurve getDateShiftedYieldCurve(final YieldAndDiscountCurve yieldCurve) {

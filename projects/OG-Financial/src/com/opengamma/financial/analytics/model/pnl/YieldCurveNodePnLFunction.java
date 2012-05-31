@@ -133,7 +133,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
         return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
-      } catch (OpenGammaRuntimeException ogre) {
+      } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
     }
@@ -242,7 +242,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       if (!(idObject instanceof ExternalId)) {
         throw new OpenGammaRuntimeException("Yield curve node sensitivity label was not an external id; should never happen");
       }
-      final double sensitivity = values[i];
+      double sensitivity = values[i];
+      if (stripList.get(i) == StripInstrumentType.FUTURE) {
+        sensitivity *= -1;
+      }
       final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) idObject);
       final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
       if (dbNodeTimeSeries == null) {
