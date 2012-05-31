@@ -9,13 +9,15 @@ import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadFXBlackRolldown;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadInterestRateFutureOptionBlackDataRolldown;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadSwaptionBlackRolldown;
+import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -25,19 +27,9 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
-import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -45,12 +37,15 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class ConstantSpreadHorizonThetaCalculator {
+  private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
+  private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
+  private static final ConstantSpreadInterestRateFutureOptionBlackDataRolldown IR_FUTURE_OPTION_ROLLDOWN = ConstantSpreadInterestRateFutureOptionBlackDataRolldown.getInstance();
+  private static final ConstantSpreadFXBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXBlackRolldown.getInstance();
   private final TodayPaymentCalculator _paymentCalculator;
   private final double _shiftTime;
 
@@ -70,7 +65,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swap");
     }
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, _shiftTime);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
@@ -87,7 +82,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swap");
     }
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, _shiftTime);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
@@ -104,7 +99,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swap");
     }
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, _shiftTime);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
@@ -121,7 +116,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final YieldCurveWithBlackSwaptionBundle tomorrowData = getDateShiftedYieldCurveWithBlackSwaptionBundle(data);
+    final YieldCurveWithBlackSwaptionBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(data, _shiftTime);
     final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
@@ -136,7 +131,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     }
     final Currency currency = definition.getUnderlyingSwap().getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final YieldCurveWithBlackSwaptionBundle tomorrowData = getDateShiftedYieldCurveWithBlackSwaptionBundle(data);
+    final YieldCurveWithBlackSwaptionBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(data, _shiftTime);
     final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
@@ -150,7 +145,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the interest rate future");
     }
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, _shiftTime);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
@@ -166,7 +161,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     if (paymentTomorrow.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the interest rate future option");
     }
-    final YieldCurveWithBlackCubeBundle tomorrowData = getDateShiftedYieldCurveWithBlackCubeBundle(data);
+    final YieldCurveWithBlackCubeBundle tomorrowData = IR_FUTURE_OPTION_ROLLDOWN.rollDown(data, _shiftTime);
     final Currency currency = paymentTomorrow.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentTomorrow.getAmount(currency);
@@ -178,7 +173,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, _shiftTime);
     final PresentValueForexCalculator pvCalculator = PresentValueForexCalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
   }
@@ -188,7 +183,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    final SmileDeltaTermStructureDataBundle tomorrowData = getDateShiftedFXVolatilityData(data);
+    final SmileDeltaTermStructureDataBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(data, _shiftTime);
     final PresentValueBlackForexCalculator pvCalculator = PresentValueBlackForexCalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
   }
@@ -199,7 +194,7 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    final SmileDeltaTermStructureDataBundle tomorrowData = getDateShiftedFXVolatilityData(data);
+    final SmileDeltaTermStructureDataBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(data, _shiftTime);
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
   }
 
@@ -220,95 +215,6 @@ public class ConstantSpreadHorizonThetaCalculator {
       }
     }
     return laggedFixingSeries;
-  }
-
-  private YieldCurveBundle getDateShiftedYieldCurveBundle(final YieldCurveBundle bundle) {
-    final YieldCurveBundle shiftedCurves = new YieldCurveBundle();
-    for (final String name : bundle.getAllNames()) {
-      shiftedCurves.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
-    }
-    return shiftedCurves;
-  }
-
-  private YieldCurveWithBlackSwaptionBundle getDateShiftedYieldCurveWithBlackSwaptionBundle(final YieldCurveWithBlackSwaptionBundle bundle) {
-    final YieldCurveBundle shiftedCurves = getDateShiftedYieldCurveBundle(bundle);
-    for (final String name : bundle.getAllNames()) {
-      shiftedCurves.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
-    }
-    final Surface<Double, Double, Double> surface = bundle.getBlackParameters().getVolatilitySurface();
-    final FunctionalDoublesSurface shiftedVolatilitySurface = new FunctionalDoublesSurface(getDateShiftedVolatilitySurface(surface));
-    final BlackSwaptionParameters shiftedParameters = new BlackSwaptionParameters(shiftedVolatilitySurface, bundle.getBlackParameters().getGeneratorSwap());
-    return new YieldCurveWithBlackSwaptionBundle(shiftedParameters, shiftedCurves);
-  }
-
-  private YieldCurveWithBlackCubeBundle getDateShiftedYieldCurveWithBlackCubeBundle(final YieldCurveWithBlackCubeBundle bundle) {
-    final YieldCurveBundle shiftedCurves = getDateShiftedYieldCurveBundle(bundle);
-    for (final String name : bundle.getAllNames()) {
-      shiftedCurves.setCurve(name, getDateShiftedYieldCurve(bundle.getCurve(name)));
-    }
-    final Surface<Double, Double, Double> surface = bundle.getBlackParameters();
-    final FunctionalDoublesSurface shiftedVolatilitySurface = new FunctionalDoublesSurface(getDateShiftedVolatilitySurface(surface));
-    return new YieldCurveWithBlackCubeBundle(shiftedVolatilitySurface, shiftedCurves);
-  }
-
-  private YieldAndDiscountCurve getDateShiftedYieldCurve(final YieldAndDiscountCurve yieldCurve) {
-    final Curve<Double, Double> curve = yieldCurve.getCurve();
-    final Function1D<Double, Double> shiftedFunction = new Function1D<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double t) {
-        return curve.getYValue(t + _shiftTime);
-      }
-
-    };
-    return new YieldCurve(FunctionalDoublesCurve.from(shiftedFunction));
-  }
-
-  private Function<Double, Double> getDateShiftedVolatilitySurface(final Surface<Double, Double, Double> surface) {
-    return new Function<Double, Double>() {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... x) {
-        return surface.getZValue(x[0] + _shiftTime, x[1]);
-      }
-
-    };
-  }
-
-  private SmileDeltaTermStructureDataBundle getDateShiftedFXVolatilityData(final SmileDeltaTermStructureDataBundle bundle) {
-    final YieldCurveBundle shiftedCurves = getDateShiftedYieldCurveBundle(bundle);
-    final Pair<Currency, Currency> currencyPair = bundle.getCurrencyPair();
-    final SmileDeltaTermStructureParameter smile = bundle.getSmile();
-    return new SmileDeltaTermStructureDataBundle(bundle.getFxRates(), bundle.getCcyMap(), shiftedCurves, smile, currencyPair) {
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {
-        if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + _shiftTime, strike, forward);
-        }
-        if ((ccy2 == currencyPair.getFirst()) && (ccy1 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + _shiftTime, 1.0 / strike, 1.0 / forward);
-        }
-        Validate.isTrue(false, "Currencies not compatible with smile data");
-        return 0.0;
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public double getVolatility(final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward, final double[][] bucketSensitivity) {
-        if ((ccy1 == currencyPair.getFirst()) && (ccy2 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + _shiftTime, strike, forward, bucketSensitivity);
-        }
-        if ((ccy2 == currencyPair.getFirst()) && (ccy1 == currencyPair.getSecond())) {
-          return smile.getVolatility(time + _shiftTime, 1.0 / strike, 1.0 / forward, bucketSensitivity);
-        }
-        Validate.isTrue(false, "Currencies not compatible with smile data");
-        return 0.0;
-      }
-    };
   }
 
   private MultipleCurrencyAmount subtract(final MultipleCurrencyAmount a, final MultipleCurrencyAmount b) {

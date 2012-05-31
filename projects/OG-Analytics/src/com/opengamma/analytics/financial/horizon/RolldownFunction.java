@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
-
 /**
  * 
+ * @param <T> The type of the data to roll down
  */
 public interface RolldownFunction<T> {
 
-  T rollDownCurve(T curve, double time);
+  T rollDown(T data, double time);
 }

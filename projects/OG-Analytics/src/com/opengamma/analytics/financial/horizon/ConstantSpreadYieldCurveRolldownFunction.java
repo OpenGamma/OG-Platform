@@ -15,18 +15,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public final class ConstantSpreadCurveRolldownFunction implements RolldownFunction<YieldAndDiscountCurve> {
-  private static final ConstantSpreadCurveRolldownFunction INSTANCE = new ConstantSpreadCurveRolldownFunction();
+public final class ConstantSpreadYieldCurveRolldownFunction implements RolldownFunction<YieldAndDiscountCurve> {
+  private static final ConstantSpreadYieldCurveRolldownFunction INSTANCE = new ConstantSpreadYieldCurveRolldownFunction();
 
-  public static ConstantSpreadCurveRolldownFunction getInstance() {
+  public static ConstantSpreadYieldCurveRolldownFunction getInstance() {
     return INSTANCE;
   }
 
-  private ConstantSpreadCurveRolldownFunction() {
+  private ConstantSpreadYieldCurveRolldownFunction() {
   }
 
   @Override
-  public YieldAndDiscountCurve rollDownCurve(final YieldAndDiscountCurve yieldCurve, final double time) {
+  public YieldAndDiscountCurve rollDown(final YieldAndDiscountCurve yieldCurve, final double time) {
     ArgumentChecker.notNull(yieldCurve, "yield curve");
     final Curve<Double, Double> curve = yieldCurve.getCurve();
     final Function1D<Double, Double> shiftedFunction = new Function1D<Double, Double>() {
