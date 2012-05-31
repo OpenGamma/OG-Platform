@@ -148,7 +148,7 @@ $.register_module({
                     show_gadget(id);
                 }
             };
-            container.init = function () {
+            container.init = function (arr) {
                 var toggle_dropbox = function () {
                         var $db = $('.og-drop').length, $dbs_span = $('.OG-dropbox span');
                         if ($db) $dbs_span.removeClass('og-icon-new-window').addClass('og-icon-drop');
@@ -177,6 +177,7 @@ $.register_module({
                                 if (id) gadgets[index].gadget.resize();
                             }
                         });
+                    if (!arr) update_tabs(null); else container.add(arr);
                     // implement drop
                     $(selector).droppable({
                         hoverClass: 'og-drop',
