@@ -96,7 +96,7 @@ public class FXUtils {
     }
     return bloomberg;
   }
-  
+
   /**
    * Returns a bundle containing all known identifiers for the spot rate of this FXOptionSecurity.
    * The identifier respect the market base/quote currencies.
@@ -115,7 +115,7 @@ public class FXUtils {
     }
     return bloomberg;
   }
-  
+
   public static String getFormattedStrike(final double strike, final Pair<Currency, Currency> pair) {
     if (pair.getFirst().compareTo(pair.getSecond()) < 0) {
       return STRIKE_FORMATTER.format(strike) + " " + pair.getFirst() + "/" + pair.getSecond();
@@ -146,6 +146,32 @@ public class FXUtils {
     return true;
   }
 
+  /**
+   * Return in the standard base/quote currency from two currencies.
+   * @param currency1 The first currency.
+   * @param currency2 The second currency.
+   * @return The base currency.
+   */
+  public static Currency baseCurrency(final Currency currency1, final Currency currency2) {
+    if (isInBaseQuoteOrder(currency1, currency2)) {
+      return currency1;
+    }
+    return currency2;
+  }
+
+  /**
+   * Return in the currency which is not the base currency from two currencies.
+   * @param currency1 The first currency.
+   * @param currency2 The second currency.
+   * @return The non-base currency.
+   */
+  public static Currency nonBaseCurrency(final Currency currency1, final Currency currency2) {
+    if (isInBaseQuoteOrder(currency1, currency2)) {
+      return currency2;
+    }
+    return currency1;
+  }
+
   public static CurrencyLabelledMatrix1D getMultipleCurrencyAmountAsMatrix(final MultipleCurrencyAmount mca) {
     ArgumentChecker.notNull(mca, "multiple currency amount");
     final int n = mca.size();
@@ -160,13 +186,8 @@ public class FXUtils {
   }
 
   public static boolean isFXSecurity(final Security security) {
-    return security instanceof FXForwardSecurity || 
-        security instanceof FXOptionSecurity || 
-        security instanceof FXBarrierOptionSecurity || 
-        security instanceof FXDigitalOptionSecurity ||
-        security instanceof NonDeliverableFXForwardSecurity ||
-        security instanceof NonDeliverableFXOptionSecurity || 
-        security instanceof NonDeliverableFXDigitalOptionSecurity;
+    return security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity
+        || security instanceof NonDeliverableFXForwardSecurity || security instanceof NonDeliverableFXOptionSecurity || security instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
 }
