@@ -23,15 +23,18 @@ public abstract class TimeCalculator {
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
     ArgumentChecker.notNull(date1, "date1");
     ArgumentChecker.notNull(date1, "date2");
-    ArgumentChecker.isTrue(date1.getZone().equals(date2.getZone()), "Attempted to compute Analytics-Time between instants in two different TimeZones. " +
-        "This is not permitted. ZonedDateTime's are: {} and {}", date1, date2);
-    final boolean timeIsNegative = date1.isAfter(date2); // date1 >= date2
+    
+    // Note that here we convert date2 to the same zone as date1 so we don't accidentally gain or lose a day.
+    ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+    
+    final boolean timeIsNegative = date1.isAfter(rebasedDate2); // date1 >= date2
+
 
     if (!timeIsNegative) {
-      final double time = ACT_ACT.getDayCountFraction(date1, date2);
+      final double time = ACT_ACT.getDayCountFraction(date1, rebasedDate2);
       return time;
     }
-    return -1.0 * ACT_ACT.getDayCountFraction(date2, date1);
+    return -1.0 * ACT_ACT.getDayCountFraction(rebasedDate2, date1);
   }
 
   public static double getTimeBetween(final LocalDate date1, final LocalDate date2) {
