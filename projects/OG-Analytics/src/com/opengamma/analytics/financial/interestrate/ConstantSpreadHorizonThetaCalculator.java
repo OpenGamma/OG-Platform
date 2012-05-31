@@ -178,9 +178,6 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    if (paymentTomorrow.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
-    }
     final YieldCurveBundle tomorrowData = getDateShiftedYieldCurveBundle(data);
     final PresentValueForexCalculator pvCalculator = PresentValueForexCalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
@@ -191,9 +188,6 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    if (paymentTomorrow.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
-    }
     final SmileDeltaTermStructureDataBundle tomorrowData = getDateShiftedFXVolatilityData(data);
     final PresentValueBlackForexCalculator pvCalculator = PresentValueBlackForexCalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
@@ -205,9 +199,6 @@ public class ConstantSpreadHorizonThetaCalculator {
     final ZonedDateTime tomorrow = date.plusDays(1);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(tomorrow, yieldCurveNames);
     final MultipleCurrencyAmount paymentTomorrow = instrumentTomorrow.accept(_paymentCalculator);
-    if (paymentTomorrow.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
-    }
     final SmileDeltaTermStructureDataBundle tomorrowData = getDateShiftedFXVolatilityData(data);
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentTomorrow);
   }

@@ -130,6 +130,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
    */
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(future);
     final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.presentValue(future, curves).getAmount();
   }
@@ -257,16 +259,16 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
 
   @Override
   public Double visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle data) {
-    double domesticValue = visit(ccs.getDomesticLeg(), data);
-    double foreignValue = visit(ccs.getForeignLeg(), data);
-    double fx = ccs.getSpotFX();
+    final double domesticValue = visit(ccs.getDomesticLeg(), data);
+    final double foreignValue = visit(ccs.getForeignLeg(), data);
+    final double fx = ccs.getSpotFX();
     return domesticValue - fx * foreignValue;
   }
 
   @Override
   public Double visitForexForward(final ForexForward fx, final YieldCurveBundle data) {
-    double leg1 = visitFixedPayment(fx.getPaymentCurrency1(), data);
-    double leg2 = visitFixedPayment(fx.getPaymentCurrency2(), data);
+    final double leg1 = visitFixedPayment(fx.getPaymentCurrency1(), data);
+    final double leg2 = visitFixedPayment(fx.getPaymentCurrency2(), data);
     return leg1 + fx.getSpotForexRate() * leg2;
   }
 
