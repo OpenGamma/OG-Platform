@@ -8,9 +8,9 @@ package com.opengamma.bloombergexample.tool;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Set;
+
 import javax.time.calendar.LocalDate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -190,7 +190,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadFXPortfolio() {
     PortfolioGeneratorTool generator = new PortfolioGeneratorTool();
     System.out.println("Creating FX portfolio");
-    generator.run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true);
+    generator.run(getToolContext(), "Example FX Portfolio", "EuroDollarFX", true, getAllCurrencies().toArray(new Currency[] {}));
     System.out.println("Finished");
   }
 

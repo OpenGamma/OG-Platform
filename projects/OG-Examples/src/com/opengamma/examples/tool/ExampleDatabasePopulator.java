@@ -201,7 +201,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMultiCurrencySwapPortfolio() {
     final Log log = new Log("Creating example multi currency swap portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -211,7 +211,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadForwardSwapPortfolio() {
     final Log log = new Log("Creating example forward swap portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Forward Swap Portfolio", "ForwardSwap", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Forward Swap Portfolio", "ForwardSwap", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -221,7 +221,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadSwaptionPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Swaption Portfolio", "Swaption", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Swaption Portfolio", "Swaption", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -241,7 +241,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCapFloorCMSSpreadPortfolio() {
     final Log log = new Log("Creating example cap/floor CMS spread portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -251,7 +251,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCapFloorPortfolio() {
     final Log log = new Log("Creating example cap/floor portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor Portfolio", "CapFloor", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor Portfolio", "CapFloor", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -261,7 +261,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCashPortfolio() {
     final Log log = new Log("Creating example cash portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cash Portfolio", "Cash", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Cash Portfolio", "Cash", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -281,7 +281,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadFRAPortfolio() {
     final Log log = new Log("Creating example FRA portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "FRA Portfolio", "FRA", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "FRA Portfolio", "FRA", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -291,7 +291,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMixedFXPortfolio() {
     final Log log = new Log("Creating mixed FX portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -301,7 +301,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMixedPortfolio() {
     final Log log = new Log("Creating mixed portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed Portfolio", "Mixed", true);
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed Portfolio", "Mixed", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);

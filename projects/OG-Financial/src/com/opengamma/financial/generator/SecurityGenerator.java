@@ -113,6 +113,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
 
+  private Currency[] _currencies;
+
 
 
   public Random getRandom() {
@@ -377,9 +379,17 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public static Currency[] getDefaultCurrencies() {
     return new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   }
+  
+  public void setCurrencies(Currency[] currencies) {
+    _currencies = currencies;
+  }
 
   public Currency[] getCurrencies() {
-    return getDefaultCurrencies();
+    if (_currencies == null) {
+      return getDefaultCurrencies();
+    } else {
+      return _currencies;
+    }
   }
 
   protected Currency getRandomCurrency() {
