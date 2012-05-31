@@ -150,7 +150,7 @@ import com.opengamma.engine.value.ValueSpecification;
         assert !_closed;
         _closed = true;
         // Shouldn't be in the pumped state - a caller can't call close after calling pump
-        assert !_pumped.remove(this);
+        assert _pumped == null || !_pumped.remove(this);
         _callbacks--;
       }
       release(context);
