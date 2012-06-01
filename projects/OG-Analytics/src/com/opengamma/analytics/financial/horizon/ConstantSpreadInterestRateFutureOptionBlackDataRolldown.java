@@ -10,7 +10,9 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * 
+ * Produces a YieldCurveWithBlackCubeBundle that has been shifted forward in time without slide. 
+ * That is, it moves in such a way that the vol or rate requested for the same maturity DATE will be equal 
+ * for the original market data bundle and the shifted one. 
  */
 public final class ConstantSpreadInterestRateFutureOptionBlackDataRolldown implements RolldownFunction<YieldCurveWithBlackCubeBundle> {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();

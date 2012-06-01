@@ -56,8 +56,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * 
  */
 public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final double DAYS_PER_YEAR = 365;
-  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = new ConstantSpreadHorizonThetaCalculator(DAYS_PER_YEAR);
+  
+  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
 
   @Override
@@ -96,18 +96,21 @@ public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCom
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(),
+    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle blackData = new YieldCurveWithBlackSwaptionBundle(parameters, bundle);
+
+    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
+    
     if (security.isCashSettled()) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;
       final String[] curveNamesForSecurity = new String[] {fundingCurveName, forwardCurveName };
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta(cashSettled, now, curveNamesForSecurity, blackData);
+      final MultipleCurrencyAmount theta = calculator.getTheta(cashSettled, now, curveNamesForSecurity, blackData);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
     }
     final SwaptionPhysicalFixedIborDefinition physicallySettled = (SwaptionPhysicalFixedIborDefinition) definition;
     final String[] curveNamesForSecurity = new String[] {fundingCurveName, forwardCurveName };
-    final MultipleCurrencyAmount theta = CALCULATOR.getTheta(physicallySettled, now, curveNamesForSecurity, blackData);
+    final MultipleCurrencyAmount theta = calculator.getTheta(physicallySettled, now, curveNamesForSecurity, blackData);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
   }
 

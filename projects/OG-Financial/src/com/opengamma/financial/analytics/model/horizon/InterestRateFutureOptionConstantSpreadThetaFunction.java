@@ -60,8 +60,9 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final double DAYS_PER_YEAR = 365;
-  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = new ConstantSpreadHorizonThetaCalculator(DAYS_PER_YEAR);
+  
+  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
+  
   private InterestRateFutureOptionTradeConverter _converter;
 
   @Override
@@ -117,9 +118,12 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
+    LocalDate lastMarginTime = ts.getTimeSeries().getLatestTime();
     final YieldCurveBundle curves = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod);
-    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle((InterpolatedDoublesSurface) volatilitySurface.getSurface(), curves);
-    final MultipleCurrencyAmount theta = CALCULATOR.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, yieldCurveNames, data, lastMarginPrice);
+    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
+    
+    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
+    final MultipleCurrencyAmount theta = calculator.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, yieldCurveNames, data, lastMarginPrice);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
   }
 

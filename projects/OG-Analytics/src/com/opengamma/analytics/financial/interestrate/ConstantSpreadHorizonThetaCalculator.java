@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import java.util.List;
-
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -30,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -38,8 +35,16 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 
+import java.util.List;
+
+import javax.time.calendar.ZonedDateTime;
+
 /**
+ *  Computes the difference in present value between one day and the next, without Volatility or Rate slide. 
+ * That is, the market moves in such a way that the discount rates or implied volatility requested 
+ * for the same maturity DATE will be equal one both dates. <p>
  * 
+ * Note that the time to maturity will differ by the daysForward provided in the constructor
  */
 public class ConstantSpreadHorizonThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
@@ -49,9 +54,25 @@ public class ConstantSpreadHorizonThetaCalculator {
   private final TodayPaymentCalculator _paymentCalculator;
   private final double _shiftTime;
 
-  public ConstantSpreadHorizonThetaCalculator(final double daysPerYear) {
-    ArgumentChecker.isTrue(daysPerYear > 0, "Number of days per year must be greater than zero; have {}", daysPerYear);
-    _shiftTime = 1. / daysPerYear;
+  /**
+   * Construction by date and number of days to shift forward. This safely transforms dates to OG-Analytics time.
+   * @param valuationDate Start date of theta calculation, t 
+   * @param daysForward Number of days to shift the market curves forward
+   */
+  public ConstantSpreadHorizonThetaCalculator(final ZonedDateTime valuationDate, final int daysForward) {
+    ArgumentChecker.isTrue(daysForward > 0, "Number of days per year must be greater than zero; have {}", daysForward);
+    final ZonedDateTime horizonDate = valuationDate.plusDays(daysForward);
+    _shiftTime = TimeCalculator.getTimeBetween(valuationDate, horizonDate);
+    _paymentCalculator = TodayPaymentCalculator.getInstance(_shiftTime);
+  }
+
+  /**
+   * Construction providing OG-Analytics time (years) to shift curves and surfaces forward
+   * @param shiftTimeForward See TimeCalculator
+   */
+  public ConstantSpreadHorizonThetaCalculator(final double shiftTimeForward) {
+    ArgumentChecker.isTrue(shiftTimeForward > 0, "Time to move market environment forward must be greater than zero; have {}", shiftTimeForward);
+    _shiftTime = shiftTimeForward;
     _paymentCalculator = TodayPaymentCalculator.getInstance(_shiftTime);
   }
 

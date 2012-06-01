@@ -53,8 +53,7 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final double DAYS_PER_YEAR = 365;
-  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = new ConstantSpreadHorizonThetaCalculator(DAYS_PER_YEAR);
+  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private InterestRateFutureTradeConverter _converter;
 
   @Override
@@ -95,7 +94,8 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
       throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.toLocalDate());
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, curveNamesForSecurity, bundle, lastMarginPrice);
+    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
+    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, curveNamesForSecurity, bundle, lastMarginPrice);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
   }
 

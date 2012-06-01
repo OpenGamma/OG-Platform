@@ -56,8 +56,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property value for constant spread theta calculations */
   public static final String CONSTANT_SPREAD = "ConstantSpread";
-  private static final double DAYS_PER_YEAR = 365;
-  private static final ConstantSpreadHorizonThetaCalculator CALCULATOR = new ConstantSpreadHorizonThetaCalculator(DAYS_PER_YEAR);
+  private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
 
   @Override
@@ -88,14 +87,15 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final DoubleTimeSeries<ZonedDateTime>[] fixingSeries = security.accept(new FixingTimeSeriesVisitor(conventionSource, dataSource, now));
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
     if (definition instanceof SwapFixedIborDefinition) {
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     } else if (definition instanceof SwapFixedOISDefinition) {
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta((SwapFixedOISDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedOISDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     } else if (definition instanceof SwapFixedIborSpreadDefinition) {
-      final MultipleCurrencyAmount theta = CALCULATOR.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
