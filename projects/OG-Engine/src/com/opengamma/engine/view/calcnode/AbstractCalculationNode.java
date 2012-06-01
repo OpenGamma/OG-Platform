@@ -135,7 +135,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         s_logger.info("Unable to invoke {} due to missing inputs", jobItem);
         resultItem = new CalculationJobResultItem(jobItem, e);
       } catch (Throwable t) {
-        s_logger.error("Invoking " + jobItem.getFunctionUniqueIdentifier() + " threw exception", t);
+        s_logger.error("Invoking {} threw exception: {}", jobItem.getFunctionUniqueIdentifier(), t.getMessage());
+        s_logger.info("Caught", t);
         resultItem = new CalculationJobResultItem(jobItem, t);
       }
       resultItems.add(resultItem);
