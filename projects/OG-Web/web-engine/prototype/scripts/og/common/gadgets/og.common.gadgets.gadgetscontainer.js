@@ -130,6 +130,8 @@ $.register_module({
                                 }
                             },
                             cursor: 'move', zIndex: 3,
+                            cursorAt: {top: 25, left: -5},
+                            scroll: false,
                             iframeFix: true, appendTo: 'body', distance: 20,
                             helper: function() {return dropbox_template({label: $(this).text().trim()});}
                         }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
