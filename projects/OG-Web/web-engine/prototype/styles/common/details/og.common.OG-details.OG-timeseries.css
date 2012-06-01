@@ -17,7 +17,7 @@
     color: #555;
     text-shadow: 0 1px 0 #fff;
     border-radius: 1px;
-    z-index: 3;
+    z-index: 4;
     left: 0;
     right: 0;
 
@@ -99,7 +99,6 @@
     top: 3px;
     bottom: 0;
     background: #fff;
-    opacity: .8;
 }
 
 .OG-timeseries-gadget .og-tenor span {
