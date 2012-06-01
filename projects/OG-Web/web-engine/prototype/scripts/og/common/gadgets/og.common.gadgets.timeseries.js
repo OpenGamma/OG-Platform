@@ -387,7 +387,7 @@ $.register_module({
                         build_select = function () {
                             var field, select = '';
                             for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Data Field</span><select>' + select
+                            return select = '<div class="og-field"><select>' + select
                                 + '</select></div>';
                         },
                         // build checkboxes
