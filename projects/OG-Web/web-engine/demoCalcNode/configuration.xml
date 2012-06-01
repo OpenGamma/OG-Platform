@@ -191,9 +191,12 @@
     <constructor-arg>
       <bean class="com.opengamma.engine.view.cache.DefaultFudgeMessageStoreFactory">
         <constructor-arg>
+          <!--
           <bean class="com.opengamma.engine.view.cache.BerkeleyDBBinaryDataStoreFactoryFactoryBean">
             <property name="dataStoreFolder" value="${opengamma.engine.calcnode.localdatastore}" />
           </bean>
+          -->
+          <bean class="com.opengamma.engine.view.cache.InMemoryBinaryDataStoreFactory" />
         </constructor-arg>
         <constructor-arg ref="fudgeContext" />
       </bean>
@@ -284,7 +287,7 @@
     <property name="functionExecutionContext" ref="functionExecutionContext" />
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="viewProcessorQuery" ref="viewProcessorQuery" />
-    <property name="writeBehindExecutorService" ref="slaveThreads" />
+    <!-- <property name="writeBehindExecutorService" ref="slaveThreads" /> --> <!-- Don't use write-behind with in-memory cache -->
     <property name="statisticsGatherer" ref="statisticsSender" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>
