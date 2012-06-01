@@ -64,7 +64,21 @@ $.register_module({
                         full_width = $tabs_container.width() - (overflow_buffer + (buttons_buffer[pane] || 0)),
                         // the full width of all the tabs
                         tabs_width = Array.prototype.reduce.apply($tabs
-                            .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]);
+                            .map(function () {return $(this).outerWidth();}), [function (a, b) {return a + b;}, 0]),
+                        new_window = function (i, dropped) {
+                            var prefix = 'gadget.ftl#/gadgetscontainer/', url,
+                                index = extract_index(extract_id($(this).attr('class'))),
+                                id = gadgets[index].config.options.id,
+                                type = gadgets[index].type;
+                            switch (type) {
+                                case 'timeseries': url = prefix + type + ':' + id; break;
+                                case 'grid': url = prefix + type + ':' + id; break;
+                            }
+                            if (!dropped) {
+                                window.open(url);
+                                setTimeout(container.del.partial(gadgets[i]));
+                            }
+                        };
                     // stage 1
                     if (tabs_width > full_width) {
                         new_tab_width = ~~((full_width - active_tab_width) / num_inactive_tabs);
@@ -115,24 +129,10 @@ $.register_module({
                     // implement drag
                     $tabs.each(function (i) {
                         $(this).draggable({
-                            revert: function (dropped) {
-                                var prefix = 'gadget.ftl#/gadgetscontainer/', url,
-                                    index = extract_index(extract_id($(this).attr('class'))),
-                                    id = gadgets[index].config.options.id,
-                                    type = gadgets[index].type;
-                                switch (type) {
-                                    case 'timeseries': url = prefix + type + ':' + id; break;
-                                    case 'grid': url = prefix + type + ':' + id; break;
-                                }
-                                if (!dropped) {
-                                    window.open(url);
-                                    setTimeout(container.del.partial(gadgets[i]));
-                                }
-                            },
-                            cursor: 'move', zIndex: 3,
-                            cursorAt: {top: 25, left: -5},
-                            scroll: false,
+                            cursor: 'move', zIndex: 3, cursorAt: {top: 25}, scroll: false,
                             iframeFix: true, appendTo: 'body', distance: 20,
+                            revert: new_window.partial(i),
+                            stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
                             helper: function() {return dropbox_template({label: $(this).text().trim()});}
                         }).data({gadget: gadgets[i], handler: function () {container.del(gadgets[i]);}});
                     });
@@ -183,25 +183,26 @@ $.register_module({
                     // implement drop
                     $(selector).droppable({
                         hoverClass: 'og-drop',
-                        accept: function (draggable) {
-                            var pane = extract_pane($(this).attr('class')),
-                                pane_class = class_prefix + pane,
-                                overflow_class = 'og-js-overflow-' + pane,
-                                has_ancestor = function (elm, sel) {
-                                    return $(elm).parentsUntil('.' + sel).parent().hasClass(sel);
-                                };
-                            return $(draggable).is('li[class^=og-tab-]') // is it a tab...
-                                && !has_ancestor(draggable, pane_class) // that isnt a child of the active pane...
-                                && !has_ancestor(draggable, overflow_class);
-                        },
+                        accept: function (draggable) {return $(draggable).is('li[class^=og-tab-]')}, // is it a tab...
                         over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
-                            var data = ui.draggable.data(), gadget = data.gadget.config.options,
+                            var has_ancestor = function (elm, sel) {
+                                    return $(elm).parentsUntil('.' + sel).parent().hasClass(sel);
+                                },
+                                pane_class = class_prefix + pane,
+                                overflow_class = 'og-js-overflow-' + pane,
+                                data = ui.draggable.data(),
+                                gadget = data.gadget.config.options,
                                 re = new RegExp(selector_prefix + '(.*?)\\s');
-                            gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
-                            container.add([data.gadget.config]);
-                            setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt finishes
+                            if (has_ancestor(ui.draggable, pane_class) || has_ancestor(ui.draggable, overflow_class)) {
+                                ui.draggable.draggable('option', 'revert', true);
+                            } else {
+                                ui.draggable.draggable('option', 'revert', false);
+                                gadget.selector = gadget.selector.replace(re, selector_prefix + pane + ' ');
+                                container.add([data.gadget.config]);
+                                setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
+                            }
                         }
                     });
                     og.common.gadgets.manager.register(container);
