@@ -236,8 +236,7 @@ $.register_module({
                         return {
                             gadget: 'og.common.gadgets.timeseries',
                             options: {id: id, datapoints_link: false, child: true},
-                            name: 'Timeseries ' + id,
-                            margin: true
+                            name: 'Timeseries ' + id
                         }
                     };
                     options.grid = function (id) {
@@ -257,7 +256,7 @@ $.register_module({
                     $(panel_container)
                         .append('<div class="' + gadget_class + '" />')
                         .find('.' + gadget_class)
-                        .css({height: '100%', margin: obj.margin ? 10 : 0});
+                        .css({height: '100%'});
                     gadgets.push(gadget = {id: id, config: obj, type: type, gadget: new constructor(options)});
                     return gadget;
                 });
