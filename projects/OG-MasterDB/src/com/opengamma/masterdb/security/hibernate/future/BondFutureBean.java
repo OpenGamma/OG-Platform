@@ -17,10 +17,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Please see distribution for license.
  */
 @BeanDefinition
-public class BondFutureBean extends FutureSecurityBean {
-  
-  @PropertyDefinition
-  private BondFutureTypeBean _bondType;
+public class BondFutureBean extends FutureSecurityBean {  
   
   @Override
   public <T> T accept(Visitor<T> visitor) {
@@ -46,20 +43,11 @@ public class BondFutureBean extends FutureSecurityBean {
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1969562781:  // bondType
-        return getBondType();
-    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1969562781:  // bondType
-        setBondType((BondFutureTypeBean) newValue);
-        return;
-    }
     super.propertySet(propertyName, newValue, quiet);
   }
 
@@ -69,9 +57,7 @@ public class BondFutureBean extends FutureSecurityBean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BondFutureBean other = (BondFutureBean) obj;
-      return JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
-          super.equals(obj);
+      return super.equals(obj);
     }
     return false;
   }
@@ -79,33 +65,7 @@ public class BondFutureBean extends FutureSecurityBean {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
     return hash ^ super.hashCode();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the bondType.
-   * @return the value of the property
-   */
-  public BondFutureTypeBean getBondType() {
-    return _bondType;
-  }
-
-  /**
-   * Sets the bondType.
-   * @param bondType  the new value of the property
-   */
-  public void setBondType(BondFutureTypeBean bondType) {
-    this._bondType = bondType;
-  }
-
-  /**
-   * Gets the the {@code bondType} property.
-   * @return the property, not null
-   */
-  public final Property<BondFutureTypeBean> bondType() {
-    return metaBean().bondType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -119,30 +79,15 @@ public class BondFutureBean extends FutureSecurityBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code bondType} property.
-     */
-    private final MetaProperty<BondFutureTypeBean> _bondType = DirectMetaProperty.ofReadWrite(
-        this, "bondType", BondFutureBean.class, BondFutureTypeBean.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "bondType");
+      this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 1969562781:  // bondType
-          return _bondType;
-      }
-      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -161,14 +106,6 @@ public class BondFutureBean extends FutureSecurityBean {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code bondType} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BondFutureTypeBean> bondType() {
-      return _bondType;
-    }
-
   }
 
   ///CLOVER:ON

@@ -148,8 +148,8 @@ public class BondFutureLoader extends SecurityLoader {
     ZonedDateTime firstDeliverDate = decodeDeliveryDate(firstDeliveryDateStr);
     ZonedDateTime lastDeliverDate = decodeDeliveryDate(firstDeliveryDateStr);
     Set<BondFutureDeliverable> basket = createBondDeliverables(fieldData);
-    BondFutureSecurity security = new BondFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, basket, category,
-                                                         firstDeliverDate, lastDeliverDate, name, category);
+    BondFutureSecurity security = new BondFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, basket,
+                                                         firstDeliverDate, lastDeliverDate, category);
 
     // set identifiers
     parseIdentifiers(fieldData, security);

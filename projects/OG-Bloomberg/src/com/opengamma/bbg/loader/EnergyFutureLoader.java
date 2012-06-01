@@ -144,7 +144,7 @@ public final class EnergyFutureLoader extends SecurityLoader {
     }
     Currency currency = Currency.parse(currencyStr);
 
-    EnergyFutureSecurity security = new EnergyFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, name, category);
+    EnergyFutureSecurity security = new EnergyFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, category);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);
     security.setUnderlyingId(underlying);    

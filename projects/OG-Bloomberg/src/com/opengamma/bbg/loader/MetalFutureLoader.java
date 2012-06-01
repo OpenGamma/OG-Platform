@@ -139,7 +139,7 @@ public class MetalFutureLoader extends SecurityLoader {
       return null;
     }
     Currency currency = Currency.parse(currencyStr);
-    MetalFutureSecurity security = new MetalFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, name, category);
+    MetalFutureSecurity security = new MetalFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, category);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);
     security.setUnderlyingId(underlying);    

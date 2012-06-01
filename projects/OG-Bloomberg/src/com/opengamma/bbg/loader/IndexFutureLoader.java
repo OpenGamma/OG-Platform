@@ -108,7 +108,7 @@ public class IndexFutureLoader extends SecurityLoader {
     }
     Currency currency = Currency.parse(currencyStr);
 
-    IndexFutureSecurity security = new IndexFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), name, category);
+    IndexFutureSecurity security = new IndexFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), category);
     security.setUnderlyingId(underlying);    
     // set identifiers
     parseIdentifiers(fieldData, security);

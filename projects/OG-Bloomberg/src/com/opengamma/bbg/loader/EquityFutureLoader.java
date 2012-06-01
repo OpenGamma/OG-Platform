@@ -111,7 +111,7 @@ public class EquityFutureLoader extends SecurityLoader {
     s_logger.warn("Creating EquityFutureSecurity - settlementDate set equal to expiryDate. Missing lag.");
     ZonedDateTime settlementDate = expiry.getExpiry();
 
-    EquityFutureSecurity security = new EquityFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), settlementDate, underlying, name, category);
+    EquityFutureSecurity security = new EquityFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), settlementDate, underlying, category);
 
     // set identifiers
     parseIdentifiers(fieldData, security);

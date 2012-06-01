@@ -146,7 +146,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
     }
     ExternalId underlyingIdentifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, id);
     
-    InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, name, category);
+    InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, category);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

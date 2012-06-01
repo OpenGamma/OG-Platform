@@ -34,8 +34,6 @@ public abstract class FutureSecurityBean extends SecurityBean {
   private ExchangeBean _settlementExchange;
   @PropertyDefinition
   private CurrencyBean _currency;
-  
-  
   @PropertyDefinition
   private Double _unitAmount;
   @PropertyDefinition
@@ -51,7 +49,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ZonedDateTimeBean _lastDeliveryDate;
   @PropertyDefinition
-  private ContractDeliverableBean _contractDeliverable;
+  private ContractCategoryBean _category;
 
   public FutureSecurityBean() {
     super();
@@ -132,8 +130,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
         return getFirstDeliveryDate();
       case -233366664:  // lastDeliveryDate
         return getLastDeliveryDate();
-      case 537140109:  // contractDeliverable
-        return getContractDeliverable();
+      case 50511102:  // category
+        return getCategory();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -175,8 +173,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
       case -233366664:  // lastDeliveryDate
         setLastDeliveryDate((ZonedDateTimeBean) newValue);
         return;
-      case 537140109:  // contractDeliverable
-        setContractDeliverable((ContractDeliverableBean) newValue);
+      case 50511102:  // category
+        setCategory((ContractCategoryBean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -200,7 +198,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
           JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
           JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
-          JodaBeanUtils.equal(getContractDeliverable(), other.getContractDeliverable()) &&
+          JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
           super.equals(obj);
     }
     return false;
@@ -220,7 +218,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getContractDeliverable());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
     return hash ^ super.hashCode();
   }
 
@@ -501,27 +499,27 @@ public abstract class FutureSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the contractDeliverable.
+   * Gets the category.
    * @return the value of the property
    */
-  public ContractDeliverableBean getContractDeliverable() {
-    return _contractDeliverable;
+  public ContractCategoryBean getCategory() {
+    return _category;
   }
 
   /**
-   * Sets the contractDeliverable.
-   * @param contractDeliverable  the new value of the property
+   * Sets the category.
+   * @param category  the new value of the property
    */
-  public void setContractDeliverable(ContractDeliverableBean contractDeliverable) {
-    this._contractDeliverable = contractDeliverable;
+  public void setCategory(ContractCategoryBean category) {
+    this._category = category;
   }
 
   /**
-   * Gets the the {@code contractDeliverable} property.
+   * Gets the the {@code category} property.
    * @return the property, not null
    */
-  public final Property<ContractDeliverableBean> contractDeliverable() {
-    return metaBean().contractDeliverable().createProperty(this);
+  public final Property<ContractCategoryBean> category() {
+    return metaBean().category().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -591,10 +589,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
     private final MetaProperty<ZonedDateTimeBean> _lastDeliveryDate = DirectMetaProperty.ofReadWrite(
         this, "lastDeliveryDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
     /**
-     * The meta-property for the {@code contractDeliverable} property.
+     * The meta-property for the {@code category} property.
      */
-    private final MetaProperty<ContractDeliverableBean> _contractDeliverable = DirectMetaProperty.ofReadWrite(
-        this, "contractDeliverable", FutureSecurityBean.class, ContractDeliverableBean.class);
+    private final MetaProperty<ContractCategoryBean> _category = DirectMetaProperty.ofReadWrite(
+        this, "category", FutureSecurityBean.class, ContractCategoryBean.class);
     /**
      * The meta-properties.
      */
@@ -611,7 +609,7 @@ public abstract class FutureSecurityBean extends SecurityBean {
         "basket",
         "firstDeliveryDate",
         "lastDeliveryDate",
-        "contractDeliverable");
+        "category");
 
     /**
      * Restricted constructor.
@@ -644,8 +642,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
           return _firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
           return _lastDeliveryDate;
-        case 537140109:  // contractDeliverable
-          return _contractDeliverable;
+        case 50511102:  // category
+          return _category;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -755,11 +753,11 @@ public abstract class FutureSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code contractDeliverable} property.
+     * The meta-property for the {@code category} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ContractDeliverableBean> contractDeliverable() {
-      return _contractDeliverable;
+    public final MetaProperty<ContractCategoryBean> category() {
+      return _category;
     }
 
   }

@@ -19,14 +19,17 @@
       <property name="accuracy" column="expiry_accuracy"
                 type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true"/>
     </component>
-    
+
     <many-to-one name="tradingExchange" column="tradingexchange_id"
                  class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>
     <many-to-one name="settlementExchange" column="settlementexchange_id"
                  class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>
-    
-    <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>    
-    
+
+    <many-to-one name="category" column="category_id"
+                 class="com.opengamma.masterdb.security.hibernate.ContractCategoryBean" not-null="true"/>
+
+    <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+
     <many-to-one name="unitName" column="unitname_id" class="UnitBean"/>
     <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string"/>
@@ -44,12 +47,11 @@
     </component>
 
     <subclass name="BondFutureBean" discriminator-value="Bond">
-      <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean"/>
+
     </subclass>
 
     <subclass name="com.opengamma.masterdb.security.hibernate.future.CommodityFutureBean">
-      <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean"/>
-      
+
       <subclass name="AgricultureFutureBean" discriminator-value="Agriculture">
       </subclass>
 
@@ -62,8 +64,10 @@
     </subclass>
 
     <subclass name="ForeignExchangeFutureBean" discriminator-value="FX">
-      <many-to-one name="numerator" column="currency2_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
-      <many-to-one name="denominator" column="currency3_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+      <many-to-one name="numerator" column="currency2_id"
+                   class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+      <many-to-one name="denominator" column="currency3_id"
+                   class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
     </subclass>
 
     <subclass name="InterestRateFutureBean" discriminator-value="Interest Rate">

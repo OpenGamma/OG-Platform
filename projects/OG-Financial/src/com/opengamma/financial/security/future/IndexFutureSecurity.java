@@ -40,8 +40,8 @@ public class IndexFutureSecurity extends FutureSecurity {
     super();
   }
 
-  public IndexFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
+  public IndexFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
   }
 
   //-------------------------------------------------------------------------

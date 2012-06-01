@@ -40,8 +40,8 @@ public class MetalFutureSecurity extends CommodityFutureSecurity {
     super();
   }
 
-  public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
+  public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
   }
 
   //-------------------------------------------------------------------------

@@ -50,8 +50,8 @@ public class FXFutureSecurity extends FutureSecurity {
   }
 
   public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      Currency numerator, Currency denominator, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
+      Currency numerator, Currency denominator, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
     setNumerator(numerator);
     setDenominator(denominator);
   }

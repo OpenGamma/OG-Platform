@@ -43,8 +43,8 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     super();
   }
 
-  public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, ExternalId underlyingIdentifier, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
+  public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, ExternalId underlyingIdentifier, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
     setUnderlyingId(underlyingIdentifier);
   }
 

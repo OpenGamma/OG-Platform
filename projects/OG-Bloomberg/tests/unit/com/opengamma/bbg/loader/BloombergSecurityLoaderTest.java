@@ -203,7 +203,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
             assertEquals(new HashSet<BondFutureDeliverable>(security.getBasket()), new HashSet<BondFutureDeliverable>(actual.getBasket()));
 
-            assertEquals(security.getBondType(), actual.getBondType());
+            assertEquals(security.getContractCategory(), actual.getContractCategory());
             assertEquals(security.getCurrency(), actual.getCurrency());
             assertEquals(security.getExpiry(), actual.getExpiry());
             assertEquals(security.getFirstDeliveryDate(), actual.getFirstDeliveryDate());

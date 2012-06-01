@@ -50,7 +50,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
 
     dummyId = ExternalSchemes.bloombergTickerSecurityId("EDZ2 Comdty");
     bundle = ExternalIdBundle.of(dummyId);
-    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId, dummyId.getValue(), "Interest Rate");
+    final FutureSecurity future = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.now()), "XCSE", "XCSE", Currency.USD, 0, dummyId, "Interest Rate");
     future.setExternalIdBundle(bundle);
     FixedIncomeStripWithSecurity futureStrip = new FixedIncomeStripWithSecurity(new FixedIncomeStrip(StripInstrumentType.FUTURE, Tenor.THREE_MONTHS, 2, "DEFAULT"), Tenor.THREE_MONTHS, DateUtils.getUTCDate(2011, 12, 1), dummyId, future);
 

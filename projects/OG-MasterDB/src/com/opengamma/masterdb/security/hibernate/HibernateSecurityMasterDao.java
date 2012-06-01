@@ -10,18 +10,9 @@ import java.util.List;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.masterdb.security.hibernate.bond.CouponTypeBean;
-import com.opengamma.masterdb.security.hibernate.bond.GuaranteeTypeBean;
-import com.opengamma.masterdb.security.hibernate.bond.IssuerTypeBean;
-import com.opengamma.masterdb.security.hibernate.bond.MarketBean;
-import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
+import com.opengamma.masterdb.security.hibernate.bond.*;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
-import com.opengamma.masterdb.security.hibernate.future.BondFutureTypeBean;
-import com.opengamma.masterdb.security.hibernate.future.CashRateTypeBean;
-import com.opengamma.masterdb.security.hibernate.future.CommodityFutureTypeBean;
-import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
-import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
-import com.opengamma.masterdb.security.hibernate.future.UnitBean;
+import com.opengamma.masterdb.security.hibernate.future.*;
 
 /**
  * HibernateSecurityMaster session and utility methods.
@@ -67,25 +58,10 @@ public interface HibernateSecurityMasterDao {
 
   List<FrequencyBean> getFrequencyBeans();
 
-  // CommodityFutureTypes
-  CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean(final String type);
-  
-  List<CommodityFutureTypeBean> getCommodityFutureTypeBeans();
-
-  // BondFutureType
-  BondFutureTypeBean getOrCreateBondFutureTypeBean(final String type);
-  
-  List<BondFutureTypeBean> getBondFutureTypeBeans();
-
   // UnitName
   UnitBean getOrCreateUnitNameBean(final String unitName);
   
   List<UnitBean> getUnitNameBeans();
-
-  // CashRateType
-  CashRateTypeBean getOrCreateCashRateTypeBean(final String type);
-  
-  List<CashRateTypeBean> getCashRateTypeBeans();
 
   // IssuerTypeBean
   IssuerTypeBean getOrCreateIssuerTypeBean(final String type);
@@ -126,9 +102,7 @@ public interface HibernateSecurityMasterDao {
 
   FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future);
 
-  void persistFutureBundleBeans(final Date now, final FutureSecurityBean future);
-
-  ContractDeliverableBean getOrCreateContractDeliverableBean(String name, String category);
+  void persistFutureBundleBeans(final Date now, final FutureSecurityBean future);  
   
   ContractCategoryBean getOrCreateContractCategoryBean(String name);
 }

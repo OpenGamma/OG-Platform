@@ -54,8 +54,8 @@ public class EquityFutureSecurity extends FutureSecurity {
   }
 
   public EquityFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      ZonedDateTime settlementDate, ExternalId underlyingIdentifier, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
+      ZonedDateTime settlementDate, ExternalId underlyingIdentifier, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
     setSettlementDate(settlementDate);
     setUnderlyingId(underlyingIdentifier);
   }

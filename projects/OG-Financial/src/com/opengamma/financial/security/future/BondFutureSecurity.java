@@ -39,12 +39,7 @@ public class BondFutureSecurity extends FutureSecurity {
    * The deliverables.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<BondFutureDeliverable> _basket = new ArrayList<BondFutureDeliverable>();
-  /**
-   * The bond type.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _bondType;
+  private final List<BondFutureDeliverable> _basket = new ArrayList<BondFutureDeliverable>();  
   /**
    * The first delivery date.
    */
@@ -61,10 +56,9 @@ public class BondFutureSecurity extends FutureSecurity {
   }
 
   public BondFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      Collection<? extends BondFutureDeliverable> basket, String bondType, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, String name, String category) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, name, category);
-    setBasket(ImmutableList.copyOf(basket));
-    setBondType(bondType);
+      Collection<? extends BondFutureDeliverable> basket, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
+    setBasket(ImmutableList.copyOf(basket));    
     setFirstDeliveryDate(firstDeliveryDate);
     setLastDeliveryDate(lastDeliveryDate);
   }
@@ -98,8 +92,6 @@ public class BondFutureSecurity extends FutureSecurity {
     switch (propertyName.hashCode()) {
       case -1396196922:  // basket
         return getBasket();
-      case 1969562781:  // bondType
-        return getBondType();
       case 1755448466:  // firstDeliveryDate
         return getFirstDeliveryDate();
       case -233366664:  // lastDeliveryDate
@@ -115,9 +107,6 @@ public class BondFutureSecurity extends FutureSecurity {
       case -1396196922:  // basket
         setBasket((List<BondFutureDeliverable>) newValue);
         return;
-      case 1969562781:  // bondType
-        setBondType((String) newValue);
-        return;
       case 1755448466:  // firstDeliveryDate
         setFirstDeliveryDate((ZonedDateTime) newValue);
         return;
@@ -131,7 +120,6 @@ public class BondFutureSecurity extends FutureSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_basket, "basket");
-    JodaBeanUtils.notNull(_bondType, "bondType");
     JodaBeanUtils.notNull(_firstDeliveryDate, "firstDeliveryDate");
     JodaBeanUtils.notNull(_lastDeliveryDate, "lastDeliveryDate");
     super.validate();
@@ -145,7 +133,6 @@ public class BondFutureSecurity extends FutureSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureSecurity other = (BondFutureSecurity) obj;
       return JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
-          JodaBeanUtils.equal(getBondType(), other.getBondType()) &&
           JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
           JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
           super.equals(obj);
@@ -157,7 +144,6 @@ public class BondFutureSecurity extends FutureSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
     return hash ^ super.hashCode();
@@ -187,32 +173,6 @@ public class BondFutureSecurity extends FutureSecurity {
    */
   public final Property<List<BondFutureDeliverable>> basket() {
     return metaBean().basket().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the bond type.
-   * @return the value of the property, not null
-   */
-  public String getBondType() {
-    return _bondType;
-  }
-
-  /**
-   * Sets the bond type.
-   * @param bondType  the new value of the property, not null
-   */
-  public void setBondType(String bondType) {
-    JodaBeanUtils.notNull(bondType, "bondType");
-    this._bondType = bondType;
-  }
-
-  /**
-   * Gets the the {@code bondType} property.
-   * @return the property, not null
-   */
-  public final Property<String> bondType() {
-    return metaBean().bondType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -284,11 +244,6 @@ public class BondFutureSecurity extends FutureSecurity {
     private final MetaProperty<List<BondFutureDeliverable>> _basket = DirectMetaProperty.ofReadWrite(
         this, "basket", BondFutureSecurity.class, (Class) List.class);
     /**
-     * The meta-property for the {@code bondType} property.
-     */
-    private final MetaProperty<String> _bondType = DirectMetaProperty.ofReadWrite(
-        this, "bondType", BondFutureSecurity.class, String.class);
-    /**
      * The meta-property for the {@code firstDeliveryDate} property.
      */
     private final MetaProperty<ZonedDateTime> _firstDeliveryDate = DirectMetaProperty.ofReadWrite(
@@ -304,7 +259,6 @@ public class BondFutureSecurity extends FutureSecurity {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "basket",
-        "bondType",
         "firstDeliveryDate",
         "lastDeliveryDate");
 
@@ -319,8 +273,6 @@ public class BondFutureSecurity extends FutureSecurity {
       switch (propertyName.hashCode()) {
         case -1396196922:  // basket
           return _basket;
-        case 1969562781:  // bondType
-          return _bondType;
         case 1755448466:  // firstDeliveryDate
           return _firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
@@ -351,14 +303,6 @@ public class BondFutureSecurity extends FutureSecurity {
      */
     public final MetaProperty<List<BondFutureDeliverable>> basket() {
       return _basket;
-    }
-
-    /**
-     * The meta-property for the {@code bondType} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> bondType() {
-      return _bondType;
     }
 
     /**

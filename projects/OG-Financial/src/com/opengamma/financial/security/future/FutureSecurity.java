@@ -77,14 +77,13 @@ public abstract class FutureSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
 
-  protected FutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String name, String category) {
+  protected FutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
     super(SECURITY_TYPE);
     setExpiry(expiry);
     setTradingExchange(tradingExchange);
     setSettlementExchange(settlementExchange);
     setCurrency(currency);
     setUnitAmount(unitAmount);
-    setName(name);
     setContractCategory(category);
   }
 

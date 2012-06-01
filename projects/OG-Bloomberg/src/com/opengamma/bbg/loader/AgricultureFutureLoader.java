@@ -134,7 +134,7 @@ public final class AgricultureFutureLoader extends SecurityLoader {
 
     final Currency currency = Currency.parse(currencyStr);
     final AgricultureFutureSecurity security = new AgricultureFutureSecurity(expiry, micExchangeCode, micExchangeCode,
-        currency, unitAmount, name, futureCategory);
+        currency, unitAmount, futureCategory);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);    
 
