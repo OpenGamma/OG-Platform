@@ -28,7 +28,6 @@
     float: left;
     list-style: none;
     background: #eee;
-    padding: 1px 5px;
     border-top: 1px solid #d8d8d8;
     border-bottom: 1px solid #d8d8d8;
     border-right: 1px solid #d8d8d8;
@@ -105,6 +104,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .OG-gadget-tabs li div:first-child {
+        padding: 2px 5px 1px 5px;
     }
 
     .OG-gadget-tabs li:last-child {
