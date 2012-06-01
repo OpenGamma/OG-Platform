@@ -169,26 +169,25 @@
     var base64encode = (function (){
         // This is a non-standard extension available in Mozilla and possibly other browsers.
         if (pub.btoa) return pub.btoa;
-
         /* JS fallback based on public domain code from Tyler Akins:
             http://rumkin.com/tools/compression/base64.php */
         var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         return function (data) {
             var chr1, chr2, chr3, i = 0, j = 0, length = data.length,
                 output = new Array(Math.ceil(data.length / 3) * 4);
-            while (i < length) {                                        // convert 3 bytes of data into 4 6-bit chunks
+            while (i < length) {                                            // convert 3 bytes into 4 6-bit chunks
                 chr1 = data.charCodeAt(i++);
                 chr2 = data.charCodeAt(i++);
                 chr3 = data.charCodeAt(i++);
-                output[j++] = chars[chr1 >> 2];                         // reduce byte to 6 bits
-                output[j++] = chars[((chr1 & 3) << 4) | (chr2 >> 4)];   // last 2 bits of chr1 + first 4 of chr2
-                if (isNaN(chr2)) {
+                output[j++] = chars[chr1 >> 2];                             // reduce byte to 6 bits
+                output[j++] = chars[((chr1 & 3) << 4) | (chr2 >> 4)];       // last 2 bits of chr1 + first 4 of chr2
+                if (isNaN(chr2)) {                                          // pad with zeroes
                     output[j++] = '=';
                     output[j++] = '=';
-                    continue;
+                } else {
+                    output[j++] = chars[((chr2 & 15) << 2) | (chr3 >> 6)];  // last 4 bits of chr2 + first 2 of chr3
+                    output[j++] = isNaN(chr3) ? '=' : chars[chr3 & 63];     // last 6 bits
                 }
-                output[j++] = chars[((chr2 & 15) << 2) | (chr3 >> 6)];  // last 4 bits of chr2 + first 2 of chr3
-                output[j++] = isNaN(chr3) ? '=' : chars[chr3 & 63];      // last 6 bits
             }
             return output.join('');
         };

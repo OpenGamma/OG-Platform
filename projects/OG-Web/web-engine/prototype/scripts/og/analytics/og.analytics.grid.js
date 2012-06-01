@@ -9,21 +9,39 @@ $.register_module({
         var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
         if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
             return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
-        var background = function (columns, width, background) {
-            var height = row_height, pixels = [], lcv, foreground = 'dadcdd', dots = columns
-                .reduce(function (acc, col) {return acc.concat([[background, col.width - 1], [foreground, 1]]);}, []);
+        var background = function (sets, width, background) {
+            var height = row_height, pixels = [], lcv, foreground = 'dadcdd',
+                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+                dots = columns.reduce(function (acc, col) {
+                    return acc.concat([[background, col.width - 1], [foreground, 1]]);
+                }, []);
             for (lcv = 0; lcv < height - 1; lcv += 1) Array.prototype.push.apply(pixels, dots);
             pixels.push([foreground, width]);
             return BMP.rle8(width, height, pixels);
         };
-        var col_css = function (id, columns, offset) {
-            var partial_width = 0, total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
+        var col_css = function (id, sets, offset) {
+            var partial_width = 0,
+                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
             return columns.map(function (val, idx) {
                 var css = {
                     prefix: id, index: idx + (offset || 0),
                     left: partial_width, right: total_width - partial_width - val.width
                 };
                 return (partial_width += val.width), css;
+            });
+        };
+        var set_css = function (id, sets, offset) {
+            var partial_width = 0,
+                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
+            return sets.map(function (set, idx) {
+                var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
+                css = {
+                    prefix: id, index: idx + (offset || 0),
+                    left: partial_width, right: total_width - partial_width - set_width
+                };
+                return (partial_width += set_width), css;
             });
         };
         var compile_templates = function (handler) {
@@ -51,6 +69,12 @@ $.register_module({
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height = header_height;
+            grid.meta.fixed_length = grid.meta.columns.fixed.reduce(function (acc, set) {
+                return acc + set.columns.length;
+            }, 0);
+            grid.meta.scroll_length = grid.meta.columns.fixed.reduce(function (acc, set) {
+                return acc + set.columns.length;
+            }, 0);
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
             grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
             grid.elements.main = $(grid.id);
@@ -66,22 +90,34 @@ $.register_module({
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
-            var head_data = function (meta, columns, offset) {
-                var width = meta.columns.width;
+            var head_data = function (meta, sets, col_offset, set_offset) {
+                var width = meta.columns.width, index = 0;
                 return {
-                    width: offset ? width.scroll : width.fixed, padding_right: offset ? scrollbar_size : 0,
-                    columns: columns.map(function (val, idx) {return {index: idx + (offset || 0), name: val.name};})
+                    width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
+                    sets: sets.map(function (set, idx) {
+                        var columns = set.columns.map(function (col) {
+                            return {index: (col_offset || 0) + index++, name: col.name, width: col.width};
+                        });
+                        return {
+                            name: set.name,
+                            index: idx + (set_offset || 0),
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0),
+                            columns: columns
+                        };
+                    })
                 };
             };
             return function (grid) {
-                var meta = grid.meta, columns = meta.columns;
-                grid.elements.fixed_head.html(templates.header(head_data(meta, columns.fixed)));
-                grid.elements.scroll_head.html(templates.header(head_data(meta, columns.scroll, columns.fixed.length)));
+                var meta = grid.meta, columns = meta.columns, fixed_sets = meta.columns.fixed.length,
+                    fixed_html = templates.header(head_data(meta, columns.fixed)),
+                    scroll_html = templates.header(head_data(meta, columns.scroll, meta.fixed_length, fixed_sets));
+                grid.elements.fixed_head.html(fixed_html);
+                grid.elements.scroll_head.html(scroll_html);
             };
         })();
         var render_rows = (function () {
             var row_data = function (meta, data, fixed) {
-                var fixed_length = meta.columns.fixed.length;
+                var fixed_length = meta.fixed_length;
                 return data.reduce(function (acc, row, idx) {
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     acc.rows.push({
@@ -105,15 +141,23 @@ $.register_module({
             var meta = grid.meta, css, width = config.width || grid.elements.parent.width(),
                 height = config.height || grid.elements.parent.height(), columns = meta.columns, id = grid.id;
             meta.columns.width = {
-                fixed: meta.columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
-                scroll: meta.columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
+                fixed: meta.columns.fixed.reduce(function (acc, set) {
+                    return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
+                }, 0),
+                scroll: meta.columns.scroll.reduce(function (acc, set) {
+                    return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
+                }, 0)
             };
             meta.columns.scan = {
-                fixed: meta.columns.fixed.reduce(function (acc, val) {
-                    return acc.arr.push(acc.val += val.width), acc;
+                fixed: meta.columns.fixed.reduce(function (acc, set) {
+                    return set.columns.reduce(function (acc, col) {
+                        return acc.arr.push(acc.val += col.width), acc;
+                    }, acc);
                 }, {arr: [], val: 0}).arr,
-                scroll: meta.columns.scroll.reduce(function (acc, val) {
-                    return acc.arr.push(acc.val += val.width), acc;
+                scroll: meta.columns.scroll.reduce(function (acc, set) {
+                    return set.columns.reduce(function (acc, col) {
+                        return acc.arr.push(acc.val += col.width), acc;
+                    }, acc);
                 }, {arr: [], val: 0}).arr
             };
             meta.columns.scan.all = meta.columns.scan.fixed
@@ -126,7 +170,8 @@ $.register_module({
                 scroll_bg: background(columns.scroll, meta.columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed,
                 height: height - header_height, header_height: header_height, row_height: row_height,
-                columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, columns.fixed.length))
+                columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
+                sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
             grid.set_viewport();
             if (grid.elements.style[0].styleSheet) return grid.elements.style[0].styleSheet.cssText = css; // IE
@@ -135,14 +180,17 @@ $.register_module({
         var set_viewport = function (grid, handler) {
             var top_position = grid.elements.scroll_body.scrollTop(),
                 left_position = grid.elements.scroll_head.scrollLeft(),
-                row_start, scroll_position = left_position + grid.meta.viewport.width;
+                row_start, scroll_position = left_position + grid.meta.viewport.width,
+                scroll_cols = grid.meta.columns.scroll.reduce(function (acc, set) {
+                    return acc.concat(set.columns);
+                }, []);
             grid.meta.viewport.rows = [
                 row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
                 row_start + grid.meta.visible_rows
             ];
-            grid.meta.viewport.cols = grid.meta.columns.scroll.reduce(function (acc, val, idx) {
+            grid.meta.viewport.cols = scroll_cols.reduce(function (acc, col, idx) {
                 if (!('scan' in acc)) return acc;
-                if ((acc.scan += val.width) >= left_position) acc.cols.push(idx + grid.meta.columns.fixed.length);
+                if ((acc.scan += col.width) >= left_position) acc.cols.push(idx + grid.meta.fixed_length);
                 if (acc.scan > scroll_position) delete acc.scan;
                 return acc;
             }, {scan: 0, cols: []}).cols;

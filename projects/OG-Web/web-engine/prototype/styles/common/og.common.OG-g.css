@@ -52,10 +52,13 @@
 
 .OG-g-h-set-name {
     background: #dadcdd;
+    height: 20px;
+    position: absolute;
 }
 
 .OG-g-h-cols {
     position: relative;
+    top: 20px;
 }
 
 /* Fixed Cols */
