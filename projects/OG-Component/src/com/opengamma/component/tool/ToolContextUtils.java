@@ -8,6 +8,7 @@ package com.opengamma.component.tool;
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utilities that assist with obtaining a tool context.
@@ -36,6 +37,28 @@ public final class ToolContextUtils {
     manager.start(configResourceLocation);
     ComponentRepository repo = manager.getRepository();
     return repo.getInstance(ToolContext.class, "tool");
+  }
+  
+  /**
+   * Gets an instance of a component from a given toolcontext.
+   * <p>
+   * This finds an instance that matches the specified type.
+   * 
+   * @param <T>  the type
+   * @param toolContext the tool context
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, not null
+   * @return the component instance, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public static <T> T getComponent(final ToolContext toolContext, final Class<T> type, final String classifier) {
+    ArgumentChecker.notNull(toolContext, "toolContext");
+    T result = null;
+    if (toolContext.getContextManager() instanceof ComponentRepository) {
+      ComponentRepository componentRepo = (ComponentRepository) toolContext.getContextManager();
+      result = componentRepo.getInstance(type, classifier);
+    }
+    return result;
   }
 
 }
