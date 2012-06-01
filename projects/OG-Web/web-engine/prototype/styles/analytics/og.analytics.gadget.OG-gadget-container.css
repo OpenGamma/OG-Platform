@@ -10,3 +10,14 @@
     right: 0;
     overflow: hidden;
 }
+
+.OG-gadget-container:before {
+    content: '';
+    background: url(/prototype/images/common/sprites/main-sprite-sheet.png) 0 -162px;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -24px 0 0 -24px;
+}
