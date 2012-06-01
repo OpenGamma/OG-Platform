@@ -72,4 +72,17 @@
 
 .OG-layout-analytics-container .ui-layout-header {
     min-height: 23px;
+    background: #dadcdd;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAKElEQVQIW2M8dfrMfwFBQQYYYLx15+7/D+/fM8AEwQIgWZggXAAmCAAQjhcbxFaq/gAAAABJRU5ErkJggg==);
+}
+
+.OG-layout-analytics-container .ui-layout-header:after {
+    content: '';
+    background: #fff;
+    position: absolute;
+    top: 1px;
+    left: 0;
+    right: 0;
+    height: 12px;
+    opacity: 0.15;
 }
