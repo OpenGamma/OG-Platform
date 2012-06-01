@@ -112,10 +112,10 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     _connection = connection;
     _functionCompilationService = functionCompilationService;
     _identifierMap = identifierMap;
-    connection.setFudgeMessageReceiver(this);
     _statistics = statistics;
     statistics.setExecutorService(getExecutorService());
     statistics.setFudgeMessageSender(connection.getFudgeMessageSender());
+    connection.setFudgeMessageReceiver(this);
   }
 
   public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
@@ -167,6 +167,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     sendMessage(ready);
   }
 
+  protected void sendStaleCacheQuery() {
+    // PLAT-339
+    // TODO: Query the binary store implementation for active caches
+    // TODO: Route the response that comes back to the caches so that stale ones can be discarded
+  }
+
   /**
    * Needs to run sequentially, preserving network message order.
    * 
@@ -199,6 +205,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     if (!_started) {
       s_logger.info("Client starting");
       sendCapabilities();
+      sendStaleCacheQuery();
       _started = true;
       s_logger.info("Client started for {}", _connection);
       _connection.setConnectionStateListener(this);
@@ -228,8 +235,9 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
 
   @Override
   public void connectionReset(final FudgeConnection connection) {
-    s_logger.info("Underlying connection reset - resending capabilities");
+    s_logger.info("Underlying connection reset - resending capabilities & querying for stale caches");
     sendCapabilities();
+    sendStaleCacheQuery();
     s_logger.debug("Capabilities sent");
   }
 
