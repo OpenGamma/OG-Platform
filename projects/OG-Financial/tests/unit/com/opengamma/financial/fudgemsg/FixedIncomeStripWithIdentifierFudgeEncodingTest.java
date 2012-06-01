@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
@@ -20,7 +21,8 @@ public class FixedIncomeStripWithIdentifierFudgeEncodingTest extends FinancialTe
 
   @Test
   public void testCycle() {
-    FixedIncomeStripWithIdentifier strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USDR5 Curncy"));
+    FixedIncomeStripWithIdentifier strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.DAY, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER,
+        "USDR5 Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
     strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.ONE_MONTH, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "US0001M Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
@@ -38,7 +40,8 @@ public class FixedIncomeStripWithIdentifierFudgeEncodingTest extends FinancialTe
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
     strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.TENOR_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USBG1 Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
-    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USBG1 Curncy"));
+    strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.YEAR, Tenor.SIX_MONTHS, Tenor.ONE_YEAR, IndexType.Libor, IndexType.Libor, "DEFAULT"),
+        ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USBG1 Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
     strip = new FixedIncomeStripWithIdentifier(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.YEAR, "DEFAULT"), ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "USSO1 Curncy"));
     assertEquals(strip, cycleObject(FixedIncomeStripWithIdentifier.class, strip));
