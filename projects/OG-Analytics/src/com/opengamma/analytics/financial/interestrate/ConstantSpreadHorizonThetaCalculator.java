@@ -209,10 +209,10 @@ public class ConstantSpreadHorizonThetaCalculator {
     @SuppressWarnings("unchecked")
     final DoubleTimeSeries<ZonedDateTime>[] laggedFixingSeries = new DoubleTimeSeries[n];
     for (int i = 0; i < n; i++) {
-      DoubleTimeSeries<ZonedDateTime> ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
-      if (ts.isEmpty()) {
+      if (fixingSeries[i].isEmpty()) {
         laggedFixingSeries[i] = ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       } else {
+        DoubleTimeSeries<ZonedDateTime> ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
         final List<ZonedDateTime> times = ts.times();
         final List<Double> values = ts.values();
         final double last = ts.getLatestValue();
