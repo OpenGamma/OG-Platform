@@ -66,6 +66,8 @@ public class JdbcSheetReader extends SheetReader {
   public JdbcSheetReader(Connection connection, String query) {
     
     ArgumentChecker.notNull(connection, "connection");
+    
+    _connection = connection;
 
     // Perform query
     Statement statement;
