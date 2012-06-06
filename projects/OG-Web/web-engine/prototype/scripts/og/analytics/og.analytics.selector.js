@@ -27,14 +27,14 @@ $.register_module({
             };
             auto_scroll.timeout = null;
             auto_scroll.scroll = false;
-            var cleanup = function () {
+            var clean_up = function () {
                 $(document).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
                 auto_scroll.timeout = clearTimeout(auto_scroll.timeout);
                 auto_scroll.scroll = false;
                 grid.set_viewport();
             };
             var initialize = function () {
-                cleanup();
+                clean_up();
                 grid_offset = grid.elements.parent.offset();
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
@@ -91,7 +91,7 @@ $.register_module({
                 selector.render(areas);
             };
             var mousemove_observer = $.noop;
-            var mouseup_observer = cleanup;
+            var mouseup_observer = clean_up;
             var nearest_cell = function (x, y) {
                 var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
