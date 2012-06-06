@@ -61,17 +61,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -373,6 +363,34 @@ public class BloombergSecurityLoaderTest extends DbTest {
         assertEquals(security.getExerciseType(), actual.getExerciseType());
         assertEquals(security.getExpiry(), actual.getExpiry());
         assertEquals(security.isMargined(), actual.isMargined());
+        assertEquals(security.getOptionType(), actual.getOptionType());
+        assertEquals(security.getPointValue(), actual.getPointValue());
+        assertEquals(security.getStrike(), actual.getStrike());
+        assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
+        
+        assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
+        assertEquals(security.getName(), actual.getName());
+        assertEquals(security.getSecurityType(), actual.getSecurityType());
+        assertNotNull(actual.getUniqueId());
+
+        //test underlying is loaded as well
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        assertUnderlyingIsLoaded(underlyingIdentifier);
+        return null;           
+      }
+
+
+      @Override
+      public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+        assertTrue(fromSecMaster instanceof IRFutureOptionSecurity);
+        CommodityFutureOptionSecurity actual = (CommodityFutureOptionSecurity) fromSecMaster;
+
+        assertEquals(security.getCurrency(), actual.getCurrency());
+
+        assertEquals(security.getTradingExchange(), actual.getTradingExchange());
+        assertEquals(security.getSettlementExchange(), actual.getSettlementExchange());
+        assertEquals(security.getExerciseType(), actual.getExerciseType());
+        assertEquals(security.getExpiry(), actual.getExpiry());
         assertEquals(security.getOptionType(), actual.getOptionType());
         assertEquals(security.getPointValue(), actual.getPointValue());
         assertEquals(security.getStrike(), actual.getStrike());

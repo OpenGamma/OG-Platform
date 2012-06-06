@@ -31,28 +31,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurityVisitor;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurityVisitor;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 
@@ -76,6 +55,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   private final NonDeliverableFXOptionSecurityVisitor<T> _nonDeliverableFxOptionSecurityVisitor;
   private final SwaptionSecurityVisitor<T> _swaptionSecurityVisitor;
   private final IRFutureOptionSecurityVisitor<T> _irfutureOptionSecurityVisitor;
+  private final CommodityFutureOptionSecurityVisitor<T> _commodityFutureOptionSecurityVisitor;
   private final FXBarrierOptionSecurityVisitor<T> _fxBarrierOptionSecurityVisitor;
   private final FXDigitalOptionSecurityVisitor<T> _fxDigitalOptionSecurityVisitor;
   private final NonDeliverableFXDigitalOptionSecurityVisitor<T> _nonDeliverableFxDigitalOptionSecurityVisitor;
@@ -108,7 +88,8 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     private FXOptionSecurityVisitor<T> _fxOptionSecurityVisitor;
     private NonDeliverableFXOptionSecurityVisitor<T> _nonDeliverableFxOptionSecurityVisitor;
     private SwaptionSecurityVisitor<T> _swaptionSecurityVisitor;
-    private IRFutureOptionSecurityVisitor<T> _irfutureSecurityVisitor;
+    private IRFutureOptionSecurityVisitor<T> _irfutureOptionSecurityVisitor;
+    private CommodityFutureOptionSecurityVisitor<T> _commodityFutureOptionSecurityVisitor;
     private FXBarrierOptionSecurityVisitor<T> _fxBarrierOptionSecurityVisitor;
     private FXDigitalOptionSecurityVisitor<T> _fxDigitalOptionSecurityVisitor;
     private NonDeliverableFXDigitalOptionSecurityVisitor<T> _nonDeliverableFxDigitalOptionSecurityVisitor;
@@ -190,7 +171,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     }
 
     public Builder<T> irfutureOptionVisitor(final IRFutureOptionSecurityVisitor<T> irfutureSecurityVisitor) {
-      _irfutureSecurityVisitor = irfutureSecurityVisitor;
+      _irfutureOptionSecurityVisitor = irfutureSecurityVisitor;
       return this;
     }
 
@@ -269,6 +250,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
       final NonDeliverableFXOptionSecurityVisitor<T> nonDeliverableFxOptionSecurityVisitor,
       final SwaptionSecurityVisitor<T> swaptionSecurityVisitor,
       final IRFutureOptionSecurityVisitor<T> irfutureOptionSecurityVisitor,
+      final CommodityFutureOptionSecurityVisitor<T> commodityFutureOptionSecurityVisitor,
       final FXBarrierOptionSecurityVisitor<T> fxBarrierOptionSecurityVisitor,
       final FXDigitalOptionSecurityVisitor<T> fxDigitalOptionSecurityVisitor,
       final NonDeliverableFXDigitalOptionSecurityVisitor<T> nonDeliverableFxDigitalOptionSecurityVisitor,
@@ -294,6 +276,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
     _nonDeliverableFxOptionSecurityVisitor = nonDeliverableFxOptionSecurityVisitor;
     _swaptionSecurityVisitor = swaptionSecurityVisitor;
     _irfutureOptionSecurityVisitor = irfutureOptionSecurityVisitor;
+    _commodityFutureOptionSecurityVisitor = commodityFutureOptionSecurityVisitor;
     _fxBarrierOptionSecurityVisitor = fxBarrierOptionSecurityVisitor;
     _fxDigitalOptionSecurityVisitor = fxDigitalOptionSecurityVisitor;
     _nonDeliverableFxDigitalOptionSecurityVisitor = nonDeliverableFxDigitalOptionSecurityVisitor;
@@ -308,7 +291,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   }
 
   public FinancialSecurityVisitorAdapter() {
-    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+    this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
         null, null, null);
   }
 
@@ -319,8 +302,8 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   protected FinancialSecurityVisitorAdapter(final Builder<T> builder) {
     this(builder._bondSecurityVisitor, builder._cashSecurityVisitor, builder._equitySecurityVisitor, builder._fraSecurityVisitor, builder._futureSecurityVisitor, builder._swapSecurityVisitor,
         builder._equityIndexOptionSecurityVisitor, builder._equityIndexDividendFutureOptionSecurityVisitor, builder._equityOptionSecurityVisitor, builder._equityBarrierOptionSecurityVisitor,
-        builder._fxOptionSecurityVisitor, builder._nonDeliverableFxOptionSecurityVisitor, builder._swaptionSecurityVisitor, builder._irfutureSecurityVisitor, builder._fxBarrierOptionSecurityVisitor,
-        builder._fxDigitalOptionSecurityVisitor, builder._nonDeliverableFxDigitalOptionSecurityVisitor, builder._fxForwardSecurityVisitor, builder._nonDeliverableFxForwardSecurityVisitor,
+        builder._fxOptionSecurityVisitor, builder._nonDeliverableFxOptionSecurityVisitor, builder._swaptionSecurityVisitor, builder._irfutureOptionSecurityVisitor, builder._commodityFutureOptionSecurityVisitor, 
+        builder._fxBarrierOptionSecurityVisitor, builder._fxDigitalOptionSecurityVisitor, builder._nonDeliverableFxDigitalOptionSecurityVisitor, builder._fxForwardSecurityVisitor, builder._nonDeliverableFxForwardSecurityVisitor,
         builder._capFloorSecurityVisitor, builder._capFloorCMSSpreadSecurityVisitor, builder._equityVarianceSwapSecurityVisitor, builder._simpleZeroDepositSecurityVisitor,
         builder._periodicZeroDepositSecurityVisitor, builder._continouosZeroDepositSecurityVisitor);
   }
@@ -390,6 +373,11 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
   @Override
   public T visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     return (_irfutureOptionSecurityVisitor != null) ? security.accept(_irfutureOptionSecurityVisitor) : null;
+  }
+
+  @Override
+  public T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+    return (_commodityFutureOptionSecurityVisitor != null) ? security.accept(_commodityFutureOptionSecurityVisitor) : null;
   }
 
   @Override
