@@ -23,14 +23,11 @@ $.register_module({
                     return data.map(function (str) {return str.replace(/,/g, '\\,');}).join(', ');
                 },
                 deconvert = function (datum, optional) {
-                    var array = datum ?
-                        datum.replace(/\\\,/g, '\0').split(/\,\s*/g).map(function (s) {return s.replace(/\0/g, ',');})
-                            : [], result, empty = true;
+                    var empty = true, result, array = datum ? datum // split on all non-escaped commas
+                        .replace(/\\\,/g, '\0').split(/\,\s*/g).map(function (s) {return s.replace(/\0/g, ',');}) : [];
                     if (!optional && !array.length) return null;
-                    result = array.reduce(function (acc, val, idx) {
-                        empty = false;
-                        return val ? (acc[idx] = val, acc) : acc;
-                    }, {});
+                    result = array
+                        .reduce(function (acc, val, idx) {return (empty = 0), val ? (acc[idx] = val, acc) : acc;}, {});
                     if (empty && !optional) return null;
                     if (optional) result.optional = null;
                     return result;
