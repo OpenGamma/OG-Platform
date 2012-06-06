@@ -90,7 +90,7 @@ $.register_module({
                     cache['setItem'](key, JSON.stringify(value));
                 } catch (error) {
                     warn(module.name + ': set_cache failed\n', error);
-                    del_cache(key);
+                    common.del_cache(key);
                 }
             },
             del_cache: function (key) {
