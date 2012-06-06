@@ -11,15 +11,26 @@ import com.opengamma.engine.view.calcnode.MissingInput;
  * Instances of this class are saved in the computation cache for outputs that aren't calculated because of an error. Exact details of the failure can be found from the calculation job result that is
  * routed back to the view processor
  */
-public final class NotCalculatedSentinel implements MissingInput {
+public enum NotCalculatedSentinel implements MissingInput {
 
-  private static final NotCalculatedSentinel INSTANCE = new NotCalculatedSentinel();
+  /**
+   * Placeholder for functions that weren't executed because of missing inputs.
+   */
+  MISSING_INPUTS("Missing inputs"),
 
-  private NotCalculatedSentinel() {
+  /**
+   * Placeholder for functions that were executed but failed to produce one or more results.
+   */
+  EVALUATION_ERROR("Evaluation error");
+
+  private final String _reason;
+
+  private NotCalculatedSentinel(final String reason) {
+    _reason = reason;
   }
 
-  public static NotCalculatedSentinel getInstance() {
-    return INSTANCE;
+  public String toString() {
+    return _reason;
   }
 
 }

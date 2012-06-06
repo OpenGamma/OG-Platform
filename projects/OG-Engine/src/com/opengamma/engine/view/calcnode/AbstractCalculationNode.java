@@ -121,10 +121,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _nodeId = nodeId;
   }
 
-  private void postNotCalculated(final Collection<ValueSpecification> outputs, final FilteredViewComputationCache cache) {
+  private void postNotCalculated(final Collection<ValueSpecification> outputs, final FilteredViewComputationCache cache, final MissingInput error) {
     final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.size());
     for (ValueSpecification output : outputs) {
-      results.add(new ComputedValue(output, NotCalculatedSentinel.getInstance()));
+      results.add(new ComputedValue(output, error));
     }
     cache.putValues(results);
   }
@@ -145,12 +145,12 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         // litter the logs with stack traces; the inputs missing have also already been
         // written at INFO level
         s_logger.info("Unable to invoke {} due to missing inputs", jobItem);
-        postNotCalculated(jobItem.getOutputs(), cache);
+        postNotCalculated(jobItem.getOutputs(), cache, NotCalculatedSentinel.MISSING_INPUTS);
         resultItem = new CalculationJobResultItem(jobItem, e);
       } catch (Throwable t) {
-        //s_logger.error("Invoking {} threw exception: {}", jobItem.getFunctionUniqueIdentifier(), t.getMessage());
+        s_logger.error("Invoking {} threw exception: {}", jobItem.getFunctionUniqueIdentifier(), t.getMessage());
         s_logger.info("Caught", t);
-        postNotCalculated(jobItem.getOutputs(), cache);
+        postNotCalculated(jobItem.getOutputs(), cache, NotCalculatedSentinel.EVALUATION_ERROR);
         resultItem = new CalculationJobResultItem(jobItem, t);
       }
       resultItems.add(resultItem);
@@ -170,6 +170,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
     getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
     final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
+    // TODO: don't create a new cache instance each time -- if there are peer nodes then we may be able to share
     final DelayedViewComputationCache cache = getDelayedViewComputationCache(getCache(spec), job.getCacheSelectHint());
     long executionTime = System.nanoTime();
     final String calculationConfiguration = spec.getCalcConfigName();
@@ -285,7 +286,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       final Collection<ComputedValue> newResults = new ArrayList<ComputedValue>(results.size() + missing.size());
       newResults.addAll(results);
       for (ValueSpecification output : missing) {
-        newResults.add(new ComputedValue(output, NotCalculatedSentinel.getInstance()));
+        newResults.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
       }
       results = newResults;
     }

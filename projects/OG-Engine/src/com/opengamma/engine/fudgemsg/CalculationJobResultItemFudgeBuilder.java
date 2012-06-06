@@ -32,7 +32,7 @@ public class CalculationJobResultItemFudgeBuilder implements FudgeBuilder<Calcul
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJobResultItem object) {
     MutableFudgeMsg msg = serializer.newMessage();
-    //serializer.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
+    serializer.addToMessage(msg, ITEM_FIELD_NAME, null, object.getItem());
     msg.add(INVOCATION_RESULT_FIELD_NAME, object.getResult().name());
     if (object.getExceptionClass() != null) {
       msg.add(EXCEPTION_CLASS_FIELD_NAME, object.getExceptionClass());
