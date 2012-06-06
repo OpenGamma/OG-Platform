@@ -5,16 +5,17 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
@@ -45,7 +46,8 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price.
    */
-  public InterestRateFutureOptionMarginTransactionDefinition(InterestRateFutureOptionMarginSecurityDefinition underlyingOption, int quantity, ZonedDateTime tradeDate, double tradePrice) {
+  public InterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginSecurityDefinition underlyingOption, final int quantity, final ZonedDateTime tradeDate,
+      final double tradePrice) {
     Validate.notNull(underlyingOption, "underlying option");
     Validate.notNull(tradeDate, "trade date");
     this._underlyingOption = underlyingOption;
@@ -87,7 +89,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   }
 
   @Override
-  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of InterestRateTransactionDefinition does not support the two argument method (without margin price data).");
   }
 
@@ -95,13 +97,13 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   /**
    * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
    */
-  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime dateTime, Double lastMarginPrice, String... yieldCurveNames) {
-    Validate.notNull(dateTime, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    LocalDate date = dateTime.toLocalDate();
-    Validate.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
-    LocalDate tradeDateLocal = _tradeDate.toLocalDate();
-    Validate.isTrue(!date.isBefore(tradeDateLocal), "Valuation date is before the trade date"); // TODO - Confirm with Quants whether this check is required/desired. Consider, for eg,  HVaR..
+  public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(dateTime, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    final LocalDate date = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
+    final LocalDate tradeDateLocal = _tradeDate.toLocalDate();
+    ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
     double referencePrice;
     if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
@@ -109,17 +111,17 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     } else { // Transaction is today
       referencePrice = _tradePrice;
     }
-    InterestRateFutureOptionMarginTransaction optionTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, _quantity, referencePrice);
+    final InterestRateFutureOptionMarginTransaction optionTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, _quantity, referencePrice);
     return optionTransaction;
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this);
   }
 
@@ -137,7 +139,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -147,7 +149,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionMarginTransactionDefinition other = (InterestRateFutureOptionMarginTransactionDefinition) obj;
+    final InterestRateFutureOptionMarginTransactionDefinition other = (InterestRateFutureOptionMarginTransactionDefinition) obj;
     if (_quantity != other._quantity) {
       return false;
     }

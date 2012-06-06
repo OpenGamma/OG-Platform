@@ -53,6 +53,10 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Property describing the theta calculation method */
+  public static final String PROPERTY_THETA_CALCULATION_METHOD = "ThetaCalculationMethod";
+  /** The name of the constant spread theta calculation method */
+  public static final String THETA_CONSTANT_SPREAD = "HorizonConstantSpread";
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private InterestRateFutureTradeConverter _converter;
 
@@ -94,8 +98,8 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
       throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.toLocalDate());
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
-    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, curveNamesForSecurity, bundle, lastMarginPrice);
+    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
+    final MultipleCurrencyAmount theta = calculator.getTheta(definition, now, curveNamesForSecurity, bundle, lastMarginPrice, DAYS_TO_MOVE_FORWARD);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
   }
 
@@ -149,7 +153,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -159,7 +163,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(PROPERTY_THETA_CALCULATION_METHOD, THETA_CONSTANT_SPREAD);
     return properties;
   }
 

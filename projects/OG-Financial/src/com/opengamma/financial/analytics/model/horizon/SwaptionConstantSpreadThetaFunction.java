@@ -56,7 +56,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * 
  */
 public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
 
@@ -100,17 +100,17 @@ public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCom
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle blackData = new YieldCurveWithBlackSwaptionBundle(parameters, bundle);
 
-    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
-    
+    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
+
     if (security.isCashSettled()) {
       final SwaptionCashFixedIborDefinition cashSettled = (SwaptionCashFixedIborDefinition) definition;
       final String[] curveNamesForSecurity = new String[] {fundingCurveName, forwardCurveName };
-      final MultipleCurrencyAmount theta = calculator.getTheta(cashSettled, now, curveNamesForSecurity, blackData);
+      final MultipleCurrencyAmount theta = calculator.getTheta(cashSettled, now, curveNamesForSecurity, blackData, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
     }
     final SwaptionPhysicalFixedIborDefinition physicallySettled = (SwaptionPhysicalFixedIborDefinition) definition;
     final String[] curveNamesForSecurity = new String[] {fundingCurveName, forwardCurveName };
-    final MultipleCurrencyAmount theta = calculator.getTheta(physicallySettled, now, curveNamesForSecurity, blackData);
+    final MultipleCurrencyAmount theta = calculator.getTheta(physicallySettled, now, curveNamesForSecurity, blackData, DAYS_TO_MOVE_FORWARD);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
   }
 
@@ -171,7 +171,7 @@ public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCom
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -183,7 +183,7 @@ public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCom
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 

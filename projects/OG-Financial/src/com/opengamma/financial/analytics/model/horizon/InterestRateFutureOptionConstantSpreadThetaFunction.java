@@ -60,9 +60,9 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
-  
+
   private InterestRateFutureOptionTradeConverter _converter;
 
   @Override
@@ -118,12 +118,12 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
-    LocalDate lastMarginTime = ts.getTimeSeries().getLatestTime();
     final YieldCurveBundle curves = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
-    
-    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
-    final MultipleCurrencyAmount theta = calculator.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, yieldCurveNames, data, lastMarginPrice);
+
+    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
+    final MultipleCurrencyAmount theta = calculator.getTheta((InterestRateFutureOptionMarginTransactionDefinition) irFutureOptionDefinition, now, yieldCurveNames, data, lastMarginPrice,
+        DAYS_TO_MOVE_FORWARD);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, currency.getCode()), theta));
   }
 
@@ -182,7 +182,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -194,7 +194,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SwapConstantSpreadThetaFunction.CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
