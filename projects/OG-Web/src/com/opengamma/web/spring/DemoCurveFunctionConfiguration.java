@@ -31,6 +31,8 @@ import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromM
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveDefaultsNew;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurveParRateMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
@@ -72,9 +74,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new StaticFunctionConfiguration(MultiYieldCurvePresentValueMethodFunction.class.getName()));
     //configs.add(new StaticFunctionConfiguration(MultiYieldCurveParRateMethodFunction.class.getName()));
     configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF"));
-    //configs.add(new ParameterizedFunctionConfiguration(YieldCurveMarketDataFunction.class.getName(), Arrays.asList("USD", curveName)));
-    //configs.add(new ParameterizedFunctionConfiguration(YieldCurveInterpolatingFunction.class.getName(), Arrays.asList("USD", curveName)));
-    //configs.add(new ParameterizedFunctionConfiguration(YieldCurveSpecificationFunction.class.getName(), Arrays.asList("USD", "Funding")));
+    configs.add(functionConfiguration(FXImpliedYieldCurveFunctionNew.class));
+    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD"));
+    configs.add(functionConfiguration(FXImpliedYieldCurveDefaultsNew.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false",
+        "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "MYR"));
+
 
     if (_configMaster != null) {
       // [PLAT-1094] Scan the config master for documents. This is probably in the wrong place; the code should live in OG-Financial as it is
