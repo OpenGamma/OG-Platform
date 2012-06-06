@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -19,7 +16,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
@@ -28,10 +24,10 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
 @FudgeBuilderFor(CalculationJobItem.class)
 public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJobItem> {
   
-  private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
-  private static final String FUNCTION_PARAMETERS_FIELD_NAME = "functionParameters";
-  private static final String INPUT_FIELD_NAME = "valueInput";
-  private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
+  private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "function";
+  private static final String FUNCTION_PARAMETERS_FIELD_NAME = "parameters";
+  private static final String INPUT_IDENTIFIERS_FIELD_NAME = "input";
+  private static final String OUTPUT_IDENTIFIERS_FIELD_NAME = "output";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJobItem object) {
@@ -52,10 +48,9 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
       serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
     }
     long[] inputs = object.getInputIdentifiers();
-    msg.add(INPUT_FIELD_NAME, inputs);
-    for (ValueRequirement desiredValue : object.getDesiredValues()) {
-      serializer.addToMessage(msg, DESIRED_VALUE_FIELD_NAME, null, desiredValue);
-    }
+    msg.add(INPUT_IDENTIFIERS_FIELD_NAME, inputs);
+    long[] outputs = object.getOutputIdentifiers();
+    msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, outputs);
     return msg;
   }
 
@@ -73,16 +68,10 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     Validate.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
     FunctionParameters functionParameters = deserializer.fieldValueToObject(FunctionParameters.class, fudgeField);
 
-    final long[] inputIdentifiers = (long[]) message.getByName(INPUT_FIELD_NAME).getValue();
-
-    List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
-    for (FudgeField field : message.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
-      FudgeMsg valueMsg = (FudgeMsg) field.getValue();
-      ValueRequirement desiredValue = deserializer.fudgeMsgToObject(ValueRequirement.class, valueMsg);
-      desiredValues.add(desiredValue);
-    }
+    long[] inputIdentifiers = (long[]) message.getByName(INPUT_IDENTIFIERS_FIELD_NAME).getValue();
+    long[] outputIdentifiers = (long[]) message.getByName(OUTPUT_IDENTIFIERS_FIELD_NAME).getValue();
     
-    return CalculationJobItem.create(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, desiredValues);
+    return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, outputIdentifiers);
   }
 
 

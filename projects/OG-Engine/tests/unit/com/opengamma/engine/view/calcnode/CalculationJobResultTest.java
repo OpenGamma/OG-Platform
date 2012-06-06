@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
@@ -44,12 +43,7 @@ public class CalculationJobResultTest {
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
     
-    CalculationJobItem item = new CalculationJobItem(
-        "1",
-        new EmptyFunctionParameters(),
-        targetSpec,
-        Collections.<ValueSpecification>emptySet(), 
-        Collections.<ValueRequirement>emptySet());
+    CalculationJobItem item = new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
     CalculationJobResultItem item1 = new CalculationJobResultItem(item); 
     CalculationJobResultItem item2 = new CalculationJobResultItem(item, new RuntimeException("failure!"));
     
@@ -57,7 +51,7 @@ public class CalculationJobResultTest {
         500, 
         Lists.newArrayList(item1, item2),
         "localhost");
-    result.convertInputs(identifierMap);
+    result.convertIdentifiers(identifierMap);
     FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(result);
     FudgeMsg outputMsg = s_fudgeContext.deserialize(s_fudgeContext.toByteArray(inputMsg)).getMessage();
@@ -66,7 +60,7 @@ public class CalculationJobResultTest {
     CalculationJobResult outputJob = deserializationContext.fudgeMsgToObject(CalculationJobResult.class, outputMsg);
     
     assertNotNull(outputJob);
-    result.resolveInputs(identifierMap);
+    result.resolveIdentifiers(identifierMap);
     assertEquals(spec, outputJob.getSpecification());
     assertEquals(500, outputJob.getDuration());
     assertEquals("localhost", outputJob.getComputeNodeId());

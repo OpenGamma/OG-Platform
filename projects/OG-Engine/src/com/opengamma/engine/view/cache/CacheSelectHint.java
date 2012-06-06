@@ -59,7 +59,7 @@ public final class CacheSelectHint {
    * 
    * @param identifierMap the identifier map to use
    */
-  public void convertSpecifications(final IdentifierMap identifierMap) {
+  public void convertIdentifiers(final IdentifierMap identifierMap) {
     if (_valueIdentifiers == null) {
       final Collection<Long> identifiers = identifierMap.getIdentifiers(_valueSpecifications).values();
       _valueIdentifiers = new long[identifiers.size()];
@@ -75,7 +75,7 @@ public final class CacheSelectHint {
    * 
    * @param identifierMap the identifier map to use
    */
-  public void resolveSpecifications(final IdentifierMap identifierMap) {
+  public void resolveIdentifiers(final IdentifierMap identifierMap) {
     if (_valueSpecifications.isEmpty()) {
       final Collection<Long> identifiers = new ArrayList<Long>(_valueIdentifiers.length);
       for (long identifier : _valueIdentifiers) {

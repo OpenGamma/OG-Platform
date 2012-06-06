@@ -66,12 +66,12 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     protected void visitExecuteMessage(final Execute message) {
       final CalculationJob job = message.getJob();
       getFunctionCompilationService().reinitializeIfNeeded(job.getFunctionInitializationIdentifier());
-      job.resolveInputs(getIdentifierMap());
+      job.resolveIdentifiers(getIdentifierMap());
       addJob(job, new ExecutionReceiver() {
 
         @Override
         public void executionComplete(final CalculationJobResult result) {
-          result.convertInputs(getIdentifierMap());
+          result.convertIdentifiers(getIdentifierMap());
           sendMessage(new Result(result));
         }
 

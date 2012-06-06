@@ -25,7 +25,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.EmptyFunctionParameters;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
@@ -46,7 +47,7 @@ public class CalculationJobTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
 
     List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification> emptySet(), Collections
-        .<ValueRequirement> emptySet()));
+        .<ValueSpecification>emptySet()));
 
     CalculationJob inputJob = new CalculationJob(spec, 123L, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
@@ -58,7 +59,7 @@ public class CalculationJobTest {
     FudgeDeserializer deserializationContext = new FudgeDeserializer(s_fudgeContext);
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     assertNotNull(outputJob);
-    outputJob.resolveInputs(identifierMap);
+    outputJob.resolveIdentifiers(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
     assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
     assertNotNull(outputJob.getJobItems());
@@ -67,8 +68,8 @@ public class CalculationJobTest {
     assertNotNull(outputItem);
     assertNotNull(outputItem.getInputs());
     assertTrue(outputItem.getInputs().isEmpty());
-    assertNotNull(outputItem.getDesiredValues());
-    assertTrue(outputItem.getDesiredValues().isEmpty());
+    assertNotNull(outputItem.getOutputs());
+    assertTrue(outputItem.getOutputs().isEmpty());
     assertEquals(targetSpec, outputItem.getComputationTargetSpecification());
     assertEquals("1", outputItem.getFunctionUniqueIdentifier());
   }
@@ -78,10 +79,12 @@ public class CalculationJobTest {
     CalculationJobSpecification spec = new CalculationJobSpecification(UniqueId.of("Test", "ViewCycle"), "config", Instant.now(), 1L);
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
 
-    ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value2"));
-    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3")), "mockFunctionId");
+    ValueSpecification outputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value2"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+        .get());
+    ValueSpecification inputSpec = ValueSpecification.of("Foo", ComputationTargetType.PRIMITIVE, UniqueId.of("Scheme", "Value3"), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+        .get());
 
-    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(desiredValue)));
+    List<CalculationJobItem> items = Collections.singletonList(new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Sets.newHashSet(inputSpec), Sets.newHashSet(outputSpec)));
 
     CalculationJob inputJob = new CalculationJob(spec, Long.MAX_VALUE, null, items, CacheSelectHint.allShared());
     inputJob.convertInputs(identifierMap);
@@ -93,7 +96,7 @@ public class CalculationJobTest {
     CalculationJob outputJob = deserializationContext.fudgeMsgToObject(CalculationJob.class, outputMsg);
     
     assertNotNull(outputJob);
-    outputJob.resolveInputs(identifierMap);
+    outputJob.resolveIdentifiers(identifierMap);
     assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
     assertEquals (inputJob.getFunctionInitializationIdentifier(), outputJob.getFunctionInitializationIdentifier());
 
@@ -105,8 +108,8 @@ public class CalculationJobTest {
     assertEquals(1, outputItem.getInputs().size());
     assertTrue(outputItem.getInputs().contains(inputSpec));
 
-    assertEquals(1, outputItem.getDesiredValues().size());
-    assertTrue(outputItem.getDesiredValues().contains(desiredValue));
+    assertEquals(1, outputItem.getOutputs().size());
+    assertTrue(outputItem.getOutputs().contains(outputSpec));
   }
 
 }

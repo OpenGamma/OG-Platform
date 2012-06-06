@@ -77,9 +77,9 @@ public class CalculationJobResult implements Serializable {
    * 
    * @param identifierMap Identifier map to resolve the inputs with
    */
-  public void resolveInputs(final IdentifierMap identifierMap) {
+  public void resolveIdentifiers(final IdentifierMap identifierMap) {
     for (CalculationJobResultItem item : _resultItems) {
-      item.resolveInputs(identifierMap);
+      item.resolveIdentifiers(identifierMap);
     }
   }
 
@@ -89,9 +89,9 @@ public class CalculationJobResult implements Serializable {
    * 
    * @param identifierMap Identifier map to convert the inputs with
    */
-  public void convertInputs(final IdentifierMap identifierMap) {
+  public void convertIdentifiers(final IdentifierMap identifierMap) {
     for (CalculationJobResultItem item : _resultItems) {
-      item.convertInputs(identifierMap);
+      item.convertIdentifiers(identifierMap);
     }
   }
 

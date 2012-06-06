@@ -37,6 +37,7 @@ public interface FunctionInvoker {
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       ComputationTarget target,
+      //Set<ValueSpecification> outputs // PLAT-2290
       Set<ValueRequirement> desiredValues);
 
   /**

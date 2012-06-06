@@ -5,9 +5,12 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierMap;
@@ -25,14 +28,13 @@ public class CalculationJobResultItem {
   private final String _exceptionMsg;
   private final String _stackTrace;
 
-  private final Set<ValueSpecification> _missingInputs;
+  private Set<ValueSpecification> _missingInputs;
+  private long[] _missingInputIdentifiers;
 
   public CalculationJobResultItem(CalculationJobItem item, Throwable exception) {
     ArgumentChecker.notNull(item, "Calculation job item");
     ArgumentChecker.notNull(exception, "Result");
-
     _item = item;
-
     if (exception instanceof MissingInputException) {
       _result = InvocationResult.MISSING_INPUTS;
       _missingInputs = ((MissingInputException) exception).getMissingInputs();
@@ -40,10 +42,8 @@ public class CalculationJobResultItem {
       _result = InvocationResult.FUNCTION_THREW_EXCEPTION;
       _missingInputs = Collections.emptySet();
     }
-
     _exceptionClass = exception.getClass().getName();
     _exceptionMsg = exception.getMessage();
-
     StringBuffer buffer = new StringBuffer();
     for (StackTraceElement element : exception.getStackTrace()) {
       buffer.append(element.toString() + "\n");
@@ -53,23 +53,21 @@ public class CalculationJobResultItem {
 
   public CalculationJobResultItem(CalculationJobItem item) {
     ArgumentChecker.notNull(item, "Calculation job item");
-
     _item = item;
     _result = InvocationResult.SUCCESS;
-
     _exceptionClass = null;
     _exceptionMsg = null;
     _stackTrace = null;
     _missingInputs = Collections.emptySet();
   }
 
-  private CalculationJobResultItem(CalculationJobItem item, InvocationResult result, String exceptionClass, String exceptionMsg, String stackTrace, Set<ValueSpecification> missingInputs) {
+  public CalculationJobResultItem(CalculationJobItem item, InvocationResult result, String exceptionClass, String exceptionMsg, String stackTrace, long[] missingInputIdentifiers) {
     _item = item;
     _result = result;
     _exceptionClass = exceptionClass;
     _exceptionMsg = exceptionMsg;
     _stackTrace = stackTrace;
-    _missingInputs = missingInputs;
+    _missingInputIdentifiers = missingInputIdentifiers;
   }
 
   public boolean failed() {
@@ -108,14 +106,32 @@ public class CalculationJobResultItem {
     return Collections.unmodifiableSet(_missingInputs);
   }
 
+  public long[] getMissingInputIdentifiers() {
+    return _missingInputIdentifiers;
+  }
+
   /**
    * Numeric identifiers may have been passed when this was encoded as a Fudge message. This will resolve
    * them to full {@link ValueSpecification} objects.
    * 
    * @param identifierMap Identifier map to resolve the inputs with
    */
-  public void resolveInputs(final IdentifierMap identifierMap) {
-    _item.resolveInputs(identifierMap);
+  public void resolveIdentifiers(final IdentifierMap identifierMap) {
+    _item.resolveIdentifiers(identifierMap);
+    if (_missingInputs == null) {
+      if (_missingInputIdentifiers == null) {
+        _missingInputs = Collections.emptySet();
+      } else if (_missingInputIdentifiers.length == 1) {
+        _missingInputs = Collections.singleton(identifierMap.getValueSpecification(_missingInputIdentifiers[0]));
+      } else {
+        _missingInputs = Sets.newHashSetWithExpectedSize(_missingInputIdentifiers.length);
+        final Collection<Long> identifiers = new ArrayList<Long>(_missingInputIdentifiers.length);
+        for (long identifier : _missingInputIdentifiers) {
+          identifiers.add(identifier);
+        }
+        _missingInputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
+      }
+    }
   }
 
   /**
@@ -124,13 +140,20 @@ public class CalculationJobResultItem {
    * 
    * @param identifierMap Identifier map to convert the inputs with
    */
-  public void convertInputs(final IdentifierMap identifierMap) {
-    _item.convertInputs(identifierMap);
-  }
-
-  public static CalculationJobResultItem create(CalculationJobItem item, InvocationResult result, 
-      String exceptionClass, String exceptionMsg, String stackTrace, Set<ValueSpecification> missingInputs) {
-    return new CalculationJobResultItem(item, result, exceptionClass, exceptionMsg, stackTrace, missingInputs);
+  public void convertIdentifiers(final IdentifierMap identifierMap) {
+    _item.convertIdentifiers(identifierMap);
+    if ((_missingInputIdentifiers == null) && !_missingInputs.isEmpty()) {
+      if (_missingInputs.size() == 1) {
+        _missingInputIdentifiers = new long[] {identifierMap.getIdentifier(_missingInputs.iterator().next()) };
+      } else {
+        final Collection<Long> identifiers = identifierMap.getIdentifiers(_missingInputs).values();
+        _missingInputIdentifiers = new long[identifiers.size()];
+        int i = 0;
+        for (Long identifier : identifiers) {
+          _missingInputIdentifiers[i++] = identifier;
+        }
+      }
+    }
   }
 
   @Override

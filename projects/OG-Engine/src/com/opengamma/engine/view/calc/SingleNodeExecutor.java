@@ -72,7 +72,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<CalculationJo
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputRequirements());
+          node.getComputationTarget(), inputs, node.getOutputValues());
       items.add(jobItem);
       item2Node.put(jobItem, node);
       // If node has dependencies which AREN'T in the graph, its outputs for those nodes are "shared" values

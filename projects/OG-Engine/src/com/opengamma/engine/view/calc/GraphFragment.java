@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,10 +27,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
 /**
- * Base class of the graph fragments. A graph fragment is a subset of an executable dependency graph
- * that corresponds to a single computation job. Fragments are links to create a graph of fragments.
- * At the extreme, there could be a fragment for each node in the original graph and the graph of
- * fragments will be the same shape as the graph of nodes.
+ * Base class of the graph fragments. A graph fragment is a subset of an executable dependency graph that corresponds to a single computation job. Fragments are linked to create a graph of fragments.
+ * At the extreme, there could be a fragment for each node in the original graph and the graph of fragments will be the same shape as the graph of nodes.
  */
 /* package */class GraphFragment<C extends GraphFragmentContext, F extends GraphFragment<C, F>> {
 
@@ -117,7 +116,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     for (DependencyNode node : getNodes()) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputRequirements());
+          node.getComputationTarget(), inputs, node.getOutputValues());
       items.add(jobItem);
       getContext().registerJobItem(jobItem, node);
     }
@@ -147,8 +146,35 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return job;
   }
 
+  private void printJob(final PrintStream out, final String indent, final CalculationJob job) {
+    out.println(indent + getIdentifier() + " - " + job.getSpecification());
+    Collection<Long> required = job.getRequiredJobIds();
+    if (required != null) {
+      out.println(indent + "\trequires " + required);
+    }
+    for (CalculationJobItem item : job.getJobItems()) {
+      out.println(indent + "\t" + item.getFunctionUniqueIdentifier() + " on " + item.getComputationTargetSpecification());
+    }
+    Collection<CalculationJob> tailJobs = job.getTail();
+    if (tailJobs != null) {
+      for (CalculationJob tailJob : tailJobs) {
+        printJob(out, indent + "  ", tailJob);
+      }
+    }
+  }
+
   public void execute() {
-    getContext().dispatchJob(createCalculationJob());
+    final CalculationJob job = createCalculationJob();
+    /*try {
+      synchronized (System.out) {
+        final PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream("/tmp/graphFragment.txt", true)));
+        printJob(out, "", job);
+        out.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }*/
+    getContext().dispatchJob(job);
   }
 
   @Override

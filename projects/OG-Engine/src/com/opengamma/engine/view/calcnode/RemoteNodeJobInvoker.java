@@ -139,7 +139,7 @@ import com.opengamma.transport.FudgeMessageSender;
       final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
       if (receiver != null) {
         final CalculationJobResult result = message.getResult();
-        result.resolveInputs(getIdentifierMap());
+        result.resolveIdentifiers(getIdentifierMap());
         receiver.jobCompleted(result);
       } else {
         s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());

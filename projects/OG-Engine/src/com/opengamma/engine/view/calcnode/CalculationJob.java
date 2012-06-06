@@ -110,10 +110,10 @@ public class CalculationJob implements Serializable {
    * 
    * @param identifierMap Identifier map to resolve the inputs with
    */
-  public void resolveInputs(final IdentifierMap identifierMap) {
-    _cacheSelect.resolveSpecifications(identifierMap);
+  public void resolveIdentifiers(final IdentifierMap identifierMap) {
+    _cacheSelect.resolveIdentifiers(identifierMap);
     for (CalculationJobItem item : _jobItems) {
-      item.resolveInputs(identifierMap);
+      item.resolveIdentifiers(identifierMap);
     }
   }
 
@@ -123,9 +123,9 @@ public class CalculationJob implements Serializable {
    * @param identifierMap Identifier map to convert the inputs with
    */
   public void convertInputs(final IdentifierMap identifierMap) {
-    getCacheSelectHint().convertSpecifications(identifierMap);
+    getCacheSelectHint().convertIdentifiers(identifierMap);
     for (CalculationJobItem item : _jobItems) {
-      item.convertInputs(identifierMap);
+      item.convertIdentifiers(identifierMap);
     }
   }
 
