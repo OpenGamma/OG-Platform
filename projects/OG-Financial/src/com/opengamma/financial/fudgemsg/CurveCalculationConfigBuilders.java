@@ -7,6 +7,7 @@ package com.opengamma.financial.fudgemsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ import com.opengamma.id.UniqueIdentifiable;
 /**
  * 
  */
-/* package */ final class CurveCalculationConfigBuilders {
+/* package */final class CurveCalculationConfigBuilders {
 
   private CurveCalculationConfigBuilders() {
   }
@@ -56,7 +57,7 @@ import com.opengamma.id.UniqueIdentifiable;
         message.add(ID_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(uniqueIdentifiable), uniqueIdentifiable.getClass()));
         message.add(CALCULATION_METHOD_FIELD, object.getCalculationMethods()[i]);
       }
-      final Map<String, CurveInstrumentConfig> instrumentExposures = object.getCurveExposuresForInstruments();
+      final LinkedHashMap<String, CurveInstrumentConfig> instrumentExposures = object.getCurveExposuresForInstruments();
       if (instrumentExposures != null) {
         for (final Map.Entry<String, CurveInstrumentConfig> entry : instrumentExposures.entrySet()) {
           message.add(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD, entry.getKey());
@@ -95,9 +96,9 @@ import com.opengamma.id.UniqueIdentifiable;
       if (instrumentExposuresCurveNameField.size() != instrumentExposuresForCurve.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      Map<String, CurveInstrumentConfig> curveInstrumentExposures = null;
+      LinkedHashMap<String, CurveInstrumentConfig> curveInstrumentExposures = null;
       if (message.hasField(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD)) {
-        curveInstrumentExposures = new HashMap<String, CurveInstrumentConfig>();
+        curveInstrumentExposures = new LinkedHashMap<String, CurveInstrumentConfig>();
         for (int i = 0; i < instrumentExposuresCurveNameField.size(); i++) {
           final String curveName = deserializer.fieldValueToObject(String.class, instrumentExposuresCurveNameField.get(i));
           final CurveInstrumentConfig config = deserializer.fieldValueToObject(CurveInstrumentConfig.class, instrumentExposuresForCurve.get(i));
@@ -110,7 +111,7 @@ import com.opengamma.id.UniqueIdentifiable;
         if (exogenousConfigFields.size() != exogenousCurveFields.size()) {
           throw new OpenGammaRuntimeException("Should never happen");
         }
-        final Map<String, String[]> exogenousConfig = new HashMap<String, String[]>();
+        final LinkedHashMap<String, String[]> exogenousConfig = new LinkedHashMap<String, String[]>();
         for (int i = 0; i < exogenousConfigFields.size(); i++) {
           final String configName = deserializer.fieldValueToObject(String.class, exogenousConfigFields.get(i));
           final List<FudgeField> curveNamesField = ((FudgeMsg) exogenousCurveFields.get(i).getValue()).getAllByName(PER_CONFIG_FIELD);

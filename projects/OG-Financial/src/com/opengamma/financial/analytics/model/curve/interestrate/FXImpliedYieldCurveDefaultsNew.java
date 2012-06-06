@@ -22,8 +22,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FXImpliedYieldCurveDefaultsNew extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.YIELD_CURVE,
-    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+      ValueRequirementNames.YIELD_CURVE,
+      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;
@@ -75,11 +75,11 @@ public class FXImpliedYieldCurveDefaultsNew extends DefaultPropertyFunction {
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
-      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION);
-      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
@@ -88,19 +88,19 @@ public class FXImpliedYieldCurveDefaultsNew extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION.equals(propertyName)) {
+    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION.equals(propertyName)) {
       return Collections.singleton(_decomposition);
     }
-    if (MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE.equals(propertyName)) {
+    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE.equals(propertyName)) {
       return Collections.singleton(_absoluteTolerance);
     }
-    if (MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE.equals(propertyName)) {
+    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE.equals(propertyName)) {
       return Collections.singleton(_relativeTolerance);
     }
-    if (MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS.equals(propertyName)) {
+    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS.equals(propertyName)) {
       return Collections.singleton(_maxIterations);
     }
-    if (MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE.equals(propertyName)) {
+    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE.equals(propertyName)) {
       return Collections.singleton(_useFiniteDifference);
     }
     if (InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {

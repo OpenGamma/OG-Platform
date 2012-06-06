@@ -11,4 +11,8 @@ package com.opengamma.financial.analytics.ircurve;
 public enum IndexType {
   /** Libor */
   Libor,
+  /** Tibor */
+  Tibor,
+  /** Euribor */
+  Euribor
 }

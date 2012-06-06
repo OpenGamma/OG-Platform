@@ -32,8 +32,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final int _periodsPerYear;
   private final Tenor _payTenor;
   private final Tenor _receiveTenor;
+  private final Tenor _resetTenor;
   private final IndexType _payIndexType;
   private final IndexType _receiveIndexType;
+  private final IndexType _indexType;
 
   /**
    * Creates a strip for non-future and non-basis swap instruments.
@@ -58,6 +60,8 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveTenor = null;
     _payIndexType = null;
     _receiveIndexType = null;
+    _resetTenor = null;
+    _indexType = null;
   }
 
   /**
@@ -83,6 +87,8 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveTenor = null;
     _payIndexType = null;
     _receiveIndexType = null;
+    _resetTenor = null;
+    _indexType = null;
   }
 
   /**
@@ -109,6 +115,8 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveTenor = null;
     _payIndexType = null;
     _receiveIndexType = null;
+    _resetTenor = null;
+    _indexType = null;
   }
 
   /**
@@ -137,6 +145,36 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     _receiveTenor = receiveTenor;
     _payIndexType = payIndexType;
     _receiveIndexType = receiveIndexType;
+    _resetTenor = null;
+    _indexType = null;
+  }
+
+  /**
+   * Creates a basis swap strip where the two legs are on the same type of index (e.g. a USD 3M Fed Funds / 6M Libor swap)
+   * @param instrumentType The instrument type
+   * @param curveNodePointTime The time of the curve node point
+   * @param resetTenor The reset tenor
+   * @param payIndexType The pay index type
+   * @param receiveIndexType The receive index type
+   * @param conventionName The name of the convention to use to resolve the strip into a security
+   */
+  public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final Tenor resetTenor,
+      final IndexType indexType, final String conventionName) {
+    ArgumentChecker.isTrue(instrumentType == StripInstrumentType.SWAP || instrumentType == StripInstrumentType.OIS_SWAP, "Strip type for this constructor must be a swap or OIS");
+    ArgumentChecker.notNull(curveNodePointTime, "curve node tenor");
+    ArgumentChecker.notNull(resetTenor, "reset tenor");
+    ArgumentChecker.notNull(conventionName, "convention name");
+    _instrumentType = instrumentType;
+    _curveNodePointTime = curveNodePointTime;
+    _periodsPerYear = 0;
+    _nthFutureFromTenor = 0;
+    _conventionName = conventionName;
+    _resetTenor = resetTenor;
+    _indexType = indexType;
+    _payTenor = null;
+    _receiveTenor = null;
+    _payIndexType = null;
+    _receiveIndexType = null;
   }
 
   //-------------------------------------------------------------------------
@@ -227,6 +265,17 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
+   * Gets the reset tenor for a basis swap
+   * @return The receive tenor
+   */
+  public Tenor getResetTenor() {
+    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
+      throw new IllegalStateException("Cannot get the receive tenor for an instrument that is not a swap or OIS; have " + toString());
+    }
+    return _resetTenor;
+  }
+
+  /**
    * Gets the pay index type for a basis swap
    * @return The pay index type
    */
@@ -248,6 +297,17 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     return _receiveIndexType;
   }
 
+  /**
+   * Gets the receive tenor for a basis swap
+   * @return The receive tenor
+   */
+  public IndexType getIndexType() {
+    if (_instrumentType != StripInstrumentType.SWAP && _instrumentType != StripInstrumentType.OIS_SWAP) {
+      throw new IllegalStateException("Cannot get the index type for an instrument that is not a swap or OIS; have " + toString());
+    }
+    return _indexType;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
@@ -262,6 +322,12 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       result = getNumberOfFuturesAfterTenor() - other.getNumberOfFuturesAfterTenor();
     } else if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       result = getPeriodsPerYear() - other.getPeriodsPerYear();
+    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+      result = getResetTenor().compareTo(other.getResetTenor());
+      if (result != 0) {
+        return result;
+      }
+      return getIndexType().compareTo(other.getIndexType());
     } else if (getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
       result = getPayTenor().compareTo(other.getPayTenor());
       if (result != 0) {
@@ -296,8 +362,14 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
         return result && _periodsPerYear == other._periodsPerYear;
       }
+      if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+        return result &&
+            ObjectUtils.equals(getResetTenor(), other.getResetTenor()) &&
+            ObjectUtils.equals(getIndexType(), other.getIndexType());
+      }
       if (getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
-        return ObjectUtils.equals(getPayTenor(), other.getPayTenor()) &&
+        return result &&
+            ObjectUtils.equals(getPayTenor(), other.getPayTenor()) &&
             ObjectUtils.equals(getReceiveTenor(), other.getReceiveTenor()) &&
             getPayIndexType() == other.getPayIndexType() &&
             getReceiveIndexType() == other.getReceiveIndexType();
@@ -328,6 +400,12 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     } else if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       sb.append("periods per year=");
       sb.append(getPeriodsPerYear());
+      sb.append(", ");
+    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+      sb.append("reset tenor=");
+      sb.append(getResetTenor());
+      sb.append(" on ");
+      sb.append(getIndexType());
       sb.append(", ");
     } else if (getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
       sb.append("pay tenor=");

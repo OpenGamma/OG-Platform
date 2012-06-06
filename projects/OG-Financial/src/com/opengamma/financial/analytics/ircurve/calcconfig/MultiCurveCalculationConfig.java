@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve.calcconfig;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -23,21 +24,21 @@ public class MultiCurveCalculationConfig {
   private final String[] _yieldCurveNames;
   private final UniqueIdentifiable[] _uniqueIds;
   private final String[] _calculationMethods;
-  private final Map<String, String[]> _exogenousConfigAndCurveNames;
-  private final Map<String, CurveInstrumentConfig> _curveExposuresForInstruments;
+  private final LinkedHashMap<String, String[]> _exogenousConfigAndCurveNames;
+  private final LinkedHashMap<String, CurveInstrumentConfig> _curveExposuresForInstruments;
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments) {
+      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments) {
     this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethod, curveExposuresForInstruments, null);
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments) {
+      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments) {
     this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethods, curveExposuresForInstruments, null);
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final Map<String, String[]> exogenousConfigAndCurveNames) {
+      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments, final LinkedHashMap<String, String[]> exogenousConfigAndCurveNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -64,7 +65,7 @@ public class MultiCurveCalculationConfig {
   }
 
   public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final Map<String, CurveInstrumentConfig> curveExposuresForInstruments, final Map<String, String[]> exogenousConfigAndCurveNames) {
+      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments, final LinkedHashMap<String, String[]> exogenousConfigAndCurveNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(uniqueIds, "unique identifiables");
@@ -106,7 +107,7 @@ public class MultiCurveCalculationConfig {
     return _uniqueIds;
   }
 
-  public Map<String, CurveInstrumentConfig> getCurveExposuresForInstruments() {
+  public LinkedHashMap<String, CurveInstrumentConfig> getCurveExposuresForInstruments() {
     return _curveExposuresForInstruments;
   }
 
@@ -114,7 +115,7 @@ public class MultiCurveCalculationConfig {
     return _curveExposuresForInstruments.get(yieldCurveName).getExposuresForInstrument(instrumentType);
   }
 
-  public Map<String, String[]> getExogenousConfigData() {
+  public LinkedHashMap<String, String[]> getExogenousConfigData() {
     return _exogenousConfigAndCurveNames;
   }
 

@@ -55,6 +55,8 @@ public enum InterestRateInstrumentType {
   SWAP_CMS_CMS,
   /** A swap, one fixed leg, one OIS leg */
   SWAP_FIXED_OIS,
+  /** A cross-currency swap */
+  SWAP_CROSS_CURRENCY,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
   /** FRA */

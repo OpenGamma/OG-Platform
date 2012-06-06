@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.forwardcurve;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
@@ -36,6 +37,16 @@ public abstract class ForwardSwapCurveInstrumentProvider implements ForwardCurve
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor payTenor, final Tenor receiveTenor, final IndexType payIndexType, final IndexType receiveIndexType) {
     throw new UnsupportedOperationException();
   }
 
