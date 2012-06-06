@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 13);
-  private static final ConstantSpreadHorizonThetaCalculator CALC_SGLSHIFT = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
+  private static final ConstantSpreadHorizonThetaCalculator CALC = ConstantSpreadHorizonThetaCalculator.getInstance();
 
   // The following builds up an Interest Rate Future Option Definition, and the market data the Black model requires for it
   //EURIBOR 3M Index
@@ -72,30 +72,25 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
   private static final InterpolatedDoublesSurface BLACK_PARAMETER = TestsDataSetsBlack.createBlackSurface();
   private static final YieldCurveWithBlackCubeBundle BLACK_BUNDLE = new YieldCurveWithBlackCubeBundle(BLACK_PARAMETER, CURVES);
 
+  // constants
+  private static final double PRICE_ZERO = 0.0;
+  private static final double PRICE_ONE = 0.1;
+  private static final int ONE_DAY_FWD = 1;
+  private static final int TEN_DAY_FWD = 10;
+
   @Test
   /**
    * Test sensitivity to reference price - theoretically 0
    */
   public void thetaIRFO_referencePrice() {
-    final double refZero = 0.0;
-    MultipleCurrencyAmount theta1_0 = CALC_SGLSHIFT.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, refZero);
-    final double refOne = 0.1;
-    MultipleCurrencyAmount theta1_1 = CALC_SGLSHIFT.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, refOne);
+    MultipleCurrencyAmount theta1_0 = CALC.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, PRICE_ZERO, ONE_DAY_FWD);
+    MultipleCurrencyAmount theta1_1 = CALC.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, PRICE_ONE, ONE_DAY_FWD);
 
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final InterestRateFutureOptionMarginTransaction derivative = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, refOne, CURVE_NAMES);
+    final InterestRateFutureOptionMarginTransaction derivative = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, PRICE_ONE, CURVE_NAMES);
     final double pvToday = derivative.accept(pvCalculator, BLACK_BUNDLE);
 
     assertEquals("InterestRateFutureOption Theta - sensitive to reference rate: ", 0.0, (theta1_0.getAmount(CUR) - theta1_1.getAmount(CUR)) / pvToday, 1e-15);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  /**
-   * Test to ensure that one cannot ask the calculator for the value between now and now
-   */
-  public void thetaIRFO_ZeroShift() {
-    new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 0);
-
   }
 
   @Test
@@ -106,8 +101,8 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
     final int nSteps = 10;
     final double[] thetas = new double[nSteps];
     for (int i = 1; i <= nSteps; i++) {
-      ConstantSpreadHorizonThetaCalculator calc = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, i * 10);
-      MultipleCurrencyAmount theta = calc.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE);
+
+      MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, REFERENCE_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, i);
       thetas[i - 1] = theta.getAmount(CUR);
       //      System.out.println(" , " + thetas[i - 1]);
     }
@@ -119,8 +114,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
    */
   public void thetaIRFO_EveOfExpiry() {
     ZonedDateTime eveOfExpiry = EXPIRATION_DATE.minusDays(1);
-    ConstantSpreadHorizonThetaCalculator calc = new ConstantSpreadHorizonThetaCalculator(eveOfExpiry, 1);
-    MultipleCurrencyAmount theta = calc.getTheta(OPTION_TRANSACTION, eveOfExpiry, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE);
+    MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, eveOfExpiry, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, ONE_DAY_FWD);
     assertTrue("InterestRateFutureOption Theta - expected to be non-zero on the day before expiry: ", 0.0 > theta.getAmount(CUR));
   }
 
@@ -130,8 +124,7 @@ public class ConstantSpreadHorizonThetaCalculatorIRFutureOptionTest {
    * TODO - Review this choice, and behaviour of TodayPaymentCalculator
    */
   public void thetaIRFO_AcrossExpiry() {
-    ConstantSpreadHorizonThetaCalculator calc = new ConstantSpreadHorizonThetaCalculator(EXPIRATION_DATE, 1);
-    MultipleCurrencyAmount theta = calc.getTheta(OPTION_TRANSACTION, EXPIRATION_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE);
+    MultipleCurrencyAmount theta = CALC.getTheta(OPTION_TRANSACTION, EXPIRATION_DATE, CURVE_NAMES, BLACK_BUNDLE, TRADE_PRICE, TEN_DAY_FWD);
     InterestRateFutureOptionMarginTransaction derivAtExpiry = OPTION_TRANSACTION.toDerivative(EXPIRATION_DATE, TRADE_PRICE, CURVE_NAMES);
     final double valueAtExpiry = derivAtExpiry.accept(PresentValueBlackCalculator.getInstance(), BLACK_BUNDLE);
     assertEquals("InterestRateFutureOption Theta - Across Expiry: ", -1 * valueAtExpiry, theta.getAmount(CUR), 0);

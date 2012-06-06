@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import java.util.List;
-
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -38,6 +34,12 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 
+import java.util.List;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
+
 /**
  *  Computes the difference in present value between one day and the next, without Volatility or Rate slide. 
  * That is, the market moves in such a way that the discount rates or implied volatility requested 
@@ -50,6 +52,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
   private static final ConstantSpreadInterestRateFutureOptionBlackDataRolldown IR_FUTURE_OPTION_ROLLDOWN = ConstantSpreadInterestRateFutureOptionBlackDataRolldown.getInstance();
   private static final ConstantSpreadFXBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXBlackRolldown.getInstance();
+
   private static final ConstantSpreadHorizonThetaCalculator INSTANCE = new ConstantSpreadHorizonThetaCalculator();
 
   public static ConstantSpreadHorizonThetaCalculator getInstance() {
@@ -172,19 +175,37 @@ public final class ConstantSpreadHorizonThetaCalculator {
 
   public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackCubeBundle data, final Double lastMarginPrice, final int daysForward) {
+
+    final ZonedDateTime expiry = definition.getUnderlyingOption().getExpirationDate();
+    Validate.isTrue(!date.isAfter(expiry), "Attempted to compute theta on expiry ir future option. date = " + date + ", expiry = " + expiry);
+    final ZonedDateTime horizon = date.plusDays(daysForward);
+    final double shiftTime = TimeCalculator.getTimeBetween(date, horizon);
+    final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
+
+    // Compute today's pv
+    final Currency currency = definition.getUnderlyingOption().getUnderlyingFuture().getCurrency();
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, lastMarginPrice, yieldCurveNames);
-    final ZonedDateTime horizonDate = date.plusDays(daysForward);
-    final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
+    final double valueToday = instrumentToday.accept(pvCalculator, data);
+
+    // Compute cash flows between today and horizon
+    // TODO Confirm choice that no payment is made on expiry
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, lastMarginPrice, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     if (paymentToday.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the interest rate future option");
     }
-    final YieldCurveWithBlackCubeBundle tomorrowData = IR_FUTURE_OPTION_ROLLDOWN.rollDown(data, shiftTime);
-    final Currency currency = paymentToday.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
-    final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
+
+    // Compute value at horizon
+    final double valueHorizon;
+    if (horizon.isBefore(definition.getUnderlyingOption().getExpirationDate())) {
+      final InstrumentDerivative instrumentHorizon = definition.toDerivative(horizon, lastMarginPrice, yieldCurveNames);
+      final YieldCurveWithBlackCubeBundle tomorrowData = IR_FUTURE_OPTION_ROLLDOWN.rollDown(data, shiftTime);
+      valueHorizon = instrumentHorizon.accept(pvCalculator, tomorrowData);
+    } else {
+      valueHorizon = 0.0;
+    }
+
+    final double result = valueHorizon + paymentToday.getAmount(currency) - valueToday;
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
