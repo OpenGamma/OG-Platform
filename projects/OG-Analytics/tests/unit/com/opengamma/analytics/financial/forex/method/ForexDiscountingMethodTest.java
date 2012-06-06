@@ -62,10 +62,7 @@ public class ForexDiscountingMethodTest {
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
-<<<<<<< HEAD
-=======
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
->>>>>>> Fixing tests that were broken due to a refactor
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -197,27 +194,15 @@ public class ForexDiscountingMethodTest {
    * Tests the Theta (1 day change of pv) for forex transactions.
    */
   public void thetaBeforePayment() {
-<<<<<<< HEAD
-    ConstantSpreadHorizonThetaCalculator calculatorTheta = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
-    MultipleCurrencyAmount theta = calculatorTheta.getTheta(FX_DEFINITION, REFERENCE_DATE, CURVES_NAME, CURVES);
-    Forex swapToday = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    Forex swapTomorrow = FX_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
-    MultipleCurrencyAmount pvToday = PVC_FX.visit(swapToday, CURVES);
-    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
-    MultipleCurrencyAmount pvTomorrow = PVC_FX.visit(swapTomorrow, tomorrowData);
-    MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
-=======
     final MultipleCurrencyAmount theta = THETAC.getTheta(FX_DEFINITION, REFERENCE_DATE, CURVES_NAME, CURVES, 1);
     final Forex swapToday = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final Forex swapTomorrow = FX_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
     final MultipleCurrencyAmount pvToday = PVC_FX.visit(swapToday, CURVES);
-    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, 1.0 / 365.0);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     final MultipleCurrencyAmount pvTomorrow = PVC_FX.visit(swapTomorrow, tomorrowData);
     final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
->>>>>>> Fixing tests that were broken due to a refactor
     assertEquals("ThetaCalculator: fixed-coupon swap", thetaExpected.getAmount(CUR_1), theta.getAmount(CUR_1), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", thetaExpected.getAmount(CUR_2), theta.getAmount(CUR_2), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 2, theta.getCurrencyAmounts().length);
   }
-
 }

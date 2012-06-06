@@ -79,10 +79,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final ForexOptionDigitalCallSpreadBlackMethod METHOD_DIGITAL_SPREAD = new ForexOptionDigitalCallSpreadBlackMethod(STANDARD_SPREAD);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCallSpreadBlackForexCalculator PVC_CALLSPREAD = new PresentValueCallSpreadBlackForexCalculator(STANDARD_SPREAD);
-<<<<<<< HEAD
-=======
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
->>>>>>> Fixing tests that were broken due to a refactor
   private static final ConstantSpreadFXBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXBlackRolldown.getInstance();
   // option
   private static final double STRIKE = 1.45;
@@ -604,24 +601,13 @@ public class ForexOptionDigitalCallSpreadMethodTest {
    * Tests the Theta (1 day change of pv) for forex options transactions.
    */
   public void thetaBeforeExpiration() {
-<<<<<<< HEAD
-    ConstantSpreadHorizonThetaCalculator calculatorTheta = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
-    MultipleCurrencyAmount theta = calculatorTheta.getTheta(FOREX_DIGITAL_CALL_DOM_DEFINITION, REFERENCE_DATE, CURVES_NAME, SMILE_BUNDLE, PVC_CALLSPREAD);
-    ForexOptionDigital swapToday = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    ForexOptionDigital swapTomorrow = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
-    MultipleCurrencyAmount pvToday = PVC_CALLSPREAD.visit(swapToday, SMILE_BUNDLE);
-    final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
-    MultipleCurrencyAmount pvTomorrow = PVC_CALLSPREAD.visit(swapTomorrow, tomorrowData);
-    MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
-=======
     final MultipleCurrencyAmount theta = THETAC.getTheta(FOREX_DIGITAL_CALL_DOM_DEFINITION, REFERENCE_DATE, CURVES_NAME, SMILE_BUNDLE, PVC_CALLSPREAD, 1);
     final ForexOptionDigital swapToday = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final ForexOptionDigital swapTomorrow = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
     final MultipleCurrencyAmount pvToday = PVC_CALLSPREAD.visit(swapToday, SMILE_BUNDLE);
-    final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, 1.0 / 365.0);
+    final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     final MultipleCurrencyAmount pvTomorrow = PVC_CALLSPREAD.visit(swapTomorrow, tomorrowData);
     final MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
->>>>>>> Fixing tests that were broken due to a refactor
     assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
   }
 

@@ -85,10 +85,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-<<<<<<< HEAD
-=======
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
->>>>>>> Fixing tests that were broken due to a refactor
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
 
   //  private static final double TOLERANCE_PV = 1.0E-2;
@@ -223,24 +220,13 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
 
   @Test
   public void thetaBeforeExpiration() {
-<<<<<<< HEAD
-    ConstantSpreadHorizonThetaCalculator calculatorTheta = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
-    MultipleCurrencyAmount theta = calculatorTheta.getTheta(SWAPTION_DEFINITION_LONG_REC, REFERENCE_DATE, CURVES_NAME, CURVES_BLACK);
-    SwaptionPhysicalFixedIbor swaptionToday = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    SwaptionPhysicalFixedIbor swaptionTomorrow = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
-    double pvToday = PVC_BLACK.visit(swaptionToday, CURVES_BLACK);
-    final YieldCurveBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(CURVES_BLACK, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
-    double pvTomorrow = PVC_BLACK.visit(swaptionTomorrow, tomorrowData);
-=======
     final MultipleCurrencyAmount theta = THETAC.getTheta(SWAPTION_DEFINITION_LONG_REC, REFERENCE_DATE, CURVES_NAME, CURVES_BLACK, 1);
     final SwaptionPhysicalFixedIbor swaptionToday = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final SwaptionPhysicalFixedIbor swaptionTomorrow = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
     final double pvToday = PVC_BLACK.visit(swaptionToday, CURVES_BLACK);
-    final YieldCurveBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(CURVES_BLACK, 1.0 / 365.0);
+    final YieldCurveBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(CURVES_BLACK, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     final double pvTomorrow = PVC_BLACK.visit(swaptionTomorrow, tomorrowData);
->>>>>>> Fixing tests that were broken due to a refactor
     assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(SWAPTION_DEFINITION_LONG_REC.getUnderlyingSwap().getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   }
-
 }
