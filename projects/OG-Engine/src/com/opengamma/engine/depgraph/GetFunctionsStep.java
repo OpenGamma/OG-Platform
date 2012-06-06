@@ -54,7 +54,7 @@ import com.opengamma.util.tuple.Pair;
           }
         } else {
           s_logger.info("No functions for unresolved target {}", getValueRequirement());
-          storeFailure(context.noFunctions(getValueRequirement()));
+          storeFailure(context.couldNotResolve(getValueRequirement()));
           setTaskStateFinished(context);
         }
         break;
