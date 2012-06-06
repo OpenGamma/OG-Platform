@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -61,7 +62,6 @@ public class ForexDiscountingMethodTest {
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
-  private static final ConstantSpreadHorizonThetaCalculator THETAC = new ConstantSpreadHorizonThetaCalculator(365);
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -193,11 +193,12 @@ public class ForexDiscountingMethodTest {
    * Tests the Theta (1 day change of pv) for forex transactions.
    */
   public void thetaBeforePayment() {
-    MultipleCurrencyAmount theta = THETAC.getTheta(FX_DEFINITION, REFERENCE_DATE, CURVES_NAME, CURVES);
+    ConstantSpreadHorizonThetaCalculator calculatorTheta = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
+    MultipleCurrencyAmount theta = calculatorTheta.getTheta(FX_DEFINITION, REFERENCE_DATE, CURVES_NAME, CURVES);
     Forex swapToday = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     Forex swapTomorrow = FX_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
     MultipleCurrencyAmount pvToday = PVC_FX.visit(swapToday, CURVES);
-    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, 1.0 / 365.0);
+    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(CURVES, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     MultipleCurrencyAmount pvTomorrow = PVC_FX.visit(swapTomorrow, tomorrowData);
     MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
     assertEquals("ThetaCalculator: fixed-coupon swap", thetaExpected.getAmount(CUR_1), theta.getAmount(CUR_1), TOLERANCE_PV);

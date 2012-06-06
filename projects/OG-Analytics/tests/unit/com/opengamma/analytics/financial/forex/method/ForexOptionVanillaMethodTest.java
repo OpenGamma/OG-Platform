@@ -118,7 +118,6 @@ public class ForexOptionVanillaMethodTest {
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(EUR, USD, OPTION_PAY_DATE, NOTIONAL, STRIKE);
   private static final ForexOptionVanillaDefinition FOREX_OPTION_CALL_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG);
   private static final ForexOptionVanilla FOREX_CALL_OPTION = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final ConstantSpreadHorizonThetaCalculator THETAC = new ConstantSpreadHorizonThetaCalculator(365);
   private static final ConstantSpreadFXBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXBlackRolldown.getInstance();
 
   private static final double TOLERANCE_RELATIVE = 1.0E-9;
@@ -964,11 +963,12 @@ public class ForexOptionVanillaMethodTest {
    * Tests the Theta (1 day change of pv) for forex options transactions.
    */
   public void thetaBeforeExpiration() {
-    MultipleCurrencyAmount theta = THETAC.getTheta(FOREX_OPTION_CALL_DEFINITION, REFERENCE_DATE, CURVES_NAME, SMILE_BUNDLE);
+    ConstantSpreadHorizonThetaCalculator calculatorTheta = new ConstantSpreadHorizonThetaCalculator(REFERENCE_DATE, 1);
+    MultipleCurrencyAmount theta = calculatorTheta.getTheta(FOREX_OPTION_CALL_DEFINITION, REFERENCE_DATE, CURVES_NAME, SMILE_BUNDLE);
     ForexOptionVanilla swapToday = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     ForexOptionVanilla swapTomorrow = FOREX_OPTION_CALL_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVES_NAME);
     MultipleCurrencyAmount pvToday = PVC_BLACK.visit(swapToday, SMILE_BUNDLE);
-    final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, 1.0 / 365.0);
+    final YieldCurveBundle tomorrowData = FX_OPTION_ROLLDOWN.rollDown(SMILE_BUNDLE, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     MultipleCurrencyAmount pvTomorrow = PVC_BLACK.visit(swapTomorrow, tomorrowData);
     MultipleCurrencyAmount thetaExpected = pvTomorrow.plus(pvToday.multipliedBy(-1.0));
     assertEquals("ThetaCalculator: forex option", thetaExpected.getAmount(USD), theta.getAmount(USD), TOLERANCE_PV);
