@@ -114,7 +114,7 @@
   </bean>
   
   <!-- Holiday Source -->
-  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.EHCachingHolidaySource">
+  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.CachedHolidaySource">
     <constructor-arg>
       <bean class="com.opengamma.core.holiday.impl.RemoteHolidaySource">
         <constructor-arg>
@@ -124,7 +124,6 @@
         </constructor-arg>
       </bean>
     </constructor-arg>
-    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- Currency conversions -->
@@ -287,7 +286,7 @@
     <property name="functionExecutionContext" ref="functionExecutionContext" />
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="viewProcessorQuery" ref="viewProcessorQuery" />
-    <!-- <property name="writeBehindExecutorService" ref="slaveThreads" /> --> <!-- Don't use write-behind with in-memory cache -->
+    <property name="writeBehindExecutorService" ref="slaveThreads" />
     <property name="statisticsGatherer" ref="statisticsSender" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>

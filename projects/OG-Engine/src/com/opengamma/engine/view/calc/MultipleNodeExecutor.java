@@ -40,9 +40,7 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * This DependencyGraphExecutor executes the given dependency graph as a number of
- * dependent jobs suitable for a number of calculation nodes to exploit parallelism
- * from the dependency graph.
+ * This DependencyGraphExecutor executes the given dependency graph as a number of dependent jobs suitable for a number of calculation nodes to exploit parallelism from the dependency graph.
  */
 public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyGraph> {
 
@@ -188,8 +186,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built
-   * it is cached for future use.
+   * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built it is cached for future use.
    * 
    * @param graph the graph to execute, not null
    * @param calcJobResultQueue a queue to feed intermediate job result notifications to, not null
@@ -289,8 +286,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * Finds pairs of nodes with the same input set (i.e. that would execute concurrently) that are below the minimum job size
-   * and merge them together.
+   * Finds pairs of nodes with the same input set (i.e. that would execute concurrently) that are below the minimum job size and merge them together.
    */
   private boolean mergeSharedInputs(final MutableGraphFragment logicalRoot, final Set<MutableGraphFragment> allFragments) {
     final Map<Set<MutableGraphFragment>, MutableGraphFragment> possibleCandidates = new HashMap<Set<MutableGraphFragment>, MutableGraphFragment>();
@@ -359,8 +355,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * If a fragment has only one dependency, and both it and its dependent are below the
-   * maximum job size they are merged.
+   * If a fragment has only one dependency, and both it and its dependent are below the maximum job size they are merged.
    */
   private boolean mergeSingleDependencies(final Set<MutableGraphFragment> allFragments) {
     int changes = 0;
@@ -394,8 +389,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * If a fragment has only a single input, it can be a tail to the fragment generating that input. A fragment with multiple inputs can
-   * be a tail to all of them iff they are tails to a common fragment (i.e. all will end up at the same node).
+   * If a fragment has only a single input, it can be a tail to the fragment generating that input. A fragment with multiple inputs can be a tail to all of them iff they are tails to a common fragment
+   * (i.e. all will end up at the same node).
    */
   private void findTailFragments(final Set<MutableGraphFragment> allFragments) {
     // Estimate start times based on fragment costs and dependencies
@@ -494,21 +489,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     }
   }
 
-  public void printFragment(final GraphFragment<?, ?> root) {
+  public static void printFragment(final GraphFragment<?, ?> root) {
     printFragment("", Collections.singleton(root), new HashSet<GraphFragment<?, ?>>());
   }
 
-  private void printFragment(final String indent, final Collection<? extends GraphFragment<?, ?>> fragments, final Set<GraphFragment<?, ?>> printed) {
+  private static void printFragment(final String indent, final Collection<? extends GraphFragment<?, ?>> fragments, final Set<GraphFragment<?, ?>> printed) {
     if (indent.length() > 16) {
       return;
     }
     for (GraphFragment<?, ?> fragment : fragments) {
-      /*
-       * if (!printed.add(fragment)) {
-       * System.out.println(indent + " Fragments " + fragment.fragmentList());
-       * continue;
-       * }
-       */
+      if (!printed.add(fragment)) {
+        System.out.println(indent + " " + fragment + " ...");
+        continue;
+      }
       System.out.println(indent + " " + fragment);
       if (!fragment.getInputFragments().isEmpty()) {
         printFragment(indent + "  ", fragment.getInputFragments(), printed);

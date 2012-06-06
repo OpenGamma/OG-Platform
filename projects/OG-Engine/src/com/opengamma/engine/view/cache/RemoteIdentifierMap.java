@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.msg.IdentifierLookupRequest;
 import com.opengamma.engine.view.cache.msg.IdentifierLookupResponse;
@@ -56,7 +57,7 @@ public class RemoteIdentifierMap implements IdentifierMap {
   public ValueSpecification getValueSpecification(long identifier) {
     final SpecificationLookupRequest request = new SpecificationLookupRequest(Collections.singleton(identifier));
     final SpecificationLookupResponse response = getRemoteCacheClient().sendGetMessage(request, SpecificationLookupResponse.class);
-    return response.getSpecification().get(0);
+    return MemoryUtils.instance(response.getSpecification().get(0));
   }
 
   @Override
@@ -67,7 +68,7 @@ public class RemoteIdentifierMap implements IdentifierMap {
     final Map<Long, ValueSpecification> specificationMap = new HashMap<Long, ValueSpecification>();
     int i = 0;
     for (Long identifier : request.getIdentifier()) {
-      specificationMap.put(identifier, specifications.get(i++));
+      specificationMap.put(identifier, MemoryUtils.instance(specifications.get(i++)));
     }
     return specificationMap;
   }

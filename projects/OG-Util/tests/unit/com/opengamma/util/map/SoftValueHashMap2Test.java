@@ -39,6 +39,7 @@ public class SoftValueHashMap2Test {
     assertFalse(map.containsKey(Pair.of("X", "Y")));
     assertTrue(map.containsValue("Bar".intern()));
     assertTrue(map.containsValue("Foo".intern()));
+    assertFalse(map.containsValue(new String("Foo")));
     assertFalse(map.containsValue("Cow".intern()));
     map.clear();
     assertTrue(map.isEmpty());
