@@ -6,14 +6,14 @@ $.register_module({
     name: 'og.views.forms.Constraints',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'constraints_widget_';
+        var module = this, counter = 0, prefix = 'constraints_widget_';
         return function (config) {
             var data = config.data, data_index = config.index, render, classes = config.classes || '',
                 ids = {
-                    container: prefix + id_count++,
-                    widget: prefix + id_count++,
-                    row_with: prefix + id_count++,
-                    row_without: prefix + id_count++
+                    container: prefix + counter++,
+                    widget: prefix + counter++,
+                    row_with: prefix + counter++,
+                    row_without: prefix + counter++
                 },
                 convert = function (datum) {
                     var length = 0, item, data = [], lcv;
