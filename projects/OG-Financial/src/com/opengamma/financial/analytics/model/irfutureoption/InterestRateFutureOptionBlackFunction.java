@@ -61,12 +61,11 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
   private final String _valueRequirementName;
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
-  
 
   public InterestRateFutureOptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
@@ -97,7 +96,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String surfaceNameWithPrefix = surfaceName + "_" + getFutureOptionPrefix(target); // Done to enable standard and midcurve options to share the same default name
-    
+
     final Object forwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get forward curve");
@@ -117,10 +116,10 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle((InterpolatedDoublesSurface) volatilitySurface.getSurface(), curves);
     return getResult(irFutureOption, data, spec);
   }
@@ -147,33 +146,33 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    
+
     final Set<String> forwardCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default.." , YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+      s_logger.info("Could not find {} requirement. Looking for a default..", YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       return null;
     }
     final Set<String> fundingCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     if (fundingCurveNames == null || fundingCurveNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default.." , YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      s_logger.info("Could not find {} requirement. Looking for a default..", YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       return null;
     }
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default.." , ValuePropertyNames.SURFACE);
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
       return null;
     }
     final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default.." , ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_METHOD);
       return null;
     }
-    
+
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String fundingCurveName = fundingCurveNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final String surfaceName = surfaceNames.iterator().next() + "_" + getFutureOptionPrefix(target);
-    
+
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
@@ -186,12 +185,12 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-      .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-      .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-      .withAny(ValuePropertyNames.SURFACE)
-      .with(ValuePropertyNames.CURRENCY, currency).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
@@ -211,11 +210,11 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
-  
-  /** The volatility surface name is constructed from the given name and the futureOption prefix  
+
+  /* The volatility surface name is constructed from the given name and the futureOption prefix  
       TODO REFACTOR LOGIC to permit other schemes and future options */
-  private String getFutureOptionPrefix(final ComputationTarget target) {
-    
+  public static String getFutureOptionPrefix(final ComputationTarget target) {
+
     final ExternalIdBundle secId = target.getTrade().getSecurity().getExternalIdBundle();
     final String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
     if (ticker != null) {

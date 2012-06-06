@@ -13,8 +13,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
@@ -50,10 +51,6 @@ import com.opengamma.util.tuple.Pair;
     return getBuilder().getMarketDataAvailabilityProvider();
   }
 
-  public ComputationTargetResolver getTargetResolver() {
-    return getBuilder().getTargetResolver();
-  }
-
   public CompiledFunctionResolver getFunctionResolver() {
     return getBuilder().getFunctionResolver();
   }
@@ -74,7 +71,6 @@ import com.opengamma.util.tuple.Pair;
    * @param runnable task to execute, not null
    */
   public void run(final ResolveTask runnable) {
-    s_logger.debug("Running {}", runnable);
     runnable.addRef();
     getBuilder().addToRunQueue(runnable);
   }
@@ -153,7 +149,8 @@ import com.opengamma.util.tuple.Pair;
     ExceptionWrapper.createAndPut(t, _exceptions);
   }
 
-  public ResolvedValueProducer resolveRequirement(final ValueRequirement requirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Set<FunctionExclusionGroup> functionExclusion) {
+    final ValueRequirement requirement = MemoryUtils.instance(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
       dependent.setRecursionDetected();
@@ -164,7 +161,7 @@ import com.opengamma.util.tuple.Pair;
 
         @Override
         public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
-          context.failed(callback, requirement, ResolutionFailure.recursiveRequirement(requirement));
+          context.failed(callback, requirement, recursiveRequirement(requirement));
           return null;
         }
 
@@ -183,6 +180,11 @@ import com.opengamma.util.tuple.Pair;
         public synchronized int release(final GraphBuildingContext context) {
           assert _refCount > 0;
           return --_refCount;
+        }
+
+        @Override
+        public boolean hasActiveCallbacks() {
+          return false;
         }
 
         @Override
@@ -215,66 +217,91 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Set<FunctionExclusionGroup> functionExclusion) {
-    ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
-    ResolveTask task;
-    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getOrCreateTasks(valueRequirement);
-    synchronized (tasks) {
-      task = tasks.get(newTask);
-      if (task == null) {
-        newTask.addRef();
-        tasks.put(newTask, newTask);
-      } else {
-        task.addRef();
+    final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
+    do {
+      ResolveTask task;
+      final Map<ResolveTask, ResolveTask> tasks = getBuilder().getOrCreateTasks(valueRequirement);
+      synchronized (tasks) {
+        if (tasks.containsKey(null)) {
+          // The cache has been flushed
+          continue;
+        }
+        task = tasks.get(newTask);
+        if (task == null) {
+          newTask.addRef();
+          tasks.put(newTask, newTask);
+        } else {
+          task.addRef();
+        }
       }
-    }
-    if (task != null) {
-      s_logger.debug("Using existing task {}", task);
-      newTask.release(this);
-      return task;
-    } else {
-      run(newTask);
-      getBuilder().incrementActiveResolveTasks();
-      return newTask;
-    }
+      if (task != null) {
+        s_logger.debug("Using existing task {}", task);
+        newTask.release(this);
+        return task;
+      } else {
+        run(newTask);
+        getBuilder().incrementActiveResolveTasks();
+        return newTask;
+      }
+    } while (true);
   }
 
   private ResolveTask[] getTasksResolving(final ValueRequirement valueRequirement) {
-    final ResolveTask[] result;
-    final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(valueRequirement);
-    if (tasks == null) {
-      return null;
-    }
-    synchronized (tasks) {
-      result = new ResolveTask[tasks.size()];
-      int i = 0;
-      for (ResolveTask task : tasks.keySet()) {
-        result[i++] = task;
-        task.addRef();
+    do {
+      final ResolveTask[] result;
+      final Map<ResolveTask, ResolveTask> tasks = getBuilder().getTasks(valueRequirement);
+      if (tasks == null) {
+        return null;
       }
-    }
-    return result;
+      synchronized (tasks) {
+        if (tasks.containsKey(null)) {
+          // The cache has been flushed
+          continue;
+        }
+        result = new ResolveTask[tasks.size()];
+        int i = 0;
+        for (ResolveTask task : tasks.keySet()) {
+          result[i++] = task;
+          task.addRef();
+        }
+      }
+      return result;
+    } while (true);
   }
 
   @SuppressWarnings("unchecked")
   public Pair<ResolveTask[], ResolvedValueProducer[]> getTasksProducing(final ValueSpecification valueSpecification) {
-    final ResolveTask[] resultTasks;
-    final ResolvedValueProducer[] resultProducers;
-    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
-    if (tasks == null) {
-      return null;
-    }
-    synchronized (tasks) {
-      resultTasks = new ResolveTask[tasks.size()];
-      resultProducers = new ResolvedValueProducer[tasks.size()];
-      int i = 0;
-      for (Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
-        // Don't ref-count the tasks; they're just used for parent comparisons
-        resultTasks[i] = task.getKey();
-        resultProducers[i++] = task.getValue();
-        task.getValue().addRef();
+    do {
+      final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
+      if (tasks != null) {
+        final ResolveTask[] resultTasks;
+        final ResolvedValueProducer[] resultProducers;
+        synchronized (tasks) {
+          if (tasks.containsKey(null)) {
+            continue;
+          }
+          if (tasks.isEmpty()) {
+            return null;
+          }
+          resultTasks = new ResolveTask[tasks.size()];
+          resultProducers = new ResolvedValueProducer[tasks.size()];
+          int i = 0;
+          for (Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
+            // Don't ref-count the tasks; they're just used for parent comparisons
+            resultTasks[i] = task.getKey();
+            resultProducers[i++] = task.getValue();
+            task.getValue().addRef();
+          }
+        }
+        return Pair.of(resultTasks, resultProducers);
+      } else {
+        return null;
       }
-    }
-    return Pair.of(resultTasks, resultProducers);
+    } while (true);
+  }
+
+  public ResolvedValue getProduction(final ValueSpecification valueSpecification) {
+    return getBuilder().getResolvedValue(valueSpecification);
   }
 
   public void discardTask(final ResolveTask task) {
@@ -290,51 +317,131 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
-    ResolvedValueProducer discard = null;
-    ResolvedValueProducer result = null;
-    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getOrCreateTasks(valueSpecification);
-    synchronized (tasks) {
-      if (!tasks.isEmpty()) {
-        final Map.Entry<ResolveTask, ResolvedValueProducer> resolveTask = tasks.getHashEntry(task);
-        if (resolveTask != null) {
-          if (resolveTask.getKey() == task) {
-            // Replace an earlier attempt from this task with the new producer
-            discard = resolveTask.getValue();
-            producer.addRef();
-            resolveTask.setValue(producer);
-            result = producer;
-          } else {
-            // An equivalent task is doing the work
-            result = resolveTask.getValue();
+    do {
+      final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getOrCreateTasks(valueSpecification);
+      ResolvedValueProducer result = null;
+      if (tasks != null) {
+        ResolvedValueProducer discard = null;
+        synchronized (tasks) {
+          if (!tasks.isEmpty()) {
+            if (tasks.containsKey(null)) {
+              continue;
+            }
+            final Map.Entry<ResolveTask, ResolvedValueProducer> resolveTask = tasks.getHashEntry(task);
+            if (resolveTask != null) {
+              if (resolveTask.getKey() == task) {
+                // Replace an earlier attempt from this task with the new producer
+                discard = resolveTask.getValue();
+                producer.addRef();
+                resolveTask.setValue(producer);
+                result = producer;
+              } else {
+                // An equivalent task is doing the work
+                result = resolveTask.getValue();
+              }
+              result.addRef();
+            }
           }
-          result.addRef();
+          if (result == null) {
+            final ResolvedValue value = getBuilder().getResolvedValue(valueSpecification);
+            if (value != null) {
+              result = new SingleResolvedValueProducer(task.getValueRequirement(), value);
+            }
+          }
+          if (result == null) {
+            // No matching tasks
+            producer.addRef();
+            tasks.put(task, producer);
+            result = producer;
+            result.addRef();
+          }
+        }
+        if (discard != null) {
+          discard.release(this);
+        }
+      } else {
+        final ResolvedValue value = getBuilder().getResolvedValue(valueSpecification);
+        if (value != null) {
+          result = new SingleResolvedValueProducer(task.getValueRequirement(), value);
         }
       }
-      if (result == null) {
-        // No matching tasks
-        producer.addRef();
-        tasks.put(task, producer);
-        result = producer;
-        result.addRef();
-      }
-    }
-    if (discard != null) {
-      discard.release(this);
-    }
-    return result;
+      return result;
+    } while (true);
   }
 
   public void discardTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
-    final ResolvedValueProducer producer;
-    final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
-    synchronized (tasks) {
-      producer = (ResolvedValueProducer) tasks.remove(task);
-      if (producer == null) {
-        // Wasn't in the set
-        return;
+    do {
+      final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getTasks(valueSpecification);
+      if (tasks != null) {
+        final ResolvedValueProducer producer;
+        synchronized (tasks) {
+          if (tasks.containsKey(null)) {
+            continue;
+          }
+          producer = (ResolvedValueProducer) tasks.remove(task);
+          if (producer == null) {
+            // Wasn't in the set
+            return;
+          }
+        }
+        producer.release(this);
       }
+      return;
+    } while (true);
+  }
+
+  public void declareProduction(final ResolvedValue resolvedValue) {
+    getBuilder().addResolvedValue(resolvedValue);
+  }
+
+  // Failure reporting
+
+  public ResolutionFailure recursiveRequirement(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.recursiveRequirement(valueRequirement);
     }
-    producer.release(this);
+  }
+
+  public ResolutionFailure functionApplication(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification outputSpecification) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.functionApplication(valueRequirement, function, outputSpecification);
+    }
+  }
+
+  public ResolutionFailure noFunctions(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.noFunctions(valueRequirement);
+    }
+  }
+
+  public ResolutionFailure couldNotResolve(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.couldNotResolve(valueRequirement);
+    }
+  }
+
+  public ResolutionFailure unsatisfied(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.unsatisfied(valueRequirement);
+    }
+  }
+
+  public ResolutionFailure marketDataMissing(final ValueRequirement valueRequirement) {
+    if (getBuilder().isDisableFailureReporting()) {
+      return NullResolutionFailure.INSTANCE;
+    } else {
+      return ResolutionFailureImpl.marketDataMissing(valueRequirement);
+    }
   }
 
   // Collation

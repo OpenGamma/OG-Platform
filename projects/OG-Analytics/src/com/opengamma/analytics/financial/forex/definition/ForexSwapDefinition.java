@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -53,8 +54,7 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
    * @param forexRate The near leg forex rate.
    * @param forwardPoints The forward points, i.e. the far leg forex rate is forexRate+forwardPoints.
    */
-  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, 
-      double forwardPoints) {
+  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, double forwardPoints) {
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
     Validate.notNull(nearDate, "Near date");
@@ -83,7 +83,11 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
   /**
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
    */
-  public ForexSwap toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public InstrumentDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    ArgumentChecker.isTrue(!date.isAfter(_farLeg.getExchangeDate()), "date is after payment far date");
+    if (date.isAfter(_nearLeg.getExchangeDate())) { // Implementation note: only the far leg left.
+      return _farLeg.toDerivative(date, yieldCurveNames);
+    }
     Forex nearLeg = _nearLeg.toDerivative(date, yieldCurveNames);
     Forex farLeg = _farLeg.toDerivative(date, yieldCurveNames);
     return new ForexSwap(nearLeg, farLeg);

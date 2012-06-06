@@ -16,6 +16,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -49,10 +50,12 @@ public class PushLiveResultsService implements ViewportManager {
   private final ResultConverterCache _resultConverterCache;
   private final Object _lock = new Object();
   private final AggregatedViewDefinitionManager _aggregatedViewDefinitionManager;
+  private final ComputationTargetResolver _computationTargetResolver;
 
   public PushLiveResultsService(ViewProcessor viewProcessor,
                                 PositionSource positionSource,
                                 SecuritySource securitySource,
+                                ComputationTargetResolver computationTargetResolver,
                                 PortfolioMaster userPortfolioMaster,
                                 PositionMaster userPositionMaster,
                                 ManageableViewDefinitionRepository userViewDefinitionRepository,
@@ -72,6 +75,7 @@ public class PushLiveResultsService implements ViewportManager {
                                                                            userPortfolioMaster,
                                                                            userPositionMaster,
                                                                            portfolioAggregators.getMappedFunctions());
+    _computationTargetResolver = computationTargetResolver;
   }
 
   public void closeViewport(String viewportId) {
@@ -97,7 +101,7 @@ public class PushLiveResultsService implements ViewportManager {
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
         UniqueId viewDefinitionId = _aggregatedViewDefinitionManager.getViewDefinitionId(baseViewDefinitionId, aggregatorName);
-        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, new NoOpAnalyticsListener());
+        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, new NoOpAnalyticsListener(), _computationTargetResolver);
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);
@@ -135,7 +139,7 @@ public class PushLiveResultsService implements ViewportManager {
       ViewClient viewClient = _viewProcessor.createViewClient(_user);
       try {
         UniqueId viewDefinitionId = _aggregatedViewDefinitionManager.getViewDefinitionId(baseViewDefinitionId, aggregatorName);
-        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, listener);
+        webView = new PushWebView(viewClient, viewportDefinition, baseViewDefinitionId, viewDefinitionId, _resultConverterCache, listener, _computationTargetResolver);
       } catch (Exception e) {
         viewClient.shutdown();
         throw new OpenGammaRuntimeException("Error attaching client to view definition '" + baseViewDefinitionId + "'", e);

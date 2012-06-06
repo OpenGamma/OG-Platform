@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -36,9 +37,9 @@ public class GBConventions {
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
 
     final ExternalId gb = ExternalSchemes.financialRegionId("GB");
-    
+
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    
+
     //TODO looked at BSYM and the codes seem right but need to check
     utils.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("BP00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR O/N")), "GBP LIBOR O/N", act365,
@@ -170,8 +171,10 @@ public class GBConventions {
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_6M_FRA")), "GBP_6M_FRA", act365, modified, semiAnnual, 0, gb,
         act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb, true);
 
-    //    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, gb,
-    //        act365, modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_P3M")), IndexType.Libor + "_P3M", act365, modified,
+        null, 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", act365, modified,
+        null, 0, false, gb);
 
     // Overnight Index Swap Convention have additional flag, publicationLag
     final Integer publicationLagON = 0;

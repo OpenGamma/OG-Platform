@@ -113,6 +113,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ExternalScheme _preferredScheme;
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
 
+  private Currency[] _currencies;
+
+
+
   public Random getRandom() {
     return _random;
   }
@@ -210,7 +214,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
-    return getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    CurveSpecificationBuilderConfiguration config = getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    return config;
   }
 
   public Function2<Currency, Currency, ExternalId> getSpotRateIdentifier() {
@@ -374,9 +379,17 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public static Currency[] getDefaultCurrencies() {
     return new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   }
+  
+  public void setCurrencies(Currency[] currencies) {
+    _currencies = currencies;
+  }
 
   public Currency[] getCurrencies() {
-    return getDefaultCurrencies();
+    if (_currencies == null) {
+      return getDefaultCurrencies();
+    } else {
+      return _currencies;
+    }
   }
 
   protected Currency getRandomCurrency() {

@@ -50,7 +50,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
     private final Set<ValueSpecification> _outputs;
 
     public DependencyNodeKey(final DependencyNode node) {
-      _target = node.getComputationTarget().toSpecification();
+      _target = node.getComputationTarget();
       _functionId = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
       _functionParameters = node.getFunction().getParameters();
       _inputs = node.getInputValues();

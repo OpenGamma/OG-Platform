@@ -103,14 +103,18 @@ public class ExecutionPlanTest {
    */
   private DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph("Default");
-    final DependencyNode node1 = new DependencyNode(new ComputationTarget(1));
-    node1.setFunction(new MockFunction("1", node1.getComputationTarget()));
-    final DependencyNode node2 = new DependencyNode(new ComputationTarget(2));
-    node2.setFunction(new MockFunction("2", node2.getComputationTarget()));
-    final DependencyNode node3 = new DependencyNode(new ComputationTarget(3));
-    node3.setFunction(new MockFunction("3", node3.getComputationTarget()));
-    final DependencyNode node4 = new DependencyNode(new ComputationTarget(4));
-    node4.setFunction(new MockFunction("4", node4.getComputationTarget()));
+    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Test", "1"));
+    final DependencyNode node1 = new DependencyNode(target1);
+    node1.setFunction(new MockFunction("1", target1));
+    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Test", "2"));
+    final DependencyNode node2 = new DependencyNode(target2);
+    node2.setFunction(new MockFunction("2", target2));
+    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Test", "3"));
+    final DependencyNode node3 = new DependencyNode(target3);
+    node3.setFunction(new MockFunction("3", target3));
+    final ComputationTarget target4 = new ComputationTarget(UniqueId.of("Test", "4"));
+    final DependencyNode node4 = new DependencyNode(target4);
+    node4.setFunction(new MockFunction("4", target4));
     node3.addInputNode(node1);
     node3.addInputNode(node2);
     node4.addInputNode(node2);
@@ -151,7 +155,7 @@ public class ExecutionPlanTest {
     final MutableGraphFragment[] fragment = new MutableGraphFragment[4];
     for (DependencyNode node : mContext.getGraph().getDependencyNodes()) {
       final MutableGraphFragment f = new MutableGraphFragment(mContext, node);
-      fragment[(Integer) node.getComputationTarget().getValue() - 1] = f;
+      fragment[Integer.parseInt(node.getComputationTarget().getUniqueId().getValue()) - 1] = f;
       f.setCacheSelectHint(CacheSelectHint.allShared());
     }
     fragment[0].getOutputFragments().add(fragment[2]);

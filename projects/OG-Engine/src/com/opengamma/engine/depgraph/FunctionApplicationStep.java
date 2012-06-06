@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.depgraph.ResolveTask.State;
 import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -69,36 +69,63 @@ import com.opengamma.util.tuple.Pair;
     public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
       s_logger.debug("Failed {} at {}", value, this);
       storeFailure(failure);
-      _pump = null;
+      synchronized (this) {
+        _pump = null;
+      }
       context.run(getTask());
     }
 
     @Override
     public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
       s_logger.debug("Resolved {} to {}", valueRequirement, value);
-      _pump = pump;
-      if (!pushResult(context, value)) {
-        assert _pump == pump;
-        _pump = null;
-        context.pump(pump);
+      if (pump != null) {
+        synchronized (this) {
+          _pump = pump;
+        }
+        if (!pushResult(context, value, false)) {
+          synchronized (this) {
+            assert _pump == pump;
+            _pump = null;
+          }
+          context.pump(pump);
+        }
+      } else {
+        if (!pushResult(context, value, true)) {
+          context.failed(this, valueRequirement, null);
+        }
       }
     }
 
     @Override
     protected void pump(final GraphBuildingContext context) {
-      if (_pump == null) {
+      final ResolutionPump pump;
+      synchronized (this) {
+        pump = _pump;
+        _pump = null;
+      }
+      if (pump == null) {
         // Either pump called twice for a resolve, called before the first resolve, or after failed
         throw new IllegalStateException();
       } else {
         s_logger.debug("Pumping underlying delegate");
-        ResolutionPump pump = _pump;
-        _pump = null;
         context.pump(pump);
       }
     }
 
     @Override
-    protected boolean isActive() {
+    protected void onDiscard(final GraphBuildingContext context) {
+      final ResolutionPump pump;
+      synchronized (this) {
+        pump = _pump;
+        _pump = null;
+      }
+      if (pump != null) {
+        context.close(pump);
+      }
+    }
+
+    @Override
+    protected synchronized boolean isActive() {
       // Only active if pump has been called
       return _pump == null;
     }
@@ -144,61 +171,69 @@ import com.opengamma.util.tuple.Pair;
       return _worker;
     }
 
-    protected ResolutionFailure functionApplication() {
-      return ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
+    protected ResolutionFailure functionApplication(final GraphBuildingContext context) {
+      return context.functionApplication(getValueRequirement(), getFunction(), getValueSpecification());
     }
 
     public boolean canHandleMissingInputs() {
       return getFunction().getFunction().canHandleMissingRequirements();
     }
 
-    public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs) {
+    public boolean inputsAvailable(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final boolean lastWorkerResult) {
       s_logger.info("Function inputs available {} for {}", inputs, getValueSpecification());
       // Late resolution of the output based on the actual inputs used (skip if everything was strict)
       ValueSpecification resolvedOutput = getValueSpecification();
       Set<ValueSpecification> newOutputValues = null;
       try {
-        newOutputValues = getFunction().getFunction().getResults(context.getCompilationContext(), getComputationTarget(), inputs);
+        newOutputValues = getFunction().getFunction().getResults(context.getCompilationContext(), getComputationTarget(context), inputs);
       } catch (Throwable t) {
         s_logger.warn("Exception thrown by getResults", t);
         context.exception(t);
       }
       if (newOutputValues == null) {
         s_logger.info("Function {} returned NULL for getResults on {}", getFunction(), inputs);
-        getWorker().storeFailure(functionApplication().requirements(inputs).getResultsFailed());
+        getWorker().storeFailure(functionApplication(context).requirements(inputs).getResultsFailed());
         return false;
       }
       if (getOutputs().equals(newOutputValues)) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, getOutputs());
+        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, getOutputs(), lastWorkerResult);
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
       resolvedOutput = null;
       for (ValueSpecification outputValue : newOutputValues) {
         if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
-          resolvedOutput = outputValue.compose(getValueRequirement());
+          resolvedOutput = MemoryUtils.instance(outputValue.compose(getValueRequirement()));
           s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
           resolvedOutputValues.add(resolvedOutput);
         } else {
-          resolvedOutputValues.add(outputValue);
+          resolvedOutputValues.add(MemoryUtils.instance(outputValue));
         }
       }
       if (resolvedOutput == null) {
         s_logger.info("Provisional specification {} no longer in output after late resolution of {}", getValueSpecification(), getValueRequirement());
-        getWorker().storeFailure(functionApplication().requirements(inputs).lateResolutionFailure());
+        getWorker().storeFailure(functionApplication(context).requirements(inputs).lateResolutionFailure());
         return false;
       }
       if (resolvedOutput.equals(getValueSpecification())) {
         // The resolved output has not changed
         s_logger.debug("Resolve output correct");
-        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues);
+        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues, lastWorkerResult);
       }
       // Has the resolved output now reduced this to something already produced elsewhere
       final Pair<ResolveTask[], ResolvedValueProducer[]> reducing = context.getTasksProducing(resolvedOutput);
       if (reducing == null) {
-        s_logger.debug("Resolved output not produced elsewhere");
-        return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
+        final ResolvedValue reduced = context.getProduction(resolvedOutput);
+        if (reduced == null) {
+          s_logger.debug("Resolved output not produced elsewhere");
+          return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
+        }
+        if (!pushResult(context, reduced, false)) {
+          return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
+        } else {
+          return true;
+        }
       }
       // TODO: only use an aggregate object if there is more than one producer; otherwise use the producer directly
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
@@ -239,7 +274,7 @@ import com.opengamma.util.tuple.Pair;
       if (producer == newWorker) {
         producer.release(context);
         // The new worker is going to produce the value specification
-        boolean result = getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs);
+        boolean result = getAdditionalRequirementsAndPushResults(context, newWorker, inputs, resolvedOutput, resolvedOutputs, false);
         newWorker.release(context);
         return result;
       } else {
@@ -280,33 +315,55 @@ import com.opengamma.util.tuple.Pair;
 
       @Override
       public final void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-        _pump = pump;
-        getWorker().pushResult(context, resolvedValue);
-        if (!pushResult(context, resolvedValue)) {
-          assert _pump == pump;
-          _pump = null;
-          context.pump(pump);
+        if (pump != null) {
+          synchronized (this) {
+            _pump = pump;
+          }
+          getWorker().pushResult(context, resolvedValue, false);
+          if (!pushResult(context, resolvedValue, false)) {
+            synchronized (this) {
+              assert _pump == pump;
+              _pump = null;
+            }
+            context.pump(pump);
+          }
+        } else {
+          getWorker().pushResult(context, resolvedValue, true);
+          if (!pushResult(context, resolvedValue, true)) {
+            context.failed(this, valueRequirement, null);
+          }
         }
       }
 
       @Override
       public final void pump(final GraphBuildingContext context) {
-        if (_pump != null) {
-          s_logger.debug("Pumping underlying delegate");
-          ResolutionPump pump = _pump;
+        final ResolutionPump pump;
+        synchronized (this) {
+          pump = _pump;
           _pump = null;
+        }
+        if (pump != null) {
+          s_logger.debug("Pumping underlying delegate");
           context.pump(pump);
         }
       }
 
       @Override
-      protected final boolean isActive() {
+      protected final synchronized boolean isActive() {
         // Only active if a resolve has been received, and there is no failure (i.e. it is waiting on the task to pump it)
         return _pump == null;
       }
 
       @Override
       protected final void onDiscard(final GraphBuildingContext context) {
+        final ResolutionPump pump;
+        synchronized (this) {
+          pump = _pump;
+          _pump = null;
+        }
+        if (pump != null) {
+          context.close(pump);
+        }
         getWorker().abort(context);
       }
 
@@ -317,28 +374,33 @@ import com.opengamma.util.tuple.Pair;
 
     }
 
+    @Override
+    protected void onDiscard(final GraphBuildingContext context) {
+      getWorker().abort(context);
+    }
+
     private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
-        final Map<ValueSpecification, ValueRequirement> inputs,
-        final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs) {
+        final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       Set<ValueRequirement> additionalRequirements = null;
       try {
-        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), getComputationTarget(), inputs.keySet(), resolvedOutputs);
+        additionalRequirements = getFunction().getFunction().getAdditionalRequirements(context.getCompilationContext(), getComputationTarget(context), inputs.keySet(), resolvedOutputs);
       } catch (Throwable t) {
         s_logger.warn("Exception thrown by getAdditionalRequirements", t);
         context.exception(t);
       }
       if (additionalRequirements == null) {
         s_logger.info("Function {} returned NULL for getAdditionalRequirements on {}", getFunction(), inputs);
-        final ResolutionFailure failure = functionApplication().requirements(inputs).getAdditionalRequirementsFailed();
+        final ResolutionFailure failure = functionApplication(context).requirements(inputs).getAdditionalRequirementsFailed();
         if (substituteWorker != null) {
           substituteWorker.storeFailure(failure);
           substituteWorker.finished(context);
+          context.discardTaskProducing(resolvedOutput, getTask());
         }
         getWorker().storeFailure(failure);
         return false;
       }
       if (additionalRequirements.isEmpty()) {
-        return pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs);
+        return pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs, lastWorkerResult);
       }
       s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
       final AtomicInteger lock = new AtomicInteger(1);
@@ -349,11 +411,12 @@ import com.opengamma.util.tuple.Pair;
         @Override
         public void failed(final GraphBuildingContext context, final ValueRequirement value, final ResolutionFailure failure) {
           s_logger.info("Couldn't resolve additional requirement {} for {}", value, getFunction());
-          final ResolutionFailure additionalRequirement = functionApplication().requirements(inputs).additionalRequirement(value, failure);
+          final ResolutionFailure additionalRequirement = functionApplication(context).requirements(inputs).additionalRequirement(value, failure);
           getWorker().storeFailure(additionalRequirement);
           if (substituteWorker != null) {
             substituteWorker.storeFailure(additionalRequirement);
             substituteWorker.finished(context);
+            context.discardTaskProducing(resolvedOutput, getTask());
           }
           if (!_pumped.getAndSet(true)) {
             pump(context);
@@ -364,9 +427,12 @@ import com.opengamma.util.tuple.Pair;
         public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
           s_logger.debug("Resolved additional requirement {} to {}", valueRequirement, resolvedValue);
           inputs.put(resolvedValue.getValueSpecification(), valueRequirement);
+          if (pump != null) {
+            context.close(pump);
+          }
           if (lock.decrementAndGet() == 0) {
             s_logger.debug("Additional requirements complete");
-            if (!pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs)) {
+            if (!pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs, lastWorkerResult)) {
               pump(context);
             }
           }
@@ -396,33 +462,37 @@ import com.opengamma.util.tuple.Pair;
       }
       if (lock.decrementAndGet() == 0) {
         s_logger.debug("Additional requirements complete");
-        return pushResult(context, getWorker(), substituteWorker, inputs, resolvedOutput, resolvedOutputs);
+        return pushResult(context, substituteWorker, inputs, resolvedOutput, resolvedOutputs, lastWorkerResult);
       } else {
         return true;
       }
     }
 
-    private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker mainWorker, final FunctionApplicationWorker substituteWorker,
-        final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs) {
+    private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
+        final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       final ResolvedValue result = createResult(resolvedOutput, getFunction(), inputs.keySet(), resolvedOutputs);
       s_logger.info("Result {} for {}", result, getValueRequirement());
-      mainWorker.pushResult(context, result);
+      context.declareProduction(result);
       if (substituteWorker != null) {
-        if (!substituteWorker.pushResult(context, result)) {
+        if (!substituteWorker.pushResult(context, result, true)) {
           throw new IllegalStateException(result + " rejected by substitute worker");
         }
-        substituteWorker.finished(context);
+        context.discardTaskProducing(resolvedOutput, getTask());
+      } else {
+        getWorker().pushResult(context, result, lastWorkerResult);
       }
-      return pushResult(context, result);
+      return pushResult(context, result, false);
     }
 
     public void finished(final GraphBuildingContext context) {
-      if (getWorker().getResults().length == 0) {
-        s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
-        context.discardTaskProducing(getValueSpecification(), getTask());
-      } else {
-        s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+      if (s_logger.isInfoEnabled()) {
+        if (getWorker().getResults().length == 0) {
+          s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
+        } else {
+          s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
+        }
       }
+      context.discardTaskProducing(getValueSpecification(), getTask());
       // Become runnable again; the next function will then be considered
       context.run(getTask());
     }
@@ -456,14 +526,32 @@ import com.opengamma.util.tuple.Pair;
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
       Set<ValueSpecification> originalOutputValues = null;
       try {
-        originalOutputValues = functionDefinition.getResults(context.getCompilationContext(), getComputationTarget());
+        originalOutputValues = functionDefinition.getResults(context.getCompilationContext(), getComputationTarget(context));
       } catch (Throwable t) {
         s_logger.warn("Exception thrown by getResults", t);
         context.exception(t);
       }
       if (originalOutputValues == null) {
-        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getComputationTarget());
-        final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
+        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement().getTargetSpecification());
+        final ResolutionFailure failure = context.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
+        context.discardTaskProducing(getResolvedOutput(), getTask());
+        worker.storeFailure(failure);
+        worker.finished(context);
+        storeFailure(failure);
+        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
+        worker.release(context);
+        return;
+      }
+      Set<ValueRequirement> inputRequirements = null;
+      try {
+        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getValueRequirement());
+      } catch (Throwable t) {
+        s_logger.warn("Exception thrown by getRequirements", t);
+        context.exception(t);
+      }
+      if (inputRequirements == null) {
+        s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
+        final ResolutionFailure failure = context.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
         context.discardTaskProducing(getResolvedOutput(), getTask());
         worker.storeFailure(failure);
         worker.finished(context);
@@ -474,7 +562,10 @@ import com.opengamma.util.tuple.Pair;
       }
       final Set<ValueSpecification> resolvedOutputValues;
       if (getOriginalOutput().equals(getResolvedOutput())) {
-        resolvedOutputValues = new HashSet<ValueSpecification>(originalOutputValues);
+        resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
+        for (ValueSpecification outputValue : originalOutputValues) {
+          resolvedOutputValues.add(MemoryUtils.instance(outputValue));
+        }
       } else {
         resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
         for (ValueSpecification outputValue : originalOutputValues) {
@@ -482,34 +573,16 @@ import com.opengamma.util.tuple.Pair;
             s_logger.debug("Substituting {} with {}", outputValue, getResolvedOutput());
             resolvedOutputValues.add(getResolvedOutput());
           } else {
-            resolvedOutputValues.add(outputValue);
+            resolvedOutputValues.add(MemoryUtils.instance(outputValue));
           }
         }
-      }
-      Set<ValueRequirement> inputRequirements = null;
-      try {
-        inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(), getValueRequirement());
-      } catch (Throwable t) {
-        s_logger.warn("Exception thrown by getRequirements", t);
-        context.exception(t);
-      }
-      if (inputRequirements == null) {
-        s_logger.info("Function {} returned NULL for getRequirements on {}", functionDefinition, getValueRequirement());
-        final ResolutionFailure failure = ResolutionFailure.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getRequirementsFailed();
-        context.discardTaskProducing(getResolvedOutput(), getTask());
-        worker.storeFailure(failure);
-        worker.finished(context);
-        storeFailure(failure);
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
-        worker.release(context);
-        return;
       }
       final PumpingState state = new PumpingState(getTask(), getFunctions(), getResolvedOutput(), resolvedOutputValues, getFunction(), worker);
       setTaskState(state);
       if (inputRequirements.isEmpty()) {
         s_logger.debug("Function {} requires no inputs", functionDefinition);
         worker.setPumpingState(state, 0);
-        if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap())) {
+        if (!state.inputsAvailable(context, Collections.<ValueSpecification, ValueRequirement>emptyMap(), true)) {
           context.discardTaskProducing(getResolvedOutput(), getTask());
           setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
           worker.finished(context);

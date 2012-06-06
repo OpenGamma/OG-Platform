@@ -23,6 +23,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -52,6 +53,11 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private PositionSource _positionSource;
+  /**
+   * The computation target resolver.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ComputationTargetResolver _computationTargetResolver;
   /**
    * The user master.
    */
@@ -100,6 +106,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setViewProcessor(getViewProcessor());
     bean.setPositionSource(getPositionSource());
     bean.setSecuritySource(getSecuritySource());
+    bean.setComputationTargetResolver(getComputationTargetResolver());
     bean.setUserPortfolioMaster(getUserPortfolioMaster());
     bean.setUserPositionMaster(getUserPositionMaster());
     bean.setUserViewDefinitionRepository(getUserViewDefinitionRepository());
@@ -141,6 +148,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
         return getSecuritySource();
       case -1655657820:  // positionSource
         return getPositionSource();
+      case 1562222174:  // computationTargetResolver
+        return getComputationTargetResolver();
       case 1808868758:  // userPositionMaster
         return getUserPositionMaster();
       case 686514815:  // userPortfolioMaster
@@ -169,6 +178,9 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
         return;
       case -1655657820:  // positionSource
         setPositionSource((PositionSource) newValue);
+        return;
+      case 1562222174:  // computationTargetResolver
+        setComputationTargetResolver((ComputationTargetResolver) newValue);
         return;
       case 1808868758:  // userPositionMaster
         setUserPositionMaster((PositionMaster) newValue);
@@ -202,6 +214,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   protected void validate() {
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
+    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
     JodaBeanUtils.notNull(_userViewDefinitionRepository, "userViewDefinitionRepository");
@@ -222,6 +235,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
       WebsiteAnalyticsComponentFactory other = (WebsiteAnalyticsComponentFactory) obj;
       return JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
           JodaBeanUtils.equal(getUserViewDefinitionRepository(), other.getUserViewDefinitionRepository()) &&
@@ -240,6 +254,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserViewDefinitionRepository());
@@ -301,6 +316,32 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<PositionSource> positionSource() {
     return metaBean().positionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the computation target resolver.
+   * @return the value of the property, not null
+   */
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  /**
+   * Sets the computation target resolver.
+   * @param computationTargetResolver  the new value of the property, not null
+   */
+  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
+    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
+    this._computationTargetResolver = computationTargetResolver;
+  }
+
+  /**
+   * Gets the the {@code computationTargetResolver} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetResolver> computationTargetResolver() {
+    return metaBean().computationTargetResolver().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -532,6 +573,11 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
         this, "positionSource", WebsiteAnalyticsComponentFactory.class, PositionSource.class);
     /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     */
+    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
+        this, "computationTargetResolver", WebsiteAnalyticsComponentFactory.class, ComputationTargetResolver.class);
+    /**
      * The meta-property for the {@code userPositionMaster} property.
      */
     private final MetaProperty<PositionMaster> _userPositionMaster = DirectMetaProperty.ofReadWrite(
@@ -578,6 +624,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "securitySource",
         "positionSource",
+        "computationTargetResolver",
         "userPositionMaster",
         "userPortfolioMaster",
         "userViewDefinitionRepository",
@@ -600,6 +647,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
           return _securitySource;
         case -1655657820:  // positionSource
           return _positionSource;
+        case 1562222174:  // computationTargetResolver
+          return _computationTargetResolver;
         case 1808868758:  // userPositionMaster
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
@@ -650,6 +699,14 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PositionSource> positionSource() {
       return _positionSource;
+    }
+
+    /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
+      return _computationTargetResolver;
     }
 
     /**

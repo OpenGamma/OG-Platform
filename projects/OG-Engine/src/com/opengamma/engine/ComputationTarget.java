@@ -156,30 +156,44 @@ public class ComputationTarget implements Serializable {
   }
   
   //-------------------------------------------------------------------------
-  
+
+  private String getNameImpl(final String name) {
+    if (name != null) {
+      return name;
+    } else {
+      final UniqueId uid = getUniqueId();
+      if (uid != null) {
+        return uid.toString();
+      } else {
+        return null;
+      }
+    }
+  }
+
   /**
    * Gets the name of the computation target.
    * <p>
-   * This can the portfolio name, the security name,
-   * the name of the security underlying a position,
-   * or - for primitives - null.
+   * This can the portfolio name, the security name, the name of the security underlying a position, or - for primitives - the unique identifier if available.
    * 
-   * @return the name of the computation target, null if a primitive 
+   * @return the name of the computation target, null if a primitive and no identifier is available
    */
   public String getName() {
     switch (getType()) {
       case PORTFOLIO_NODE:
-        return getPortfolioNode().getName();
+        return getNameImpl(getPortfolioNode().getName());
         
       case SECURITY:
-        return getSecurity().getName();
+        return getNameImpl(getSecurity().getName());
         
       case POSITION:
-        return getPosition().getSecurity().getName();
+        return getNameImpl(getPosition().getSecurity().getName());
         
       case PRIMITIVE:
-        return toString();
+        return getNameImpl(null);
         
+      case TRADE:
+        return getNameImpl(null);
+
       default:
         throw new RuntimeException("Unexpected type" + getType());
     }

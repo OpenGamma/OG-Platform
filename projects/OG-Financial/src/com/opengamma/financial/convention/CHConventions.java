@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -170,6 +171,17 @@ public class CHConventions {
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_6M_FRA")), "CHF_6M_FRA", thirty360, modified, annual, 2, ch, act360,
         modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
 
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_CHF_P3M")), IndexType.Libor + "_CHF_P3M", thirty360, modified,
+        null, 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_CHF_P6M")), IndexType.Libor + "_CHF_P6M", thirty360, modified,
+        null, 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Euribor + "_CHF_P3M")), IndexType.Euribor + "_CHF_P3M", thirty360,
+        modified,
+        null, 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Euribor + "_CHF_P6M")), IndexType.Euribor + "_CHF_P6M", thirty360,
+        modified,
+        null, 2, false, ch);
+
     // Overnight Index Swap Convention have additional flag, publicationLag
     final Integer publicationLagON = 0; // TODO CASE PublicationLag CHF - Confirm 0
     // CHF Overnight Index
@@ -227,14 +239,14 @@ public class CHConventions {
   //TODO all of the conventions named treasury need to be changed
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
-    ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true,
         true, 0, 3, true);
   }
 
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "conventionMaster");
-    ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true,
         true, 0, 3, true);
   }

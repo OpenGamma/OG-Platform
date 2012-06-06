@@ -8,7 +8,7 @@ package com.opengamma.engine.view.compilation;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -48,7 +48,7 @@ public interface CompiledViewCalculationConfiguration {
    * 
    * @return the set of computation targets, not null
    */
-  Set<ComputationTarget> getComputationTargets();
+  Set<ComputationTargetSpecification> getComputationTargets();
 
   /**
    * Gets the market data requirements of the calculation configuration.

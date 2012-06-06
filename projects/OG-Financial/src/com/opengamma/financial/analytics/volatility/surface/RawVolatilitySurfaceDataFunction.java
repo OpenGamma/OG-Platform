@@ -94,6 +94,9 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     return new CompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), atInstant, definitionSource, specificationSource);
   }
 
+  /**
+   * Implementation of the compiled function
+   */
   protected class CompiledFunction extends AbstractInvokingCompiledFunction {
     private final ZonedDateTime _now;
     private final ConfigDBVolatilitySurfaceDefinitionSource _definitionSource;

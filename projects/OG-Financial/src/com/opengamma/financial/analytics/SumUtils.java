@@ -14,6 +14,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -54,6 +55,10 @@ public class SumUtils {
       final CurrencyLabelledMatrix1D previousMatrix = (CurrencyLabelledMatrix1D) currentTotal;
       final CurrencyLabelledMatrix1D currentMatrix = (CurrencyLabelledMatrix1D) value;
       return previousMatrix.addIgnoringLabel(currentMatrix);
+    } else if (value instanceof MultipleCurrencyAmount) {
+      MultipleCurrencyAmount previousMCA = (MultipleCurrencyAmount) currentTotal;
+      MultipleCurrencyAmount currentMCA = (MultipleCurrencyAmount) value;
+      return currentMCA.plus(previousMCA);
     } else if (value instanceof StringLabelledMatrix1D) {
       final StringLabelledMatrix1D previousMatrix = (StringLabelledMatrix1D) currentTotal;
       final StringLabelledMatrix1D currentMatrix = (StringLabelledMatrix1D) value;

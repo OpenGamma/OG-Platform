@@ -11,6 +11,7 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -19,10 +20,16 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  */
 public class SwapSecurityUtils {
 
-  //TODO doesn't handle cross-currency swaps yet
   public static InterestRateInstrumentType getSwapType(final SwapSecurity security) {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
+    if (payLeg.getNotional() instanceof InterestRateNotional && receiveLeg.getNotional() instanceof InterestRateNotional) {
+      final InterestRateNotional payNotional = (InterestRateNotional) payLeg.getNotional();
+      final InterestRateNotional receiveNotional = (InterestRateNotional) receiveLeg.getNotional();
+      if (!payNotional.getCurrency().equals(receiveNotional.getCurrency())) {
+        return InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
+      }
+    }
     if (!payLeg.getRegionId().equals(receiveLeg.getRegionId())) {
       throw new OpenGammaRuntimeException("Pay and receive legs must be from same region");
     }

@@ -28,6 +28,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
@@ -67,6 +68,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private PositionSource _positionSource;
+  /**
+   * The target resolver.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ComputationTargetResolver _targetResolver;
   /**
    * The region source.
    */
@@ -133,9 +139,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
     context.setSecuritySource(getSecuritySource());
-    context.setPositionSource(getPositionSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
-    
+    context.setComputationTargetResolver(getTargetResolver());
     ComponentInfo info = new ComponentInfo(FunctionCompilationContext.class, getClassifier());
     repo.registerComponent(info, context);
   }
@@ -158,7 +163,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     OpenGammaExecutionContext.setOverrideOperationCompiler(context, ooc);
     context.setSecuritySource(getSecuritySource());
-    context.setPositionSource(getPositionSource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     
     ComponentInfo info = new ComponentInfo(FunctionExecutionContext.class, getClassifier());
@@ -194,6 +198,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return getSecuritySource();
       case -1655657820:  // positionSource
         return getPositionSource();
+      case -1933414217:  // targetResolver
+        return getTargetResolver();
       case -1636207569:  // regionSource
         return getRegionSource();
       case -1281578674:  // conventionBundleSource
@@ -230,6 +236,9 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         return;
       case -1655657820:  // positionSource
         setPositionSource((PositionSource) newValue);
+        return;
+      case -1933414217:  // targetResolver
+        setTargetResolver((ComputationTargetResolver) newValue);
         return;
       case -1636207569:  // regionSource
         setRegionSource((RegionSource) newValue);
@@ -268,6 +277,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_configSource, "configSource");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_positionSource, "positionSource");
+    JodaBeanUtils.notNull(_targetResolver, "targetResolver");
     JodaBeanUtils.notNull(_regionSource, "regionSource");
     JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
     JodaBeanUtils.notNull(_interpolatedYieldCurveDefinitionSource, "interpolatedYieldCurveDefinitionSource");
@@ -291,6 +301,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
           JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
           JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
           JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
@@ -312,6 +323,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
@@ -426,6 +438,32 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<PositionSource> positionSource() {
     return metaBean().positionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the target resolver.
+   * @return the value of the property, not null
+   */
+  public ComputationTargetResolver getTargetResolver() {
+    return _targetResolver;
+  }
+
+  /**
+   * Sets the target resolver.
+   * @param targetResolver  the new value of the property, not null
+   */
+  public void setTargetResolver(ComputationTargetResolver targetResolver) {
+    JodaBeanUtils.notNull(targetResolver, "targetResolver");
+    this._targetResolver = targetResolver;
+  }
+
+  /**
+   * Gets the the {@code targetResolver} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetResolver> targetResolver() {
+    return metaBean().targetResolver().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -693,6 +731,11 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
         this, "positionSource", EngineContextsComponentFactory.class, PositionSource.class);
     /**
+     * The meta-property for the {@code targetResolver} property.
+     */
+    private final MetaProperty<ComputationTargetResolver> _targetResolver = DirectMetaProperty.ofReadWrite(
+        this, "targetResolver", EngineContextsComponentFactory.class, ComputationTargetResolver.class);
+    /**
      * The meta-property for the {@code regionSource} property.
      */
     private final MetaProperty<RegionSource> _regionSource = DirectMetaProperty.ofReadWrite(
@@ -746,6 +789,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
         "configSource",
         "securitySource",
         "positionSource",
+        "targetResolver",
         "regionSource",
         "conventionBundleSource",
         "interpolatedYieldCurveDefinitionSource",
@@ -773,6 +817,8 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
           return _securitySource;
         case -1655657820:  // positionSource
           return _positionSource;
+        case -1933414217:  // targetResolver
+          return _targetResolver;
         case -1636207569:  // regionSource
           return _regionSource;
         case -1281578674:  // conventionBundleSource
@@ -841,6 +887,14 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PositionSource> positionSource() {
       return _positionSource;
+    }
+
+    /**
+     * The meta-property for the {@code targetResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetResolver> targetResolver() {
+      return _targetResolver;
     }
 
     /**

@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParSpreadCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
@@ -124,7 +124,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the par spread.
    */
   public void parSpread() {
-    final double parSpread = ParSpreadCalculator.getInstance().visit(ERU2, CURVES);
+    final double parSpread = ParSpreadMarketQuoteCalculator.getInstance().visit(ERU2, CURVES);
     InterestRateFuture futures0 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR,
         QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
     CurrencyAmount pv0 = METHOD.presentValue(futures0, CURVES);

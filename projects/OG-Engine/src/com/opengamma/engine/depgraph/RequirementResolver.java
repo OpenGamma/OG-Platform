@@ -49,7 +49,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected void finished(final GraphBuildingContext context) {
-    assert getPendingTasks() == 0;
+    assert getPendingTasks() <= 1; // either the final pending task running with the "lastValue" flag, or all tasks have finished
     boolean useFallback = false;
     ResolveTask fallback;
     synchronized (this) {

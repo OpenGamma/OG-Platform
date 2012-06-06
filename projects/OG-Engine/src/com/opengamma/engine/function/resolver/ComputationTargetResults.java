@@ -51,8 +51,6 @@ public class ComputationTargetResults {
    */
   private final FunctionCompilationContext _context;
 
-  private final ComputationTargetResolver _targetResolver;
-
   /**
    * Creates a new instance.
    * 
@@ -60,10 +58,9 @@ public class ComputationTargetResults {
    * @param context the containing context, not null
    * @param resolver the computation target resolver, not null
    */
-  public ComputationTargetResults(final Collection<ResolutionRule> rules, final FunctionCompilationContext context, final ComputationTargetResolver resolver) {
+  public ComputationTargetResults(final Collection<ResolutionRule> rules, final FunctionCompilationContext context) {
     ArgumentChecker.notNull(rules, "rules");
     ArgumentChecker.notNull(context, "context");
-    ArgumentChecker.notNull(resolver, "resolver");
     _rules = new ArrayList<ResolutionRule>(rules);
     Collections.sort(_rules, new Comparator<ResolutionRule>() {
 
@@ -81,7 +78,6 @@ public class ComputationTargetResults {
     });
     _context = context.clone();
     _context.setComputationTargetResults(null);
-    _targetResolver = resolver;
   }
 
   /**
@@ -108,7 +104,7 @@ public class ComputationTargetResults {
    * @return the target resolver, not null
    */
   protected ComputationTargetResolver getTargetResolver() {
-    return _targetResolver;
+    return getContext().getComputationTargetResolver();
   }
 
   /**

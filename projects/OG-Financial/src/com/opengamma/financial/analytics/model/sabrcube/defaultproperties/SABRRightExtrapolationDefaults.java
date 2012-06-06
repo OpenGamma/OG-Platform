@@ -38,6 +38,9 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
   };
   private final String _forwardCurveName;

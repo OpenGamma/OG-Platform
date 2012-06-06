@@ -29,8 +29,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
+import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -89,11 +89,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final CachingComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
-  private final FunctionExclusionGroups _functionExclusionGroups;
   private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
+  private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
   private final ViewPermissionProvider _viewPermissionProvider;
@@ -130,17 +130,16 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       CachingComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
-      FunctionExclusionGroups functionExclusionGroups,
       MarketDataProviderResolver marketDataProviderFactoryResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher jobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
+      DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
       DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
       GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
       ViewPermissionProvider viewPermissionProvider,
       OverrideOperationCompiler overrideOperationCompiler,
       ViewResultListenerFactory viewResultListenerFactory) {
-
     _name = name;
     _viewDefinitionRepository = viewDefinitionRepository;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -149,11 +148,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
-    _functionExclusionGroups = functionExclusionGroups;
     _marketDataProviderFactoryResolver = marketDataProviderFactoryResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = jobDispatcher;
     _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
+    _dependencyGraphBuilderFactory = dependencyGraphBuilderFactory;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutionStatistics = graphExecutionStatisticsProvider;
     _viewPermissionProvider = viewPermissionProvider;
@@ -556,13 +555,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
-        _functionExclusionGroups,
         _positionSource,
         _securitySource,
         _computationTargetResolver,
         _computationCacheSource,
         _computationJobDispatcher,
         _viewProcessorQueryReceiver,
+        _dependencyGraphBuilderFactory,
         _dependencyGraphExecutorFactory,
         _graphExecutionStatistics,
         _overrideOperationCompiler);

@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Class describing the data required to price instruments by using a Black volatility cube and curves.
@@ -19,14 +19,14 @@ public class YieldCurveWithBlackCubeBundle extends YieldCurveBundle {
   /**
    * The Black volatility cube. Not null.
    */
-  private final InterpolatedDoublesSurface _parameters;
+  private final Surface<Double, Double, Double> _parameters;
 
   /**
    * Constructor from Black volatility curve and curve bundle.
    * @param parameters The Black volatility cube.
    * @param curves Curve bundle.
    */
-  public YieldCurveWithBlackCubeBundle(final InterpolatedDoublesSurface parameters, final YieldCurveBundle curves) {
+  public YieldCurveWithBlackCubeBundle(final Surface<Double, Double, Double> parameters, final YieldCurveBundle curves) {
     super(curves);
     Validate.notNull(parameters, "Volatility surface");
     _parameters = parameters;
@@ -45,7 +45,7 @@ public class YieldCurveWithBlackCubeBundle extends YieldCurveBundle {
    * Gets the Black volatility surface.
    * @return The surface.
    */
-  public InterpolatedDoublesSurface getBlackParameters() {
+  public Surface<Double, Double, Double> getBlackParameters() {
     return _parameters;
   }
 
@@ -68,7 +68,7 @@ public class YieldCurveWithBlackCubeBundle extends YieldCurveBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -78,7 +78,7 @@ public class YieldCurveWithBlackCubeBundle extends YieldCurveBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldCurveWithBlackCubeBundle other = (YieldCurveWithBlackCubeBundle) obj;
+    final YieldCurveWithBlackCubeBundle other = (YieldCurveWithBlackCubeBundle) obj;
     if (!ObjectUtils.equals(_parameters, other._parameters)) {
       return false;
     }

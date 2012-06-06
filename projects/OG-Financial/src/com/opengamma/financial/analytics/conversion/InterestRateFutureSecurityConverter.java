@@ -55,13 +55,9 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
     final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
         iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
-    final double referencePrice = 0.0; // Not used here!
     final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount in percent
     return new InterestRateFutureDefinition(lastTradeDate, 0.0, lastTradeDate, iborIndex, notional, paymentAccrualFactor, 1, security.getName());
   }
-
-  //  public InterestRateFutureDefinition convert(final InterestRateFutureSecurity security) {
-  //  }
 
   private double getAccrualFactor(final Period period) {
     if (period.equals(Period.ofMonths(3))) {

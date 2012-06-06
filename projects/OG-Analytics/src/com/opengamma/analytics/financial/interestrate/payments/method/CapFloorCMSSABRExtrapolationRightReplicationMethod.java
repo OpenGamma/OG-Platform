@@ -586,6 +586,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
       this._parameterIndex = parameterIndex;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);

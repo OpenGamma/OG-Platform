@@ -17,7 +17,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,7 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -217,7 +217,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
               if (input.getFunction().getFunction() instanceof MarketDataSourcingFunction) {
                 // already evaluated
                 pass = 0;
-              } else if (input.getComputationTarget().toSpecification().equals(node.getComputationTarget().toSpecification())) {
+              } else if (input.getComputationTarget().equals(node.getComputationTarget())) {
                 // same target? execute in the same pass on the same grid node
                 pass = determinePassNumber(input);
               } else {

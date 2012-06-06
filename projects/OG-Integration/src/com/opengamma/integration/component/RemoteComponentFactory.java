@@ -106,9 +106,13 @@ public class RemoteComponentFactory {
   private ComponentInfo getTopLevelComponent(List<String> preferenceList, Class<?> type) {
     if (preferenceList != null) {
       for (String preference : preferenceList) {
-        ComponentInfo componentInfo = getComponentServer().getComponentInfo(type, preference);
-        if (componentInfo != null) {
-          return componentInfo;
+        try {
+          ComponentInfo componentInfo = getComponentServer().getComponentInfo(type, preference);
+          if (componentInfo != null) {
+            return componentInfo;
+          }
+        } catch (IllegalArgumentException iae) {
+          // do nothing and try the next one.
         }
       }
     }

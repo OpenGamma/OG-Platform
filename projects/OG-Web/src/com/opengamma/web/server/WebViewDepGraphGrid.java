@@ -21,6 +21,9 @@ import org.cometd.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -32,6 +35,7 @@ import com.opengamma.engine.view.calc.ComputationCacheQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
@@ -49,7 +53,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   private final WebGridCell _parentGridCell;
   private final String _parentCalcConfigName;
   private final ValueSpecification _parentValueSpecification;
-  
+  private final ComputationTargetResolver _computationTargetResolver;
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
@@ -57,11 +61,12 @@ public class WebViewDepGraphGrid extends WebViewGrid {
   
   protected WebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache,
       Client local, Client remote, WebGridCell parentGridCell, String parentCalcConfigName,
-      ValueSpecification parentValueSpecification) {
+      ValueSpecification parentValueSpecification, ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache, local, remote);
     _parentGridCell = parentGridCell;
     _parentCalcConfigName = parentCalcConfigName;
     _parentValueSpecification = parentValueSpecification;
+    _computationTargetResolver = computationTargetResolver;
   }
   
   //-------------------------------------------------------------------------
@@ -97,6 +102,10 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return _parentValueSpecification;
   }
   
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
   private List<Object> generateRowStructure(DependencyGraph depGraph, ValueSpecification output, Map<ValueSpecification, IntSet> rowIdMap) {
     List<Object> rowStructure = new ArrayList<Object>();
     addRowIdAssociation(0, output, rowIdMap);
@@ -125,20 +134,26 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     rowIdSet.add(rowId);
   }
   
-  private Object getJsonRowStructure(DependencyNode node, ValueSpecification valueSpecification, long parentRowId, long rowId, int indent) {
-    Map<String, Object> row = new HashMap<String, Object>();
-    String targetName;
-    if (node.getComputationTarget().getType() == ComputationTargetType.TRADE) {
-      targetName = node.getComputationTarget().getUniqueId().toString();
+  private String getTargetName(final ComputationTargetSpecification targetSpec) {
+    ComputationTarget target = getComputationTargetResolver().resolve(targetSpec);
+    if (target != null) {
+      return target.getName();
     } else {
-      targetName = node.getComputationTarget().getName();
-      if (targetName == null) {
-        targetName = node.getComputationTarget().getUniqueId().toString();
+      UniqueId uid = targetSpec.getUniqueId();
+      if (uid != null) {
+        return uid.toString();
+      } else {
+        return targetSpec.getType().toString();
       }
     }
-    String targetType = getTargetTypeName(node.getComputationTarget().getType());
-    String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();   
-    String displayProperties = getValuePropertiesForDisplay(valueSpecification.getProperties());
+  }
+
+  private Object getJsonRowStructure(DependencyNode node, ValueSpecification valueSpecification, long parentRowId, long rowId, int indent) {
+    Map<String, Object> row = new HashMap<String, Object>();
+    final String targetName = getTargetName(node.getComputationTarget());
+    final String targetType = getTargetTypeName(node.getComputationTarget().getType());
+    final String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
+    final String displayProperties = getValuePropertiesForDisplay(valueSpecification.getProperties());
     
     row.put("rowId", rowId);
     if (parentRowId > -1) {
@@ -244,6 +259,8 @@ public class WebViewDepGraphGrid extends WebViewGrid {
         return "Sec";
       case PRIMITIVE:
         return "Prim";
+      case TRADE:
+        return "Trade";
       default:
         return null;
     }

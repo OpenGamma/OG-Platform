@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -81,13 +82,25 @@ import com.opengamma.util.tuple.Pair;
     }
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());
     final ValueSpecification originalOutput = resolvedFunction.getSecond();
-    final ValueSpecification resolvedOutput = originalOutput.compose(getValueRequirement());
+    final ValueSpecification resolvedOutput = MemoryUtils.instance(originalOutput.compose(getValueRequirement()));
     final Pair<ResolveTask[], ResolvedValueProducer[]> existing = context.getTasksProducing(resolvedOutput);
     if (existing == null) {
-      // We're going to work on producing
-      s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
-      final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
-      setRunnableTaskState(state, context);
+      final ResolvedValue existingValue = context.getProduction(resolvedOutput);
+      if (existingValue == null) {
+        // We're going to work on producing
+        s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
+        final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+        setRunnableTaskState(state, context);
+      } else {
+        // Value has already been produced
+        s_logger.debug("Using existing production of {} (original={})", resolvedOutput, originalOutput);
+        final ExistingProductionStep state = new ExistingProductionStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+        setTaskState(state);
+        if (!pushResult(context, existingValue, false)) {
+          s_logger.debug("Production not accepted - rescheduling");
+          setRunnableTaskState(this, context);
+        }
+      }
     } else {
       // Other tasks are working on it, or have already worked on it
       s_logger.debug("Delegating to existing producers for {} (original={})", resolvedOutput, originalOutput);
@@ -125,7 +138,7 @@ import com.opengamma.util.tuple.Pair;
           singleTask.addCallback(context, state);
           singleTask.release(context);
         } else {
-          state.failed(context, getValueRequirement(), ResolutionFailure.recursiveRequirement(getValueRequirement()));
+          state.failed(context, getValueRequirement(), context.recursiveRequirement(getValueRequirement()));
         }
       }
     }

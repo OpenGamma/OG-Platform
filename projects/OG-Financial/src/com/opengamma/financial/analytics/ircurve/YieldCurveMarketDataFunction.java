@@ -57,7 +57,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _helper.init(context, this);
-
     final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_helper.getCurrency());
     _marketDataResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, currencySpec,
         createValueProperties().with(ValuePropertyNames.CURVE, _helper.getCurveName()).get());

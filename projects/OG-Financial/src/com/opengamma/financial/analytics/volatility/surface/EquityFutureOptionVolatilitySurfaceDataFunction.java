@@ -20,6 +20,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,6 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 
@@ -64,10 +66,6 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
     final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
 
-    ConfigDBVolatilitySurfaceDefinitionSource defnSrc = new ConfigDBVolatilitySurfaceDefinitionSource(configSrc);
-    @SuppressWarnings("rawtypes")
-    VolatilitySurfaceDefinition volDefn = defnSrc.getDefinition(fullName, InstrumentTypeProperties.EQUITY_OPTION);
-    
     // 3. Get the RawEquityVolatilitySurfaceData object
     final ValueProperties surfaceProperties = ValueProperties.builder() // createValueProperties() 
       .with(ValuePropertyNames.SURFACE, surfaceName)
@@ -102,12 +100,11 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
         
     // 5. Return
     final ValueProperties stdVolProperties = createValueProperties()
-      .with(ValuePropertyNames.SURFACE, fullName)
-      .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-      //.with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-      //.with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())      
+      .with(ValuePropertyNames.SURFACE, surfaceName)
+      .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)   
       .get();
-    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), stdVolProperties);
+    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, 
+        new ComputationTargetSpecification(specification.getTarget()), stdVolProperties);
     return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
   }
 
@@ -125,16 +122,18 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     
     String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-            targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+            targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
+            targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)
+            );
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
+    ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties().withAny(ValuePropertyNames.SURFACE)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        //.withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD)
-        .get()));
+        .get());
+    return Collections.singleton(spec);
   }
 
   @Override

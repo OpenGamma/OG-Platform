@@ -79,7 +79,7 @@ public class NormalImpliedVolatilityFormula {
         final BracketRoot bracketer = new BracketRoot();
         final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(EPS);
         final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-          @SuppressWarnings({"synthetic-access"})
+          @SuppressWarnings({"synthetic-access" })
           @Override
           public Double evaluate(final Double volatility) {
             final NormalFunctionData myData = new NormalFunctionData(data.getForward(), data.getNumeraire(), volatility);

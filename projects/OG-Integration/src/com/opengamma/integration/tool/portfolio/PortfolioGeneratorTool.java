@@ -11,7 +11,6 @@ import org.apache.commons.cli.Options;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
-import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.component.RemoteComponentFactoryToolContextAdapter;
 import com.opengamma.integration.tool.AbstractComponentTool;
@@ -25,7 +24,7 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
-    securityGenerator.setCurrencyCurveName("FORWARD");
+    securityGenerator.setCurrencyCurveName("DEFAULT");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override
@@ -50,7 +49,6 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
       @Override
       protected void doRun() throws Exception {
         final CommandLine commandLine = getCommandLine();
-        _instance.setCounterPartyGenerator(new StaticNameGenerator(commandLine.getOptionValue(COUNTER_PARTY_OPT, DEFAULT_COUNTER_PARTY)));
         _instance.run(new RemoteComponentFactoryToolContextAdapter(getRemoteComponentFactory()), commandLine);
       }
 

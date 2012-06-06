@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.view.rest;
 
+import static com.opengamma.util.functional.Functional.merge;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import javax.time.Instant;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -25,8 +27,6 @@ import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguratio
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.util.rest.FudgeRestClient;
-
-import static com.opengamma.util.functional.Functional.merge;
 
 /**
  * Remote implementation of {@link CompiledViewDefinition}.
@@ -76,7 +76,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
 
   @SuppressWarnings("unchecked")
   @Override
-  public Set<ComputationTarget> getComputationTargets() {
+  public Set<ComputationTargetSpecification> getComputationTargets() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPUTATION_TARGETS).build();
     return _client.accessFudge(uri).get(Set.class);
   }

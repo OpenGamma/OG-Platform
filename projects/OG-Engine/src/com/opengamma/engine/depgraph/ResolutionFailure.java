@@ -1,41 +1,30 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Describes a resolution failure. The implementation is intended to provide low-cost construction of failure information, at the
- * cost of a more complex querying/inspection algorithm.  
+ * Abstraction of a resolution failure.
  */
-public final class ResolutionFailure implements Cloneable {
+public abstract class ResolutionFailure implements Cloneable {
 
   /**
-   * Standard status constants relating to the method calls available here and the callbacks
-   * in the visitor.
+   * Standard status constants relating to the method calls available here and the callbacks in the visitor.
    */
   public static enum Status {
     /**
-     * An additional requirement (requested by {@link CompiledFunctionDefinition#getAdditionalRequirements}) could
-     * not be resolved. 
+     * An additional requirement (requested by {@link CompiledFunctionDefinition#getAdditionalRequirements}) could not be resolved.
      */
     ADDITIONAL_REQUIREMENT,
     /**
@@ -59,8 +48,7 @@ public final class ResolutionFailure implements Cloneable {
      */
     LATE_RESOLUTION_FAILURE,
     /**
-     * The {@link MarketDataAvailabilityProvider} requested that the requirement not be satisfied as market data is
-     * explicitly absent.
+     * The {@link MarketDataAvailabilityProvider} requested that the requirement not be satisfied as market data is explicitly absent.
      */
     MARKET_DATA_MISSING,
     /**
@@ -77,186 +65,32 @@ public final class ResolutionFailure implements Cloneable {
     UNSATISFIED
   }
 
-  private final ValueRequirement _valueRequirement;
-  private final LinkedList<Object> _events = new LinkedList<Object>();
+  /* package */ResolutionFailure() {
+  }
 
   // Construction
 
-  private ResolutionFailure(final ValueRequirement valueRequirement) {
-    _valueRequirement = valueRequirement;
-  }
+  protected abstract ResolutionFailure additionalRequirement(final ValueRequirement valueRequirement, final ResolutionFailure failure);
 
-  protected static ResolutionFailure recursiveRequirement(final ValueRequirement valueRequirement) {
-    return new ResolutionFailure(valueRequirement).appendEvent(Status.RECURSIVE_REQUIREMENT);
-  }
+  protected abstract ResolutionFailure requirement(final ValueRequirement valueRequirement, final ResolutionFailure failure);
 
-  protected static ResolutionFailure functionApplication(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification outputSpecification) {
-    return new ResolutionFailure(valueRequirement).appendEvent(function).appendEvent(outputSpecification);
-  }
+  protected abstract ResolutionFailure requirements(final Map<ValueSpecification, ValueRequirement> available);
 
-  protected static ResolutionFailure noFunctions(final ValueRequirement valueRequirement) {
-    return new ResolutionFailure(valueRequirement).appendEvent(Status.NO_FUNCTIONS);
-  }
+  protected abstract ResolutionFailure getResultsFailed();
 
-  protected static ResolutionFailure couldNotResolve(final ValueRequirement valueRequirement) {
-    return new ResolutionFailure(valueRequirement).appendEvent(Status.COULD_NOT_RESOLVE);
-  }
+  protected abstract ResolutionFailure getAdditionalRequirementsFailed();
 
-  protected static ResolutionFailure unsatisfied(final ValueRequirement valueRequirement) {
-    return new ResolutionFailure(valueRequirement).appendEvent(Status.UNSATISFIED);
-  }
+  protected abstract ResolutionFailure lateResolutionFailure();
 
-  protected static ResolutionFailure marketDataMissing(final ValueRequirement valueRequirement) {
-    return new ResolutionFailure(valueRequirement).appendEvent(Status.MARKET_DATA_MISSING);
-  }
+  protected abstract ResolutionFailure getRequirementsFailed();
 
-  protected ResolutionFailure additionalRequirement(final ValueRequirement valueRequirement, final ResolutionFailure failure) {
-    return appendEvent(Status.ADDITIONAL_REQUIREMENT).requirement(valueRequirement, failure);
-  }
-
-  protected ResolutionFailure requirement(final ValueRequirement valueRequirement, final ResolutionFailure failure) {
-    return appendEvent((failure != null) ? failure : valueRequirement);
-  }
-
-  protected ResolutionFailure requirements(final Map<ValueSpecification, ValueRequirement> available) {
-    return appendEvent(available);
-  }
-
-  protected ResolutionFailure getResultsFailed() {
-    return appendEvent(Status.GET_RESULTS_FAILED);
-  }
-
-  protected ResolutionFailure getAdditionalRequirementsFailed() {
-    return appendEvent(Status.GET_ADDITIONAL_REQUIREMENTS_FAILED);
-  }
-
-  protected ResolutionFailure lateResolutionFailure() {
-    return appendEvent(Status.LATE_RESOLUTION_FAILURE);
-  }
-
-  protected ResolutionFailure getRequirementsFailed() {
-    return appendEvent(Status.GET_REQUIREMENTS_FAILED);
-  }
-
-  private synchronized ResolutionFailure appendEvent(final Object event) {
-    _events.add(event);
-    return this;
-  }
+  protected abstract ResolutionFailure assertValueRequirement(final ValueRequirement valueRequirement);
 
   // Query
 
-  public ValueRequirement getValueRequirement() {
-    return _valueRequirement;
-  }
+  public abstract ValueRequirement getValueRequirement();
 
-  @SuppressWarnings("unchecked")
-  public synchronized <T> Collection<T> accept(final ResolutionFailureVisitor<T> visitor) {
-    final LinkedList<T> result = new LinkedList<T>();
-    final Iterator<?> itr = _events.iterator();
-    ParameterizedFunction function = null;
-    ValueSpecification outputSpecification = null;
-    final Map<ValueSpecification, ValueRequirement> satisfied = new HashMap<ValueSpecification, ValueRequirement>();
-    final Set<ResolutionFailure> unsatisfied = new HashSet<ResolutionFailure>();
-    final Set<ResolutionFailure> unsatisfiedAdditional = new HashSet<ResolutionFailure>();
-    while (itr.hasNext()) {
-      final Object event = itr.next();
-      if (event instanceof ParameterizedFunction) {
-        if (function != null) {
-          result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-        }
-        function = (ParameterizedFunction) event;
-        outputSpecification = (ValueSpecification) itr.next();
-        satisfied.clear();
-        unsatisfied.clear();
-        unsatisfiedAdditional.clear();
-      } else if (event instanceof Status) {
-        switch ((Status) event) {
-          case ADDITIONAL_REQUIREMENT: {
-            assert function != null;
-            final Object req = itr.next();
-            if (req instanceof ResolutionFailure) {
-              unsatisfiedAdditional.add((ResolutionFailure) req);
-            } else {
-              unsatisfiedAdditional.add(unsatisfied((ValueRequirement) req));
-            }
-            break;
-          }
-          case COULD_NOT_RESOLVE:
-            if (function != null) {
-              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-              function = null;
-            }
-            visitor.visitCouldNotResolve(getValueRequirement());
-            break;
-          case GET_ADDITIONAL_REQUIREMENTS_FAILED:
-            assert function != null;
-            result.add(visitor.visitGetAdditionalRequirementsFailed(getValueRequirement(), function, outputSpecification, satisfied));
-            function = null;
-            break;
-          case GET_RESULTS_FAILED:
-            assert function != null;
-            result.add(visitor.visitGetResultsFailed(getValueRequirement(), function, outputSpecification));
-            function = null;
-            break;
-          case GET_REQUIREMENTS_FAILED:
-            assert function != null;
-            result.add(visitor.visitGetRequirementsFailed(getValueRequirement(), function, outputSpecification));
-            function = null;
-            break;
-          case LATE_RESOLUTION_FAILURE:
-            assert function != null;
-            result.add(visitor.visitLateResolutionFailure(getValueRequirement(), function, outputSpecification, satisfied));
-            function = null;
-            break;
-          case MARKET_DATA_MISSING:
-            if (function != null) {
-              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-              function = null;
-            }
-            result.add(visitor.visitMarketDataMissing(getValueRequirement()));
-            break;
-          case NO_FUNCTIONS:
-            if (function != null) {
-              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-              function = null;
-            }
-            result.add(visitor.visitNoFunctions(getValueRequirement()));
-            break;
-          case RECURSIVE_REQUIREMENT:
-            if (function != null) {
-              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-              function = null;
-            }
-            result.add(visitor.visitRecursiveRequirement(getValueRequirement()));
-            break;
-          case UNSATISFIED:
-            if (function != null) {
-              result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-              function = null;
-            }
-            result.add(visitor.visitUnsatisfied(getValueRequirement()));
-            break;
-          default:
-            throw new IllegalStateException("event = " + event);
-        }
-      } else if (event instanceof ValueRequirement) {
-        assert function != null;
-        unsatisfied.add(unsatisfied((ValueRequirement) event));
-      } else if (event instanceof ResolutionFailure) {
-        assert function != null;
-        unsatisfied.add((ResolutionFailure) event);
-      } else if (event instanceof Map<?, ?>) {
-        assert function != null;
-        satisfied.putAll((Map<ValueSpecification, ValueRequirement>) event);
-      } else {
-        throw new IllegalStateException("event = " + event);
-      }
-    }
-    if (function != null) {
-      result.add(visitor.visitFunction(getValueRequirement(), function, outputSpecification, satisfied, unsatisfied, unsatisfiedAdditional));
-    }
-    return result;
-  }
+  public abstract <T> Collection<T> accept(final ResolutionFailureVisitor<T> visitor);
 
   // Composition
 
@@ -265,179 +99,26 @@ public final class ResolutionFailure implements Cloneable {
    * 
    * @param failure cause of failure
    */
-  protected synchronized void merge(final ResolutionFailure failure) {
-    assert getValueRequirement().getTargetSpecification().equals(failure.getValueRequirement().getTargetSpecification())
-        && getValueRequirement().getValueName().equals(failure.getValueRequirement().getValueName());
-    synchronized (failure) {
-      final Iterator<Object> itrNew = failure._events.iterator();
-      Object eventNew = itrNew.next();
-      do {
-        if (eventNew instanceof ParameterizedFunction) {
-          final ParameterizedFunction function = (ParameterizedFunction) eventNew;
-          final ValueSpecification outputSpecification = (ValueSpecification) itrNew.next();
-          // Extract the events that correspond to this function application
-          final List<Object> newEvents = new LinkedList<Object>();
-          //CSOFF
-          scan:
-          // CSON
-          do {
-            eventNew = itrNew.next();
-            if (eventNew instanceof ParameterizedFunction) {
-              break scan;
-            } else if (eventNew instanceof Status) {
-              switch ((Status) eventNew) {
-                case COULD_NOT_RESOLVE:
-                case MARKET_DATA_MISSING:
-                case NO_FUNCTIONS:
-                case RECURSIVE_REQUIREMENT:
-                case UNSATISFIED:
-                  break scan;
-              }
-            }
-            newEvents.add(eventNew);
-            if (!itrNew.hasNext()) {
-              eventNew = null;
-              break scan;
-            }
-          } while (true);
-          // If the function application already exists, append the events
-          final ListIterator<Object> itrThis = _events.listIterator();
-          boolean matched = false;
-          //CSOFF
-          scanStartEvent:
-          //CSON
-          while (itrThis.hasNext()) {
-            Object eventThis = itrThis.next();
-            if (function.equals(eventThis)) {
-              eventThis = itrThis.next();
-              if (outputSpecification.equals(eventThis)) {
-                // Have found a match; consider the existing failure events
-                //CSOFF
-                scanFailureEvent:
-                //CSON
-                while (itrThis.hasNext()) {
-                  eventThis = itrThis.next();
-                  if (eventThis instanceof ParameterizedFunction) {
-                    itrThis.previous();
-                    break scanFailureEvent;
-                  } else if (eventThis instanceof Status) {
-                    switch ((Status) eventThis) {
-                      case ADDITIONAL_REQUIREMENT:
-                        // Discard any matching "new" event
-                        eventThis = itrThis.next();
-                        final ListIterator<Object> itrNewEvents = newEvents.listIterator();
-                        while (itrNewEvents.hasNext()) {
-                          Object newEvent = itrNewEvents.next();
-                          if (newEvent == Status.ADDITIONAL_REQUIREMENT) {
-                            newEvent = itrNewEvents.next();
-                            if (eventThis.equals(newEvent)) {
-                              itrNewEvents.remove();
-                              itrNewEvents.previous();
-                              itrNewEvents.remove();
-                              break;
-                            }
-                          }
-                        }
-                        break;
-                      case GET_ADDITIONAL_REQUIREMENTS_FAILED:
-                      case GET_RESULTS_FAILED:
-                      case GET_REQUIREMENTS_FAILED:
-                      case LATE_RESOLUTION_FAILURE:
-                        // Discard any matching "new" event
-                        newEvents.remove(eventThis);
-                        continue scanStartEvent;
-                      case COULD_NOT_RESOLVE:
-                      case MARKET_DATA_MISSING:
-                      case NO_FUNCTIONS:
-                      case RECURSIVE_REQUIREMENT:
-                      case UNSATISFIED:
-                        itrThis.previous();
-                        break scanFailureEvent;
-                      default:
-                        throw new IllegalStateException("event = " + eventThis);
-                    }
-                  } else {
-                    // Discard any matching "new" event
-                    final Iterator<Object> itrNewEvents = newEvents.iterator();
-                    while (itrNewEvents.hasNext()) {
-                      final Object newEvent = itrNewEvents.next();
-                      if (eventThis.equals(newEvent)) {
-                        itrNewEvents.remove();
-                        break;
-                      } else if (newEvent == Status.ADDITIONAL_REQUIREMENT) {
-                        itrNewEvents.next();
-                      }
-                    }
-                  }
-                }
-                // Iterator is now positioned just before the next "start" event
-                for (Object newEvent : newEvents) {
-                  itrThis.add(newEvent);
-                }
-                matched = true;
-                break;
-              }
-            }
-          }
-          // If the function application didn't exist, append the application and events
-          if (!matched && !newEvents.isEmpty()) {
-            _events.add(function);
-            _events.add(outputSpecification);
-            _events.addAll(newEvents);
-          }
-        } else if (eventNew instanceof Status) {
-          if (!_events.contains(eventNew)) {
-            _events.add(eventNew);
-          }
-          if (itrNew.hasNext()) {
-            eventNew = itrNew.next();
-          } else {
-            eventNew = null;
-          }
-        } else {
-          throw new IllegalStateException("event = " + eventNew);
-        }
-      } while (eventNew != null);
-    }
-  }
+  protected abstract void merge(final ResolutionFailure failure);
 
   // Misc
 
   @Override
-  public String toString() {
-    return "ResolutionFailure[" + _valueRequirement + "]";
-  }
+  public abstract String toString();
 
   @Override
-  public synchronized Object clone() {
-    final ResolutionFailure copy = new ResolutionFailure(getValueRequirement());
-    copy._events.addAll(_events);
-    return copy;
-  }
+  public abstract Object clone();
 
   /**
-   * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for
-   * both is held, or a suitable exclusion lock is held at an outer level.
+   * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for both is held, or a suitable exclusion lock is held at an outer level.
    * 
-   * @param obj  object to compare to
+   * @param obj object to compare to
    * @return true if the objects are equal
    */
   @Override
-  public boolean equals(final Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (!(obj instanceof ResolutionFailure)) {
-      return false;
-    }
-    final ResolutionFailure other = (ResolutionFailure) obj;
-    return getValueRequirement().equals(other.getValueRequirement())
-        && _events.equals(other._events);
-  }
+  public abstract boolean equals(final Object obj);
 
   @Override
-  public int hashCode() {
-    return getValueRequirement().hashCode();
-  }
+  public abstract int hashCode();
 
 }

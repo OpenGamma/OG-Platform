@@ -24,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.component.RemoteComponentFactoryToolContextAdapter;
+import com.opengamma.integration.tool.AbstractComponentTool;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 
@@ -31,7 +34,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
  * Tool to read currency pairs from a text file and store them in the config master.
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
-public class ConfigImportExportTool extends AbstractTool {
+public class ConfigImportExportTool extends AbstractComponentTool {
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigImportExportTool.class);
 
   /**
@@ -45,8 +48,9 @@ public class ConfigImportExportTool extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
-    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    ToolContext toolContext = new RemoteComponentFactoryToolContextAdapter(getRemoteComponentFactory());
+    ConfigMaster configMaster = toolContext.getConfigMaster();
+    PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
     CommandLine commandLine = getCommandLine();
     @SuppressWarnings("unchecked")
     List<String> fileList = commandLine.getArgList();
@@ -97,6 +101,9 @@ public class ConfigImportExportTool extends AbstractTool {
         configLoader.loadConfig(System.in);
       }
     } else if (commandLine.hasOption("save")) {
+      if (verbose) {
+        s_logger.info("Save option active");
+      }
       checkForInvalidOption("do-not-persist");
       List<String> types = getTypes();
       List<String> names = getNames();
@@ -114,6 +121,7 @@ public class ConfigImportExportTool extends AbstractTool {
       }
       ConfigSaver configSaver = new ConfigSaver(configMaster, portfolioMaster, names, types, portPortfolioRefs, verbose);
       configSaver.saveConfigs(outputStream);
+      System.out.println("Warning: file may have been created in installation base directory");
     }
   }
   
@@ -143,8 +151,8 @@ public class ConfigImportExportTool extends AbstractTool {
     }
   }
 
-  protected Options createOptions(boolean mandatoryConfigResource) {
-    Options options = super.createOptions(mandatoryConfigResource);
+  protected Options createOptions() {
+    Options options = super.createOptions();
     options.addOption(createTypeOption());
     options.addOption(createSearchOption());
     options.addOption(createLoadOption());

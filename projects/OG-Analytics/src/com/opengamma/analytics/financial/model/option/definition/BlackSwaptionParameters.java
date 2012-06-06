@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.model.option.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -21,18 +21,18 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
   /**
    * The volatility surface. The first dimension is the expiration and the second the tenor.
    */
-  private final InterpolatedDoublesSurface _volatility;
+  private final Surface<Double, Double, Double> _volatility;
   /**
    * The standard swap generator (in particular fixed leg convention and floating leg tenor) for which the volatility surface is valid.
    */
-  private final GeneratorSwap _generatorSwap;
+  private final GeneratorSwapFixedIbor _generatorSwap;
 
   /**
    * Constructor from the parameter surfaces. The default SABR volatility formula is HaganVolatilityFunction.
    * @param volatility The Black volatility surface.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public BlackSwaptionParameters(final InterpolatedDoublesSurface volatility, final GeneratorSwap generatorSwap) {
+  public BlackSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorSwapFixedIbor generatorSwap) {
     Validate.notNull(volatility, "volatility surface");
     Validate.notNull(generatorSwap, "Swap generator");
     _volatility = volatility;
@@ -74,7 +74,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
    * Gets the standard swap generator for which the volatility surface is valid.
    * @return The swap generator.
    */
-  public GeneratorSwap getGeneratorSwap() {
+  public GeneratorSwapFixedIbor getGeneratorSwap() {
     return _generatorSwap;
   }
 
@@ -82,7 +82,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
    * Gets the volatility surface.
    * @return The volatility surface.
    */
-  public InterpolatedDoublesSurface getVolatilitySurface() {
+  public Surface<Double, Double, Double> getVolatilitySurface() {
     return _volatility;
   }
 
@@ -96,7 +96,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -106,7 +106,7 @@ public class BlackSwaptionParameters implements VolatilityModel<double[]> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BlackSwaptionParameters other = (BlackSwaptionParameters) obj;
+    final BlackSwaptionParameters other = (BlackSwaptionParameters) obj;
     if (!ObjectUtils.equals(_generatorSwap, other._generatorSwap)) {
       return false;
     }

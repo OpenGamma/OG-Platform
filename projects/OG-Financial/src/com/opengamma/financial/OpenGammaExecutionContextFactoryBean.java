@@ -109,7 +109,6 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   protected FunctionExecutionContext createObject() {
     FunctionExecutionContext context = new FunctionExecutionContext();
     context.setSecuritySource(_securitySource);
-    context.setPositionSource(_positionSource);
     context.setPortfolioStructure(new PortfolioStructure(_positionSource));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, _historicalTimeSeriesSource);
     OpenGammaExecutionContext.setRegionSource(context, _regionSource);

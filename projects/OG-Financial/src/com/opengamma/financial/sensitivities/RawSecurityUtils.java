@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.sensitivities;
 
 import java.util.List;
@@ -10,9 +15,14 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
+/**
+ * Utilities for raw securities
+ */
 public class RawSecurityUtils {
+  
   /**
-   * returns true if security is externally provided sensitivities security
+   * @param security The security
+   * @return true if security is externally provided sensitivities security
    */
   public static boolean isExternallyProvidedSensitivitiesSecurity(Security security) {
     return security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);

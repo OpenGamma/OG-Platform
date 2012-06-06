@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.time.Instant;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -73,7 +73,7 @@ public interface CompiledViewDefinition {
    * 
    * @return a set of all computation targets, not null
    */
-  Set<ComputationTarget> getComputationTargets();
+  Set<ComputationTargetSpecification> getComputationTargets();
   
   /**
    * Gets the instant from which the compiled view definition is valid, inclusive.

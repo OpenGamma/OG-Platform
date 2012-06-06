@@ -16,7 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
@@ -48,7 +48,7 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   @Override
   public CompiledViewCalculationConfigurationImpl buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     String name = message.getString(NAME_FIELD);
-    Set<ComputationTarget> computationTargets = deserializer.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
+    Set<ComputationTargetSpecification> computationTargets = deserializer.fieldValueToObject(Set.class, message.getByName(COMPUTATION_TARGETS_FIELD));
     Map<ValueSpecification, Set<ValueRequirement>> terminalOutputSpecifications = deserializer.fieldValueToObject(Map.class, message.getByName(TERMINAL_OUTPUT_SPECIFICATIONS_FIELD));
     Map<ValueRequirement, ValueSpecification> marketDataRequirements = deserializer.fieldValueToObject(Map.class, message.getByName(MARKET_DATA_REQUIREMENTS_FIELD));
     return new CompiledViewCalculationConfigurationImpl(name, computationTargets, terminalOutputSpecifications, marketDataRequirements);

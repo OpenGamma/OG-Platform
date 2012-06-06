@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,10 +51,13 @@ import com.opengamma.engine.value.ValueRequirement;
       public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
         result.set("COMPLETE");
         latch.countDown();
+        if (pump != null) {
+          context.close(pump);
+        }
       }
 
     });
-    builder.startBackgroundConstructionJob();
+    assertTrue(builder.startBackgroundConstructionJob());
     try {
       latch.await(com.opengamma.util.test.Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
@@ -81,6 +85,8 @@ import com.opengamma.engine.value.ValueRequirement;
       result.put((MockFunction) node.getFunction().getFunction(), node);
     }
     if (!functionList.isEmpty()) {
+      System.out.println("nodes = " + nodes);
+      System.out.println("Functions = " + functions);
       Assert.fail(functionList.toString());
     }
     return result;

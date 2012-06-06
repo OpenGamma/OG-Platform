@@ -10,7 +10,6 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import java.sql.Timestamp;
 
 import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

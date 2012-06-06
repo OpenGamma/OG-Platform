@@ -218,6 +218,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     final int n = strikes.length;
 
     return new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike) {
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);

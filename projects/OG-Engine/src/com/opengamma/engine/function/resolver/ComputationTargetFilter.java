@@ -6,6 +6,8 @@
 package com.opengamma.engine.function.resolver;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
 
@@ -14,9 +16,23 @@ import com.opengamma.engine.depgraph.DependencyNodeFilter;
  */
 public abstract class ComputationTargetFilter implements DependencyNodeFilter {
 
+  private final ComputationTargetResolver _computationTargetResolver;
+
+  public ComputationTargetFilter(final ComputationTargetResolver computationTargetResolver) {
+    _computationTargetResolver = computationTargetResolver;
+  }
+
+  protected ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
   @Override
-  public boolean accept(DependencyNode node) {
+  public boolean accept(final DependencyNode node) {
     return accept(node.getComputationTarget());
+  }
+
+  protected boolean accept(final ComputationTargetSpecification target) {
+    return accept(getComputationTargetResolver().resolve(target));
   }
 
   public abstract boolean accept(ComputationTarget target);

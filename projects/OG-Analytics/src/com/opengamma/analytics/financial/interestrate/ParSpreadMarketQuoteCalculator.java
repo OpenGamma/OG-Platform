@@ -20,86 +20,99 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Compute the spread for which the present value of the instrument is zero. 
- * The notion of "spread" will depend of each instrument.
+ * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero. 
+ * The notion of "market quote" will depend of each instrument.
  */
-public final class ParSpreadCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final ParSpreadCurveSensitivityCalculator INSTANCE = new ParSpreadCurveSensitivityCalculator();
+  private static final ParSpreadMarketQuoteCalculator INSTANCE = new ParSpreadMarketQuoteCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static ParSpreadCurveSensitivityCalculator getInstance() {
+  public static ParSpreadMarketQuoteCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private ParSpreadCurveSensitivityCalculator() {
+  private ParSpreadMarketQuoteCalculator() {
   }
 
   /**
    * The methods and calculators.
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
-  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final PresentValueBasisPointCalculator PVBPC = PresentValueBasisPointCalculator.getInstance();
-  private static final PresentValueBasisPointCurveSensitivityCalculator PVBPCSC = PresentValueBasisPointCurveSensitivityCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
 
   @Override
-  public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
+  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
   }
 
   @Override
-  public InterestRateCurveSensitivity visitCash(final Cash deposit, final YieldCurveBundle curves) {
-    return METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, curves);
+  public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT.parSpread(deposit, curves);
   }
 
   @Override
-  public InterestRateCurveSensitivity visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
-    return METHOD_DEPOSIT_ZERO.parSpreadCurveSensitivity(deposit, curves);
+  public Double visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.parSpread(deposit, curves);
   }
 
+  /**
+   * For swaps the ParSpread is the spread to be added on each coupon of the first leg to obtain a present value of zero.
+   * It is computed as the opposite of the present value of the swap divided by the present value of a basis point of the first leg (as computed by the PresentValueBasisPointCalculator).
+   * @param swap The swap.
+   * @param curves The yield curve bundle.
+   * @return The par spread.
+   */
   @Override
-  public InterestRateCurveSensitivity visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
+  public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
     ArgumentChecker.isTrue(swap.getFirstLeg().getCurrency().equals(swap.getSecondLeg().getCurrency()), "Both legs should have the same currency");
-    InterestRateCurveSensitivity pvcs = new InterestRateCurveSensitivity(PVCSC.visit(swap, curves));
-    InterestRateCurveSensitivity pvbpcs = PVBPCSC.visit(swap.getFirstLeg(), curves);
-    double pvbp = PVBPC.visit(swap.getFirstLeg(), curves);
-    double pv = PVC.visit(swap, curves);
-    return pvcs.multiply(-1.0 / pvbp).plus(pvbpcs.multiply(pv / (pvbp * pvbp)));
+    return -PVC.visit(swap, curves) / PVBPC.visit(swap.getFirstLeg(), curves);
   }
 
   @Override
-  public InterestRateCurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 
+  /**
+   * For ForwardRateAgreement the ParSpread is the spread to be added to the fixed rate to obtain a present value of zero.
+   * @param fra The forward rate agreement.
+   * @param curves The yield curve bundle.
+   * @return The par spread.
+   */
   @Override
-  public InterestRateCurveSensitivity visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(fra);
-    return METHOD_FRA.parSpreadCurveSensitivity(fra, curves);
+    return METHOD_FRA.parSpread(fra, curves);
   }
 
+  /**
+   * For InterestRateFutures the ParSpread is the spread to be added to the reference price to obtain a present value of zero.
+   * @param future The futures.
+   * @param curves The yield curve bundle.
+   * @return The par spread.
+   */
   @Override
-  public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves);
+  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
+    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
   }
 
 }

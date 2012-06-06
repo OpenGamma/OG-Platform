@@ -13,16 +13,16 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  * 
  *
  */
-public class PositionHistoricalVaRFunction extends NormalHistoricalVaRFunction {
-  
+public class EmpiricalPortfolioHistoricalVaRFunction extends EmpiricalHistoricalVaRFunction {
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
+    return target.getType() == ComputationTargetType.PORTFOLIO_NODE;
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.PORTFOLIO_NODE;
   }
 
 }

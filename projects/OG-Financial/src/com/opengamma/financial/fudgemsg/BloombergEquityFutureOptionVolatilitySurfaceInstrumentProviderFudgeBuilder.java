@@ -22,7 +22,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergEquityFutur
  * SurfaceProvider provides ticker codes for creation of surfaces. These are serialized along with VolatilitySurfaceSpecification
  */
 @FudgeBuilderFor(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class)
-public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider>{
+public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider> {
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider object) {

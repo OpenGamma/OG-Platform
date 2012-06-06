@@ -13,6 +13,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.util.time.Tenor;
 
@@ -26,6 +27,12 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
   private static final String CONVENTION_NAME = "conventionName";
   private static final String NUM_FUTURES = "numFutures";
   private static final String PERIODS_PER_YEAR = "periodsPerYear";
+  private static final String PAY_TENOR = "payTenor";
+  private static final String RECEIVE_TENOR = "receiveTenor";
+  private static final String PAY_INDEX_TYPE = "payIndexType";
+  private static final String RECEIVE_INDEX_TYPE = "receiveIndexType";
+  private static final String RESET_TENOR = "resetTenor";
+  private static final String INDEX_TYPE = "indexType";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FixedIncomeStrip object) {
@@ -35,9 +42,18 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
     serializer.addToMessage(message, TENOR, null, object.getCurveNodePointTime());
     if (object.getInstrumentType() == StripInstrumentType.FUTURE) {
       message.add(NUM_FUTURES, object.getNumberOfFuturesAfterTenor());
-    }
-    if (object.getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
+    } else if (object.getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       message.add(PERIODS_PER_YEAR, object.getPeriodsPerYear());
+    } else if (object.getInstrumentType() == StripInstrumentType.SWAP || object.getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+      if (object.getResetTenor() != null) {
+        serializer.addToMessage(message, RESET_TENOR, null, object.getResetTenor());
+        serializer.addToMessage(message, INDEX_TYPE, null, object.getIndexType());
+      }
+    } else if (object.getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
+      serializer.addToMessage(message, PAY_TENOR, null, object.getPayTenor());
+      serializer.addToMessage(message, RECEIVE_TENOR, null, object.getReceiveTenor());
+      serializer.addToMessage(message, PAY_INDEX_TYPE, null, object.getPayIndexType());
+      serializer.addToMessage(message, RECEIVE_INDEX_TYPE, null, object.getReceiveIndexType());
     }
     return message;
   }
@@ -53,6 +69,19 @@ public class FixedIncomeStripFudgeBuilder implements FudgeBuilder<FixedIncomeStr
     } else if (type == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       final int periodsPerYear = message.getInt(PERIODS_PER_YEAR);
       return new FixedIncomeStrip(type, tenor, periodsPerYear, true, conventionName);
+    } else if (type == StripInstrumentType.SWAP || type == StripInstrumentType.OIS_SWAP) {
+      if (message.hasField(RESET_TENOR)) {
+        final Tenor resetTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(RESET_TENOR));
+        final IndexType indexType = deserializer.fieldValueToObject(IndexType.class, message.getByName(INDEX_TYPE));
+        return new FixedIncomeStrip(type, tenor, resetTenor, indexType, conventionName);
+      }
+      return new FixedIncomeStrip(type, tenor, conventionName);
+    } else if (type == StripInstrumentType.BASIS_SWAP) {
+      final Tenor payTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(PAY_TENOR));
+      final Tenor receiveTenor = deserializer.fieldValueToObject(Tenor.class, message.getByName(RECEIVE_TENOR));
+      final IndexType payIndexType = deserializer.fieldValueToObject(IndexType.class, message.getByName(PAY_INDEX_TYPE));
+      final IndexType receiveIndexType = deserializer.fieldValueToObject(IndexType.class, message.getByName(RECEIVE_INDEX_TYPE));
+      return new FixedIncomeStrip(type, tenor, payTenor, receiveTenor, payIndexType, receiveIndexType, conventionName);
     } else {
       return new FixedIncomeStrip(type, tenor, conventionName);
     }

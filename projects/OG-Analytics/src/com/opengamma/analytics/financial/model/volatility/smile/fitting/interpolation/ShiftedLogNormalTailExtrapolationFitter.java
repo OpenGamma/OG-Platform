@@ -122,6 +122,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceDifferenceFunc(final double forward, final double[] strike, final double[] prices, final double timeToExpiry, final boolean isCall) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
@@ -138,6 +139,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolDifferenceFunc(final double forward, final double[] strike, final double[] vols, final double timeToExpiry) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
@@ -154,6 +156,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceGradDifferenceFunc(final double forward, final double strike, final double targetPrice, final double targetDPrice, final double expiry,
       final boolean isCall) {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
@@ -168,6 +171,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
 
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolGradDifferenceFunc(final double forward, final double strike, final double targetVol, final double targetDvol, final double expiry) {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
         DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);

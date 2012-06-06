@@ -51,7 +51,12 @@ public class LeafPortfolioNodeGenerator implements PortfolioNodeGenerator {
   public PortfolioNode createPortfolioNode() {
     final SimplePortfolioNode node = new SimplePortfolioNode(getNameGenerator().createName());
     for (int i = 0; i < getSize(); i++) {
-      final Position position = getPositionGenerator().createPosition();
+      Position position = getPositionGenerator().createPosition();
+      // Note: the code below may be useful if the position generater sometimes fails to produce an entry and the portfolio must
+      // contain the required amount. It is not useful if the position generator continually fails and you get an infinite loop.
+      //while (position == null) {
+      //  position = getPositionGenerator().createPosition();
+      //}
       if (position != null) {
         node.addPosition(position);
       }

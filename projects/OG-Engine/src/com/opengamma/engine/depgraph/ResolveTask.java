@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
@@ -66,19 +67,13 @@ import com.opengamma.engine.value.ValueSpecification;
       context.run(task);
     }
 
-    protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue) {
-      return getTask().pushResult(context, resolvedValue);
+    protected boolean pushResult(final GraphBuildingContext context, final ResolvedValue resolvedValue, final boolean lastResult) {
+      return getTask().pushResult(context, resolvedValue, lastResult);
     }
 
     protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
         final Set<ValueSpecification> functionOutputs) {
-      return new ResolvedValue(valueSpecification, parameterizedFunction, getComputationTarget(), functionInputs, functionOutputs);
-    }
-
-    protected boolean pushResult(final GraphBuildingContext context, final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction,
-        final Set<ValueSpecification> functionInputs,
-        final Set<ValueSpecification> functionOutputs) {
-      return pushResult(context, createResult(valueSpecification, parameterizedFunction, functionInputs, functionOutputs));
+      return new ResolvedValue(valueSpecification, parameterizedFunction, functionInputs, functionOutputs);
     }
 
     protected void storeFailure(final ResolutionFailure failure) {
@@ -89,8 +84,8 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getValueRequirement();
     }
 
-    protected ComputationTarget getComputationTarget() {
-      return getTask().getComputationTarget();
+    protected ComputationTarget getComputationTarget(final GraphBuildingContext context) {
+      return getTask().getComputationTarget(context);
     }
 
     protected void run(final GraphBuildingContext context) {
@@ -147,11 +142,6 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile boolean _recursion;
 
   /**
-   * Resolved target for the value requirement.
-   */
-  private ComputationTarget _target;
-
-  /**
    * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task.
    */
   private final Set<FunctionExclusionGroup> _functionExclusion;
@@ -178,7 +168,7 @@ import com.opengamma.engine.value.ValueSpecification;
       _functionExclusion = null;
       _hashCode = hc;
     }
-    setState(new ResolveTargetStep(this));
+    setState(new GetFunctionsStep(this));
   }
 
   private State getState() {
@@ -217,15 +207,6 @@ import com.opengamma.engine.value.ValueSpecification;
     super.finished(context);
   }
 
-  protected void setComputationTarget(final ComputationTarget target) {
-    assert target != null;
-    _target = target;
-  }
-
-  protected ComputationTarget getComputationTarget() {
-    return _target;
-  }
-
   @Override
   public void run(final GraphBuildingContext context) {
     getState().run(context);
@@ -235,6 +216,15 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private Set<ValueRequirement> getParentValueRequirements() {
     return _parentRequirements;
+  }
+
+  private ComputationTarget getComputationTarget(final GraphBuildingContext context) {
+    final ComputationTargetSpecification specification = getValueRequirement().getTargetSpecification();
+    final ComputationTarget target = context.getCompilationContext().getComputationTargetResolver().resolve(specification);
+    if (target == null) {
+      s_logger.warn("Computation target {} not found", specification);
+    }
+    return target;
   }
 
   public boolean hasParent(final ResolveTask task) {
@@ -259,7 +249,7 @@ import com.opengamma.engine.value.ValueSpecification;
     return _functionExclusion;
   }
 
-  // TODO: could use a ResolveTaskKey instead of hash/equal here. Then the original resolve tasks (with failure & result info) can be discarded but the output productions still be cached
+  // TODO: could use a ResolveTaskKey instead of the unusual behavior of hash/equal here
 
   // HashCode and Equality are to allow tasks to be considered equal iff they
   // are for the same value requirement, correspond to the same resolution
@@ -289,7 +279,10 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   protected void pumpImpl(final GraphBuildingContext context) {
     s_logger.debug("Pump called on {}", this);
-    getState().pump(context);
+    final State state = getState();
+    if (state != null) {
+      state.pump(context);
+    }
   }
 
   @Override

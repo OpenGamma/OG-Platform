@@ -15,6 +15,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -33,10 +34,9 @@ import com.opengamma.web.server.push.reports.GridData;
 import com.opengamma.web.server.push.reports.ViewportData;
 
 /**
- * TODO return new viewport instance rather than implementing it?
- * TODO temporary name just to distinguish it from the similarly named class in the parent package
-*/
-/* package */ class PushWebView implements Viewport {
+ * TODO return new viewport instance rather than implementing it? TODO temporary name just to distinguish it from the similarly named class in the parent package
+ */
+/* package */class PushWebView implements Viewport {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebView.class);
 
@@ -46,42 +46,40 @@ import com.opengamma.web.server.push.reports.ViewportData;
   private final ResultConverterCache _resultConverterCache;
   private final Map<String, Object> _latestResults = new HashMap<String, Object>();
   private final Object _lock = new Object();
+  private final ComputationTargetResolver _computationTargetResolver;
 
   private PushRequirementBasedWebViewGrid _portfolioGrid;
   private PushRequirementBasedWebViewGrid _primitivesGrid;
 
   private ViewportDefinition _viewportDefinition;
   private AnalyticsListener _listener;
-  private Map<String,Object> _gridStructures;
-  private boolean _initialized = false;
-  private boolean _sendAnalyticsUpdates = false;
+  private Map<String, Object> _gridStructures;
+  private boolean _initialized;
+  private boolean _sendAnalyticsUpdates;
 
-  public PushWebView(ViewClient viewClient,
-                     ViewportDefinition viewportDefinition,
-                     UniqueId baseViewDefinitionId,
-                     UniqueId viewDefinitionId,
-                     ResultConverterCache resultConverterCache,
-                     AnalyticsListener listener) {
+  public PushWebView(ViewClient viewClient, ViewportDefinition viewportDefinition, UniqueId baseViewDefinitionId, UniqueId viewDefinitionId, ResultConverterCache resultConverterCache,
+      AnalyticsListener listener, ComputationTargetResolver computationTargetResolver) {
     _viewClient = viewClient;
     _baseViewDefinitionId = baseViewDefinitionId;
     _viewDefinitionId = viewDefinitionId;
     _resultConverterCache = resultConverterCache;
     _viewportDefinition = viewportDefinition;
     _listener = listener;
+    _computationTargetResolver = computationTargetResolver;
     _viewClient.setResultListener(new AbstractViewResultListener() {
-      
+
       @Override
       public UserPrincipal getUser() {
         // Authentication needed
         return UserPrincipal.getLocalUser();
       }
-      
+
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {     
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
-      
+
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", _viewDefinitionId);
@@ -96,7 +94,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     synchronized (_lock) {
       PushWebViewPortfolioGrid portfolioGrid =
-          new PushWebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+          new PushWebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache, _computationTargetResolver);
 
       _gridStructures = new HashMap<String, Object>();
 
@@ -108,7 +106,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
       }
 
       PushRequirementBasedWebViewGrid primitivesGrid =
-          new PushWebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+          new PushWebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache, _computationTargetResolver);
 
       if (primitivesGrid.getGridStructure().isEmpty()) {
         _primitivesGrid = null;
@@ -122,12 +120,12 @@ import com.opengamma.web.server.push.reports.ViewportData;
     }
   }
 
-  /* package */ void shutdown() {
+  /* package */void shutdown() {
     // Removes all listeners
     _viewClient.shutdown();
   }
 
-  /* package */ boolean matches(UniqueId baseViewDefinitionId, ViewportDefinition viewportDefinition) {
+  /* package */boolean matches(UniqueId baseViewDefinitionId, ViewportDefinition viewportDefinition) {
     synchronized (_lock) {
       return _baseViewDefinitionId.equals(baseViewDefinitionId) &&
           ObjectUtils.equals(_viewportDefinition.getExecutionOptions(), viewportDefinition.getExecutionOptions()) &&
@@ -137,11 +135,12 @@ import com.opengamma.web.server.push.reports.ViewportData;
 
   /**
    * Changes the {@link Viewport}.
+   * 
    * @param viewportDefinition Definition of the new viewport
    * @param listener Listener for changes in the viewport's data or structure
    * @return The new viewport.
    */
-  /* package */ Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
+  /* package */Viewport configureViewport(ViewportDefinition viewportDefinition, AnalyticsListener listener) {
     synchronized (_lock) {
       _viewportDefinition = viewportDefinition;
       _listener = listener;
@@ -172,6 +171,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
 
   /**
    * Returns {@link #_viewClient}'s latest results if available.
+   * 
    * @return {@link #_viewClient}'s latest results or {@code null} if there aren't any available
    */
   private ViewComputationResultModel getLatestResultModel() {
@@ -180,10 +180,9 @@ import com.opengamma.web.server.push.reports.ViewportData;
     }
     return _viewClient.getLatestResult();
   }
-  
+
   /**
-   * Updates {@link #_latestResults} with the latest results from the view client and notifies the listener
-   * that the data has changed.
+   * Updates {@link #_latestResults} with the latest results from the view client and notifies the listener that the data has changed.
    */
   private void updateResults() {
     synchronized (_lock) {
@@ -289,11 +288,11 @@ import com.opengamma.web.server.push.reports.ViewportData;
     }
   }
 
-  /* package */ UniqueId getBaseViewDefinitionId() {
+  /* package */UniqueId getBaseViewDefinitionId() {
     return _baseViewDefinitionId;
   }
 
-  /* package */ String getAggregatorName() {
+  /* package */String getAggregatorName() {
     return _viewportDefinition.getAggregatorName();
   }
 }

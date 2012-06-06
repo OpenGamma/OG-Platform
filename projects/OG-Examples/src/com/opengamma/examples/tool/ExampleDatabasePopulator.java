@@ -27,6 +27,8 @@ import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
+import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -198,10 +200,16 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
+  private PortfolioGeneratorTool portfolioGeneratorTool() {
+    final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
+    tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
+    return tool;
+  }
+
   private void loadMultiCurrencySwapPortfolio() {
     final Log log = new Log("Creating example multi currency swap portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true);
+      portfolioGeneratorTool().run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -211,7 +219,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadForwardSwapPortfolio() {
     final Log log = new Log("Creating example forward swap portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Forward Swap Portfolio", "ForwardSwap", true);
+      portfolioGeneratorTool().run(getToolContext(), "Forward Swap Portfolio", "ForwardSwap", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -221,7 +229,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadSwaptionPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Swaption Portfolio", "Swaption", true);
+      portfolioGeneratorTool().run(getToolContext(), "Swaption Portfolio", "Swaption", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -241,7 +249,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCapFloorCMSSpreadPortfolio() {
     final Log log = new Log("Creating example cap/floor CMS spread portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true);
+      portfolioGeneratorTool().run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -251,7 +259,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCapFloorPortfolio() {
     final Log log = new Log("Creating example cap/floor portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cap/Floor Portfolio", "CapFloor", true);
+      portfolioGeneratorTool().run(getToolContext(), "Cap/Floor Portfolio", "CapFloor", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -261,7 +269,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCashPortfolio() {
     final Log log = new Log("Creating example cash portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Cash Portfolio", "Cash", true);
+      portfolioGeneratorTool().run(getToolContext(), "Cash Portfolio", "Cash", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -281,7 +289,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadFRAPortfolio() {
     final Log log = new Log("Creating example FRA portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "FRA Portfolio", "FRA", true);
+      portfolioGeneratorTool().run(getToolContext(), "FRA Portfolio", "FRA", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -291,7 +299,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMixedFXPortfolio() {
     final Log log = new Log("Creating mixed FX portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true);
+      portfolioGeneratorTool().run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -301,7 +309,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMixedPortfolio() {
     final Log log = new Log("Creating mixed portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Mixed Portfolio", "Mixed", true);
+      portfolioGeneratorTool().run(getToolContext(), "Mixed Portfolio", "Mixed", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);

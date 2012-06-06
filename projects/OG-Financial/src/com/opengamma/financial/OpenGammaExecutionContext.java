@@ -9,7 +9,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -111,28 +110,6 @@ public final class OpenGammaExecutionContext {
     context.setSecuritySource(securitySource);
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a {@code SecuritySource} from the context.
-   * 
-   * @param context  the context to examine, not null
-   * @return the value, null if not found
-   */
-  public static PositionSource getPositionSource(final FunctionExecutionContext context) {
-    return context.getPositionSource();
-  }
-
-  /**
-   * Stores a {@code PositionSource} in the context.
-   * 
-   * @param context  the context to store in, not null
-   * @param positionSource  the value to store, not null
-   */
-  public static void setPositionSource(final FunctionExecutionContext context, final PositionSource positionSource) {
-    context.setPositionSource(positionSource);
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Gets a {@code ConventionBundleSource} from the context.
    * 

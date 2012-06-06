@@ -23,6 +23,7 @@ import org.cometd.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -52,27 +53,29 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RequirementBasedWebViewGrid.class);
   private static final String GRID_STRUCTURE_ROOT_CHANNEL = "/gridStructure";
-  
+
   private final String _columnStructureChannel;
   private final RequirementBasedGridStructure _gridStructure;
   private final String _nullCellValue;
-  
+  private final ComputationTargetResolver _computationTargetResolver;
+
   // Column-based state: few entries expected so using an array set 
   private final LongSet _historyOutputs = new LongArraySet();
-  
+
   // Cell-based state
   private final ConcurrentMap<WebGridCell, WebViewDepGraphGrid> _depGraphGrids = new ConcurrentHashMap<WebGridCell, WebViewDepGraphGrid>();
-  
+
   protected RequirementBasedWebViewGrid(String name, ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, List<ComputationTargetSpecification> targets,
-      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue) {
+      EnumSet<ComputationTargetType> targetTypes, ResultConverterCache resultConverterCache, Client local, Client remote, String nullCellValue, ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache, local, remote);
-    
+
     _columnStructureChannel = GRID_STRUCTURE_ROOT_CHANNEL + "/" + name + "/columns";
-    List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);    
+    List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
     _gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _nullCellValue = nullCellValue;
+    _computationTargetResolver = computationTargetResolver;
   }
-  
+
   //-------------------------------------------------------------------------
 
   public void processTargetResult(ComputationTargetSpecification target, ViewTargetResultModel resultModel, Long resultTimestamp) {
@@ -86,7 +89,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     for (Integer unsatisfiedColId : getGridStructure().getUnsatisfiedCells(rowId)) {
       valuesToSend.put(Integer.toString(unsatisfiedColId), null);
     }
-    
+
     // Whether or not the row is in the viewport, we may have to store history
     if (resultModel != null) {
       for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
@@ -98,7 +101,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
             s_logger.warn("Could not find column for calculation configuration {} with value specification {}", calcConfigName, specification);
             continue;
           }
-          Object originalValue = value.getValue();        
+          Object originalValue = value.getValue();
           for (WebViewGridColumn column : columns) {
             int colId = column.getId();
             WebGridCell cell = WebGridCell.of(rowId, colId);
@@ -113,18 +116,18 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
   }
-  
+
   private Map<String, Object> createTargetResult(Integer rowId) {
     Map<String, Object> valuesToSend = new HashMap<String, Object>();
     valuesToSend.put("rowId", rowId);
     return valuesToSend;
   }
-  
+
   public void processDepGraphs(long resultTimestamp) {
     if (_depGraphGrids.isEmpty()) {
       return;
     }
-    
+
     // TODO: this may not be the cycle corresponding to the result - some tracking of cycle IDs required
     EngineResourceReference<? extends ViewCycle> cycleReference = getViewClient().createLatestCycleReference();
     if (cycleReference == null) {
@@ -163,12 +166,12 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
         columnMessage.put("dg", depGraphMessage);
         valuesToSend.put(Integer.toString(depGraphGrid.getParentGridCell().getColumnId()), columnMessage);
         getRemoteClient().deliver(getLocalClient(), getUpdateChannel(), valuesToSend, null);
-      } 
+      }
     } finally {
       cycleReference.release();
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(WebViewGridColumn column, String valueName, Class<?> valueType) {
     // Ensure the converter is cached against the value name before sending the column details 
@@ -182,14 +185,14 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   private void sendColumnDetails(Collection<WebViewGridColumn> columnDetails) {
     getRemoteClient().deliver(getLocalClient(), _columnStructureChannel, getJsonColumnStructures(columnDetails), null);
   }
-  
+
   @Override
   public Map<String, Object> getInitialJsonGridStructure() {
     Map<String, Object> gridStructure = super.getInitialJsonGridStructure();
     gridStructure.put("columns", getJsonColumnStructures(getGridStructure().getColumns()));
     return gridStructure;
   }
-  
+
   @Override
   protected List<Object> getInitialJsonRowStructures() {
     List<Object> rowStructures = new ArrayList<Object>();
@@ -203,7 +206,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return rowStructures;
   }
-  
+
   private Map<String, Object> getJsonColumnStructures(Collection<WebViewGridColumn> columns) {
     Map<String, Object> columnStructures = new HashMap<String, Object>(columns.size());
     for (WebViewGridColumn columnDetails : columns) {
@@ -211,7 +214,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return columnStructures;
   }
-  
+
   private Map<String, Object> getJsonColumnStructure(WebViewGridColumn column) {
     Map<String, Object> detailsToSend = new HashMap<String, Object>();
     long colId = column.getId();
@@ -219,12 +222,12 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     detailsToSend.put("header", column.getHeader());
     detailsToSend.put("description", column.getValueName() + ":\n" + column.getDescription());
     detailsToSend.put("nullValue", _nullCellValue);
-    
+
     String resultType = getConverterCache().getKnownResultTypeName(column.getValueName());
     if (resultType != null) {
       column.setTypeKnown(true);
       detailsToSend.put("dataType", resultType);
-      
+
       // Hack - the client should decide which columns it requires history for, taking into account the capabilities of
       // the renderer.
       if (resultType.equals("DOUBLE")) {
@@ -233,16 +236,18 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return detailsToSend;
   }
-  
+
   protected abstract void addRowDetails(UniqueId target, int rowId, Map<String, Object> details);
-  
+
   //-------------------------------------------------------------------------
   protected RequirementBasedGridStructure getGridStructure() {
     return _gridStructure;
   }
-  
-  //-------------------------------------------------------------------------
-  
+
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
   private void addHistoryOutput(long colId) {
     _historyOutputs.add(colId);
   }
@@ -251,7 +256,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   protected boolean isHistoryOutput(WebGridCell cell) {
     return _historyOutputs.contains(cell.getColumnId());
   }
-  
+
   //-------------------------------------------------------------------------
   public WebViewGrid setIncludeDepGraph(WebGridCell cell, boolean includeDepGraph) {
     if (includeDepGraph) {
@@ -260,7 +265,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       Pair<String, ValueSpecification> columnMappingPair = getGridStructure().findCellSpecification(cell, getViewClient().getLatestCompiledViewDefinition());
       s_logger.debug("includeDepGraph took {}", timer.finished());
       WebViewDepGraphGrid grid = new WebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(),
-          getLocalClient(), getRemoteClient(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond());
+          getLocalClient(), getRemoteClient(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(), getComputationTargetResolver());
       _depGraphGrids.putIfAbsent(cell, grid);
       return grid;
     } else {
@@ -268,7 +273,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       return grid;
     }
   }
-  
+
   public void setDepGraphViewport(WebGridCell cell, SortedMap<Integer, Long> viewportMap) {
     WebViewDepGraphGrid grid = _depGraphGrids.get(cell);
     if (grid == null) {
@@ -276,7 +281,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     grid.setViewport(viewportMap);
   }
-  
+
   //-------------------------------------------------------------------------  
   @Override
   protected String[][] getCsvColumnHeaders() {
@@ -291,7 +296,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
       header1[offset + column.getId()] = column.getHeader();
       header2[offset + column.getId()] = column.getDescription();
     }
-    return new String[][] {header1, header2};
+    return new String[][] {header1, header2 };
   }
 
   @Override
@@ -335,17 +340,17 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
   protected int getAdditionalCsvColumnCount() {
     return 0;
   }
-  
+
   protected int getCsvDataColumnOffset() {
     return 0;
   }
-  
+
   protected void supplementCsvColumnHeaders(String[] headers) {
   }
-  
+
   protected void supplementCsvRowData(int rowId, ComputationTargetSpecification target, String[] row) {
   }
-  
+
   //-------------------------------------------------------------------------
 
   private static List<RequirementBasedColumnKey> getRequirements(ViewDefinition viewDefinition, EnumSet<ComputationTargetType> targetTypes) {
@@ -360,7 +365,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
           result.add(columnKey);
         }
       }
-      
+
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
         if (!targetTypes.contains(specificRequirement.getTargetSpecification().getType())) {
           continue;
@@ -373,5 +378,5 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     }
     return result;
   }
-  
+
 }

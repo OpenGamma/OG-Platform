@@ -7,14 +7,14 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
@@ -26,64 +26,6 @@ import com.opengamma.util.tuple.Pair;
     super(task);
   }
 
-  private static final class LiveDataResolvedValueProducer implements ResolvedValueProducer {
-
-    private final ValueRequirement _valueRequirement;
-    private final ResolvedValue _resolvedValue;
-    private int _refCount = 1;
-
-    public LiveDataResolvedValueProducer(final ValueRequirement valueRequirement, final ResolvedValue resolvedValue) {
-      _valueRequirement = valueRequirement;
-      _resolvedValue = resolvedValue;
-    }
-
-    @Override
-    public Cancelable addCallback(final GraphBuildingContext context, final ResolvedValueCallback callback) {
-      final AtomicReference<ResolvedValueCallback> callbackRef = new AtomicReference<ResolvedValueCallback>(callback);
-      context.resolved(callback, _valueRequirement, _resolvedValue, new ResolutionPump() {
-
-        @Override
-        public void pump(final GraphBuildingContext context) {
-          final ResolvedValueCallback callback = callbackRef.getAndSet(null);
-          if (callback != null) {
-            // No error information to push; just that there are no additional value requirements
-            context.failed(callback, _valueRequirement, null);
-          }
-        }
-
-        @Override
-        public void close(final GraphBuildingContext context) {
-          callbackRef.set(null);
-        }
-
-      });
-      return new Cancelable() {
-        @Override
-        public boolean cancel(final GraphBuildingContext context) {
-          return callbackRef.getAndSet(null) != null;
-        }
-      };
-    }
-
-    @Override
-    public synchronized void addRef() {
-      assert _refCount > 0;
-      _refCount++;
-    }
-
-    @Override
-    public synchronized int release(final GraphBuildingContext context) {
-      assert _refCount > 0;
-      return --_refCount;
-    }
-
-    @Override
-    public ValueRequirement getValueRequirement() {
-      return _valueRequirement;
-    }
-
-  }
-
   @Override
   protected void run(final GraphBuildingContext context) {
     switch (context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement())) {
@@ -91,30 +33,34 @@ import com.opengamma.util.tuple.Pair;
         s_logger.info("Found live data for {}", getValueRequirement());
         final MarketDataSourcingFunction function = new MarketDataSourcingFunction(getValueRequirement());
         final ResolvedValue result = createResult(function.getResult(), new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(), Collections
-            .singleton(function.getResult()));
-        final LiveDataResolvedValueProducer producer = new LiveDataResolvedValueProducer(getValueRequirement(), result);
-        final ResolvedValueProducer existing = context.declareTaskProducing(function.getResult(), getTask(), producer);
-        if (!pushResult(context, result)) {
+            .singleton(MemoryUtils.instance(function.getResult())));
+        context.declareProduction(result);
+        if (!pushResult(context, result, true)) {
           throw new IllegalStateException(result + " rejected by pushResult");
         }
-        producer.release(context);
-        existing.release(context);
         // Leave in current state; will go to finished after being pumped
         break;
       case NOT_AVAILABLE:
-        final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), getComputationTarget());
-        if (itr.hasNext()) {
-          s_logger.debug("Found functions for {}", getValueRequirement());
-          setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
+        final ComputationTarget target = getComputationTarget(context);
+        if (target != null) {
+          final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), target);
+          if (itr.hasNext()) {
+            s_logger.debug("Found functions for {}", getValueRequirement());
+            setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
+          } else {
+            s_logger.info("No functions for {}", getValueRequirement());
+            storeFailure(context.noFunctions(getValueRequirement()));
+            setTaskStateFinished(context);
+          }
         } else {
-          s_logger.info("No functions for {}", getValueRequirement());
-          storeFailure(ResolutionFailure.noFunctions(getValueRequirement()));
+          s_logger.info("No functions for unresolved target {}", getValueRequirement());
+          storeFailure(context.noFunctions(getValueRequirement()));
           setTaskStateFinished(context);
         }
         break;
       case MISSING:
         s_logger.info("Missing market data for {}", getValueRequirement());
-        storeFailure(ResolutionFailure.marketDataMissing(getValueRequirement()));
+        storeFailure(context.marketDataMissing(getValueRequirement()));
         setTaskStateFinished(context);
         break;
       default:

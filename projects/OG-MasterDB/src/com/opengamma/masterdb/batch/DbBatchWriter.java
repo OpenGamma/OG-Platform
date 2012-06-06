@@ -741,8 +741,8 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     Collection<ComputationTargetSpecification> computationTargets = newArrayList();
     for (final String configName : cycleMetadata.getAllCalculationConfigurationNames()) {
-      for (com.opengamma.engine.ComputationTarget computationTarget : cycleMetadata.getComputationTargets(configName)) {
-        computationTargets.add(computationTarget.toSpecification());
+      for (com.opengamma.engine.ComputationTargetSpecification computationTarget : cycleMetadata.getComputationTargets(configName)) {
+        computationTargets.add(computationTarget);
       }
     }
     populateComputationTargets(computationTargets);

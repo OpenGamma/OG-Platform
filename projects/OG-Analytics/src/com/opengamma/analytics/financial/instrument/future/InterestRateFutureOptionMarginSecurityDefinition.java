@@ -10,8 +10,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.analytics.util.time.TimeCalculator;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -93,8 +92,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     final Double referencePrice = 0.0; // FIXME FutureRefactor Urgently need to update Options on Futures 
     final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
     InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);

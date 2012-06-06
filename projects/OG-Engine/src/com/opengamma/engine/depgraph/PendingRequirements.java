@@ -53,6 +53,9 @@ import com.opengamma.engine.value.ValueRequirement;
   @Override
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     _valueRequirements.remove(valueRequirement);
+    if (pump != null) {
+      context.close(pump);
+    }
   }
 
   @Override

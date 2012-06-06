@@ -24,7 +24,7 @@ public class EmpiricalDistributionVaRCalculator implements VaRCalculator<Empiric
     Validate.isTrue(returns.length > 0);
     final double[] data = returns[0].valuesArrayFast();
     Arrays.sort(data);
-    return parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
+    return -parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
   }
 
 }

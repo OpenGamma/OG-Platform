@@ -26,13 +26,16 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
 public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-
+  /** The name for the normal historical VaR calculation method */
+  public static final String NORMAL_VAR = "Normal";
+  
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final String currency = getCurrency(inputs);
@@ -79,7 +82,8 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .withAny(ValuePropertyNames.AGGREGATION).get();
+        .withAny(ValuePropertyNames.AGGREGATION)
+        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
@@ -102,7 +106,8 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
-        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next());
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
     Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -143,7 +148,8 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.MEAN_CALCULATOR)
         .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
-        .withAny(ValuePropertyNames.HORIZON);
+        .withAny(ValuePropertyNames.HORIZON)
+        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -159,8 +165,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.MEAN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.MEAN_CALCULATOR))
         .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
-        .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON));
-    final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
+        .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
+        .with(ValuePropertyNames.CALCULATION_METHOD, NORMAL_VAR);
+    final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);    
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -178,7 +185,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       throw new OpenGammaRuntimeException("Missing or non-unique confidence level name: " + confidenceLevelNames);
     }
     return new NormalVaRParameters(Double.valueOf(horizonNames.iterator().next()),
-        VaRFunctionUtils.getPeriodsPerYear(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
+        VaRFunctionUtils.getBusinessDaysPerPeriod(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
   }
 
   private NormalLinearVaRCalculator<DoubleTimeSeries<?>> getVaRCalculator(final Set<String> meanCalculatorNames,

@@ -59,6 +59,7 @@ import com.opengamma.engine.value.ValueRequirement;
   public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue value, final ResolutionPump pump) {
     s_logger.debug("Received {} for {}", value, valueRequirement);
     boolean wantedResult = false;
+    final boolean lastResult;
     synchronized (this) {
       assert _pendingTasks > 0;
       if (_wantResult) {
@@ -66,12 +67,18 @@ import com.opengamma.engine.value.ValueRequirement;
         wantedResult = true;
         _wantResult = false;
       }
+      lastResult = ((_pendingTasks == 1) && (pump == null) && _pumps.isEmpty());
     }
-    if (pushResult(context, value)) {
+    // Note that the lastResult indicator isn't 100% if there are concurrent calls to resolved. The "last" condition may
+    // not be seen. The alternative would be to serialize the calls through pushResult so that we can guarantee spotting
+    // the final one.
+    if (pushResult(context, value, lastResult)) {
       Collection<ResolutionPump> pumps = null;
       synchronized (this) {
         assert _pendingTasks > 0;
-        _pumps.add(pump);
+        if (pump != null) {
+          _pumps.add(pump);
+        }
         if (--_pendingTasks == 0) {
           if (_wantResult) {
             s_logger.debug("Pumping underlying after last input resolved for {}", this);
@@ -90,7 +97,11 @@ import com.opengamma.engine.value.ValueRequirement;
           _wantResult = true;
         }
       }
-      context.pump(pump);
+      if (pump != null) {
+        context.pump(pump);
+      } else {
+        context.failed(this, valueRequirement, null);
+      }
     }
   }
 
@@ -174,7 +185,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected void finished(final GraphBuildingContext context) {
-    assert _pendingTasks == 0;
+    assert _pendingTasks <= 1;
     super.finished(context);
   }
 

@@ -25,7 +25,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -195,14 +194,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
-    ComputationTargetResolver targetResolver = appContext.getBean(ComputationTargetResolver.class);
-    ComponentInfo infoTR = new ComponentInfo(ComputationTargetResolver.class, getClassifier());
-    repo.registerComponent(infoTR, targetResolver);
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
       DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
       bean.setCompiledFunctionService(compiledFunctionService);
-      bean.setComputationTargetResolver(targetResolver);
       bean.setFunctionResolver(functionResolver);
       bean.setFunctionExclusionGroups(functionExclusionGroups);
       bean.setMarketDataProviderResolver(getMarketDataProviderResolver());

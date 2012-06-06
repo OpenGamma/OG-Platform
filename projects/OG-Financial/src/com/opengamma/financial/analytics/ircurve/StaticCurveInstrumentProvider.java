@@ -40,6 +40,17 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor payTenor, final Tenor receiveTenor, final IndexType payIndexType,
+      final IndexType receiveIndexType) {
+    return _identifier;
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
+    return _identifier;
+  }
+
+  @Override
   public boolean equals(final Object o) {
     if (o == null) {
       return false;

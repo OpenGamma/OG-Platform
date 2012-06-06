@@ -106,14 +106,14 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
-    final String relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+    final String relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
-    final String iterationsName = desiredValue.getConstraint(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    final String iterationsName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
     final int iterations = Integer.parseInt(iterationsName);
-    final String decompositionName = desiredValue.getConstraint(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION);
-    final String useFiniteDifferenceName = desiredValue.getConstraint(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE);
+    final String decompositionName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
+    final String useFiniteDifferenceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
@@ -160,7 +160,7 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
         initialRatesGuess.add(0.02);
       }
     }
-    final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName}, new YieldAndDiscountCurve[] {foreignCurve});
+    final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName }, new YieldAndDiscountCurve[] {foreignCurve });
     final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
     curveKnots.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
@@ -215,23 +215,23 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     if (rootFinderAbsoluteTolerance == null || rootFinderAbsoluteTolerance.size() != 1) {
       return null;
     }
-    final Set<String> rootFinderRelativeTolerance = constraints.getValues(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+    final Set<String> rootFinderRelativeTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
     if (rootFinderRelativeTolerance == null || rootFinderRelativeTolerance.size() != 1) {
       return null;
     }
-    final Set<String> maxIterations = constraints.getValues(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    final Set<String> maxIterations = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
     if (maxIterations == null || maxIterations.size() != 1) {
       return null;
     }
-    final Set<String> decomposition = constraints.getValues(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION);
+    final Set<String> decomposition = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
     if (decomposition == null || decomposition.size() != 1) {
       return null;
     }
-    final Set<String> useFiniteDifference = constraints.getValues(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE);
+    final Set<String> useFiniteDifference = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
     if (useFiniteDifference == null || useFiniteDifference.size() != 1) {
       return null;
     }
@@ -303,37 +303,37 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
 
   private ValueProperties getCurveProperties() {
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getProperties() {
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance, final String relativeTolerance,
       final String maxIterations, final String decomposition, final String useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION, decomposition)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
   private ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_DECOMPOSITION, decomposition)
-        .with(MultiYieldCurvePresentValueMethodFunction.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 

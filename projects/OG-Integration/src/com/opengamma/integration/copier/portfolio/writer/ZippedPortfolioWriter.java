@@ -65,7 +65,10 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     // Confirm file doesn't already exist
     File file = new File(filename);
     if (file.exists()) {
-      throw new OpenGammaRuntimeException("File " + filename + " already exists");
+      file.delete();
+      if (file.exists()) {
+        throw new OpenGammaRuntimeException("Existing file " + filename + " could not be deleted");
+      }
     }
     
     // Create zip file

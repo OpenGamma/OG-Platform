@@ -5,27 +5,30 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
-import javax.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import javax.time.Instant;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Class encapsulationg information available on cycle initialisation
@@ -52,7 +55,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   private Collection<String> _allCalculationConfigurationNames;
 
   @PropertyDefinition
-  private Map<String, Collection<ComputationTarget>> _computationTargetsByCalcConfig;
+  private Map<String, Collection<ComputationTargetSpecification>> _computationTargetsByCalcConfig;
 
   @PropertyDefinition
   private Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _terminalOutputsByCalcConfig;
@@ -63,7 +66,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   public DefaultViewCycleMetadata(UniqueId viewCycleId, UniqueId marketDataSnapshotUniqueId, UniqueId viewDefinitionId,
       VersionCorrection versionCorrection, Instant valuationTime, Collection<String> allCalculationConfigurationNames,
-      Map<String, Collection<ComputationTarget>> computationTargetsByConfigName,
+      Map<String, Collection<ComputationTargetSpecification>> computationTargetsByConfigName,
       Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByConfigName) {
     _viewCycleId = viewCycleId;
     _marketDataSnapshotId = marketDataSnapshotUniqueId;
@@ -76,7 +79,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   }
 
   @Override
-  public Collection<ComputationTarget> getComputationTargets(String configurationName) {
+  public Collection<ComputationTargetSpecification> getComputationTargets(String configurationName) {
     return getComputationTargetsByCalcConfig().get(configurationName);
   }
 
@@ -149,7 +152,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
         setAllCalculationConfigurationNames((Collection<String>) newValue);
         return;
       case -1677286775:  // computationTargetsByCalcConfig
-        setComputationTargetsByCalcConfig((Map<String, Collection<ComputationTarget>>) newValue);
+        setComputationTargetsByCalcConfig((Map<String, Collection<ComputationTargetSpecification>>) newValue);
         return;
       case -351004092:  // terminalOutputsByCalcConfig
         setTerminalOutputsByCalcConfig((Map<String, Map<ValueSpecification, Set<ValueRequirement>>>) newValue);
@@ -346,7 +349,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
    * Gets the computationTargetsByCalcConfig.
    * @return the value of the property
    */
-  public Map<String, Collection<ComputationTarget>> getComputationTargetsByCalcConfig() {
+  public Map<String, Collection<ComputationTargetSpecification>> getComputationTargetsByCalcConfig() {
     return _computationTargetsByCalcConfig;
   }
 
@@ -354,7 +357,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
    * Sets the computationTargetsByCalcConfig.
    * @param computationTargetsByCalcConfig  the new value of the property
    */
-  public void setComputationTargetsByCalcConfig(Map<String, Collection<ComputationTarget>> computationTargetsByCalcConfig) {
+  public void setComputationTargetsByCalcConfig(Map<String, Collection<ComputationTargetSpecification>> computationTargetsByCalcConfig) {
     this._computationTargetsByCalcConfig = computationTargetsByCalcConfig;
   }
 
@@ -429,19 +432,19 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     /**
      * The meta-property for the {@code allCalculationConfigurationNames} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked" })
     private final MetaProperty<Collection<String>> _allCalculationConfigurationNames = DirectMetaProperty.ofReadWrite(
         this, "allCalculationConfigurationNames", DefaultViewCycleMetadata.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code computationTargetsByCalcConfig} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked" })
     private final MetaProperty<Map<String, Collection<ComputationTarget>>> _computationTargetsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "computationTargetsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**
      * The meta-property for the {@code terminalOutputsByCalcConfig} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked" })
     private final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> _terminalOutputsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "terminalOutputsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**

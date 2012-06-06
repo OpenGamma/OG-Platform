@@ -6,11 +6,13 @@
 package com.opengamma.engine;
 
 import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.google.common.collect.MapMaker;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -35,6 +37,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
    * The cache.
    */
   private final Cache _computationTarget;
+  /**
+   * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
+   * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
+   */
+  private final ConcurrentMap<ComputationTargetSpecification, ComputationTarget> _frontCache = new MapMaker().softValues().makeMap();
 
   /**
    * Creates an instance using the specified cache manager.
@@ -71,16 +78,28 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
       case TRADE:
       case PORTFOLIO_NODE:
       case SECURITY:
+        ComputationTarget target = _frontCache.get(specification);
+        if (target != null) {
+          return target;
+        }
         final Element e = _computationTarget.get(specification);
         if (e != null) {
-          return (ComputationTarget) e.getValue();
-        } else {
-          final ComputationTarget ct = super.resolve(specification);
-          if (ct != null) {
-            addToCache(specification, ct);
+          target = (ComputationTarget) e.getValue();
+          final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
+          if (existing != null) {
+            target = existing;
           }
-          return ct;
+        } else {
+          target = super.resolve(specification);
+          if (target != null) {
+            final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
+            if (existing != null) {
+              target = existing;
+            }
+            addToCache(specification, target);
+          }
         }
+        return target;
       default:
         return super.resolve(specification);
     }
@@ -113,6 +132,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   //-------------------------------------------------------------------------
   private void addToCache(ComputationTargetSpecification specification, ComputationTarget ct) {
     _computationTarget.put(new Element(specification, ct));
+    _frontCache.put(MemoryUtils.instance(specification), ct);
   }
 
   private void addToCache(Collection<? extends UniqueIdentifiable> targets, ComputationTargetType targetType) {

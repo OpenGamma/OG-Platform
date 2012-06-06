@@ -11,7 +11,7 @@ import java.util.Set;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
@@ -44,7 +44,7 @@ public interface ViewCycleMetadata {
    * @param configurationName  the calculation configuration name, not null 
    * @return the computation targets for the given calculation configuration name, null if not found
    */
-  Collection<ComputationTarget> getComputationTargets(String configurationName);
+  Collection<ComputationTargetSpecification> getComputationTargets(String configurationName);
 
   /**
    * Gets the terminal outputs for a given calculation configuration.

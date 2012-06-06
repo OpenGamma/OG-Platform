@@ -39,7 +39,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -342,10 +341,10 @@ public class DefaultPropertyFunctionsTest {
   private FunctionCompilationContext createFunctionCompilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     final SecuritySource securities = createSecuritySource();
-    PositionSource positionSource = createPositionSource(securities);
-    context.setPortfolioStructure(new PortfolioStructure(positionSource));
-    context.setPositionSource(positionSource);
+    final PositionSource positions = createPositionSource(securities);
+    context.setPortfolioStructure(new PortfolioStructure(positions));
     context.setSecuritySource(securities);
+    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities, positions));
     return context;
   }
 
@@ -414,9 +413,7 @@ public class DefaultPropertyFunctionsTest {
     ctx.setViewCalculationConfiguration(new ViewCalculationConfiguration(new ViewDefinition("Name", "User"), "Default"));
     builder.setCompilationContext(ctx);
     final CompiledFunctionResolver cfr = createFunctionResolver(ctx);
-    final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(ctx.getSecuritySource(), ctx.getPortfolioStructure().getPositionSource());
-    builder.setTargetResolver(targetResolver);
-    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules(), ctx, targetResolver));
+    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules(), ctx));
     builder.setFunctionResolver(cfr);
     builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
         .asList(MarketDataRequirementNames.MARKET_VALUE)));

@@ -11,6 +11,9 @@ import java.util.Stack;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.beancompare.BeanCompare;
+import com.opengamma.util.beancompare.BeanDifference;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.id.ExternalIdSearch;
@@ -51,7 +54,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolioNode _originalRoot;
   
   private boolean _overwrite;
-    
+
+  private BeanCompare _beanCompare;
+
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, 
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite) {
 
@@ -64,8 +69,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
-    createPortfolio(portfolioName);
 
+    _beanCompare = new BeanCompare();
+
+    createPortfolio(portfolioName);
   }
 
   /**
@@ -171,7 +178,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     } else {
       for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        if (weakEquals(foundSecurity, security)) {
+        List<BeanDifference<?>> differences = _beanCompare.compare(foundSecurity, security);
+        if (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
           // It's already there, don't update or add it
           return foundSecurity;
         } else {

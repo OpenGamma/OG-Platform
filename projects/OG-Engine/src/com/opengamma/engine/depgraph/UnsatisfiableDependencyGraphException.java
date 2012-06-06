@@ -43,7 +43,7 @@ public final class UnsatisfiableDependencyGraphException extends OpenGammaRuntim
    * @param requirement the value requirement, not null
    */
   public UnsatisfiableDependencyGraphException(final ValueRequirement requirement) {
-    this(ResolutionFailure.unsatisfied(requirement));
+    this(ResolutionFailureImpl.unsatisfied(requirement));
   }
 
   /**
