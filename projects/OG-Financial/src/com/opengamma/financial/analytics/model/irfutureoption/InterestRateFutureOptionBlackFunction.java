@@ -58,7 +58,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
  */
 public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -120,7 +120,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
-    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle((InterpolatedDoublesSurface) volatilitySurface.getSurface(), curves);
+    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
     return getResult(irFutureOption, data, spec);
   }
 

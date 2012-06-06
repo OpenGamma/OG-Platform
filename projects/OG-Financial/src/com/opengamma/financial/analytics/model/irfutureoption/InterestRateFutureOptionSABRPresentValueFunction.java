@@ -31,7 +31,7 @@ public class InterestRateFutureOptionSABRPresentValueFunction extends InterestRa
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target, final FunctionInputs inputs,
       final String forwardCurveName, final String fundingCurveName, final String surfaceName, final String curveCalculationMethod) {
     final double presentValue = CALCULATOR.visit(irFutureOption, data);
     return Collections.singleton(new ComputedValue(getSpecification(target, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod), presentValue));
