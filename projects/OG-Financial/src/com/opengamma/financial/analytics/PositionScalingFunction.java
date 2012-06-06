@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -95,6 +96,10 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
       final double quantity = target.getPosition().getQuantity().doubleValue();
       doubleValue *= quantity;
       scaledValue = new ComputedValue(specification, doubleValue);
+    } else if (value instanceof MultipleCurrencyAmount) {
+      final MultipleCurrencyAmount m = (MultipleCurrencyAmount) value;
+      final double quantity = target.getPosition().getQuantity().doubleValue();
+      scaledValue = new ComputedValue(specification, m.multipliedBy(quantity));
     } else if (value instanceof YieldCurveNodeSensitivityDataBundle) {
       final YieldCurveNodeSensitivityDataBundle nodeSensitivities = (YieldCurveNodeSensitivityDataBundle) value;
       final double quantity = target.getPosition().getQuantity().doubleValue();
