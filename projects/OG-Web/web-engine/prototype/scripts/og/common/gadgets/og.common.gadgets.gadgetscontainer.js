@@ -15,10 +15,6 @@ $.register_module({
                 overflow = {}, // document offet of overflow panel
                 $overflow_panel; // panel that houses non visible tabs
             var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
-            var extract_pane = function (str) {
-                var re = new RegExp('^' + class_prefix.replace(/\-/g, '\\-') + '(.*?)\\s(?:.*?)$');
-                return str.replace(re, '$1');
-            };
             var extract_index = function (id) {
                 return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0)
             };
