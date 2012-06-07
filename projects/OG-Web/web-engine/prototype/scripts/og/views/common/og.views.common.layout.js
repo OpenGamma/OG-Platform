@@ -50,7 +50,7 @@ $.register_module({
             gadget: function () {return {
                 main: $('.OG-layout-gadget-container').layout({
                     defaults: {enableCursorHotkey: false},
-                    center: {paneClass: 'OG-layout-analytics'}
+                    center: {paneClass: 'OG-gadgets-container'}
                 })
             };},
             analytics2: function () {return {
@@ -76,32 +76,32 @@ $.register_module({
                 inner: $('.OG-layout-analytics2').layout({
                     defaults: {
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
-                        togglerLength_open: 0
+                        togglerLength_open: 0, paneClass: 'OG-gadgets-container'
                     },
                     south: {
-                        paneSelector: '.OG-layout-analytics-south', paneClass: 'OG-layout-analytics-south',
+                        paneSelector: '.OG-layout-analytics-south',
                         size: '50%', initClosed: false, spacing_closed: 0
                     },
                     center: { // main grid
-                        paneSelector: '.OG-layout-analytics-center', paneClass: 'OG-layout-analytics-center',
-                        contentSelector: '.ui-layout-content'
+                        paneSelector: '.OG-layout-analytics-center',
+                        contentSelector: '.ui-layout-content', paneClass: 'OG-layout-analytics-center'
                     }
                 }),
                 right: $('.OG-layout-analytics-dock').layout({
                     defaults: {
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
-                        togglerLength_open: 0, spacing_open: 7
+                        togglerLength_open: 0, spacing_open: 7, paneClass: 'OG-gadgets-container'
                     },
                     north: {
-                        paneSelector: '.OG-layout-analytics-dock-north', paneClass: 'OG-layout-analytics-dock-north',
+                        paneSelector: '.OG-layout-analytics-dock-north',
                         size: '33%', initClosed: false, spacing_closed: 0
                     },
                     south: {
-                        paneSelector: '.OG-layout-analytics-dock-south', paneClass: 'OG-layout-analytics-dock-south',
+                        paneSelector: '.OG-layout-analytics-dock-south',
                         size: '33%', initClosed: false, spacing_closed: 0
                     },
                     center: {
-                        paneSelector: '.OG-layout-analytics-dock-center', paneClass: 'OG-layout-analytics-dock-center',
+                        paneSelector: '.OG-layout-analytics-dock-center',
                         size: '34%', contentSelector: '.ui-layout-content'
                     }
                 })

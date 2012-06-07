@@ -9,7 +9,7 @@
 
 html {
   background-color: #cdcdcd;
-      background-image: -moz-radial-gradient(cover, #fff, #cdcdcd);
+  background-image: -moz-radial-gradient(cover, #fff, #cdcdcd);
   background-image: -webkit-radial-gradient(cover, #fff, #cdcdcd);
   background-image: radial-gradient(cover, #fff, #cdcdcd);
   height: 100%;

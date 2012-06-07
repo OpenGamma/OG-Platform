@@ -17,7 +17,7 @@ $.register_module({
             },
             gadgetscontainer: function (args) {
                 ['center'].forEach(function (val) {
-                    new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
+                    new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', val).add(args[val]);
                 });
             },
             positions: function (args) {

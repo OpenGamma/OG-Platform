@@ -22,6 +22,10 @@
     margin: -24px 0 0 -24px;
 }
 
+.ie8 .OG-gadget-container:before {
+    content: none;
+}
+
 .OG-gadget-container .og-loading {
     position: absolute;
     top: 10px;

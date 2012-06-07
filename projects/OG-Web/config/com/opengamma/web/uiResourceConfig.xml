@@ -130,6 +130,7 @@
     <fragment>/styles/analytics/og.analytics.footer.OG-analytics-footer.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-container.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
