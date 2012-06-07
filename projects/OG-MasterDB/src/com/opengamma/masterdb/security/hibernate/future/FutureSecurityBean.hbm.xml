@@ -25,7 +25,7 @@
     <many-to-one name="settlementExchange" column="settlementexchange_id"
                  class="com.opengamma.masterdb.security.hibernate.ExchangeBean" not-null="true"/>
 
-    <many-to-one name="category" column="category_id"
+    <many-to-one name="category" column="contract_category_id"
                  class="com.opengamma.masterdb.security.hibernate.ContractCategoryBean" not-null="true"/>
 
     <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
@@ -84,4 +84,17 @@
 
 
   </class>
+
+  <query name="FutureSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      FutureSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="FutureSecurityBean.all">
+    from FutureSecurityBean
+  </query>
 </hibernate-mapping>

@@ -370,13 +370,13 @@ public final class FutureSecurityBeanOperation extends
           .getOrCreateCurrencyBean(security.getCurrency()
             .getCode()));
         bean.setUnitAmount(security.getUnitAmount());
-        bean.setCategory(secMasterSession.getOrCreateContractCategoryBean(security.getContractCategory()));                    
+        bean.setCategory(secMasterSession.getOrCreateContractCategoryBean(security.getContractCategory()));
         return bean;
       }
 
       private <F extends CommodityFutureBean> F createCommodityFutureBean(
         final F futureSecurityBean, final CommodityFutureSecurity security) {
-        final F bean = createFutureBean(futureSecurityBean, security);        
+        final F bean = createFutureBean(futureSecurityBean, security);
         if (security.getUnitName() != null) {
           bean.setUnitName(secMasterSession
             .getOrCreateUnitNameBean(security.getUnitName()));
@@ -396,7 +396,7 @@ public final class FutureSecurityBeanOperation extends
       @Override
       public BondFutureBean visitBondFutureSecurity(
         BondFutureSecurity security) {
-        final BondFutureBean bean = createFutureBean(new BondFutureBean(), security);        
+        final BondFutureBean bean = createFutureBean(new BondFutureBean(), security);
         bean.setFirstDeliveryDate(dateTimeWithZoneToZonedDateTimeBean(security
           .getFirstDeliveryDate()));
         bean.setLastDeliveryDate(dateTimeWithZoneToZonedDateTimeBean(security
@@ -442,7 +442,7 @@ public final class FutureSecurityBeanOperation extends
         bean.setNumerator(secMasterSession
           .getOrCreateCurrencyBean(security.getNumerator()
             .getCode()));
-        bean.setNumerator(secMasterSession
+        bean.setDenominator(secMasterSession
           .getOrCreateCurrencyBean(security.getDenominator()
             .getCode()));
         bean.setUnitNumber(security.getMultiplicationFactor());

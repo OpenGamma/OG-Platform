@@ -335,7 +335,7 @@ CREATE TABLE sec_commodityfutureoption (
     option_exercise_type varchar(32) NOT NULL,
     option_type varchar(32) NOT NULL,
     strike double precision NOT NULL,
-    expiry_date timestamp without time zone NOT NULL,
+    expiry_date DATETIME2(6) NOT NULL,
     expiry_zone varchar(50) NOT NULL,
     expiry_accuracy smallint NOT NULL,
     underlying_scheme varchar(255) NOT NULL,

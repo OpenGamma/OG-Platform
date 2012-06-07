@@ -54,6 +54,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       FutureSecurityBean.class,      
       FutureBundleBean.class,
       UnitBean.class,
+      ContractCategoryBean.class,
       
       EquityIndexOptionSecurityBean.class,
       EquityOptionSecurityBean.class,
