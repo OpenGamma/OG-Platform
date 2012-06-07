@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -135,6 +136,10 @@ public class PositionTradeScalingFunction extends AbstractFunction.NonCompiledIn
         final double quantity = target.getPosition().getQuantity().doubleValue();
         final double[] scaled = getScaledMatrix(m.getValues(), quantity);
         scaledValue = new CurrencyLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled);
+      } else if (value instanceof MultipleCurrencyAmount) {
+        final MultipleCurrencyAmount m = (MultipleCurrencyAmount) value;
+        final double quantity = target.getPosition().getQuantity().doubleValue();
+        scaledValue = m.multipliedBy(quantity);
       } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
         @SuppressWarnings("unchecked")
         final Map<String, List<DoublesPair>> map = (Map<String, List<DoublesPair>>) value;
