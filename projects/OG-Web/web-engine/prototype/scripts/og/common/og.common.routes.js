@@ -50,7 +50,9 @@ $.register_module({
                         'gadget.ftl': common.layout.gadget,
                         'admin.ftl': common.layout.admin
                     })[window.location.pathname.split('/').reverse()[0].toLowerCase()] || $.noop)();
-                    if (window.parent !== window && window.parent.og.api.rest)
+                    // check if the parent's document is the same as the window's (instead of just comparing
+                    // window.parent to window, we use document because IE8 doesn't know true from false)
+                    if (window.parent.document !== window.document && window.parent.og.api.rest)
                         og.api.rest = window.parent.og.api.rest;
                     else
                         if (og.api.rest) og.api.rest.subscribe();
