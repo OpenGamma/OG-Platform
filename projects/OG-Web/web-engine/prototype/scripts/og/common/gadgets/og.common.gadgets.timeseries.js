@@ -275,7 +275,10 @@ $.register_module({
                     $legend = get_legend(), $legend.css({visibility: 'hidden'});
                     rescale_yaxis();
                     load_data_points();
-                    setTimeout(function () {$(selector + ' .og-plots').css('visibility', 'visible')}); // load smoother
+                    setTimeout(function () {
+                        $(selector + ' .og-plots').css('visibility', 'visible');
+                        $(selector + ' .og-loading').remove();
+                    }); // load smoother
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set
