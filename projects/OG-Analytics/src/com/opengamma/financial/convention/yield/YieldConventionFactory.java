@@ -46,6 +46,7 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.DISCOUNT);
     store(SimpleYieldConvention.INTERESTATMTY);
     store(SimpleYieldConvention.STEP_FLOATER);
+    store(SimpleYieldConvention.JAPAN_SIMPLE);
   }
 
   /**
