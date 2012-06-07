@@ -20,11 +20,10 @@ $.register_module({
                     if (!datum || typeof datum === 'string') return datum || '';
                     for (item in datum) if (+item + 0 === +item) length += 1;
                     for (lcv = 0; lcv < length; lcv += 1) data.push(datum[lcv]);
-                    return data.map(function (str) {return str.replace(/,/g, '\\,');}).join(', ');
+                    return data.join('\\, ');
                 },
                 deconvert = function (datum, optional) {
-                    var empty = true, result, array = datum ? datum // split on all non-escaped commas
-                        .replace(/\\\,/g, '\0').split(/\,\s*/g).map(function (s) {return s.replace(/\0/g, ',');}) : [];
+                    var empty = true, result, array = datum ? datum.split(/\\\,\s*/) : [];
                     if (!optional && !array.length) return null;
                     result = array
                         .reduce(function (acc, val, idx) {return (empty = 0), val ? (acc[idx] = val, acc) : acc;}, {});
