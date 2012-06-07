@@ -114,17 +114,17 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
           //                            and it's not clear from the country alone which holiday should be used.
           //_holidaySource.isHoliday(date, HolidayType.BANK, region.getExternalIdBundle());
           if (_holidaySource.isHoliday(date, region.getCurrency())) {
-            return true;
+            return false;
           }
         }
-        return false;
+        return true;
       case CURRENCY:
         for (final Currency currency : _currencies) {
           if (_holidaySource.isHoliday(date, currency)) {
-            return true;
+            return false;
           }
         }
-        return false;
+        return true;
       case SETTLEMENT:
         return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
       case TRADING:
