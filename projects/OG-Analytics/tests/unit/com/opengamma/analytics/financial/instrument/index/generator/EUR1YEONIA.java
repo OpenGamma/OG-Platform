@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.indexon.EONIA;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * OIS generator for EUR annual payments with EONIA rates.
  */
-public class EUR1YEONIA extends GeneratorOIS {
+public class EUR1YEONIA extends GeneratorFixedON {
 
   /**
    * Constructor of the OIS generator EUR annual payment for Eonia.

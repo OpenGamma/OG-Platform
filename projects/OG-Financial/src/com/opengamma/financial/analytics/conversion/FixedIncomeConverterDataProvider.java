@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -87,7 +87,7 @@ public class FixedIncomeConverterDataProvider {
       }
     }
     if (security instanceof SwapSecurity) {
-      if (definition instanceof SwapFixedOISSimplifiedDefinition) {
+      if (definition instanceof SwapFixedONSimplifiedDefinition) {
         return definition.toDerivative(now, curveNames);
       }
       return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);

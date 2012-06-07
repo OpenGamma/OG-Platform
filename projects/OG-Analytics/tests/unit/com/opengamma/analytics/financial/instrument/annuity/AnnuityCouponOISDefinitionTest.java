@@ -9,8 +9,16 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -30,15 +38,6 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 /**
  * 
  */
@@ -54,7 +53,7 @@ public class AnnuityCouponOISDefinitionTest {
   private static final double NOTIONAL = 100000000;
   private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 0, CALENDAR);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final GeneratorOIS GENERATOR = new GeneratorOIS("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
+  private static final GeneratorFixedON GENERATOR = new GeneratorFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
   private static final boolean IS_PAYER = true;
   private static final AnnuityCouponOISDefinition DEFINITION = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, IS_PAYER);
   private static final int NUM_PAYMENTS = DEFINITION.getNumberOfPayments();
@@ -90,8 +89,7 @@ public class AnnuityCouponOISDefinitionTest {
   public void toDerivativeOnDateOfFinalPayment() {
 
     ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.withTime(12, 0);
-    assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour",
-        valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
+    assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
     Annuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
     assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
     assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
@@ -118,7 +116,7 @@ public class AnnuityCouponOISDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGenerator1() {
-    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_TENOR, NOTIONAL, null, IS_PAYER);
+    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_TENOR, NOTIONAL, (GeneratorFixedON) null, IS_PAYER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -133,7 +131,7 @@ public class AnnuityCouponOISDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullGenerator2() {
-    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, null, IS_PAYER);
+    AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorFixedON) null, IS_PAYER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -170,7 +168,7 @@ public class AnnuityCouponOISDefinitionTest {
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL / 2, GENERATOR, IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
-    definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorOIS("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0), IS_PAYER);
+    definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, new GeneratorFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 0), IS_PAYER);
     assertFalse(DEFINITION.equals(definition));
     definition = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, !IS_PAYER);
     assertFalse(DEFINITION.equals(definition));

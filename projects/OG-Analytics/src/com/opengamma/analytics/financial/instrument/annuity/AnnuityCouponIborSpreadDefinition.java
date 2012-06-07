@@ -34,12 +34,10 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
   /**
    * Constructor from a list of Ibor-like coupons.
    * @param payments The Ibor coupons.
-   * @param iborIndex The underlying ibor index
    */
-  public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments, final IborIndex iborIndex) {
+  public AnnuityCouponIborSpreadDefinition(final CouponIborSpreadDefinition[] payments) {
     super(payments);
-    ArgumentChecker.notNull(iborIndex, "ibor index");
-    _iborIndex = iborIndex;
+    _iborIndex = payments[0].getIndex();
   }
 
   /**
@@ -52,7 +50,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
    * @param isPayer The payer flag.
    * @return The Ibor annuity.
    */
-  public static AnnuityCouponIborSpreadDefinition from(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index, final double spread,
+  public static AnnuityCouponIborSpreadDefinition from(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index, final double spread, 
       final boolean isPayer) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(index, "index");
@@ -62,7 +60,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons, index);
+    return new AnnuityCouponIborSpreadDefinition(coupons);
   }
 
   /**
@@ -99,7 +97,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
       coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(
           paymentDates[loopcpn - 1], paymentDates[loopcpn]), sign * notional, fixingDate, index, spread);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons, index);
+    return new AnnuityCouponIborSpreadDefinition(coupons);
   }
 
   /**
@@ -122,7 +120,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), spread);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons, index);
+    return new AnnuityCouponIborSpreadDefinition(coupons);
   }
 
   public static AnnuityCouponIborSpreadDefinition from(final AnnuityCouponIborDefinition iborAnnuity) {
@@ -130,7 +128,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityDefinition<CouponI
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), 0);
     }
-    return new AnnuityCouponIborSpreadDefinition(coupons, iborAnnuity.getIborIndex());
+    return new AnnuityCouponIborSpreadDefinition(coupons);
   }
 
   /**

@@ -16,7 +16,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -89,8 +89,8 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     if (definition instanceof SwapFixedIborDefinition) {
       final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
-    } else if (definition instanceof SwapFixedOISDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedOISDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
+    } else if (definition instanceof SwapFixedONDefinition) {
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedONDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     } else if (definition instanceof SwapFixedIborSpreadDefinition) {
       final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);

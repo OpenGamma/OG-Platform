@@ -21,7 +21,7 @@ public class EURDeposit extends GeneratorDeposit {
    * @param calendar A EUR calendar.
    */
   public EURDeposit(final Calendar calendar) {
-    super(Currency.EUR, calendar, 2, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super("EUR Deposit", Currency.EUR, calendar, 2, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
   }
 
 }

@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
@@ -83,6 +82,7 @@ public class ScheduleCalculatorTest {
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aSaturday, 1, CALENDAR));
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aSunday, 1, CALENDAR));
     assertEquals("Adjusted date", aWednesday, ScheduleCalculator.getAdjustedDate(aMonday, 2, CALENDAR));
+    assertEquals("Adjusted date", aWednesday, ScheduleCalculator.getAdjustedDate(aMonday, Period.ofDays(2), CALENDAR));
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aFriday, 2, CALENDAR));
     assertEquals("Adjusted date", aWednesday2, ScheduleCalculator.getAdjustedDate(aSaturday, 2, CALENDAR));
     assertEquals("Adjusted date", aWednesday2, ScheduleCalculator.getAdjustedDate(aSunday, 2, CALENDAR));

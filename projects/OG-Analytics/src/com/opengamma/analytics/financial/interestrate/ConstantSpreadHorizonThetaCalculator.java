@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDef
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -100,7 +100,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
 
-  public MultipleCurrencyAmount getTheta(final SwapFixedOISDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
+  public MultipleCurrencyAmount getTheta(final SwapFixedONDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final DoubleTimeSeries<ZonedDateTime>[] fixingSeries, final int daysForward) {
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);

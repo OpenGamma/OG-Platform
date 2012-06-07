@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDe
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -23,8 +23,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefini
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -150,14 +150,14 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     }
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
     final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, indexConvention.getDayCount(), publicationLag, calendar);
-    final GeneratorOIS generator = new GeneratorOIS(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), 0,
+    final GeneratorFixedON generator = new GeneratorFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), 0,
         1 - publicationLag); // TODO: The payment lag is not available at the security level!
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double notionalOIS = ((InterestRateNotional) floatLeg.getNotional()).getAmount();
     if (forCurve) {
-      return SwapFixedOISSimplifiedDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
+      return SwapFixedONSimplifiedDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
     }
-    return SwapFixedOISDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
+    return SwapFixedONDefinition.from(effectiveDate, maturityDate, notionalFixed, notionalOIS, generator, fixedLeg.getRate(), payFixed);
   }
 
   private SwapIborIborDefinition getIborIborSwapDefinition(final SwapSecurity swapSecurity) {

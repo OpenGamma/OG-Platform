@@ -52,10 +52,20 @@ public class GeneratorSwapTestsMaster {
     _iborIndexMaster = IndexIborTestsMaster.getInstance();
     Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<String, GeneratorSwapFixedIbor>();
-    _generatorSwap.put("USD6MLIBOR3M", new GeneratorSwapFixedIbor(Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("USDLIBOR3M", baseCalendar)));
-    _generatorSwap.put("USD1YLIBOR3M", new GeneratorSwapFixedIbor(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/360"), _iborIndexMaster.getIndex("USDLIBOR3M", baseCalendar)));
-    _generatorSwap.put("EUR1YEURIBOR3M", new GeneratorSwapFixedIbor(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("EURIBOR3M", baseCalendar)));
-    _generatorSwap.put("EUR1YEURIBOR6M", new GeneratorSwapFixedIbor(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("EURIBOR6M", baseCalendar)));
+    _generatorSwap.put("USD6MLIBOR3M",
+        new GeneratorSwapFixedIbor("USD6MLIBOR3M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("USDLIBOR3M", baseCalendar)));
+    _generatorSwap.put("USD1YLIBOR3M",
+        new GeneratorSwapFixedIbor("USD1YLIBOR3M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/360"), _iborIndexMaster.getIndex("USDLIBOR3M", baseCalendar)));
+    _generatorSwap.put("EUR1YEURIBOR3M",
+        new GeneratorSwapFixedIbor("EUR1YEURIBOR3M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("EURIBOR3M", baseCalendar)));
+    _generatorSwap.put("EUR1YEURIBOR6M",
+        new GeneratorSwapFixedIbor("EUR1YEURIBOR6M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("EURIBOR6M", baseCalendar)));
+    _generatorSwap.put("GBP1YLIBOR3M",
+        new GeneratorSwapFixedIbor("GBP1YLIBOR3M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/365"), _iborIndexMaster.getIndex("GBPLIBOR3M", baseCalendar)));
+    _generatorSwap.put("GBP6MLIBOR6M",
+        new GeneratorSwapFixedIbor("GBP6MLIBOR6M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), _iborIndexMaster.getIndex("GBPLIBOR6M", baseCalendar)));
+    _generatorSwap.put("DKK1YCIBOR6M",
+        new GeneratorSwapFixedIbor("DKK1YCIBOR6M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), _iborIndexMaster.getIndex("DKKCIBOR6M", baseCalendar)));
   }
 
   public GeneratorSwapFixedIbor getGenerator(final String name, final Calendar cal) {
@@ -63,7 +73,8 @@ public class GeneratorSwapTestsMaster {
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
-    return new GeneratorSwapFixedIbor(generatorNoCalendar.getFixedLegPeriod(), generatorNoCalendar.getFixedLegDayCount(), _iborIndexMaster.getIndex(generatorNoCalendar.getIborIndex().getName(), cal));
+    return new GeneratorSwapFixedIbor(generatorNoCalendar.getName(), generatorNoCalendar.getFixedLegPeriod(), generatorNoCalendar.getFixedLegDayCount(), _iborIndexMaster.getIndex(generatorNoCalendar
+        .getIborIndex().getName(), cal));
   }
 
 }

@@ -322,7 +322,7 @@ public class AnnuityCouponIborDefinitionTest {
       spreadCoupons[i] = new CouponIborSpreadDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(),
           coupon.getNotional(), coupon.getFixingDate(), coupon.getIndex(), spread);
     }
-    assertEquals(definition, AnnuityCouponIborDefinition.from(new AnnuityCouponIborSpreadDefinition(spreadCoupons, INDEX)));
+    assertEquals(definition, AnnuityCouponIborDefinition.from(new AnnuityCouponIborSpreadDefinition(spreadCoupons)));
   }
 
 }
