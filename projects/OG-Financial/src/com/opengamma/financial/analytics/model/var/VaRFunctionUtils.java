@@ -51,5 +51,4 @@ public class VaRFunctionUtils {
     final double inverse = getBusinessDaysPerPeriod(scheduleCalculatorName);
     return 1.0 / inverse;
   }
-
 }
