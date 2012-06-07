@@ -216,13 +216,12 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       curveBundle.setCurve(curveName, yieldCurve);
       i += offset;
     }
-    //    i = 0;
-    //    final double[] couponSensitivities = new double[derivatives.size()];
-    //    for (final InstrumentDerivative derivative : derivatives) {
-    //      couponSensitivities[i++] = PV_COUPON_SENSITIVITY_CALCULATOR.visit(derivative, curveBundle);
-    //    }
-    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties), new DoubleMatrix1D(new double[] {1, 2 })));
-    //new DoubleMatrix1D(couponSensitivities)));
+    i = 0;
+    final double[] couponSensitivities = new double[derivatives.size()];
+    for (final InstrumentDerivative derivative : derivatives) {
+      couponSensitivities[i++] = PV_COUPON_SENSITIVITY_CALCULATOR.visit(derivative, curveBundle);
+    }
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties), new DoubleMatrix1D(couponSensitivities)));
     return results;
   }
 

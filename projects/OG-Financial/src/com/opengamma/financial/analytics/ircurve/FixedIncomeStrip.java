@@ -154,8 +154,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    * @param instrumentType The instrument type
    * @param curveNodePointTime The time of the curve node point
    * @param resetTenor The reset tenor
-   * @param payIndexType The pay index type
-   * @param receiveIndexType The receive index type
+   * @param indexType The index type
    * @param conventionName The name of the convention to use to resolve the strip into a security
    */
   public FixedIncomeStrip(final StripInstrumentType instrumentType, final Tenor curveNodePointTime, final Tenor resetTenor,
@@ -322,7 +321,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       result = getNumberOfFuturesAfterTenor() - other.getNumberOfFuturesAfterTenor();
     } else if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       result = getPeriodsPerYear() - other.getPeriodsPerYear();
-    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP && getIndexType() != null) {
       result = getResetTenor().compareTo(other.getResetTenor());
       if (result != 0) {
         return result;
@@ -362,7 +361,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
         return result && _periodsPerYear == other._periodsPerYear;
       }
-      if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+      if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP && getIndexType() != null) {
         return result &&
             ObjectUtils.equals(getResetTenor(), other.getResetTenor()) &&
             ObjectUtils.equals(getIndexType(), other.getIndexType());
@@ -401,7 +400,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
       sb.append("periods per year=");
       sb.append(getPeriodsPerYear());
       sb.append(", ");
-    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP) {
+    } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP && getIndexType() != null) {
       sb.append("reset tenor=");
       sb.append(getResetTenor());
       sb.append(" on ");

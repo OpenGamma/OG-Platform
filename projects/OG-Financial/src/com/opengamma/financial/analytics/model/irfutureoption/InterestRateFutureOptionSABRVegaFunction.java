@@ -61,7 +61,7 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
 
   @SuppressWarnings({"unchecked" })
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
       final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName, final String surfaceName, final String curveCalculationMethodName) {
     final VolatilitySurfaceDefinition<?, ?> definition = _volSurfaceDefinitionSource.getDefinition(surfaceName, InstrumentTypeProperties.IR_FUTURE_OPTION);
     if (definition == null) {

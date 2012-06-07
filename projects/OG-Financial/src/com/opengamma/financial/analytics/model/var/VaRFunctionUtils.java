@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.var;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Scaling functions to resolve the horizon of a calculation, specified in 'business days',
@@ -30,7 +29,7 @@ public class VaRFunctionUtils {
     //TODO include all of the available calculators
     throw new IllegalArgumentException("Could not get number of periods per year for " + scheduleCalculatorName);
   }
-  
+
   public static double getBusinessDaysPerPeriod(final String scheduleCalculatorName) {
     if (scheduleCalculatorName.equals(ScheduleCalculatorFactory.DAILY)) {
       return 1;
@@ -47,17 +46,9 @@ public class VaRFunctionUtils {
     //TODO include all of the available calculators
     throw new IllegalArgumentException("Could not get number of periods per year for " + scheduleCalculatorName);
   }
-  
+
   public static double getPeriodsPerBusinessDay(final String scheduleCalculatorName) {
-    final double inverse =  getBusinessDaysPerPeriod(scheduleCalculatorName);
+    final double inverse = getBusinessDaysPerPeriod(scheduleCalculatorName);
     return 1.0 / inverse;
-  }
-  
-  public static void printTimeSeries(final DoubleTimeSeries<?> ts) {
-    int length = ts.size();
-    System.out.println("idx,time,value");
-    for (int i=0;i<length;i++) {
-      System.out.println(i+","+ts.getTimeAt(i)+","+ts.getValueAt(i));
-    }
   }
 }

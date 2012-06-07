@@ -54,8 +54,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
-  /** Property value for constant spread theta calculations */
-  public static final String CONSTANT_SPREAD = "ConstantSpread";
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
 
@@ -87,15 +85,15 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final DoubleTimeSeries<ZonedDateTime>[] fixingSeries = security.accept(new FixingTimeSeriesVisitor(conventionSource, dataSource, now));
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ConstantSpreadHorizonThetaCalculator calculator = new ConstantSpreadHorizonThetaCalculator(now, DAYS_TO_MOVE_FORWARD);
+    final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (definition instanceof SwapFixedIborDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     } else if (definition instanceof SwapFixedOISDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedOISDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedOISDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     } else if (definition instanceof SwapFixedIborSpreadDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries);
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapFixedIborSpreadDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, DAYS_TO_MOVE_FORWARD);
       return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), theta));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
@@ -158,7 +156,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -168,7 +166,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, CONSTANT_SPREAD);
+        .with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 

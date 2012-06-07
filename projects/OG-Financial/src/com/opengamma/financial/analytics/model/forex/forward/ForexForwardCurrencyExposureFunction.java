@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -30,7 +29,7 @@ public class ForexForwardCurrencyExposureFunction extends ForexForwardMultiValue
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward, data);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 
 }

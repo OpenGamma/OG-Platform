@@ -68,20 +68,22 @@ public class SwapIborIborDefinitionTest {
    */
   @Test
   public void toDerivative() {
-    String[] yieldCurveNames = new String[] {"dsc", "fwd"};
-    ArrayZonedDateTimeDoubleTimeSeries fixingTs3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()}, new double[] {0.0123});
-    ArrayZonedDateTimeDoubleTimeSeries fixingTs6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()}, new double[] {0.0135});
-    ArrayZonedDateTimeDoubleTimeSeries[] fixingTs = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6};
-    ZonedDateTime referenceDateBeforeFirstFixing = DateUtils.getUTCDate(2012, 4, 13);
-    Swap<? extends Payment, ? extends Payment> swapConvertedBeforeFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateBeforeFirstFixing, yieldCurveNames);
+    final String[] yieldCurveNames = new String[] {"dsc", "fwd", "fwd6m" };
+    final ArrayZonedDateTimeDoubleTimeSeries fixingTs3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate() },
+        new double[] {0.0123 });
+    final ArrayZonedDateTimeDoubleTimeSeries fixingTs6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate() },
+        new double[] {0.0135 });
+    final ArrayZonedDateTimeDoubleTimeSeries[] fixingTs = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6 };
+    final ZonedDateTime referenceDateBeforeFirstFixing = DateUtils.getUTCDate(2012, 4, 13);
+    final Swap<? extends Payment, ? extends Payment> swapConvertedBeforeFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateBeforeFirstFixing, yieldCurveNames);
     for (int loopcpn = 0; loopcpn < swapConvertedBeforeFirstFixing.getFirstLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedBeforeFirstFixing.getFirstLeg().getNthPayment(loopcpn) instanceof Coupon);
     }
     for (int loopcpn = 0; loopcpn < swapConvertedBeforeFirstFixing.getSecondLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedBeforeFirstFixing.getSecondLeg().getNthPayment(loopcpn) instanceof Coupon);
     }
-    ZonedDateTime referenceDateOnFirstFixing = DateUtils.getUTCDate(2012, 4, 16);
-    Swap<? extends Payment, ? extends Payment> swapConvertedOnFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateOnFirstFixing, fixingTs, yieldCurveNames);
+    final ZonedDateTime referenceDateOnFirstFixing = DateUtils.getUTCDate(2012, 4, 16);
+    final Swap<? extends Payment, ? extends Payment> swapConvertedOnFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateOnFirstFixing, fixingTs, yieldCurveNames);
     for (int loopcpn = 0; loopcpn < swapConvertedOnFirstFixing.getFirstLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedOnFirstFixing.getFirstLeg().getNthPayment(loopcpn) instanceof Coupon);
     }

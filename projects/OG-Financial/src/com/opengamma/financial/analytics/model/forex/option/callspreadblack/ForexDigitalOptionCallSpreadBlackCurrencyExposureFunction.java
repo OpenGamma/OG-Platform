@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -30,6 +29,6 @@ public class ForexDigitalOptionCallSpreadBlackCurrencyExposureFunction extends F
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final CurrencyExposureCallSpreadBlackForexCalculator calculator = new CurrencyExposureCallSpreadBlackForexCalculator(spread);
     final MultipleCurrencyAmount result = calculator.visit(fxDigital, data);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 }

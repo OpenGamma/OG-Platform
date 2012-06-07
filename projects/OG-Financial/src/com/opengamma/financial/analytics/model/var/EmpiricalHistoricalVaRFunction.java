@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
+import static com.opengamma.financial.analytics.model.var.NormalHistoricalVaRFunction.PROPERTY_VAR_DISTRIBUTION;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +36,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
   /** The name for the empirical historical VaR calculation method */
   public static final String EMPIRICAL_VAR = "Empirical";
   private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final String currency = getCurrency(inputs);
@@ -58,7 +60,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
 
   private String getCurrency(final FunctionInputs inputs) {
     String currency = null;
-    for (ComputedValue value : inputs.getAllValues()) {
+    for (final ComputedValue value : inputs.getAllValues()) {
       currency = value.getSpecification().getProperty(ValuePropertyNames.CURRENCY);
       if (currency != null) {
         break;
@@ -77,7 +79,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
-        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR).get();
+        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
@@ -102,11 +104,11 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
-    Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
     } else {
-      String desiredCurrency = Iterables.getOnlyElement(desiredCurrencyValues);
+      final String desiredCurrency = Iterables.getOnlyElement(desiredCurrencyValues);
       properties.with(ValuePropertyNames.CURRENCY, desiredCurrency);
     }
     if (aggregationStyle != null) {
@@ -123,7 +125,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final ValueSpecification input = inputs.keySet().iterator().next();
     final String currency = input.getProperty(ValuePropertyNames.CURRENCY);
     if (currency == null) {
@@ -141,7 +143,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR);
+        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -156,7 +158,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
         .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
-        .with(ValuePropertyNames.CALCULATION_METHOD, EMPIRICAL_VAR);
+        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
     final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);

@@ -52,7 +52,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for a range of functions computing values on an IRFuturesOption using the SABR Model
  */
 public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the surface fitting method */
@@ -89,10 +89,10 @@ public abstract class InterestRateFutureOptionSABRFunction extends AbstractFunct
     @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
-    return getResults(irFutureOption, data, target, inputs, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod);
+    return computeValues(irFutureOption, data, target, inputs, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod);
   }
 
-  protected abstract Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
+  protected abstract Set<ComputedValue> computeValues(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
       final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName, final String surfaceName, final String curveCalculationMethod);
 
   @Override
