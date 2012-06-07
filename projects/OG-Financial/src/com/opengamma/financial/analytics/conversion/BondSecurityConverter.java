@@ -103,7 +103,7 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
       tenor = Period.ofMonths(1);
     } else {
       throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
+          "Unsupported frequency '" + freq.getConventionName() + "'. Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
     }
     return tenor;
   }
