@@ -155,6 +155,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     @SuppressWarnings("synthetic-access")
     void initialise() {
+      final double t0 = getGrid().getTimeNode(0);
+      setT1(t0);
       for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
         _f[i] = _pdeData.getInitialValue(getGrid().getSpaceNode(i));
       }
@@ -165,14 +167,11 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       double x;
       for (int i = 0; i < getGrid().getNumSpaceNodes() - 2; i++) {
         x = getGrid().getSpaceNode(i + 1);
-        setA(i, _pdeData.getA(0, x));
-        setB(i, _pdeData.getB(0, x));
-        setC(i, _pdeData.getC(0, x));
-        //TODO R White 4/08/2011 change this back debug
-        //setRho(i, getA(i));
+        setA(i, _pdeData.getA(t0, x));
+        setB(i, _pdeData.getB(t0, x));
+        setC(i, _pdeData.getC(t0, x));
         setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
       }
-      setT1(0.0);
     }
 
     @SuppressWarnings("synthetic-access")

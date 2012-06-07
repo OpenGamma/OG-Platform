@@ -29,7 +29,10 @@ import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
- * 
+ * This test computes the value of options that pays the log of the underlying at expiry using a backwards PDE with a flat local volatility,
+ * and compares it to the theoretical value. In the second example a 'realistic' local volatility surface is generated from a mixed log-normal model
+ * (which again has a know value for the log-contract). 
+ * TODO Move some of this code to a log-payoff local volatility calculator 
  */
 public class LogPayoffTest {
 
