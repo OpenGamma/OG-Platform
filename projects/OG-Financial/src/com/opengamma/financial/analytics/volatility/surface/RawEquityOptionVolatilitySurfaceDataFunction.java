@@ -27,8 +27,7 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
     String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-            targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)
-    );
+            targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME));
   }
 
 }

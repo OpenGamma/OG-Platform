@@ -70,7 +70,9 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .with(ValuePropertyNames.CURVE, getCurveDefinitionName())
         .with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION").get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
+        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
+        .get();
     return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
   }
 

@@ -66,7 +66,9 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, getCurveDefinitionName())
         .with(ValuePropertyNames.CURVE_CURRENCY, security.getCurrency().getCode())
-        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get();
+        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
+        .get();
     return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
 

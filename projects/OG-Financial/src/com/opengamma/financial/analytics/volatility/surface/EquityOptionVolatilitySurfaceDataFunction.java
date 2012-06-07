@@ -113,12 +113,6 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
     _results = Collections.singleton(_result);
   }
-
-  @Override
-  public String getShortName() {
-    return _underlyingIdentifierAsString + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
-  }
-
   
   public static
   <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
