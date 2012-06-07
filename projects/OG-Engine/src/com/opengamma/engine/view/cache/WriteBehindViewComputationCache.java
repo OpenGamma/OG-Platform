@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * A {@link ViewComputationCache} that supports a write behind update of the underlying cache.
  */
-public class WriteBehindViewComputationCache extends DelayedViewComputationCache {
+public class WriteBehindViewComputationCache extends DeferredViewComputationCache {
 
   private static final Logger s_logger = LoggerFactory.getLogger(WriteBehindViewComputationCache.class);
 

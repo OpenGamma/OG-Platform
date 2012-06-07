@@ -13,13 +13,11 @@ import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
 /**
  * A {@link FilteredViewComputationCache} which allows rescheduling of the puts
  */
-public abstract class DelayedViewComputationCache extends FilteredViewComputationCache {
+public abstract class DeferredViewComputationCache extends FilteredViewComputationCache {
 
-  public DelayedViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
+  public DeferredViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
     super(cache, filter);
   }
-
-  // REVIEW 2011-12-13 andrew -- DeferredViewComputationCache would be a better name
 
   public abstract void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics);
   

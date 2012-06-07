@@ -5,7 +5,8 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import org.apache.commons.lang.Validate;
+import java.util.Map;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -20,60 +21,118 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
 
 /**
  * Fudge message builder for {@code CalculationJobItem}.
+ * 
+ * <pre>
+ * message CalculationJobItem extends ComputationTargetSpecification {
+ *   optional int target;                    // index into target specification dictionary
+ *   optional string function;               // function identifier
+ *   optional int function;                  // index into job function dictionary
+ *   optional FunctionParameters parameters; // function parameters
+ *   optional int parameters;                // index into job parameter dictionary
+ *   required long[] input;                  // input value specifications
+ *   required long[] output;                 // output value specifications
+ * }
+ * </pre>
  */
 @FudgeBuilderFor(CalculationJobItem.class)
 public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJobItem> {
-  
+
+  private static final String TARGET_FIELD_NAME = "target";
   private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "function";
   private static final String FUNCTION_PARAMETERS_FIELD_NAME = "parameters";
   private static final String INPUT_IDENTIFIERS_FIELD_NAME = "input";
   private static final String OUTPUT_IDENTIFIERS_FIELD_NAME = "output";
 
-  @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CalculationJobItem object) {
-    MutableFudgeMsg msg = serializer.newMessage();
-    ComputationTargetSpecification computationTargetSpecification = object.getComputationTargetSpecification();
-    if (computationTargetSpecification != null) {
-      MutableFudgeMsg specMsg = serializer.objectToFudgeMsg(computationTargetSpecification);
-      for (FudgeField fudgeField : specMsg.getAllFields()) {
-        msg.add(fudgeField);
+  public static MutableFudgeMsg buildMessageImpl(final FudgeSerializer serializer, final CalculationJobItem object, final Map<ComputationTargetSpecification, Integer> targets,
+      final Map<String, Integer> functions, final Map<FunctionParameters, Integer> parameters) {
+    final MutableFudgeMsg msg = serializer.newMessage();
+    if (targets != null) {
+      Integer i = targets.get(object.getComputationTargetSpecification());
+      if (i != null) {
+        msg.add(TARGET_FIELD_NAME, i);
+      } else {
+        i = targets.size();
+        targets.put(object.getComputationTargetSpecification(), i);
+        ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
       }
+    } else {
+      ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
     }
-    String functionUniqueIdentifier = object.getFunctionUniqueIdentifier();
-    if (functionUniqueIdentifier != null) {
-      msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, functionUniqueIdentifier);
+    if (functions != null) {
+      Integer i = functions.get(object.getFunctionUniqueIdentifier());
+      if (i != null) {
+        msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, i);
+      } else {
+        i = functions.size();
+        functions.put(object.getFunctionUniqueIdentifier(), i);
+        msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, object.getFunctionUniqueIdentifier());
+      }
+    } else {
+      msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, object.getFunctionUniqueIdentifier());
     }
-    FunctionParameters functionParameters = object.getFunctionParameters();
-    if (functionParameters != null) {
-      serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, functionParameters);
+    if (parameters != null) {
+      Integer i = parameters.get(object.getFunctionParameters());
+      if (i != null) {
+        msg.add(FUNCTION_PARAMETERS_FIELD_NAME, i);
+      } else {
+        i = parameters.size();
+        parameters.put(object.getFunctionParameters(), i);
+        serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, object.getFunctionParameters(), FunctionParameters.class);
+      }
+    } else {
+      serializer.addToMessageWithClassHeaders(msg, FUNCTION_PARAMETERS_FIELD_NAME, null, object.getFunctionParameters(), FunctionParameters.class);
     }
-    long[] inputs = object.getInputIdentifiers();
-    msg.add(INPUT_IDENTIFIERS_FIELD_NAME, inputs);
-    long[] outputs = object.getOutputIdentifiers();
-    msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, outputs);
+    msg.add(INPUT_IDENTIFIERS_FIELD_NAME, object.getInputIdentifiers());
+    msg.add(OUTPUT_IDENTIFIERS_FIELD_NAME, object.getOutputIdentifiers());
     return msg;
   }
 
-
   @Override
-  public CalculationJobItem buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    
-    ComputationTargetSpecification computationTargetSpecification = deserializer.fudgeMsgToObject(ComputationTargetSpecification.class, message);
-    Validate.notNull(computationTargetSpecification, "Fudge message is not a CalculationJobItem - field 'computationTargetSpecification' is not present");
-    
-    String functionUniqueId = message.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
-    Validate.notNull(functionUniqueId, "Fudge message is not a CalculationJobItem - field 'functionUniqueIdentifier' is not present");
-    
-    FudgeField fudgeField = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
-    Validate.notNull(fudgeField, "Fudge message is not a CalculationJobItem - field 'functionParameters' is not present");
-    FunctionParameters functionParameters = deserializer.fieldValueToObject(FunctionParameters.class, fudgeField);
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CalculationJobItem object) {
+    return buildMessageImpl(serializer, object, null, null, null);
+  }
 
-    long[] inputIdentifiers = (long[]) message.getByName(INPUT_IDENTIFIERS_FIELD_NAME).getValue();
-    long[] outputIdentifiers = (long[]) message.getByName(OUTPUT_IDENTIFIERS_FIELD_NAME).getValue();
-    
+  public static CalculationJobItem buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message, final Map<Integer, ComputationTargetSpecification> targets,
+      final Map<Integer, String> functions, final Map<Integer, FunctionParameters> parameters) {
+    FudgeField field = message.getByName(TARGET_FIELD_NAME);
+    final ComputationTargetSpecification computationTargetSpecification;
+    if (field != null) {
+      computationTargetSpecification = targets.get(((Number) field.getValue()).intValue());
+    } else {
+      computationTargetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(message);
+      if (targets != null) {
+        targets.put(targets.size(), computationTargetSpecification);
+      }
+    }
+    field = message.getByName(FUNCTION_UNIQUE_ID_FIELD_NAME);
+    final String functionUniqueId;
+    if (field.getValue() instanceof Number) {
+      functionUniqueId = functions.get(((Number) field.getValue()).intValue());
+    } else {
+      functionUniqueId = (String) field.getValue();
+      if (functions != null) {
+        functions.put(functions.size(), functionUniqueId);
+      }
+    }
+    field = message.getByName(FUNCTION_PARAMETERS_FIELD_NAME);
+    final FunctionParameters functionParameters;
+    if (field.getValue() instanceof Number) {
+      functionParameters = parameters.get(((Number) field.getValue()).intValue());
+    } else {
+      functionParameters = deserializer.fieldValueToObject(FunctionParameters.class, field);
+      if (parameters != null) {
+        parameters.put(parameters.size(), functionParameters);
+      }
+    }
+    final long[] inputIdentifiers = message.getValue(long[].class, INPUT_IDENTIFIERS_FIELD_NAME);
+    final long[] outputIdentifiers = message.getValue(long[].class, OUTPUT_IDENTIFIERS_FIELD_NAME);
     return new CalculationJobItem(functionUniqueId, functionParameters, computationTargetSpecification, inputIdentifiers, outputIdentifiers);
   }
 
+  @Override
+  public CalculationJobItem buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    return buildObjectImpl(deserializer, message, null, null, null);
+  }
 
   @Override
   public String toString() {

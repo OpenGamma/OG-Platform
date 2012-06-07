@@ -23,7 +23,6 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
-import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
@@ -66,7 +65,6 @@ public class ResultConverterCache {
     registerConverter(Tenor.class, new TenorConverter());
     registerConverter(MultipleCurrencyAmount.class, new MultipleCurrencyAmountConverter(_doubleConverter));
     registerConverter(MissingMarketDataSentinel.class, new StaticStringConverter("Missing market data"));
-    registerConverter(NotCalculatedSentinel.class, new StaticStringConverter("Not calculated"));
     registerConverter(ForwardCurve.class, new ForwardCurveConverter());
     registerConverter(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessConverter());
     registerConverter(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessConverter());

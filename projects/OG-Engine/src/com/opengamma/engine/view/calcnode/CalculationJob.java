@@ -6,18 +6,14 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.time.Instant;
-
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,7 +26,7 @@ public class CalculationJob implements Serializable {
 
   private final CalculationJobSpecification _specification;
   private final long _functionInitializationIdentifier;
-  private final Collection<Long> _required;
+  private final long[] _required;
   private final List<CalculationJobItem> _jobItems;
 
   private final CacheSelectHint _cacheSelect;
@@ -46,20 +42,15 @@ public class CalculationJob implements Serializable {
    */
   private boolean _cancelled;
 
-  public CalculationJob(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long functionInitializationTimestamp, long jobId, List<CalculationJobItem> jobItems,
-      final CacheSelectHint cacheSelect) {
-    this(new CalculationJobSpecification(viewCycleId, calcConfigName, valuationTime, jobId), 0, null, jobItems, cacheSelect);
-  }
-
-  public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, Collection<Long> requiredJobIds, List<CalculationJobItem> jobItems,
+  public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, long[] requiredJobIds, List<CalculationJobItem> jobItems,
       final CacheSelectHint cacheSelect) {
     ArgumentChecker.notNull(specification, "specification");
     ArgumentChecker.notNull(jobItems, "jobItems");
     ArgumentChecker.notNull(cacheSelect, "cacheSelect");
     _specification = specification;
     _functionInitializationIdentifier = functionInitializationIdentifier;
-    _required = (requiredJobIds != null) ? new ArrayList<Long>(requiredJobIds) : null;
-    _jobItems = new ArrayList<CalculationJobItem>(jobItems);
+    _required = requiredJobIds;
+    _jobItems = jobItems;
     _cacheSelect = cacheSelect;
   }
 
@@ -74,8 +65,8 @@ public class CalculationJob implements Serializable {
     return _functionInitializationIdentifier;
   }
 
-  public Collection<Long> getRequiredJobIds() {
-    return (_required != null) ? Collections.unmodifiableCollection(_required) : null;
+  public long[] getRequiredJobIds() {
+    return _required;
   }
 
   public CacheSelectHint getCacheSelectHint() {

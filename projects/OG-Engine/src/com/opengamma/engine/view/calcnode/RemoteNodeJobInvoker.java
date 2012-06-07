@@ -295,13 +295,14 @@ import com.opengamma.transport.FudgeMessageSender;
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
     _launched.addAndGet(_capacity);
+    final String invokerId = _invokerId;
     _invokerId = null;
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
       final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, "node on " + getInvokerId(), cause);
+        callback.jobFailed(this, "node on " + invokerId, cause);
       }
     }
   }

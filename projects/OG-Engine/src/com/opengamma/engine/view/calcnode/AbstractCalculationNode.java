@@ -30,9 +30,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.cache.CacheSelectHint;
-import com.opengamma.engine.view.cache.DelayedViewComputationCache;
+import com.opengamma.engine.view.cache.DeferredViewComputationCache;
+import com.opengamma.engine.view.cache.DirectWriteViewComputationCache;
 import com.opengamma.engine.view.cache.FilteredViewComputationCache;
-import com.opengamma.engine.view.cache.NonDelayedViewComputationCache;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -129,7 +129,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     cache.putValues(results);
   }
 
-  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final DelayedViewComputationCache cache,
+  protected List<CalculationJobResultItem> executeJobItems(final CalculationJob job, final DeferredViewComputationCache cache,
       final CompiledFunctionRepository functions, final String calculationConfiguration) {
     final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>();
     for (CalculationJobItem jobItem : job.getJobItems()) {
@@ -171,7 +171,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
     final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
     // TODO: don't create a new cache instance each time -- if there are peer nodes then we may be able to share
-    final DelayedViewComputationCache cache = getDelayedViewComputationCache(getCache(spec), job.getCacheSelectHint());
+    final DeferredViewComputationCache cache = getDeferredViewComputationCache(getCache(spec), job.getCacheSelectHint());
     long executionTime = System.nanoTime();
     final String calculationConfiguration = spec.getCalcConfigName();
     s_executeJobItems.enter();
@@ -181,6 +181,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     }
     s_executeJobItems.leave();
     s_writeBack.enter();
+    // [PLAT-2293]: we don't have to wait for pending writes locally - our tail jobs can run immediately - we just have to wait before sending the job completion message back to the dispatcher
     cache.waitForPendingWrites();
     s_writeBack.leave();
     executionTime = System.nanoTime() - executionTime;
@@ -190,10 +191,10 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return jobResult;
   }
 
-  private DelayedViewComputationCache getDelayedViewComputationCache(ViewComputationCache cache,
+  private DeferredViewComputationCache getDeferredViewComputationCache(ViewComputationCache cache,
       CacheSelectHint cacheSelectHint) {
     if (getWriteBehindExecutorService() == null) {
-      return new NonDelayedViewComputationCache(cache, cacheSelectHint);
+      return new DirectWriteViewComputationCache(cache, cacheSelectHint);
     } else {
       return new WriteBehindViewComputationCache(cache, cacheSelectHint, getWriteBehindExecutorService());
     }
@@ -216,7 +217,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private static final InvocationCount s_resolveTarget = new InvocationCount("resolveTarget");
   private static final InvocationCount s_prepareInputs = new InvocationCount("prepareInputs");
 
-  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DelayedViewComputationCache cache, final DeferredInvocationStatistics statistics) {
+  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DeferredViewComputationCache cache, final DeferredInvocationStatistics statistics) {
     // TODO: can we do the target resolution and parameter resolution in parallel ?
     // TODO: can we do the target resolution in advance ?
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();

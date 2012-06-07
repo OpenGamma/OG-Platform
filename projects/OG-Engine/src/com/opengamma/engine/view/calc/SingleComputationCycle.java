@@ -60,6 +60,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationResultListener;
@@ -451,7 +452,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
-      if ((dataAsValue.getValue() instanceof MissingMarketDataSentinel) || (cacheMarketData.getValue() == null)) {
+      if ((dataAsValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
         cacheValue = dataAsValue;
       } else {
         final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());

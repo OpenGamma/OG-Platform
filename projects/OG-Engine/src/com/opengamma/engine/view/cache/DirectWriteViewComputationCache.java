@@ -11,15 +11,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
 
 /**
- *  A {@link DelayedViewComputationCache} which doesn't reschedule the puts
+ *  A {@link DeferredViewComputationCache} which doesn't reschedule the puts
  */
-public class NonDelayedViewComputationCache extends DelayedViewComputationCache {
+public class DirectWriteViewComputationCache extends DeferredViewComputationCache {
 
-  public NonDelayedViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
+  public DirectWriteViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
     super(cache, filter);
   }
-
-  // REVIEW 2011-12-13 andrew -- DirectWriteViewComputationCache would be a better name
 
   @Override
   public void putValues(Collection<ComputedValue> values, DeferredInvocationStatistics statistics) {

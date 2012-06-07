@@ -39,7 +39,7 @@ public class ValueSpecificationFudgeBuilder implements FudgeBuilder<ValueSpecifi
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ValueSpecification object) {
     MutableFudgeMsg msg = serializer.newMessage();
     msg.add(VALUE_NAME_KEY, null, FudgeWireType.STRING, object.getValueName());
-    ComputationTargetSpecificationFudgeBuilder.addMessageFields(serializer, msg, object.getTargetSpecification());
+    ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getTargetSpecification());
     serializer.addToMessage(msg, PROPERTIES_KEY, null, object.getProperties());
     return msg;
   }
@@ -49,7 +49,7 @@ public class ValueSpecificationFudgeBuilder implements FudgeBuilder<ValueSpecifi
     FudgeField fudgeField = message.getByName(VALUE_NAME_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + VALUE_NAME_KEY + "' is not present");
     final String valueName = message.getFieldValue(String.class, fudgeField);
-    final ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
+    final ComputationTargetSpecification targetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(message);
     fudgeField = message.getByName(PROPERTIES_KEY);
     Validate.notNull(fudgeField, "Fudge message is not a ValueSpecification - field '" + PROPERTIES_KEY + "' is not present");
     final ValueProperties properties = deserializer.fieldValueToObject(ValueProperties.class, fudgeField);

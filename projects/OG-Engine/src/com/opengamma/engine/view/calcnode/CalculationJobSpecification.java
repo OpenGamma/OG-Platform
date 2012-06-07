@@ -36,10 +36,6 @@ public class CalculationJobSpecification implements Serializable {
     _jobId = jobId;
   }
   
-  public CalculationJobSpecification(CalculationJobSpecification other) {
-    this(other._viewCycleId, other._calcConfigName, other._valuationTime, other._jobId);
-  }
-
   /**
    * @return the unique identifier of the view cycle
    */

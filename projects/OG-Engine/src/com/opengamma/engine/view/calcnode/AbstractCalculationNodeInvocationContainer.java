@@ -321,7 +321,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
    */
   protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final AbstractCalculationNode node) {
     final JobExecution jobExecution = createExecution(job.getSpecification().getJobId());
-    final Collection<Long> requiredJobIds = job.getRequiredJobIds();
+    final long[] requiredJobIds = job.getRequiredJobIds();
     final JobEntry jobEntry = new JobEntry(job, jobExecution, receiver);
     if (requiredJobIds != null) {
       // Shouldn't be passing a node in with a job that might not be runnable

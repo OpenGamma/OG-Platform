@@ -8,7 +8,6 @@ package com.opengamma.engine.view.calc;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +38,8 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   private final Set<F> _outputFragments = new HashSet<F>();
   private CacheSelectHint _cacheSelectHint;
   private AtomicInteger _blockCount;
-  private Collection<Long> _requiredJobs;
+  private long[] _requiredJobs;
+  private int _requiredJobIndex;
   private Collection<F> _tail;
 
   public GraphFragment(final C context) {
@@ -127,16 +127,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
         tail._blockCount = null;
         final int size = tail.getInputFragments().size();
         if (tail._requiredJobs == null) {
-          if (size == 1) {
-            tail._requiredJobs = Collections.singleton(jobSpec.getJobId());
-          } else {
-            tail._requiredJobs = new ArrayList<Long>(size);
-            tail._requiredJobs.add(jobSpec.getJobId());
-          }
+          tail._requiredJobs = new long[size];
+          tail._requiredJobs[0] = jobSpec.getJobId();
+          tail._requiredJobIndex = 1;
         } else {
-          tail._requiredJobs.add(jobSpec.getJobId());
+          tail._requiredJobs[tail._requiredJobIndex++] = jobSpec.getJobId();
         }
-        if (tail._requiredJobs.size() == size) {
+        if (tail._requiredJobIndex == size) {
           final CalculationJob tailJob = tail.createCalculationJob();
           job.addTail(tailJob);
         }
@@ -146,11 +143,22 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return job;
   }
 
+  private static String toString(final long[] a) {
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < a.length; i++) {
+      if (i > 0) {
+        sb.append(", ");
+      }
+      sb.append(a[i]);
+    }
+    return sb.toString();
+  }
+
   private void printJob(final PrintStream out, final String indent, final CalculationJob job) {
     out.println(indent + getIdentifier() + " - " + job.getSpecification());
-    Collection<Long> required = job.getRequiredJobIds();
+    final long[] required = job.getRequiredJobIds();
     if (required != null) {
-      out.println(indent + "\trequires " + required);
+      out.println(indent + "\trequires " + toString(required));
     }
     for (CalculationJobItem item : job.getJobItems()) {
       out.println(indent + "\t" + item.getFunctionUniqueIdentifier() + " on " + item.getComputationTargetSpecification());
