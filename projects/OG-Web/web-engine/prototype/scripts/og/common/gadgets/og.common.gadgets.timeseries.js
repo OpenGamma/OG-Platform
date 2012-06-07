@@ -230,7 +230,6 @@ $.register_module({
                                 $legend = get_legend();
                                 $legend.css({visibility: 'hidden'});
                             });
-                        $(tenor + ', .og-flot-xaxis').css({visibility: 'visible'});
                     }());
                     reset_options();
                     p1_options.xaxis.panRange = [data[0][0], data[data.length-1][0]];
@@ -273,10 +272,10 @@ $.register_module({
                     $(p1_selector).unbind('plothover').bind('plothover', function (e, pos) {
                         if (!panning) hover_pos = pos, setTimeout(update_legend, 50);
                     });
-                    $(selector + ' .og-plots').css('visibility', 'visible');
                     $legend = get_legend(), $legend.css({visibility: 'hidden'});
                     rescale_yaxis();
                     load_data_points();
+                    setTimeout(function () {$(selector + ' .og-plots').css('visibility', 'visible')}); // load smoother
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set

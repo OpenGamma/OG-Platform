@@ -21,3 +21,9 @@
     left: 50%;
     margin: -24px 0 0 -24px;
 }
+
+.OG-gadget-container .og-loading {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
