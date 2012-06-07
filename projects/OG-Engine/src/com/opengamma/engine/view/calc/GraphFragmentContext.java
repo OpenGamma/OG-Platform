@@ -41,7 +41,7 @@ import com.opengamma.util.Cancelable;
   private final DependencyGraph _graph;
   private final Map<CalculationJobItem, DependencyNode> _item2node;
   private final Map<CalculationJobSpecification, Cancelable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancelable>();
-  private Map<CalculationJobSpecification, GraphFragment<?, ?>> _job2fragment;
+  private Map<CalculationJobSpecification, GraphFragment<?>> _job2fragment;
   private volatile boolean _cancelled;
   private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
 
@@ -89,18 +89,18 @@ import com.opengamma.util.Cancelable;
     _item2node.put(jobitem, node);
   }
 
-  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment<?, ?> fragment) {
+  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment<?> fragment) {
     _job2fragment.put(jobspec, fragment);
   }
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
     _cancels.remove(result.getSpecification());
-    final GraphFragment<?, ?> fragment = _job2fragment.remove(result.getSpecification());
+    final GraphFragment<?> fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
       // Put result into the queue
       getCalculationJobResultQueue().offer(result);
-      fragment.resultReceived(result);
+      fragment.resultReceived(this, result);
       // Mark nodes as good or bad
       for (CalculationJobResultItem item : result.getResultItems()) {
         DependencyNode node = _item2node.remove(item.getItem());

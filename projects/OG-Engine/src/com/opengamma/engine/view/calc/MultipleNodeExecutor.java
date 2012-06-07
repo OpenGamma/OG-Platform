@@ -128,7 +128,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     } else {
       fragment.setCacheSelectHint(CacheSelectHint.privateValues(privateValues));
     }
-    fragment.execute();
+    fragment.execute(context);
     return fragment;
   }
 
@@ -148,7 +148,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
           break;
         }
       }
-      if (mergeSingleDependencies(allFragments)) {
+      if (mergeSingleDependencies(context, allFragments)) {
         failCount = 0;
       } else {
         if (++failCount >= 2) {
@@ -180,7 +180,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (MutableGraphFragment fragment : allFragments) {
-      fragment.execute();
+      fragment.execute(context);
     }
     return logicalRoot;
   }
@@ -357,7 +357,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   /**
    * If a fragment has only one dependency, and both it and its dependent are below the maximum job size they are merged.
    */
-  private boolean mergeSingleDependencies(final Set<MutableGraphFragment> allFragments) {
+  private boolean mergeSingleDependencies(final MutableGraphFragmentContext context, final Set<MutableGraphFragment> allFragments) {
     int changes = 0;
     final Iterator<MutableGraphFragment> fragmentIterator = allFragments.iterator();
     while (fragmentIterator.hasNext()) {
@@ -375,7 +375,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
         continue;
       }
       // Merge fragment with it's dependency and slice it out of the graph
-      dependency.prependFragment(fragment);
+      dependency.prependFragment(context, fragment);
       fragmentIterator.remove();
       dependency.getInputFragments().remove(fragment);
       for (MutableGraphFragment input : fragment.getInputFragments()) {
@@ -489,15 +489,15 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     }
   }
 
-  public static void printFragment(final GraphFragment<?, ?> root) {
-    printFragment("", Collections.singleton(root), new HashSet<GraphFragment<?, ?>>());
+  public static void printFragment(final GraphFragment<?> root) {
+    printFragment("", Collections.singleton(root), new HashSet<GraphFragment<?>>());
   }
 
-  private static void printFragment(final String indent, final Collection<? extends GraphFragment<?, ?>> fragments, final Set<GraphFragment<?, ?>> printed) {
+  private static void printFragment(final String indent, final Collection<? extends GraphFragment<?>> fragments, final Set<GraphFragment<?>> printed) {
     if (indent.length() > 16) {
       return;
     }
-    for (GraphFragment<?, ?> fragment : fragments) {
+    for (GraphFragment<?> fragment : fragments) {
       if (!printed.add(fragment)) {
         System.out.println(indent + " " + fragment + " ...");
         continue;

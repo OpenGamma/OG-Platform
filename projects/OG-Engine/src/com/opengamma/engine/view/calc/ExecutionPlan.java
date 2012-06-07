@@ -66,7 +66,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       final CompleteGraphFragment fragment = new CompleteGraphFragment(context, statistics, _nodes);
       context.allocateFragmentMap(1);
       fragment.setCacheSelectHint(_cacheSelectHint);
-      fragment.execute();
+      fragment.execute(context);
       return fragment.getFuture();
     }
 
@@ -87,7 +87,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       private final int[] _outputs;
       private final int[] _tail;
 
-      private FragmentDescriptor(final GraphFragment<?, ?> fragment) {
+      private FragmentDescriptor(final GraphFragment<?> fragment) {
         _nodes = fragment.getNodes();
         _cacheSelectHint = fragment.getCacheSelectHint();
         int[] a;
@@ -97,14 +97,14 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         } else {
           a = new int[fragment.getInputFragments().size()];
           i = 0;
-          for (GraphFragment<?, ?> input : fragment.getInputFragments()) {
+          for (GraphFragment<?> input : fragment.getInputFragments()) {
             a[i++] = input.getIdentifier();
           }
           _inputs = a;
         }
         a = new int[fragment.getOutputFragments().size()];
         i = 0;
-        for (GraphFragment<?, ?> output : fragment.getOutputFragments()) {
+        for (GraphFragment<?> output : fragment.getOutputFragments()) {
           a[i++] = output.getIdentifier();
         }
         if ((i == 1) && (a[0] == 1)) {
@@ -112,11 +112,11 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
         } else {
           _outputs = a;
         }
-        final Collection<? extends GraphFragment<?, ?>> tails = fragment.getTail();
+        final Collection<? extends GraphFragment<?>> tails = fragment.getTail();
         if (tails != null) {
           a = new int[tails.size()];
           i = 0;
-          for (GraphFragment<?, ?> tail : tails) {
+          for (GraphFragment<?> tail : tails) {
             a[i++] = tail.getIdentifier();
           }
           _tail = a;
@@ -157,7 +157,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 
     private final Map<Integer, FragmentDescriptor> _fragments;
 
-    public MultipleFragment(final GraphFragment<?, ?> root) {
+    public MultipleFragment(final GraphFragment<?> root) {
       this(new HashMap<Integer, FragmentDescriptor>());
       s_logger.info("Creating {}", this);
       process(root.getInputFragments());
@@ -167,8 +167,8 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       _fragments = fragments;
     }
 
-    private void process(final Collection<? extends GraphFragment<?, ?>> fragments) {
-      for (GraphFragment<?, ?> fragment : fragments) {
+    private void process(final Collection<? extends GraphFragment<?>> fragments) {
+      for (GraphFragment<?> fragment : fragments) {
         if (_fragments.get(fragment.getIdentifier()) == null) {
           _fragments.put(fragment.getIdentifier(), new FragmentDescriptor(fragment));
           process(fragment.getInputFragments());
@@ -218,7 +218,7 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
       }
       root.initBlockCount();
       for (GraphFragment runnable : runnables) {
-        runnable.execute();
+        runnable.execute(context);
       }
       return root.getFuture();
     }

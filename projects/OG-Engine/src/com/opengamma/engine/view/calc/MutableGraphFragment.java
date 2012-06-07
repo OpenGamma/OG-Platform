@@ -26,7 +26,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
  * Subclass of {@link GraphFragment} to include additional state for the fragmentation
  * algorithm.
  */
-/* package */class MutableGraphFragment extends GraphFragment<MutableGraphFragmentContext, MutableGraphFragment> {
+/* package */class MutableGraphFragment extends GraphFragment<MutableGraphFragment> {
 
   /**
    * Data input/output rate from shared cache. Assumes 1Gb/s. This needs to be tunable through the
@@ -49,7 +49,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
   public MutableGraphFragment(final MutableGraphFragmentContext context, final DependencyNode node) {
     super(context, node);
-    final FunctionInvocationStatistics statistics = getContext().getFunctionStatistics(node.getFunction().getFunction());
+    final FunctionInvocationStatistics statistics = context.getFunctionStatistics(node.getFunction().getFunction());
     _invocationCost = (long) statistics.getInvocationCost();
     final Integer inputCost = (Integer) (int) (statistics.getDataInputCost() * NANOS_PER_BYTE);
     for (ValueSpecification input : node.getInputValues()) {
@@ -167,12 +167,12 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
    * Prepends a fragment. A fragment can be prepended if it produces values needed by this. If output from
    * one doesn't feed into the other, use the cheaper append operation.
    */
-  public void prependFragment(final MutableGraphFragment fragment) {
+  public void prependFragment(final MutableGraphFragmentContext context, final MutableGraphFragment fragment) {
     final Iterator<DependencyNode> nodeIterator = fragment.getNodes().descendingIterator();
     while (nodeIterator.hasNext()) {
       getNodes().addFirst(nodeIterator.next());
     }
-    final Map<ValueSpecification, Boolean> sharedCacheValues = getContext().getSharedCacheValues();
+    final Map<ValueSpecification, Boolean> sharedCacheValues = context.getSharedCacheValues();
     for (final Map.Entry<ValueSpecification, Integer> output : fragment.getOutputValues().entrySet()) {
       final Integer required = getInputValues().remove(output.getKey());
       if (required != null) {
@@ -244,8 +244,8 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
   }
 
   @Override
-  public CalculationJob createCalculationJob() {
-    final Map<ValueSpecification, Boolean> sharedValues = getContext().getSharedCacheValues();
+  public CalculationJob createCalculationJob(final GraphFragmentContext context) {
+    final Map<ValueSpecification, Boolean> sharedValues = ((MutableGraphFragmentContext)context).getSharedCacheValues();
     final Set<ValueSpecification> localPrivateValues = getPrivateValues();
     final Set<ValueSpecification> localSharedValues = new HashSet<ValueSpecification>();
     // If fragment has dependencies which aren't in the execution fragment, its outputs for those are "shared" values
@@ -297,7 +297,7 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
     }
     // Won't need this set again, so help the GC out
     _localPrivateValues = null;
-    return super.createCalculationJob();
+    return super.createCalculationJob(context);
   }
 
   @Override
@@ -311,12 +311,12 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
     public Root(final MutableGraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
       super(context);
-      _future = new RootGraphFragmentFuture(this, statistics);
+      _future = new RootGraphFragmentFuture(context, this, statistics);
     }
 
     @Override
-    public void execute() {
-      getContext().getExecutor().getCache().cachePlan(getContext().getGraph(), getContext().getFunctionInitId(), ExecutionPlan.of(this));
+    public void execute(final GraphFragmentContext context) {
+      context.getExecutor().getCache().cachePlan(context.getGraph(), context.getFunctionInitId(), ExecutionPlan.of(this));
       _future.executed();
     }
 

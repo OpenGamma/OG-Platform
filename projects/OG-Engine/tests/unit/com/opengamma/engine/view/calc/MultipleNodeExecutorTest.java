@@ -156,9 +156,9 @@ public class MultipleNodeExecutorTest {
     };
   }
 
-  private GraphFragment<?, ?> execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
+  private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
     final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
-    return ((RootGraphFragmentFuture) future).getThis();
+    return (RootGraphFragmentFuture) future;
   }
 
   /**
@@ -166,13 +166,13 @@ public class MultipleNodeExecutorTest {
    */
   public void testMin5() {
     final MultipleNodeExecutor executor = createExecutor(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testMin5");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(5, root.getNodes().size());
-    final CacheSelectHint hint = root.getCacheSelectHint();
+    assertEquals(5, root.getFragment().getNodes().size());
+    final CacheSelectHint hint = root.getFragment().getCacheSelectHint();
     if (PRINT_GRAPHS) {
       System.out.println(hint);
     }
@@ -187,7 +187,7 @@ public class MultipleNodeExecutorTest {
     assertFalse(hint.isPrivateValue(_testValuex3));
   }
 
-  private boolean singletonFragment(final GraphFragment<?, ?> fragment, final DependencyNode node) {
+  private boolean singletonFragment(final GraphFragment<?> fragment, final DependencyNode node) {
     assertEquals(1, fragment.getNodes().size());
     return fragment.getNodes().iterator().next() == node;
   }
@@ -197,20 +197,20 @@ public class MultipleNodeExecutorTest {
    */
   public void testMax1() {
     final MultipleNodeExecutor executor = createExecutor(1, 1, 0);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testMax1");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(3, root.getInputFragments().size());
+    assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?, ?> fragment : root.getInputFragments()) {
+    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       if (singletonFragment(fragment, _testNode[0])) {
         mask |= 1;
         assertEquals(1, fragment.getInputFragments().size());
-        final GraphFragment<?, ?> node2 = fragment.getInputFragments().iterator().next();
+        final GraphFragment<?> node2 = fragment.getInputFragments().iterator().next();
         assertTrue(singletonFragment(node2, _testNode[2]));
-        final CacheSelectHint hint = fragment.createCalculationJob().getCacheSelectHint();
+        final CacheSelectHint hint = fragment.createCalculationJob(root.getContext()).getCacheSelectHint();
         if (PRINT_GRAPHS) {
           System.out.println(hint);
         }
@@ -219,9 +219,9 @@ public class MultipleNodeExecutorTest {
       } else if (singletonFragment(fragment, _testNode[1])) {
         mask |= 2;
         assertEquals(1, fragment.getInputFragments().size());
-        final GraphFragment<?, ?> node2 = fragment.getInputFragments().iterator().next();
+        final GraphFragment<?> node2 = fragment.getInputFragments().iterator().next();
         assertTrue(singletonFragment(node2, _testNode[2]));
-        final CacheSelectHint hint = fragment.createCalculationJob().getCacheSelectHint();
+        final CacheSelectHint hint = fragment.createCalculationJob(root.getContext()).getCacheSelectHint();
         if (PRINT_GRAPHS) {
           System.out.println(hint);
         }
@@ -230,7 +230,7 @@ public class MultipleNodeExecutorTest {
       } else if (singletonFragment(fragment, _testNode[4])) {
         mask |= 4;
         assertEquals(2, fragment.getInputFragments().size());
-        for (GraphFragment<?, ?> fragment2 : fragment.getInputFragments()) {
+        for (GraphFragment<?> fragment2 : fragment.getInputFragments()) {
           if (singletonFragment(fragment2, _testNode[2])) {
             mask |= 8;
           } else if (singletonFragment(fragment2, _testNode[3])) {
@@ -239,7 +239,7 @@ public class MultipleNodeExecutorTest {
             Assert.fail();
           }
         }
-        final CacheSelectHint hint = fragment.createCalculationJob().getCacheSelectHint();
+        final CacheSelectHint hint = fragment.createCalculationJob(root.getContext()).getCacheSelectHint();
         if (PRINT_GRAPHS) {
           System.out.println(hint);
         }
@@ -258,21 +258,21 @@ public class MultipleNodeExecutorTest {
    */
   public void testMinMax2() {
     final MultipleNodeExecutor executor = createExecutor(2, 2, 0);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax2");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(2, root.getInputFragments().size());
+    assertEquals(2, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?, ?> fragment : root.getInputFragments()) {
+    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(2, fragment.getNodes().size());
       if (fragment.getNodes().contains(_testNode[0]) && fragment.getNodes().contains(_testNode[1])) {
         mask |= 1;
         assertEquals(1, fragment.getInputFragments().size());
-        final GraphFragment<?, ?> node2 = fragment.getInputFragments().iterator().next();
+        final GraphFragment<?> node2 = fragment.getInputFragments().iterator().next();
         assertTrue(singletonFragment(node2, _testNode[2]));
-        final CacheSelectHint hint = fragment.createCalculationJob().getCacheSelectHint();
+        final CacheSelectHint hint = fragment.createCalculationJob(root.getContext()).getCacheSelectHint();
         if (PRINT_GRAPHS) {
           System.out.println(hint);
         }
@@ -283,9 +283,9 @@ public class MultipleNodeExecutorTest {
       } else if (fragment.getNodes().contains(_testNode[3]) && fragment.getNodes().contains(_testNode[4])) {
         mask |= 2;
         assertEquals(1, fragment.getInputFragments().size());
-        final GraphFragment<?, ?> node2 = fragment.getInputFragments().iterator().next();
+        final GraphFragment<?> node2 = fragment.getInputFragments().iterator().next();
         assertTrue(singletonFragment(node2, _testNode[2]));
-        final CacheSelectHint hint = fragment.createCalculationJob().getCacheSelectHint();
+        final CacheSelectHint hint = fragment.createCalculationJob(root.getContext()).getCacheSelectHint();
         if (PRINT_GRAPHS) {
           System.out.println(hint);
         }
@@ -305,20 +305,20 @@ public class MultipleNodeExecutorTest {
    */
   public void testMinMax4() {
     final MultipleNodeExecutor executor = createExecutor(3, 4, 0);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax4");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(1, root.getInputFragments().size());
-    final GraphFragment<?, ?> node = root.getInputFragments().iterator().next();
+    assertEquals(1, root.getFragment().getInputFragments().size());
+    final GraphFragment<?> node = root.getFragment().getInputFragments().iterator().next();
     assertEquals(4, node.getNodes().size());
     assertTrue(node.getNodes().contains(_testNode[0]));
     assertTrue(node.getNodes().contains(_testNode[1]));
     assertTrue(node.getNodes().contains(_testNode[4]));
     assertTrue(node.getNodes().contains(_testNode[3]));
     assertEquals(1, node.getInputFragments().size());
-    final GraphFragment<?, ?> node2 = node.getInputFragments().iterator().next();
+    final GraphFragment<?> node2 = node.getInputFragments().iterator().next();
     assertTrue(singletonFragment(node2, _testNode[2]));
     CacheSelectHint hint = node2.getCacheSelectHint();
     if (PRINT_GRAPHS) {
@@ -328,7 +328,7 @@ public class MultipleNodeExecutorTest {
     assertFalse(hint.isPrivateValue(_testValue20));
     assertFalse(hint.isPrivateValue(_testValue21));
     assertFalse(hint.isPrivateValue(_testValue24));
-    hint = node.createCalculationJob().getCacheSelectHint();
+    hint = node.createCalculationJob(root.getContext()).getCacheSelectHint();
     if (PRINT_GRAPHS) {
       System.out.println(hint);
     }
@@ -347,16 +347,16 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread1() {
     final MultipleNodeExecutor executor = createExecutor(1, 4, 1);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testThread1");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(3, root.getInputFragments().size());
+    assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?, ?> fragment : root.getInputFragments()) {
+    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      final GraphFragment<?, ?> input = fragment.getInputFragments().iterator().next();
+      final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(1, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -377,16 +377,16 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread2() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 2);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testThread2");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(3, root.getInputFragments().size());
+    assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?, ?> fragment : root.getInputFragments()) {
+    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?, ?> input = fragment.getInputFragments().iterator().next();
+      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(2, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -407,16 +407,16 @@ public class MultipleNodeExecutorTest {
    */
   public void testThread3() {
     final MultipleNodeExecutor executor = createExecutor(1, Integer.MAX_VALUE, 3);
-    final GraphFragment<?, ?> root = execute(executor, _testGraph);
+    final RootGraphFragmentFuture root = execute(executor, _testGraph);
     if (PRINT_GRAPHS) {
       System.out.println("testThread3");
-      executor.printFragment(root);
+      MultipleNodeExecutor.printFragment(root.getFragment());
     }
-    assertEquals(3, root.getInputFragments().size());
+    assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?, ?> fragment : root.getInputFragments()) {
+    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?, ?> input = fragment.getInputFragments().iterator().next();
+      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(3, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -432,7 +432,7 @@ public class MultipleNodeExecutorTest {
     assertEquals(7, mask);
   }
 
-  private void extractColours(final GraphFragment<?, ?> fragment, final Map<Integer, Collection<DependencyNode>> colours) {
+  private void extractColours(final GraphFragment<?> fragment, final Map<Integer, Collection<DependencyNode>> colours) {
     assertTrue(fragment instanceof MutableGraphFragment);
     final int colour = ((MutableGraphFragment) fragment).getExecutionId();
     if (colour != 0) {
@@ -443,7 +443,7 @@ public class MultipleNodeExecutorTest {
       }
       nodes.addAll(fragment.getNodes());
     }
-    for (GraphFragment<?, ?> input : fragment.getInputFragments()) {
+    for (GraphFragment<?> input : fragment.getInputFragments()) {
       extractColours(input, colours);
     }
   }
@@ -483,9 +483,9 @@ public class MultipleNodeExecutorTest {
       System.out.println("concurrency 1");
     }
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
-    GraphFragment<?, ?> root = execute(executor, _testGraph);
+    RootGraphFragmentFuture root = execute(executor, _testGraph);
     Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
-    extractColours(root, colours);
+    extractColours(root.getFragment(), colours);
     if (PRINT_GRAPHS) {
       System.out.println(colours);
     }
@@ -496,7 +496,7 @@ public class MultipleNodeExecutorTest {
     executor = createExecutor(1, 1, 2);
     root = execute(executor, _testGraph);
     colours.clear();
-    extractColours(root, colours);
+    extractColours(root.getFragment(), colours);
     if (PRINT_GRAPHS) {
       System.out.println(colours);
     }
@@ -507,7 +507,7 @@ public class MultipleNodeExecutorTest {
     executor = createExecutor(1, 1, 3);
     root = execute(executor, _testGraph);
     colours.clear();
-    extractColours(root, colours);
+    extractColours(root.getFragment(), colours);
     if (PRINT_GRAPHS) {
       System.out.println(colours);
     }
