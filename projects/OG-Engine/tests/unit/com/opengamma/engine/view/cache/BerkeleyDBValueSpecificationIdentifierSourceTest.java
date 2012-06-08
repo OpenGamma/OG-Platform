@@ -7,6 +7,9 @@ package com.opengamma.engine.view.cache;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +99,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     idSource.start();
     
     Map<String, Long> identifiers = new HashMap<String, Long>();
-    Set<Long> seenIdentifiers = new HashSet<Long>();
+    LongSet seenIdentifiers = new LongOpenHashSet();
     for (int i = 0; i < 10; i++) {
       String valueName = "value-" + i;
       ValueSpecification valueSpec = getValueSpec(valueName);
@@ -107,7 +110,7 @@ public class BerkeleyDBValueSpecificationIdentifierSourceTest {
     }
     
     for (int j = 0; j < 5; j++) {
-      Map<Long, ValueSpecification> valueSpecs = idSource.getValueSpecifications(seenIdentifiers);
+      Long2ObjectMap<ValueSpecification> valueSpecs = idSource.getValueSpecifications(seenIdentifiers);
       assertEquals (seenIdentifiers.size (), valueSpecs.size ());
       for (int i = 0; i < 10; i++) {
         String valueName = "value-" + i;

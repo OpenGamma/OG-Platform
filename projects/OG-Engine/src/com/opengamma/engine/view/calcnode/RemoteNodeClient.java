@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
 import com.opengamma.engine.view.calcnode.msg.Cancel;
@@ -34,6 +35,7 @@ import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeConnectionStateListener;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageSender;
+import com.opengamma.util.monitor.InvocationCount;
 
 /**
  * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher. The connection must
@@ -48,6 +50,8 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   private final IdentifierMap _identifierMap;
   private final FunctionInvocationStatisticsSender _statistics;
   private boolean _started;
+  private final InvocationCount _resolveIdentifiers = new InvocationCount("resolve");
+  private final InvocationCount _convertIdentifiers = new InvocationCount("convert");
   private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
 
     @Override
@@ -66,12 +70,16 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
     protected void visitExecuteMessage(final Execute message) {
       final CalculationJob job = message.getJob();
       getFunctionCompilationService().reinitializeIfNeeded(job.getFunctionInitializationIdentifier());
-      job.resolveIdentifiers(getIdentifierMap());
+      _resolveIdentifiers.enter();
+      AbstractIdentifierMap.resolveIdentifiers(getIdentifierMap(), job);
+      _resolveIdentifiers.leave();
       addJob(job, new ExecutionReceiver() {
 
         @Override
         public void executionComplete(final CalculationJobResult result) {
-          result.convertIdentifiers(getIdentifierMap());
+          _convertIdentifiers.enter();
+          AbstractIdentifierMap.convertIdentifiers(getIdentifierMap(), result);
+          _convertIdentifiers.leave();
           sendMessage(new Result(result));
         }
 

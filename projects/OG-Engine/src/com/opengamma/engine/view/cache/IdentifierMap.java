@@ -5,8 +5,11 @@
  */
 package com.opengamma.engine.view.cache;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -41,7 +44,7 @@ public interface IdentifierMap {
    * @param specs The specifications to lookup or allocate identifiers for
    * @return The identifiers, not null.
    */
-  Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs);
+  Object2LongMap<ValueSpecification> getIdentifiers(Collection<ValueSpecification> specs);
   
   /**
    * Inverse of {@link #getIdentifiers}.
@@ -49,6 +52,6 @@ public interface IdentifierMap {
    * @param identifiers The identifiers to look up
    * @return The specifications, not null.
    */
-  Map<Long, ValueSpecification> getValueSpecifications(Collection<Long> identifiers);
+  Long2ObjectMap<ValueSpecification> getValueSpecifications(LongCollection identifiers);
 
 }

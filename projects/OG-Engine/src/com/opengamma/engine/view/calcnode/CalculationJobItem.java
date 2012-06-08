@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,12 +19,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 
 /**
  * 
  */
-public final class CalculationJobItem {
+public final class CalculationJobItem implements IdentifierEncodedValueSpecifications {
 
   private static final long[] EMPTY = new long[0];
 
@@ -99,71 +102,60 @@ public final class CalculationJobItem {
     return Collections.unmodifiableSet(_outputs);
   }
 
-  /**
-   * Numeric identifiers may have been passed when this was encoded as a Fudge message. This will resolve them to full {@link ValueSpecification} objects.
-   * 
-   * @param identifierMap Identifier map to resolve the inputs with
-   */
-  public void resolveIdentifiers(final IdentifierMap identifierMap) {
+  @Override
+  public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_inputs.isEmpty() && (_inputIdentifiers.length > 0)) {
-      if (_inputIdentifiers.length == 1) {
-        _inputs.add(identifierMap.getValueSpecification(_inputIdentifiers[0]));
-      } else {
-        final Collection<Long> identifiers = new ArrayList<Long>(_inputIdentifiers.length);
-        for (Long identifier : _inputIdentifiers) {
-          identifiers.add(identifier);
-        }
-        _inputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
+      for (long identifier : _inputIdentifiers) {
+        _inputs.add(identifiers.get(identifier));
       }
     }
     if (_outputs.isEmpty() && (_outputIdentifiers.length > 0)) {
-      if (_outputIdentifiers.length == 1) {
-        _outputs.add(identifierMap.getValueSpecification(_outputIdentifiers[0]));
-      } else {
-        final Collection<Long> identifiers = new ArrayList<Long>(_outputIdentifiers.length);
-        for (Long identifier : _outputIdentifiers) {
-          identifiers.add(identifier);
-        }
-        _outputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
+      for (long identifier : _outputIdentifiers) {
+        _outputs.add(identifiers.get(identifier));
       }
     }
   }
 
-  /**
-   * Convert full {@link ValueSpecification} objects to numeric identifiers for more efficient Fudge
-   * encoding.
-   * 
-   * @param identifierMap Identifier map to convert the inputs with
-   */
-  public void convertIdentifiers(final IdentifierMap identifierMap) {
+  @Override
+  public void collectIdentifiers(final LongSet identifiers) {
+    for (long identifier : _inputIdentifiers) {
+      identifiers.add(identifier);
+    }
+    for (long identifier : _outputIdentifiers) {
+      identifiers.add(identifier);
+    }
+  }
+
+  @Override
+  public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
     if (_inputIdentifiers == null) {
       if (_inputs.isEmpty()) {
         _inputIdentifiers = EMPTY;
-      } else if (_inputs.size() == 1) {
-        _inputIdentifiers = new long[] {identifierMap.getIdentifier(_inputs.iterator().next())};
       } else {
-        final Collection<Long> identifiers = identifierMap.getIdentifiers(_inputs).values();
-        _inputIdentifiers = new long[identifiers.size()];
+        _inputIdentifiers = new long[_inputs.size()];
         int i = 0;
-        for (Long identifier : identifiers) {
-          _inputIdentifiers[i++] = identifier;
+        for (ValueSpecification input : _inputs) {
+          _inputIdentifiers[i++] = valueSpecifications.getLong(input);
         }
       }
     }
     if (_outputIdentifiers == null) {
       if (_outputs.isEmpty()) {
         _outputIdentifiers = EMPTY;
-      } else if (_outputs.size() == 1) {
-        _outputIdentifiers = new long[] {identifierMap.getIdentifier(_outputs.iterator().next()) };
       } else {
-        final Collection<Long> identifiers = identifierMap.getIdentifiers(_outputs).values();
-        _outputIdentifiers = new long[identifiers.size()];
+        _outputIdentifiers = new long[_outputs.size()];
         int i = 0;
-        for (Long identifier : identifiers) {
-          _outputIdentifiers[i++] = identifier;
+        for (ValueSpecification output : _outputs) {
+          _outputIdentifiers[i++] = valueSpecifications.getLong(output);
         }
       }
     }
+  }
+
+  @Override
+  public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
+    valueSpecifications.addAll(_inputs);
+    valueSpecifications.addAll(_outputs);
   }
 
   /**

@@ -5,25 +5,27 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.io.Serializable;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
-import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * The definition of a particular job that must be performed by
  * a Calculation Node.
  */
-public class CalculationJob implements Serializable {
+public class CalculationJob implements IdentifierEncodedValueSpecifications {
   
-  private static final long serialVersionUID = 1L;
-
   private final CalculationJobSpecification _specification;
   private final long _functionInitializationIdentifier;
   private final long[] _required;
@@ -96,27 +98,35 @@ public class CalculationJob implements Serializable {
     _cancelled = true;
   }
 
-  /**
-   * Resolves the numeric identifiers passed in a Fudge message to the full {@link ValueSpecification} objects.
-   * 
-   * @param identifierMap Identifier map to resolve the inputs with
-   */
-  public void resolveIdentifiers(final IdentifierMap identifierMap) {
-    _cacheSelect.resolveIdentifiers(identifierMap);
+  @Override
+  public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
+    _cacheSelect.convertIdentifiers(identifiers);
     for (CalculationJobItem item : _jobItems) {
-      item.resolveIdentifiers(identifierMap);
+      item.convertIdentifiers(identifiers);
     }
   }
 
-  /**
-   * Converts full {@link ValueSpecification} objects to numeric identifiers for Fudge message encoding.
-   * 
-   * @param identifierMap Identifier map to convert the inputs with
-   */
-  public void convertInputs(final IdentifierMap identifierMap) {
-    getCacheSelectHint().convertIdentifiers(identifierMap);
+  @Override
+  public void collectIdentifiers(final LongSet identifiers) {
+    _cacheSelect.collectIdentifiers(identifiers);
     for (CalculationJobItem item : _jobItems) {
-      item.convertIdentifiers(identifierMap);
+      item.collectIdentifiers(identifiers);
+    }
+  }
+
+  @Override
+  public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
+    _cacheSelect.convertValueSpecifications(valueSpecifications);
+    for (CalculationJobItem item : _jobItems) {
+      item.convertValueSpecifications(valueSpecifications);
+    }
+  }
+
+  @Override
+  public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
+    _cacheSelect.collectValueSpecifications(valueSpecifications);
+    for (CalculationJobItem item : _jobItems) {
+      item.collectValueSpecifications(valueSpecifications);
     }
   }
 

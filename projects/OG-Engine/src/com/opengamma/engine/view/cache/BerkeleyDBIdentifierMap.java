@@ -5,9 +5,13 @@
  */
 package com.opengamma.engine.view.cache;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
@@ -110,7 +114,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   }
 
   @Override
-  public Map<ValueSpecification, Long> getIdentifiers(Collection<ValueSpecification> specs) {
+  public Object2LongMap<ValueSpecification> getIdentifiers(Collection<ValueSpecification> specs) {
     ArgumentChecker.notNull(specs, "specs");
     if (!isRunning()) {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
@@ -120,7 +124,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
     TransactionConfig txnConfig = new TransactionConfig();
     txnConfig.setSync(false);
     Transaction txn = getDbEnvironment().beginTransaction(null, txnConfig);
-    final Map<ValueSpecification, Long> result = new HashMap<ValueSpecification, Long>();
+    final Object2LongMap<ValueSpecification> result = new Object2LongOpenHashMap<ValueSpecification>();
     boolean rollback = true;
     try {
       final DatabaseEntry identifierEntry = new DatabaseEntry();
@@ -168,17 +172,17 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   }
 
   @Override
-  public Map<Long, ValueSpecification> getValueSpecifications(Collection<Long> identifiers) {
+  public Long2ObjectMap<ValueSpecification> getValueSpecifications(LongCollection identifiers) {
     if (!isRunning()) {
       s_logger.info("Starting on first call as wasn't called as part of lifecycle interface");
       start();
     }
     final Transaction txn = getDbEnvironment().beginTransaction(null, null);
     try {
-      final Map<Long, ValueSpecification> result = new HashMap<Long, ValueSpecification>();
+      final Long2ObjectMap<ValueSpecification> result = new Long2ObjectOpenHashMap<ValueSpecification>();
       final DatabaseEntry identifierEntry = new DatabaseEntry();
       final DatabaseEntry valueSpecEntry = new DatabaseEntry();
-      for (Long identifier : identifiers) {
+      for (long identifier : identifiers) {
         result.put(identifier, getValueSpecificationImpl(txn, identifier, identifierEntry, valueSpecEntry));
       }
       return result;

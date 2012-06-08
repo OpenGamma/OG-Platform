@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
 import com.opengamma.engine.view.calcnode.msg.Cancel;
@@ -139,7 +140,7 @@ import com.opengamma.transport.FudgeMessageSender;
       final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
       if (receiver != null) {
         final CalculationJobResult result = message.getResult();
-        result.resolveIdentifiers(getIdentifierMap());
+        AbstractIdentifierMap.resolveIdentifiers(getIdentifierMap(), result);
         receiver.jobCompleted(result);
       } else {
         s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
@@ -214,7 +215,7 @@ import com.opengamma.transport.FudgeMessageSender;
       private void sendJob(final CalculationJob job) {
         try {
           getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-          job.convertInputs(getIdentifierMap());
+          AbstractIdentifierMap.convertIdentifiers(getIdentifierMap(), job);
           sendMessage(new Execute(job));
         } catch (Exception e) {
           s_logger.warn("Error sending job {}", job.getSpecification().getJobId());

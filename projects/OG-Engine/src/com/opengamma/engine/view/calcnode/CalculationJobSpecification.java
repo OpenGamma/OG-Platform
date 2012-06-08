@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.io.Serializable;
-
 import javax.time.Instant;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,9 +17,7 @@ import com.opengamma.id.UniqueId;
  * Providers of jobs pass over a full {@link CalculationJob}, and the
  * specification of that job is returned by the Calculation Node.
  */
-public class CalculationJobSpecification implements Serializable {
-  
-  private static final long serialVersionUID = 1L;
+public class CalculationJobSpecification {
   
   /**
    * The cycle identifier.

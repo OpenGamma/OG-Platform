@@ -5,9 +5,17 @@
  */
 package com.opengamma.engine.view.cache;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongCollection;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -18,12 +26,12 @@ import com.opengamma.engine.value.ValueSpecification;
 public abstract class AbstractIdentifierMap implements IdentifierMap {
 
   @Override
-  public Map<ValueSpecification, Long> getIdentifiers(final Collection<ValueSpecification> specifications) {
+  public Object2LongMap<ValueSpecification> getIdentifiers(final Collection<ValueSpecification> specifications) {
     return getIdentifiers(this, specifications);
   }
 
-  public static Map<ValueSpecification, Long> getIdentifiers(final IdentifierMap map, final Collection<ValueSpecification> specifications) {
-    final Map<ValueSpecification, Long> identifiers = new HashMap<ValueSpecification, Long>();
+  public static Object2LongMap<ValueSpecification> getIdentifiers(final IdentifierMap map, final Collection<ValueSpecification> specifications) {
+    final Object2LongMap<ValueSpecification> identifiers = new Object2LongOpenHashMap<ValueSpecification>();
     for (ValueSpecification specification : specifications) {
       identifiers.put(specification, map.getIdentifier(specification));
     }
@@ -31,16 +39,28 @@ public abstract class AbstractIdentifierMap implements IdentifierMap {
   }
 
   @Override
-  public Map<Long, ValueSpecification> getValueSpecifications(final Collection<Long> identifiers) {
+  public Long2ObjectMap<ValueSpecification> getValueSpecifications(final LongCollection identifiers) {
     return getValueSpecifications(this, identifiers);
   }
 
-  public static Map<Long, ValueSpecification> getValueSpecifications(final IdentifierMap map, final Collection<Long> identifiers) {
-    final Map<Long, ValueSpecification> specifications = new HashMap<Long, ValueSpecification>();
+  public static Long2ObjectMap<ValueSpecification> getValueSpecifications(final IdentifierMap map, final LongCollection identifiers) {
+    final Long2ObjectMap<ValueSpecification> specifications = new Long2ObjectOpenHashMap<ValueSpecification>();
     for (Long identifier : identifiers) {
       specifications.put(identifier, map.getValueSpecification(identifier));
     }
     return specifications;
+  }
+
+  public static void convertIdentifiers(final IdentifierMap map, final IdentifierEncodedValueSpecifications object) {
+    final Set<ValueSpecification> valueSpecifications = new HashSet<ValueSpecification>();
+    object.collectValueSpecifications(valueSpecifications);
+    object.convertValueSpecifications(map.getIdentifiers(valueSpecifications));
+  }
+
+  public static void resolveIdentifiers(final IdentifierMap map, final IdentifierEncodedValueSpecifications object) {
+    final LongSet identifiers = new LongOpenHashSet();
+    object.collectIdentifiers(identifiers);
+    object.convertIdentifiers(map.getValueSpecifications(identifiers));
   }
 
 }

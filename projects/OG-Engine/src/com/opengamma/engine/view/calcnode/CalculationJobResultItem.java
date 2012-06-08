@@ -5,19 +5,21 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 
 /**
  * 
  */
-public final class CalculationJobResultItem {
+public final class CalculationJobResultItem implements IdentifierEncodedValueSpecifications {
 
   private static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.view.calcnode.MissingInputException";
   private static final CalculationJobResultItem SUCCESS = new CalculationJobResultItem(null, null, null, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
@@ -140,74 +142,66 @@ public final class CalculationJobResultItem {
     return _missingOutputIdentifiers;
   }
 
-  /**
-   * Numeric identifiers may have been passed when this was encoded as a Fudge message. This will resolve
-   * them to full {@link ValueSpecification} objects.
-   * 
-   * @param identifierMap Identifier map to resolve the inputs with
-   */
-  public void resolveIdentifiers(final IdentifierMap identifierMap) {
+  @Override
+  public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_missingInputs == null) {
       if (_missingInputIdentifiers == null) {
         _missingInputs = Collections.emptySet();
-      } else if (_missingInputIdentifiers.length == 1) {
-        _missingInputs = Collections.singleton(identifierMap.getValueSpecification(_missingInputIdentifiers[0]));
       } else {
         _missingInputs = Sets.newHashSetWithExpectedSize(_missingInputIdentifiers.length);
-        final Collection<Long> identifiers = new ArrayList<Long>(_missingInputIdentifiers.length);
         for (long identifier : _missingInputIdentifiers) {
-          identifiers.add(identifier);
+          _missingInputs.add(identifiers.get(identifier));
         }
-        _missingInputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
       }
     }
     if (_missingOutputs == null) {
       if (_missingOutputIdentifiers == null) {
         _missingOutputs = Collections.emptySet();
-      } else if (_missingOutputIdentifiers.length == 1) {
-        _missingOutputs = Collections.singleton(identifierMap.getValueSpecification(_missingOutputIdentifiers[0]));
       } else {
         _missingOutputs = Sets.newHashSetWithExpectedSize(_missingOutputIdentifiers.length);
-        final Collection<Long> identifiers = new ArrayList<Long>(_missingOutputIdentifiers.length);
         for (long identifier : _missingOutputIdentifiers) {
-          identifiers.add(identifier);
+          _missingOutputs.add(identifiers.get(identifier));
         }
-        _missingOutputs.addAll(identifierMap.getValueSpecifications(identifiers).values());
       }
     }
   }
 
-  /**
-   * Convert full {@link ValueSpecification} objects to numeric identifiers for more efficient Fudge
-   * encoding.
-   * 
-   * @param identifierMap Identifier map to convert the inputs with
-   */
-  public void convertIdentifiers(final IdentifierMap identifierMap) {
+  @Override
+  public void collectIdentifiers(final LongSet identifiers) {
+    if (_missingInputIdentifiers != null) {
+      for (long identifier : _missingInputIdentifiers) {
+        identifiers.add(identifier);
+      }
+    }
+    if (_missingOutputIdentifiers != null) {
+      for (long identifier : _missingOutputIdentifiers) {
+        identifiers.add(identifier);
+      }
+    }
+  }
+
+  @Override
+  public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
     if ((_missingInputIdentifiers == null) && !_missingInputs.isEmpty()) {
-      if (_missingInputs.size() == 1) {
-        _missingInputIdentifiers = new long[] {identifierMap.getIdentifier(_missingInputs.iterator().next()) };
-      } else {
-        final Collection<Long> identifiers = identifierMap.getIdentifiers(_missingInputs).values();
-        _missingInputIdentifiers = new long[identifiers.size()];
-        int i = 0;
-        for (Long identifier : identifiers) {
-          _missingInputIdentifiers[i++] = identifier;
-        }
+      _missingInputIdentifiers = new long[_missingInputs.size()];
+      int i = 0;
+      for (ValueSpecification input : _missingInputs) {
+        _missingInputIdentifiers[i++] = valueSpecifications.getLong(input);
       }
     }
     if ((_missingOutputIdentifiers == null) && !_missingOutputs.isEmpty()) {
-      if (_missingOutputs.size() == 1) {
-        _missingOutputIdentifiers = new long[] {identifierMap.getIdentifier(_missingOutputs.iterator().next()) };
-      } else {
-        final Collection<Long> identifiers = identifierMap.getIdentifiers(_missingOutputs).values();
-        _missingOutputIdentifiers = new long[identifiers.size()];
-        int i = 0;
-        for (Long identifier : identifiers) {
-          _missingOutputIdentifiers[i++] = identifier;
-        }
+      _missingOutputIdentifiers = new long[_missingOutputs.size()];
+      int i = 0;
+      for (ValueSpecification output : _missingOutputs) {
+        _missingOutputIdentifiers[i++] = valueSpecifications.getLong(output);
       }
     }
+  }
+
+  @Override
+  public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
+    valueSpecifications.addAll(_missingInputs);
+    valueSpecifications.addAll(_missingOutputs);
   }
 
   @Override

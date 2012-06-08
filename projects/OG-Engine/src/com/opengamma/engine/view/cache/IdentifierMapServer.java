@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.view.cache;
 
+import it.unimi.dsi.fastutil.longs.AbstractLongList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,12 +69,26 @@ public class IdentifierMapServer extends CacheMessageVisitor implements FudgeReq
 
   @Override
   protected SpecificationLookupResponse visitSpecificationLookupRequest(final SpecificationLookupRequest request) {
-    final List<Long> identifiers = request.getIdentifier();
+    final LongList identifiers = new AbstractLongList() {
+
+      private List<Long> _raw = request.getIdentifier();
+
+      @Override
+      public long getLong(int index) {
+        return _raw.get(index);
+      }
+
+      @Override
+      public int size() {
+        return _raw.size();
+      }
+
+    };
     final Collection<ValueSpecification> specifications;
     if (identifiers.size() == 1) {
-      specifications = Collections.singleton(getUnderlying().getValueSpecification(identifiers.get(0)));
+      specifications = Collections.singleton(getUnderlying().getValueSpecification(identifiers.getLong(0)));
     } else {
-      final Map<Long, ValueSpecification> specificationMap = getUnderlying().getValueSpecifications(identifiers);
+      final Long2ObjectMap<ValueSpecification> specificationMap = getUnderlying().getValueSpecifications(identifiers);
       specifications = new ArrayList<ValueSpecification>(specificationMap.size());
       for (Long identifier : identifiers) {
         specifications.add(specificationMap.get(identifier));

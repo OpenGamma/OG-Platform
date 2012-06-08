@@ -24,6 +24,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.test.TestCalculationNode;
+import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
@@ -75,7 +76,7 @@ public class RemoteNodeClientTest {
     assertEquals(1, ready.getCapacity());
     conduit.getEnd2 ().getFudgeMessageSender().send (FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg (new Init(0)), Init.class, RemoteCalcNodeMessage.class));
     final CalculationJob job = createTestCalculationJob();
-    job.convertInputs(identifierMap);
+    AbstractIdentifierMap.convertIdentifiers(identifierMap, job);
     conduit.getEnd2().getFudgeMessageSender().send(
         FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(new Execute(job)), Execute.class, RemoteCalcNodeMessage.class));
     final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
@@ -103,7 +104,7 @@ public class RemoteNodeClientTest {
     conduit.getEnd2 ().getFudgeMessageSender().send (FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg (new Init(0)), Init.class, RemoteCalcNodeMessage.class));
     final CalculationJob job1 = createTestCalculationJob();
     final CalculationJob job2 = createTestCalculationJob();
-    job1.convertInputs(identifierMap);
+    AbstractIdentifierMap.convertIdentifiers(identifierMap, job1);
     conduit.getEnd2().getFudgeMessageSender().send(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(new Execute(job1)), Execute.class, RemoteCalcNodeMessage.class));
     conduit.getEnd2().getFudgeMessageSender().send(FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(new IsAlive(Arrays.asList (job1.getSpecification (), job2.getSpecification ()))), IsAlive.class, RemoteCalcNodeMessage.class));
     final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
@@ -145,7 +146,7 @@ public class RemoteNodeClientTest {
     assertEquals(1, ready.getCapacity());
     conduit.getEnd2 ().getFudgeMessageSender().send (FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg (new Init(0)), Init.class, RemoteCalcNodeMessage.class));
     final CalculationJob job = createTestCalculationJob();
-    job.convertInputs(identifierMap);
+    AbstractIdentifierMap.convertIdentifiers(identifierMap, job);
     conduit.getEnd2().getFudgeMessageSender().send(
         FudgeSerializer.addClassHeader(scontext.objectToFudgeMsg(new Execute(job)), Execute.class, RemoteCalcNodeMessage.class));
     final FudgeMsgEnvelope resultMsgEnvelope = messages.waitForMessage(TIMEOUT);
