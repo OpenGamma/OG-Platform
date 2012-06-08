@@ -9,20 +9,26 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * Computes the present value change when the rate changes by 1 (it is not rescaled to 1 basis point). 
  * The meaning of "rate" will change for each instrument. 
- * For Coupon the result is the discounted accrual factor multiplied by the notional.
+ * For Coupon, FRA and Deposit the result is the discounted accrual factor multiplied by the notional.
  * For PaymentFixed, it is 0 (there is no rate).
- * For annuities, it is the sum of all payments.
+ * For annuities, it is the sum of pvbp of all payments.
+ * For swaps it is the pvbp of the first leg.
  */
 // TODO: Review overlap with PresentValueCouponSensitivityCalculator.
 public final class PresentValueBasisPointCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
@@ -46,11 +52,22 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   private PresentValueBasisPointCalculator() {
   }
 
+  /**
+   * Methods used in the calculator.
+   */
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(derivative);
     return derivative.accept(this, curves);
+  }
+
+  @Override
+  public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(deposit.getYieldCurveName());
+    return discountingCurve.getDiscountFactor(deposit.getEndTime()) * deposit.getAccrualFactor() * deposit.getNotional();
   }
 
   @Override
@@ -81,6 +98,11 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   }
 
   @Override
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    return METHOD_FRA.presentValueCouponSensitivity(fra, curves) * fra.getNotional();
+  }
+
+  @Override
   public Double visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
@@ -94,6 +116,18 @@ public final class PresentValueBasisPointCalculator extends AbstractInstrumentDe
   @Override
   public Double visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final YieldCurveBundle curves) {
     return visitGenericAnnuity(annuity, curves);
+  }
+
+  @Override
+  public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
+    Validate.notNull(curves);
+    Validate.notNull(swap);
+    return visit(swap.getFirstLeg(), curves);
+  }
+
+  @Override
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
+    return visitSwap(swap, curves);
   }
 
 }
