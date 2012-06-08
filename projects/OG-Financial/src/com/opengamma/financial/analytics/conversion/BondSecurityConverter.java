@@ -25,6 +25,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.BondSecurityVisitor;
@@ -90,21 +92,12 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
   public InstrumentDefinition<?> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     throw new NotImplementedException();
   }
-
   private Period getTenor(final Frequency freq) {
-    Period tenor;
-    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(12);
-    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(6);
-    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(3);
-    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(1);
-    } else {
-      throw new OpenGammaRuntimeException(
-          "Unsupported frequency '" + freq.getConventionName() + "'. Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
+    if (freq instanceof PeriodFrequency) {
+      return ((PeriodFrequency) freq).getPeriod();
+    } else if (freq instanceof SimpleFrequency) {
+      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
     }
-    return tenor;
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
   }
 }
