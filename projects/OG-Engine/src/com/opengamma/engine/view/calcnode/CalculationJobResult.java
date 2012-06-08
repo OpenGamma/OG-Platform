@@ -28,7 +28,12 @@ public class CalculationJobResult implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private final CalculationJobSpecification _specification;
+
+  /**
+   * The set of result items in the same order as the items from the original job request.
+   */
   private final List<CalculationJobResultItem> _resultItems;
+  // TODO: don't return all result items -- just the ones that were failures
   private final long _durationNanos;
   private final String _nodeId;
   

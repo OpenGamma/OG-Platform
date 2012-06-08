@@ -29,9 +29,9 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
 
   private static final class Key {
 
-    private volatile Object _key1;
-    private volatile Object _key2;
-    private volatile Key _next;
+    private Object _key1;
+    private Object _key2;
+    private Key _next;
 
     private Key(final Object key1, final Object key2) {
       _key1 = key1;
@@ -63,22 +63,26 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
     if (key == null) {
       return new Key(key1, key2);
     } else {
-      while (!_keys.compareAndSet(key, key._next)) {
-        key = _keys.get();
-        if (key == null) {
-          return new Key(key1, key2);
+      do {
+        synchronized (key) {
+          if (_keys.compareAndSet(key, key._next)) {
+            key._key1 = key1;
+            key._key2 = key2;
+            return key;
+          }
         }
-      }
-      key._key1 = key1;
-      key._key2 = key2;
-      return key;
+        key = _keys.get();
+      } while (key != null);
+      return new Key(key1, key2);
     }
   }
 
   private void returnKey(final Key key) {
-    key._next = _keys.get();
-    while (!_keys.compareAndSet(key._next, key)) {
+    synchronized (key) {
       key._next = _keys.get();
+      while (!_keys.compareAndSet(key._next, key)) {
+        key._next = _keys.get();
+      }
     }
   }
 
@@ -296,7 +300,6 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
     final Key key = borrowKey(key1, key2);
     final V result = _data.putIfAbsent(key, value);
     if (result != null) {
-      // If there was a result, the key is ours again - otherwise we don't return it as it is now in the map
       returnKey(key);
     }
     return result;

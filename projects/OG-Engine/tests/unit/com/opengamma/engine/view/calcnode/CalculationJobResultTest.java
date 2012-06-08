@@ -44,8 +44,8 @@ public class CalculationJobResultTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Scheme", "Value"));
     
     CalculationJobItem item = new CalculationJobItem("1", new EmptyFunctionParameters(), targetSpec, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
-    CalculationJobResultItem item1 = new CalculationJobResultItem(item); 
-    CalculationJobResultItem item2 = new CalculationJobResultItem(item, new RuntimeException("failure!"));
+    CalculationJobResultItem item1 = CalculationJobResultItem.success();
+    CalculationJobResultItem item2 = CalculationJobResultItem.failure(new RuntimeException("failure!"));
     
     CalculationJobResult result = new CalculationJobResult(spec, 
         500, 
@@ -69,7 +69,6 @@ public class CalculationJobResultTest {
     CalculationJobResultItem outputItem1 = outputJob.getResultItems().get(0);
     assertNotNull(outputItem1);
     assertEquals(InvocationResult.SUCCESS, outputItem1.getResult());
-    assertNotNull(outputItem1.getItem());
     assertNull(outputItem1.getExceptionClass());
     assertNull(outputItem1.getExceptionMsg());
     assertNull(outputItem1.getStackTrace());
@@ -78,7 +77,6 @@ public class CalculationJobResultTest {
     CalculationJobResultItem outputItem2 = outputJob.getResultItems().get(1);
     assertNotNull(outputItem2);
     assertEquals(InvocationResult.FUNCTION_THREW_EXCEPTION, outputItem2.getResult());
-    assertNotNull(outputItem2.getItem());
     assertEquals("java.lang.RuntimeException", outputItem2.getExceptionClass());
     assertEquals("failure!", outputItem2.getExceptionMsg());
     assertNotNull(outputItem2.getStackTrace());

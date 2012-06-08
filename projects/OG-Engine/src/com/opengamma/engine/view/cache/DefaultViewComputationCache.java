@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.InvocationCount;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -179,15 +180,26 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   public Object getValue(final ValueSpecification specification, final CacheSelectHint filter) {
     ArgumentChecker.notNull(specification, "Specification");
     final long identifier = getIdentifierMap().getIdentifier(specification);
-    FudgeMsg data = (filter.isPrivateValue(specification) ? getPrivateDataStore() : getSharedDataStore())
-        .get(identifier);
+    final boolean isPrivate = filter.isPrivateValue(specification);
+    (isPrivate ? s_privateGet : s_sharedGet).enter();
+    final FudgeMsg data;
+    try {
+      data = (isPrivate ? getPrivateDataStore() : getSharedDataStore()).get(identifier);
+    } finally {
+      (isPrivate ? s_privateGet : s_sharedGet).leave();
+    }
     if (data == null) {
       return null;
     }
-    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    Object obj = deserializeValue(deserializer, data);
-    cacheValueSize(specification, data, obj);
-    return obj;
+    s_deserializer.enter();
+    try {
+      final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
+      Object obj = deserializeValue(deserializer, data);
+      cacheValueSize(specification, data, obj);
+      return obj;
+    } finally {
+      s_deserializer.leave();
+    }
   }
 
   @Override
@@ -251,6 +263,13 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     return returnValues;
   }
 
+  private static final InvocationCount s_sharedGet = new InvocationCount("sharedGet");
+  private static final InvocationCount s_privateGet = new InvocationCount("privateGet");
+  private static final InvocationCount s_sharedPut = new InvocationCount("sharedPut");
+  private static final InvocationCount s_privatePut = new InvocationCount("privatePut");
+  private static final InvocationCount s_serializer = new InvocationCount("serializer");
+  private static final InvocationCount s_deserializer = new InvocationCount("deserializer");
+
   @Override
   public Collection<Pair<ValueSpecification, Object>> getValues(final Collection<ValueSpecification> specifications, final CacheSelectHint filter) {
     ArgumentChecker.notNull(specifications, "specifications");
@@ -274,21 +293,32 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     final Map<Long, FudgeMsg> rawValues = new HashMap<Long, FudgeMsg>();
     // TODO Can we overlay the fetch of shared and private data?
     if (sharedIdentifiers != null) {
-      if (sharedIdentifiers.size() == 1) {
-        final FudgeMsg data = getSharedDataStore().get(sharedIdentifiers.get(0));
-        rawValues.put(sharedIdentifiers.get(0), data);
-      } else {
-        rawValues.putAll(getSharedDataStore().get(sharedIdentifiers));
+      s_sharedGet.enter();
+      try {
+        if (sharedIdentifiers.size() == 1) {
+          final FudgeMsg data = getSharedDataStore().get(sharedIdentifiers.get(0));
+          rawValues.put(sharedIdentifiers.get(0), data);
+        } else {
+          rawValues.putAll(getSharedDataStore().get(sharedIdentifiers));
+        }
+      } finally {
+        s_sharedGet.leave();
       }
     }
     if (privateIdentifiers != null) {
-      if (privateIdentifiers.size() == 1) {
-        final FudgeMsg data = getPrivateDataStore().get(privateIdentifiers.get(0));
-        rawValues.put(privateIdentifiers.get(0), data);
-      } else {
-        rawValues.putAll(getPrivateDataStore().get(privateIdentifiers));
+      s_privateGet.enter();
+      try {
+        if (privateIdentifiers.size() == 1) {
+          final FudgeMsg data = getPrivateDataStore().get(privateIdentifiers.get(0));
+          rawValues.put(privateIdentifiers.get(0), data);
+        } else {
+          rawValues.putAll(getPrivateDataStore().get(privateIdentifiers));
+        }
+      } finally {
+        s_privateGet.leave();
       }
     }
+    s_deserializer.enter();
     final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
     for (Map.Entry<ValueSpecification, Long> identifier : identifiers.entrySet()) {
       final FudgeMsg data = rawValues.get(identifier.getValue());
@@ -300,17 +330,26 @@ public class DefaultViewComputationCache implements ViewComputationCache,
         returnValues.add(Pair.of(identifier.getKey(), null));
       }
     }
+    s_deserializer.leave();
     return returnValues;
   }
 
   protected void putValue(final ComputedValue value, final FudgeMessageStore dataStore) {
     ArgumentChecker.notNull(value, "value");
     final long identifier = getIdentifierMap().getIdentifier(value.getSpecification());
+    s_serializer.enter();
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     Object obj = value.getValue();
     final FudgeMsg data = serializeValue(serializer, obj);
-    cacheValueSize(value.getSpecification(), data, value.getValue());
-    dataStore.put(identifier, data);
+    cacheValueSize(value.getSpecification(), data, obj);
+    s_serializer.leave();
+    final boolean isPrivate = (dataStore == getPrivateDataStore());
+    (isPrivate ? s_privatePut : s_sharedPut).enter();
+    try {
+      dataStore.put(identifier, data);
+    } finally {
+      (isPrivate ? s_privatePut : s_sharedPut).leave();
+    }
   }
 
   @Override
@@ -340,7 +379,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     for (ComputedValue value : values) {
       Object obj = value.getValue();
       final FudgeMsg valueData = serializeValue(serializer, obj);
-      cacheValueSize(value.getSpecification(), valueData, value.getValue());
+      cacheValueSize(value.getSpecification(), valueData, obj);
       data.put(identifiers.get(value.getSpecification()), valueData);
     }
     dataStore.put(data);
@@ -367,28 +406,43 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     Map<Long, FudgeMsg> privateData = null;
     Map<Long, FudgeMsg> sharedData = null;
-    for (ComputedValue value : values) {
-      Object obj = value.getValue();
-      final FudgeMsg valueData = serializeValue(serializer, obj);
-      cacheValueSize(value.getSpecification(), valueData, value.getValue());
-      if (filter.isPrivateValue(value.getSpecification())) {
-        if (privateData == null) {
-          privateData = new HashMap<Long, FudgeMsg>();
+    s_serializer.enter();
+    try {
+      for (ComputedValue value : values) {
+        Object obj = value.getValue();
+        final FudgeMsg valueData = serializeValue(serializer, obj);
+        cacheValueSize(value.getSpecification(), valueData, value.getValue());
+        if (filter.isPrivateValue(value.getSpecification())) {
+          if (privateData == null) {
+            privateData = new HashMap<Long, FudgeMsg>();
+          }
+          privateData.put(identifiers.get(value.getSpecification()), valueData);
+        } else {
+          if (sharedData == null) {
+            sharedData = new HashMap<Long, FudgeMsg>();
+          }
+          sharedData.put(identifiers.get(value.getSpecification()), valueData);
         }
-        privateData.put(identifiers.get(value.getSpecification()), valueData);
-      } else {
-        if (sharedData == null) {
-          sharedData = new HashMap<Long, FudgeMsg>();
-        }
-        sharedData.put(identifiers.get(value.getSpecification()), valueData);
       }
+    } finally {
+      s_serializer.leave();
     }
     // TODO 2010-08-31 Andrew -- can we overlay the shared and private puts ?
     if (sharedData != null) {
-      getSharedDataStore().put(sharedData);
+      s_sharedPut.enter();
+      try {
+        getSharedDataStore().put(sharedData);
+      } finally {
+        s_sharedPut.leave();
+      }
     }
     if (privateData != null) {
-      getPrivateDataStore().put(privateData);
+      s_privatePut.enter();
+      try {
+        getPrivateDataStore().put(privateData);
+      } finally {
+        s_privatePut.leave();
+      }
     }
   }
 

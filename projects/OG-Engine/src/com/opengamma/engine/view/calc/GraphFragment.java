@@ -105,13 +105,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
   public CalculationJob createCalculationJob(final GraphFragmentContext context) {
     final CalculationJobSpecification jobSpec = context.getExecutor().createJobSpecification(context.getGraph());
-    final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
-    for (DependencyNode node : getNodes()) {
+    final List<DependencyNode> nodes = getNodes();
+    final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
+    for (DependencyNode node : nodes) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
           node.getComputationTarget(), inputs, node.getOutputValues());
       items.add(jobItem);
-      context.registerJobItem(jobItem, node);
     }
     context.getExecutor().addJobToViewProcessorQuery(jobSpec, context.getGraph());
     final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), _requiredJobs, items, getCacheSelectHint());

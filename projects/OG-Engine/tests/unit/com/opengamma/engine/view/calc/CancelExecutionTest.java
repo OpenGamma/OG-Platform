@@ -64,7 +64,6 @@ import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -187,7 +186,7 @@ public class CancelExecutionTest {
     cycleOptions.setMarketDataSpecification(new MarketDataSpecification());
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
-    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<CalculationJobResult>(), cycle.getStatisticsGatherer());
+    return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer());
   }
 
   private boolean jobFinished() {

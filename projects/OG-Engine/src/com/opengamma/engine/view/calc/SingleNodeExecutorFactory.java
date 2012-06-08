@@ -5,13 +5,10 @@
  */
 package com.opengamma.engine.view.calc;
 
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-
-
 /**
  * 
  */
-public class SingleNodeExecutorFactory implements DependencyGraphExecutorFactory<CalculationJobResult> {
+public class SingleNodeExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
   
   @Override
   public SingleNodeExecutor createExecutor(SingleComputationCycle cycle) {

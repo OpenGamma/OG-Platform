@@ -43,10 +43,10 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
+import com.opengamma.engine.view.calc.ExecutionResult;
 import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
@@ -89,7 +89,7 @@ public class ViewProcessorTestEnvironment {
   private FunctionCompilationContext _functionCompilationContext;
   private ViewDefinition _viewDefinition;
   private FunctionRepository _functionRepository;
-  private DependencyGraphExecutorFactory<CalculationJobResult> _dependencyGraphExecutorFactory;
+  private DependencyGraphExecutorFactory<ExecutionResult> _dependencyGraphExecutorFactory;
   private DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
 
   // Environment
@@ -113,8 +113,8 @@ public class ViewProcessorTestEnvironment {
     InMemoryViewComputationCacheSource cacheSource = new InMemoryViewComputationCacheSource(fudgeContext);
     vpFactBean.setComputationCacheSource(cacheSource);
 
-    DependencyGraphExecutorFactory<CalculationJobResult> dependencyGraphExecutorFactory =
-      getDependencyGraphExecutorFactory() != null ? getDependencyGraphExecutorFactory() : generateDependencyGraphExecutorFactory();
+    DependencyGraphExecutorFactory<ExecutionResult> dependencyGraphExecutorFactory = getDependencyGraphExecutorFactory() != null ? getDependencyGraphExecutorFactory()
+        : generateDependencyGraphExecutorFactory();
     vpFactBean.setDependencyGraphExecutorFactory(dependencyGraphExecutorFactory);
 
     FunctionRepository functionRepository = getFunctionRepository() != null ? getFunctionRepository() : generateFunctionRepository();
@@ -274,16 +274,16 @@ public class ViewProcessorTestEnvironment {
     return factory;
   }
 
-  public DependencyGraphExecutorFactory<CalculationJobResult> getDependencyGraphExecutorFactory() {
+  public DependencyGraphExecutorFactory<ExecutionResult> getDependencyGraphExecutorFactory() {
     return _dependencyGraphExecutorFactory;
   }
 
-  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<CalculationJobResult> dependencyGraphExecutorFactory) {
+  public void setDependencyGraphExecutorFactory(DependencyGraphExecutorFactory<ExecutionResult> dependencyGraphExecutorFactory) {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
   }
   
-  private DependencyGraphExecutorFactory<CalculationJobResult> generateDependencyGraphExecutorFactory() {
-    DependencyGraphExecutorFactory<CalculationJobResult> dgef = new SingleNodeExecutorFactory();
+  private DependencyGraphExecutorFactory<ExecutionResult> generateDependencyGraphExecutorFactory() {
+    DependencyGraphExecutorFactory<ExecutionResult> dgef = new SingleNodeExecutorFactory();
     setDependencyGraphExecutorFactory(dgef);
     return dgef;
   }

@@ -5,15 +5,16 @@
  */
 package com.opengamma.engine.value;
 
+import java.io.Serializable;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import java.io.Serializable;
-import java.util.Set;
 
 /**
  * A value computed by the engine.
@@ -43,6 +44,10 @@ public class ComputedValue implements Serializable {
    * The value itself.
    */
   private final Object _value;
+
+  // REVIEW 2012-06-08 Andrew -- Why do we have this extra metadata in the computed value? It is not immutable (as the javadoc says
+  // above) and duplicates the information that was returned by the job execution messages rather than through the value cache. A
+  // subclass that contains this extra data might be a better idea.
 
   private InvocationResult _result = null;
   private String _exceptionClass = null;

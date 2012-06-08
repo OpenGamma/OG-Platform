@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionRepository;
@@ -51,7 +50,13 @@ import com.opengamma.util.tuple.Pair;
  * whatever will logically be dispatching jobs. This is typically a {@link ViewProcessor} for local nodes or a {@link RemoteNodeClient} for remote nodes.
  */
 public abstract class AbstractCalculationNode implements CalculationNode {
+
+  private static final String ERROR_CANT_RESOLVE = "com.opengamma.engine.view.calcnode.InvalidTargetException";
+  private static final String ERROR_BAD_FUNCTION = "com.opengamma.engine.view.calcnode.InvalidFunctionException";
+  private static final String ERROR_INVOKING = "com.opengamma.engine.view.calcnode.InvalidInvocationException";
+
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
+
   private final ViewComputationCacheSource _cacheSource;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionExecutionContext _functionExecutionContext;
@@ -136,22 +141,13 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       if (job.isCancelled()) {
         return null;
       }
-      CalculationJobResultItem resultItem;
+      CalculationJobResultItem resultItem = invoke(functions, jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));
       try {
-        invoke(functions, jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));
-        resultItem = new CalculationJobResultItem(jobItem);
-      } catch (MissingInputException e) {
-        // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
-        // litter the logs with stack traces; the inputs missing have also already been
-        // written at INFO level
-        s_logger.info("Unable to invoke {} due to missing inputs", jobItem);
-        postNotCalculated(jobItem.getOutputs(), cache, NotCalculatedSentinel.MISSING_INPUTS);
-        resultItem = new CalculationJobResultItem(jobItem, e);
+        resultItem = invoke(functions, jobItem, cache, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), calculationConfiguration));
       } catch (Throwable t) {
-        s_logger.error("Invoking {} threw exception: {}", jobItem.getFunctionUniqueIdentifier(), t.getMessage());
-        s_logger.info("Caught", t);
+        s_logger.error("Caught exception", t);
         postNotCalculated(jobItem.getOutputs(), cache, NotCalculatedSentinel.EVALUATION_ERROR);
-        resultItem = new CalculationJobResultItem(jobItem, t);
+        resultItem = CalculationJobResultItem.failure(t);
       }
       resultItems.add(resultItem);
     }
@@ -165,30 +161,40 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   public CalculationJobResult executeJob(final CalculationJob job) {
     s_logger.info("Executing {} on {}", job, _nodeId);
     s_executeJob.enter();
-    final CalculationJobSpecification spec = job.getSpecification();
-    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
-    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
-    getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
-    final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
-    // TODO: don't create a new cache instance each time -- if there are peer nodes then we may be able to share
-    final DeferredViewComputationCache cache = getDeferredViewComputationCache(getCache(spec), job.getCacheSelectHint());
-    long executionTime = System.nanoTime();
-    final String calculationConfiguration = spec.getCalcConfigName();
-    s_executeJobItems.enter();
-    final List<CalculationJobResultItem> resultItems = executeJobItems(job, cache, functions, calculationConfiguration);
-    if (resultItems == null) {
-      return null;
+    try {
+      final CalculationJobSpecification spec = job.getSpecification();
+      getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
+      getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
+      getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
+      final CompiledFunctionRepository functions = getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime());
+      // TODO: don't create a new cache instance each time -- if there are peer nodes then we may be able to share
+      final DeferredViewComputationCache cache = getDeferredViewComputationCache(getCache(spec), job.getCacheSelectHint());
+      long executionTime = System.nanoTime();
+      final String calculationConfiguration = spec.getCalcConfigName();
+      final List<CalculationJobResultItem> resultItems;
+      s_executeJobItems.enter();
+      try {
+        resultItems = executeJobItems(job, cache, functions, calculationConfiguration);
+        if (resultItems == null) {
+          return null;
+        }
+      } finally {
+        s_executeJobItems.leave();
+      }
+      s_writeBack.enter();
+      try {
+        // [PLAT-2293]: we don't have to wait for pending writes locally - our tail jobs can run immediately - we just have to wait before sending the job completion message back to the dispatcher
+        cache.waitForPendingWrites();
+      } finally {
+        s_writeBack.leave();
+      }
+      executionTime = System.nanoTime() - executionTime;
+      final CalculationJobResult jobResult = new CalculationJobResult(spec, executionTime, resultItems, getNodeId());
+      s_logger.info("Executed {} in {}ns", job, executionTime);
+      return jobResult;
+    } finally {
+      s_executeJob.leave();
     }
-    s_executeJobItems.leave();
-    s_writeBack.enter();
-    // [PLAT-2293]: we don't have to wait for pending writes locally - our tail jobs can run immediately - we just have to wait before sending the job completion message back to the dispatcher
-    cache.waitForPendingWrites();
-    s_writeBack.leave();
-    executionTime = System.nanoTime() - executionTime;
-    CalculationJobResult jobResult = new CalculationJobResult(spec, executionTime, resultItems, getNodeId());
-    s_executeJob.leave();
-    s_logger.info("Executed {} in {}ns", job, executionTime);
-    return jobResult;
   }
 
   private DeferredViewComputationCache getDeferredViewComputationCache(ViewComputationCache cache,
@@ -217,7 +223,8 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private static final InvocationCount s_resolveTarget = new InvocationCount("resolveTarget");
   private static final InvocationCount s_prepareInputs = new InvocationCount("prepareInputs");
 
-  private void invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DeferredViewComputationCache cache, final DeferredInvocationStatistics statistics) {
+  private CalculationJobResultItem invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DeferredViewComputationCache cache,
+      final DeferredInvocationStatistics statistics) {
     // TODO: can we do the target resolution and parameter resolution in parallel ?
     // TODO: can we do the target resolution in advance ?
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
@@ -225,51 +232,63 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     final ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
     s_resolveTarget.leave();
     if (target == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve specification " + jobItem.getComputationTargetSpecification());
+      return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
     }
     s_logger.debug("Invoking {} on target {}", functionUniqueId, target);
     final FunctionInvoker invoker = functions.getInvoker(functionUniqueId);
     if (invoker == null) {
-      throw new NullPointerException("Unable to locate " + functionUniqueId + " in function repository.");
+      return CalculationJobResultItem.failure(ERROR_BAD_FUNCTION, "Unable to locate " + functionUniqueId + " in function repository");
     }
     // set parameters
     getFunctionExecutionContext().setFunctionParameters(jobItem.getFunctionParameters());
     // assemble inputs
-    s_prepareInputs.enter();
     final Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
-    final Collection<ValueSpecification> missing = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> missing = new HashSet<ValueSpecification>();
     int inputBytes = 0;
     int inputSamples = 0;
-    for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
-      if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
-        missing.add(input.getKey());
-      } else {
-        final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
-        inputs.add(value);
-        final Integer bytes = cache.estimateValueSize(value);
-        if (bytes != null) {
-          inputBytes += bytes;
-          inputSamples++;
+    s_prepareInputs.enter();
+    try {
+      for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
+        if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
+          missing.add(input.getKey());
+        } else {
+          final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
+          inputs.add(value);
+          final Integer bytes = cache.estimateValueSize(value);
+          if (bytes != null) {
+            inputBytes += bytes;
+            inputSamples++;
+          }
         }
       }
+      statistics.setDataInputBytes(inputBytes, inputSamples);
+    } finally {
+      s_prepareInputs.leave();
     }
-    statistics.setDataInputBytes(inputBytes, inputSamples);
-    s_prepareInputs.leave();
-    if (!missing.isEmpty()) {
+    CalculationJobResultItem itemResult;
+    if (missing.isEmpty()) {
+      itemResult = CalculationJobResultItem.success();
+    } else {
       if (invoker.canHandleMissingInputs()) {
         s_logger.debug("Executing even with missing inputs {}", missing);
+        itemResult = CalculationJobResultItem.partialInputs(new HashSet<ValueSpecification>(missing));
       } else {
         s_logger.info("Not able to execute as missing inputs {}", missing);
-        throw new MissingInputException(missing, functionUniqueId);
+        return CalculationJobResultItem.missingInputs(missing);
       }
     }
     final FunctionInputs functionInputs = new FunctionInputsImpl(inputs, missing);
     // execute
     statistics.beginInvocation();
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    Collection<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
+    Collection<ComputedValue> results;
+    try {
+      results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
+    } catch (Throwable t) {
+      return itemResult.withFailure(t);
+    }
     if (results == null) {
-      throw new NullPointerException("No results returned by invoker " + invoker);
+      return itemResult.withFailure(ERROR_INVOKING, "No results returned by invoker " + invoker);
     }
     statistics.endInvocation();
     statistics.setFunctionIdentifier(functionUniqueId);
@@ -290,7 +309,9 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         newResults.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
       }
       results = newResults;
+      itemResult = itemResult.withMissingOutputs(missing);
     }
     cache.putValues(results, statistics);
+    return itemResult;
   }
 }

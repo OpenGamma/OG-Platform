@@ -13,9 +13,6 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
-import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -25,13 +22,12 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
   
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJobResultStreamConsumer.class);
   
-  private static final CalculationJobResult POISON = new CalculationJobResult(
-      new CalculationJobSpecification(null, null, null, 0), 0, new LinkedList<CalculationJobResultItem>(), "");
+  private static final ExecutionResult POISON = new ExecutionResult(null, null);
   
-  private final BlockingQueue<CalculationJobResult> _resultQueue;
+  private final BlockingQueue<ExecutionResult> _resultQueue;
   private final SingleComputationCycle _computationCycle;
   
-  public CalculationJobResultStreamConsumer(BlockingQueue<CalculationJobResult> resultQueue, SingleComputationCycle computationCycle) {
+  public CalculationJobResultStreamConsumer(BlockingQueue<ExecutionResult> resultQueue, SingleComputationCycle computationCycle) {
     _resultQueue = resultQueue;
     _computationCycle = computationCycle;
   }
@@ -39,16 +35,16 @@ public class CalculationJobResultStreamConsumer extends TerminatableJob {
   @Override
   protected void runOneCycle() {
     try {
-      List<CalculationJobResult> results = new LinkedList<CalculationJobResult>();
+      List<ExecutionResult> results = new LinkedList<ExecutionResult>();
       
       // Block until at least one item is added, then drain any further items
       results.add(_resultQueue.take());
       _resultQueue.drainTo(results);
       
       boolean poisoned = false;
-      Iterator<CalculationJobResult> it = results.iterator();
+      Iterator<ExecutionResult> it = results.iterator();
       while (it.hasNext()) {
-        CalculationJobResult result = it.next();
+        final ExecutionResult result = it.next();
         if (result == POISON) {
           poisoned = true;
           it.remove();

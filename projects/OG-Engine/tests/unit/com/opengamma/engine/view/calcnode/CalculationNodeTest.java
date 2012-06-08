@@ -37,7 +37,6 @@ public class CalculationNodeTest {
     assertTrue(endTime - startTime >= jobResult.getDuration());
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
     assertEquals(InvocationResult.MISSING_INPUTS, resultItem.getResult());
   }
 
@@ -56,7 +55,6 @@ public class CalculationNodeTest {
     assertNotNull(jobResult);
     assertEquals(1, jobResult.getResultItems().size());
     CalculationJobResultItem resultItem = jobResult.getResultItems().get(0);
-    assertEquals(calcJob.getJobItems().get(0), resultItem.getItem());
     assertEquals(InvocationResult.SUCCESS, resultItem.getResult());
     assertEquals("Nothing we care about", cache.getValue(mockFunction.getResultSpec()));
   }

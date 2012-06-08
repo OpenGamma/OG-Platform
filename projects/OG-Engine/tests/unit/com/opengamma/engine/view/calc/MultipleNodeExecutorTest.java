@@ -35,7 +35,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
@@ -157,7 +156,7 @@ public class MultipleNodeExecutorTest {
   }
 
   private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
-    final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<CalculationJobResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
+    final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE);
     return (RootGraphFragmentFuture) future;
   }
 

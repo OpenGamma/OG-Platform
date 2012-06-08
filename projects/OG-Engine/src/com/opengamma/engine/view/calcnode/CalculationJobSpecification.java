@@ -23,9 +23,21 @@ public class CalculationJobSpecification implements Serializable {
   
   private static final long serialVersionUID = 1L;
   
+  /**
+   * The cycle identifier.
+   */
   private final UniqueId _viewCycleId;
+  /**
+   * The calculation configuration name, unique within a given cycle identifier. This combined with the cycle identifier uniquely identifies the cache being used for the job.
+   */
   private final String _calcConfigName;
+  /**
+   * The valuation time for the job.
+   */
   private final Instant _valuationTime;
+  /**
+   * The unique job identifier within the system.
+   */
   private final long _jobId;
   
   public CalculationJobSpecification(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {

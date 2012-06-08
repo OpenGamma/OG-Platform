@@ -15,9 +15,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
@@ -189,13 +188,13 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
    * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built it is cached for future use.
    * 
    * @param graph the graph to execute, not null
-   * @param calcJobResultQueue a queue to feed intermediate job result notifications to, not null
+   * @param executionResultQueue a queue to feed intermediate job result notifications to, not null
    * @param statistics the statistics reporter, not null
    * @return a future that indicates complete execution of the graph
    */
-  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
-    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, calcJobResultQueue);
+    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, executionResultQueue);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
@@ -213,19 +212,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
 
   /**
    * @param graph the graph to execute, not null
-   * @param calcJobResultQueue the queue to report partial results to, not null
+   * @param executionResultQueue the queue to report partial results to, not null
    * @param statistics the statistics gathering object, not null
    * @return a future that the caller can block on until the execution is complete. The future holds the graph (as passed to this method) that has been executed
    */
   @Override
-  public Future<DependencyGraph> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<DependencyGraph> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final ExecutionPlan plan = getCache().getCachedPlan(graph, getCycle().getFunctionInitId());
     if (plan != null) {
       s_logger.info("Using cached execution plan for {}", graph);
-      return plan.run(new GraphFragmentContext(this, graph, calcJobResultQueue), statistics);
+      return plan.run(new GraphFragmentContext(this, graph, executionResultQueue), statistics);
     } else {
       s_logger.debug("Creating new execution plan for {}", graph);
-      return executeImpl(graph, calcJobResultQueue, statistics);
+      return executeImpl(graph, executionResultQueue, statistics);
     }
   }
 

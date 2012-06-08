@@ -205,12 +205,13 @@ public class JobDispatcher implements JobInvokerRegister {
       }
     }
 
-    private void failTree(final CalculationJob job, final Exception exception) {
+    private void failTree(final CalculationJob job, final CalculationJobResultItem failure) {
       final JobResultReceiver resultReceiver = _resultReceivers.remove(job.getSpecification());
       if (resultReceiver != null) {
-        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
-        for (CalculationJobItem item : job.getJobItems()) {
-          failureItems.add(new CalculationJobResultItem(item, exception));
+        final int size = job.getJobItems().size();
+        final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(size);
+        for (int i = 0; i < size; i++) {
+          failureItems.add(failure);
         }
         final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getJobFailureNodeId());
         resultReceiver.resultReceived(jobResult);
@@ -220,7 +221,7 @@ public class JobDispatcher implements JobInvokerRegister {
       }
       if (job.getTail() != null) {
         for (CalculationJob tail : job.getTail()) {
-          failTree(tail, exception);
+          failTree(tail, failure);
         }
       }
     }
@@ -234,7 +235,7 @@ public class JobDispatcher implements JobInvokerRegister {
           exception = new OpenGammaRuntimeException(alternativeError);
           exception.fillInStackTrace();
         }
-        failTree(getJob(), exception);
+        failTree(getJob(), CalculationJobResultItem.failure(exception));
       } else {
         s_logger.warn("Job {} aborted but we've already completed or aborted from another node", getJob().getSpecification().getJobId());
       }
@@ -364,7 +365,7 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   public JobDispatcher(final JobInvoker invoker) {
-    registerJobInvoker(invoker);
+    //registerJobInvoker(invoker);
   }
 
   public JobDispatcher(final Collection<JobInvoker> invokers) {
