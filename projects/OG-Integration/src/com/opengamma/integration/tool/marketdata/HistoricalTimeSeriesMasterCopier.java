@@ -41,7 +41,7 @@ public class HistoricalTimeSeriesMasterCopier {
     _destinationMaster = destinationMaster;
   }
   
-  public void copy(boolean fastCopy, boolean deleteDestinationSeriesNotInSource, boolean verbose) {
+  public void copy(boolean fastCopy, boolean deleteDestinationSeriesNotInSource, boolean verbose, boolean noAdditions) {
     HistoricalTimeSeriesInfoSearchRequest infoSearchRequest = new HistoricalTimeSeriesInfoSearchRequest();
     HistoricalTimeSeriesInfoSearchResult sourceSearchResult = _sourceMaster.search(infoSearchRequest);
     List<ManageableHistoricalTimeSeriesInfo> sourceInfoList = sourceSearchResult.getInfoList();
@@ -72,14 +72,16 @@ public class HistoricalTimeSeriesMasterCopier {
         throw new OpenGammaRuntimeException("Couldn't find info in set, which is supposed to be impossible");
       }
     }
-    Set<ManageableHistoricalTimeSeriesInfo> sourceNotDestinationInfo = new TreeSet<ManageableHistoricalTimeSeriesInfo>(new ManageableHistoricalTimeSeriesInfoComparator());
-    sourceNotDestinationInfo.addAll(sourceInfoList);
-    sourceNotDestinationInfo.removeAll(destInfoList);
-    for (ManageableHistoricalTimeSeriesInfo info : sourceNotDestinationInfo) {
-      if (verbose) {
-        System.out.println("Time series " + info + " is in source but not destination");
+    if (!noAdditions) {
+      Set<ManageableHistoricalTimeSeriesInfo> sourceNotDestinationInfo = new TreeSet<ManageableHistoricalTimeSeriesInfo>(new ManageableHistoricalTimeSeriesInfoComparator());
+      sourceNotDestinationInfo.addAll(sourceInfoList);
+      sourceNotDestinationInfo.removeAll(destInfoList);
+      for (ManageableHistoricalTimeSeriesInfo info : sourceNotDestinationInfo) {
+        if (verbose) {
+          System.out.println("Time series " + info + " is in source but not destination");
+        }
+        add(info, verbose);
       }
-      add(info, verbose);
     }
     if (deleteDestinationSeriesNotInSource) {
       Set<ManageableHistoricalTimeSeriesInfo> destinationNotSourceInfo = new TreeSet<ManageableHistoricalTimeSeriesInfo>(new ManageableHistoricalTimeSeriesInfoComparator());

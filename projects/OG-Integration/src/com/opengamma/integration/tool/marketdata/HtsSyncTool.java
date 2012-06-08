@@ -91,12 +91,17 @@ public class HtsSyncTool extends AbstractDualComponentTool {
     boolean fast = getCommandLine().hasOption("fast");
     boolean hardSync = getCommandLine().hasOption("hard-sync");
     boolean verbose = getCommandLine().hasOption("verbose");
+    boolean noAdditions = getCommandLine().hasOption("no-additions");
+    if (hardSync && noAdditions) {
+      System.err.println("Cannot specify both hard-sync and no-additions options");
+      return;
+    }
     Set<String> filteredClassifiers = filterClassifiers(srcHtsMasters.keySet(), destHtsMasters.keySet());
     for (String classifier : filteredClassifiers) {
       HistoricalTimeSeriesMaster srcHtsMaster = srcHtsMasters.get(classifier);
       HistoricalTimeSeriesMaster destHtsMaster = destHtsMasters.get(classifier);
       HistoricalTimeSeriesMasterCopier copier = new HistoricalTimeSeriesMasterCopier(srcHtsMaster, destHtsMaster);
-      copier.copy(fast, hardSync, verbose);
+      copier.copy(fast, hardSync, verbose, noAdditions);
     }
   }
   
@@ -146,6 +151,15 @@ public class HtsSyncTool extends AbstractDualComponentTool {
                         .withLongOpt("hard-sync")
                         .create("h");
   }
+  
+  @SuppressWarnings("static-access")
+  private Option createNoAdditionsOption() {
+    return OptionBuilder.hasArg(false)
+                        .withDescription("don't add any time series to the destination, only update what's there")
+                        .isRequired(false)
+                        .withLongOpt("no-additions")
+                        .create("n");
+  }
     
   @SuppressWarnings("static-access")
   private Option createVerboseOption() {
@@ -164,6 +178,7 @@ public class HtsSyncTool extends AbstractDualComponentTool {
     options.addOption(createVerboseOption());
     options.addOption(createFastOption());
     options.addOption(createHardSyncOption());
+    options.addOption(createNoAdditionsOption());
     return options;
   }
 
