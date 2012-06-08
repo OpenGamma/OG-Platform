@@ -115,7 +115,7 @@ $.register_module({
                         // set position of overflow panel
                         overflow.right = $(document).width() - ($overflow_button.offset().left + 25 - 5);
                         overflow.height = $overflow_button.height();
-                        overflow.top = $overflow_button.offset().top + overflow.height + 4;
+                        overflow.top = $overflow_button.offset().top + overflow.height + 1;
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
                         $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
