@@ -109,7 +109,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final ConventionBundle iborIndexConvention = _conventionSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
     if (iborIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency + " using " + iborLeg.getFloatingReferenceRateId());
+      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency + " using " + iborLeg.getFloatingReferenceRateId() + " from swap " + swapSecurity.getExternalIdBundle());
     }
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor = getTenor(freqIbor);
