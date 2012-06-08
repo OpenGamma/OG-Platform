@@ -1,6 +1,6 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  *
  * Renders a Canvas plot using Flot
  * @see http://code.google.com/p/flot/
@@ -34,7 +34,7 @@ $.register_module({
                        h_ticks = Math.ceil(width / 100),
                        v_ticks = Math.ceil((height - 80) / 50);
                    $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width(width - 2 + 'px');
-                   $(selector).find('.og-js-p1').height(height - 104);
+                   $(selector).find('.og-js-p1').height(height - 88);
                    top_plot_options.xaxis.ticks = bot_plot_options.xaxis.ticks = h_ticks;
                    top_plot_options.yaxis.ticks = bot_plot_options.yaxis.ticks = v_ticks;
                    load_plots();
@@ -230,7 +230,6 @@ $.register_module({
                                 $legend = get_legend();
                                 $legend.css({visibility: 'hidden'});
                             });
-                        $(tenor + ', .og-flot-xaxis').css({visibility: 'visible'});
                     }());
                     reset_options();
                     p1_options.xaxis.panRange = [data[0][0], data[data.length-1][0]];
@@ -276,6 +275,10 @@ $.register_module({
                     $legend = get_legend(), $legend.css({visibility: 'hidden'});
                     rescale_yaxis();
                     load_data_points();
+                    setTimeout(function () {
+                        $(selector + ' .og-plots').css('visibility', 'visible');
+                        $(selector + ' .og-loading').remove();
+                    }); // load smoother
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set
@@ -386,7 +389,7 @@ $.register_module({
                         build_select = function () {
                             var field, select = '';
                             for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Data Field</span><select>' + select
+                            return select = '<div class="og-field"><select>' + select
                                 + '</select></div>';
                         },
                         // build checkboxes

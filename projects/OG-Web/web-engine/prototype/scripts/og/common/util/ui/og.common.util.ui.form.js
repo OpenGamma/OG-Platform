@@ -1,6 +1,6 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 
 $.register_module({
@@ -105,7 +105,7 @@ $.register_module({
                     };
                 })([]),
                 build_meta = function (data, path, warns) {
-                    var result = {}, key, empty = '<EMPTY>', index = '<INDEX>', null_path = path === null;
+                    var result = {}, key, empty = '<EMPTY>', index = '<INDEX>', null_path = path === null, new_path;
                     if ($.isArray(data)) return data.map(function (val, idx) {
                         var value = build_meta(val, null_path ? idx : [path, index].join('.'), warns);
                         if ((value === Form.type.IND) && (val !== null)) value = Form.type.STR;
@@ -114,7 +114,9 @@ $.register_module({
                     if (data === null || typeof data !== 'object') // no empty string keys at root level
                         return !(result = type_map[path] || find_in_meta(path)) ? (warns.push(path), 'BADTYPE'): result;
                     for (key in data) {
-                        result[key] = build_meta(data[key], null_path ? key : [path, key || empty].join('.'), warns);
+                        new_path = null_path ? key.replace(/\./g, '') // if a key has dots in it, drop them, it is
+                            : [path, key.replace(/\./g, '') || empty].join('.'); // a wildcard anyway
+                        result[key] = build_meta(data[key], new_path, warns);
                         if (result[key] in numbers) {
                             if (typeof data[key] === 'number') continue;
                             if (data[key].length) data[key] = +data[key]; else delete data[key];

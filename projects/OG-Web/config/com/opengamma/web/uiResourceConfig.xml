@@ -71,6 +71,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-minimize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
@@ -113,7 +114,6 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-admin.css</fragment>
-    <fragment>/styles/lib/jquery/jquery-layout-analytics.css</fragment>
   </bundle>
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
@@ -130,7 +130,10 @@
     <fragment>/styles/analytics/og.analytics.footer.OG-analytics-footer.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-container.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -165,6 +168,7 @@
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
     <fragment>/scripts/lib/handlebars-1.0.0.beta.6.js</fragment>
+    <fragment>/scripts/lib/jsbmp.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-1.7.1.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
@@ -217,6 +221,7 @@
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
   </bundle>
   <bundle id="grid.js">
+      <fragment>/scripts/og/analytics/og.analytics.connection.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>

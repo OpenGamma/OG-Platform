@@ -355,24 +355,28 @@ if (typeof Slick === "undefined") {
             }
         }
 
-        function getMaxSupportedCssHeight() {
-            var increment = 1000000;
-            var supportedHeight = increment;
-            // FF reports the height back but still renders blank after ~6M px
-            var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
-            var div = $("<div style='display:none' />").appendTo(document.body);
+        var getMaxSupportedCssHeight = (function () {
+            return function () {
+                return Slick.maxHeight || (Slick.maxHeight = (function () {
+                    var increment = 1000000;
+                    var supportedHeight = increment;
+                    // FF reports the height back but still renders blank after ~6M px
+                    var testUpTo = ($.browser.mozilla) ? 5000000 : 1000000000;
+                    var div = $("<div style='display:none' />").appendTo(document.body);
 
-            while (supportedHeight <= testUpTo) {
-                div.css("height", supportedHeight + increment);
-                if (div.height() !== supportedHeight + increment)
-                    break;
-                else
-                    supportedHeight += increment;
+                    while (supportedHeight <= testUpTo) {
+                        div.css("height", supportedHeight + increment);
+                        if (div.height() !== supportedHeight + increment)
+                            break;
+                        else
+                            supportedHeight += increment;
+                    }
+
+                    div.remove();
+                    return supportedHeight;
+                })());
             }
-
-            div.remove();
-            return supportedHeight;
-        }
+        })();
 
         // TODO:  this is static.  need to handle page mutation.
         function bindAncestorScrollEvents() {

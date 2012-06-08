@@ -1,0 +1,22 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-layout-gadget-container .ui-layout-content {
+    padding: 0;
+    overflow-y: hidden;
+}
+
+.ie8 .OG-layout-gadget-container .ui-layout-content {
+    z-index: -1;
+}
+
+.OG-layout-gadget-container .ui-layout-header {
+    min-height: 23px;
+}
+
+.ie8 .OG-layout-gadget-container .ui-layout-header {
+    position: relative;
+    z-index: -1;
+}

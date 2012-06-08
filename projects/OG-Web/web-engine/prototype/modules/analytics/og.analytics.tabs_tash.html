@@ -1,13 +1,9 @@
 <div class="OG-gadget-tabs">
   <ul>
-    {{#each tabs}}
-      <li class="og-tab-{{this.id}}{{#if this.active}} og-active{{/if}}">
+    {{#each tabs}}<li class="og-tab-{{this.id}}{{#if this.active}} og-active{{/if}}">
         <div>{{this.name}}{{#if this.delete}}</div><div class="og-delete"></div>{{/if}}
-      </li>
-    {{/each}}
+      </li>{{/each}}
     <li class="og-overflow" style="display: none"><div>...</div></li>
   </ul>
-  <div class="OG-gadget-tabs-options">
-    {{#if tabs.toggle}}<div class="og-js-toggle OG-icon og-icon-minimize"></div>{{/if}}
-  </div>
+  <div class="OG-gadget-tabs-options"></div>
 </div>

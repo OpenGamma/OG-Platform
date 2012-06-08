@@ -1,6 +1,6 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  *
  * provides wrappers for the REST API
  */
@@ -113,11 +113,14 @@ $.register_module({
                 if (config.meta.cache_for && !is_get)
                     warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
-                if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
-                    return setTimeout(function () {
-                        config.meta.handler(get_cache(url));
-                        promise.deferred.resolve(get_cache(url));
-                    }, INSTANT), promise;
+                if (is_get && get_cache(url) && typeof get_cache(url) === 'object') {
+                    return setTimeout((function (result) {
+                        return function () {
+                            config.meta.handler(result);
+                            promise.deferred.resolve(result);
+                        };
+                    })(get_cache(url)), INSTANT), promise;
+                }
                 if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
                     return setTimeout(request.partial(method, config, promise), STALL), promise;
                 if (is_get && config.meta.cache_for) set_cache(url, true);

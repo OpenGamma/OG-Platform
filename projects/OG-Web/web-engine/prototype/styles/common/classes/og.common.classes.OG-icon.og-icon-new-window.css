@@ -1,0 +1,9 @@
+.OG-icon.og-icon-new-window:after {
+  background-position: -51px -75px;
+  background-color: transparent;
+  height: 15px;
+  width: 15px;
+  z-index: 2;
+  top: 0;
+  position: absolute;
+}
