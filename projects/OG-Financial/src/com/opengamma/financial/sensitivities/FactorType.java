@@ -21,6 +21,10 @@ public final class FactorType {
    * A constant representing CDS spread risk factors
    */
   public static final FactorType CDS_SPREAD = new FactorType("CDSSpreadRiskFactor");
+  /**
+   * A constant representing equity risk factors
+   */
+  public static final FactorType EQUITY = new FactorType("equityRiskFactor");
   
   private String _type;
 
