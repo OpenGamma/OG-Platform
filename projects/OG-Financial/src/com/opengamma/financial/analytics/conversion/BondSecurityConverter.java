@@ -58,6 +58,9 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
     final String domicile = security.getIssuerDomicile();
     Validate.notNull(domicile, "bond security domicile cannot be null");
     final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("No corporate bond convention found for domicile " + domicile);
+    }
     return visitBondSecurity(security, convention);
   }
 
