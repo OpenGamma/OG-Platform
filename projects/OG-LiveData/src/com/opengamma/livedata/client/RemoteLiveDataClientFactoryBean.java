@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jms.core.JmsTemplate;
 
@@ -20,7 +22,8 @@ import com.opengamma.util.jms.JmsConnector;
  * Creates a {@link JmsLiveDataClient}.
  */
 public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> implements DisposableBean {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteLiveDataClientFactoryBean.class);
+  
   private JmsConnector _jmsConnector;
   private String _subscriptionTopic;
   private String _entitlementTopic;
@@ -80,6 +83,8 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
       liveDataClient.setHeartbeatMessageSender(jmsHeartbeatSender);
     }
     liveDataClient.start();
+    s_logger.debug("Created and started live data client using {} subscription topic {}, entitlement topic {} and heartbeat topic {}", 
+                   new Object[] {getJmsConnector().getClientBrokerUri(), getSubscriptionTopic(), getEntitlementTopic(), getHeartbeatTopic() });
     return liveDataClient;
   }
 
