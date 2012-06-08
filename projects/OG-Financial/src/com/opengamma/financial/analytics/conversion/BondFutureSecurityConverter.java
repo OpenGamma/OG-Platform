@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
@@ -47,6 +48,9 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<I
     for (int i = 0; i < n; i++) {
       final BondFutureDeliverable deliverable = basket.get(i);
       final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSecurity(deliverable.getIdentifiers());
+      if (bondSecurity == null) {
+        throw new OpenGammaRuntimeException("No security found with identifiers " + deliverable.getIdentifiers());
+      }
       deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter); //TODO check type
       conversionFactor[i] = deliverable.getConversionFactor();
     }
