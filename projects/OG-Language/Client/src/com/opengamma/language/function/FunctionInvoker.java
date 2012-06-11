@@ -9,8 +9,8 @@ package com.opengamma.language.function;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Invokes a function on behalf of a client.

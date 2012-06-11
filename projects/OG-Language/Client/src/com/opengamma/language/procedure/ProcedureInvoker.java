@@ -9,8 +9,8 @@ package com.opengamma.language.procedure;
 import java.util.List;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Invokes a procedure on behalf of a client.

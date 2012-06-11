@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -21,6 +20,7 @@ import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Returns the identifier of the portfolio associated with the view definition

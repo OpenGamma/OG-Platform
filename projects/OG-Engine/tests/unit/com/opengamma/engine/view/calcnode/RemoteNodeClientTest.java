@@ -60,7 +60,7 @@ public class RemoteNodeClientTest {
     final CollectingFudgeMessageReceiver messages = new CollectingFudgeMessageReceiver();
     conduit.getEnd2().setFudgeMessageReceiver(messages);
     final RemoteNodeClient client = new RemoteNodeClient(conduit.getEnd1(), new CompiledFunctionService (new InMemoryFunctionRepository (), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext ()), new InMemoryIdentifierMap (), new FunctionInvocationStatisticsSender ());
-    final AbstractCalculationNode node = new TestCalculationNode();
+    final SimpleCalculationNode node = new TestCalculationNode();
     assertEquals(0, messages.getMessages().size());
     client.addNode(node);
     assertEquals(0, messages.getMessages().size());
@@ -123,7 +123,7 @@ public class RemoteNodeClientTest {
     final CollectingFudgeMessageReceiver messages = new CollectingFudgeMessageReceiver();
     conduit.getEnd2().setFudgeMessageReceiver(messages);
     final RemoteNodeClient client = new RemoteNodeClient(conduit.getEnd1(), new CompiledFunctionService (new InMemoryFunctionRepository (), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext ()), new InMemoryIdentifierMap (), new FunctionInvocationStatisticsSender ());
-    final AbstractCalculationNode failingNode = new TestCalculationNode() {
+    final SimpleCalculationNode failingNode = new TestCalculationNode() {
       
       @Override
       public CalculationJobResult executeJob(CalculationJob job) {

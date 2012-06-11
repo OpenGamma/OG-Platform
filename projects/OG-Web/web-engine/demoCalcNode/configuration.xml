@@ -280,7 +280,7 @@
   </bean>
   
   <!-- Calculation node(s) -->
-  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
+  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />

@@ -60,6 +60,11 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     }
   }
 
+  public void clear() {
+    _frontCache.clear();
+    _computationTarget.removeAll();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the cache manager.

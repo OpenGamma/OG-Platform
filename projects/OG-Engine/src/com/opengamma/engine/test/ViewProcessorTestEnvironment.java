@@ -48,8 +48,8 @@ import com.opengamma.engine.view.calc.SingleNodeExecutorFactory;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
+import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
@@ -143,8 +143,8 @@ public class ViewProcessorTestEnvironment {
     FunctionExecutionContext functionExecutionContext = getFunctionExecutionContext() != null ? getFunctionExecutionContext() : generateFunctionExecutionContext();
     functionExecutionContext.setSecuritySource(securitySource);
 
-    LocalCalculationNode localCalcNode = new LocalCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, new DefaultComputationTargetResolver(
-        securitySource, positionSource), calcNodeQuerySender, Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
+    SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, new DefaultComputationTargetResolver(
+        securitySource, positionSource), calcNodeQuerySender, "node", Executors.newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer());
     LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));

@@ -26,7 +26,6 @@ import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -38,6 +37,7 @@ import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.language.view.DetachedViewClientHandle;
 import com.opengamma.language.view.UserViewClient;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Takes a snapshot from the next cycle of a view client, automatically triggering a cycle.

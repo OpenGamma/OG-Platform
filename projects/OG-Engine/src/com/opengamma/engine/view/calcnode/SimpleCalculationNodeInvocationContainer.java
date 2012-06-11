@@ -23,13 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousHandle;
+import com.opengamma.util.async.AsynchronousHandleExecution;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultListener;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Base class for objects that manage a set of AbstractCalculationNodes with the intention of
- * invoking job executions on them.
+ * Base class for objects that manage a set of AbstractCalculationNodes with the intention of invoking job executions on them.
  */
-public abstract class AbstractCalculationNodeInvocationContainer {
+public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * After how many failed jobs should a cleanup be attempted.
@@ -41,14 +44,14 @@ public abstract class AbstractCalculationNodeInvocationContainer {
    */
   private static final long FAILURE_RETENTION = 5L * 60L * 100000000L; // 5m
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNodeInvocationContainer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpleCalculationNodeInvocationContainer.class);
 
   /**
    * 
    */
   protected interface ExecutionReceiver {
 
-    void executionFailed(AbstractCalculationNode node, Exception exception);
+    void executionFailed(SimpleCalculationNode node, Exception exception);
 
     void executionComplete(CalculationJobResult result);
 
@@ -80,10 +83,9 @@ public abstract class AbstractCalculationNodeInvocationContainer {
     }
 
     /**
-     * This is only called from a single thread - doing the addJob operation - once it has been called once,
-     * another thread will manipulate the block count (e.g. if a job is finishing) and possibly spawn the job.
-     * Note that we initialize the count to two so that the job does not get spawned prematurely until the
-     * addJob thread has processed the required job list and performs a decrement to clear the additional value.
+     * This is only called from a single thread - doing the addJob operation - once it has been called once, another thread will manipulate the block count (e.g. if a job is finishing) and possibly
+     * spawn the job. Note that we initialize the count to two so that the job does not get spawned prematurely until the addJob thread has processed the required job list and performs a decrement to
+     * clear the additional value.
      */
     public void incrementBlockCount() {
       if (_blockCount == null) {
@@ -95,6 +97,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
 
     /**
      * Decrements the block count.
+     * 
      * @return true when the count reaches zero
      */
     public boolean releaseBlockCount() {
@@ -119,6 +122,32 @@ public abstract class AbstractCalculationNodeInvocationContainer {
         return false;
       }
       return getJob().equals(((JobEntry) o).getJob());
+    }
+
+  }
+
+  private static class PartialJobEntry {
+
+    private final JobEntry _entry;
+    private final SimpleCalculationNodeState _nodeState;
+    private final AsynchronousResult<AsynchronousHandle<CalculationJobResult>> _handle;
+
+    public PartialJobEntry(final JobEntry entry, final SimpleCalculationNodeState nodeState, final AsynchronousResult<AsynchronousHandle<CalculationJobResult>> handle) {
+      _entry = entry;
+      _nodeState = nodeState;
+      _handle = handle;
+    }
+
+    public JobEntry getEntry() {
+      return _entry;
+    }
+
+    public SimpleCalculationNodeState getNodeState() {
+      return _nodeState;
+    }
+
+    public AsynchronousResult<AsynchronousHandle<CalculationJobResult>> getHandle() {
+      return _handle;
     }
 
   }
@@ -189,7 +218,7 @@ public abstract class AbstractCalculationNodeInvocationContainer {
 
   }
 
-  private final Queue<AbstractCalculationNode> _nodes = new ConcurrentLinkedQueue<AbstractCalculationNode>();
+  private final Queue<SimpleCalculationNode> _nodes = new ConcurrentLinkedQueue<SimpleCalculationNode>();
 
   /**
    * The set of jobs that are either running, in the runnable queue or blocked by other jobs.
@@ -202,33 +231,44 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   private final ConcurrentMap<Long, JobExecution> _failures = new ConcurrentSkipListMap<Long, JobExecution>();
   private final AtomicInteger _failureCount = new AtomicInteger();
 
+  /**
+   * The queue of runnable jobs. Each are jobs that have been received and are ready to run but have not been started, probably because they are waiting for a node to become available. When nodes are
+   * available they will take partial jobs from the {@link _partialJobs} queue in preference to this queue.
+   */
   private final Queue<JobEntry> _runnableJobs = new ConcurrentLinkedQueue<JobEntry>();
+  /**
+   * The queue of partially executed jobs. Each represents a piece of work that was started, became blocked on something external, but is now ready to run again. Note that the resume may not take
+   * place on the original node and/or original thread. This is to avoid a potential bottleneck. Nothing should be retaining thread/node specific state (other than the saved node state) so this should
+   * not be a problem.
+   */
+  private final Queue<PartialJobEntry> _partialJobs = new ConcurrentLinkedQueue<PartialJobEntry>();
+
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
 
-  protected Queue<AbstractCalculationNode> getNodes() {
+  protected Queue<SimpleCalculationNode> getNodes() {
     return _nodes;
   }
 
-  public void addNode(final AbstractCalculationNode node) {
+  public void addNode(final SimpleCalculationNode node) {
     ArgumentChecker.notNull(node, "node");
     getNodes().add(node);
     onNodeChange();
   }
 
-  public void addNodes(final Collection<AbstractCalculationNode> nodes) {
+  public void addNodes(final Collection<SimpleCalculationNode> nodes) {
     ArgumentChecker.notNull(nodes, "nodes");
     getNodes().addAll(nodes);
     onNodeChange();
   }
 
-  public void setNode(final AbstractCalculationNode node) {
+  public void setNode(final SimpleCalculationNode node) {
     ArgumentChecker.notNull(node, "node");
     getNodes().clear();
     getNodes().add(node);
     onNodeChange();
   }
 
-  public void setNodes(final Collection<AbstractCalculationNode> nodes) {
+  public void setNodes(final Collection<SimpleCalculationNode> nodes) {
     ArgumentChecker.notNull(nodes, "nodes");
     getNodes().clear();
     getNodes().addAll(nodes);
@@ -262,10 +302,9 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   /**
-   * Adds a job to the runnable queue, spawning a worker thread if a node is supplied or one is
-   * available. 
+   * Adds a job to the runnable queue, spawning a worker thread if a node is supplied or one is available.
    */
-  private void spawnOrQueueJob(final JobEntry jobexec, AbstractCalculationNode node) {
+  private void spawnOrQueueJob(final JobEntry jobexec, SimpleCalculationNode node) {
     if (node == null) {
       node = getNodes().poll();
       if (node == null) {
@@ -280,14 +319,34 @@ public abstract class AbstractCalculationNodeInvocationContainer {
       }
     }
     s_logger.debug("Spawning execution of job {}", jobexec.getJob().getSpecification().getJobId());
-    final AbstractCalculationNode parallelNode = node;
+    final SimpleCalculationNode parallelNode = node;
     getExecutorService().execute(new Runnable() {
-
       @Override
       public void run() {
-        executeJobs(parallelNode, jobexec);
+        executeJobs(parallelNode, jobexec, null);
       }
+    });
+  }
 
+  private void spawnOrQueueJob(final PartialJobEntry jobexec) {
+    SimpleCalculationNode node = getNodes().poll();
+    if (node == null) {
+      synchronized (this) {
+        node = getNodes().poll();
+        if (node == null) {
+          s_logger.debug("Adding job {} to partially run queue", jobexec.getEntry().getJob().getSpecification().getJobId());
+          _partialJobs.add(jobexec);
+          return;
+        }
+      }
+    }
+    s_logger.debug("Spawning re-execution of job {}", jobexec.getEntry().getJob().getSpecification().getJobId());
+    final SimpleCalculationNode parallelNode = node;
+    getExecutorService().execute(new Runnable() {
+      @Override
+      public void run() {
+        executeJobs(parallelNode, null, jobexec);
+      }
     });
   }
 
@@ -310,16 +369,14 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   /**
-   * Adds jobs to the runnable queue, spawning a worker thread if a node is supplied or one is available. Jobs must be
-   * added in dependency order - i.e. a job must be submitted before any that require it. This is to simplify
-   * retention of job status as we only need to track jobs that are still running or have failed which saves a lot
-   * of housekeeping overhead.
+   * Adds jobs to the runnable queue, spawning a worker thread if a node is supplied or one is available. Jobs must be added in dependency order - i.e. a job must be submitted before any that require
+   * it. This is to simplify retention of job status as we only need to track jobs that are still running or have failed which saves a lot of housekeeping overhead.
    * 
    * @param job job to run, not null
    * @param receiver execution status receiver, not null
    * @param node optional node to start a worker thread with
    */
-  protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final AbstractCalculationNode node) {
+  protected void addJob(final CalculationJob job, final ExecutionReceiver receiver, final SimpleCalculationNode node) {
     final JobExecution jobExecution = createExecution(job.getSpecification().getJobId());
     final long[] requiredJobIds = job.getRequiredJobIds();
     final JobEntry jobEntry = new JobEntry(job, jobExecution, receiver);
@@ -421,39 +478,64 @@ public abstract class AbstractCalculationNodeInvocationContainer {
   }
 
   /**
-   * Executes jobs from the runnable queue until it is empty.
+   * Executes jobs from the runnable and partially-run queues until both are empty.
    * 
    * @param node Node to run on, not null
-   * @param jobexec The first job to run, not null
+   * @param job The first job to run, not null if resumeJob is null
+   * @param resumeJob the first job to run, not null if newJob is null
    */
-  private void executeJobs(final AbstractCalculationNode node, JobEntry jobexec) {
+  private void executeJobs(final SimpleCalculationNode node, JobEntry job, PartialJobEntry resumeJob) {
     do {
-      s_logger.info("Executing job {} on {}", jobexec.getExecution().getJobId(), node.getNodeId());
-      onJobStart(jobexec.getJob());
+      if (resumeJob == null) {
+        s_logger.info("Executing job {} on {}", job.getExecution().getJobId(), node.getNodeId());
+        onJobStart(job.getJob());
+      } else {
+        job = resumeJob.getEntry();
+        s_logger.info("Resuming job {} on {}", job.getExecution().getJobId(), node.getNodeId());
+      }
       CalculationJobResult result = null;
-      if (jobexec.getExecution().threadBusy(jobexec.getJob())) {
+      if (job.getExecution().threadBusy(job.getJob())) {
         try {
-          result = node.executeJob(jobexec.getJob());
-          threadFree(jobexec.getExecution());
+          if (resumeJob == null) {
+            result = node.executeJob(job.getJob());
+          } else {
+            node.restoreState(resumeJob.getNodeState());
+            result = resumeJob.getHandle().getResult().get();
+          }
+          threadFree(job.getExecution());
+        } catch (AsynchronousHandleExecution e) {
+          // The job is running asynchronously (e.g. blocked on an external process). Registering a listener with the exception
+          // will give us a callable handle back to the job when it is ready to return to this thread. In the meantime we use
+          // this thread to perform other work.
+          threadFree(job.getExecution());
+          s_logger.debug("Job {} running asynchronously", job.getExecution().getJobId());
+          final SimpleCalculationNodeState state = node.saveState();
+          final JobEntry originalJob = job;
+          e.setResultHandleListener(new ResultListener<AsynchronousHandle<CalculationJobResult>>() {
+            @Override
+            public void operationComplete(final AsynchronousResult<AsynchronousHandle<CalculationJobResult>> result) {
+              spawnOrQueueJob(new PartialJobEntry(originalJob, state, result));
+            }
+          });
         } catch (Exception e) {
           // Any tail jobs will be abandoned
-          threadFree(jobexec.getExecution());
-          s_logger.warn("Job {} failed", jobexec.getExecution().getJobId());
-          failExecution(jobexec.getExecution());
-          jobexec.getReceiver().executionFailed(node, e);
+          threadFree(job.getExecution());
+          s_logger.warn("Job {} failed", job.getExecution().getJobId());
+          failExecution(job.getExecution());
+          job.getReceiver().executionFailed(node, e);
         }
       } else {
-        s_logger.debug("Job {} cancelled", jobexec.getExecution().getJobId());
+        s_logger.debug("Job {} cancelled", job.getExecution().getJobId());
       }
       if (result != null) {
         final Set<JobEntry> blocked;
-        synchronized (jobexec.getExecution()) {
-          jobexec.getExecution().setStatus(JobExecution.Status.COMPLETED);
-          blocked = jobexec.getExecution().getBlocked();
-          _executions.remove(jobexec.getExecution().getJobId());
+        synchronized (job.getExecution()) {
+          job.getExecution().setStatus(JobExecution.Status.COMPLETED);
+          blocked = job.getExecution().getBlocked();
+          _executions.remove(job.getExecution().getJobId());
         }
         if (blocked != null) {
-          s_logger.info("Job {} completed - releasing blocked jobs", jobexec.getExecution().getJobId());
+          s_logger.info("Job {} completed - releasing blocked jobs", job.getExecution().getJobId());
           for (JobEntry tail : blocked) {
             if (tail.getReceiver() != null) {
               if (tail.releaseBlockCount()) {
@@ -462,19 +544,26 @@ public abstract class AbstractCalculationNodeInvocationContainer {
             }
           }
         } else {
-          s_logger.info("Job {} completed - no tail jobs", jobexec.getExecution().getJobId());
+          s_logger.info("Job {} completed - no tail jobs", job.getExecution().getJobId());
         }
       }
+      // PLAT-2293 -- we might have an early completion indicator so don't want to let the receiver know just yet
       if (result != null) {
-        jobexec.getReceiver().executionComplete(result);
+        job.getReceiver().executionComplete(result);
       }
-      jobexec = _runnableJobs.poll();
-      if (jobexec == null) {
-        synchronized (this) {
-          jobexec = _runnableJobs.poll();
-          if (jobexec == null) {
-            getNodes().add(node);
-            break;
+      resumeJob = _partialJobs.poll();
+      if (resumeJob == null) {
+        job = _runnableJobs.poll();
+        if (job == null) {
+          synchronized (this) {
+            resumeJob = _partialJobs.poll();
+            if (resumeJob == null) {
+              job = _runnableJobs.poll();
+              if (job == null) {
+                getNodes().add(node);
+                break;
+              }
+            }
           }
         }
       }

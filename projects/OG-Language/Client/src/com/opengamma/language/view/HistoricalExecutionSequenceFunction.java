@@ -19,7 +19,6 @@ import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -29,6 +28,7 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Generates an execution sequence that causes historical market data to be used.

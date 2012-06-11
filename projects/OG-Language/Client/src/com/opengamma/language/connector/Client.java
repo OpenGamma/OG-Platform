@@ -36,13 +36,13 @@ import org.fudgemsg.wire.FudgeStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.language.async.AsynchronousExecution;
-import com.opengamma.language.async.AsynchronousResult;
-import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.connector.ConnectorMessage.Operation;
 import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextInitializationEventHandler;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultListener;
 
 /**
  * Client connection thread to interface with the C++ module. This connects to the two

@@ -65,8 +65,8 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.LocalCalculationNode;
 import com.opengamma.engine.view.calcnode.LocalNodeJobInvoker;
+import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
@@ -156,8 +156,8 @@ public class CancelExecutionTest {
     final ViewProcessorQuerySender viewProcessorQuerySender = new ViewProcessorQuerySender(InMemoryRequestConduit.create(viewProcessorQueryReceiver));
     final FunctionExecutionContext executionContext = new FunctionExecutionContext();
     final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver(securitySource, positionSource);
-    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new LocalCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
-        viewProcessorQuerySender, Executors.newCachedThreadPool(), functionInvocationStatistics)));
+    final JobDispatcher jobDispatcher = new JobDispatcher(new LocalNodeJobInvoker(new SimpleCalculationNode(computationCacheSource, compilationService, executionContext, targetResolver,
+        viewProcessorQuerySender, "node", Executors.newCachedThreadPool(), functionInvocationStatistics)));
     final ViewPermissionProvider viewPermissionProvider = new DefaultViewPermissionProvider();
     final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider = new DiscardingGraphStatisticsGathererProvider();
     ViewDefinition viewDefinition = new ViewDefinition("TestView", UserPrincipal.getTestUser());

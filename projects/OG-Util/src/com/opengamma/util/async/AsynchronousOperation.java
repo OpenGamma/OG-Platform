@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,8 +11,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancelable;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
@@ -178,6 +178,22 @@ public class AsynchronousOperation<T> {
         return future.cancel(mayInterruptIfRunning);
       }
     };
+  }
+
+  /**
+   * Returns the result (or throws the signaled exception), blocking the caller until it is available. This is equivalent to {@link AsynchronousExecution#getResult} but wraps any
+   * {@link InterruptedException} in a {@link OpenGammaRuntimeException}.
+   * 
+   * @param <T> type of the result
+   * @param ex the caught exception
+   * @return the result
+   */
+  public static <T> T getResult(final AsynchronousExecution ex) {
+    try {
+      return ex.getResult();
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("interrupted", e);
+    }
   }
 
 }

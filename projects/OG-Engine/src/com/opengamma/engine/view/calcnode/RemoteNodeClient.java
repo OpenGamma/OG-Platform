@@ -40,7 +40,7 @@ import com.opengamma.transport.FudgeMessageSender;
  * Client end to RemoteNodeServer for registering one or more AbstractCalculationNodes with a remote job dispatcher. The connection must
  * deliver messages in network order (i.e. not use an executor service).
  */
-public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
+public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer implements FudgeMessageReceiver, Lifecycle, FudgeConnectionStateListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeClient.class);
 
@@ -77,7 +77,7 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
         }
 
         @Override
-        public void executionFailed(final AbstractCalculationNode node, final Exception exception) {
+        public void executionFailed(final SimpleCalculationNode node, final Exception exception) {
           s_logger.warn("Exception thrown by job execution", exception);
           sendMessage(new Failure(job.getSpecification(), exception.getMessage(), node.getNodeId()));
         }
@@ -120,13 +120,13 @@ public class RemoteNodeClient extends AbstractCalculationNodeInvocationContainer
   }
 
   public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
-      final FunctionInvocationStatisticsSender statistics, final AbstractCalculationNode node) {
+      final FunctionInvocationStatisticsSender statistics, final SimpleCalculationNode node) {
     this(connection, functionCompilationService, identifierMap, statistics);
     setNode(node);
   }
 
   public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
-      final FunctionInvocationStatisticsSender statistics, final Collection<AbstractCalculationNode> nodes) {
+      final FunctionInvocationStatisticsSender statistics, final Collection<SimpleCalculationNode> nodes) {
     this(connection, functionCompilationService, identifierMap, statistics);
     setNodes(nodes);
   }

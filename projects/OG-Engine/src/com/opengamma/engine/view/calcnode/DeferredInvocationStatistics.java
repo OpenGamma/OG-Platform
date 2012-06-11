@@ -26,12 +26,9 @@ public class DeferredInvocationStatistics {
     _configuration = configuration;
   }
 
-  protected void setFunctionIdentifier(final String functionIdentifier) {
-    _functionIdentifier = functionIdentifier;
-  }
-
-  protected void beginInvocation() {
+  protected void beginInvocation(final String functionIdentifier) {
     _invocationTime = System.nanoTime();
+    _functionIdentifier = functionIdentifier;
   }
 
   protected void endInvocation() {

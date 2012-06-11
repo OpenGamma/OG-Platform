@@ -34,7 +34,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 

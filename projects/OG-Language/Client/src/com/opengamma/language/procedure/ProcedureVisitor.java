@@ -6,8 +6,8 @@
 
 package com.opengamma.language.procedure;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Procedure;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Defines a visitor interface for incoming procedure messages.

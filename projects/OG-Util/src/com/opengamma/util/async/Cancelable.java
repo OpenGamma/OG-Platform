@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.async;
 
 /**
  * Defines an object that may be canceled.

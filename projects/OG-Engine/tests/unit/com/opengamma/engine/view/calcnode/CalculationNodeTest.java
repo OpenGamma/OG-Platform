@@ -19,12 +19,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
- * Tests the {@link AbstractCalculationNode} class. Note the name so that Clover doesn't ignore it.
+ * Tests the {@link SimpleCalculationNode} class. Note the name so that Clover doesn't ignore it.
  */
 @Test
 public class CalculationNodeTest {
   
-  public void mockFunctionInvocationOneInputMissing() throws InterruptedException {
+  public void mockFunctionInvocationOneInputMissing() throws Exception {
     MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
     TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
     CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);
@@ -40,7 +40,7 @@ public class CalculationNodeTest {
     assertEquals(InvocationResult.MISSING_INPUTS, resultItem.getResult());
   }
 
-  public void mockFunctionInvocationOneInputOneOutput() throws InterruptedException {
+  public void mockFunctionInvocationOneInputOneOutput() throws Exception {
     MockFunction mockFunction = CalculationNodeUtils.getMockFunction();
     TestCalculationNode calcNode = CalculationNodeUtils.getTestCalcNode(mockFunction);
     CalculationJob calcJob = CalculationNodeUtils.getCalculationJob(mockFunction);

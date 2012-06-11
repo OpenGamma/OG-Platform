@@ -31,7 +31,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * Manages a set of JobInvokers and dispatches jobs to them for execution.

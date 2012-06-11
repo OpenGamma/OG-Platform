@@ -37,7 +37,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given set of value requirements. Although a graph builder may itself use additional threads to complete the

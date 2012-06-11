@@ -3,13 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
+
+import com.opengamma.util.PublicAPI;
 
 /**
  * Callback interface for notification of completion of an {@link AsynchronousOperation}.
  * 
  * @param <T> type of the result
  */
+@PublicAPI
 public interface ResultListener<T> {
 
   /**

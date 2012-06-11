@@ -3,27 +3,26 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
+
+import com.opengamma.util.PublicAPI;
 
 /**
  * Indicates that the result of the original call is being prepared asynchronously. A callback object can be
  * registered with the exception instance to get the result when it becomes available.
  */
+@PublicAPI
 public class AsynchronousExecution extends Exception {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 1L;
 
   private final AsynchronousOperation<?> _operation;
 
-  /* package */AsynchronousExecution(final AsynchronousOperation<?> operation) {
+  protected AsynchronousExecution(final AsynchronousOperation<?> operation) {
     _operation = operation;
-  }
-
-  protected AsynchronousExecution(final AsynchronousExecution copyFrom) {
-    this(copyFrom.getOperation());
   }
 
   @SuppressWarnings("unchecked")

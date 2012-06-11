@@ -35,7 +35,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph

@@ -24,7 +24,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * State shared among all fragments of a dependency graph for execution. Also implements

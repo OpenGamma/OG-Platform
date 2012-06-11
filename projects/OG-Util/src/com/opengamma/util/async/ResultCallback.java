@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
 
 
 /**

@@ -64,7 +64,7 @@
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
         <constructor-arg>
-				  <bean class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
+				  <bean class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
 				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
 				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
 				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />

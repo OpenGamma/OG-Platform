@@ -24,9 +24,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.async.AsynchronousExecution;
-import com.opengamma.language.async.AsynchronousOperation;
-import com.opengamma.language.async.ResultCallback;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -36,7 +33,10 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.async.Cancelable;
+import com.opengamma.util.async.ResultCallback;
 
 /**
  * Returns the latest result from a calculating view

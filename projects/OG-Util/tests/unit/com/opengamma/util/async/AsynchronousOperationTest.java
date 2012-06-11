@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -15,6 +15,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultCallback;
+import com.opengamma.util.async.ResultListener;
 import com.opengamma.util.test.Timeout;
 
 /**

@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Creates a set of more-or-less identical nodes, e.g. one for each core or a fixed number.
  */
-public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculationNode> implements InitializingBean {
+public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculationNode> implements InitializingBean {
 
   private ViewComputationCacheSource _viewComputationCache;
   private CompiledFunctionService _functionCompilationService;
@@ -38,7 +38,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   private int _nodeCount;
   private double _nodesPerCore;
 
-  private Collection<LocalCalculationNode> _nodes;
+  private Collection<SimpleCalculationNode> _nodes;
   private boolean _useWriteBehindCache;
   private boolean _useAsynchronousTargetResolve;
 
@@ -183,7 +183,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   }
 
   @Override
-  public Iterator<LocalCalculationNode> iterator() {
+  public Iterator<SimpleCalculationNode> iterator() {
     return _nodes.iterator();
   }
 
@@ -208,17 +208,20 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     } else {
       nodes = getNodeCount();
     }
-    _nodes = new ArrayList<LocalCalculationNode>(nodes);
+    _nodes = new ArrayList<SimpleCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
-      final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), getExecutorService(), getStatisticsGatherer());
+      final String identifier;
       if (getNodeIdentifier() != null) {
         if (nodes > 1) {
-          node.setNodeId(getNodeIdentifier() + ":" + (i + 1));
+          identifier = getNodeIdentifier() + ":" + (i + 1);
         } else {
-          node.setNodeId(getNodeIdentifier());
+          identifier = getNodeIdentifier();
         }
+      } else {
+        identifier = SimpleCalculationNode.createNodeId();
       }
+      final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
+          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer());
       node.setUseWriteBehindCache(isUseWriteBehindCache());
       node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
       _nodes.add(node);

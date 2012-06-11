@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.async;
+package com.opengamma.util.async;
+
+import com.opengamma.util.PublicAPI;
 
 /**
  * Represents a result that may be produced by another thread and potentially allow the original calling thread to
@@ -11,6 +13,7 @@ package com.opengamma.language.async;
  * 
  * @param <T> type of the result
  */
+@PublicAPI
 public class AsynchronousResult<T> {
 
   private final T _result;

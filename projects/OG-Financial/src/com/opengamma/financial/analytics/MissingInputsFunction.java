@@ -32,24 +32,25 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultListener;
 
 /**
- * Wraps another function definition into a form that can work with one or more of its
- * inputs missing.
+ * Wraps another function definition into a form that can work with one or more of its inputs missing.
  */
 public class MissingInputsFunction extends AbstractFunction implements CompiledFunctionDefinition, FunctionInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MissingInputsFunction.class);
 
   /**
-   * Value of the {@link ValuePropertyNames#AGGREGATION} property when one or more of
-   * the inputs may be missing.
+   * Value of the {@link ValuePropertyNames#AGGREGATION} property when one or more of the inputs may be missing.
    */
   public static final String AGGREGATION_STYLE_MISSING = "MissingInputs";
 
   /**
-   * Value of the {@link ValuePropertyNames#AGGREGATION} property when all of the inputs
-   * must be available.
+   * Value of the {@link ValuePropertyNames#AGGREGATION} property when all of the inputs must be available.
    */
   public static final String AGGREGATION_STYLE_FULL = "Full";
 
@@ -271,14 +272,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
 
   // FunctionInvoker
 
-  @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Set<ValueRequirement> underlyingDesired = Sets.newHashSetWithExpectedSize(desiredValues.size());
-    for (ValueRequirement desiredValue : desiredValues) {
-      final ValueProperties requirementConstraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.AGGREGATION);
-      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
-    }
-    final Set<ComputedValue> underlyingResults = getUnderlyingInvoker().execute(executionContext, inputs, target, underlyingDesired);
+  private Set<ComputedValue> createExecuteResults(final FunctionInputs inputs, final Set<ComputedValue> underlyingResults) {
     if (underlyingResults == null) {
       return Collections.emptySet();
     }
@@ -294,6 +288,32 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       }
     }
     return results;
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    final Set<ValueRequirement> underlyingDesired = Sets.newHashSetWithExpectedSize(desiredValues.size());
+    for (ValueRequirement desiredValue : desiredValues) {
+      final ValueProperties requirementConstraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.AGGREGATION);
+      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+    }
+    try {
+      return createExecuteResults(inputs, getUnderlyingInvoker().execute(executionContext, inputs, target, underlyingDesired));
+    } catch (AsynchronousExecution e) {
+      final AsynchronousOperation<Set<ComputedValue>> async = new AsynchronousOperation<Set<ComputedValue>>();
+      e.setResultListener(new ResultListener<Set<ComputedValue>>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
+          try {
+            async.getCallback().setResult(createExecuteResults(inputs, result.getResult()));
+          } catch (RuntimeException e) {
+            async.getCallback().setException(e);
+          }
+        }
+      });
+      return async.getResult();
+    }
   }
 
   @Override
