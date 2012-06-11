@@ -24,6 +24,8 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class BloombergEventDispatcher extends AbstractEventDispatcher {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEventDispatcher.class);
   private final Session _bloombergSession;
   

@@ -40,9 +40,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * 
  */
 public class BloombergRefDataCollector implements Lifecycle {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRefDataCollector.class);
-  
+
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   private final File _watchListFile;

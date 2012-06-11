@@ -30,20 +30,43 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
 /**
- * 
+ * Abstract data provider for connecting to Bloomberg.
  */
 public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
-  // Injected Inputs:
+
+  /**
+   * The Bloomberg session options.
+   */
   private final SessionOptions _sessionOptions;
-  //Runtime State:
+
+  /**
+   * The active Bloomberg session.
+   */
   private Session _session;
+  /**
+   * The provider of correlation identifiers.
+   */
   private final AtomicLong _nextCorrelationId = new AtomicLong(1L);
+  /**
+   * The lookup table of correlation identifiers.
+   */
   private final Map<CorrelationID, CorrelationID> _correlationIDMap = new ConcurrentHashMap<CorrelationID, CorrelationID>();
+  /**
+   * The lookup table of results.
+   */
   private final Map<CorrelationID, BlockingQueue<Element>> _correlationIDElementMap = new ConcurrentHashMap<CorrelationID, BlockingQueue<Element>>();
+  /**
+   * The event processor listening to Bloomberg.
+   */
   private BloombergSessionEventProcessor _bbgEventProcessor;
+  /**
+   * The thread hosting the event processor.
+   */
   private Thread _thread;
 
   /**
+   * Creates an instance.
+   * 
    * @param sessionOptions Options for connecting to the Bloomberg Server API process
    */
   public AbstractBloombergStaticDataProvider(SessionOptions sessionOptions) {
@@ -52,47 +75,76 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     _sessionOptions = sessionOptions;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the sessionOptions
+   * Gets the Bloomberg session options.
+   * 
+   * @return the session options
    */
   public SessionOptions getSessionOptions() {
     return _sessionOptions;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param session the session to set
+   * Sets the Bloomberg session.
+   * 
+   * @param session  the session to set
    */
   protected void setSession(Session session) {
     _session = session;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Opens a Bloomberg service for the given name.
+   * 
+   * @param serviceName  the service name, not null
+   * @return the service, not null
+   */
   protected Service openService(String serviceName) {
     try {
       if (!getSession().openService(serviceName)) {
         throw new OpenGammaRuntimeException("Unable to open " + serviceName);
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException ex) {
       Thread.interrupted();
-      throw new OpenGammaRuntimeException("Unable to open " + serviceName, e);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to open " + serviceName, e);
+      throw new OpenGammaRuntimeException("Unable to open " + serviceName, ex);
+    } catch (Exception ex) {
+      throw new OpenGammaRuntimeException("Unable to open " + serviceName, ex);
     }
     return getSession().getService(serviceName);
   }
 
+  /**
+   * Opens all the services.
+   * <p>
+   * This method is typically implemented to call {@link #openService(String)}.
+   */
   protected abstract void openServices();
 
   /**
+   * Gets thes Bloomberg session.
+   * 
    * @return the session
    */
   protected Session getSession() {
     return _session;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Generates a correlation identifier.
+   * 
+   * @return the correlation identifier, not null
+   */
   protected long generateCorrelationID() {
     return _nextCorrelationId.getAndAdd(1L);
   }
 
+  /**
+   * Ensures that the Bloomberg session has been started.
+   */
   protected void ensureStarted() {
     if (getSession() == null) {
       throw new IllegalStateException("Session not set; has start() been called?");
@@ -102,6 +154,12 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
   }
 
+  /**
+   * Sends a request to Bloomberg, waiting for a correlation identifier.
+   * 
+   * @param request  the request to send, not null
+   * @return the correlation identifier, not null
+   */
   protected CorrelationID submitBloombergRequest(Request request) {
     getLogger().debug("Sending Request={}", request);
     CorrelationID cid = new CorrelationID(generateCorrelationID());
@@ -109,20 +167,28 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       _correlationIDMap.put(cid, cid);
       try {
         getSession().sendRequest(request, cid);
-      } catch (Exception e) {
+      } catch (Exception ex) {
         _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, e);
+        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
       }
       try {
         cid.wait();
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ex) {
         Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, e);
+        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
       }
     }
     return cid;
   }
 
+  /**
+   * Sends an authorization request to Bloomberg, waiting for a correlation identifier.
+   * 
+   * @param request  the request to send, not null
+   * @param userHandle  the user handle, not null
+   * @return the correlation identifier, not null
+   */
+  @SuppressWarnings("deprecation")
   protected CorrelationID submitBloombergAuthorizationRequest(Request request, UserHandle userHandle) {
     getLogger().debug("Sending Request={}", request);
     CorrelationID cid = new CorrelationID(generateCorrelationID());
@@ -130,20 +196,26 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       _correlationIDMap.put(cid, cid);
       try {
         getSession().sendAuthorizationRequest(request, userHandle, cid);
-      } catch (Exception e) {
+      } catch (Exception ex) {
         _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, e);
+        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
       }
       try {
         cid.wait();
-      } catch (InterruptedException e) {
+      } catch (InterruptedException ex) {
         Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, e);
+        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
       }
     }
     return cid;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the Bloomberg service is running.
+   * 
+   * @return true if running
+   */
   @Override
   public synchronized boolean isRunning() {
     getLogger().info("IsRunning on lifecycle method invocation");
@@ -153,6 +225,9 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return _thread.isAlive();
   }
 
+  /**
+   * Starts the Bloomberg service.
+   */
   @Override
   public synchronized void start() {
     if (isRunning()) {
@@ -176,13 +251,16 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     getLogger().info("Connected. Opening service.");
     openServices();
     
-    //create and start the bloomberg event processor
+    // create and start the bloomberg event processor
     _bbgEventProcessor = new BloombergSessionEventProcessor();
     _thread = new Thread(_bbgEventProcessor, "BSM Event Processor");
     _thread.setDaemon(true);
     _thread.start();
   }
 
+  /**
+   * Stops the Bloomberg service.
+   */
   @Override
   public synchronized void stop() {
     if (!isRunning()) {
@@ -207,6 +285,10 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Thread runner that handles Bloomberg events.
+   */
   private class BloombergSessionEventProcessor extends TerminatableJob {
     @Override
     protected void runOneCycle() {
@@ -221,12 +303,12 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
         //getLogger().debug("Got NULL event");
         return;
       }
+      
       //getLogger().debug("Got event of type {}", event.eventType());
       MessageIterator msgIter = event.messageIterator();
       CorrelationID realCID = null;
       while (msgIter.hasNext()) {
         Message msg = msgIter.next();
-        
         if (event.eventType() == Event.EventType.SESSION_STATUS) {
           if (msg.messageType().toString().equals("SessionTerminated")) {
             getLogger().error("Session terminated");
@@ -249,7 +331,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
           }
         }
       }
-      //wake up waiting client thread if response is completed and there is a thread waiting on the cid
+      // wake up waiting client thread if response is completed and there is a thread waiting on the cid
       if (event.eventType() == Event.EventType.RESPONSE && realCID != null) {
         //cid is removed from the map by the request thread after it has  been notified
         synchronized (realCID) {
@@ -261,7 +343,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     @Override
     public void terminate() {
       super.terminate();
-
+      
       // notify all threads waiting on cid
       Collection<CorrelationID> cids = _correlationIDMap.values();
       for (CorrelationID correlationID : cids) {
@@ -272,11 +354,23 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the active logger.
+   * 
+   * @return the logger.
+   */
   protected abstract Logger getLogger();
-  
+
+  /**
+   * Gets the result given a correlation identifier.
+   * 
+   * @param cid  the correlation identifier, not null
+   * @return the collection of results, not null
+   */
   protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
     BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    //clear correlation maps
+    // clear correlation maps
     _correlationIDMap.remove(cid);
     return resultElements;
   }

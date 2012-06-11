@@ -54,11 +54,12 @@ import com.opengamma.util.ArgumentChecker;
  * @author yomi
  */
 public class BloombergTicksCollector implements Lifecycle {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTicksCollector.class);
-  
+
   private static final FudgeContext s_fudgeContext = new FudgeContext();
-  
+
   private static final String DEFAULT_TRACK_FILE = "/watchList.txt";
   private static final int DEFAULT_SESSION_SIZE = 4;
   private static final StorageMode DEFAULT_STORAGE_MODE = StorageMode.SINGLE;

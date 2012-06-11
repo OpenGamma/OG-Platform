@@ -30,8 +30,9 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class BloombergRateClassifier {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateClassifier.class);
-  
+
   private static final String CACHE_KEY = "bbg-classifier-cache";
   private static final int CACHE_SIZE = 10000;
   

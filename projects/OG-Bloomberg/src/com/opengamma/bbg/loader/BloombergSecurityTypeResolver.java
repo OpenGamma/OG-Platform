@@ -29,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityTypeResolver.class);
 
   private static final Map<String, SecurityType> s_futureTypes = Maps.newConcurrentMap();

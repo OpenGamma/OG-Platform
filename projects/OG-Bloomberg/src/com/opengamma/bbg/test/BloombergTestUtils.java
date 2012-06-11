@@ -15,8 +15,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,10 +27,6 @@ import com.opengamma.util.test.TestProperties;
  * Test utilities for Bloomberg.
  */
 public class BloombergTestUtils {
-
-  /** Logger. */
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergTestUtils.class);
 
   /**
    * Restricted constructor.

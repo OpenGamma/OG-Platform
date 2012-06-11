@@ -52,8 +52,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public class FakeSubscriptionBloombergLiveDataServer extends AbstractLiveDataServer {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FakeSubscriptionBloombergLiveDataServer.class);
-  
+
   private static final Duration PERIOD = Duration.ofStandardHours(24);
   private static final long PERIOD_MILLIS = PERIOD.toMillisLong();
   private static final long PERIOD_SECONDS = PERIOD.toSeconds().longValue();

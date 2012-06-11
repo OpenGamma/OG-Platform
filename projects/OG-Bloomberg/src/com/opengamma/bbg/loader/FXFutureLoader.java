@@ -31,8 +31,9 @@ import com.opengamma.util.time.Expiry;
  */
 public class FXFutureLoader extends SecurityLoader {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(FXFutureLoader.class);
-  
+
   /**
    * The fields to load from Bloomberg.
    */

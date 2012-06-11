@@ -25,33 +25,45 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * A cache decorating a {@code ReferenceDataProvider}.
+ * A decorator to a reference data provider adding caching.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingReferenceDataProvider extends AbstractCachingReferenceDataProvider {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingReferenceDataProvider.class);
-  
   /**
    * Cache key for reference data.
    */
   private static final String REFERENCE_DATA_CACHE = "referenceData";
-  
+
   /**
    * The cache manager.
    */
   private final CacheManager _cacheManager;
-  
   /**
    * The reference data cache.
    */
   private final Cache _cache;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying reference data provider, not null
+   * @param cacheManager  the cache manager, not null
+   */
   public EHCachingReferenceDataProvider(final ReferenceDataProvider underlying, final CacheManager cacheManager) {
     this(underlying, cacheManager, OpenGammaFudgeContext.getInstance());    
   }
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying reference data provider, not null
+   * @param cacheManager  the cache manager, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
   public EHCachingReferenceDataProvider(final ReferenceDataProvider underlying, final CacheManager cacheManager, final FudgeContext fudgeContext) {
     super(underlying, fudgeContext);
     ArgumentChecker.notNull(underlying, "underlying");
@@ -61,11 +73,18 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
     EHCacheUtils.addCache(cacheManager, REFERENCE_DATA_CACHE);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, REFERENCE_DATA_CACHE);
   }
-    
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
+   */
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   protected void persistSecurityFields(PerSecurityReferenceDataResult securityResult) {
     String securityDes = securityResult.getSecurity();
@@ -78,9 +97,8 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
       Element element = new Element(securityDes, cachedObject);
       _cache.put(element);
     }
-    
   }
-  
+
   @Override
   protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
     Map<String, PerSecurityReferenceDataResult> result = new TreeMap<String, PerSecurityReferenceDataResult>();
@@ -94,7 +112,14 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
     }
     return result;
   }
-  
+
+  /**
+   * Loads the state from the cache.
+   * 
+   * @param serializer  the Fudge serializer, not null
+   * @param securityDes  the security, not null
+   * @return the result, null if not found
+   */
   protected PerSecurityReferenceDataResult loadStateFromCache(FudgeSerializer serializer, String securityDes) {
     Element element = _cache.get(securityDes);
     if (element != null) {
@@ -106,17 +131,24 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
     }
     return null;
   }
-  
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Data holder for storing the results.
+   */
   private static class CachedPerSecurityReferenceDataResult implements Serializable {
+    /** Serialization. */
+    private static final long serialVersionUID = -822452207625365560L;
     private String _security;
     private FudgeMsg _fieldData;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * @param securityDes
-   * @param fromCache
-   * @return
+   * Parse the cached object.
+   * 
+   * @param fromCache  the data from the cache, not null
+   * @return the result, not null
    */
   private PerSecurityReferenceDataResult parseCachedObject(CachedPerSecurityReferenceDataResult fromCache) {
     PerSecurityReferenceDataResult result = new PerSecurityReferenceDataResult(fromCache._security);
@@ -124,11 +156,17 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
     return result;
   }
 
+  /**
+   * Creates the cached object.
+   * 
+   * @param refDataResult  the reference data result.
+   * @return the cache object, not null
+   */
   protected CachedPerSecurityReferenceDataResult createCachedObject(PerSecurityReferenceDataResult refDataResult) {
     CachedPerSecurityReferenceDataResult result = new CachedPerSecurityReferenceDataResult();
     result._security = refDataResult.getSecurity();
     result._fieldData = getFudgeContext().newMessage(refDataResult.getFieldData());
     return result;
   }
- 
+
 }

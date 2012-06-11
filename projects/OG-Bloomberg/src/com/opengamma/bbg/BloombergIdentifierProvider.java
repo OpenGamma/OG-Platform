@@ -43,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Loads identifier bundle with dates for a given identifier
+ * Loads identifier bundle with dates for a given identifier.
  */
 public class BloombergIdentifierProvider implements ExternalIdResolver {
 
@@ -137,7 +137,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
           continue;
         }
       }
-
+      
       try {
         ExternalIdBundleWithDates bundleWithDates = parseIdentifiers(fieldData);
         if (bundleWithDates != null) {
@@ -182,7 +182,6 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     if (ticker != null) {
       identifiers.add(ticker);
     }
-    
     return identifiers.isEmpty() ?  null : new ExternalIdBundleWithDates(identifiers);
   }
 
@@ -306,7 +305,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
       return null;
     }
   }
-  
+
   private Pair<LocalDate, LocalDate> getFutureValidFromTo(FudgeMsg fieldData) {
     final String validFromStr = fieldData.getString(FIELD_FUT_FIRST_TRADE_DT);
     LocalDate validFrom = parseDate(validFromStr);
