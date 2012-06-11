@@ -34,9 +34,15 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 
-  public PushWebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
-      ComputationTargetResolver computationTargetResolver) {
-    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, computationTargetResolver);
+  public PushWebViewPortfolioGrid(ViewClient viewClient,
+                                  CompiledViewDefinition compiledViewDefinition,
+                                  ResultConverterCache resultConverterCache,
+                                  ComputationTargetResolver computationTargetResolver) {
+    this(viewClient,
+         compiledViewDefinition,
+         flattenPortfolio(compiledViewDefinition.getPortfolio()),
+         resultConverterCache,
+         computationTargetResolver);
   }
 
   private PushWebViewPortfolioGrid(ViewClient viewClient,
@@ -44,8 +50,14 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
                                    List<PortfolioRow> rows,
                                    ResultConverterCache resultConverterCache,
                                    ComputationTargetResolver computationTargetResolver) {
-    super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...", computationTargetResolver);
+    super("portfolio",
+          viewClient,
+          compiledViewDefinition,
+          getTargets(rows),
+          EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION),
+          resultConverterCache,
+          "Loading...",
+          computationTargetResolver);
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget());

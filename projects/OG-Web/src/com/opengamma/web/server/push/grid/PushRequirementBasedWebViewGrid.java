@@ -323,8 +323,14 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
       s_logger.debug("includeDepGraph took {}", timer.finished());
       // TODO should this ever happen? it is currently
       if (columnMappingPair != null) {
-        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(),
-            getComputationTargetResolver());
+        PushWebViewDepGraphGrid grid =
+            new PushWebViewDepGraphGrid(gridName,
+                                        getViewClient(),
+                                        getConverterCache(),
+                                        cell,
+                                        columnMappingPair.getFirst(),
+                                        columnMappingPair.getSecond(),
+                                        getComputationTargetResolver());
         _depGraphGrids.put(cell, grid);
       }
     }
