@@ -25,7 +25,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Takes a LocalVolatilitySurface with Surface Parameterization of MONEYNESS and
+ * returns one of STRIKE
  */
 public abstract class LocalVolatilitySurfaceStrikeFunction extends AbstractFunction.NonCompiledInvoker {
 
