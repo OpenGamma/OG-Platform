@@ -84,7 +84,10 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       DistributionSpecificationResolver resolver) {
     super(sessionOptions);
     ArgumentChecker.notNull(refDataProvider, "Reference data provider");
+    ArgumentChecker.notNull(resolver, "Distribution spec resolver");
+    
     _refDataProvider = refDataProvider;
+    _resolver = resolver;
     
     // Cache will contain max 100 entries, each of which will expire in 12 hours  
     _userHandleCache = new Cache("Bloomberg user handle cache", 100, false, false, HALF_A_DAY_IN_SECONDS, HALF_A_DAY_IN_SECONDS);
@@ -93,9 +96,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     // Cache will contain max 100 entries, each of which will expire in 12 hours
     _eidCache = new Cache("Bloomberg EID cache", 100, false, false, HALF_A_DAY_IN_SECONDS, HALF_A_DAY_IN_SECONDS);
     _eidCache.initialise();
-    
-    ArgumentChecker.notNull(resolver, "Distribution spec resolver");
-    _resolver = resolver;
   }
 
   @Override
@@ -110,13 +110,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   }
 
   //-------------------------------------------------------------------------
-  
-  @Override
-  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
-    DistributionSpecification distributionSpecification = _resolver.resolve(requestedSpecification); 
-    return isEntitled(user, distributionSpecification);
-  }
-  
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications) {
     Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
@@ -125,6 +118,12 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       returnValue.put(spec, entitled);                  
     }
     return returnValue;
+  }
+
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    DistributionSpecification distributionSpecification = _resolver.resolve(requestedSpecification); 
+    return isEntitled(user, distributionSpecification);
   }
 
   //-------------------------------------------------------------------------
@@ -141,27 +140,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     
     boolean isEntitled = userHandle.hasEntitlements(neededEntitlements, _apiAuthSvc);
     return isEntitled;
-  }
-
-  private Element getEids(DistributionSpecification distributionSpec) {
-    net.sf.ehcache.Element cachedEids = _eidCache.get(distributionSpec);
-    if (cachedEids == null) {
-      
-      String lookupKey = BloombergDomainIdentifierResolver.toBloombergKey(distributionSpec.getMarketDataId());
-      ReferenceDataResult referenceData = _refDataProvider.getFields(Collections.singleton(lookupKey), 
-          Sets.newHashSet(
-              BloombergConstants.FIELD_ID_BBG_UNIQUE, // TODO, this is necessary because otherwise the request would not get any real fields
-              BloombergConstants.FIELD_EID_DATA));
-      
-      PerSecurityReferenceDataResult result = referenceData.getResult(lookupKey);
-      Element eids = result.getEidData();
-      
-      cachedEids = new net.sf.ehcache.Element(distributionSpec, eids);
-      _eidCache.put(cachedEids);
-    }
-    
-    Element neededEntitlements = (Element) cachedEids.getObjectValue();
-    return neededEntitlements;
   }
 
   private UserHandle getUserHandle(UserPrincipal user) {
@@ -208,8 +186,30 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
         return null;        
       }
     }
+    
     UserHandle userHandle = (UserHandle) cachedUserHandle.getObjectValue();
     return userHandle;
+  }
+
+  private Element getEids(DistributionSpecification distributionSpec) {
+    net.sf.ehcache.Element cachedEids = _eidCache.get(distributionSpec);
+    if (cachedEids == null) {
+      
+      String lookupKey = BloombergDomainIdentifierResolver.toBloombergKey(distributionSpec.getMarketDataId());
+      ReferenceDataResult referenceData = _refDataProvider.getFields(Collections.singleton(lookupKey), 
+          Sets.newHashSet(
+              BloombergConstants.FIELD_ID_BBG_UNIQUE, // TODO, this is necessary because otherwise the request would not get any real fields
+              BloombergConstants.FIELD_EID_DATA));
+      
+      PerSecurityReferenceDataResult result = referenceData.getResult(lookupKey);
+      Element eids = result.getEidData();
+      
+      cachedEids = new net.sf.ehcache.Element(distributionSpec, eids);
+      _eidCache.put(cachedEids);
+    }
+    
+    Element neededEntitlements = (Element) cachedEids.getObjectValue();
+    return neededEntitlements;
   }
 
 }

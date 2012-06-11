@@ -6,7 +6,6 @@
 package com.opengamma.bbg;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
@@ -119,7 +119,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
     // TODO bulk queries
     Map<String, PerSecurityReferenceDataResult> cachedResults = loadCachedResults(securities);
     
-    Map<Set<String>, Set<String>> securitiesByFields = new HashMap<Set<String>, Set<String>>();
+    Map<Set<String>, Set<String>> securitiesByFields = Maps.newHashMap();
     
     for (String security : securities) {
       PerSecurityReferenceDataResult cachedResult = cachedResults.get(security);
@@ -229,7 +229,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
   protected Map<Set<String>, Set<String>> determineSecuritiesForFieldSets(
       Map<String, PerSecurityReferenceDataResult> cachedResults,
       Set<String> securities, Set<String> fields) {
-    Map<Set<String>, Set<String>> result = new HashMap<Set<String>, Set<String>>();
+    Map<Set<String>, Set<String>> result = Maps.newHashMap();
     for (String securityDes : securities) {
       PerSecurityReferenceDataResult cachedResult = cachedResults.get(securityDes);
       Set<String> missingFields = null;

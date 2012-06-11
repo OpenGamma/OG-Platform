@@ -5,12 +5,10 @@
  */
 package com.opengamma.bbg;
 
-import java.util.Collections;
 import java.util.Set;
 
 import com.bloomberglp.blpapi.Name;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 /**
  * Bloomberg Constants
@@ -239,14 +237,14 @@ public final class BloombergConstants {
   /**
    * Valid currency futures types.
    */
-  public static final Set<String> VALID_CURRENCY_FUTURE_TYPES = Collections.unmodifiableSet(Sets.newHashSet(
+  public static final Set<String> VALID_CURRENCY_FUTURE_TYPES = ImmutableSet.of(
       BBG_CROSS_CURRENCY_TYPE,
-      BBG_CURRENCY_TYPE));
+      BBG_CURRENCY_TYPE);
 
   /**
    * Valid Equity types.
    */
-  public static final Set<String> VALID_EQUITY_TYPES = Collections.unmodifiableSet(Sets.newHashSet(
+  public static final Set<String> VALID_EQUITY_TYPES = ImmutableSet.of(
       BBG_COMMON_STOCK_TYPE,
       BBG_PREFERENCE_TYPE,
       BBG_ADR_TYPE,
@@ -260,32 +258,32 @@ public final class BloombergConstants {
       BBG_LTD_PART_TYPE,
       BBG_PUBLIC_TYPE,
       BBG_NY_REG_SHRS_TYPE,
-      BBG_EQUITY_WRT_TYPE));
+      BBG_EQUITY_WRT_TYPE);
 
   /**
-   * Collections of fields known to go on/off intermitently from bloomberg.
+   * Collections of fields known to go on/off intermittently from bloomberg.
    */
-  public static final Set<String> ON_OFF_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
+  public static final Set<String> ON_OFF_FIELDS = ImmutableSet.of(
       FIELD_MIC_PRIM_EXCH, // trading exchange
-      FIELD_MIC_LOCAL_EXCH));
+      FIELD_MIC_LOCAL_EXCH);
 
   /**
    * Fields loaded from Bloomberg by {@link com.opengamma.bbg.livedata.BloombergIdResolver}.
    */
-  public static final Set<String> ID_RESOLVER_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
-      FIELD_ID_BBG_UNIQUE));
+  public static final Set<String> ID_RESOLVER_FIELDS = ImmutableSet.of(
+      FIELD_ID_BBG_UNIQUE);
 
   /**
    * Fields loaded from Bloomberg by {@link com.opengamma.bbg.livedata.BloombergJmsTopicNameResolver}.
    */
-  public static final Set<String> JMS_TOPIC_NAME_RESOLVER_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
+  public static final Set<String> JMS_TOPIC_NAME_RESOLVER_FIELDS = ImmutableSet.of(
       FIELD_TICKER,
       FIELD_PRIMARY_EXCHANGE_NAME,
       FIELD_SECURITY_TYPE,
       FIELD_ISSUER,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
-      FIELD_OPT_UNDL_TICKER));
+      FIELD_OPT_UNDL_TICKER);
 
   /**
    * Valid market sector

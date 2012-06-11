@@ -50,15 +50,6 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the rate lookup scheme.
-   * 
-   * @param rateLookupIdentifierScheme  the scheme
-   */
-  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
-    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
-  }
-
-  /**
    * Gets the rate lookup scheme.
    * 
    * @return the scheme
@@ -68,12 +59,12 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   }
 
   /**
-   * Sets the rate lookup value name.
+   * Sets the rate lookup scheme.
    * 
-   * @param rateLookupValueName  the value name
+   * @param rateLookupIdentifierScheme  the scheme
    */
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    _rateLookupValueName = rateLookupValueName;
+  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
+    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
   }
 
   /**
@@ -85,23 +76,25 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
     return _rateLookupValueName;
   }
 
-  //-------------------------------------------------------------------------
-  private static Pair<String, String> parse(final ComputationTarget target) {
-    final int underscore = target.getUniqueId().getValue().indexOf('_');
-    final String numerator = target.getUniqueId().getValue().substring(0, underscore);
-    final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
-    return Pair.of(numerator, denominator);
+  /**
+   * Sets the rate lookup value name.
+   * 
+   * @param rateLookupValueName  the value name
+   */
+  public void setRateLookupValueName(final String rateLookupValueName) {
+    _rateLookupValueName = rateLookupValueName;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
+    if (getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme()) == false) {
       return false;
     }
-    if (!s_validate.matcher(target.getUniqueId().getValue()).matches()) {
+    if (s_validate.matcher(target.getUniqueId().getValue()).matches() == false) {
       return false;
     }
     final Pair<String, String> currencies = parse(target);
@@ -115,27 +108,17 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
     if (value == null) {
       throw new IllegalArgumentException(MarketDataRequirementNames.MARKET_VALUE + " for " + target + " not available");
     }
-    if (!(value instanceof Double)) {
+    if (value instanceof Double == false) {
       throw new IllegalArgumentException(MarketDataRequirementNames.MARKET_VALUE + " for " + target
           + " is not a double - " + value);
     }
     return Collections.singleton(new ComputedValue(createResultValueSpecification(target), value));
   }
 
-  private ValueRequirement createLiveDataRequirement(final ComputationTarget target) {
-    final Pair<String, String> currencies = parse(target);
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
-        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
-  }
-
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
       ValueRequirement desiredValue) {
     return Collections.singleton(createLiveDataRequirement(target));
-  }
-
-  private ValueSpecification createResultValueSpecification(final ComputationTarget target) {
-    return new ValueSpecification(getRateLookupValueName(), target.toSpecification(), createValueProperties().get());
   }
 
   @Override
@@ -146,6 +129,24 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
+  }
+
+  //-------------------------------------------------------------------------
+  private ValueRequirement createLiveDataRequirement(final ComputationTarget target) {
+    final Pair<String, String> currencies = parse(target);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
+        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), currencies.getSecond() + " Curncy"));
+  }
+
+  private ValueSpecification createResultValueSpecification(final ComputationTarget target) {
+    return new ValueSpecification(getRateLookupValueName(), target.toSpecification(), createValueProperties().get());
+  }
+
+  private static Pair<String, String> parse(final ComputationTarget target) {
+    final int underscore = target.getUniqueId().getValue().indexOf('_');
+    final String numerator = target.getUniqueId().getValue().substring(0, underscore);
+    final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
+    return Pair.of(numerator, denominator);
   }
 
 }
