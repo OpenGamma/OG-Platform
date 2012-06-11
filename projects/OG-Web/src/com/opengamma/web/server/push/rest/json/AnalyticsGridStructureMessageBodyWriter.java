@@ -20,7 +20,7 @@ import javax.ws.rs.ext.Provider;
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 
 /**
- *
+ * Writes an instance of {@link AnalyticsGridStructure} to JSON.
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)

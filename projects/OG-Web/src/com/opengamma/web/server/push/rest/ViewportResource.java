@@ -15,6 +15,7 @@ import com.opengamma.web.server.push.reports.ReportFactory;
 
 /**
  * REST resource that wraps a {@link Viewport}.
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 public class ViewportResource {
 

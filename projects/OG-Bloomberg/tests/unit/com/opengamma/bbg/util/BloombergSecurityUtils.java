@@ -98,9 +98,9 @@ public final class BloombergSecurityUtils {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 17, 20 + s_dst, 15),
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     EquityFutureSecurity sec = new EquityFutureSecurity(expiry, "XCME", "XCME", USD, 250, 
-        ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 17, 20 + s_dst, 15), TimeZone.UTC), ExternalSchemes.bloombergTickerSecurityId("SPX Index"));
-    sec.setUnderlyingId(ExternalSchemes.bloombergTickerSecurityId("SPX Index"));
+        ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 17, 20 + s_dst, 15), TimeZone.UTC), ExternalSchemes.bloombergTickerSecurityId("SPX Index"), "Equity");
     sec.setName("S&P 500 FUTURE Jun10");
+    sec.setUnderlyingId(ExternalSchemes.bloombergTickerSecurityId("SPX Index"));
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX6835907-0"));
     identifiers.add(ExternalSchemes.cusipSecurityId("SPM10"));
@@ -114,9 +114,9 @@ public final class BloombergSecurityUtils {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 23, 20 + s_dst, 30),
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     AgricultureFutureSecurity sec = new AgricultureFutureSecurity(expiry, "XMTB", "XMTB", USD, 100, "Wheat");
+    sec.setName("WHEAT FUT (ING) Jun10");
     sec.setUnitNumber(100.0);
     sec.setUnitName("tonnes");
-    sec.setName("WHEAT FUT (ING) Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX8114863-0"));
     identifiers.add(ExternalSchemes.cusipSecurityId("VKM10"));
@@ -129,7 +129,8 @@ public final class BloombergSecurityUtils {
   public static FXFutureSecurity makeAUDUSDCurrencyFuture() {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2010, MonthOfYear.JUNE, 1).atMidnight(), TimeZone.UTC),
         ExpiryAccuracy.DAY_MONTH_YEAR);
-    FXFutureSecurity security = new FXFutureSecurity(expiry, "XCME", "XCME", USD, 1000, AUD, USD);
+    FXFutureSecurity security = new FXFutureSecurity(expiry, "XCME", "XCME", USD, 1000, AUD, USD, "FX");
+    security.setName("AUD/USD");
     return security;
   }
 
@@ -146,9 +147,10 @@ public final class BloombergSecurityUtils {
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("COEH6142705")), 0.852328d));
     
-    BondFutureSecurity sec = new BondFutureSecurity(expiry, "XEUR", "XEUR", EUR, 1000, basket, "Bond",
+    BondFutureSecurity sec = new BondFutureSecurity(expiry, "XEUR", "XEUR", EUR, 1000, basket,
                                                     ZonedDateTime.of(2010, 6, 10, 0, 0, 0, 0, TimeZone.UTC), 
-                                                    ZonedDateTime.of(2010, 6, 10, 0, 0, 0, 0, TimeZone.UTC));
+                                                    ZonedDateTime.of(2010, 6, 10, 0, 0, 0, 0, TimeZone.UTC),
+                                                    "BOND");
     sec.setName("EURO-BUND FUTURE Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX9439039-0"));
@@ -211,10 +213,12 @@ public final class BloombergSecurityUtils {
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
         ExternalSchemes.bloombergBuidSecurityId("GV912810FA1")), 1.0396));
     
-    BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", USD, 1000, basket, "Bond",
+    BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", USD, 1000, basket,
                                                     ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC), 
-                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC));
+                                                    ZonedDateTime.of(2010, 6, 01, 0, 0, 0, 0, TimeZone.UTC),
+                                                    "Bond");
     sec.setName("US LONG BOND(CBT) Jun10");
+
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX8530684-0"));
     identifiers.add(ExternalSchemes.cusipSecurityId("USM10"));
@@ -227,9 +231,9 @@ public final class BloombergSecurityUtils {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 28, 17 + s_dst, 25),
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     MetalFutureSecurity sec = new MetalFutureSecurity(expiry, "XCEC", "XCEC", USD, 5000, "Precious Metal");
+    sec.setName("SILVER FUTURE Jun10");
     sec.setUnitNumber(5000.00);
     sec.setUnitName("troy oz.");
-    sec.setName("SILVER FUTURE Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX10217289-0"));
     identifiers.add(ExternalSchemes.cusipSecurityId("SIM10"));
@@ -243,9 +247,9 @@ public final class BloombergSecurityUtils {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 3, 18 + s_dst, 15),
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     EnergyFutureSecurity sec = new EnergyFutureSecurity(expiry, "XCBT", "XCBT", USD, 29000, "Refined Products");
+    sec.setName("DENATURED ETHANOL Jun10");
     sec.setUnitNumber(29000.00);
     sec.setUnitName("U.S. Gallons");
-    sec.setName("DENATURED ETHANOL Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX6054783-0"));
     identifiers.add(ExternalSchemes.cusipSecurityId("DLM10"));
@@ -258,7 +262,7 @@ public final class BloombergSecurityUtils {
   public static InterestRateFutureSecurity makeInterestRateFuture() {
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2010, MonthOfYear.JUNE, 14, 19 + s_dst, 0),
         TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
-    InterestRateFutureSecurity sec = new InterestRateFutureSecurity(expiry, "XCME", "XCME", USD, 2500.0, ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "US0003M Index"));
+    InterestRateFutureSecurity sec = new InterestRateFutureSecurity(expiry, "XCME", "XCME", USD, 2500.0, ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "US0003M Index"), "Interest Rate");
     sec.setName("90DAY EURO$ FUTR Jun10");
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX166549-0"));

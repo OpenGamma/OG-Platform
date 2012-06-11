@@ -615,9 +615,13 @@ public final class BloombergDataUtils {
    * @return the stripped field, not null
    */
   public static String removeDuplicateWhiteSpace(final String field, final String replacement) {
-    ArgumentChecker.notNull(field, "field");
-    ArgumentChecker.notNull(replacement, "replacement");
-    return field.replaceAll("\\s+", replacement);
+    if (field != null) {
+      ArgumentChecker.notNull(field, "field");
+      ArgumentChecker.notNull(replacement, "replacement");
+      return field.replaceAll("\\s+", replacement);
+    } else {
+      return null;
+    }
   }
 
   public static Set<ExternalId> identifierLoader(Reader reader) {

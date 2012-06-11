@@ -32,6 +32,7 @@ import com.opengamma.web.server.push.reports.ReportFactory;
  * REST resource for creating and retrieving {@link Viewport} instances.
  * TODO catch RestRuntimeException and set the status on the response?
  * TODO would that be best done with a servlet filter? surely there's a standard way to do that?
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 @Path("viewports")
 public class ViewportsResource {

@@ -20,6 +20,7 @@ import com.opengamma.bbg.model.ReferenceDataRequestMessage;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -36,7 +37,7 @@ public class RemoteReferenceDataProvider implements ReferenceDataProvider {
    * @param fudgeRequestSender  the Fudge request sender
    */
   public RemoteReferenceDataProvider(FudgeRequestSender fudgeRequestSender) {
-    this(fudgeRequestSender, FudgeContext.GLOBAL_DEFAULT);
+    this(fudgeRequestSender, OpenGammaFudgeContext.getInstance());
   }
   
   public RemoteReferenceDataProvider(FudgeRequestSender fudgeRequestSender, FudgeContext fudgeContext) {

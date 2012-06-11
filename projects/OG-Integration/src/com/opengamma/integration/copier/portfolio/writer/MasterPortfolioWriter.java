@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.beancompare.BeanCompare;
 import com.opengamma.util.beancompare.BeanDifference;
@@ -178,7 +179,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     } else {
       for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
-        List<BeanDifference<?>> differences = _beanCompare.compare(foundSecurity, security);
+        List<BeanDifference<?>> differences;
+        try {
+          differences = _beanCompare.compare(foundSecurity, security);
+        } catch (Exception e) {
+          throw new OpenGammaRuntimeException("Error comparing securities with ID bundle " + security.getExternalIdBundle(), e);
+        }
         if (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class) {
           // It's already there, don't update or add it
           return foundSecurity;

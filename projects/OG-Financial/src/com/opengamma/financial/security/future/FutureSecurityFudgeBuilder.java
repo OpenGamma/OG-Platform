@@ -30,6 +30,8 @@ public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
   public static final String CURRENCY_FIELD_NAME = "currency";
   /** Field name. */
   public static final String UNIT_AMOUNT_FIELD_NAME = "unitAmount";
+  /** Field name. */
+  public static final String CONTRACT_CATEGORY_FIELD_NAME = "contractCategory";
 
   public static void toFudgeMsg(FudgeSerializer serializer, FutureSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
@@ -38,6 +40,7 @@ public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
     addToMessage(msg, SETTLEMENT_EXCHANGE_FIELD_NAME, object.getSettlementExchange());
     addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
     addToMessage(msg, UNIT_AMOUNT_FIELD_NAME, object.getUnitAmount());
+    addToMessage(msg, CONTRACT_CATEGORY_FIELD_NAME, object.getContractCategory());
   }
 
   public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FutureSecurity object) {
@@ -47,6 +50,7 @@ public class FutureSecurityFudgeBuilder extends AbstractFudgeBuilder {
     object.setSettlementExchange(msg.getString(SETTLEMENT_EXCHANGE_FIELD_NAME));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
     object.setUnitAmount(msg.getDouble(UNIT_AMOUNT_FIELD_NAME));
+    object.setContractCategory(msg.getString(CONTRACT_CATEGORY_FIELD_NAME));
   }
 
 }

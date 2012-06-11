@@ -13,65 +13,49 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 public interface AnalyticsView {
 
+  public enum GridType {
+    PORTFORLIO,
+    PRIMITIVES
+  }
+  
   void close();
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
   void updateResults(ViewComputationResultModel fullResult);
 
-  // -------- portfolio grid --------
+  // -------- main grid --------
 
-  AnalyticsGridStructure getPortfolioGridStructure();
+  AnalyticsGridStructure getGridStructure(GridType gridType);
 
-  String createPortfolioViewport(ViewportRequest request);
+  String createViewport(GridType gridType, ViewportRequest request);
 
-  void updatePortfolioViewport(String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String viewportId, ViewportRequest request);
 
-  void deletePortfolioViewport(String viewportId);
+  void deleteViewport(GridType gridType, String viewportId);
 
-  AnalyticsResults getPortfolioData(String viewportId);
+  AnalyticsResults getData(GridType gridType, String viewportId);
 
-  // -------- portfolio dependency graph grids --------
+  // -------- dependency graph grids --------
 
-  String openPortfolioDependencyGraph(int row, int col);
+  // TODO specifying by row and col is a problem for two reasons
+  // 1) if the structure changes we don't know if the cell has moved and where to
+  // 2) there's a race condition if the structure changes as the client requests a depgraph - they might not get what they want
+  // would be better to specify the row and col in a way that persists across recompilation of the view def
+  // i.e. specify the target spec
+  // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
+  // structure and perform that logic on the server?
+  String openDependencyGraph(GridType gridType, int row, int col);
 
-  void closePortfolioDependencyGraph(String dependencyGraphId);
+  void closeDependencyGraph(GridType gridType, String dependencyGraphId);
 
-  AnalyticsGridStructure getPortfolioGridStructure(String dependencyGraphId);
+  AnalyticsGridStructure getGridStructure(GridType gridType, String dependencyGraphId);
 
-  String createPortfolioViewport(String dependencyGraphId, ViewportRequest request);
+  String createViewport(GridType gridType, String dependencyGraphId, ViewportRequest request);
 
-  void updatePortfolioViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportRequest request);
 
-  void deletePortfolioViewport(String dependencyGraphId, String viewportId);
+  void deleteViewport(GridType gridType, String dependencyGraphId, String viewportId);
 
-  AnalyticsResults getPortfolioData(String dependencyGraphId, String viewportId);
-
-  // -------- primitives grid --------
-
-  AnalyticsGridStructure getPrimitivesGridStructure();
-
-  String createPrimitivesViewport(ViewportRequest request);
-
-  void updatePrimitivesViewport(String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String viewportId);
-
-  AnalyticsResults getPrimitivesData(String viewportId);
-
-  // -------- primitives dependency graph grids --------
-
-  AnalyticsGridStructure getPrimitivesGridStructure(String dependencyGraphId);
-
-  String openPrimitivesDependencyGraph(int row, int col);
-
-  void closePrimitivesDependencyGraph(String dependencyGraphId);
-
-  String createPrimitivesViewport(String dependencyGraphId, ViewportRequest request);
-
-  void updatePrimitivesViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String dependencyGraphId, String viewportId);
-
-  AnalyticsResults getPrimitivesData(String dependencyGraphId, String viewportId);
+  AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId);
 }

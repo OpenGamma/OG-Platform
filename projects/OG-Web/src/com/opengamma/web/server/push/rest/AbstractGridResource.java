@@ -32,11 +32,16 @@ public abstract class AbstractGridResource {
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
 
+  protected final AnalyticsView.GridType _gridType;
+
   /**
+   * @param gridType The type of grid
    * @param view The view whose data the grid displays.
-  */
-  public AbstractGridResource(AnalyticsView view) {
+   */
+  public AbstractGridResource(AnalyticsView.GridType gridType, AnalyticsView view) {
+    ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
+    _gridType = gridType;
     _view = view;
   }
 
@@ -53,11 +58,16 @@ public abstract class AbstractGridResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createViewport(@Context UriInfo uriInfo, ViewportRequest viewportRequest) {
     String viewportId = createViewport(viewportRequest);
-    return RestUtils.createdResponse(uriInfo, viewportId);
+    return createdResponse(uriInfo, viewportId);
   }
 
   public abstract String createViewport(ViewportRequest viewportRequest);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);
+
+  /* package */ static Response createdResponse(UriInfo uriInfo, String createdId) {
+    URI uri = uriInfo.getAbsolutePathBuilder().path(createdId).build();
+    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
+  }
 }

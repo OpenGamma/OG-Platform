@@ -62,6 +62,13 @@ public abstract class FutureSecurity extends FinancialSecurity {
   private double _unitAmount;
 
   /**
+   * The future category.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _contractCategory;
+
+
+  /**
    * Creates an empty instance.
    * <p>
    * The security details should be set before use.
@@ -70,13 +77,14 @@ public abstract class FutureSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
   }
 
-  protected FutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount) {
+  protected FutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
     super(SECURITY_TYPE);
     setExpiry(expiry);
     setTradingExchange(tradingExchange);
     setSettlementExchange(settlementExchange);
     setCurrency(currency);
     setUnitAmount(unitAmount);
+    setContractCategory(category);
   }
 
   //-------------------------------------------------------------------------
@@ -125,6 +133,8 @@ public abstract class FutureSecurity extends FinancialSecurity {
         return getCurrency();
       case 1673913084:  // unitAmount
         return getUnitAmount();
+      case -666828752:  // contractCategory
+        return getContractCategory();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -147,6 +157,9 @@ public abstract class FutureSecurity extends FinancialSecurity {
       case 1673913084:  // unitAmount
         setUnitAmount((Double) newValue);
         return;
+      case -666828752:  // contractCategory
+        setContractCategory((String) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -157,6 +170,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_tradingExchange, "tradingExchange");
     JodaBeanUtils.notNull(_settlementExchange, "settlementExchange");
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_contractCategory, "contractCategory");
     super.validate();
   }
 
@@ -172,6 +186,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getSettlementExchange(), other.getSettlementExchange()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getUnitAmount(), other.getUnitAmount()) &&
+          JodaBeanUtils.equal(getContractCategory(), other.getContractCategory()) &&
           super.equals(obj);
     }
     return false;
@@ -185,6 +200,7 @@ public abstract class FutureSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementExchange());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnitAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getContractCategory());
     return hash ^ super.hashCode();
   }
 
@@ -319,6 +335,32 @@ public abstract class FutureSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the future category.
+   * @return the value of the property, not null
+   */
+  public String getContractCategory() {
+    return _contractCategory;
+  }
+
+  /**
+   * Sets the future category.
+   * @param contractCategory  the new value of the property, not null
+   */
+  public void setContractCategory(String contractCategory) {
+    JodaBeanUtils.notNull(contractCategory, "contractCategory");
+    this._contractCategory = contractCategory;
+  }
+
+  /**
+   * Gets the the {@code contractCategory} property.
+   * @return the property, not null
+   */
+  public final Property<String> contractCategory() {
+    return metaBean().contractCategory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code FutureSecurity}.
    */
   public static class Meta extends FinancialSecurity.Meta {
@@ -353,6 +395,11 @@ public abstract class FutureSecurity extends FinancialSecurity {
     private final MetaProperty<Double> _unitAmount = DirectMetaProperty.ofReadWrite(
         this, "unitAmount", FutureSecurity.class, Double.TYPE);
     /**
+     * The meta-property for the {@code contractCategory} property.
+     */
+    private final MetaProperty<String> _contractCategory = DirectMetaProperty.ofReadWrite(
+        this, "contractCategory", FutureSecurity.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -361,7 +408,8 @@ public abstract class FutureSecurity extends FinancialSecurity {
         "tradingExchange",
         "settlementExchange",
         "currency",
-        "unitAmount");
+        "unitAmount",
+        "contractCategory");
 
     /**
      * Restricted constructor.
@@ -382,6 +430,8 @@ public abstract class FutureSecurity extends FinancialSecurity {
           return _currency;
         case 1673913084:  // unitAmount
           return _unitAmount;
+        case -666828752:  // contractCategory
+          return _contractCategory;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -440,6 +490,14 @@ public abstract class FutureSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Double> unitAmount() {
       return _unitAmount;
+    }
+
+    /**
+     * The meta-property for the {@code contractCategory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> contractCategory() {
+      return _contractCategory;
     }
 
   }

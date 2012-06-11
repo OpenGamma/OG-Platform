@@ -38,6 +38,7 @@ import com.opengamma.web.server.push.ViewportManager;
 /**
  * Connects the REST interface to the engine.
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 public class PushLiveResultsService implements ViewportManager {
 

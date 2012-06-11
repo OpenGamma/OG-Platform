@@ -9,8 +9,7 @@ namespace com.opengamma.financial.security.future {
   /**
    * Base for a commodity future.
    */
-  abstract message CommodityFutureSecurity extends FutureSecurity {
-    required string commodityType;
+  abstract message CommodityFutureSecurity extends FutureSecurity {    
     optional double unitNumber;
     optional string unitName;
   }

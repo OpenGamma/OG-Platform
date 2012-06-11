@@ -5,7 +5,6 @@
  */
 package com.opengamma.util.jms;
 
-import java.io.Closeable;
 import java.net.URI;
 
 import javax.jms.ConnectionFactory;
@@ -14,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Connector;
 import com.opengamma.util.ReflectionUtils;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.util.ReflectionUtils;
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class JmsConnector implements Closeable {
+public class JmsConnector implements Connector {
 
   /**
    * The configuration name.
@@ -65,13 +65,14 @@ public class JmsConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the display name of the connector.
-   * 
-   * @return a name usable for display, not null
-   */
-  public String getName() {
+  @Override
+  public final String getName() {
     return _name;
+  }
+
+  @Override
+  public final Class<? extends Connector> getType() {
+    return JmsConnector.class;
   }
 
   //-------------------------------------------------------------------------

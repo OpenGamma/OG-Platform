@@ -31,17 +31,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
@@ -171,6 +161,11 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
+        }
+
+        @Override
+        public ExternalId visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null;  
         }
 
         @Override
@@ -310,6 +305,11 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
+        }
+
+        @Override
+        public ExternalId visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null; 
         }
 
         @Override
@@ -456,6 +456,11 @@ public class FinancialSecurityUtils {
         @Override
         public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null;
         }
 
         @Override
@@ -627,6 +632,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Collection<Currency> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null;
+        }
+
+        @Override
         public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
@@ -789,6 +799,11 @@ public class FinancialSecurityUtils {
         @Override
         public Boolean visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
+        }
+
+        @Override
+        public Boolean visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return null; 
         }
 
         @Override

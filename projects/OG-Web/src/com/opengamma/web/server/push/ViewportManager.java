@@ -9,6 +9,7 @@ import com.opengamma.DataNotFoundException;
 
 /**
  * Creates and manages {@link Viewport} instances.
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 public interface ViewportManager {
 

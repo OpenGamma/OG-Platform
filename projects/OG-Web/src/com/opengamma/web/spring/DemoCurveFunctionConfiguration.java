@@ -95,7 +95,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         }
         final String curveName = documentName.substring(0, underscore);
         final String currencyISO = documentName.substring(underscore + 1);
-        s_logger.error("Found {} curve for {}", curveName, currencyISO);
+        s_logger.debug("Found {} curve for {}", curveName, currencyISO);
         addYieldCurveFunction(configs, currencyISO, curveName);
       }
     } else {

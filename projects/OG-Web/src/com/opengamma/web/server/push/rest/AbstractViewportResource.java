@@ -20,12 +20,15 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
  */
 public abstract class AbstractViewportResource {
 
+  protected final AnalyticsView.GridType _gridType;
   protected final AnalyticsView _view;
   protected final String _viewportId;
 
-  public AbstractViewportResource(AnalyticsView view, String viewportId) {
+  public AbstractViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String viewportId) {
+    ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(viewportId, "viewportId");
+    _gridType = gridType;
     _view = view;
     _viewportId = viewportId;
   }
@@ -34,7 +37,7 @@ public abstract class AbstractViewportResource {
   public abstract void update(ViewportRequest viewportRequest);
 
   @DELETE
-  public abstract void delete(String viewportId);
+  public abstract void delete();
 
   @GET
   @Path("data")

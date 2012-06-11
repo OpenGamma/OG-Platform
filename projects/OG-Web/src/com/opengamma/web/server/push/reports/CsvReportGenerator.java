@@ -16,6 +16,7 @@ import com.opengamma.web.server.WebGridCell;
 
 /**
  * Generates CSV files containing a single snapshot of a viewport's data.
+ * @deprecated Reports are being redesigned
  */
 public class CsvReportGenerator implements ReportGenerator {
 

@@ -51,28 +51,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurityVisitor;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurityVisitor;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurityVisitor;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurityVisitor;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurityVisitor;
@@ -104,6 +83,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
   private static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   private static final String IRFUTURE_OPTIONS = "IRFuture Options";
+  private static final String COMMODITY_FUTURE_OPTIONS = "Commodity Future Options";
   private static final String FX_OPTIONS = "FX Options";
   private static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   private static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
@@ -271,7 +251,13 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity irFutureOptionSecurity) {
           return IRFUTURE_OPTIONS;
         }
-      }, new FXBarrierOptionSecurityVisitor<String>() {
+      }, new CommodityFutureOptionSecurityVisitor<String>() {
+        @Override
+        public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+          return COMMODITY_FUTURE_OPTIONS;
+        }
+      },                 
+        new FXBarrierOptionSecurityVisitor<String>() {
 
         @Override
         public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {

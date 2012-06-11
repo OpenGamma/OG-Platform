@@ -124,5 +124,9 @@ public enum SecurityType {
   /**
    * 
    */
-  FX_FORWARD;
+  FX_FORWARD,
+  /**
+   * Commodity Future Option
+   */
+  COMMODITY_FUTURE_OPTION
 }

@@ -71,7 +71,7 @@ public class TestProperties {
   }
 
   public static Collection<String> getAllSupportedDatabaseTypes() {
-    return Arrays.asList(new String[] { "hsqldb", "postgres", "sqlserver2008" });
+    return Arrays.asList(new String[] { "hsqldb", "postgres"});
   }
 
   /**

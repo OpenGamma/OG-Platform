@@ -55,17 +55,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -196,11 +186,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitFRASecurity(final FRASecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()),
-        getPV01(getFundingCurve()),
-        getPV01(getForwardCurve(security.getCurrency())));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
@@ -269,15 +259,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
             .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
             .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
             .add(getFXCurrencyExposure(ValueProperties
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+              .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
+              .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+              .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
+              .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
                 .add(getVegaMatrix(ValueProperties
-                    .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-                    .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-                    .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-                    .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+                  .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+                  .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+                  .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+                  .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
                     .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
                     .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
                     .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -308,10 +298,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
         .add(getFXPresentValue())
         .add(getFXCurrencyExposure())
         .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+          .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+          .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+          .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
             .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -341,6 +331,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy))
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+    throw new NotImplementedException();
   }
 
   @Override

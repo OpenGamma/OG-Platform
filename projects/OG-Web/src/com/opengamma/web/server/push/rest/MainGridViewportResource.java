@@ -12,27 +12,24 @@ import com.opengamma.web.server.push.analytics.ViewportRequest;
 /**
  *
  */
-public class PrimitivesDependencyGraphViewportResource extends AbstractViewportResource {
+public class MainGridViewportResource extends AbstractViewportResource {
 
-  private final String _graphId;
-
-  public PrimitivesDependencyGraphViewportResource(AnalyticsView view, String graphId, String viewportId) {
-    super(view, viewportId);
-    _graphId = graphId;
+  public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String viewportId) {
+    super(gridType, view, viewportId);
   }
 
   @Override
   public void update(ViewportRequest viewportRequest) {
-    _view.updatePrimitivesViewport(_graphId, _viewportId, viewportRequest);
+    _view.updateViewport(_gridType, _viewportId, viewportRequest);
   }
 
   @Override
-  public void delete(String viewportId) {
-    _view.deletePrimitivesViewport(_graphId, viewportId);
+  public void delete() {
+    _view.deleteViewport(_gridType, _viewportId);
   }
 
   @Override
   public AnalyticsResults getData() {
-    return _view.getPrimitivesData(_graphId, _viewportId);
+    return _view.getData(_gridType, _viewportId);
   }
 }

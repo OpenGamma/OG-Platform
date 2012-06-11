@@ -46,8 +46,6 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     _curveDefinitionName = curveDefinitionName;
   }
 
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.FORWARD;
-
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
@@ -121,7 +119,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
                                                         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE)
                                                         .get();
     ExternalId id = security.getSpotUnderlyingId();
-    ValueRequirement requirement = new ValueRequirement(VALUE_REQUIREMENT, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
+    ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
     return new ValueSpecification(requirement, properties);
   }
 }

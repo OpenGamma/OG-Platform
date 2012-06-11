@@ -6,20 +6,20 @@
 package com.opengamma.web.server.push.analytics;
 
 /**
- *
+ * TODO something needs to generate a compact representation of the grid's tree structure. this class? the message body writer?
  */
 public class AnalyticsGridStructure {
 
-  private final AnalyticsRows _rows;
+  private final AnalyticsNode _root;
   private final AnalyticsColumns _columns;
 
-  public AnalyticsGridStructure(AnalyticsRows rows, AnalyticsColumns columns) {
-    _rows = rows;
+  public AnalyticsGridStructure(AnalyticsNode root, AnalyticsColumns columns) {
+    _root = root;
     _columns = columns;
   }
 
-  public AnalyticsRows getRows() {
-    return _rows;
+  public AnalyticsNode getRoot() {
+    return _root;
   }
 
   public AnalyticsColumns getColumns() {

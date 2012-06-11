@@ -17,12 +17,16 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * Represents a primitives grid TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * Represents a primitives grid
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * @deprecated This class isn't needed for the new analytics web UI
  */
-/* package */class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
+/* package */ class PushWebViewPrimitivesGrid extends PushRequirementBasedWebViewGrid {
 
-  public PushWebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
-      ComputationTargetResolver computationTargetResolver) {
+  public PushWebViewPrimitivesGrid(ViewClient viewClient,
+                                   CompiledViewDefinition compiledViewDefinition,
+                                   ResultConverterCache resultConverterCache,
+                                   ComputationTargetResolver computationTargetResolver) {
     super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "", computationTargetResolver);
   }
 
@@ -31,7 +35,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     // TODO: resolve the target and use a more sensible name
     details.put("name", target.toString());
   }
-
+  
   //-------------------------------------------------------------------------
 
   @Override
@@ -53,5 +57,5 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   protected int getCsvDataColumnOffset() {
     return 1;
   }
-
+  
 }

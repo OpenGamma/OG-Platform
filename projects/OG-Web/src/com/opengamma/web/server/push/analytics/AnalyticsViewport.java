@@ -12,10 +12,11 @@ import com.opengamma.engine.view.ViewComputationResultModel;
  */
 /* package */ class AnalyticsViewport {
 
-  private final String _id;
+  // TODO list of rows
+  // TODO list of columns
 
-  private AnalyticsViewport(String id) {
-    _id = id;
+  /* package */ AnalyticsViewport(ViewportRequest viewportRequest, AnalyticsHistory history, ViewComputationResultModel results) {
+
   }
 
   /**
@@ -31,14 +32,12 @@ import com.opengamma.engine.view.ViewComputationResultModel;
     throw new UnsupportedOperationException("updateResults not implemented");
   }
 
-  /* package */ static AnalyticsViewport create(ViewportRequest request,
-                                                AnalyticsHistory history,
-                                                ViewComputationResultModel results) {
-    // TODO implement AnalyticsViewport.create()
-    throw new UnsupportedOperationException("create not implemented");
+  /* package */ AnalyticsResults getData() {
+    throw new UnsupportedOperationException("getData not implemented");
   }
 
-  /* package */ String getId() {
-    return _id;
+  public void update(ViewportRequest viewportRequest) {
+    // TODO implement AnalyticsViewport.update()
+    throw new UnsupportedOperationException("update not implemented");
   }
 }

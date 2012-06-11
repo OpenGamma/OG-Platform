@@ -18,6 +18,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewRequest;
@@ -27,6 +30,8 @@ import com.opengamma.web.server.push.analytics.ViewRequest;
  */
 @Path("views")
 public class ViewsResource {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewsResource.class);
 
   private final AnalyticsViewManager _viewManager;
 
@@ -44,14 +49,7 @@ public class ViewsResource {
   }
 
   @Path("{viewId}")
-  @DELETE
-  public Response deleteView(@PathParam("viewId") String viewId) {
-    _viewManager.deleteView(viewId);
-    return Response.status(Response.Status.NO_CONTENT).build();
-  }
-
-  @Path("{viewId}")
   public ViewResource getView(@PathParam("viewId") String viewId) {
-    return new ViewResource(_viewManager.getView(viewId));
+    return new ViewResource(_viewManager.getView(viewId), _viewManager);
   }
 }

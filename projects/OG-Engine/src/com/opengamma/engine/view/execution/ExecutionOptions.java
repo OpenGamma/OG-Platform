@@ -308,7 +308,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
       }
     } else if (!_maxSuccessiveDeltaCycles.equals(other._maxSuccessiveDeltaCycles)) {
       return false;
-    } else if (!_versionCorrection.equals(other._versionCorrection)) {
+    }
+    if (!_versionCorrection.equals(other._versionCorrection)) {
       return false;
     }
     return true;
