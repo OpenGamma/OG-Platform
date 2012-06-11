@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,19 +66,21 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   private final ViewProcessorQuerySender _viewProcessorQuerySender;
   private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private String _nodeId;
-  private final ExecutorService _writeBehindExecutorService;
+  private final ExecutorService _executorService;
+
+  private boolean _writeBehindCache;
+  private boolean _asynchronousTargetResolve;
 
   protected AbstractCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
       FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
-      final ExecutorService writeBehindExecutorService, FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
-    ArgumentChecker.notNull(cacheSource, "Cache Source");
-    ArgumentChecker.notNull(functionCompilationService, "Function compilation service");
-    ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
-    ArgumentChecker.notNull(targetResolver, "Target Resolver");
-    ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
-    ArgumentChecker.notNull(nodeId, "Calculation node ID");
-    ArgumentChecker.notNull(functionInvocationStatistics, "function invocation statistics");
-
+      final ExecutorService executorService, FunctionInvocationStatisticsGatherer functionInvocationStatistics) {
+    ArgumentChecker.notNull(cacheSource, "cacheSource");
+    ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
+    ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(calcNodeQuerySender, "calcNodeQuerySender");
+    ArgumentChecker.notNull(nodeId, "nodeId");
+    ArgumentChecker.notNull(functionInvocationStatistics, "functionInvocationStatistics");
     _cacheSource = cacheSource;
     _functionCompilationService = functionCompilationService;
     // Take a copy of the execution context as we will modify it during execution which isn't good if there are other CalcNodes in our JVM
@@ -84,7 +88,7 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     _targetResolver = targetResolver;
     _viewProcessorQuerySender = calcNodeQuerySender;
     _nodeId = nodeId;
-    _writeBehindExecutorService = writeBehindExecutorService;
+    _executorService = executorService;
     _functionInvocationStatistics = functionInvocationStatistics;
   }
 
@@ -108,8 +112,34 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     return _viewProcessorQuerySender;
   }
 
-  protected ExecutorService getWriteBehindExecutorService() {
-    return _writeBehindExecutorService;
+  public boolean isUseWriteBehindCache() {
+    return _writeBehindCache;
+  }
+
+  public void setUseWriteBehindCache(final boolean writeBehind) {
+    if (writeBehind) {
+      if (getExecutorService() == null) {
+        throw new IllegalArgumentException("Can't use write behind cache without an executor service");
+      }
+    }
+    _writeBehindCache = writeBehind;
+  }
+
+  public boolean isUseAsynchronousTargetResolve() {
+    return _asynchronousTargetResolve;
+  }
+
+  public void setUseAsynchronousTargetResolve(final boolean asynchronousTargetResolve) {
+    if (asynchronousTargetResolve) {
+      if (getExecutorService() == null) {
+        throw new IllegalArgumentException("Can't use asynchronous target resolution without an executor service");
+      }
+    }
+    _asynchronousTargetResolve = asynchronousTargetResolve;
+  }
+
+  protected ExecutorService getExecutorService() {
+    return _executorService;
   }
 
   protected FunctionInvocationStatisticsGatherer getFunctionInvocationStatistics() {
@@ -193,16 +223,18 @@ public abstract class AbstractCalculationNode implements CalculationNode {
       s_logger.info("Executed {} in {}ns", job, executionTime);
       return jobResult;
     } finally {
-      s_executeJob.leave();
+      if (s_executeJob.leave() > 500) {
+        System.exit(1);
+      }
     }
   }
 
   private DeferredViewComputationCache getDeferredViewComputationCache(ViewComputationCache cache,
       CacheSelectHint cacheSelectHint) {
-    if (getWriteBehindExecutorService() == null) {
-      return new DirectWriteViewComputationCache(cache, cacheSelectHint);
+    if (isUseWriteBehindCache()) {
+      return new WriteBehindViewComputationCache(cache, cacheSelectHint, getExecutorService());
     } else {
-      return new WriteBehindViewComputationCache(cache, cacheSelectHint, getWriteBehindExecutorService());
+      return new DirectWriteViewComputationCache(cache, cacheSelectHint);
     }
   }
 
@@ -221,20 +253,30 @@ public abstract class AbstractCalculationNode implements CalculationNode {
   }
 
   private static final InvocationCount s_resolveTarget = new InvocationCount("resolveTarget");
+  private static final InvocationCount s_invoke = new InvocationCount("invoke");
   private static final InvocationCount s_prepareInputs = new InvocationCount("prepareInputs");
 
   private CalculationJobResultItem invoke(final CompiledFunctionRepository functions, final CalculationJobItem jobItem, final DeferredViewComputationCache cache,
       final DeferredInvocationStatistics statistics) {
-    // TODO: can we do the target resolution and parameter resolution in parallel ?
-    // TODO: can we do the target resolution in advance ?
+    // TODO: can we do the target resolution in advance ? (i.e. for future items in the queue)
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
-    s_resolveTarget.enter();
-    final ComputationTarget target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
-    s_resolveTarget.leave();
-    if (target == null) {
-      return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
+    Future<ComputationTarget> targetFuture = null;
+    ComputationTarget target = null;
+    if (isUseAsynchronousTargetResolve()) {
+      targetFuture = getExecutorService().submit(new Callable<ComputationTarget>() {
+        @Override
+        public ComputationTarget call() {
+          return getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
+        }
+      });
+    } else {
+      s_resolveTarget.enter();
+      target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
+      s_resolveTarget.leave();
+      if (target == null) {
+        return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
+      }
     }
-    s_logger.debug("Invoking {} on target {}", functionUniqueId, target);
     final FunctionInvoker invoker = functions.getInvoker(functionUniqueId);
     if (invoker == null) {
       return CalculationJobResultItem.failure(ERROR_BAD_FUNCTION, "Unable to locate " + functionUniqueId + " in function repository");
@@ -274,18 +316,45 @@ public abstract class AbstractCalculationNode implements CalculationNode {
         itemResult = CalculationJobResultItem.partialInputs(new HashSet<ValueSpecification>(missing));
       } else {
         s_logger.info("Not able to execute as missing inputs {}", missing);
+        if (targetFuture != null) {
+          // Cancelling doesn't do anything so we have to block and clear the result
+          s_resolveTarget.enter();
+          try {
+            targetFuture.get();
+          } catch (Throwable t) {
+            return CalculationJobResultItem.failure(t);
+          } finally {
+            s_resolveTarget.leave();
+          }
+        }
         return CalculationJobResultItem.missingInputs(missing);
       }
     }
     final FunctionInputs functionInputs = new FunctionInputsImpl(inputs, missing);
+    if (target == null) {
+      s_resolveTarget.enter();
+      try {
+        target = targetFuture.get();
+      } catch (Throwable t) {
+        return CalculationJobResultItem.failure(t);
+      } finally {
+        s_resolveTarget.leave();
+      }
+      if (target == null) {
+        return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
+      }
+    }
     // execute
     statistics.beginInvocation();
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
     Collection<ComputedValue> results;
     try {
+      s_invoke.enter();
       results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs));
     } catch (Throwable t) {
       return itemResult.withFailure(t);
+    } finally {
+      s_invoke.leave();
     }
     if (results == null) {
       return itemResult.withFailure(ERROR_INVOKING, "No results returned by invoker " + invoker);

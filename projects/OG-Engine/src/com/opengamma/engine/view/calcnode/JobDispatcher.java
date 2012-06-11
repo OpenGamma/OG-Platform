@@ -365,7 +365,7 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   public JobDispatcher(final JobInvoker invoker) {
-    //registerJobInvoker(invoker);
+    registerJobInvoker(invoker);
   }
 
   public JobDispatcher(final Collection<JobInvoker> invokers) {

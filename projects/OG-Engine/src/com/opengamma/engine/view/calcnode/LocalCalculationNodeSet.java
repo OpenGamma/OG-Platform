@@ -31,7 +31,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   private FunctionExecutionContext _functionExecutionContext;
   private ComputationTargetResolver _computationTargetResolver;
   private ViewProcessorQuerySender _viewProcessorQuery;
-  private ExecutorService _writeBehindExecutorService;
+  private ExecutorService _executorService;
   private FunctionInvocationStatisticsGatherer _statisticsGatherer = new DiscardingInvocationStatisticsGatherer();
   private String _nodeIdentifier;
 
@@ -39,6 +39,8 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
   private double _nodesPerCore;
 
   private Collection<LocalCalculationNode> _nodes;
+  private boolean _useWriteBehindCache;
+  private boolean _useAsynchronousTargetResolve;
 
   /**
    * Gets the viewComputationCache field.
@@ -117,20 +119,28 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     _viewProcessorQuery = viewProcessorQuery;
   }
 
-  /**
-   * Gets the writeBehindExecutorService field.
-   * @return the writeBehindExecutorService
-   */
-  public ExecutorService getWriteBehindExecutorService() {
-    return _writeBehindExecutorService;
+  public ExecutorService getExecutorService() {
+    return _executorService;
   }
 
-  /**
-   * Sets the writeBehindExecutorService field.
-   * @param writeBehindExecutorService  the writeBehindExecutorService
-   */
-  public void setWriteBehindExecutorService(ExecutorService writeBehindExecutorService) {
-    _writeBehindExecutorService = writeBehindExecutorService;
+  public void setExecutorService(ExecutorService executorService) {
+    _executorService = executorService;
+  }
+
+  public boolean isUseWriteBehindCache() {
+    return _useWriteBehindCache;
+  }
+
+  public void setUseWriteBehindCache(final boolean useWriteBehindCache) {
+    _useWriteBehindCache = useWriteBehindCache;
+  }
+
+  public boolean isUseAsynchronousTargetResolve() {
+    return _useAsynchronousTargetResolve;
+  }
+
+  public void setUseAsynchronousTargetResolve(final boolean useAsynchronousTargetResolve) {
+    _useAsynchronousTargetResolve = useAsynchronousTargetResolve;
   }
 
   public void setNodeCount(final int nodeCount) {
@@ -201,7 +211,7 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
     _nodes = new ArrayList<LocalCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
       final LocalCalculationNode node = new LocalCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), getWriteBehindExecutorService(), getStatisticsGatherer());
+          getViewProcessorQuery(), getExecutorService(), getStatisticsGatherer());
       if (getNodeIdentifier() != null) {
         if (nodes > 1) {
           node.setNodeId(getNodeIdentifier() + ":" + (i + 1));
@@ -209,6 +219,8 @@ public class LocalCalculationNodeSet extends AbstractCollection<LocalCalculation
           node.setNodeId(getNodeIdentifier());
         }
       }
+      node.setUseWriteBehindCache(isUseWriteBehindCache());
+      node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
       _nodes.add(node);
     }
   }

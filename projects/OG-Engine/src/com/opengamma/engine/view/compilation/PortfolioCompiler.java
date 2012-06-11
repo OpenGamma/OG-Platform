@@ -81,6 +81,8 @@ public final class PortfolioCompiler {
       resolver.cachePortfolioNodeHierarchy(portfolio.getRootNode());
       cacheTradesPositionsAndSecurities(resolver, portfolio.getRootNode());
 
+      // TODO: Is trying to cache everything a false economy? What if the portfolio and all securities won't fit in the cache?
+
       // Add portfolio requirements to the dependency graph
       PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig);
       PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());

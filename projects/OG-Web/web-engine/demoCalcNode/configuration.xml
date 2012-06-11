@@ -286,7 +286,9 @@
     <property name="functionExecutionContext" ref="functionExecutionContext" />
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="viewProcessorQuery" ref="viewProcessorQuery" />
-    <property name="writeBehindExecutorService" ref="slaveThreads" />
+    <property name="executorService" ref="slaveThreads" />
+    <property name="useWriteBehindCache" value="true" />
+    <property name="useAsynchronousTargetResolve" value="true" />
     <property name="statisticsGatherer" ref="statisticsSender" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>

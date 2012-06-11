@@ -50,8 +50,10 @@ public class InvocationCount {
 
   /**
    * Mark exit from a monitored piece of code. This must be preceded by a call to {@link #enter}.
+   * 
+   * @return the number of calls made, including this one.
    */
-  public void leave() {
+  public long leave() {
     final long calls = _calls.incrementAndGet();
     final long now = System.nanoTime();
     long time = _time.addAndGet(now);
@@ -67,6 +69,7 @@ public class InvocationCount {
         }
       }
     }
+    return calls;
   }
 
 }
