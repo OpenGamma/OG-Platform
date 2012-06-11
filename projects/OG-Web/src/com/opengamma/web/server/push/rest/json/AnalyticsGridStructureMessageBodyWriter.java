@@ -18,6 +18,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
+import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
 
 /**
  * Writes an instance of {@link AnalyticsGridStructure} to JSON.
@@ -42,13 +43,20 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
   }
 
   @Override
-  public void writeTo(AnalyticsGridStructure analyticsGridStructure,
+  public void writeTo(AnalyticsGridStructure gridStructure,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    entityStream.write("{\"msg\": \"hello world\"}".getBytes());
+    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
+    entityStream.write(("{\"columns\": " + columnsJson(gridStructure) + ", " +
+        "\"rootNode\": " + rootNodeJson + "}").getBytes());
+  }
+
+  private static String columnsJson(AnalyticsGridStructure gridStructure) {
+    // TODO implement AnalyticsGridStructureMessageBodyWriter.columnsJson()
+    throw new UnsupportedOperationException("columnsJson not implemented");
   }
 }
