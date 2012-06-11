@@ -9,7 +9,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueIdentifiable;
@@ -69,7 +69,7 @@ public class ExampleFXOptionVolatilitySurfaceConfigPopulator {
     final SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> surfaceInstrumentProvider = new ExampleFXOptionVolatilitySurfaceInstrumentProvider(currencyCrossString, "FXVOL",
         MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("SECONDARY_EURUSD_" + InstrumentTypeProperties.FOREX, target,
-        SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
+        SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));
   }

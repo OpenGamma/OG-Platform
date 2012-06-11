@@ -124,6 +124,10 @@ public final class ValueRequirementNames {
    * The raw FX forward and spot market data that is used in curve construction
    */
   public static final String FX_FORWARD_CURVE_MARKET_DATA = "FXForwardCurveMarketData";
+  /**
+   * The raw forward swap and spot market data that is used in curve construction
+   */
+  public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
   /** 
    * FX forward curve property metadata
    */
@@ -190,10 +194,6 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_CUBE_DEFN = "VolatilityCubeDefinition";
   /**
-   * Result containing information about which points were used in a smile fit.
-   */
-  public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
-  /**
    * The set of market data that is used in constructing a cube.
    */
   public static final String VOLATILITY_CUBE_MARKET_DATA = "VolatilityCubeMarketData";
@@ -201,7 +201,10 @@ public final class ValueRequirementNames {
    * A volatility cube specification.
    */
   public static final String VOLATILITY_CUBE_SPEC = "VolatilityCubeSpec";
-
+  /**
+   * The points that have been included in a fit
+   */
+  public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
   ///// Pricing
 
   /**

@@ -72,7 +72,7 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
@@ -798,7 +798,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addLocalVolatilityCalculatorsOld(List<FunctionConfiguration> functionConfigs) {
     final List<String> blackVolSurfaceProperties = new ArrayList<String>();
-    blackVolSurfaceProperties.add(FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    blackVolSurfaceProperties.add(ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     blackVolSurfaceProperties.add("FUNDING-FUNDING");
     blackVolSurfaceProperties.add(LocalVolatilityPDEValuePropertyNames.MONEYNESS);
     blackVolSurfaceProperties.add(LocalVolatilityPDEValuePropertyNames.LOG_TIME);
@@ -997,7 +997,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final List<String> commonForexBlackSurfaceProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
     commonForexBlackSurfaceProperties.add("FUNDING-FUNDING");
-    commonForexBlackSurfaceProperties.add(FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    commonForexBlackSurfaceProperties.add(ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     commonForexBlackSurfaceProperties.add("DEFAULT");
     final List<String> forexBlackSurfaceMixedLogNormalProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
     forexBlackSurfaceMixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
