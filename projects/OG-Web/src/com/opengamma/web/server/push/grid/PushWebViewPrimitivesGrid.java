@@ -8,6 +8,7 @@ package com.opengamma.web.server.push.grid;
 import java.util.EnumSet;
 import java.util.Map;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -24,8 +25,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 
   public PushWebViewPrimitivesGrid(ViewClient viewClient,
                                    CompiledViewDefinition compiledViewDefinition,
-                                   ResultConverterCache resultConverterCache) {
-    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "");
+                                   ResultConverterCache resultConverterCache,
+                                   ComputationTargetResolver computationTargetResolver) {
+    super("primitives", viewClient, compiledViewDefinition, null, EnumSet.of(ComputationTargetType.PRIMITIVE), resultConverterCache, "", computationTargetResolver);
   }
 
   @Override

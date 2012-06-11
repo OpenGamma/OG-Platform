@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
@@ -58,7 +59,8 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 
   private final RequirementBasedGridStructure _gridStructure;
   private final String _nullCellValue;
-  
+  private final ComputationTargetResolver _computationTargetResolver;
+
   // Column-based state: few entries expected so using an array set 
   private final LongSet _historyOutputs = new LongArraySet();
   
@@ -71,12 +73,14 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
                                             List<ComputationTargetSpecification> targets,
                                             EnumSet<ComputationTargetType> targetTypes,
                                             ResultConverterCache resultConverterCache,
-                                            String nullCellValue) {
+                                            String nullCellValue,
+                                            ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache);
     
     List<RequirementBasedColumnKey> requirements = getRequirements(compiledViewDefinition.getViewDefinition(), targetTypes);
     _gridStructure = new RequirementBasedGridStructure(compiledViewDefinition, targetTypes, requirements, targets);
     _nullCellValue = nullCellValue;
+    _computationTargetResolver = computationTargetResolver;
   }
   
   //-------------------------------------------------------------------------
@@ -85,8 +89,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
    * @param target The target whose result is required
    * @param resultModel The model containing the results
    * @param resultTimestamp The timestamp of the results
-   * @return {@code {"rowId": rowId, "0": col0Val, "1": col1Val, ...}}
-   * cell values: {@code {"v": value, "h": [historyVal1, historyVal2, ...]}}
+   * @return {@code "rowId": rowId, "0": col0Val, "1": col1Val, ...} cell values: {@code "v": value, "h": [historyVal1, historyVal2, ...]}
    */
   public Map<String, Object> getTargetResult(ComputationTargetSpecification target,
                                              ViewTargetResultModel resultModel,
@@ -139,7 +142,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   /**
    * Creates a blank set of results for a row.
    * @param rowId The zero-based index of the row
-   * @return {@code {rowId: rowId}}
+   * @return {@code rowId: rowId}
    */
   private Map<String, Object> createTargetResult(Integer rowId) {
     Map<String, Object> valuesToSend = new HashMap<String, Object>();
@@ -278,7 +281,9 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     return _gridStructure;
   }
   
-  //-------------------------------------------------------------------------
+  private ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
   
   private void addHistoryOutput(long colId) {
     _historyOutputs.add(colId);
@@ -318,12 +323,8 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
       s_logger.debug("includeDepGraph took {}", timer.finished());
       // TODO should this ever happen? it is currently
       if (columnMappingPair != null) {
-        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName,
-                                                                   getViewClient(),
-                                                                   getConverterCache(),
-                                                                   cell,
-                                                                   columnMappingPair.getFirst(),
-                                                                   columnMappingPair.getSecond());
+        PushWebViewDepGraphGrid grid = new PushWebViewDepGraphGrid(gridName, getViewClient(), getConverterCache(), cell, columnMappingPair.getFirst(), columnMappingPair.getSecond(),
+            getComputationTargetResolver());
         _depGraphGrids.put(cell, grid);
       }
     }

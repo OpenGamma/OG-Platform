@@ -15,6 +15,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -47,28 +48,31 @@ import com.opengamma.web.server.push.reports.ViewportData;
   private final ResultConverterCache _resultConverterCache;
   private final Map<String, Object> _latestResults = new HashMap<String, Object>();
   private final Object _lock = new Object();
+  private final ComputationTargetResolver _computationTargetResolver;
 
   private PushRequirementBasedWebViewGrid _portfolioGrid;
   private PushRequirementBasedWebViewGrid _primitivesGrid;
 
   private ViewportDefinition _viewportDefinition;
   private AnalyticsListener _listener;
-  private Map<String,Object> _gridStructures;
-  private boolean _initialized = false;
-  private boolean _sendAnalyticsUpdates = false;
+  private Map<String, Object> _gridStructures;
+  private boolean _initialized;
+  private boolean _sendAnalyticsUpdates;
 
   public PushWebView(ViewClient viewClient,
                      ViewportDefinition viewportDefinition,
                      UniqueId baseViewDefinitionId,
                      UniqueId viewDefinitionId,
                      ResultConverterCache resultConverterCache,
-                     AnalyticsListener listener) {
+                     AnalyticsListener listener,
+                     ComputationTargetResolver computationTargetResolver) {
     _viewClient = viewClient;
     _baseViewDefinitionId = baseViewDefinitionId;
     _viewDefinitionId = viewDefinitionId;
     _resultConverterCache = resultConverterCache;
     _viewportDefinition = viewportDefinition;
     _listener = listener;
+    _computationTargetResolver = computationTargetResolver;
     _viewClient.setResultListener(new AbstractViewResultListener() {
       
       @Override
@@ -97,7 +101,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     synchronized (_lock) {
       PushWebViewPortfolioGrid portfolioGrid =
-          new PushWebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+          new PushWebViewPortfolioGrid(_viewClient, compiledViewDefinition, _resultConverterCache, _computationTargetResolver);
 
       _gridStructures = new HashMap<String, Object>();
 
@@ -109,7 +113,7 @@ import com.opengamma.web.server.push.reports.ViewportData;
       }
 
       PushRequirementBasedWebViewGrid primitivesGrid =
-          new PushWebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache);
+          new PushWebViewPrimitivesGrid(_viewClient, compiledViewDefinition, _resultConverterCache, _computationTargetResolver);
 
       if (primitivesGrid.getGridStructure().isEmpty()) {
         _primitivesGrid = null;

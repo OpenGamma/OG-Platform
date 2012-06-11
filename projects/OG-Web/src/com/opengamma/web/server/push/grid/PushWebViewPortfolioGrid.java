@@ -16,6 +16,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
@@ -33,18 +34,18 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   
   private Map<Integer, PortfolioRow> _rowIdToRowMap;
 
-  public PushWebViewPortfolioGrid(ViewClient viewClient,
-                                  CompiledViewDefinition compiledViewDefinition,
-                                  ResultConverterCache resultConverterCache) {
-    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache);
+  public PushWebViewPortfolioGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache,
+      ComputationTargetResolver computationTargetResolver) {
+    this(viewClient, compiledViewDefinition, flattenPortfolio(compiledViewDefinition.getPortfolio()), resultConverterCache, computationTargetResolver);
   }
 
   private PushWebViewPortfolioGrid(ViewClient viewClient,
                                    CompiledViewDefinition compiledViewDefinition,
                                    List<PortfolioRow> rows,
-                                   ResultConverterCache resultConverterCache) {
+                                   ResultConverterCache resultConverterCache,
+                                   ComputationTargetResolver computationTargetResolver) {
     super("portfolio", viewClient, compiledViewDefinition, getTargets(rows),
-        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...");
+        EnumSet.of(ComputationTargetType.PORTFOLIO_NODE, ComputationTargetType.POSITION), resultConverterCache, "Loading...", computationTargetResolver);
     _rowIdToRowMap = new HashMap<Integer, PortfolioRow>();
     for (PortfolioRow row : rows) {
       int rowId = getGridStructure().getRowId(row.getTarget());
