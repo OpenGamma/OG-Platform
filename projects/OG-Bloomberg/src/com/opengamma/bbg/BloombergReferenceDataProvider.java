@@ -55,13 +55,13 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
   private static final String ERROR_MESSAGE_FORMAT = "{0}:{1}/{2} - {3}";
 
   /**
-   * The statistics for Bloomberg access.
-   */
-  private final BloombergReferenceDataStatistics _statistics;
-  /**
    * The Bloomberg service.
    */
   private Service _refDataService;
+  /**
+   * The statistics for Bloomberg access.
+   */
+  private final BloombergReferenceDataStatistics _statistics;
 
   /**
    * Creates an instance with session options.
@@ -82,6 +82,7 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
    */
   public BloombergReferenceDataProvider(SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
     super(sessionOptions);
+    ArgumentChecker.notNull(statistics, "statistics");
     _statistics = statistics;
   }
 
@@ -93,69 +94,43 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
 
   @Override
   protected void openServices() {
-    Service refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
-    setRefDataService(refDataService);
+    _refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
   }
 
-  private void setRefDataService(Service refDataService) {
-    _refDataService = refDataService;
-  }
-
-  private Service getRefDataService() {
+  /**
+   * Gets the Bloomberg reference data service.
+   * 
+   * @return the service, not null once started
+   */
+  protected Service getRefDataService() {
     return _refDataService;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securities,
-      Set<String> fields) {
+  public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {
+    doValidate(securities, fields);
+    BlockingQueue<Element> resultElements = doQuery(securities, fields);
+    return doParse(securities, fields, resultElements);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Performs the main work to validate the input.
+   * <p>
+   * This is part of {@link #getFields(Set, Set)}.
+   * 
+   * @param securities  the set of securities, not null
+   * @param fields  the set of fields, not null
+   */
+  protected void doValidate(Set<String> securities, Set<String> fields) {
     ArgumentChecker.notEmpty(securities, "Securities");
     ArgumentChecker.notEmpty(fields, "Field Names");
-    checkAllSecuritiesValid(securities);
+    validateSecurities(securities);
     
     ensureStarted();
     _statistics.gotFields(securities, fields);
     s_logger.info("Requesting fields {} for securities {}", fields, securities);
-    Request request = composeRequest(securities, fields);
-    CorrelationID cid = submitBloombergRequest(request);
-    BlockingQueue<Element> resultElements = getResultElement(cid);
-    if (resultElements == null || resultElements.isEmpty()) {
-      throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities);
-    }
-    
-    ReferenceDataResult result = new ReferenceDataResult();
-    for (Element resultElem : resultElements) {
-      if (resultElem.hasElement(RESPONSE_ERROR)) {
-        Element responseError = resultElem.getElement(RESPONSE_ERROR);
-        String category = responseError.getElementAsString(BloombergConstants.CATEGORY);
-        if ("LIMIT".equals(category)) {
-          s_logger.error("Limit reached {}", responseError);
-        }
-        throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities + ": " + responseError);
-      }
-      
-      Element securityDataArray = resultElem.getElement(SECURITY_DATA);
-      int numSecurities = securityDataArray.numValues();
-      for (int iSecurityElem = 0; iSecurityElem < numSecurities; iSecurityElem++) {
-        Element securityElem = securityDataArray.getValueAsElement(iSecurityElem);
-        String security = securityElem.getElementAsString(SECURITY);
-        PerSecurityReferenceDataResult perSecResult = new PerSecurityReferenceDataResult(security);
-        if (securityElem.hasElement(SECURITY_ERROR)) {
-          processSecurityError(perSecResult, securityElem.getElement(SECURITY_ERROR));
-        }
-        if (securityElem.hasElement(FIELD_DATA)) {
-          processFieldData(perSecResult, securityElem.getElement(FIELD_DATA));
-        }
-        if (securityElem.hasElement(FIELD_EXCEPTIONS)) {
-          processFieldExceptions(perSecResult, securityElem.getElement(FIELD_EXCEPTIONS));
-        }
-        if (securityElem.hasElement(EID_DATA)) {
-          processEidData(perSecResult, securityElem.getElement(FIELD_DATA));
-        }
-        result.addResult(perSecResult);
-      }
-    }
-    return result;
   }
 
   /**
@@ -163,18 +138,18 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
    * 
    * @param securities  the set of securities, not null
    */
-  private void checkAllSecuritiesValid(Set<String> securities) {
+  protected void validateSecurities(Set<String> securities) {
     Set<String> excluded = new HashSet<String>();
     for (String security : securities) {
       if (StringUtils.isEmpty(security)) {
         throw new IllegalArgumentException("Must not have any null or empty securities");
       }
-      if (!CharMatcher.ASCII.matchesAllOf(security)) {
+      if (CharMatcher.ASCII.matchesAllOf(security) == false) {
         //[BBG-93] - The C++ interface is declared as UChar, so this just enforces that restriction   
         excluded.add(security);
       }
     }
-    if (!excluded.isEmpty()) {
+    if (excluded.size() > 0) {
       //TODO - should we allow the rest of the request to continue? 
       String message = MessageFormatter.format("Request contains invalid securities {} from ({})", excluded, securities);
       s_logger.error(message);
@@ -182,42 +157,24 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Processes the field data.
+   * Performs the main work to query Bloomberg.
+   * <p>
+   * This is part of {@link #getFields(Set, Set)}.
    * 
-   * @param perSecResult  the per security reference data result, not null
-   * @param element  the bloomberg element, not null
+   * @param securities  the set of securities, not null
+   * @param fields  the set of fields, not null
+   * @return the Bloomberg result, not null
    */
-  protected void processFieldData(PerSecurityReferenceDataResult perSecResult, Element element) {
-    FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
-    perSecResult.setFieldData(fieldData);
-  }
-
-  /**
-   * Processes the exceptions.
-   * 
-   * @param perSecResult  the per security reference data result, not null
-   * @param fieldExceptionArray  the bloomberg data, not null
-   */
-  private void processFieldExceptions(PerSecurityReferenceDataResult perSecResult, Element fieldExceptionArray) {
-    int numExceptions = fieldExceptionArray.numValues();
-    for (int i = 0; i < numExceptions; i++) {
-      Element exceptionElem = fieldExceptionArray.getValueAsElement(i);
-      String fieldId = exceptionElem.getElementAsString(FIELD_ID);
-      ErrorInfo errorInfo = new ErrorInfo(exceptionElem.getElement(ERROR_INFO));
-      perSecResult.addFieldException(fieldId, errorInfo);
+  protected BlockingQueue<Element> doQuery(Set<String> securities, Set<String> fields) {
+    Request request = composeRequest(securities, fields);
+    CorrelationID cid = submitBloombergRequest(request);
+    BlockingQueue<Element> resultElements = getResultElement(cid);
+    if (resultElements == null || resultElements.isEmpty()) {
+      throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities);
     }
-  }
-
-  /**
-   * Processes the EID data.
-   * 
-   * @param perSecResult  the per security reference data result, not null
-   * @param element  the bloomberg element, not null
-   */
-  private void processEidData(PerSecurityReferenceDataResult perSecResult,
-      Element element) {
-    perSecResult.setEidData(element);
+    return resultElements;
   }
 
   /**
@@ -252,16 +209,100 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     return request;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Performs the main work to parse the result from Bloomberg.
+   * <p>
+   * This is part of {@link #getFields(Set, Set)}.
+   * 
+   * @param securities  the set of securities, not null
+   * @param fields  the set of fields, not null
+   * @param resultElements  the result elements from Bloomberg, not null
+   * @return the parsed result, not null
+   */
+  protected ReferenceDataResult doParse(Set<String> securities, Set<String> fields, BlockingQueue<Element> resultElements) {
+    ReferenceDataResult result = new ReferenceDataResult();
+    for (Element resultElem : resultElements) {
+      if (resultElem.hasElement(RESPONSE_ERROR)) {
+        Element responseError = resultElem.getElement(RESPONSE_ERROR);
+        String category = responseError.getElementAsString(BloombergConstants.CATEGORY);
+        if ("LIMIT".equals(category)) {
+          s_logger.error("Limit reached {}", responseError);
+        }
+        throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities + ": " + responseError);
+      }
+      
+      Element securityDataArray = resultElem.getElement(SECURITY_DATA);
+      int numSecurities = securityDataArray.numValues();
+      for (int iSecurityElem = 0; iSecurityElem < numSecurities; iSecurityElem++) {
+        Element securityElem = securityDataArray.getValueAsElement(iSecurityElem);
+        String security = securityElem.getElementAsString(SECURITY);
+        PerSecurityReferenceDataResult perSecResult = new PerSecurityReferenceDataResult(security);
+        if (securityElem.hasElement(SECURITY_ERROR)) {
+          parseSecurityError(perSecResult, securityElem.getElement(SECURITY_ERROR));
+        }
+        if (securityElem.hasElement(FIELD_DATA)) {
+          parseFieldData(perSecResult, securityElem.getElement(FIELD_DATA));
+        }
+        if (securityElem.hasElement(FIELD_EXCEPTIONS)) {
+          parseFieldExceptions(perSecResult, securityElem.getElement(FIELD_EXCEPTIONS));
+        }
+        if (securityElem.hasElement(EID_DATA)) {
+          parseEidData(perSecResult, securityElem.getElement(FIELD_DATA));
+        }
+        result.addResult(perSecResult);
+      }
+    }
+    return result;
+  }
+
   /**
    * Processes a security error.
    * 
    * @param perSecResult  the per security reference data result, not null
    * @param element  the bloomberg element, not null
    */
-  protected void processSecurityError(PerSecurityReferenceDataResult perSecResult, Element element) {
+  protected void parseSecurityError(PerSecurityReferenceDataResult perSecResult, Element element) {
     ErrorInfo error = new ErrorInfo(element);
     String errorMessage = MessageFormat.format(ERROR_MESSAGE_FORMAT, error.getCode(), error.getCategory(), error.getSubcategory(), error.getMessage());
-    perSecResult.getExceptions().add(errorMessage);
+    perSecResult.addException(errorMessage);
+  }
+
+  /**
+   * Processes the field data.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param element  the bloomberg element, not null
+   */
+  protected void parseFieldData(PerSecurityReferenceDataResult perSecResult, Element element) {
+    FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
+    perSecResult.setFieldData(fieldData);
+  }
+
+  /**
+   * Processes the exceptions.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param fieldExceptionArray  the bloomberg data, not null
+   */
+  protected void parseFieldExceptions(PerSecurityReferenceDataResult perSecResult, Element fieldExceptionArray) {
+    int numExceptions = fieldExceptionArray.numValues();
+    for (int i = 0; i < numExceptions; i++) {
+      Element exceptionElem = fieldExceptionArray.getValueAsElement(i);
+      String fieldId = exceptionElem.getElementAsString(FIELD_ID);
+      ErrorInfo errorInfo = new ErrorInfo(exceptionElem.getElement(ERROR_INFO));
+      perSecResult.addFieldException(fieldId, errorInfo);
+    }
+  }
+
+  /**
+   * Processes the EID data.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param element  the bloomberg element, not null
+   */
+  protected void parseEidData(PerSecurityReferenceDataResult perSecResult, Element element) {
+    perSecResult.setEidData(element);
   }
 
 }

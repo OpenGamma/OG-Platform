@@ -5,8 +5,6 @@
  */
 package com.opengamma.bbg;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +13,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 
 import com.bloomberglp.blpapi.Element;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -37,11 +37,11 @@ public class PerSecurityReferenceDataResult {
   /**
    * The exceptions.
    */
-  private final List<String> _exceptions;
+  private final List<String> _exceptions = Lists.newArrayList();
   /**
    * The field exceptions.
    */
-  private final Map<String, ErrorInfo> _fieldExceptions;
+  private final Map<String, ErrorInfo> _fieldExceptions = Maps.newLinkedHashMap();
 
   /**
    * Creates an instance.
@@ -51,8 +51,6 @@ public class PerSecurityReferenceDataResult {
   public PerSecurityReferenceDataResult(String securityKey) {
     ArgumentChecker.notNull(securityKey, "securityKey");
     _security = securityKey;
-    _exceptions = new ArrayList<String>();
-    _fieldExceptions = new LinkedHashMap<String, ErrorInfo>();
   }
 
   /**
@@ -64,8 +62,8 @@ public class PerSecurityReferenceDataResult {
     _security = baseToCopy.getSecurity();
     _fieldData = baseToCopy.getFieldData();
     _eidData = baseToCopy.getEidData();
-    _exceptions = baseToCopy.getExceptions();
-    _fieldExceptions = baseToCopy.getFieldExceptions();
+    _exceptions.addAll(baseToCopy.getExceptions());
+    _fieldExceptions.putAll(baseToCopy.getFieldExceptions());
   }
 
   //-------------------------------------------------------------------------
@@ -124,13 +122,13 @@ public class PerSecurityReferenceDataResult {
   }
 
   /**
-   * Adds a field exception to the list.
+   * Adds an exception to the list.
    * 
-   * @param fieldId  the field id, may be null
-   * @param errorInfo  the error, may be null
+   * @param exception  the exception, not null
    */
-  public void addFieldException(String fieldId, ErrorInfo errorInfo) {
-    _fieldExceptions.put(fieldId, errorInfo);
+  public void addException(String exception) {
+    ArgumentChecker.notNull(exception, "exception");
+    _exceptions.add(exception);
   } 
 
   /**
@@ -141,6 +139,18 @@ public class PerSecurityReferenceDataResult {
   public Map<String, ErrorInfo> getFieldExceptions() {
     return _fieldExceptions;
   }
+
+  /**
+   * Adds a field exception to the list.
+   * 
+   * @param fieldId  the field id, not null
+   * @param errorInfo  the error, not null
+   */
+  public void addFieldException(String fieldId, ErrorInfo errorInfo) {
+    ArgumentChecker.notNull(fieldId, "fieldId");
+    ArgumentChecker.notNull(errorInfo, "errorInfo");
+    _fieldExceptions.put(fieldId, errorInfo);
+  } 
 
   //-------------------------------------------------------------------------
   @Override

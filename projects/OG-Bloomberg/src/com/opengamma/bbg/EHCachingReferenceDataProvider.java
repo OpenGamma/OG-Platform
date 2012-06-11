@@ -8,7 +8,6 @@ package com.opengamma.bbg;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -20,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -101,7 +101,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
 
   @Override
   protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
-    Map<String, PerSecurityReferenceDataResult> result = new TreeMap<String, PerSecurityReferenceDataResult>();
+    Map<String, PerSecurityReferenceDataResult> result = Maps.newTreeMap();
     FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     // REVIEW kirk 2009-10-23 -- Candidate for scatter/gather for performance.
     for (String security : securities) {

@@ -58,7 +58,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   /**
    * The event processor listening to Bloomberg.
    */
-  private BloombergSessionEventProcessor _bbgEventProcessor;
+  private BloombergSessionEventProcessor _eventProcessor;
   /**
    * The thread hosting the event processor.
    */
@@ -85,7 +85,23 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return _sessionOptions;
   }
 
+  /**
+   * Gets the active logger.
+   * 
+   * @return the logger.
+   */
+  protected abstract Logger getLogger();
+
   //-------------------------------------------------------------------------
+  /**
+   * Gets thes Bloomberg session.
+   * 
+   * @return the session
+   */
+  protected Session getSession() {
+    return _session;
+  }
+
   /**
    * Sets the Bloomberg session.
    * 
@@ -97,12 +113,20 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
 
   //-------------------------------------------------------------------------
   /**
+   * Opens all the services.
+   * <p>
+   * This method is typically implemented to call {@link #openService(String)}.
+   */
+  protected abstract void openServices();
+
+  /**
    * Opens a Bloomberg service for the given name.
    * 
    * @param serviceName  the service name, not null
    * @return the service, not null
    */
   protected Service openService(String serviceName) {
+    ensureStarted();
     try {
       if (!getSession().openService(serviceName)) {
         throw new OpenGammaRuntimeException("Unable to open " + serviceName);
@@ -116,32 +140,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return getSession().getService(serviceName);
   }
 
-  /**
-   * Opens all the services.
-   * <p>
-   * This method is typically implemented to call {@link #openService(String)}.
-   */
-  protected abstract void openServices();
-
-  /**
-   * Gets thes Bloomberg session.
-   * 
-   * @return the session
-   */
-  protected Session getSession() {
-    return _session;
-  }
-
   //-------------------------------------------------------------------------
-  /**
-   * Generates a correlation identifier.
-   * 
-   * @return the correlation identifier, not null
-   */
-  protected long generateCorrelationID() {
-    return _nextCorrelationId.getAndAdd(1L);
-  }
-
   /**
    * Ensures that the Bloomberg session has been started.
    */
@@ -149,9 +148,18 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     if (getSession() == null) {
       throw new IllegalStateException("Session not set; has start() been called?");
     }
-    if ((_thread == null) || !_thread.isAlive()) {
+    if (_thread == null || _thread.isAlive() == false) {
       throw new IllegalStateException("Event polling thread not alive; has start() been called?");
     }
+  }
+
+  /**
+   * Generates a correlation identifier.
+   * 
+   * @return the correlation identifier, not null
+   */
+  protected long generateCorrelationID() {
+    return _nextCorrelationId.getAndIncrement();
   }
 
   /**
@@ -210,6 +218,19 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return cid;
   }
 
+  /**
+   * Gets the result given a correlation identifier.
+   * 
+   * @param cid  the correlation identifier, not null
+   * @return the collection of results, not null
+   */
+  protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
+    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
+    // clear correlation maps
+    _correlationIDMap.remove(cid);
+    return resultElements;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the Bloomberg service is running.
@@ -252,8 +273,8 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     openServices();
     
     // create and start the bloomberg event processor
-    _bbgEventProcessor = new BloombergSessionEventProcessor();
-    _thread = new Thread(_bbgEventProcessor, "BSM Event Processor");
+    _eventProcessor = new BloombergSessionEventProcessor();
+    _thread = new Thread(_eventProcessor, "BSM Event Processor");
     _thread.setDaemon(true);
     _thread.start();
   }
@@ -269,7 +290,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     }
     
     getLogger().info("Stopping on lifecycle method invocation");
-    _bbgEventProcessor.terminate();
+    _eventProcessor.terminate();
     try {
       _thread.join();
     } catch (InterruptedException e) {
@@ -352,27 +373,6 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
         }
       }
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the active logger.
-   * 
-   * @return the logger.
-   */
-  protected abstract Logger getLogger();
-
-  /**
-   * Gets the result given a correlation identifier.
-   * 
-   * @param cid  the correlation identifier, not null
-   * @return the collection of results, not null
-   */
-  protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    // clear correlation maps
-    _correlationIDMap.remove(cid);
-    return resultElements;
   }
 
 }

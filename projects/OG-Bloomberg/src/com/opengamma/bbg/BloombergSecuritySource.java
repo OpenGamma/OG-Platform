@@ -9,7 +9,6 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYPE;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -153,7 +152,7 @@ public final class BloombergSecuritySource implements SecuritySource {
 
   @Override
   public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
-    final Map<UniqueId, Security> result = new HashMap<UniqueId, Security>();
+    final Map<UniqueId, Security> result = Maps.newHashMap();
     Map<ExternalIdBundle, UniqueId> uniqueIdMap = createBundle2UniqueIdMap(uniqueIds);
     Map<ExternalIdBundle, ManageableSecurity> securities = _bloombergBulkSecurityLoader.loadSecurity(uniqueIdMap.keySet());
     for (Entry<ExternalIdBundle, ManageableSecurity> entry : securities.entrySet()) {

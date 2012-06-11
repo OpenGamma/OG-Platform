@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
@@ -20,6 +19,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.wire.types.FudgeWireType;
 
+import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,7 +41,7 @@ public class ReferenceDataResult {
   /**
    * Results keyed by security.
    */
-  private final Map<String, PerSecurityReferenceDataResult> _resultsBySecurity = new TreeMap<String, PerSecurityReferenceDataResult>();
+  private final Map<String, PerSecurityReferenceDataResult> _resultsBySecurity = Maps.newTreeMap();
 
   /**
    * Creates an instance.
@@ -50,16 +50,6 @@ public class ReferenceDataResult {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Add a single result to the stored set.
-   * 
-   * @param result  the result, not null
-   */
-  public void addResult(PerSecurityReferenceDataResult result) {
-    ArgumentChecker.notNull(result, "Per Security Reference Data Result");
-    _resultsBySecurity.put(result.getSecurity(), result);
-  }
-
   /**
    * Gets the set of securities stored in this result.
    * 
@@ -77,6 +67,16 @@ public class ReferenceDataResult {
    */
   public PerSecurityReferenceDataResult getResult(String securityKey) {
     return _resultsBySecurity.get(securityKey);
+  }
+
+  /**
+   * Add a single result to the stored set.
+   * 
+   * @param result  the result, not null
+   */
+  public void addResult(PerSecurityReferenceDataResult result) {
+    ArgumentChecker.notNull(result, "Per Security Reference Data Result");
+    _resultsBySecurity.put(result.getSecurity(), result);
   }
 
   //-------------------------------------------------------------------------
