@@ -63,8 +63,8 @@ public class MongoDBCachingReferenceDataProvider extends AbstractCachingReferenc
   }
 
   @Override
-  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
-    return _cache.loadCachedResults(securities);    
+  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securityKeys) {
+    return _cache.loadCachedResults(securityKeys);    
   }
 
   /**

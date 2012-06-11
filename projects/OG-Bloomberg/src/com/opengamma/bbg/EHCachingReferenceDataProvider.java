@@ -85,27 +85,27 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
   //-------------------------------------------------------------------------
   @Override
   protected void persistSecurityFields(PerSecurityReferenceDataResult securityResult) {
-    String securityDes = securityResult.getSecurity();
+    String securityKey = securityResult.getSecurity();
     FudgeMsg fieldData = securityResult.getFieldData();
     
-    if (securityDes != null && fieldData != null) {
-      s_logger.info("Persisting fields for \"{}\": {}", securityDes, securityResult.getFieldData());
+    if (securityKey != null && fieldData != null) {
+      s_logger.info("Persisting fields for \"{}\": {}", securityKey, securityResult.getFieldData());
       CachedPerSecurityReferenceDataResult cachedObject = createCachedObject(securityResult);
       s_logger.debug("cachedObject={}", cachedObject);
-      Element element = new Element(securityDes, cachedObject);
+      Element element = new Element(securityKey, cachedObject);
       _cache.put(element);
     }
   }
 
   @Override
-  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities) {
+  protected Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securityKeys) {
     Map<String, PerSecurityReferenceDataResult> result = Maps.newTreeMap();
     FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     // REVIEW kirk 2009-10-23 -- Candidate for scatter/gather for performance.
-    for (String security : securities) {
-      PerSecurityReferenceDataResult cachedResult = loadStateFromCache(serializer, security);
+    for (String securityKey : securityKeys) {
+      PerSecurityReferenceDataResult cachedResult = loadStateFromCache(serializer, securityKey);
       if (cachedResult != null) {
-        result.put(security, cachedResult);
+        result.put(securityKey, cachedResult);
       }
     }
     return result;
@@ -115,13 +115,13 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
    * Loads the state from the cache.
    * 
    * @param serializer  the Fudge serializer, not null
-   * @param securityDes  the security, not null
+   * @param securityKey  the security, not null
    * @return the result, null if not found
    */
-  protected PerSecurityReferenceDataResult loadStateFromCache(FudgeSerializer serializer, String securityDes) {
-    Element element = _cache.get(securityDes);
+  protected PerSecurityReferenceDataResult loadStateFromCache(FudgeSerializer serializer, String securityKey) {
+    Element element = _cache.get(securityKey);
     if (element != null) {
-      s_logger.debug("Have security data for des {} in cache", securityDes);
+      s_logger.debug("Have security data for des {} in cache", securityKey);
       CachedPerSecurityReferenceDataResult fromCache = (CachedPerSecurityReferenceDataResult) element.getValue();
       s_logger.debug("cachedObject={}", fromCache);
       PerSecurityReferenceDataResult result = parseCachedObject(fromCache);
