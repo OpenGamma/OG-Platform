@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
   private int nextDependencyGraphId = 0;
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType) {
-    super(AnalyticsColumns.empty(), AnalyticsRows.empty());
+    super(AnalyticsColumns.empty(), AnalyticsNode.empty());
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
   }
@@ -38,7 +38,9 @@ import com.opengamma.util.ArgumentChecker;
     return grid;
   }
 
+  // TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
   /* package */ String openDependencyGraph(int row, int col) {
+    // TODO this should be passed in
     String dependencyGraphId = Integer.toString(nextDependencyGraphId++);
     _depGraphs.put(dependencyGraphId, AnalyticsGrid.empty());
     return dependencyGraphId;

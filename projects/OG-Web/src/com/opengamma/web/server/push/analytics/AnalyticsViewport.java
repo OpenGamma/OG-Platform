@@ -12,6 +12,9 @@ import com.opengamma.engine.view.ViewComputationResultModel;
  */
 /* package */ class AnalyticsViewport {
 
+  // TODO list of rows
+  // TODO list of columns
+
   /* package */ AnalyticsViewport(ViewportRequest viewportRequest, AnalyticsHistory history, ViewComputationResultModel results) {
 
   }

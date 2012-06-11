@@ -25,6 +25,7 @@ public class AnalyticsViewManager {
   private final AtomicLong _nextViewId = new AtomicLong(0);
 
   public String createView(ViewRequest request) {
+    // TODO this should be passed in
     long viewId = _nextViewId.getAndIncrement();
     String viewIdStr = Long.toString(viewId);
     _views.put(viewIdStr, new SimpleAnalyticsView(request));

@@ -42,6 +42,9 @@ public interface AnalyticsView {
   // 1) if the structure changes we don't know if the cell has moved and where to
   // 2) there's a race condition if the structure changes as the client requests a depgraph - they might not get what they want
   // would be better to specify the row and col in a way that persists across recompilation of the view def
+  // i.e. specify the target spec
+  // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
+  // structure and perform that logic on the server?
   String openDependencyGraph(GridType gridType, int row, int col);
 
   void closeDependencyGraph(GridType gridType, String dependencyGraphId);

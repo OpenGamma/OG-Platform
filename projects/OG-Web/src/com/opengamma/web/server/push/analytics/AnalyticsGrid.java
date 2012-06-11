@@ -21,27 +21,27 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 /* package */ class AnalyticsGrid {
 
   private final AnalyticsColumns _cols;
-  private final AnalyticsRows _rows;
+  private final AnalyticsNode _root;
   private final AnalyticsHistory _history = new AnalyticsHistory();
   private final Map<String, AnalyticsViewport> _viewports = new HashMap<String, AnalyticsViewport>();
 
   private int nextViewportId = 0;
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
 
-  protected AnalyticsGrid(AnalyticsColumns cols, AnalyticsRows rows) {
+  protected AnalyticsGrid(AnalyticsColumns cols, AnalyticsNode root) {
     _cols = cols;
-    _rows = rows;
+    _root = root;
   }
 
   /**
    * @return An empty grid structure with no rows or columns
    */
   /* package */ static AnalyticsGrid empty() {
-    return new AnalyticsGrid(AnalyticsColumns.empty(), AnalyticsRows.empty());
+    return new AnalyticsGrid(AnalyticsColumns.empty(), AnalyticsNode.empty());
   }
 
   /* package */ static AnalyticsGrid create(CompiledViewDefinition compiledViewDef) {
-    return new AnalyticsGrid(AnalyticsColumns.create(compiledViewDef), AnalyticsRows.create(compiledViewDef));
+    return new AnalyticsGrid(AnalyticsColumns.create(compiledViewDef), AnalyticsNode.create(compiledViewDef));
   }
 
   private AnalyticsViewport getViewport(String viewportId) {
@@ -64,10 +64,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
     throw new UnsupportedOperationException("updateStructure not implemented");
   }
   /* package */ AnalyticsGridStructure getGridStructure() {
-    return new AnalyticsGridStructure(_rows, _cols);
+    return new AnalyticsGridStructure(_root, _cols);
   }
 
   /* package */ String createViewport(ViewportRequest viewportRequest) {
+    // TODO pass this is
     String viewportId = Integer.toString(nextViewportId++);
     _viewports.put(viewportId, new AnalyticsViewport(viewportRequest, _history, _latestResults));
     return viewportId;
