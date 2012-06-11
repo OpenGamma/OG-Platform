@@ -20,7 +20,7 @@ public class VolatilitySurfaceSpecification {
   private final UniqueIdentifiable _target;
 
   public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
-    this(name, target, surfaceQuoteType, SurfacePropertyNames.VOLATILITY_QUOTE, surfaceInstrumentProvider);
+    this(name, target, surfaceQuoteType, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, surfaceInstrumentProvider);
   }
 
   public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits,

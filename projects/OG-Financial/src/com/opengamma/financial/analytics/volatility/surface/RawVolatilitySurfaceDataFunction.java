@@ -80,8 +80,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     final ValueProperties specProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
     result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, specification.getTarget(), specProperties));    return result;
   }
 
@@ -122,8 +122,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           createValueProperties()
           .withAny(ValuePropertyNames.SURFACE)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-          .withAny(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE)
-          .withAny(SurfacePropertyNames.PROPERTY_SURFACE_UNITS).get()));
+          .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE)
+          .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS).get()));
     }
 
     @SuppressWarnings("synthetic-access")
@@ -165,8 +165,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         if (spec.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_SPEC)) {
           surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
           instrumentType = spec.getProperty(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-          surfaceQuoteType = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-          surfaceUnits = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+          surfaceQuoteType = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+          surfaceUnits = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
           break;
         }
       }
@@ -176,8 +176,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           createValueProperties()
           .with(ValuePropertyNames.SURFACE, surfaceName)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-          .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-          .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceUnits).get()));
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceUnits).get()));
     }
 
     @Override
@@ -223,8 +223,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           createValueProperties()
           .with(ValuePropertyNames.SURFACE, surfaceName)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-          .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-          .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get());
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get());
       return Collections.singleton(new ComputedValue(result, volSurfaceData));
     }
 

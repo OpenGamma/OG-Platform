@@ -70,8 +70,8 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     final ValueProperties surfaceProperties = ValueProperties.builder() // createValueProperties() 
       .with(ValuePropertyNames.SURFACE, surfaceName)
       .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-      .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-      .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())      
+      .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+      .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())      
       .get();
     final Object rawSurfaceObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
     if (rawSurfaceObject == null) {
@@ -155,8 +155,8 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     final ValueProperties constraints = ValueProperties.builder()
       .with(ValuePropertyNames.SURFACE, givenName)
       .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-      .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-      .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())      
+      .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+      .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())      
       .get();
     // 4. Return  
     ValueRequirement surfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), constraints);

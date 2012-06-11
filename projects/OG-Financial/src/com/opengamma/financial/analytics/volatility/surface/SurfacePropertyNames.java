@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 /**
  * 
  */
-public class SurfacePropertyNames {
+public class SurfaceAndCubePropertyNames {
   /** The name of the surface quote type property */
   public static final String PROPERTY_SURFACE_QUOTE_TYPE = "SurfaceQuoteType";
   /** The name of the surface units property */
@@ -25,4 +25,12 @@ public class SurfacePropertyNames {
   public static final String VOLATILITY_QUOTE = "VolatilityQuote";
   /** Represents volatility surface quotes in units of price */
   public static final String PRICE_QUOTE = "PriceQuote";
+  /** The name of the cube definition property */
+  public static final String PROPERTY_CUBE_DEFINITION = "CubeDefinitionName";
+  /** The name of the cube specification property */
+  public static final String PROPERTY_CUBE_SPECIFICATION = "CubeSpecificationName";
+  /** The name of the cube quote type property */
+  public static final String PROPERTY_CUBE_QUOTE_TYPE = "CubeQuoteType";
+  /** The name of the cube quote units property */
+  public static final String PROPERTY_CUBE_UNITS = "CubeUnits";
 }

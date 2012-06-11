@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -57,7 +57,7 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   @Override
   protected String getSurfaceQuoteUnits() {
-    return SurfacePropertyNames.VOLATILITY_QUOTE;
+    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
   }
 
   @Override

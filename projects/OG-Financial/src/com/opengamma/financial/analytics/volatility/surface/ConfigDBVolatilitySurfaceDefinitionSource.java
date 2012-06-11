@@ -11,9 +11,9 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A source of yield curve definitions based on configuration.
+ * A source of volatility surface definitions based on configuration.
  * <p>
- * This supplies curve definitions from a {@link ConfigSource}.
+ * This supplies surface definitions from a {@link ConfigSource}.
  */
 public class ConfigDBVolatilitySurfaceDefinitionSource implements VolatilitySurfaceDefinitionSource {
 

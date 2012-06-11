@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -187,7 +187,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
         ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.CALL_DELTA)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, SurfacePropertyNames.VOLATILITY_QUOTE).get());
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.CALL_DELTA)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE).get());
   }
 }

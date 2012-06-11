@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 
 /**
  *
@@ -120,8 +120,8 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
         ValueProperties.builder()
         .with(SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get());
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get());
     return volDataRequirement;
   }
 

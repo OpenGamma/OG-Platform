@@ -56,8 +56,8 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
       final ValueSpecification spec = input.getSpecification();
       final String valueName = spec.getValueName();
       if (valueName.equals(ValueRequirementNames.VOLATILITY_SURFACE_DATA)) {
-        surfaceQuoteType = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-        surfaceQuoteUnits = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+        surfaceQuoteType = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+        surfaceQuoteUnits = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
         break;
       }
     }
@@ -68,8 +68,8 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
       throw new OpenGammaRuntimeException("Could not get surface quote units");
     }
     final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get();
     final Object volatilityDataObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
     if (volatilityDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface data");
@@ -123,13 +123,13 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
       s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceQuoteType.EXPIRY_MATURITY_ATM, surfaceQuoteType);
       return null;
     }
-    if (!surfaceQuoteUnits.equals(SurfacePropertyNames.VOLATILITY_QUOTE)) {
-      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfacePropertyNames.VOLATILITY_QUOTE, surfaceQuoteUnits);
+    if (!surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
+      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, surfaceQuoteUnits);
       return null;
     }
     final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType()).with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType()).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
     return Collections.singleton(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
   }
 

@@ -72,8 +72,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       final ValueSpecification spec = input.getSpecification();
       final String valueName = spec.getValueName();
       if (valueName.equals(ValueRequirementNames.VOLATILITY_SURFACE_DATA)) {
-        surfaceQuoteType = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-        surfaceQuoteUnits = spec.getProperty(SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+        surfaceQuoteType = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+        surfaceQuoteUnits = spec.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
       } else if (valueName.equals(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA)) {
         curveName = spec.getProperty(ValuePropertyNames.CURVE);
       }
@@ -90,8 +90,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get();
     final Object volatilityDataObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
     if (volatilityDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface data");
@@ -102,9 +102,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
-    if (surfaceQuoteUnits.equals(SurfacePropertyNames.VOLATILITY_QUOTE)) {
+    if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
       return Collections.singleton(new ComputedValue(spec, getSurfaceFromVolatilityQuote(surfaceData, now)));
-    } else if (surfaceQuoteUnits.equals(SurfacePropertyNames.PRICE_QUOTE)) {
+    } else if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
       final NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
       final VolatilitySurfaceData<Double, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
       if (volSurface != null) {
@@ -114,7 +114,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       }
         
     } else {
-      throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfacePropertyNames as VolatilityQuote or PriceQuote.");
+      throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfaceAndCubePropertyNames as VolatilityQuote or PriceQuote.");
     }
   }
 
@@ -157,10 +157,10 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
     requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
-    if (specification.getQuoteUnits().equals(SurfacePropertyNames.PRICE_QUOTE)) { // Term structure of futures prices is also required
+    if (specification.getQuoteUnits().equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) { // Term structure of futures prices is also required
       final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
       final String curveName;
       if (curveNames == null || curveNames.size() != 1) {
