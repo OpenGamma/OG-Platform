@@ -22,21 +22,48 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wraps a {@link ReferenceDataProvider} to keep track of requests and responses, incrementally writing anything new
- * to a file. The intention is for this wrapper to be used for a period while certain reference data requests are made
- * (e.g. when a view starts being processed). Subsequently the data file can replace the 'real' source of reference
- * data for the same requests, by using {@link LoggedReferenceDataProvider}.
+ * Decorates a reference data provider, storing the data to a flat file.
+ * <p>
+ * The request and response data is written to the file incrementally.
+ * The intention is for this decorator to be used for a period while certain reference data
+ * requests are made, such as when a view starts being processed. Subsequently the data file
+ * can replace the 'real' source of reference data for the same requests.
+ * The file is stored using Fudge.
+ * See {@link LoggedReferenceDataProvider} for a reference data provider that reads the file.
  */
 public class LoggingReferenceDataProvider implements ReferenceDataProvider {
- 
+
+  /**
+   * The underlying reference data provider.
+   */
   private final ReferenceDataProvider _underlying;
+  /**
+   * The store of data already written to file.
+   */
   private final ConcurrentMap<String, Set<String>> _alreadyLogged = new ConcurrentHashMap<String, Set<String>>();
+  /**
+   * The Fudge context.
+   */
   private final FudgeContext _fudgeContext;
+  /**
+   * The Fudge message writer.
+   */
   private final FudgeMsgWriter _fudgeMsgWriter;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying reference data provider, not null
+   * @param fudgeContext  the Fudge context, not null
+   * @param outputFile  the file to write to, not null
+   */
   public LoggingReferenceDataProvider(ReferenceDataProvider underlying, FudgeContext fudgeContext, File outputFile) {
+    ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(outputFile, "outputFile");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
     try {
@@ -47,14 +74,15 @@ public class LoggingReferenceDataProvider implements ReferenceDataProvider {
       throw new OpenGammaRuntimeException("Cannot open " + outputFile + " for writing");
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {   
     ReferenceDataResult result = _underlying.getFields(securities, fields);
     processResult(result, fields);
     return result;
   }
-  
+
   private void processResult(ReferenceDataResult result, Set<String> fields) {
     for (String security : result.getSecurities()) {
       Set<String> freshFieldsLogged = new HashSet<String>();
@@ -66,7 +94,7 @@ public class LoggingReferenceDataProvider implements ReferenceDataProvider {
       PerSecurityReferenceDataResult securityResult = result.getResult(security);
       synchronized (fieldsLogged) {
         for (String field : fields) {
-          if (!fieldsLogged.contains(field)) {
+          if (fieldsLogged.contains(field) == false) {
             Object value = securityResult.getFieldData().getValue(field);
             log(security, field, value);
           }
@@ -74,7 +102,7 @@ public class LoggingReferenceDataProvider implements ReferenceDataProvider {
       }
     }
   }
-  
+
   private void log(String security, String field, Object value) {
     LoggedReferenceData loggedReferenceData = new LoggedReferenceData(security, field, value);
     _fudgeMsgWriter.writeMessage(loggedReferenceData.toFudgeMsg(new FudgeSerializer(_fudgeContext)));
