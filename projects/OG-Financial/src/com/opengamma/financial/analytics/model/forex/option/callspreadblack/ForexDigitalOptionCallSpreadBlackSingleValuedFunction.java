@@ -15,7 +15,7 @@ import static com.opengamma.financial.analytics.model.forex.option.black.ForexOp
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -42,9 +42,9 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .withAny(PROPERTY_CALL_FORWARD_CURVE)
         .withAny(PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(PROPERTY_CALL_SPREAD_VALUE)
-        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
@@ -63,9 +63,9 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .with(PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_CALL_SPREAD_VALUE, spread)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 

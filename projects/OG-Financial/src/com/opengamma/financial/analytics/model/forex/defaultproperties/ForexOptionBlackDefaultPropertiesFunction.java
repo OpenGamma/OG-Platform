@@ -14,7 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -112,9 +112,9 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     }
   }
 
@@ -141,13 +141,13 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
     }
-    if (InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_interpolatorName);
     }
-    if (InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_leftExtrapolatorName);
     }
-    if (InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_rightExtrapolatorName);
     }
     return null;

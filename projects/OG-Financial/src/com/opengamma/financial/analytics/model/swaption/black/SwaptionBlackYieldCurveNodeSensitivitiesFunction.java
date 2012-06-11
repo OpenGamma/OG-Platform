@@ -52,7 +52,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
@@ -126,7 +126,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
-    if (curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(swaption, data, NSC);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, data, sensitivities, curveSpec, spec);
     }
@@ -212,7 +212,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     requirements.add(getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getCurveSpecRequirement(target, curveName));
-    if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (!curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, curveCalculationMethod));
       if (curveCalculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
@@ -247,11 +247,11 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
 
   private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;
-    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+    if (calculationMethod == InterpolatedDataProperties.CALCULATION_METHOD_NAME) {
       properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
-          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
     } else {
       properties = ValueProperties.builder()

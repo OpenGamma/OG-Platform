@@ -38,11 +38,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -63,9 +63,9 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final ValueRequirement surfaceRequirement = getDataRequirement(surfaceName, target);
     final Object volatilitySurfaceObject = inputs.getValue(getDataRequirement(surfaceName, target));
     if (volatilitySurfaceObject == null) {
@@ -127,9 +127,9 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName);
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName);
     if (shifts != null) {
       resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts);
     }
@@ -157,15 +157,15 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     if (surfaceNames == null || surfaceNames.size() != 1) {
       throw new OpenGammaRuntimeException("Need one surface name; have " + surfaceNames);
     }
-    final Set<String> interpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
@@ -178,9 +178,9 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     final ValueProperties.Builder resultProperties = createValueProperties()
         .withAny(ValuePropertyNames.SURFACE)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (context.getViewCalculationConfiguration() != null) {
       final Set<String> shifts = context.getViewCalculationConfiguration().getDefaultProperties().getValues(DefaultVolatilitySurfaceShiftFunction.VOLATILITY_SURFACE_SHIFT);
       if ((shifts != null) && (shifts.size() == 1)) {
@@ -217,7 +217,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
         ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE).get());
   }
 }

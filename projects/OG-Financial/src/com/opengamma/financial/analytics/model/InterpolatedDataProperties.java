@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model;
 /**
  * 
  */
-public class InterpolatedCurveAndSurfaceProperties {
+public class InterpolatedDataProperties {
   /** String representing the calculation method  */
   public static final String CALCULATION_METHOD_NAME = "Interpolated";
   /** String labelling the left x extrapolator */

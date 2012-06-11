@@ -42,12 +42,16 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -80,6 +84,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
@@ -89,8 +94,17 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(getVisitor());
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, desiredValue);
-    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
+    final String conventionName = currency.getCode() + "_SWAP";
+    final ConventionBundle convention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Could not get convention named " + conventionName);
+    }
+    final DayCount dayCount = convention.getSwapFloatingLegDayCount();
+    if (dayCount == null) {
+      throw new OpenGammaRuntimeException("Could not get daycount");
+    }
+    final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, desiredValue);
+    final InstrumentDerivative derivative = getConverter().convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
     final Object result = getResult(derivative, data, desiredValue);
     final ValueProperties properties = getResultProperties(createValueProperties().get(), currency.getCode(), desiredValue);
     final ValueSpecification spec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
@@ -128,7 +142,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -157,8 +171,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_VOLATILITY_MODEL, CubeAndSurfaceFittingMethodDefaultNamesAndValues.SABR_FITTING)
-        .with(CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
+        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
@@ -188,11 +202,11 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
   }
 
   protected abstract SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
-      final ValueRequirement desiredValue);
+      final DayCount dayCount, final ValueRequirement desiredValue);
 
   protected abstract ValueProperties getResultProperties(final ValueProperties properties, final String currency);
 

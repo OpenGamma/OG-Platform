@@ -13,7 +13,9 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @param <X> The type of the x-axis data
+ * @param <Y> The type of the y-axis data
+ * @param <Z> The type of the z-axis data
  */
 public class SwaptionVolatilityCubeDefinition<X, Y, Z> {
   private final String _name;

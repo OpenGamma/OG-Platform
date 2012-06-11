@@ -277,13 +277,13 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
   /** FIXME This function relies on callAboveStrike. Needs a rework */
   private static double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final Double callAboveStrike) {
-    if (surfaceQuoteType.equals(SurfaceQuoteType.CALL_STRIKE)) {
+    if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
     }
-    if (surfaceQuoteType.equals(SurfaceQuoteType.PUT_STRIKE)) {
+    if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
     }
-    if (surfaceQuoteType.equals(SurfaceQuoteType.CALL_AND_PUT_STRIKE)) {
+    if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
       if (callAboveStrike == null) {
         throw new OpenGammaRuntimeException("No value specified for useCallAboveStrikeValue in VolatilitySurfaceSpecification. See Configuration.");
       }

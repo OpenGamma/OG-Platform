@@ -54,7 +54,7 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunctionHelper;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
@@ -86,8 +86,8 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-        final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+        final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+        final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
         final ValueProperties inputProperties = ValueProperties.builder()
             .with(ValuePropertyNames.CURVE, curveName).get();
         final Object specificationObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), inputProperties));
@@ -125,9 +125,9 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
-            .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-            .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME).get();
+            .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+            .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
         final ValueSpecification result = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(result, new YieldCurve(curve)));
       }
@@ -149,9 +149,9 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
             .withAny(ValuePropertyNames.CURVE)
-            .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-            .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)
+            .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+            .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME)
             .get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties));
       }
@@ -164,11 +164,11 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           s_logger.error("Could not get curve name from constraints {}", constraints);
           return null;
         }
-        final Set<String> leftInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+        final Set<String> leftInterpolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
         if (leftInterpolatorNames == null || leftInterpolatorNames.size() != 1) {
           return null;
         }
-        final Set<String> rightInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+        final Set<String> rightInterpolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
         if (rightInterpolatorNames == null || rightInterpolatorNames.size() != 1) {
           return null;
         }

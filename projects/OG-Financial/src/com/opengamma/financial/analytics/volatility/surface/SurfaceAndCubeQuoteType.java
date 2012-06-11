@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 /**
  * 
  */
-public class SurfaceQuoteType {
+public class SurfaceAndCubeQuoteType {
   /** Surfaces defined using call options and deltas */
   public static final String CALL_DELTA = "CallDelta";
   /** Surfaces defined using put options and deltas */

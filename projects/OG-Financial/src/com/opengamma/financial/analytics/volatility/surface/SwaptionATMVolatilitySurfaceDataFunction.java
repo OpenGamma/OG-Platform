@@ -119,8 +119,8 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
     }
     final String surfaceQuoteType = specification.getSurfaceQuoteType();
     final String surfaceQuoteUnits = specification.getQuoteUnits();
-    if (!surfaceQuoteType.equals(SurfaceQuoteType.EXPIRY_MATURITY_ATM)) {
-      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceQuoteType.EXPIRY_MATURITY_ATM, surfaceQuoteType);
+    if (!surfaceQuoteType.equals(SurfaceAndCubeQuoteType.EXPIRY_MATURITY_ATM)) {
+      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceAndCubeQuoteType.EXPIRY_MATURITY_ATM, surfaceQuoteType);
       return null;
     }
     if (!surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {

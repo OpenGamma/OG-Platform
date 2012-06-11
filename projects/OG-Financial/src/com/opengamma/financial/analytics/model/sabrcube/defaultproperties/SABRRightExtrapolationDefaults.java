@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
-import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -101,7 +101,7 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
-      defaults.addValuePropertyName(valueRequirement, CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
       defaults.addValuePropertyName(valueRequirement, SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
@@ -119,7 +119,7 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
     }
-    if (CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {

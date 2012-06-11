@@ -8,16 +8,16 @@ package com.opengamma.financial.analytics.model.curve.forward;
 /**
  * 
  */
-public class FXForwardCurveValuePropertyNames {
-  /** Property name for the FX forward curve interpolator */
+public class ForwardCurveValuePropertyNames {
+  /** Property name for the forward curve interpolator */
   public static final String PROPERTY_FORWARD_CURVE_INTERPOLATOR = "ForwardCurveInterpolator";
-  /** Property name for the FX forward curve left extrapolator */
+  /** Property name for the forward curve left extrapolator */
   public static final String PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR = "ForwardCurveLeftExtrapolator";
-  /** Property name for the FX forward curve right extrapolator */
+  /** Property name for the forward curve right extrapolator */
   public static final String PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR = "ForwardCurveRightExtrapolator";
-  /** Name indicating that the FX forward curve was constructed from two yield curves and a spot rate */
+  /** Name indicating that the forward curve was constructed from yield curves and a spot rate */
   public static final String PROPERTY_YIELD_CURVE_IMPLIED_METHOD = "YieldCurveImplied";
-  /** Name indicating that the FX forward curve was constructed from market quotes */
+  /** Name indicating that the forward curve was constructed from market quotes */
   public static final String PROPERTY_MARKET_QUOTES_METHOD = "MarketQuotes";
 
 }

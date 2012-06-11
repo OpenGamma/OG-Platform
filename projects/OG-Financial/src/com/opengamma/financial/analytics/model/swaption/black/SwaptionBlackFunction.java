@@ -42,7 +42,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -189,11 +189,11 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;
-    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+    if (calculationMethod == InterpolatedDataProperties.CALCULATION_METHOD_NAME) {
       properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
-          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
     } else {
       properties = ValueProperties.builder()

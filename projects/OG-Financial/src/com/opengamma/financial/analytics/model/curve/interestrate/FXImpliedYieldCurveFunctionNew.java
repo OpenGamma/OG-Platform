@@ -67,7 +67,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrument
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -116,9 +116,9 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final String useFiniteDifferenceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
@@ -235,15 +235,15 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     if (useFiniteDifference == null || useFiniteDifference.size() != 1) {
       return null;
     }
-    final Set<String> interpolatorName = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final Set<String> interpolatorName = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (interpolatorName == null || interpolatorName.size() != 1) {
       return null;
     }
-    final Set<String> leftExtrapolatorName = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final Set<String> leftExtrapolatorName = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     if (leftExtrapolatorName == null || leftExtrapolatorName.size() != 1) {
       return null;
     }
-    final Set<String> rightExtrapolatorName = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final Set<String> rightExtrapolatorName = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorName == null || rightExtrapolatorName.size() != 1) {
       return null;
     }
@@ -305,16 +305,16 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getProperties() {
     return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance, final String relativeTolerance,
@@ -323,8 +323,8 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
-        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
   private ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
@@ -333,8 +333,8 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
-        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
+        .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName).with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
   //TODO determine domestic and notional from dominance data

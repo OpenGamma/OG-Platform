@@ -54,7 +54,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -119,7 +119,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
     final YieldCurveBundle bundle = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, calculationMethod);
-    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, bundle, NSC);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, bundle, sensitivities, curveSpec, resultSpec);
     }
@@ -213,7 +213,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     if (forwardCurveName.equals(fundingCurveName)) {
       requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
       requirements.add(getCurveSpecRequirement(target, curveName));
-      if (!calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+      if (!calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
         requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, calculationMethod));
         if (calculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
           requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
@@ -224,7 +224,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, calculationMethod));
     requirements.add(getCurveSpecRequirement(target, curveName));
-    if (!calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (!calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, calculationMethod));
       if (calculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
@@ -236,7 +236,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   private static ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, 
       final String advisoryFunding, final String calculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       return YieldCurveFunction.getCurveRequirement(currency, curveName, null, null, calculationMethod);
     }
     return YieldCurveFunction.getCurveRequirement(currency, curveName, advisoryForward, advisoryFunding, calculationMethod);

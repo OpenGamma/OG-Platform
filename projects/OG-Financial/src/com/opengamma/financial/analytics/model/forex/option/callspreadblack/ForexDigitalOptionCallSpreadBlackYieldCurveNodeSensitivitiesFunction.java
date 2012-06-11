@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -98,9 +98,9 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
       curveCurrency = Currency.of(currency);
       foreignCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     }
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String fullCurveName = curveName + "_" + curveCurrency;
     final Object forwardCurveObject = inputs.getValue(getCurveRequirement(forwardCurveName, forwardCurveName, curveName, calculationMethod, curveCurrency));
     if (forwardCurveObject == null) {
@@ -197,15 +197,15 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
     if (spreads == null || spreads.size() != 1) {
       return null;
     }
-    final Set<String> interpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
@@ -237,7 +237,7 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
     requirements.add(getCurveSpecRequirement(currency, curveName));
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putForwardCurveName, putCurveCalculationMethod, callCurveName, callForwardCurveName, callCurveCalculationMethod,
         surfaceName, spread, interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target));
-    if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (!curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(curveName, forwardCurveName, curveCalculationMethod, currency));
       if (curveCalculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         requirements.add(getCouponSensitivityRequirement(forwardCurveName, curveName, currency));
@@ -284,9 +284,9 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
         .withAny(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE)
         .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE).get();
   }
 
@@ -303,9 +303,9 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
         .withAny(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE)
         .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
-        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .withAny(ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE).get();
   }
 
@@ -324,9 +324,9 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
         .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
         .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE, spread)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
   }
 
@@ -355,9 +355,9 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
         .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
         .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .with(ValuePropertyNames.CURRENCY, ForexDigitalOptionCallSpreadBlackSingleValuedFunction.getResultCurrency(target))
         .with(ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE, spread).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
@@ -366,7 +366,7 @@ public class ForexDigitalOptionCallSpreadBlackYieldCurveNodeSensitivitiesFunctio
   private Set<ComputedValue> getResult(final FunctionInputs inputs, final String curveName, final String calculationMethod, final String forwardCurveName, final Currency curveCurrency,
       final String fullCurveName, final YieldCurveBundle interpolatedCurves, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final Map<String, List<DoublesPair>> sensitivitiesForCurrency, final ValueSpecification spec) {
-    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final DoubleMatrix1D result = CALCULATOR.calculateFromSimpleInterpolatedCurve(sensitivitiesForCurrency, interpolatedCurves);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurves, result, curveSpec, spec);
     }

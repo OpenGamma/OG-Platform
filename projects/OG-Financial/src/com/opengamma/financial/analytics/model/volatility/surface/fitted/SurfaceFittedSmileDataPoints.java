@@ -1,27 +1,28 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface.fitting;
+package com.opengamma.financial.analytics.model.volatility.surface.fitted;
 
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class SurfaceFittedSmileDataPoints {
   private final Map<Double, List<Double>> _data;
-  
+
   public SurfaceFittedSmileDataPoints(final Map<Double, List<Double>> data) {
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     _data = data;
   }
-  
+
   public Map<Double, List<Double>> getData() {
     return _data;
   }
@@ -35,7 +36,7 @@ public class SurfaceFittedSmileDataPoints {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -48,6 +49,5 @@ public class SurfaceFittedSmileDataPoints {
     final SurfaceFittedSmileDataPoints other = (SurfaceFittedSmileDataPoints) obj;
     return ObjectUtils.equals(_data, other._data);
   }
-  
-  
+
 }

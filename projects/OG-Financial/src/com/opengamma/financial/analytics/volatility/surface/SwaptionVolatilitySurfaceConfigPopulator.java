@@ -65,7 +65,7 @@ public class SwaptionVolatilitySurfaceConfigPopulator {
     final SurfaceInstrumentProvider<Tenor, Tenor> surfaceInstrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, " Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification us = new VolatilitySurfaceSpecification("DEFAULT_USD_SWAPTION", Currency.USD,
-        SurfaceQuoteType.PAY_RECEIVE_DELTA,
+        SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(us));
   }

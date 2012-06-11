@@ -18,9 +18,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
-import com.opengamma.financial.analytics.model.volatility.CubeAndSurfaceFittingMethodDefaultNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -107,16 +107,16 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CUBE);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
   }
 
   @Override
@@ -130,7 +130,7 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
     }
-    if (CubeAndSurfaceFittingMethodDefaultNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
@@ -142,22 +142,22 @@ public class SABRRightExtrapolationVegaDefaults extends DefaultPropertyFunction 
     if (SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER.equals(propertyName)) {
       return Collections.singleton(_mu);
     }
-    if (InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_xLeftExtrapolator);
     }
-    if (InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_yLeftExtrapolator);
     }
-    if (InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_xRightExtrapolator);
     }
-    if (InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_yRightExtrapolator);
     }
-    if (InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_xInterpolator);
     }
-    if (InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME.equals(propertyName)) {
+    if (InterpolatedDataProperties.Y_INTERPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_yInterpolator);
     }
     return null;

@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -207,7 +207,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
     requirements.add(getCurveSpecRequirement(currency, curveName));
     requirements.add(getCurveSensitivitiesRequirement(payCurveName, payForwardCurveName, payCurveCalculationMethod, receiveCurveName, receiveForwardCurveName,
         receiveCurveCalculationMethod, target));
-    if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (!curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(curveName, forwardCurveName, curveCalculationMethod, currency));
       if (curveCalculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         requirements.add(getCouponSensitivityRequirement(forwardCurveName, curveName, currency));
@@ -333,7 +333,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
   private Set<ComputedValue> getResult(final FunctionInputs inputs, final String curveName, final String calculationMethod, final String forwardCurveName, final Currency curveCurrency,
       final String fullCurveName, final YieldCurveBundle interpolatedCurves, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final Map<String, List<DoublesPair>> sensitivitiesForCurrency, final ValueSpecification spec) {
-    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       final DoubleMatrix1D result = CALCULATOR.calculateFromSimpleInterpolatedCurve(sensitivitiesForCurrency, interpolatedCurves);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurves, result, curveSpec, spec);
     }

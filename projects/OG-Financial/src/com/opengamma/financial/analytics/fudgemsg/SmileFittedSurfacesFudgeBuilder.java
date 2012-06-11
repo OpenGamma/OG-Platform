@@ -20,12 +20,10 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
+import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
+import com.opengamma.financial.analytics.model.volatility.surface.fitted.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -55,10 +53,6 @@ import com.opengamma.util.tuple.Pair;
     public static final String INVERSE_JACOBIANS_PAIRS_FIELD_NAME = "pairs";
     /** Field name. */
     public static final String INVERSE_JACOBIANS_MATRICES_FIELD_NAME = "matrices";
-    /** Field name. */
-    public static final String DAYCOUNT_FIELD_NAME = "DayCountName";
-    /** Field name. */
-    public static final String CURRENCY_FIELD_NAME = "Currency";
 
     @Override
     public SABRFittedSurfaces buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -66,8 +60,6 @@ import com.opengamma.util.tuple.Pair;
       final InterpolatedDoublesSurface betaSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(BETA_SURFACE_FIELD_NAME));
       final InterpolatedDoublesSurface nuSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(NU_SURFACE_FIELD_NAME));
       final InterpolatedDoublesSurface rhoSurface = deserializer.fieldValueToObject(InterpolatedDoublesSurface.class, message.getByName(RHO_SURFACE_FIELD_NAME));
-      final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY_FIELD_NAME));
-      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(deserializer.fieldValueToObject(String.class, message.getByName(DAYCOUNT_FIELD_NAME)));
       final List<FudgeField> pairFields = message.getAllByName(INVERSE_JACOBIANS_PAIRS_FIELD_NAME);
       final List<FudgeField> matricesFields = message.getAllByName(INVERSE_JACOBIANS_MATRICES_FIELD_NAME);
       if (pairFields.size() != matricesFields.size()) {
@@ -78,7 +70,7 @@ import com.opengamma.util.tuple.Pair;
         final DoubleMatrix2D matrix = deserializer.fieldValueToObject(DoubleMatrix2D.class, matricesFields.get(i));
         inverseJacobians.put((DoublesPair) deserializer.fieldValueToObject(Pair.class, pairFields.get(i)), matrix);
       }
-      return new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, currency, dayCount);
+      return new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians);
     }
 
     @Override
@@ -87,8 +79,6 @@ import com.opengamma.util.tuple.Pair;
       serializer.addToMessage(message, BETA_SURFACE_FIELD_NAME, null, object.getBetaSurface());
       serializer.addToMessage(message, NU_SURFACE_FIELD_NAME, null, object.getNuSurface());
       serializer.addToMessage(message, RHO_SURFACE_FIELD_NAME, null, object.getRhoSurface());
-      serializer.addToMessage(message, CURRENCY_FIELD_NAME, null, object.getCurrency());
-      serializer.addToMessage(message, DAYCOUNT_FIELD_NAME, null, object.getDayCount().getConventionName());
       final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = object.getInverseJacobians();
       for (final Map.Entry<DoublesPair, DoubleMatrix2D> entry : inverseJacobians.entrySet()) {
         message.add(INVERSE_JACOBIANS_PAIRS_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), entry.getKey().getClass()));
@@ -164,7 +154,7 @@ import com.opengamma.util.tuple.Pair;
 
     @SuppressWarnings("unchecked")
     @Override
-    public FittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    public FittedSmileDataPoints buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final List<FudgeField> tenorPairFields = message.getAllByName(TENOR_PAIR_FIELD_NAME);
       final List<FudgeField> externalIdsFields = message.getAllByName(EXTERNAL_IDS_ARRAY_FIELD_NAME);
       final List<FudgeField> relativeStrikesFields = message.getAllByName(RELATIVE_STRIKES_ARRAY_FIELD_NAME);
@@ -184,9 +174,9 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, FittedSmileDataPoints object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FittedSmileDataPoints object) {
       final Map<Pair<Tenor, Tenor>, ExternalId[]> externalIds = object.getExternalIds();
-      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = object.getRelativeStrikes();
+      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = object.getFittedPoints();
       for (final Map.Entry<Pair<Tenor, Tenor>, ExternalId[]> entry : externalIds.entrySet()) {
         message.add(TENOR_PAIR_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), Pair.class));
         serializer.addToMessageObject(message, EXTERNAL_IDS_ARRAY_FIELD_NAME, null, Arrays.asList(entry.getValue()), List.class);
@@ -201,21 +191,21 @@ import com.opengamma.util.tuple.Pair;
     public static final String K_FIELD_NAME = "k field";
 
     @Override
-    public SurfaceFittedSmileDataPoints buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+    public SurfaceFittedSmileDataPoints buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final List<FudgeField> tFields = message.getAllByName(T_FIELD_NAME);
       final List<FudgeField> kFields = message.getAllByName(K_FIELD_NAME);
       final Map<Double, List<Double>> map = new HashMap<Double, List<Double>>();
       for (int i = 0; i < tFields.size(); i++) {
-        Double t = deserializer.fieldValueToObject(Double.class, tFields.get(i));
+        final Double t = deserializer.fieldValueToObject(Double.class, tFields.get(i));
         @SuppressWarnings("unchecked")
-        List<Double> ks = deserializer.fieldValueToObject(List.class, kFields.get(i));
+        final List<Double> ks = deserializer.fieldValueToObject(List.class, kFields.get(i));
         map.put(t, ks);
       }
       return new SurfaceFittedSmileDataPoints(map);
     }
 
     @Override
-    protected void buildMessage(FudgeSerializer serializer, MutableFudgeMsg message, SurfaceFittedSmileDataPoints object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SurfaceFittedSmileDataPoints object) {
       final Map<Double, List<Double>> map = object.getData();
       for (final Map.Entry<Double, List<Double>> entry : map.entrySet()) {
         message.add(T_FIELD_NAME, null, entry.getKey());

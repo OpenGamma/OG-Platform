@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -93,9 +93,9 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final String callForwardCurveName = desiredValue.getConstraint(PROPERTY_CALL_FORWARD_CURVE);
     final String putCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_PUT_CURVE_CALCULATION_METHOD);
     final String callCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_CALL_CURVE_CALCULATION_METHOD);
-    final String interpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String fullPutCurveName = putCurveName + "_" + putCurrency.getCode();
     final String fullCallCurveName = callCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
@@ -201,15 +201,15 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     if (callCurveCalculationMethods == null || callCurveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> interpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (interpolatorNames == null || interpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
@@ -242,11 +242,11 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
 
   protected static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;
-    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
       properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
-          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
     } else {
       properties = ValueProperties.builder()
@@ -263,9 +263,9 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, interpolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);

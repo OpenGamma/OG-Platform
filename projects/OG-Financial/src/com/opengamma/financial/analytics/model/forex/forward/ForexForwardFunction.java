@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -192,11 +192,11 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
 
   private static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;
-    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+    if (calculationMethod == InterpolatedDataProperties.CALCULATION_METHOD_NAME) {
       properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
-          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
-          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
           .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
     } else {
       properties = ValueProperties.builder()

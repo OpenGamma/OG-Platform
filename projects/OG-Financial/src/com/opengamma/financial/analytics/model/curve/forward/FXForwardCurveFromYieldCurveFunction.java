@@ -43,7 +43,7 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .get();
@@ -152,7 +152,7 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
     final ForwardCurve fxForwardCurve = new ForwardCurveYieldImplied(spot, payCurve, receiveCurve);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, fxForwardCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
         .get();

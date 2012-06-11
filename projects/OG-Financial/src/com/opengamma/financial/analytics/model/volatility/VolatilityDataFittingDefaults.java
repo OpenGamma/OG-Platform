@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.volatility;
 /**
  * 
  */
-public class CubeAndSurfaceFittingMethodDefaultNamesAndValues {
+public class VolatilityDataFittingDefaults {
   /** Property representing the volatility model used to fit a cube */
   public static final String PROPERTY_VOLATILITY_MODEL = "VolatilityModel";
   /** SABR */
