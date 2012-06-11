@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -319,9 +320,55 @@ public class SABRExtrapolationRightFunctionTest {
     }
   }
 
+  @Test
+  /**
+   * Tests that the smile and its derivatives are smooth enough in SABR model with extrapolation for different time to maturity (in particular close to maturity).
+   */
+  public void smileSmoothMaturity() {
+    int nbPts = 100;
+    double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d};
+    int nbTTM = timeToExpiry.length;
+    double rangeStrike = 0.02;
+    double[] strike = new double[nbPts + 1];
+    for (int looppts = 0; looppts <= nbPts; looppts++) {
+      strike[looppts] = CUT_OFF_STRIKE - rangeStrike + looppts * 2.0 * rangeStrike / nbPts;
+    }
+    SABRExtrapolationRightFunction[] sabrExtrapolation = new SABRExtrapolationRightFunction[nbTTM];
+    for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
+      sabrExtrapolation[loopmat] = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, timeToExpiry[loopmat], MU);
+    }
+    double[][] price = new double[nbTTM][nbPts + 1];
+    for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
+      for (int looppts = 0; looppts <= nbPts; looppts++) {
+        EuropeanVanillaOption option = new EuropeanVanillaOption(strike[looppts], timeToExpiry[loopmat], true);
+        price[loopmat][looppts] = sabrExtrapolation[loopmat].price(option);
+      }
+    }
+    double[][] priceD = new double[nbTTM][nbPts - 1];
+    double[][] priceD2 = new double[nbTTM][nbPts - 1];
+    for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
+      for (int looppts = 1; looppts < nbPts; looppts++) {
+        priceD[loopmat][looppts - 1] = (price[loopmat][looppts + 1] - price[loopmat][looppts - 1]) / (strike[looppts + 1] - strike[looppts - 1]);
+        priceD2[loopmat][looppts - 1] = (price[loopmat][looppts + 1] + price[loopmat][looppts - 1] - 2 * price[loopmat][looppts])
+            / ((strike[looppts + 1] - strike[looppts]) * (strike[looppts + 1] - strike[looppts]));
+      }
+    }
+    double epsDensity = 1.0E-20; // Conditions are not checked when the density is very small.
+    for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
+      for (int looppts = 1; looppts < nbPts - 1; looppts++) {
+        assertTrue("SABR extrapolation, smooth first derivative - mat " + loopmat + " / pt " + looppts + " [" + priceD[loopmat][looppts] + "/" + priceD[loopmat][looppts - 1] + "]",
+            ((priceD[loopmat][looppts] / priceD[loopmat][looppts - 1] < 1) && (priceD[loopmat][looppts] / priceD[loopmat][looppts - 1] > 0.50)) || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
+        assertTrue("SABR extrapolation, positive second derivative - mat " + loopmat + " / pt " + looppts + " [" + priceD2[loopmat][looppts] + "]",
+            priceD2[loopmat][looppts] > 0 || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
+        assertTrue("SABR extrapolation, smooth second derivative - mat " + loopmat + " / pt " + looppts + " [" + priceD2[loopmat][looppts] + "/" + priceD2[loopmat][looppts - 1] + "]",
+            (priceD2[loopmat][looppts] / priceD2[loopmat][looppts - 1] < 1 && priceD2[loopmat][looppts] / priceD2[loopmat][looppts - 1] > 0.50) || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
+      }
+    }
+  }
+
   @Test(enabled = false)
   /**
-   * Tests to graph the smile for different tail parameters.
+   * To graph the smile for different tail parameters.
    */
   public void smileMultiMu() {
     double[] mu = new double[] {5.0, 40.0, 90.0, 150.0};
