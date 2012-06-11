@@ -25,7 +25,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * A decorator to a reference data provider adding caching.
+ * Decorates a reference data provider, adding caching.
  * <p>
  * The cache is implemented using {@code EHCache}.
  */
@@ -66,9 +66,7 @@ public class EHCachingReferenceDataProvider extends AbstractCachingReferenceData
    */
   public EHCachingReferenceDataProvider(final ReferenceDataProvider underlying, final CacheManager cacheManager, final FudgeContext fudgeContext) {
     super(underlying, fudgeContext);
-    ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, REFERENCE_DATA_CACHE);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, REFERENCE_DATA_CACHE);

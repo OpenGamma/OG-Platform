@@ -16,7 +16,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
- * A decorator to a reference data provider adding caching.
+ * Decorates a reference data provider, adding caching.
  * <p>
  * The cache is implemented using the a Mongo database.
  */
