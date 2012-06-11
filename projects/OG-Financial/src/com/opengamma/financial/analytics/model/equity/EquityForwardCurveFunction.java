@@ -65,9 +65,9 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   }  
   
   /** Funding curve of the equity's currency */
-  private ValueRequirement getFundingCurveRequirement(Currency ccy) {
+  private ValueRequirement getFundingCurveRequirement(final Currency ccy, final String curveName) {
     final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
-      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+      .with(ValuePropertyNames.CURVE, curveName)
       .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
       .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, 
@@ -80,23 +80,30 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties constraints = desiredValue.getConstraints();
     
+    // Spot Requirement
+    requirements.add(getSpotRequirement(target));
+    
     // Check for forwardCurveName for efficiency, though it isn't used until execute method
     final Set<String> forwardCurveName = constraints.getValues(ValuePropertyNames.CURVE);
     if (forwardCurveName == null || forwardCurveName.size() != 1) {
       return null;
     }
     
-    // Spot Requirement
-    requirements.add(getSpotRequirement(target));
-    
-    // Funding Curve Requirement for equity's currency
+    // Funding Curve Currency
     final Set<String> ccyConstraint = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
     if (ccyConstraint == null || ccyConstraint.size() != 1) {
       return null;
     }
     final Currency currency = Currency.of(ccyConstraint.iterator().next());
-    requirements.add(getFundingCurveRequirement(currency));
-        
+    // Funding Curve Name 
+    final Set<String> fundingCurveNameSet = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurveNameSet  == null || fundingCurveNameSet.size() != 1) {
+      return null;
+    }
+    final String fundingCurveName = fundingCurveNameSet.iterator().next();
+    // Funding Curve Requirement
+    requirements.add(getFundingCurveRequirement(currency, fundingCurveName));
+       
     return requirements;
   }
   
@@ -111,16 +118,23 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     
     // Spot
-    final Double spot = (Double) inputs.getValue(getSpotRequirement(target));   
+    final Double spot = (Double) inputs.getValue(getSpotRequirement(target));
+    if (spot == null) {
+      throw new OpenGammaRuntimeException("Failed to get spot value requirement");
+    }
+    
     // Funding
-    final Object fundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName,null,null));
+    final Object fundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, null, null));
     if (fundingCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get funding curve");
+      throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
     // Cost of Carry TODO Dividend treatment
     final YieldCurve zeroCostOfCarryCurve = new YieldCurve(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
     
+
+    
+    // Compute ForwardCurve
     ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, zeroCostOfCarryCurve);
     
     final ValueProperties properties = createValueProperties()
