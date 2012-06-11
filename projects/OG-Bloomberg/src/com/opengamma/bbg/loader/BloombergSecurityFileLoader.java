@@ -70,7 +70,7 @@ public class BloombergSecurityFileLoader {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityFileLoader.class);
-  
+
   /* package */static final String CONTEXT_CONFIGURATION_PATH = "/com/opengamma/bbg/loader/bloomberg-security-loader-context.xml";
 
   private static final String HELP_OPTION = "help";

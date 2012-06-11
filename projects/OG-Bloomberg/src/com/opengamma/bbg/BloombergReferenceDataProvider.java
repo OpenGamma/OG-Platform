@@ -46,48 +46,66 @@ import com.opengamma.util.ArgumentChecker;
  * the Bloomberg Server API.
  */
 public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataProvider implements ReferenceDataProvider {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergReferenceDataProvider.class);
-  private static final String ERROR_MESSAGE_FORMAT = "{0}:{1}/{2} - {3}";
-  
-  private final BloombergReferenceDataStatistics _statistics;
-  private Service _refDataService;
-  
   /**
-   * @param sessionOptions the bloomberg session options
+   * The error message format.
+   */
+  private static final String ERROR_MESSAGE_FORMAT = "{0}:{1}/{2} - {3}";
+
+  /**
+   * The statistics for Bloomberg access.
+   */
+  private final BloombergReferenceDataStatistics _statistics;
+  /**
+   * The Bloomberg service.
+   */
+  private Service _refDataService;
+
+  /**
+   * Creates an instance with session options.
+   * <p>
+   * This will not gather statistics on usage.
+   * 
+   * @param sessionOptions  the Bloomberg session options, not null
    */
   public BloombergReferenceDataProvider(SessionOptions sessionOptions) {
     this(sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
   }
-  
+
   /**
-   * @param sessionOptions the bloomberg session options
-   * @param statistics the statistics to record
+   * Creates an instance with session options.
+   * 
+   * @param sessionOptions  the Bloomberg session options, not null
+   * @param statistics  the statistics to collect, not null
    */
   public BloombergReferenceDataProvider(SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
     super(sessionOptions);
     _statistics = statistics;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   protected Logger getLogger() {
     return s_logger;
   }
-  
+
   @Override
   protected void openServices() {
     Service refDataService = openService(BloombergConstants.REF_DATA_SVC_NAME);
     setRefDataService(refDataService);
   }
-  
+
   private void setRefDataService(Service refDataService) {
     _refDataService = refDataService;
   }
-  
+
   private Service getRefDataService() {
     return _refDataService;
   }
-    
+
+  //-------------------------------------------------------------------------
   @Override
   public ReferenceDataResult getFields(Set<String> securities,
       Set<String> fields) {
@@ -101,7 +119,6 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     Request request = composeRequest(securities, fields);
     CorrelationID cid = submitBloombergRequest(request);
     BlockingQueue<Element> resultElements = getResultElement(cid);
-    
     if (resultElements == null || resultElements.isEmpty()) {
       throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securities);
     }
@@ -110,7 +127,6 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     for (Element resultElem : resultElements) {
       if (resultElem.hasElement(RESPONSE_ERROR)) {
         Element responseError = resultElem.getElement(RESPONSE_ERROR);
-        
         String category = responseError.getElementAsString(BloombergConstants.CATEGORY);
         if ("LIMIT".equals(category)) {
           s_logger.error("Limit reached {}", responseError);
@@ -136,15 +152,17 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
         if (securityElem.hasElement(EID_DATA)) {
           processEidData(perSecResult, securityElem.getElement(FIELD_DATA));
         }
-        
         result.addResult(perSecResult);
       }
     }
-    
-    
     return result;
   }
 
+  /**
+   * Checks that all the securities are valid.
+   * 
+   * @param securities  the set of securities, not null
+   */
   private void checkAllSecuritiesValid(Set<String> securities) {
     Set<String> excluded = new HashSet<String>();
     for (String security : securities) {
@@ -165,15 +183,22 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
   }
 
   /**
-   * @param perSecResult the persecurity reference data result 
-   * @param element the bloomberg element
+   * Processes the field data.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param element  the bloomberg element, not null
    */
-  protected void processFieldData(PerSecurityReferenceDataResult perSecResult,
-      Element element) {
+  protected void processFieldData(PerSecurityReferenceDataResult perSecResult, Element element) {
     FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
     perSecResult.setFieldData(fieldData);
   }
-  
+
+  /**
+   * Processes the exceptions.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param fieldExceptionArray  the bloomberg data, not null
+   */
   private void processFieldExceptions(PerSecurityReferenceDataResult perSecResult, Element fieldExceptionArray) {
     int numExceptions = fieldExceptionArray.numValues();
     for (int i = 0; i < numExceptions; i++) {
@@ -183,16 +208,24 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
       perSecResult.addFieldException(fieldId, errorInfo);
     }
   }
-  
+
+  /**
+   * Processes the EID data.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param element  the bloomberg element, not null
+   */
   private void processEidData(PerSecurityReferenceDataResult perSecResult,
       Element element) {
     perSecResult.setEidData(element);
   }
-  
+
   /**
-   * @param securities the set of bloomberg security keys
-   * @param fields the set of bloomberg fields
-   * @return bloomberg request
+   * Composes the request to Bloomberg.
+   * 
+   * @param securities  the set of bloomberg security keys, not null
+   * @param fields  the set of bloomberg fields, not null
+   * @return the bloomberg request, not null
    */
   protected Request composeRequest(Set<String> securities, Set<String> fields) {
     Request request = getRefDataService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
@@ -216,17 +249,19 @@ public class BloombergReferenceDataProvider extends AbstractBloombergStaticDataP
     if (fields.contains(BloombergConstants.FIELD_EID_DATA)) {
       request.set("returnEids", true);
     }
-    
     return request;
   }
-  
+
   /**
-   * @param perSecResult the persecurity reference data result
-   * @param element the bloomberg element
+   * Processes a security error.
+   * 
+   * @param perSecResult  the per security reference data result, not null
+   * @param element  the bloomberg element, not null
    */
   protected void processSecurityError(PerSecurityReferenceDataResult perSecResult, Element element) {
     ErrorInfo error = new ErrorInfo(element);
     String errorMessage = MessageFormat.format(ERROR_MESSAGE_FORMAT, error.getCode(), error.getCategory(), error.getSubcategory(), error.getMessage());
     perSecResult.getExceptions().add(errorMessage);
   }
+
 }

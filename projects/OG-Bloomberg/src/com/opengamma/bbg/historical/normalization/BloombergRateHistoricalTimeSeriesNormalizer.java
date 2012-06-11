@@ -23,8 +23,9 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  */
 public class BloombergRateHistoricalTimeSeriesNormalizer implements HistoricalTimeSeriesAdjuster {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRateHistoricalTimeSeriesNormalizer.class);
-  
+
   private final BloombergRateClassifier _classifier;
   
   public BloombergRateHistoricalTimeSeriesNormalizer(BloombergRateClassifier classifier) {

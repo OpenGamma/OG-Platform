@@ -29,6 +29,8 @@ import com.opengamma.util.ArgumentChecker;
  * Tool for loading bloomberg security definitions in bulk.
  */
 public class BloombergBulkSecurityLoader {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergBulkSecurityLoader.class);
   
   private final Set<SecurityType> _ignoredSecurityTypes;

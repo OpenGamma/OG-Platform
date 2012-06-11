@@ -42,6 +42,8 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class BloombergTickCollectorHandler implements EventHandler {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergTickCollectorHandler.class);
   private static final FudgeContext s_fudgeContext = new FudgeContext();
   

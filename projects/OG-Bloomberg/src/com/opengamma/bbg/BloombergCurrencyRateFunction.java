@@ -30,29 +30,62 @@ import com.opengamma.util.tuple.Pair;
  */
 public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledInvoker {
 
+  /**
+   * Pattern for identifying specific codes.
+   */
   private static final Pattern s_validate = Pattern.compile("[A-Z]{3}_[A-Z]{3}");
-
+  /**
+   * The USD reference currency.
+   */
   private static final String REFERENCE_CURRENCY_ISO = "USD";
 
+  /**
+   * The rate lookup scheme.
+   */
   private String _rateLookupIdentifierScheme = CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
+  /**
+   * The rate lookup value name.
+   */
   private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the rate lookup scheme.
+   * 
+   * @param rateLookupIdentifierScheme  the scheme
+   */
   public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
     _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
   }
 
+  /**
+   * Gets the rate lookup scheme.
+   * 
+   * @return the scheme
+   */
   public String getRateLookupIdentifierScheme() {
     return _rateLookupIdentifierScheme;
   }
 
+  /**
+   * Sets the rate lookup value name.
+   * 
+   * @param rateLookupValueName  the value name
+   */
   public void setRateLookupValueName(final String rateLookupValueName) {
     _rateLookupValueName = rateLookupValueName;
   }
 
+  /**
+   * Sets the rate lookup value name.
+   * 
+   * @return  the value name
+   */
   public String getRateLookupValueName() {
     return _rateLookupValueName;
   }
 
+  //-------------------------------------------------------------------------
   private static Pair<String, String> parse(final ComputationTarget target) {
     final int underscore = target.getUniqueId().getValue().indexOf('_');
     final String numerator = target.getUniqueId().getValue().substring(0, underscore);

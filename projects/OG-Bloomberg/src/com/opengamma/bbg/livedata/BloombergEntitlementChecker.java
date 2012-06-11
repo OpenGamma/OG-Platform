@@ -37,38 +37,52 @@ import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * Checks that the user has entitlement to access Bloomberg.
+ * <p>
  * To understand what's going on this class, read Bloomberg Server API 3.0 Developer Guide, Chapter 7.
- * 
  */
 public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProvider implements LiveDataEntitlementChecker {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEntitlementChecker.class);
-  
-  private final BloombergReferenceDataProvider _refDataProvider;
-  
+  /**
+   * The length of half a day in seconds.
+   */
   private static final long HALF_A_DAY_IN_SECONDS = 12 * 60 * 60;
-  
-  /** Bloomberg //blp/apiauth service */
+
+  /**
+   * The Bloomberg reference data provider.
+   */
+  private final BloombergReferenceDataProvider _refDataProvider;
+  /**
+   * The Bloomberg //blp/apiauth service.
+   */
   private Service _apiAuthSvc;
-  
   /** 
-   * UserPrincipal -> UserHandle 
+   * Cache: UserPrincipal -> UserHandle 
    */
   private final Cache _userHandleCache;
-  
   /** 
-   * DistributionSpecification -> com.bloomberglp.blpapi.Element (containing Bloomberg Entitlement IDs)
+   * Cache: DistributionSpecification -> com.bloomberglp.blpapi.Element (containing Bloomberg Entitlement IDs)
    */
   private final Cache _eidCache;
-  
+  /**
+   * The distribution resolver.
+   */
   private final DistributionSpecificationResolver _resolver;
-  
-  
-  public BloombergEntitlementChecker(SessionOptions sessionOptions,
+
+  /**
+   * Creates an instance.
+   * 
+   * @param sessionOptions  the session options, not null
+   * @param refDataProvider  the reference data provider, not null
+   * @param resolver  the resolver, not null
+   */
+  public BloombergEntitlementChecker(
+      SessionOptions sessionOptions,
       BloombergReferenceDataProvider refDataProvider,
       DistributionSpecificationResolver resolver) {
     super(sessionOptions);
-    
     ArgumentChecker.notNull(refDataProvider, "Reference data provider");
     _refDataProvider = refDataProvider;
     
@@ -83,19 +97,19 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     ArgumentChecker.notNull(resolver, "Distribution spec resolver");
     _resolver = resolver;
   }
-  
+
   @Override
   protected void openServices() {
     Service authService = openService(BloombergConstants.AUTH_SVC_NAME);
     _apiAuthSvc = authService;
   }
-  
+
   @Override
   protected Logger getLogger() {
     return s_logger;
   }
-  
-  // --------------------------------------------------------------------------
+
+  //-------------------------------------------------------------------------
   
   @Override
   public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
@@ -112,9 +126,8 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     }
     return returnValue;
   }
-  
-  // --------------------------------------------------------------------------
-  
+
+  //-------------------------------------------------------------------------
   public boolean isEntitled(UserPrincipal user, DistributionSpecification distributionSpec) {
     UserHandle userHandle = getUserHandle(user);
     if (userHandle == null) {
@@ -130,7 +143,6 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
     return isEntitled;
   }
 
-  
   private Element getEids(DistributionSpecification distributionSpec) {
     net.sf.ehcache.Element cachedEids = _eidCache.get(distributionSpec);
     if (cachedEids == null) {
@@ -147,12 +159,11 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       cachedEids = new net.sf.ehcache.Element(distributionSpec, eids);
       _eidCache.put(cachedEids);
     }
-
+    
     Element neededEntitlements = (Element) cachedEids.getObjectValue();
     return neededEntitlements;
   }
 
-  
   private UserHandle getUserHandle(UserPrincipal user) {
     net.sf.ehcache.Element cachedUserHandle = _userHandleCache.get(user);
     if (cachedUserHandle == null) {
@@ -165,7 +176,7 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
         s_logger.info("Bloomberg user IDs are integers - so " + user.getUserName() + " cannot be entitled to anything");        
         return null;
       }
-     
+      
       authorizationRequest.set("uuid", uuid);
       authorizationRequest.set("ipAddress", user.getIpAddress());
       UserHandle userHandle = getSession().createUserHandle();
@@ -179,20 +190,15 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
       
       boolean authorizedSuccessfully = false;
       for (Element resultElem : resultElements) {
-        
         if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_SUCCESS)) {
-
           cachedUserHandle = new net.sf.ehcache.Element(user, userHandle);
           _userHandleCache.put(cachedUserHandle);
-
           authorizedSuccessfully = true;          
-
+          
         } else if (resultElem.name().equals(BloombergConstants.AUTHORIZATION_FAILURE)) {
-          
           Element reasonElem = resultElem.getElement(BloombergConstants.REASON);
-          
           s_logger.info("Bloomberg authorization failed {}", reasonElem);
-        
+          
         } else {
           s_logger.info("Bloomberg authorization result {}", resultElem);
         }
@@ -202,10 +208,8 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
         return null;        
       }
     }
-    
     UserHandle userHandle = (UserHandle) cachedUserHandle.getObjectValue();
     return userHandle;
   }
-  
-  
+
 }

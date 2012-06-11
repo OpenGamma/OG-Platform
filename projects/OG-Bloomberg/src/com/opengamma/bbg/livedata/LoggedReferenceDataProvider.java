@@ -31,8 +31,9 @@ import com.opengamma.bbg.ReferenceDataResult;
  */
 public class LoggedReferenceDataProvider implements ReferenceDataProvider {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LoggedReferenceDataProvider.class); 
-  
+
   private final FudgeContext _fudgeContext;
   private final Map<String, ? extends FudgeMsg> _data;
   

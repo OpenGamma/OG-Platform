@@ -86,23 +86,27 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
    * The Bloomberg service.
    */
   private Service _refDataService;
-
+  /**
+   * The statistics for Bloomberg access.
+   */
   private final BloombergReferenceDataStatistics _statistics;
-  
+
   /**
    * Creates an instance with session options.
+   * <p>
+   * This will not gather statistics on usage.
    * 
    * @param sessionOptions  the Bloomberg session options, not null
    */
   public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions) {
     this(sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
   }
-  
+
   /**
    * Creates an instance with session options.
    * 
    * @param sessionOptions  the Bloomberg session options, not null
-   * @param statistics the statistics to collect
+   * @param statistics  the statistics to collect, not null
    */
   public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
     super(sessionOptions);

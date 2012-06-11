@@ -35,7 +35,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A security master based on the Bloomberg data source.
+ * A security source based on the Bloomberg data source.
  */
 public final class BloombergSecuritySource implements SecuritySource {
 
@@ -85,7 +85,7 @@ public final class BloombergSecuritySource implements SecuritySource {
     }
     return getSecurity(uniqueId.getValue());
   }
-  
+
   @Override
   public Security getSecurity(ObjectId objectId, VersionCorrection versionCorrection) {
     if (BLOOMBERG_SCHEME.equals(objectId.getScheme()) == false) {
@@ -103,7 +103,7 @@ public final class BloombergSecuritySource implements SecuritySource {
       return Collections.emptyList();
     }
   }
-  
+
   @Override
   public Collection<Security> getSecurities(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return getSecurities(bundle);
@@ -122,12 +122,12 @@ public final class BloombergSecuritySource implements SecuritySource {
       return null;
     }
   }
-  
+
   @Override
   public Security getSecurity(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return getSecurity(bundle);
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
@@ -137,6 +137,7 @@ public final class BloombergSecuritySource implements SecuritySource {
   //-------------------------------------------------------------------------
   /**
    * Gets the security type by id.
+   * 
    * @param securityID  the security id, null returns null
    * @return the security type, null if not found
    */

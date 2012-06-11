@@ -31,6 +31,8 @@ import com.opengamma.util.ArgumentChecker;
  * A Bloomberg Live Data Server. 
  */
 public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergLiveDataServer.class);
   
   // Injected Inputs:

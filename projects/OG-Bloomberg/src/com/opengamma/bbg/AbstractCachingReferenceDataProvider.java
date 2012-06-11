@@ -25,47 +25,62 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A base for implementations of {@link CachingReferenceDataProvider} which can store fields by security
+ * A base for implementations of {@link CachingReferenceDataProvider} which can store fields by security.
  */
 public abstract class AbstractCachingReferenceDataProvider implements CachingReferenceDataProvider {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCachingReferenceDataProvider.class);
-  
-  private static final String FIELD_NOT_AVAILABLE_NAME = "NOT_AVAILABLE_FIELD";
-  
   /**
-   * Underlying reference data source
+   * Constant used when field not available.
+   */
+  private static final String FIELD_NOT_AVAILABLE_NAME = "NOT_AVAILABLE_FIELD";
+
+  /**
+   * The underlying reference data source.
    */
   private final ReferenceDataProvider _underlying;
-  
   /**
-   * Fudge context
+   * The Fudge context.
    */
   private final FudgeContext _fudgeContext;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying reference data provider, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
   public AbstractCachingReferenceDataProvider(final ReferenceDataProvider underlying, final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the Fudge context.
+   * 
+   * @return the context, not null
+   */
   protected FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
-  
+
   /**
-   * @return the underlying
+   * Gets the underlying provider.
+   * 
+   * @return the underlying, not null
    */
   @Override
   public ReferenceDataProvider getUnderlying() {
     return _underlying;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securities,
-      Set<String> fields) {
+  public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {
     ArgumentChecker.notEmpty(securities, "Securities");
     ArgumentChecker.notEmpty(fields, "Field Names");
     
@@ -77,7 +92,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
     resolvedResults = stripUnwantedFields(resolvedResults, fields);
     return resolvedResults;
   }
-  
+
   protected ReferenceDataResult stripUnwantedFields(final ReferenceDataResult resolvedResults, final Set<String> fields) {
     ReferenceDataResult result = new ReferenceDataResult();
     Set<String> securities = resolvedResults.getSecurities();
@@ -87,7 +102,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
       strippedDataResult.getExceptions().addAll(unstippedDataResult.getExceptions());
       MutableFudgeMsg strippedFields = getFudgeContext().newMessage();
       FudgeMsg unstrippedFieldData = unstippedDataResult.getFieldData();
-      //check requested fields
+      // check requested fields
       for (String requestField : fields) {
         List<FudgeField> fudgeFields = unstrippedFieldData.getAllByName(requestField);
         for (FudgeField fudgeField : fudgeFields) {
@@ -101,7 +116,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
   }
 
   public void refresh(Set<String> securities) {
-    //TODO bulk queries
+    // TODO bulk queries
     Map<String, PerSecurityReferenceDataResult> cachedResults = loadCachedResults(securities);
     
     Map<Set<String>, Set<String>> securitiesByFields = new HashMap<Set<String>, Set<String>>();
@@ -109,7 +124,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
     for (String security : securities) {
       PerSecurityReferenceDataResult cachedResult = cachedResults.get(security);
       if (cachedResult == null) {
-        continue; //Nothing to refresh
+        continue; // nothing to refresh
       }
       Set<String> fields = new HashSet<String>();
       fields.addAll(cachedResult.getFieldData().getAllFieldNames());
@@ -137,12 +152,12 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
       }
     }
   }
-  
+
   private boolean differentCachedResult(PerSecurityReferenceDataResult previousResult, PerSecurityReferenceDataResult resolvedResult) {
     if (!previousResult.getSecurity().equals(resolvedResult.getSecurity())) {
       throw new OpenGammaRuntimeException("Attempting to compare two different securities " + previousResult + " " + resolvedResult);
     }
-    //TODO better, non ordered comparison
+    // TODO better, non ordered comparison
     if (previousResult.getFieldData().toString().equals(resolvedResult.getFieldData().toString())) {
       return false;
     }
@@ -152,7 +167,7 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
   protected ReferenceDataResult loadAndPersistUnknownFields(
       Map<String, PerSecurityReferenceDataResult> cachedResults,
       Map<Set<String>, Set<String>> securitiesByFields) {
-        
+     
     // TODO kirk 2009-10-23 -- Also need to maintain securities we don't need to put back in the database.
     ReferenceDataResult result = new ReferenceDataResult();
     // REVIEW kirk 2009-10-23 -- Candidate for scatter/gather.
@@ -261,4 +276,5 @@ public abstract class AbstractCachingReferenceDataProvider implements CachingRef
   protected abstract Map<String, PerSecurityReferenceDataResult> loadCachedResults(Set<String> securities);
 
   protected abstract void persistSecurityFields(PerSecurityReferenceDataResult securityResult);
+
 }

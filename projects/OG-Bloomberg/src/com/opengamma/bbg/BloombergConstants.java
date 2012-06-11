@@ -16,22 +16,23 @@ import com.google.common.collect.Sets;
  * Bloomberg Constants
  */
 public final class BloombergConstants {
+
   /**
-   * 
+   * Restricted constructor.
    */
   private BloombergConstants() {
   }
 
   /**
-   * BLOOMBERG datasource name
+   * BLOOMBERG datasource name.
    */
   public static final String BLOOMBERG_DATA_SOURCE_NAME = "BLOOMBERG";
   /**
-   * BLOOMBERG default port
+   * BLOOMBERG default port.
    */
   public static final String DEFAULT_PORT = "8194";
   /**
-   * Name for Unknown dataProvider
+   * Name for Unknown dataProvider.
    */
   public static final String DATA_PROVIDER_UNKNOWN = "UNKNOWN";
   /**
@@ -285,7 +286,7 @@ public final class BloombergConstants {
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
       FIELD_OPT_UNDL_TICKER));
-  
+
   /**
    * Valid market sector
    */
