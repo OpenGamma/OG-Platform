@@ -57,13 +57,12 @@ public class RemoteReferenceDataProvider implements ReferenceDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securities,
-      Set<String> fields) {
-    ArgumentChecker.notEmpty(securities, "Securities");
-    ArgumentChecker.notEmpty(fields, "Field Names");
+  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {
+    ArgumentChecker.notEmpty(securityKeys, "securityKeys");
+    ArgumentChecker.notEmpty(fields, "fields");
     
     FudgeContext context = getFudgeContext();
-    FudgeMsg msg = composeRequestMessage(context, securities, fields);
+    FudgeMsg msg = composeRequestMessage(context, securityKeys, fields);
     RemoteReferenceDataReceiver receiver = new RemoteReferenceDataReceiver();
     s_logger.debug("sending remote fudge message {}", msg);
     _fudgeRequestSender.sendRequest(msg, receiver);
@@ -80,14 +79,14 @@ public class RemoteReferenceDataProvider implements ReferenceDataProvider {
    * Composes the Fudge request message.
    * 
    * @param context  the Fudge context, not null
-   * @param securities  the set of securities, not null
+   * @param securityKeys  the set of securities, not null
    * @param fields  the set of fields, not null
    * @return the Fudge message request, not null
    */
-  protected FudgeMsg composeRequestMessage(FudgeContext context, Set<String> securities, Set<String> fields) {
+  protected FudgeMsg composeRequestMessage(FudgeContext context, Set<String> securityKeys, Set<String> fields) {
     ArgumentChecker.notNull(context, "FudgeContext");
     ReferenceDataRequestMessage message = new ReferenceDataRequestMessage();
-    message.setSecurity(securities);
+    message.setSecurity(securityKeys);
     message.setField(fields);
     return message.toFudgeMsg(new FudgeSerializer(context));
   }

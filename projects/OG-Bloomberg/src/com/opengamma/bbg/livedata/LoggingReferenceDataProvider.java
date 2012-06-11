@@ -77,34 +77,34 @@ public class LoggingReferenceDataProvider implements ReferenceDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public ReferenceDataResult getFields(Set<String> securities, Set<String> fields) {   
-    ReferenceDataResult result = _underlying.getFields(securities, fields);
+  public ReferenceDataResult getFields(Set<String> securityKeys, Set<String> fields) {   
+    ReferenceDataResult result = _underlying.getFields(securityKeys, fields);
     processResult(result, fields);
     return result;
   }
 
   private void processResult(ReferenceDataResult result, Set<String> fields) {
-    for (String security : result.getSecurities()) {
+    for (String securityKey : result.getSecurities()) {
       Set<String> freshFieldsLogged = new HashSet<String>();
-      Set<String> fieldsLogged = _alreadyLogged.putIfAbsent(security, freshFieldsLogged);
+      Set<String> fieldsLogged = _alreadyLogged.putIfAbsent(securityKey, freshFieldsLogged);
       if (fieldsLogged == null) {
         fieldsLogged = freshFieldsLogged;
       }
       
-      PerSecurityReferenceDataResult securityResult = result.getResult(security);
+      PerSecurityReferenceDataResult securityResult = result.getResult(securityKey);
       synchronized (fieldsLogged) {
         for (String field : fields) {
           if (fieldsLogged.contains(field) == false) {
             Object value = securityResult.getFieldData().getValue(field);
-            log(security, field, value);
+            log(securityKey, field, value);
           }
         }
       }
     }
   }
 
-  private void log(String security, String field, Object value) {
-    LoggedReferenceData loggedReferenceData = new LoggedReferenceData(security, field, value);
+  private void log(String securityKey, String field, Object value) {
+    LoggedReferenceData loggedReferenceData = new LoggedReferenceData(securityKey, field, value);
     _fudgeMsgWriter.writeMessage(loggedReferenceData.toFudgeMsg(new FudgeSerializer(_fudgeContext)));
     _fudgeMsgWriter.flush();
   }
