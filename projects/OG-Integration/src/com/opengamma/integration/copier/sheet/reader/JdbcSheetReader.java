@@ -19,6 +19,8 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -40,6 +42,7 @@ public class JdbcSheetReader extends SheetReader {
   private String[] _row;
   private List<Map<String, String>> _results;
   private Iterator<Map<String, String>> _iterator;
+  private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
   
   public JdbcSheetReader(DataSource dataSource, String query) {
     init(dataSource, query, null);
@@ -65,6 +68,7 @@ public class JdbcSheetReader extends SheetReader {
         setColumns(columns);
         List<Map<String, String>> entries = new ArrayList<Map<String, String>>();
         while (rs.next()) {
+          s_logger.info("Read a row");
           String[] rawRow = new String[rs.getMetaData().getColumnCount()];
           for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
             rawRow[i] = rs.getString(i + 1);
@@ -79,7 +83,7 @@ public class JdbcSheetReader extends SheetReader {
               result.put(getColumns()[i], rawRow[i]);
             }
           }
-          
+          entries.add(result);
         }
         return entries;
       }
@@ -88,8 +92,8 @@ public class JdbcSheetReader extends SheetReader {
       _results = getJDBCTemplate().query(query, preparedStatementSetter, extractor);
     } else {
       _results = getJDBCTemplate().query(query, extractor);
-      _iterator = _results.iterator();
     }
+    _iterator = _results.iterator();
   }
   
   private JdbcTemplate getJDBCTemplate() {
@@ -98,7 +102,12 @@ public class JdbcSheetReader extends SheetReader {
 
   @Override
   public Map<String, String> loadNextRow() {
-    return _iterator.next();
+    if (_iterator.hasNext()) {
+      s_logger.info("Returned a row");
+      return _iterator.next();
+    } else {
+      return null;
+    }
   }
 
   @Override
