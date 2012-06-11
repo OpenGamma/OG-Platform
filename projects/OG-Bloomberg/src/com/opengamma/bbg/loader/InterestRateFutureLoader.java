@@ -46,6 +46,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
       FIELD_FUT_TRADING_HRS,
       FIELD_ID_MIC_PRIM_EXCH, // trading exchange
       FIELD_CRNCY,
+      FIELD_FUTURES_CATEGORY,
       FIELD_SECURITY_DES,
       FIELD_PARSEKYABLE_DES,
       FIELD_ID_BBG_UNIQUE,
@@ -105,34 +106,38 @@ public class InterestRateFutureLoader extends SecurityLoader {
     }
 
     if (!isValidField(bbgUnique)) {
-      s_logger.warn("bbgUnique is null, cannot construct interest rate future security");
+      s_logger.warn("bbgUnique is null. Cannot construct interest rate future security.");
       return null;
     }
     if (!isValidField(expiryDate)) {
-      s_logger.warn("expiry date is null, cannot construct interest rate future security");
+      s_logger.warn("expiry date is null. Cannot construct interest rate future security.");
       return null;
     }
     if (!isValidField(futureTradingHours)) {
-      s_logger.warn("futures trading hours is null, cannot construct interest rate future security");
+      s_logger.warn("futures trading hours is null. Cannot construct interest rate future security.");
       return null;
     }
     if (!isValidField(micExchangeCode)) {
-      s_logger.warn("settlement exchange is null, cannot construct interest rate future security");
+      s_logger.warn("settlement exchange is null. Cannot construct interest rate future security.");
       return null;
     }
     if (!isValidField(currencyStr)) {
-      s_logger.info("currency is null, cannot construct interest rate future security");
+      s_logger.warn("currency is null. Cannot construct interest rate future security.");
+      return null;
+    }
+    if (!isValidField(category)) {
+      s_logger.warn("No category provided from field {}. Cannot construct interest rate future security.", FIELD_FUTURES_CATEGORY);
       return null;
     }
 
     Expiry expiry = decodeExpiry(expiryDate, futureTradingHours);
     if (expiry == null) {
-      s_logger.info("expiry is null, cannot construct interest rate future security");
+      s_logger.warn("expiry is null. Cannot construct interest rate future security.");
       return null;
     }
     
     if (!isValidField(name)) {
-      s_logger.info("name is null, cannot construct interest rate future security");
+      s_logger.warn("name is null. Cannot construct interest rate future security.");
       return null;
     }
     
