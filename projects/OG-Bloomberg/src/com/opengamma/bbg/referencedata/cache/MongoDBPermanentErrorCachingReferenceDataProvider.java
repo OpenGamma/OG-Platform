@@ -16,7 +16,6 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeMsg;
 
 import com.bloomberglp.blpapi.SessionOptions;
-import com.opengamma.bbg.AbstractCachingReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
@@ -24,7 +23,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.mongo.MongoConnector;
 
 /**
- * A {@link AbstractCachingReferenceDataProvider} which caches the data using a {@link MongoDBReferenceDataCache} 
+ * A reference data provider that caches permanent errors in MongoDB.
  */
 public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractPermanentErrorCachingReferenceDataProvider {
 
@@ -38,40 +37,54 @@ public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractP
   private static final String FIELD_PERMANENT_ERROR_NAME = "PERMANENT_ERROR";
 
   //TODO: when cache implementation is composed properly this can be split more sanely
+  /**
+   * The Mongo cache.
+   */
   private final MongoDBReferenceDataCache _cache;
+  /**
+   * The Fudge context.
+   */
   private final FudgeContext _fudgeContext;
 
   /**
    * Creates an instance.
    * 
    * @param sessionOptions  the session options, not null
-   * @param connector  the Mongo connector, not null
+   * @param mongoConnector  the Mongo connector, not null
    */
-  public MongoDBPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions, MongoConnector connector) {
-    this(sessionOptions, connector, NullBloombergReferenceDataStatistics.INSTANCE);
+  public MongoDBPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions, MongoConnector mongoConnector) {
+    this(sessionOptions, mongoConnector, NullBloombergReferenceDataStatistics.INSTANCE);
   }
+
   /**
-   * Creates an instance.
+   * Creates an instance with statistics gathering.
    * 
    * @param sessionOptions  the session options, not null
-   * @param connector  the Mongo connector, not null
-   * @param statistics the statistics to record
+   * @param mongoConnector  the Mongo connector, not null
+   * @param statistics  the statistics to collect, not null
    */
-  public MongoDBPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions, MongoConnector connector, BloombergReferenceDataStatistics statistics) {
-    this(sessionOptions, connector, statistics, OpenGammaFudgeContext.getInstance());
+  public MongoDBPermanentErrorCachingReferenceDataProvider(
+      SessionOptions sessionOptions,
+      MongoConnector mongoConnector,
+      BloombergReferenceDataStatistics statistics) {
+    this(sessionOptions, mongoConnector, statistics, OpenGammaFudgeContext.getInstance());
   }
 
   /**
    * Creates an instance.
    * 
    * @param sessionOptions  the session options, not null
-   * @param connector  the Mongo connector, not null
-   * @param statistics the statistics to record
+   * @param mongoConnector  the Mongo connector, not null
+   * @param statistics  the statistics to collect, not null
    * @param fudgeContext  the Fudge context, not null
    */
-  public MongoDBPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions, MongoConnector connector, BloombergReferenceDataStatistics statistics, FudgeContext fudgeContext) {
-    super(sessionOptions, statistics);
-    _cache = new MongoDBReferenceDataCache(connector, PERMANENT_ERRORS);
+  public MongoDBPermanentErrorCachingReferenceDataProvider(
+      SessionOptions sessionOptions,
+      MongoConnector mongoConnector,
+      BloombergReferenceDataStatistics statistics,
+      FudgeContext fudgeContext) {
+    super(bloombergConnector, statistics);
+    _cache = new MongoDBReferenceDataCache(mongoConnector, PERMANENT_ERRORS);
     _fudgeContext = fudgeContext;
   }
 
