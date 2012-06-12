@@ -5,34 +5,35 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * A source of swaption volatility cube definitions that come from a {@link ConfigSource}
  * 
  */
-public class ConfigDBSwaptionVolatilityCubeDefinitionSource implements SwaptionVolatilityCubeDefinitionSource {
+public class SyntheticSwaptionVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
   private final ConfigSource _configSource;
 
-  public ConfigDBSwaptionVolatilityCubeDefinitionSource(final ConfigSource configSource) {
+  public SyntheticSwaptionVolatilityCubeDefinitionSource(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "config source");
     _configSource = configSource;
   }
 
   @Override
-  public SwaptionVolatilityCubeDefinition<?, ?, ?> getDefinition(final String name) {
+  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
     ArgumentChecker.notNull(name, "name");
-    return _configSource.getLatestByName(SwaptionVolatilityCubeDefinition.class, name);
+    return _configSource.getLatestByName(VolatilityCubeDefinition.class, name);
   }
 
   @Override
-  public SwaptionVolatilityCubeDefinition<?, ?, ?> getDefinition(final String name, final Instant version) {
+  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final InstantProvider version) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(version, "version");
-    return _configSource.getByName(SwaptionVolatilityCubeDefinition.class, name, version);
+    return _configSource.getByName(VolatilityCubeDefinition.class, name, version.toInstant());
   }
 
 }

@@ -30,16 +30,16 @@ public class SyntheticSecuritySwaptionVolatilityCubeInstrumentProvider implement
   }
 
   @Override
-  public ExternalId getInstrument(final Tenor swapMaturity, final Tenor swaptionExpiry, final Double delta) {
+  public ExternalId getInstrument(final Tenor swapMaturity, final Tenor swaptionExpiry, final Double relativeStrike) {
     ArgumentChecker.notNull(swapMaturity, "swap maturity");
     ArgumentChecker.notNull(swaptionExpiry, "swaption expiry");
-    ArgumentChecker.notNull(delta, "delta");
+    ArgumentChecker.notNull(relativeStrike, "relative strike");
     final StringBuffer ticker = new StringBuffer(_prefix);
     final String swaptionString = getTenorString(swaptionExpiry);
     final String swapString = getTenorString(swapMaturity);
     ticker.append(swaptionString);
     ticker.append(swapString);
-    ticker.append(Double.toString(delta));
+    ticker.append(Double.toString(relativeStrike));
     return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker.toString());
   }
 

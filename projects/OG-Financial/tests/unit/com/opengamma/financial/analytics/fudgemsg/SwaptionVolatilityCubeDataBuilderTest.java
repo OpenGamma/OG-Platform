@@ -12,37 +12,36 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeData;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * 
  */
 public class SwaptionVolatilityCubeDataBuilderTest extends AnalyticsTestBase {
-  private static final Object[] SWAP_TENORS = new Tenor[] {Tenor.SIX_MONTHS, Tenor.ONE_YEAR, Tenor.FIVE_YEARS };
-  private static final Object[] SWAPTION_EXPIRY = new Tenor[] {Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SEVEN_MONTHS };
-  private static final Object[] DELTAS = new Double[] {0.15, 0.2, 0.5, 0.75, 0.9 };
-  private static final SwaptionVolatilityCubeData<Object, Object, Object> DATA;
+  private static final Tenor[] SWAP_TENORS = new Tenor[] {Tenor.SIX_MONTHS, Tenor.ONE_YEAR, Tenor.FIVE_YEARS };
+  private static final Tenor[] SWAPTION_EXPIRY = new Tenor[] {Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SEVEN_MONTHS };
+  private static final Double[] RELATIVE_STRIKES = new Double[] {-100., -50., 0., 25., 75. };
+  private static final SwaptionVolatilityCubeData DATA;
 
   static {
-    final Map<Triple<Object, Object, Object>, Double> data = new HashMap<Triple<Object, Object, Object>, Double>();
-    for (final Object element : SWAP_TENORS) {
-      for (final Object element2 : SWAPTION_EXPIRY) {
-        for (final Object element3 : DELTAS) {
-          final Triple<Object, Object, Object> coordinate = Triple.of(element, element2, element3);
+    final Map<VolatilityPoint, Double> data = new HashMap<VolatilityPoint, Double>();
+    for (final Tenor swapTenor : SWAP_TENORS) {
+      for (final Tenor swaptionExpiry : SWAPTION_EXPIRY) {
+        for (final Double relativeStrike : RELATIVE_STRIKES) {
+          final VolatilityPoint coordinate = new VolatilityPoint(swapTenor, swaptionExpiry, relativeStrike);
           final double vol = Math.random();
           data.put(coordinate, vol);
         }
       }
     }
-    DATA = new SwaptionVolatilityCubeData<Object, Object, Object>(data);
+    DATA = new SwaptionVolatilityCubeData(data);
   }
 
   @Test
   public void test() {
-    @SuppressWarnings("unchecked")
-    final SwaptionVolatilityCubeData<Object, Object, Object> cycled = cycleObject(SwaptionVolatilityCubeData.class, DATA);
+    final SwaptionVolatilityCubeData cycled = cycleObject(SwaptionVolatilityCubeData.class, DATA);
     assertEquals(cycled, DATA);
   }
 }
