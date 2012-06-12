@@ -147,7 +147,8 @@ public final class EnergyFutureLoader extends SecurityLoader {
     EnergyFutureSecurity security = new EnergyFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, category);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);
-    security.setUnderlyingId(underlying);    
+    security.setUnderlyingId(underlying);
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

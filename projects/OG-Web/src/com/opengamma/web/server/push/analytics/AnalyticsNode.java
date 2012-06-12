@@ -12,10 +12,10 @@ import java.util.List;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO something needs to generate a compact representation of the grid's tree structure. this class? the message body writer?
- * TODO not sure this class is necessary, just use the root node
+ *
  */
 public class AnalyticsNode {
 
@@ -23,7 +23,8 @@ public class AnalyticsNode {
   private final int _end;
   private final List<AnalyticsNode> children;
 
-  private AnalyticsNode(int start, int end, List<AnalyticsNode> children) {
+  /* package */ AnalyticsNode(int start, int end, List<AnalyticsNode> children) {
+    ArgumentChecker.notNull(children, "children");
     _start = start;
     _end = end;
     this.children = children;

@@ -184,6 +184,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     out.put("security", doc.getPosition().getSecurity());
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
+    out.put("attributes", doc.getPosition().getAttributes());
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
     out.put("tradeAttrModel", tradeAttributesModel);
     return out;
@@ -194,7 +195,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
     TradeAttributesModel getTradeAttributesModel = new TradeAttributesModel(doc.getPosition());
     return getTradeAttributesModel;
   }
-
+  
   //-------------------------------------------------------------------------
   @Path("versions")
   public WebPositionVersionsResource findVersions() {

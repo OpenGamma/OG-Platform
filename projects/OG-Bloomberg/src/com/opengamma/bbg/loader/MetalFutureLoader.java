@@ -142,7 +142,8 @@ public class MetalFutureLoader extends SecurityLoader {
     MetalFutureSecurity security = new MetalFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, category);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);
-    security.setUnderlyingId(underlying);    
+    security.setUnderlyingId(underlying);
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

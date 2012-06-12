@@ -112,7 +112,7 @@ public class EquityFutureLoader extends SecurityLoader {
     ZonedDateTime settlementDate = expiry.getExpiry();
 
     EquityFutureSecurity security = new EquityFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, Double.valueOf(unitAmount), settlementDate, underlying, category);
-
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

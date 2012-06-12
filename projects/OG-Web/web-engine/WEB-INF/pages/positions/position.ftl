@@ -24,6 +24,14 @@
 </#if>
 </@subsection>
 
+<#-- SUBSECTION Attributes -->
+<@subsection title="Attributes">
+  <@table items=attributes?keys empty="No attributes" headers=["Attribute Name","Value"]; item>
+      <td>${item}</td>
+      <td>${attributes[item]}</td>
+  </@table>
+</@subsection>    
+
 <#-- SUBSECTION Trades -->
 <@subsection title="Trades">
   <@table items=position.trades empty="No trades" headers=["Reference","Quantity","Date","Security","Counterparty"]; item>

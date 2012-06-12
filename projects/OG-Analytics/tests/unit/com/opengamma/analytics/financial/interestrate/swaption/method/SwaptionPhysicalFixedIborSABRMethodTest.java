@@ -20,11 +20,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
+import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
+import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.PV01Calculator;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
@@ -118,6 +122,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
+  private static final PV01Calculator PV01C = new PV01Calculator(PVCSC_SABR);
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   // Pricing functions
@@ -356,13 +361,54 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
 
   @Test(enabled = true)
   /**
-   * Tests the present value SABR parameters sensitivity: Method vs Calculator.
+   * Tests the present value of the Hull-White Monte-Carlo calibrated to SABR swaption.
    */
   public void presentValueSABRHullWhiteMonteCarlo() {
     CurrencyAmount pvSABR = METHOD.presentValue(SWAPTION_LONG_PAYER, SABR_BUNDLE);
     PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
     double pvMC = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
     assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(), pvMC, 2.5E+4);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Analyzes the smoothness of sensitivities.
+   */
+  public void analysisSensitivities() {
+    IborIndex USDLIBOR3M = IndexIborTestsMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
+    Period expiryTenor = Period.ofYears(5);
+    Period underlyingTenor = Period.ofYears(10);
+    ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
+    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapTestsMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
+    double notional = 1000000; // 1m
+    double strikeRange = 0.1150;
+    double strikeStart = 0.0050;
+    int nbStrike = 50;
+    double[] strikes = new double[nbStrike + 1];
+    SwaptionPhysicalFixedIbor[] swaptions = new SwaptionPhysicalFixedIbor[nbStrike + 1];
+    double[] pv = new double[nbStrike + 1];
+    double[] pv01Dsc = new double[nbStrike + 1];
+    double[] pv01Fwd = new double[nbStrike + 1];
+    double[] alphaSensi = new double[nbStrike + 1];
+    double[] rhoSensi = new double[nbStrike + 1];
+    double[] nuSensi = new double[nbStrike + 1];
+    for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
+      strikes[loopstrike] = strikeStart + loopstrike * strikeRange / nbStrike;
+      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(settleDate, underlyingTenor, USD6MLIBOR3M, notional, strikes[loopstrike], true);
+      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(expiryDate, swapDefinition, true);
+      swaptions[loopstrike] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
+      pv[loopstrike] = METHOD.presentValue(swaptions[loopstrike], SABR_BUNDLE).getAmount();
+      PresentValueSABRSensitivityDataBundle sabrSensi = METHOD.presentValueSABRSensitivity(swaptions[loopstrike], SABR_BUNDLE);
+      Map<String, Double> pv01 = PV01C.visit(swaptions[loopstrike], SABR_BUNDLE);
+      alphaSensi[loopstrike] = sabrSensi.getAlpha().toSingleValue();
+      rhoSensi[loopstrike] = sabrSensi.getRho().toSingleValue();
+      nuSensi[loopstrike] = sabrSensi.getNu().toSingleValue();
+      pv01Dsc[loopstrike] = pv01.get(CURVES_NAME[0]);
+      pv01Fwd[loopstrike] = pv01.get(CURVES_NAME[1]);
+    }
+    @SuppressWarnings("unused")
+    double atm = PRC.visit(swaptions[0].getUnderlyingSwap(), CURVES);
   }
 
   @Test(enabled = false)

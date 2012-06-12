@@ -153,6 +153,7 @@ public class BondFutureLoader extends SecurityLoader {
 
     // set identifiers
     parseIdentifiers(fieldData, security);
+    security.setName(name);
     return security;
   }
 

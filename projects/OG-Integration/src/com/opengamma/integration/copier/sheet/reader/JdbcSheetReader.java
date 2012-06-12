@@ -11,8 +11,22 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -22,117 +36,81 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class JdbcSheetReader extends SheetReader {
 
-  private Connection _connection;
+  private DataSource _dataSource;
+  private JdbcTemplate _jdbcTemplate;
   private ResultSet _resultSet;
+  private String[] _row;
+  private List<Map<String, String>> _results;
+  private Iterator<Map<String, String>> _iterator;
+  private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
   
-    
-  public JdbcSheetReader(String url, String user, String password, String query) {
-    
-    ArgumentChecker.notEmpty(url, "url");
-    ArgumentChecker.notEmpty(user, "user");
-    ArgumentChecker.notEmpty(password, "password");
-
-    // Set up JDBC connection
-    try {
-      _connection = DriverManager.getConnection(url, user, password);
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Could not get a JDBC connection to " + url + ": " + ex.getMessage());
-    }
-    
-    // Perform query
-    Statement statement;
-    try {
-      statement = _connection.createStatement();
-      if (statement.execute(query) == false) {
-        throw new OpenGammaRuntimeException("Query (" + query + ") returned no results");
-      }
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Error executing query (" + query + "):" + ex.getMessage());
-    }
-    
-    // Set columns
-    try {
-      _resultSet = statement.getResultSet();
-      String[] columns = new String[_resultSet.getMetaData().getColumnCount()];
-      for (int i = 0; i < _resultSet.getMetaData().getColumnCount(); i++) {
-        columns[i] = _resultSet.getMetaData().getColumnName(i + 1);
-      }      
-      setColumns(columns);
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Could not extract column names from query result:" + ex.getMessage());
-    }
+  public JdbcSheetReader(DataSource dataSource, String query) {
+    init(dataSource, query, null);
   }
-   
-  public JdbcSheetReader(Connection connection, String query) {
+  
+  public JdbcSheetReader(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
+    ArgumentChecker.notNull(preparedStatementSetter, "prepared statement setter");
+    init(dataSource, query, preparedStatementSetter);
+  }
+  
+  protected void init(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
+    ArgumentChecker.notNull(dataSource, "dataSource");
     
-    ArgumentChecker.notNull(connection, "connection");
-    
-    _connection = connection;
-
-    // Perform query
-    Statement statement;
-    try {
-      statement = _connection.createStatement();
-      if (statement.execute(query) == false) {
-        throw new OpenGammaRuntimeException("Query (" + query + ") returned no results");
+    _jdbcTemplate = new JdbcTemplate(dataSource);
+     
+    ResultSetExtractor<List<Map<String, String>>> extractor = new ResultSetExtractor<List<Map<String, String>>>() {
+      @Override
+      public List<Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        String[] columns = new String[rs.getMetaData().getColumnCount()];
+        for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+          columns[i] = rs.getMetaData().getColumnName(i + 1);
+        }
+        setColumns(columns);
+        List<Map<String, String>> entries = new ArrayList<Map<String, String>>();
+        while (rs.next()) {
+          s_logger.info("Read a row");
+          String[] rawRow = new String[rs.getMetaData().getColumnCount()];
+          for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+            rawRow[i] = rs.getString(i + 1);
+          }
+          Map<String, String> result = new HashMap<String, String>();
+          // Map read-in row onto expected columns
+          for (int i = 0; i < getColumns().length; i++) {
+            if (i >= rawRow.length) {
+              break;
+            }
+            if (rawRow[i] != null && rawRow[i].trim().length() > 0) {
+              result.put(getColumns()[i], rawRow[i]);
+            }
+          }
+          entries.add(result);
+        }
+        return entries;
       }
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Error executing query (" + query + "):" + ex.getMessage());
+    };
+    if (preparedStatementSetter != null) {
+      _results = getJDBCTemplate().query(query, preparedStatementSetter, extractor);
+    } else {
+      _results = getJDBCTemplate().query(query, extractor);
     }
-    
-    // Set columns
-    try {
-      _resultSet = statement.getResultSet();
-      String[] columns = new String[_resultSet.getMetaData().getColumnCount()];
-      for (int i = 0; i < _resultSet.getMetaData().getColumnCount(); i++) {
-        columns[i] = _resultSet.getMetaData().getColumnName(i + 1);
-      }      
-      setColumns(columns);
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Could not extract column names from query result:" + ex.getMessage());
-    }
+    _iterator = _results.iterator();
+  }
+  
+  private JdbcTemplate getJDBCTemplate() {
+    return _jdbcTemplate;
   }
 
   @Override
   public Map<String, String> loadNextRow() {
-    
-    Map<String, String> result = new HashMap<String, String>();
-
-    // Read in next row and return null if EOF
-    try {
-      if (!_resultSet.next()) {
-        return null;
-      }
-    
-      String[] rawRow = new String[_resultSet.getMetaData().getColumnCount()];
-      for (int i = 0; i < _resultSet.getMetaData().getColumnCount(); i++) {
-        rawRow[i] = _resultSet.getString(i + 1);
-      }
-      
-      // Map read-in row onto expected columns
-      for (int i = 0; i < getColumns().length; i++) {
-        if (i >= rawRow.length) {
-          break;
-        }
-        if (rawRow[i] != null && rawRow[i].trim().length() > 0) {
-          result.put(getColumns()[i], rawRow[i]);
-        }
-      }
-      
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Could not extract current row from JDBC result set:" + ex.getMessage());
+    if (_iterator.hasNext()) {
+      s_logger.info("Returned a row");
+      return _iterator.next();
+    } else {
+      return null;
     }
-
-    return result;
   }
 
   @Override
   public void close() {
-    try {
-      _connection.close();
-
-    } catch (SQLException ex) {
-      throw new OpenGammaRuntimeException("Could not close JDBC connection: " + ex.getMessage());
-    }
   }
 }

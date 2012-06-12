@@ -283,7 +283,7 @@ public class SABRExtrapolationRightFunction {
    * @return The parameters.
    */
   private double[] computesFittingParameters() {
-    final double[] param = new double[3];
+    final double[] param = new double[3]; // Implementation note: called a,b,c in the note.
     final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     // Computes derivatives at cut-off.
     final double[] vD = new double[5];
@@ -295,8 +295,12 @@ public class SABRExtrapolationRightFunction {
     _priceK[0] = BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
     _priceK[1] = bsD[2] + bsD[1] * vD[1];
     _priceK[2] = bsD2[2][2] + bsD2[1][2] * vD[1] + (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[1] + bsD[1] * vD2[1][1];
+    double eps = 1.0E-15;
+    if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
+      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      return new double[] {-100.0, 0, 0};
+    }
     final CFunction toSolveC = new CFunction(_priceK, _cutOffStrike, _mu);
-
     final BracketRoot bracketer = new BracketRoot();
     double accuracy = 1.0E-5;
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(accuracy);
@@ -314,6 +318,11 @@ public class SABRExtrapolationRightFunction {
    * @return The derivatives.
    */
   private double[] computesParametersDerivativeForward() {
+    double eps = 1.0E-15;
+    if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
+      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      return new double[] {0.0, 0.0, 0.0};
+    }
     // Derivative of price with respect to forward.
     final double[] pDF = new double[3];
     final double shift = 0.00001;
@@ -378,6 +387,12 @@ public class SABRExtrapolationRightFunction {
    * @return The derivatives.
    */
   private double[][] computesParametersDerivativeSABR() {
+    double eps = 1.0E-15;
+    final double[][] result = new double[3][3];
+    if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
+      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      return result;
+    }
     // Derivative of price with respect to SABR parameters.
     final double[][] pDSABR = new double[3][3]; // parameter SABR - equation
     final double shift = 0.00001;
@@ -443,7 +458,6 @@ public class SABRExtrapolationRightFunction {
     final ColtMatrixAlgebra algebra = new ColtMatrixAlgebra();
     final DoubleMatrix2D fDInverse = algebra.getInverse(fDmatrix);
     final OGMatrixAlgebra algebraOG = new OGMatrixAlgebra();
-    final double[][] result = new double[3][3];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       final DoubleMatrix1D pDSABRvector = new DoubleMatrix1D(pDSABR[loopparam]);
       final DoubleMatrix1D derivativeSABR = (DoubleMatrix1D) algebraOG.multiply(fDInverse, pDSABRvector);

@@ -157,19 +157,19 @@ public class CAConventions {
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD DEPOSIT 5y")), "CAD DEPOSIT 5y", act365,
         following, Period.ofYears(5), 2, false, ca);
     //TODO check daycount
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 1m")),
-        "CDOR 1m", act365, following, Period.ofMonths(1), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR02 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 2m")),
-        "CDOR 2m", act365, following, Period.ofMonths(2), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR03 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 3m")),
-        "CDOR 3m", act365, following, Period.ofMonths(3), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR06 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 6m")),
-        "CDOR 6m", act365, following, Period.ofMonths(6), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR12 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 12m")),
-        "CDOR 12m", act365, following, Period.ofMonths(12), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR01 Index"), ExternalSchemes.bloombergTickerSecurityId("CDOR01 RBC Index"),
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 1m")), "CDOR 1m", act365, following, Period.ofMonths(1), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR02 Index"), ExternalSchemes.bloombergTickerSecurityId("CDOR02 RBC Index"),
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 2m")), "CDOR 2m", act365, following, Period.ofMonths(2), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR03 Index"), ExternalSchemes.bloombergTickerSecurityId("CDOR03 RBC Index"),
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 3m")), "CDOR 3m", act365, following, Period.ofMonths(3), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR06 Index"), ExternalSchemes.bloombergTickerSecurityId("CDOR06 RBC Index"),
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 6m")), "CDOR 6m", act365, following, Period.ofMonths(6), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CDOR12 Index"), ExternalSchemes.bloombergTickerSecurityId("CDOR12 RBC Index"),
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 12m")), "CDOR 12m", act365, following, Period.ofMonths(12), 2, false, ca);
     utils.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("CAONREPO Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBC OVERNIGHT REPO")), "RBC OVERNIGHT REPO",
-        act365, following, Period.ofDays(1), 0, false, ca);
+        act365, following, Period.ofDays(1), 0, false, ca, 0);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_SWAP")), "CAD_SWAP", act365, modified, semiAnnual, 0, ca, act365,
         modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 3m"), ca, true);
@@ -180,8 +180,14 @@ public class CAConventions {
     final Integer publicationLag = 1;
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_OIS_SWAP")), "CAD_OIS_SWAP", act365, modified, annual, 0, ca,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBC OVERNIGHT REPO"), ca, true, publicationLag);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_FRA")), "CAD_FRA", act365, following, Period.ofMonths(3), 2, false,
-        ca);
+    
+    // TODO check the following details - copied from old CAD_FRA
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_3M_FRA")), "CAD_3M_FRA", act365, following, quarterly, 2, ca, act365,
+        following, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 3m"), ca, false);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_6M_FRA")), "USD_6M_FRA", act365, following, semiAnnual, 2, ca, act365,
+        following, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 6m"), ca, false);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CAD_FRA")), "CAD_FRA", act365, following, quarterly, 2, ca, act365,
+        following, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CDOR 3m"), ca, false);
 
     //TODO according to my information:
     //"Floating leg compounded quarterly at CDOR Flat paid semi-annually or annually for 1y"

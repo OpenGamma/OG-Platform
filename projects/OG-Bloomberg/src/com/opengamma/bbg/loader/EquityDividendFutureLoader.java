@@ -142,7 +142,7 @@ public class EquityDividendFutureLoader extends SecurityLoader {
     }
     Currency currency = Currency.parse(currencyStr);
     EquityIndexDividendFutureSecurity security = new EquityIndexDividendFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, settle.getExpiry(), underlying, category);
-    
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;

@@ -534,7 +534,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         }
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (final Exception e) {
-        s_logger.error("Caught exception {} for {}", e, financialSecurity);
+        s_logger.error("Caught exception for " + financialSecurity, e);
       }
       if (derivative == null) {
         throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);

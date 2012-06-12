@@ -38,7 +38,7 @@ public class ExampleDatabasePopulatorTest {
 //    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
 //  }
 
-  @Test
+  @Test(enabled=false)
   public void testPortfolioAndDataLoaded() throws Exception {
     DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
     

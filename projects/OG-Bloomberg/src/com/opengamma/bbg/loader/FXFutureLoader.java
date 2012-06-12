@@ -137,7 +137,7 @@ public class FXFutureLoader extends SecurityLoader {
     Currency quotedCurrency = Currency.parse(quotedCurrencyCode);
     
     FXFutureSecurity security = new FXFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, tradingCurrency, quotedCurrency, category);    
-    
+    security.setName(name);
     parseIdentifiers(fieldData, security, FIELD_FUT_FIRST_TRADE_DT, FIELD_LAST_TRADEABLE_DT);
     return security;
   }
