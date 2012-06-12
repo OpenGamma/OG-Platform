@@ -1,0 +1,51 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-analytics-resize.og-bars {
+    border-width: 0 5px 5px 0;
+    position: absolute;
+    -moz-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
+    border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
+}
+
+.ie8 .OG-analytics-resize.og-bars, .ie9 .OG-analytics-resize.og-bars {
+    border-image: none;
+    border-right: 5px solid #ccc;
+    border-bottom: 5px solid #ccc;
+}
+
+.OG-analytics-resize.og-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    background-color: #fff;
+    opacity: 0;
+}
+
+.ie8 .OG-analytics-resize.og-overlay {
+    filter: alpha(opacity=0);
+}
+
+/**
+  * 000000001
+  * 000000010
+  * 000000100
+  * 000001000
+  * 000010001
+  * 000100010
+  * 001000100
+  * 010001000
+  * 100010001
+  * 0 = transparent
+  * 1 = #b7b7b7
+  */
+.OG-analytics-resize.og-resizer {
+    background: #fff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPElEQVQYV2NkIAC2b9/+nxGfGpACT09PRpyKYApAhmBVhKwAqyJ0BRhuwqYAxU24FMCtw6cArIiQApA8AGjsOXbEV6lQAAAAAElFTkSuQmCC) 100% 100% no-repeat;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+}

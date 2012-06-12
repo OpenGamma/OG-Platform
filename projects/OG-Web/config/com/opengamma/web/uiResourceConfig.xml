@@ -134,6 +134,7 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -220,12 +221,6 @@
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
   </bundle>
-  <bundle id="grid.js">
-      <fragment>/scripts/og/analytics/og.analytics.connection.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
-  </bundle>
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.form.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toggle_text_on_focus.js</fragment>
@@ -256,6 +251,13 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
+  </bundle>
+  <bundle id="grid.js">
+    <fragment>/scripts/og/analytics/og.analytics.connection.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
@@ -325,9 +327,9 @@
       <bundle idref="util.js" />
       <bundle idref="util_ui.js" />
       <bundle idref="common.js" />
-      <bundle idref="grid.js" />
       <bundle idref="views_common.js" />
       <bundle idref="common_module.js" />
+      <bundle idref="grid.js" />
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
@@ -337,9 +339,9 @@
       <bundle idref="util.js" />
       <bundle idref="util_ui.js" />
       <bundle idref="common.js" />
-      <bundle idref="grid.js" />
       <bundle idref="views_common.js" />
       <bundle idref="common_module.js" />
+      <bundle idref="grid.js" />
       <fragment>/scripts/og/views/og.views.gadget.js</fragment>
   </bundle>
 </uiResourceConfig>
