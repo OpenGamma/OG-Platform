@@ -31,19 +31,6 @@ $.register_module({
                 return (partial_width += val.width), css;
             });
         };
-        var set_css = function (id, sets, offset) {
-            var partial_width = 0,
-                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
-                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
-            return sets.map(function (set, idx) {
-                var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
-                css = {
-                    prefix: id, index: idx + (offset || 0),
-                    left: partial_width, right: total_width - partial_width - set_width
-                };
-                return (partial_width += set_width), css;
-            });
-        };
         var compile_templates = function (handler) {
             var css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
@@ -56,6 +43,10 @@ $.register_module({
                 handler();
             });
         };
+        var fire = function (grid, type) {
+            var args = Array.prototype.slice.call(arguments, 2);
+            grid.events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
+        };
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
             grid.elements = {};
@@ -66,6 +57,7 @@ $.register_module({
         };
         var init_grid = function (grid, config, metadata) {
             var $ = grid.$, columns = metadata.columns;
+            grid.events = {mousedown: [], scroll: []};
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height = header_height;
@@ -75,6 +67,10 @@ $.register_module({
             grid.meta.scroll_length = grid.meta.columns.fixed.reduce(function (acc, set) {
                 return acc + set.columns.length;
             }, 0);
+            grid.on = function (type, handler) {
+                if (type in grid.events)
+                    grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+            };
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
             grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
             grid.elements.main = $(grid.id);
@@ -83,6 +79,20 @@ $.register_module({
             grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
             grid.set_viewport = set_viewport.partial(grid);
+            grid.elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
+            grid.elements.parent.on('mousedown', function (event) {
+                event.preventDefault();
+                fire(grid, 'mousedown', event);
+            });
+            grid.elements.scroll_body.on('scroll', (function (timeout) {
+                return function (event) { // sync scroll instantaneously and set viewport after scroll stops
+                    grid.dataman.busy(true);
+                    grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
+                    grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
+                    timeout = clearTimeout(timeout) ||
+                        setTimeout(function () {grid.set_viewport(function () {grid.dataman.busy(false);})}, 200);
+                }
+            })(null));
             grid.selector = new og.analytics.Selector(grid);
             set_size(grid, config);
             render_header(grid);
@@ -137,6 +147,19 @@ $.register_module({
                 grid.selector.render();
             };
         })();
+        var set_css = function (id, sets, offset) {
+            var partial_width = 0,
+                columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
+                total_width = columns.reduce(function (acc, val) {return val.width + acc;}, 0);
+            return sets.map(function (set, idx) {
+                var set_width = set.columns.reduce(function (acc, val) {return val.width + acc;}, 0), css;
+                css = {
+                    prefix: id, index: idx + (offset || 0),
+                    left: partial_width, right: total_width - partial_width - set_width
+                };
+                return (partial_width += set_width), css;
+            });
+        };
         var set_size = function (grid, config) {
             var meta = grid.meta, css, width = config.width || grid.elements.parent.width(),
                 height = config.height || grid.elements.parent.height(), columns = meta.columns, id = grid.id;

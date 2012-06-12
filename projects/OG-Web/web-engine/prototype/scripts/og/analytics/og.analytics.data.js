@@ -11,9 +11,7 @@ $.register_module({
             var data = this, events = {init: [], data: []}, id = 'data_' + counter++, meta, viewport = null;
             var fire = function (type) {
                 var args = Array.prototype.slice.call(arguments, 1);
-                events[type].forEach(function (value) {
-                    value.handler.apply(null, value.args.concat(args));
-                });
+                events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
             };
             var data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.

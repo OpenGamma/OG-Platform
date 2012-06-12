@@ -6,31 +6,27 @@ $.register_module({
     name: 'og.analytics.Selector',
     dependencies: ['og.analytics.Grid'],
     obj: function () {
-        var module = this;
+        var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel';
         return function (grid) {
-            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height;
+            var selector = this, $ = grid.$, grid_offset, grid_width, grid_height, fixed_width;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
-                var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top,
-                    fixed_width = grid.meta.columns.width.fixed, increment = 35, interval = 100,
-                    scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
+                var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
+                    interval = 100, scroll_body = grid.elements.scroll_body, over_fixed = x < fixed_width;
                 clearTimeout(auto_scroll.timeout);
                 if (x > grid_width) scroll_body.scrollLeft(scroll_left + increment);
                 else if (over_fixed && start.x > fixed_width) scroll_body.scrollLeft(scroll_left - increment);
-                else
-                    if (over_fixed && (auto_scroll.scroll = auto_scroll.scroll || scroll_body.find('.OG-g-sel').length))
-                        scroll_body.scrollLeft(scroll_left - increment);
+                else if (over_fixed && (auto_scroll.scroll = auto_scroll.scroll || scroll_body.find(overlay).length))
+                    scroll_body.scrollLeft(scroll_left - increment);
                 if (y < grid.meta.header_height) scroll_body.scrollTop(scroll_top - increment);
                 else if (y > grid_height) scroll_body.scrollTop(scroll_top + increment);
                 auto_scroll.timeout = setTimeout(function () {
                     auto_scroll(event, scroll_body.scrollTop(), scroll_body.scrollLeft(), start);
                 }, interval);
             };
-            auto_scroll.timeout = null;
-            auto_scroll.scroll = false;
+            (auto_scroll.timeout = null), (auto_scroll.scroll = false);
             var clean_up = function () {
-                $(document).off('mousemove', mousemove_observer).off('mouseup', mouseup_observer);
-                auto_scroll.timeout = clearTimeout(auto_scroll.timeout);
-                auto_scroll.scroll = false;
+                $(document).off(namespace);
+                (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
                 grid.set_viewport();
             };
             var initialize = function () {
@@ -38,27 +34,25 @@ $.register_module({
                 grid_offset = grid.elements.parent.offset();
                 grid_width = grid.elements.parent.width();
                 grid_height = grid.elements.parent.height();
+                fixed_width = grid.meta.columns.width.fixed;
+                $(grid.id + ' ' + overlay).remove();
             };
             var mousedown_observer = function (event) {
                 if (event.which === 3 || event.button === 2) return; else initialize(); // ignore right clicks
-                var $cell, $target,
-                    scroll_left = grid.elements.scroll_body.scrollLeft(),
-                    scroll_top = grid.elements.scroll_body.scrollTop(),
-                    fixed_width = grid.meta.columns.width.fixed,
-                    x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
-                    y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height;
-                $(grid.id + ' .OG-g-sel').remove();
-                $cell = ($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first');
-                if (!$cell.length && !$target.is('.OG-g-sel')) return;
-                (mousemove_observer = 
-                    (function (x, y) {return function (event) {mousemove({x: x, y: y}, event);};})(x, y))(event);
-                $(document).on('mousemove', mousemove_observer).on('mouseup', mouseup_observer);
+                var $target, x = event.pageX - grid_offset.left + (event.pageX > fixed_width ?
+                        grid.elements.scroll_body.scrollLeft() : 0),
+                    y = event.pageY - grid_offset.top + grid.elements.scroll_body.scrollTop() - grid.meta.header_height;
+                if (!(($target = $(event.target)).is('.OG-g-cell') ? $target : $target.parents('.OG-g-cell:first'))
+                    .length && !$target.is(overlay)) return; // if the cursor is not over a cell, bail
+                $(document).on('mouseup' + namespace, clean_up)
+                    .on('mousemove' + namespace, (function (x, y, handler) { // run it manually once and return it
+                        return (handler = function (event) {mousemove({x: x, y: y}, event);})(event), handler;
+                    })(x, y));
             };
             var mousemove = function (start, event) {
                 event.preventDefault();
                 var scroll_left = grid.elements.scroll_body.scrollLeft(),
                     scroll_top = grid.elements.scroll_body.scrollTop(),
-                    fixed_width = grid.meta.columns.width.fixed,
                     x = event.pageX - grid_offset.left + (event.pageX > fixed_width ? scroll_left : 0),
                     y = event.pageY - grid_offset.top + scroll_top - grid.meta.header_height,
                     areas = [], rectangle = {};
@@ -90,8 +84,6 @@ $.register_module({
                 areas.rectangle = rectangle;
                 selector.render(areas);
             };
-            var mousemove_observer = $.noop;
-            var mouseup_observer = clean_up;
             var nearest_cell = function (x, y) {
                 var top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length;
                 for (lcv = 0; lcv < len; lcv += 1) if (scan[lcv] > x) break;
@@ -99,19 +91,10 @@ $.register_module({
                 top = bottom - grid.meta.row_height;
                 return {top: top, bottom: bottom, left: scan[lcv - 1] || 0, right: scan[lcv]};
             };
-            var scroll_observer = function (timeout) {
-                return function () { // sync scroll instantaneously and set viewport after scroll stops
-                    grid.dataman.busy(true);
-                    grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
-                    grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
-                    timeout = clearTimeout(timeout) ||
-                        setTimeout(function () {grid.set_viewport(function () {grid.dataman.busy(false);})}, 200);
-                }
-            };
             selector.render = function (rectangles) {
                 if (!selector.render.memo && !rectangles) return;
                 if (rectangles) selector.render.memo = rectangles;
-                $(grid.id + ' .OG-g-sel').remove();
+                $(grid.id + ' ' + overlay).remove();
                 selector.render.memo.forEach(function (rectangle) {
                     $('<div class="OG-g-sel" />').css(rectangle.position).css(rectangle.dimensions)
                         .appendTo(grid.elements[rectangle.fixed ? 'fixed_body' : 'scroll_body']);
@@ -131,10 +114,7 @@ $.register_module({
                 for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(lcv);
                 return {rows: rows, cols: cols};
             };
-            // initialize
-            grid.elements.parent[0].onselectstart = function () {return false;};
-            grid.elements.parent.on('mousedown', mousedown_observer);
-            grid.elements.scroll_body.on('scroll', scroll_observer(null));
+            grid.on('mousedown', mousedown_observer); // initialize
         };
     }
 });
