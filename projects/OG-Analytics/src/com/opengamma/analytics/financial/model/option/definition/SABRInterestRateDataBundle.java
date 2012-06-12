@@ -47,7 +47,7 @@ public class SABRInterestRateDataBundle extends YieldCurveBundle {
   }
 
   /**
-   * Gets the _sabrParameter field.
+   * Gets the parameters of the SABR grid.
    * @return The SABR parameters.
    */
   public SABRInterestRateParameters getSABRParameter() {
