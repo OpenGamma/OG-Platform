@@ -60,7 +60,10 @@ $.register_module({
                             load_preset(+$(this).find('> span').attr('class').replace(/^(?:.*)([1-3])$/, '$1'));
                         })
                         .appendTo('body');
-                    $(document).on('click.analytics.resize.menu', function () {$menu.remove();});
+                    $(document).on('click.analytics.resize.menu', function () {
+                        $(document).off('click.analytics.resize.menu');
+                        $menu.remove();
+                    });
                 });
                 return false;
             };
