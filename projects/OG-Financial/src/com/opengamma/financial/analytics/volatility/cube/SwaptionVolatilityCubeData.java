@@ -13,21 +13,29 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * Object containing information about a volatility cube parameterised by delta.
+ * Object containing information about a volatility cube parameterised by swap tenor, swaption expiry and relative strike in bps.
  * @param <X> Type of the x-axis data
  * @param <Y> Type of the y-axis data
  * @param <Z> Type of the z-axis data
  */
-public class VolatilityDeltaCubeData<X, Y, Z> {
+public class SwaptionVolatilityCubeData<X, Y, Z> {
   private final Map<Triple<X, Y, Z>, Double> _volatilityPoints;
 
-  public VolatilityDeltaCubeData(final Map<Triple<X, Y, Z>, Double> volatilityPoints) {
+  public SwaptionVolatilityCubeData(final Map<Triple<X, Y, Z>, Double> volatilityPoints) {
     ArgumentChecker.notNull(volatilityPoints, "volatility points");
     _volatilityPoints = volatilityPoints;
   }
 
   public Map<Triple<X, Y, Z>, Double> getVolatilityPoints() {
     return _volatilityPoints;
+  }
+
+  public Double getVolatilityForPoint(final X x, final Y y, final Z z) {
+    final Triple<X, Y, Z> coordinate = Triple.of(x, y, z);
+    if (_volatilityPoints.containsKey(coordinate)) {
+      return _volatilityPoints.get(coordinate);
+    }
+    return null;
   }
 
   @Override
@@ -49,7 +57,7 @@ public class VolatilityDeltaCubeData<X, Y, Z> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final VolatilityDeltaCubeData<?, ?, ?> other = (VolatilityDeltaCubeData<?, ?, ?>) obj;
+    final SwaptionVolatilityCubeData<?, ?, ?> other = (SwaptionVolatilityCubeData<?, ?, ?>) obj;
     return ObjectUtils.equals(_volatilityPoints, other._volatilityPoints);
   }
 

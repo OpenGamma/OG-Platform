@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.volatility.cube;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.InstantProvider;
@@ -19,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -38,9 +37,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 
@@ -103,35 +101,22 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition name " + fullDefinitionName);
         }
         final CubeInstrumentProvider<Object, Object, Object> provider = (CubeInstrumentProvider<Object, Object, Object>) specification.getCubeInstrumentProvider();
-        final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-        final HashMap<VolatilityPoint, ExternalId> dataIds = new HashMap<VolatilityPoint, ExternalId>();
-        final HashMap<VolatilityPoint, Double> deltas = new HashMap<VolatilityPoint, Double>();
-        final HashMap<UniqueId, Double> otherData = new HashMap<UniqueId, Double>();
+        final Map<Triple<Object, Object, Object>, Double> data = new HashMap<Triple<Object, Object, Object>, Double>();
         for (final Object x : definition.getXs()) {
-          final Tenor swapMaturity = (Tenor) x;
           for (final Object y : definition.getYs()) {
-            final Tenor swaptionExpiry = (Tenor) y;
             for (final Object z : definition.getZs()) {
-              final Double delta = (Double) z;
               final ExternalId id = provider.getInstrument(x, y, z);
               final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), id);
               final Object volatilityObject = inputs.getValue(requirement);
               if (volatilityObject != null) {
                 final Double volatility = (Double) volatilityObject;
-                final VolatilityPoint volatilityPoint = new VolatilityPoint(swapMaturity, swaptionExpiry, delta);
-                dataPoints.put(volatilityPoint, volatility);
-                dataIds.put(volatilityPoint, id);
-                deltas.put(volatilityPoint, delta);
-              } else {
-                otherData.put(requirement.getTargetSpecification().getUniqueId(), delta);
+                final Triple<Object, Object, Object> coordinate = Triple.of(x, y, z);
+                data.put(coordinate, volatility);
               }
             }
           }
         }
-        final VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
-        volatilityCubeData.setDataPoints(dataPoints);
-        volatilityCubeData.setDataIds(dataIds);
-        volatilityCubeData.setRelativeStrikes(deltas);
+        final SwaptionVolatilityCubeData<Object, Object, Object> volatilityCubeData = new SwaptionVolatilityCubeData<Object, Object, Object>(data);
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CUBE, cubeName)
             .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION, definitionName)

@@ -5,14 +5,33 @@
  */
 package com.opengamma.financial.analytics.model.volatility.cube;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -27,22 +46,30 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveMarketDataFunction;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
+import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeData;
 import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeDefinition;
+import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeSpecification;
+import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
-public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction.class);
+public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew.class);
   public static final String PROPERTY_USE_FIXED_ALPHA = "UseFixedAlpha";
   public static final String PROPERTY_USE_FIXED_BETA = "UseFixedBeta";
   public static final String PROPERTY_USE_FIXED_RHO = "UseFixedRho";
@@ -51,9 +78,128 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
   public static final String PROPERTY_BETA_START_VALUE = "BetaStartValue";
   public static final String PROPERTY_RHO_START_VALUE = "RhoStartValue";
   public static final String PROPERTY_NU_START_VALUE = "NuStartValue";
+  public static final String PROPERTY_EPS = "eps";
+  private static final SABRHaganVolatilityFunction SABR_FUNCTION = VolatilityFunctionFactory.HAGAN_FORMULA;
+  private static final ExternalId[] EMPTY_ARRAY = new ExternalId[0];
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
+    final ConfigDBSwaptionVolatilityCubeDefinitionSource definitionSource = new ConfigDBSwaptionVolatilityCubeDefinitionSource(configSource);
+    final ConfigDBSwaptionVolatilityCubeSpecificationSource specificationSource = new ConfigDBSwaptionVolatilityCubeSpecificationSource(configSource);
+    ValueRequirement desiredSurface = null;
+    for (final ValueRequirement desiredValue : desiredValues) {
+      if (desiredValue.getValueName().equals(ValueRequirementNames.SABR_SURFACES)) {
+        desiredSurface = desiredValue;
+        break;
+      }
+    }
+    if (desiredSurface == null) {
+      throw new OpenGammaRuntimeException("Could not get desired surfaces requirement");
+    }
+    final String definitionName = desiredSurface.getConstraint(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION);
+    final String specificationName = desiredSurface.getConstraint(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION);
+    final String cubeName = desiredSurface.getConstraint(ValuePropertyNames.CUBE);
+    final Object volatilityDataObject = inputs.getValue(getCubeDataRequirement(target, cubeName, definitionName, specificationName));
+    if (volatilityDataObject == null) {
+      throw new OpenGammaRuntimeException("Could not get swaption volatility cube data");
+    }
+    final String uniqueId = target.getUniqueId().getValue();
+    final String fullSpecificationName = specificationName + "_" + uniqueId;
+    final String fullDefinitionName = definitionName + "_" + uniqueId;
+    final SwaptionVolatilityCubeSpecification specification = specificationSource.getSpecification(fullSpecificationName);
+    if (specification == null) {
+      throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification name " + fullSpecificationName);
+    }
+    final SwaptionVolatilityCubeDefinition<Object, Object, Object> definition = (SwaptionVolatilityCubeDefinition<Object, Object, Object>) definitionSource.getDefinition(fullDefinitionName);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition name " + fullDefinitionName);
+    }
+    final String currency = target.getUniqueId().getValue();
+    final String alphaStartValue = desiredSurface.getConstraint(PROPERTY_ALPHA_START_VALUE);
+    final String betaStartValue = desiredSurface.getConstraint(PROPERTY_BETA_START_VALUE);
+    final String rhoStartValue = desiredSurface.getConstraint(PROPERTY_RHO_START_VALUE);
+    final String nuStartValue = desiredSurface.getConstraint(PROPERTY_NU_START_VALUE);
+    final String useFixedAlpha = desiredSurface.getConstraint(PROPERTY_USE_FIXED_ALPHA);
+    final String useFixedBeta = desiredSurface.getConstraint(PROPERTY_USE_FIXED_BETA);
+    final String useFixedRho = desiredSurface.getConstraint(PROPERTY_USE_FIXED_RHO);
+    final String useFixedNu = desiredSurface.getConstraint(PROPERTY_USE_FIXED_NU);
+    final String epsValue = desiredSurface.getConstraint(PROPERTY_EPS);
+    final double eps = Double.parseDouble(epsValue);
+    final String xInterpolatorName = desiredSurface.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final Interpolator1D xInterpolator = Interpolator1DFactory.getInterpolator(xInterpolatorName);
+    final String xExtrapolatorName = desiredSurface.getConstraint(InterpolatedDataProperties.X_EXTRAPOLATOR_NAME);
+    final Interpolator1D xExtrapolator = CombinedInterpolatorExtrapolatorFactory.getExtrapolator(xExtrapolatorName, xInterpolator);
+    final String yInterpolatorName = desiredSurface.getConstraint(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
+    final Interpolator1D yInterpolator = Interpolator1DFactory.getInterpolator(yInterpolatorName);
+    final String yExtrapolatorName = desiredSurface.getConstraint(InterpolatedDataProperties.Y_EXTRAPOLATOR_NAME);
+    final Interpolator1D yExtrapolator = CombinedInterpolatorExtrapolatorFactory.getExtrapolator(yExtrapolatorName, yInterpolator);
+    final GridInterpolator2D interpolator = new GridInterpolator2D(xInterpolator, yInterpolator, xExtrapolator, yExtrapolator);
+    final DoubleArrayList swapMaturitiesList = new DoubleArrayList();
+    final DoubleArrayList swaptionExpiriesList = new DoubleArrayList();
+    final DoubleArrayList alphaList = new DoubleArrayList();
+    final DoubleArrayList betaList = new DoubleArrayList();
+    final DoubleArrayList nuList = new DoubleArrayList();
+    final DoubleArrayList rhoList = new DoubleArrayList();
+    final DoubleArrayList chiSqList = new DoubleArrayList();
+    final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
+    final Map<Pair<Tenor, Tenor>, ExternalId[]> fittedSmileIds = new HashMap<Pair<Tenor, Tenor>, ExternalId[]>();
+    final Map<Pair<Tenor, Tenor>, Double[]> fittedRelativeStrikes = new HashMap<Pair<Tenor, Tenor>, Double[]>();
+    final Object[] swapTenorData = definition.getXs();
+    final Object[] swaptionExpiryData = definition.getYs();
+    final Object[] relativeStrikeData = definition.getZs();
+    final SwaptionVolatilityCubeData<Object, Object, Object> volatilityCubeData = (SwaptionVolatilityCubeData<Object, Object, Object>) volatilityDataObject;
+    for (final Object swapTenor : swapTenorData) {
+      final double maturity = getTime((Tenor) swapTenor);
+
+      for (final Object swaptionExpiry : swaptionExpiryData) {
+        final double expiry = getTime((Tenor) swaptionExpiry);
+        final DoubleArrayList smileStrikes = new DoubleArrayList();
+        final DoubleArrayList smileBlackVols = new DoubleArrayList();
+        final DoubleArrayList errors = new DoubleArrayList();
+        final ObjectArrayList<ExternalId> externalIds = new ObjectArrayList<ExternalId>();
+        final ObjectArrayList<Double> smileDeltas = new ObjectArrayList<Double>();
+        for (final Object relativeStrike : relativeStrikeData) {
+          final Double vol = volatilityCubeData.getVolatilityForPoint(swapTenor, swaptionExpiry, relativeStrike);
+          if (vol != null) {
+            final double strike = forward + (Double) relativeStrike;
+            smileStrikes.add(strike);
+            smileBlackVols.add(vol);
+            errors.add(eps);
+          }
+        }
+        if (smileStrikes.size() > 4 && forward > 0) { //don't fit those smiles with insufficient data
+          final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(forward, smileStrikes, expiry, smileBlackVols.toDoubleArray(), errors, SABR_FUNCTION).solve(initialValues, fixed);
+          final DoubleMatrix1D parameters = fittedResult.getModelParameters();
+          swapMaturitiesList.add(maturity);
+          swaptionExpiriesList.add(expiry);
+          alphaList.add(parameters.getEntry(0));
+          betaList.add(parameters.getEntry(1));
+          rhoList.add(parameters.getEntry(2));
+          nuList.add(parameters.getEntry(3));
+          final Pair<Tenor, Tenor> tenorPair = Pair.of((Tenor) swapTenor, (Tenor) swaptionExpiry);
+          final DoublesPair expiryMaturityPair = new DoublesPair(expiry, maturity);
+          inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
+          chiSqList.add(fittedResult.getChiSq());
+          fittedSmileIds.put(tenorPair, externalIds.toArray(EMPTY_ARRAY));
+          fittedRelativeStrikes.put(tenorPair, smileDeltas.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
+        }
+      }
+    }
+    if (swapMaturitiesList.size() < 5) { //don't have sufficient fits to construct a surface
+      throw new OpenGammaRuntimeException("Could not construct SABR parameter surfaces; have under 5 surface points");
+    }
+    final double[] swapMaturities = swapMaturitiesList.toDoubleArray();
+    final double[] swaptionExpiries = swaptionExpiriesList.toDoubleArray();
+    final double[] alpha = alphaList.toDoubleArray();
+    final double[] beta = betaList.toDoubleArray();
+    final double[] nu = nuList.toDoubleArray();
+    final double[] rho = rhoList.toDoubleArray();
+    final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, alpha, interpolator, "SABR alpha surface");
+    final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, beta, interpolator, "SABR beta surface");
+    final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, nu, interpolator, "SABR nu surface");
+    final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(swaptionExpiries, swapMaturities, rho, interpolator, "SABR rho surface");
+    final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians);
     return null;
   }
 
@@ -76,33 +222,7 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(PROPERTY_ALPHA_START_VALUE)
-        .withAny(PROPERTY_BETA_START_VALUE)
-        .withAny(PROPERTY_NU_START_VALUE)
-        .withAny(PROPERTY_RHO_START_VALUE)
-        .withAny(PROPERTY_USE_FIXED_ALPHA)
-        .withAny(PROPERTY_USE_FIXED_BETA)
-        .withAny(PROPERTY_USE_FIXED_NU)
-        .withAny(PROPERTY_USE_FIXED_RHO)
-        .withAny(ValuePropertyNames.CUBE)
-        .withAny(ValuePropertyNames.CURRENCY)
-        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.Y_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME)
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION)
-        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
-        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, SurfaceAndCubeQuoteType.CALL_DELTA)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
+    final ValueProperties properties = getResultProperties(target);
     final ValueSpecification sabrSurfaceSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, target.toSpecification(), properties);
     return Sets.newHashSet(sabrSurfaceSpecification);
   }
@@ -148,24 +268,16 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
     if (xInterpolatorNames == null || xInterpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> xLeftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    if (xLeftExtrapolatorNames == null || xLeftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> xRightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (xRightExtrapolatorNames == null || xRightExtrapolatorNames.size() != 1) {
+    final Set<String> xExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.X_EXTRAPOLATOR_NAME);
+    if (xExtrapolatorNames == null || xExtrapolatorNames.size() != 1) {
       return null;
     }
     final Set<String> yInterpolatorNames = constraints.getValues(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
     if (yInterpolatorNames == null || yInterpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> yLeftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
-    if (yLeftExtrapolatorNames == null || yLeftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> yRightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
-    if (yRightExtrapolatorNames == null || yRightExtrapolatorNames.size() != 1) {
+    final Set<String> yExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.Y_EXTRAPOLATOR_NAME);
+    if (yExtrapolatorNames == null || yExtrapolatorNames.size() != 1) {
       return null;
     }
     final Set<String> forwardCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
@@ -182,6 +294,10 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
     }
     final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
     if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> epsValues = constraints.getValues(PROPERTY_EPS);
+    if (epsValues == null || epsValues.size() != 1) {
       return null;
     }
     final Set<String> alphaStartValues = constraints.getValues(PROPERTY_ALPHA_START_VALUE);
@@ -227,6 +343,35 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
     return requirements;
   }
 
+  private ValueProperties getResultProperties(final ComputationTarget target) {
+    return createValueProperties()
+        .withAny(PROPERTY_ALPHA_START_VALUE)
+        .withAny(PROPERTY_BETA_START_VALUE)
+        .withAny(PROPERTY_NU_START_VALUE)
+        .withAny(PROPERTY_RHO_START_VALUE)
+        .withAny(PROPERTY_USE_FIXED_ALPHA)
+        .withAny(PROPERTY_USE_FIXED_BETA)
+        .withAny(PROPERTY_USE_FIXED_NU)
+        .withAny(PROPERTY_USE_FIXED_RHO)
+        .withAny(PROPERTY_EPS)
+        .withAny(ValuePropertyNames.CUBE)
+        .with(ValuePropertyNames.CURRENCY, target.getUniqueId().getValue())
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.Y_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.Y_EXTRAPOLATOR_NAME)
+        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION)
+        .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, SurfaceAndCubeQuoteType.CALL_DELTA)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)
+        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
+        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
+  }
+
   private ValueRequirement getCubeDataRequirement(final ComputationTarget target, final String cubeName, final String definitionName, final String specificationName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
@@ -243,4 +388,11 @@ public class SABRNonLinearSwaptionDeltaVolatilityCubeFittingFunction extends Abs
         .with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
+
+  private double getTime(final Tenor tenor) {
+    final Period period = tenor.getPeriod();
+    final double months = period.totalMonths();
+    return months / 12.;
+  }
+
 }
