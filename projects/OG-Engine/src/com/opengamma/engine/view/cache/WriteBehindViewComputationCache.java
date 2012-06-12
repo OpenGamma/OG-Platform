@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -37,12 +39,11 @@ public class WriteBehindViewComputationCache extends DeferredViewComputationCach
 
   private final Queue<ComputedValue> _pendingValues = new ConcurrentLinkedQueue<ComputedValue>();
   private final Queue<DeferredInvocationStatistics> _pendingStatistics = new ConcurrentLinkedQueue<DeferredInvocationStatistics>();
-  private final AtomicReference<Runnable> _valueWriter = new AtomicReference<Runnable>();
+  private final AtomicBoolean _valueWriterActive = new AtomicBoolean();
   private final Runnable _valueWriterRunnable = new Runnable() {
 
     /**
-     * The length of the drain list is made a touch bigger than the source in-case a write occurs while we're
-     * draining it.
+     * The length of the drain list is made a touch bigger than the source in-case a write occurs while we're draining it.
      */
     private static final int DRAIN_BUFFER = 2;
 
@@ -90,10 +91,10 @@ public class WriteBehindViewComputationCache extends DeferredViewComputationCach
             }
           }
         } while (!_pendingValues.isEmpty());
-        _valueWriter.set(null);
+        _valueWriterActive.set(false);
         // Values might have been written to the lists before we set valueWriter to null, so
         // check to see if we should carry on rather than terminate.
-      } while (!_pendingValues.isEmpty() && _valueWriter.compareAndSet(null, this));
+      } while (!_pendingValues.isEmpty() && _valueWriterActive.compareAndSet(false, true));
       // Note that if there is a failure anywhere in here, the writer task will die and things will
       // accumulate on the list until synchronize is called at which point the exception gets
       // propagated. Is this wasteful of compute cycles - should we fail the job sooner ?
@@ -166,9 +167,20 @@ public class WriteBehindViewComputationCache extends DeferredViewComputationCach
   }
 
   private void startWriterIfNotRunning() {
-    if (_valueWriter.getAndSet(_valueWriterRunnable) == null) {
+    if (!_valueWriterActive.getAndSet(true)) {
       s_logger.info("Starting write-behind thread for {}", WriteBehindViewComputationCache.this.hashCode());
-      _valueWriterFuture = getExecutorService().submit(_valueWriterRunnable);
+      final AsynchronousOperation<Void> async = new AsynchronousOperation<Void>();
+      _valueWriterFuture = getExecutorService().submit(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            _valueWriterRunnable.run();
+            async.getCallback().setResult(null);
+          } catch (RuntimeException e) {
+            async.getCallback().setException(e);
+          }
+        }
+      });
     }
   }
 
@@ -195,7 +207,8 @@ public class WriteBehindViewComputationCache extends DeferredViewComputationCach
   }
 
   @Override
-  public void waitForPendingWrites() {
+  public void flush() throws AsynchronousExecution {
+    // TODO: need to decide whether to block or throw 
     final Future<?> valueWriter = _valueWriterFuture;
     _valueWriterFuture = null;
     if (valueWriter != null) {

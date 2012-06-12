@@ -166,20 +166,33 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private static final InvocationCount s_executeJobItems = new InvocationCount("executeJobItems");
   private static final InvocationCount s_writeBack = new InvocationCount("writeBack");
 
-  private CalculationJobResult executeJobResult(final List<CalculationJobResultItem> resultItems) {
+  private CalculationJobResult executeJobResult(final List<CalculationJobResultItem> resultItems) throws AsynchronousExecution {
     if (resultItems == null) {
       return null;
-    }
-    s_writeBack.enter();
-    try {
-      // [PLAT-2293]: we don't have to wait for pending writes locally - our tail jobs can run immediately - we just have to wait before sending the job completion message back to the dispatcher
-      getCache().waitForPendingWrites();
-    } finally {
-      s_writeBack.leave();
     }
     final long executionTime = System.nanoTime() - getExecutionStartTime();
     final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), executionTime, resultItems, getNodeId());
     s_logger.info("Executed {} in {}ns", getJob(), executionTime);
+    s_writeBack.enter();
+    try {
+      getCache().flush();
+    } catch (AsynchronousExecution e) {
+      final AsynchronousOperation<CalculationJobResult> async = new AsynchronousOperation<CalculationJobResult>();
+      e.setResultListener(new ResultListener<Void>() {
+        @Override
+        public void operationComplete(final AsynchronousResult<Void> result) {
+          try {
+            result.getResult();
+            async.getCallback().setResult(jobResult);
+          } catch (RuntimeException e) {
+            async.getCallback().setException(e);
+          }
+        }
+      });
+      return async.getResult();
+    } finally {
+      s_writeBack.leave();
+    }
     return jobResult;
   }
 
@@ -197,6 +210,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
                 return executeJobResult(resultHandle.get());
               } catch (AsynchronousHandleExecution e) {
                 return executeJobAsyncResult(e);
+              } catch (AsynchronousExecution e) {
+                return AsynchronousOperation.getResult(e);
               }
             }
           });
@@ -209,14 +224,15 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   /**
-   * Invokes all of the items from a calculation job on this node. If asynchronous execution occurs, the exception will report a {@link Future<CalculationJobResult>} to the callback so that this may
-   * be routed to the thread that owns this node for correct continued execution of the remaining job items.
+   * Invokes all of the items from a calculation job on this node. If asynchronous execution occurs, the {@link AsynchronousHandleExecution} will report a handle so that it can be resumed when the job
+   * next becomes runnable. If the write behind cache is being used then the {@link AsynchronousExecution} will contain the deferred completion job. This is to allow tail job executions on the local
+   * nodes to start immediately but block the central dispatcher until the cache has been flushed.
    * 
    * @param job the job to execute
    * @return the job result
    * @throws AsynchronousHandleExecution if the job is completing asynchronously
    */
-  public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousHandleExecution {
+  public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousHandleExecution, AsynchronousExecution {
     s_logger.info("Executing {} on {}", job, _nodeId);
     s_executeJob.enter();
     try {
@@ -268,6 +284,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         return null;
       }
       final CalculationJobItem jobItem = jobItemItr.next();
+      // TODO: start resolving the next target while this item executes -- can we "poll" an iterator?
       CalculationJobResultItem resultItem;
       try {
         resultItem = invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
@@ -364,7 +381,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   }
 
   private CalculationJobResultItem invoke(final CalculationJobItem jobItem, final DeferredInvocationStatistics statistics) throws AsynchronousExecution {
-    // TODO: can we do the target resolution in advance ? (i.e. for future items in the queue)
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
     ComputationTarget target = null;

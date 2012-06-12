@@ -32,6 +32,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.tuple.Pair;
 
 public class WriteBehindViewComputationCacheTest {
@@ -147,7 +149,14 @@ public class WriteBehindViewComputationCacheTest {
     _underlying._allowPutValues.countDown();
   }
 
-  //-------------------------------------------------------------------------
+  private void flush(final WriteBehindViewComputationCache cache) {
+    try {
+      cache.flush();
+    } catch (AsynchronousExecution e) {
+      AsynchronousOperation.getResult(e);
+    }
+  }
+
   @Test
   public void getValueHittingUnderlying() {
     _cache.getValue(s_valueSpec1);
@@ -184,7 +193,7 @@ public class WriteBehindViewComputationCacheTest {
     assertNull(_underlying._getValues);
     assertEquals(s_valueSpec3, _underlying._getValue);
     _underlying._allowPutValues.countDown();
-    _cache.waitForPendingWrites();
+    flush(_cache);
     assertNotNull(_underlying._putValues);
     // With nothing pending, we should hit the underlying completely
     _cache.getValues(valueSpec);
@@ -203,7 +212,7 @@ public class WriteBehindViewComputationCacheTest {
     assertEquals(Arrays.asList(s_valueSpec2, s_valueSpec3), _underlying._getValues);
     assertNull(_underlying._getValue);
     _underlying._allowPutValue.countDown();
-    _cache.waitForPendingWrites();
+    flush(_cache);
     assertNotNull(_underlying._putValue);
     // With nothing pending, we should hit the underlying completely
     _cache.getValues(valueSpec);
@@ -295,7 +304,7 @@ public class WriteBehindViewComputationCacheTest {
       pause();
     }
     assertNotNull(_underlying._putValue);
-    _cache.waitForPendingWrites();
+    flush(_cache);
   }
 
   @Test
@@ -311,7 +320,7 @@ public class WriteBehindViewComputationCacheTest {
         _underlying._allowPutValue.countDown();
       }
     }.start();
-    _cache.waitForPendingWrites();
+    flush(_cache);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -328,7 +337,7 @@ public class WriteBehindViewComputationCacheTest {
         _underlying._allowPutValue.countDown();
       }
     }.start();
-    _cache.waitForPendingWrites();
+    flush(_cache);
   }
 
 }

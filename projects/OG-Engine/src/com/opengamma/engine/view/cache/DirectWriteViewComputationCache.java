@@ -28,7 +28,7 @@ public class DirectWriteViewComputationCache extends DeferredViewComputationCach
   }
 
   @Override
-  public void waitForPendingWrites() {
+  public void flush() {
     // No-op - all writes already completed by definition
   }
 }

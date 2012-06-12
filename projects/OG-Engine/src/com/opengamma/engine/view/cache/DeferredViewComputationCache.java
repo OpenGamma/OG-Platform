@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * A {@link FilteredViewComputationCache} which allows rescheduling of the puts
@@ -20,10 +21,11 @@ public abstract class DeferredViewComputationCache extends FilteredViewComputati
   }
 
   public abstract void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics);
-  
+
   /**
-   * Block until all "write-behind" operations have completed. Do not call this concurrently with
-   * {@link #putValue} or {@link #putValues}.
+   * Cause all "write-behind" operations to complete. Do not call this concurrently with {@link #putValue} or {@link #putValues}. This may block until the operations have completed or return an
+   * asynchronous handle to that additional work can be done.
    */
-  public abstract void waitForPendingWrites();
+  public abstract void flush() throws AsynchronousExecution;
+
 }
