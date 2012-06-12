@@ -5,7 +5,20 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_INTEREST_RATE_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -19,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -152,6 +164,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
     ExternalId underlyingIdentifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, id);
     
     InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, category);
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;
