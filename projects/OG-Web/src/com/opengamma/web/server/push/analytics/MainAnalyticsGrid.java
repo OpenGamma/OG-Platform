@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
   private int nextDependencyGraphId = 0;
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType) {
-    super(AnalyticsColumns.empty(), AnalyticsNode.empty());
+    super(AnalyticsColumns.empty(), AnalyticsNode.emptyRoot());
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
   }

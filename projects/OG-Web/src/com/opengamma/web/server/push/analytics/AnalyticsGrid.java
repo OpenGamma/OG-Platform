@@ -37,7 +37,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @return An empty grid structure with no rows or columns
    */
   /* package */ static AnalyticsGrid empty() {
-    return new AnalyticsGrid(AnalyticsColumns.empty(), AnalyticsNode.empty());
+    return new AnalyticsGrid(AnalyticsColumns.empty(), AnalyticsNode.emptyRoot());
   }
 
   /* package */ static AnalyticsGrid create(CompiledViewDefinition compiledViewDef) {

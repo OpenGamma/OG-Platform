@@ -15,22 +15,26 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Minimal representation of a portfolio node in an analytics grid. Contains a list of sub-nodes and the grid row
+ * indices at which a node starts and ends.
  */
 public class AnalyticsNode {
 
-  private final int _start;
-  private final int _end;
+  private final int _startRow;
+  private final int _endRow;
   private final List<AnalyticsNode> children;
 
-  /* package */ AnalyticsNode(int start, int end, List<AnalyticsNode> children) {
+  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children) {
     ArgumentChecker.notNull(children, "children");
-    _start = start;
-    _end = end;
+    _startRow = startRow;
+    _endRow = endRow;
     this.children = children;
   }
 
-  public static AnalyticsNode empty() {
+  /**
+   * @return An empty root node that starts and ends at row zero and has no children.
+   */
+  public static AnalyticsNode emptyRoot() {
     return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
   }
 
@@ -40,14 +44,24 @@ public class AnalyticsNode {
     return new Builder(root).getRoot();
   }
 
-  public int getStart() {
-    return _start;
+  /**
+   * @return The row index (zero-based and inclusive) at which the node starts.
+   */
+  public int getStartRow() {
+    return _startRow;
   }
 
-  public int getEnd() {
-    return _end;
+  /**
+   * @return The row index (zero-based and inclusive) at which the node ends. This includes all nested child nodes.
+   * i.e. the end row of a node is the same as the end row of its most deeply nested child.
+   */
+  public int getEndRow() {
+    return _endRow;
   }
 
+  /**
+   * @return The direct children of this node.
+   */
   public List<AnalyticsNode> getChildren() {
     return children;
   }
