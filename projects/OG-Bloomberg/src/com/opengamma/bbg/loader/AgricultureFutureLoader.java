@@ -137,7 +137,7 @@ public final class AgricultureFutureLoader extends SecurityLoader {
         currency, unitAmount, futureCategory);
     security.setUnitNumber(unitNumber);
     security.setUnitName(unitName);    
-
+    security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);
     return security;
