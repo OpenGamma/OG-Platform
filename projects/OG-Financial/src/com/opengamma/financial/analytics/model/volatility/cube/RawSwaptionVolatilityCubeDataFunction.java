@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.cube;
+package com.opengamma.financial.analytics.model.volatility.cube;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +37,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
+import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
+import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeSpecification;
+import com.opengamma.financial.analytics.volatility.cube.SyntheticSwaptionVolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;

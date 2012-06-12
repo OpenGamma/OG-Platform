@@ -36,6 +36,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -57,7 +59,6 @@ import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingD
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
-import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeData;
 import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeSpecification;
 import com.opengamma.financial.analytics.volatility.cube.SyntheticSwaptionVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
@@ -107,6 +108,7 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     final String specificationName = desiredSurface.getConstraint(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION);
     final String cubeName = desiredSurface.getConstraint(ValuePropertyNames.CUBE);
     final String curveName = desiredSurface.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCalculationMethod = desiredSurface.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final Object volatilityDataObject = inputs.getValue(getCubeDataRequirement(target, cubeName, definitionName, specificationName));
     if (volatilityDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube data");
@@ -141,11 +143,13 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     final List<Tenor> swapTenorData = definition.getSwapTenors();
     final List<Tenor> swaptionExpiryData = definition.getOptionExpiries();
     final List<Double> relativeStrikeData = definition.getRelativeStrikes();
-    final SwaptionVolatilityCubeData volatilityCubeData = (SwaptionVolatilityCubeData) volatilityDataObject;
+    final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) volatilityDataObject;
+    final Map<VolatilityPoint, Double> dataPoint = volatilityCubeData.getDataPoints();
+    final Map<VolatilityPoint, ExternalId> idPoint = volatilityCubeData.getDataIds();
     for (final Tenor swapTenor : swapTenorData) {
       final double maturity = getTime(swapTenor);
       for (final Tenor swaptionExpiry : swaptionExpiryData) {
-        final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(target, curveName, swaptionExpiry.getPeriod().toString()));
+        final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(target, curveName, curveCalculationMethod, swaptionExpiry.getPeriod().toString()));
         if (forwardCurveObject == null) {
           s_logger.error("Could not get forward curve for swap tenor " + swapTenor);
           continue;
@@ -159,12 +163,14 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
         final ObjectArrayList<ExternalId> externalIds = new ObjectArrayList<ExternalId>();
         final ObjectArrayList<Double> smileDeltas = new ObjectArrayList<Double>();
         for (final double relativeStrike : relativeStrikeData) {
-          final Double vol = volatilityCubeData.getVolatilityForPoint(swapTenor, swaptionExpiry, relativeStrike);
+          final VolatilityPoint volatilityPoint = new VolatilityPoint(swapTenor, swaptionExpiry, relativeStrike);
+          final Double vol = dataPoint.get(volatilityPoint);
           if (vol != null) {
             final double strike = forward + relativeStrike;
             smileStrikes.add(strike);
             smileBlackVols.add(vol);
             errors.add(eps);
+            externalIds.add(idPoint.get(volatilityPoint));
           }
         }
         if (smileStrikes.size() > 4 && forward > 0) { //don't fit those smiles with insufficient data
@@ -288,6 +294,10 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
+    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
+      return null;
+    }
     final Set<String> forwardCurveInterpolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
     if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
       return null;
@@ -338,11 +348,12 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     }
     final String specificationName = cubeSpecifications.iterator().next();
     final String curveName = forwardCurveNames.iterator().next();
+    final String curveCalculationMethodName = forwardCurveCalculationMethodNames.iterator().next();
     final ValueRequirement swaptionCubeRequirement = getCubeDataRequirement(target, cubeName, definitionName, specificationName);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(swaptionCubeRequirement);
     for (final Tenor tenor : definition.getOptionExpiries()) {
-      requirements.add(getForwardCurveRequirement(target, curveName, tenor.getPeriod().toString()));
+      requirements.add(getForwardCurveRequirement(target, curveName, curveCalculationMethodName, tenor.getPeriod().toString()));
     }
     return requirements;
   }
@@ -370,6 +381,7 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, SurfaceAndCubeQuoteType.RELATIVE_STRIKE)
         .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
@@ -390,9 +402,10 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties);
   }
 
-  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String curveName, final String forwardTenor) {
+  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String curveName, final String curveCalculationMethod, final String forwardTenor) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
