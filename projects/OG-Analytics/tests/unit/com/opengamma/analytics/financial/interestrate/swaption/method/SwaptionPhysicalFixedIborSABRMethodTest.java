@@ -427,7 +427,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
-    // Performance note: price: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xxx ms for 1000 swaptions.
+    // Performance note: price: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 25 ms for 1000 swaptions.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -437,25 +437,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 170 ms for 1000 swaptions.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE) + looptest;
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
-    // Performance note: price: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xxx ms for 1000 swaptions.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = PVC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE) + looptest;
-      PVCSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-      pvss[looptest] = PVSSC_SABR.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 15-Jun-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 170 ms for 1000 swaptions.
+    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 110 ms for 1000 swaptions.
 
     final int nbTest2 = 10;
     PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
@@ -466,6 +448,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
+    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 375 ms for 100 swaptions.
 
     //    double sum = 0.0;
     //    for (int looptest = 0; looptest < nbTest; looptest++) {

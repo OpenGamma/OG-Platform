@@ -41,7 +41,9 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRa
 import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
+import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -83,6 +85,7 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
   private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
   //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
+  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   @Override
   public Map<String, List<DoublesPair>> visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
@@ -153,6 +156,24 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
     final Map<String, List<DoublesPair>> senseB = PV_SENSITIVITY_CALCULATOR.visit(floatingAnnuity, curves);
 
     return addSensitivity(multiplySensitivity(senseA, bOveraSq), multiplySensitivity(senseB, -1 / a));
+  }
+
+  /**
+   * Computes the sensitivity to the curve of swap convention-modified par rate for a fixed coupon swap with a PVBP externally provided.
+   * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
+   * @param swap The swap.
+   * @param dayCount The day count convention to modify the swap rate.
+   * @param curves The curves.
+   * @return The modified rate.
+   */
+  public Map<String, List<DoublesPair>> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final YieldCurveBundle curves) {
+    final double pvSecond = PV_CALCULATOR.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, curves);
+    final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, dayCount, curves);
+    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(PV_SENSITIVITY_CALCULATOR.visit(swap.getSecondLeg(), curves)).multiply(Math.signum(swap.getSecondLeg()
+        .getNthPayment(0).getNotional()));
+    InterestRateCurveSensitivity result = pvSecondDr.multiply(1.0 / pvbp).plus(pvbpDr.multiply(-pvSecond / (pvbp * pvbp)));
+    return result.getSensitivities();
   }
 
   @Override

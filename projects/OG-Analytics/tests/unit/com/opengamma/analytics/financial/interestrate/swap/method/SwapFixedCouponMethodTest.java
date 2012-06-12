@@ -13,16 +13,15 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -35,7 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
-public class SwapFixedIborMethodTest {
+public class SwapFixedCouponMethodTest {
 
   // Swap 2Y description
   private static final Currency CUR = Currency.USD;
@@ -58,17 +57,18 @@ public class SwapFixedIborMethodTest {
   // Swaption construction: 
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION_RECEIVER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER);
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  private static final String FUNDING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final String[] CURVES_NAME = TestsDataSetsSABR.curves1Names();
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_DEFINITION_RECEIVER.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Yield curves
-  private static final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
-  private static final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
 
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
+  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  private static final double TOLERANCE_RATE = 1.0E-10;
 
   @Test
   public void testAnnuityCash() {
@@ -80,32 +80,28 @@ public class SwapFixedIborMethodTest {
 
   @Test
   public void testPVBP() {
-    // Yield curves
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(FUNDING_CURVE_NAME, CURVE_5);
-    curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
+    final YieldAndDiscountCurve curveFunding = CURVES.getCurve(CURVES_NAME[0]);
     double expectedPVBP = 0;
     for (int loopcpn = 0; loopcpn < SWAP_DEFINITION_PAYER.getFixedLeg().getPayments().length; loopcpn++) {
       expectedPVBP += Math.abs(SWAP_DEFINITION_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentYearFraction())
-          * CURVE_5.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime()) * NOTIONAL;
+          * curveFunding.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime()) * NOTIONAL;
     }
-    double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curves);
+    double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVES);
     assertEquals(expectedPVBP, pvbp, 1E-2); // one cent out of 100m
-    pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curveFunding);
     assertEquals(expectedPVBP, pvbp, 1E-2); // one cent out of 100m
   }
 
   @Test
   public void testPVBPSensitivity() {
-    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
 
     final double eps = 1e-8;
     final int nbPayDate = SWAP_PAYER.getFixedLeg().getPayments().length;
-    final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
+    final YieldAndDiscountCurve curveFunding = CURVES.getCurve(CURVES_NAME[0]);
 
     // 2. Funding curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesName = {bumpedCurveName, CURVES_NAME[1]};
     final SwapFixedCoupon<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
     final double[] yieldsFunding = new double[nbPayDate + 1];
     final double[] nodeTimes = new double[nbPayDate + 1];
@@ -116,16 +112,16 @@ public class SwapFixedIborMethodTest {
     }
     final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yieldsFunding, new LinearInterpolator1D()));
     final YieldCurveBundle curvesNotBumped = new YieldCurveBundle();
-    curvesNotBumped.addAll(curves);
+    curvesNotBumped.addAll(CURVES);
     curvesNotBumped.setCurve("Bumped Curve", tempCurveFunding);
     final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curvesNotBumped);
     final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(SWAP_PAYER, curvesNotBumped);
 
-    final List<DoublesPair> tempFunding = pvbpDr.getSensitivities().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> tempFunding = pvbpDr.getSensitivities().get(CURVES_NAME[0]);
     for (int i = 0; i < nbPayDate; i++) {
       final YieldAndDiscountCurve bumpedCurve = tempCurveFunding.withSingleShift(nodeTimes[i + 1], eps);
       final YieldCurveBundle curvesBumped = new YieldCurveBundle();
-      curvesBumped.addAll(curves);
+      curvesBumped.addAll(CURVES);
       curvesBumped.setCurve("Bumped Curve", bumpedCurve);
       final double bumpedpvbp = METHOD_SWAP.presentValueBasisPoint(swapBumpedFunding, curvesBumped);
       final double res = (bumpedpvbp - pvbp) / eps;
@@ -137,32 +133,43 @@ public class SwapFixedIborMethodTest {
 
   @Test
   public void testCouponEquivalent() {
-    // Yield curves
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(FUNDING_CURVE_NAME, CURVE_5);
-    curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
+    final YieldAndDiscountCurve curveFunding = CURVES.getCurve(CURVES_NAME[0]);
     // Constant rate
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, curves);
-    double couponEquiv = SwapFixedCouponDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, curves);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVES);
+    double couponEquiv = SwapFixedCouponDiscountingMethod.couponEquivalent(SWAP_PAYER, pvbp, CURVES);
     assertEquals(RATE, couponEquiv, 1E-10);
-    couponEquiv = METHOD_SWAP.couponEquivalent(SWAP_PAYER, curves);
+    couponEquiv = METHOD_SWAP.couponEquivalent(SWAP_PAYER, CURVES);
     assertEquals(RATE, couponEquiv, 1E-10);
     // Non-constant rate
     final AnnuityCouponFixed annuity = SWAP_PAYER.getFixedLeg();
     final CouponFixed[] coupon = new CouponFixed[annuity.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
       // Step-up by 10bps
-      coupon[loopcpn] = new CouponFixed(CUR, annuity.getNthPayment(loopcpn).getPaymentTime(), FUNDING_CURVE_NAME, annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
+      coupon[loopcpn] = new CouponFixed(CUR, annuity.getNthPayment(loopcpn).getPaymentTime(), CURVES_NAME[0], annuity.getNthPayment(loopcpn).getPaymentYearFraction(), NOTIONAL
           * (FIXED_IS_PAYER ? -1 : 1), RATE + loopcpn * 0.001);
     }
     final AnnuityCouponFixed annuityStepUp = new AnnuityCouponFixed(coupon);
     final SwapFixedCoupon<Coupon> swapStepup = new SwapFixedCoupon<Coupon>(annuityStepUp, SWAP_PAYER.getSecondLeg());
-    couponEquiv = METHOD_SWAP.couponEquivalent(swapStepup, curves);
+    couponEquiv = METHOD_SWAP.couponEquivalent(swapStepup, CURVES);
     double expectedCouponEquivalent = 0;
     for (int loopcpn = 0; loopcpn < annuity.getNumberOfPayments(); loopcpn++) {
-      expectedCouponEquivalent += Math.abs(annuityStepUp.getNthPayment(loopcpn).getAmount()) * CURVE_5.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime());
+      expectedCouponEquivalent += Math.abs(annuityStepUp.getNthPayment(loopcpn).getAmount()) * curveFunding.getDiscountFactor(SWAP_PAYER.getFixedLeg().getNthPayment(loopcpn).getPaymentTime());
     }
     expectedCouponEquivalent /= pvbp;
     assertEquals(expectedCouponEquivalent, couponEquiv, 1E-10);
+  }
+
+  @Test
+  /**
+   * Tests the par rate calculator for the swaps.
+   */
+  public void parRate() {
+    double ratePayer = PRC.visit(SWAP_PAYER, CURVES);
+    double rateReceiver = PRC.visit(SWAP_RECEIVER, CURVES);
+    assertEquals("Par Rate swap", ratePayer, rateReceiver, TOLERANCE_RATE);
+    double ratePayer2 = PRC.visitFixedCouponSwap(SWAP_PAYER, FIXED_DAY_COUNT, CURVES);
+    double rateReceiver2 = PRC.visitFixedCouponSwap(SWAP_RECEIVER, FIXED_DAY_COUNT, CURVES);
+    assertEquals("Par Rate swap", ratePayer2, rateReceiver2, TOLERANCE_RATE);
+    assertEquals("Par Rate swap", ratePayer2, rateReceiver, TOLERANCE_RATE);
   }
 }
