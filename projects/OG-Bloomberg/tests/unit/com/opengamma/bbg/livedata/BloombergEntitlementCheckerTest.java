@@ -15,7 +15,7 @@ import java.util.Map;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -45,15 +45,15 @@ public class BloombergEntitlementCheckerTest {
   
   @BeforeClass
   public void setUpClass() {
-    SessionOptions sessionOptions = BloombergTestUtils.getSessionOptions();
-    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(sessionOptions);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(connector);
     rdp.start();
     
     Map<LiveDataSpecification, DistributionSpecification> fixes = new HashMap<LiveDataSpecification, DistributionSpecification>();
     fixes.put(DIST_SPEC.getFullyQualifiedLiveDataSpecification(), DIST_SPEC);    
     FixedDistributionSpecificationResolver resolver = new FixedDistributionSpecificationResolver(fixes);
     
-    BloombergEntitlementChecker entitlementChecker = new BloombergEntitlementChecker(sessionOptions, rdp, resolver);
+    BloombergEntitlementChecker entitlementChecker = new BloombergEntitlementChecker(connector, rdp, resolver);
     entitlementChecker.start();
     _entitlementChecker = entitlementChecker;
   }

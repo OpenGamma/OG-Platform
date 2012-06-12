@@ -11,15 +11,19 @@
 	</bean>
 
 	<!-- Bloomberg Reference Data Provider -->
-	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
-		<constructor-arg>
-			<bean class="com.bloomberglp.blpapi.SessionOptions">
-				<property name="serverHost" value="${opengamma.bloomberg.host}" />
-				<property name="serverPort" value="${opengamma.bloomberg.port}" />
-			</bean>
-		</constructor-arg>
-	</bean>
-	
+  <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
+    <property name="serverHost" value="${opengamma.bloomberg.host}" />
+    <property name="serverPort" value="${opengamma.bloomberg.port}" />
+  </bean>
+  <bean id="bloombergConnector" class="com.opengamma.bbg.BloombergConnector">
+    <constructor-arg value="TicksCollector"/>
+    <constructor-arg ref="sessionOptions" />
+  </bean>
+
+  <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+    <constructor-arg ref="bloombergConnector" />
+  </bean>
+
 	<!-- Caching Reference Data Provider -->
   <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
     <property name="name" value="BloombergReferenceData" />
@@ -45,13 +49,8 @@
     	<property name="filename" value="${bbgRefDataCollector.fieldList}" />
   	</bean>
   	
-  	<bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
-    	<property name="serverHost" value="${opengamma.bloomberg.host}" />
-    	<property name="serverPort" value="${opengamma.bloomberg.port}" />
-  	</bean>
-  
   	<bean id="bbgRefDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
-    	<constructor-arg ref="sessionOptions" />
+    	<constructor-arg ref="bloombergConnector" />
   	</bean>
   
   	<!-- Bloomberg ref Data Collector -->

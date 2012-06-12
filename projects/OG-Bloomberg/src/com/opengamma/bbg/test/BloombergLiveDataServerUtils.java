@@ -8,6 +8,7 @@ package com.opengamma.bbg.test;
 import java.lang.reflect.Method;
 
 import com.bloomberglp.blpapi.SessionOptions;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -62,8 +63,8 @@ public class BloombergLiveDataServerUtils {
    * @return the provider, not null
    */
   public static BloombergReferenceDataProvider getUnderlyingProvider() {
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergReferenceDataProvider brdp = new BloombergReferenceDataProvider(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider brdp = new BloombergReferenceDataProvider(connector);
     brdp.start();
     return brdp;
   }

@@ -82,8 +82,7 @@ public class RemoteRefDataProviderWithActiveMQTest extends BloombergReferenceDat
     
     BloombergReferenceDataProvider refDataProvider = (BloombergReferenceDataProvider)_serverContext.getBean("refDataProvider");
     assertNotNull(refDataProvider);
-    assertNotNull(refDataProvider.getSessionOptions());
-    assertNotNull(refDataProvider.getSessionOptions().getServerHost());
+    assertNotNull(refDataProvider.getBloombergConnector());
     
     CachingReferenceDataProvider cachingRefDataProvider = (CachingReferenceDataProvider)_serverContext.getBean("cachingRefDataProvider");
     assertNotNull(cachingRefDataProvider);

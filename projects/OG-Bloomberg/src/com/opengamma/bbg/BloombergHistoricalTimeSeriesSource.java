@@ -39,7 +39,6 @@ import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -92,24 +91,24 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
   private final BloombergReferenceDataStatistics _statistics;
 
   /**
-   * Creates an instance with session options.
+   * Creates an instance.
    * <p>
    * This will not gather statistics on usage.
    * 
-   * @param sessionOptions  the Bloomberg session options, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
    */
-  public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions) {
-    this(sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector) {
+    this(bloombergConnector, NullBloombergReferenceDataStatistics.INSTANCE);
   }
 
   /**
-   * Creates an instance with session options.
+   * Creates an instance with statistics gathering.
    * 
-   * @param sessionOptions  the Bloomberg session options, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
    * @param statistics  the statistics to collect, not null
    */
-  public BloombergHistoricalTimeSeriesSource(SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
-    super(sessionOptions);
+  public BloombergHistoricalTimeSeriesSource(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
+    super(bloombergConnector);
     ArgumentChecker.notNull(statistics, "statistics");
     _statistics = statistics;
   }

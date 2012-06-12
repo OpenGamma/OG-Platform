@@ -15,7 +15,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeMsg;
 
-import com.bloomberglp.blpapi.SessionOptions;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
@@ -49,37 +49,37 @@ public class MongoDBPermanentErrorCachingReferenceDataProvider extends AbstractP
   /**
    * Creates an instance.
    * 
-   * @param sessionOptions  the session options, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
    * @param mongoConnector  the Mongo connector, not null
    */
-  public MongoDBPermanentErrorCachingReferenceDataProvider(SessionOptions sessionOptions, MongoConnector mongoConnector) {
-    this(sessionOptions, mongoConnector, NullBloombergReferenceDataStatistics.INSTANCE);
+  public MongoDBPermanentErrorCachingReferenceDataProvider(BloombergConnector bloombergConnector, MongoConnector mongoConnector) {
+    this(bloombergConnector, mongoConnector, NullBloombergReferenceDataStatistics.INSTANCE);
   }
 
   /**
    * Creates an instance with statistics gathering.
    * 
-   * @param sessionOptions  the session options, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
    * @param mongoConnector  the Mongo connector, not null
    * @param statistics  the statistics to collect, not null
    */
   public MongoDBPermanentErrorCachingReferenceDataProvider(
-      SessionOptions sessionOptions,
+      BloombergConnector bloombergConnector,
       MongoConnector mongoConnector,
       BloombergReferenceDataStatistics statistics) {
-    this(sessionOptions, mongoConnector, statistics, OpenGammaFudgeContext.getInstance());
+    this(bloombergConnector, mongoConnector, statistics, OpenGammaFudgeContext.getInstance());
   }
 
   /**
    * Creates an instance.
    * 
-   * @param sessionOptions  the session options, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
    * @param mongoConnector  the Mongo connector, not null
    * @param statistics  the statistics to collect, not null
    * @param fudgeContext  the Fudge context, not null
    */
   public MongoDBPermanentErrorCachingReferenceDataProvider(
-      SessionOptions sessionOptions,
+      BloombergConnector bloombergConnector,
       MongoConnector mongoConnector,
       BloombergReferenceDataStatistics statistics,
       FudgeContext fudgeContext) {

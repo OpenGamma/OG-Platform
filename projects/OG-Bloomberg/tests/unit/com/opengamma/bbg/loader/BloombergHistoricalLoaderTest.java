@@ -32,9 +32,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
@@ -106,8 +106,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     PositionMaster positionMaster = setUpPositionMaster(transactionManager);
     _positionMaster = positionMaster;
     
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(connector);
     dataProvider.start();
     
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(dataProvider);

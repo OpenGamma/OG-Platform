@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.bloomberglp.blpapi.SessionOptions;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergHistoricalTimeSeriesSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -52,10 +53,11 @@ public class BloombergHistoricalTimeSeriesSourceComponentFactory extends Abstrac
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    SessionOptions bbgSessionOptions = new SessionOptions();
-    bbgSessionOptions.setServerHost(getServerHost());
-    bbgSessionOptions.setServerPort(getServerPort());
-    BloombergHistoricalTimeSeriesSource refDataProvider = new BloombergHistoricalTimeSeriesSource(bbgSessionOptions);
+    SessionOptions sessionOptions = new SessionOptions();
+    sessionOptions.setServerHost(getServerHost());
+    sessionOptions.setServerPort(getServerPort());
+    BloombergConnector connector = new BloombergConnector("BloombergHistoricalTimeSeriesSourceComponentFactory", sessionOptions);
+    BloombergHistoricalTimeSeriesSource refDataProvider = new BloombergHistoricalTimeSeriesSource(connector);
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     repo.registerComponent(info, refDataProvider);
   }
