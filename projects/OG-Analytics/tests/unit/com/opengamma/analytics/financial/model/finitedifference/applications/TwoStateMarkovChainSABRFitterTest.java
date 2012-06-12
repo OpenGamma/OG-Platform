@@ -11,20 +11,17 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DFullCoefficients;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DStandardCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ExtendedThetaMethodFiniteDifference;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.LocalVolDensity;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainFitter;
-import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainLocalVolFitter;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
@@ -32,6 +29,7 @@ import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityS
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -45,6 +43,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class TwoStateMarkovChainSABRFitterTest {
 
+  private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();
+  private static final InitialConditionsProvider INITAL_CONDITION_PROVIDER = new InitialConditionsProvider();
   private static final Function1D<Double, Double> ALPHA;
   private static final double BETA = 0.5;
   private static final double RHO = -0.0;
@@ -155,24 +155,27 @@ public class TwoStateMarkovChainSABRFitterTest {
     PDEUtilityTools.printSurface("dumpSurfaceTest", FunctionalDoublesSurface.from(SABR_VOL_FUNCTION), 0, 5.0, SPOT / 4.0, 4.0 * SPOT);
   }
 
-  @Test(enabled = false)
-  public void test() {
+  @Test
+      (enabled = false)
+      public void test() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter();
     final LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, SABR_VOLS, initialGuess);
     System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getModelParameters().toString());
   }
 
-  @Test(enabled = false)
-  public void FokkerPlankTest() {
+  //TODO this test does not work for the ConvectionDiffusionPDE1DStandardCoefficients case
+  @Test
+      (enabled = false)
+      public void FokkerPlankTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
 
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
 
     final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, new ForwardCurve(SPOT, RATE));
 
-    final ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
-    final ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+    //    final ZZConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
+    //    final ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
 
     final int tNodes = 50;
     final int xNodes = 100;
@@ -182,11 +185,17 @@ public class TwoStateMarkovChainSABRFitterTest {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, upper.getLevel(), SPOT, xNodes, 0.01);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final ThetaMethodFiniteDifference thetaMethod = new ThetaMethodFiniteDifference(0.55, true);
-    final ExtendedThetaMethodFiniteDifference eThetaMethod = new ExtendedThetaMethodFiniteDifference(0.55, true);
+    final ConvectionDiffusionPDE1DFullCoefficients pde1 = PDE_PROVIDER.getFokkerPlank(ConstantDoublesCurve.from(RATE), localVol);
+    final ConvectionDiffusionPDE1DStandardCoefficients pde2 = PDE_PROVIDER.getFokkerPlankInStandardCoefficients(ConstantDoublesCurve.from(RATE), localVol);
+    final Function1D<Double, Double> initalCondition = INITAL_CONDITION_PROVIDER.getLogNormalDensity(SPOT, 0.01, 0.2);
 
-    final PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1, grid, lower, upper);
-    final PDEFullResults1D res2 = (PDEFullResults1D) eThetaMethod.solve(db2, grid, lower, upper);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db1 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde1, initalCondition, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db2 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde2, initalCondition, lower, upper, grid);
+
+    final ThetaMethodFiniteDifference thetaMethod = new ThetaMethodFiniteDifference(0.5, true);
+
+    final PDEFullResults1D res1 = (PDEFullResults1D) thetaMethod.solve(db1);
+    final PDEFullResults1D res2 = (PDEFullResults1D) thetaMethod.solve(db2);
 
     PDEUtilityTools.printSurface("State 1 density", res1);
     PDEUtilityTools.printSurface("State 2 density", res2);
@@ -194,8 +203,8 @@ public class TwoStateMarkovChainSABRFitterTest {
 
   //TODO need to have real tests here rather than print a lot of surfaces
   @Test
-  (enabled = false)
-  public void localVolFitTest() {
+      (enabled = false)
+      public void localVolFitTest() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
     fitter.fit(FORWARD_CURVE, new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);

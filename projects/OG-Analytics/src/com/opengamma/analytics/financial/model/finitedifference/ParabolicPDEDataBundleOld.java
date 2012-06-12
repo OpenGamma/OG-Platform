@@ -8,6 +8,6 @@ package com.opengamma.analytics.financial.model.finitedifference;
 /**
  * 
  */
-public interface ParabolicPDEDataBundle extends PDEDataBundle {
+public interface ParabolicPDEDataBundleOld extends ZZPDEDataBundle {
 
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.DoubleExponentialMeshing;
@@ -686,7 +686,7 @@ public class LocalVolatilityPDEGreekCalculator {
       final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, isCall);
+    final ZZConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, isCall);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
 
     final double minMoneyness = Math.exp(-maxAbsProxyDelta * Math.sqrt(maxT));
@@ -742,7 +742,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final ForwardCurve forwardCurve = _marketData.getForwardCurve();
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
+    final ZZConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, false);
 
     BoundaryCondition lower;

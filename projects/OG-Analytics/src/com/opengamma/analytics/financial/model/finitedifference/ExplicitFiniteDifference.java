@@ -7,17 +7,19 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Explicit solver for the PDE $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2} + b(t,x) \frac{\partial f}{\partial x} + (t,x)f = 0$
- * @deprecated This is for testing purposes and is not recommended for actual use. 
+ * @deprecated This is for testing purposes and is not recommended for actual use. Use ThetaMethodFiniteDifference for production. 
  */
 @Deprecated
 public class ExplicitFiniteDifference implements ConvectionDiffusionPDESolver {
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary) {
     // simple test code - doesn't use a PDEGrid1D
     PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
 
@@ -34,7 +36,7 @@ public class ExplicitFiniteDifference implements ConvectionDiffusionPDESolver {
     for (int j = 0; j <= xSteps; j++) {
       currentX = lowerBoundary.getLevel() + j * dx;
       x[j] = currentX;
-      final double value = pdeData.getInitialValue(currentX);
+      final double value = initialCondition.evaluate(currentX);
       f[j] = value;
     }
 
@@ -86,22 +88,39 @@ public class ExplicitFiniteDifference implements ConvectionDiffusionPDESolver {
     }
 
     return new PDETerminalResults1D(grid, f);
-
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+  public PDEResults1D solve(ZZConvectionDiffusionPDEDataBundle pdeData, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+    return solve(pdeData.getCoefficients(), pdeData.getInitialCondition(), tSteps, xSteps, tMax, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
-    throw new NotImplementedException();
+    throw new NotImplementedException("This is a simple test implimentation of explicit finite difference. If you do what to run an explicit scheme, use ThetaMethodFiniteDifference with theta = 0");
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
-    throw new NotImplementedException();
+  public PDEResults1D solve(ZZConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary) {
+    throw new NotImplementedException("This is a simple test implimentation of explicit finite difference. If you do what to run an explicit scheme, use ThetaMethodFiniteDifference with theta = 0");
   }
 
   @Override
-  public PDEResults1D solve(ConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D solve(ZZConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
+      Surface<Double, Double, Double> freeBoundary) {
+    throw new NotImplementedException("This is a simple test implimentation of explicit finite difference. If you do what to run an explicit scheme, use ThetaMethodFiniteDifference with theta = 0");
+  }
+
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
+    throw new NotImplementedException("This is a simple test implimentation of explicit finite difference. If you do what to run an explicit scheme, use ThetaMethodFiniteDifference with theta = 0");
+  }
+
+  @Override
+  public PDEResults1D solve(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
     throw new NotImplementedException();
   }
+
 }

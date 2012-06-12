@@ -67,9 +67,9 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static final double VOL_BETA;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
-  private static final ConvectionDiffusionPDEDataBundle DATA;
-  private static final ConvectionDiffusionPDEDataBundle LN_DATA;
-  private static final ConvectionDiffusionPDEDataBundle BETA_DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle LN_DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle BETA_DATA;
 
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;

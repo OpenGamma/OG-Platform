@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.surface.Surface;
  *  $\frac{\partial V}{\partial t} + a(t,x,y) \frac{\partial^2 V}{\partial x^2} + b(t,x,y) \frac{\partial V}{\partial x} + c(t,x,y)V 
  *  + d(t,x,y)\frac{\partial^2 V}{\partial y^2} + e(t,x,y) \frac{\partial^2 V}{\partial x \partial y} + f(t,x,y) \frac{\partial V}{\partial y}  = 0$
  */
-public class ConvectionDiffusion2DPDEDataBundle implements ParabolicPDEDataBundle {
+public class ConvectionDiffusion2DPDEDataBundle implements ParabolicPDEDataBundleOld {
 
   private final Cube<Double, Double, Double, Double> _a;
   private final Cube<Double, Double, Double, Double> _b;

@@ -44,12 +44,12 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t) {
+  public double getConstant(final ConvectionDiffusionPDE1DStandardCoefficients data, final double t) {
     return _timeValue.evaluate(t);
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+  public double[] getLeftMatrixCondition(ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, double t) {
     double[] temp;
     if (_isLower) {
       temp = grid.getFirstDerivativeForwardCoefficients(0);
@@ -65,7 +65,7 @@ public class NeumannBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+  public double[] getRightMatrixCondition(ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, double t) {
     return new double[0];
   }
 

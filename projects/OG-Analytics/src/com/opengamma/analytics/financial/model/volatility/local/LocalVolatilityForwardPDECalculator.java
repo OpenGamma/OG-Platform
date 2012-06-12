@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.volatility.local;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
@@ -48,7 +48,7 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(minMoneyness, maxMoneyness));
     final BoundaryCondition lower = getLowerBoundaryCondition(option, minMoneyness);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, isCall);
+    final ZZConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, isCall);
     return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
   }
 
@@ -61,7 +61,7 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(minMoneyness, maxMoneyness));
     final BoundaryCondition lower = getLowerBoundaryCondition(option, minMoneyness);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, forwardCurve, isCall);
+    final ZZConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, forwardCurve, isCall);
     return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
   }
 

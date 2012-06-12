@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
@@ -43,7 +43,7 @@ public class LogPayoffTest {
   private static final double DRIFT = 0.1;
   private static final LocalVolatilitySurfaceMoneyness LOCAL_VOL;
   private static final ForwardCurve FORWARD_CURVE;
-  private static final ConvectionDiffusionPDEDataBundle PDE_DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle PDE_DATA;
 
   static {
     FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
@@ -130,7 +130,7 @@ public class LogPayoffTest {
     final MeshingFunction timeMesh = new ExponentialMeshing(0, EXPIRY, 100, 0.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(xL, xH, 0.0, 101, 0.3);
 
-    ConvectionDiffusionPDEDataBundle pde_data = PDE_DATA_PROVIDER.getBackwardsLocalVolLogPayoff(EXPIRY, lvm);
+    ZZConvectionDiffusionPDEDataBundle pde_data = PDE_DATA_PROVIDER.getBackwardsLocalVolLogPayoff(EXPIRY, lvm);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     final PDEResults1D res = solver.solve(pde_data, grid, lower, upper);

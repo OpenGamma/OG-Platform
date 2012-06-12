@@ -8,10 +8,12 @@ package com.opengamma.analytics.financial.model.finitedifference;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * Crank-Nicolson scheme using SOR algorithm to solve the matrix system at each time step 
+ * Crank-Nicolson scheme using SOR algorithm to solve the matrix system at each time step.
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use. Use ThetaMethodFiniteDifference for production. 
  */
 public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDESolver {
 
@@ -33,17 +35,34 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     _theta = theta;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary) {
     return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
-    Validate.notNull(pdeData, "pde data");
+    return solve(pdeData.getCoefficients(), pdeData.getInitialCondition(), tSteps, xSteps, tMax, lowerBoundary, upperBoundary, freeBoundary);
+  }
 
+  @Override
+  public PDEResults1D solve(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary) {
+    return solve(pdeData, initialCondition, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
+  }
+
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
     // simple test code - doesn't use a PDEGrid1D
     final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
 
@@ -65,7 +84,7 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     for (int i = 0; i <= xSteps; i++) {
       currentX = lowerBoundary.getLevel() + i * dx;
       x[i] = currentX;
-      final double value = pdeData.getInitialValue(currentX);
+      final double value = initialCondition.evaluate(currentX);
       f[i] = value;
     }
 
@@ -167,7 +186,8 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
     return new PDETerminalResults1D(grid, f);
   }
 
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final double[] timeGrid, final double[] spaceGrid, final BoundaryCondition lowerBoundary,
+  @SuppressWarnings("deprecation")
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final double[] timeGrid, final double[] spaceGrid, final BoundaryCondition lowerBoundary,
       final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
     Validate.notNull(pdeData, "pde data");
 
@@ -228,12 +248,12 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
         m[i][i + 1] = -_theta * cc;
       }
 
-      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData, grid, timeGrid[n]);
+      double[] temp = lowerBoundary.getLeftMatrixCondition(pdeData.getCoefficients(), grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary.getLeftMatrixCondition(pdeData, grid, timeGrid[n]);
+      temp = upperBoundary.getLeftMatrixCondition(pdeData.getCoefficients(), grid, timeGrid[n]);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - 1 - k] = temp[k];
       }
@@ -242,20 +262,20 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
       // m[xNodes - 1][xNodes - 2] = -2 / dx[xNodes - 3] / dx[xNodes - 2];
       // m[xNodes - 1][xNodes - 1] = 2 / dx[xNodes - 2] / (dx[xNodes - 3] + dx[xNodes - 2]);
 
-      temp = lowerBoundary.getRightMatrixCondition(pdeData, grid, timeGrid[n]);
+      temp = lowerBoundary.getRightMatrixCondition(pdeData.getCoefficients(), grid, timeGrid[n]);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary.getConstant(pdeData, timeGrid[n]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
+      q[0] = sum + lowerBoundary.getConstant(pdeData.getCoefficients(), timeGrid[n]); // TODO need to change how boundary are calculated - dx[0] wrong for non-constant grid
 
-      temp = upperBoundary.getRightMatrixCondition(pdeData, grid, timeGrid[n]);
+      temp = upperBoundary.getRightMatrixCondition(pdeData.getCoefficients(), grid, timeGrid[n]);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData, timeGrid[n]);
+      q[xNodes - 1] = sum + upperBoundary.getConstant(pdeData.getCoefficients(), timeGrid[n]);
 
       // SOR
       final double omega = 1.0;
@@ -285,14 +305,17 @@ public class CrankNicolsonFiniteDifferenceSOR implements ConvectionDiffusionPDES
 
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
-    throw new NotImplementedException();
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+    throw new NotImplementedException("This is a simple test implimentation of Crank-Nicolson. If you do what to run this scheme, use ThetaMethodFiniteDifference with theta = 0.5");
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
       final Surface<Double, Double, Double> freeBoundary) {
-    throw new NotImplementedException();
+    throw new NotImplementedException("This is a simple test implimentation of Crank-Nicolson. If you do what to run this scheme, use ThetaMethodFiniteDifference with theta = 0.5");
   }
+
 }

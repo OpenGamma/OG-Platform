@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.volatility.local;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.DoubleExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
@@ -46,7 +46,7 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final BoundaryCondition lower = getLowerBoundaryCondition(option, strike);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, _maxMoneyness * forward);
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility);
+    final ZZConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility);
     return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
   }
 
@@ -60,7 +60,7 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final BoundaryCondition lower = getLowerBoundaryCondition(option, strike);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, expiry);
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
+    final ZZConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
     return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
   }
 

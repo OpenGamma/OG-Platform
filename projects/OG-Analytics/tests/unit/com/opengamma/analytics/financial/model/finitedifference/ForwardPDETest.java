@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
@@ -56,7 +56,7 @@ public class ForwardPDETest {
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final ConvectionDiffusionPDEDataBundle DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle DATA;
 
   @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;

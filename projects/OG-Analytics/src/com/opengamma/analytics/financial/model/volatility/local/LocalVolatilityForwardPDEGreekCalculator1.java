@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
@@ -426,7 +426,7 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
       nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    ConvectionDiffusionPDEDataBundle db;
+    ZZConvectionDiffusionPDEDataBundle db;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       db = provider.getForwardLocalVol((LocalVolatilitySurfaceStrike) localVolatility, forwardCurve, isCall);
     } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {

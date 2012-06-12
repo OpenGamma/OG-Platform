@@ -58,7 +58,7 @@ public class SABRFiniteDifferenceTest {
   private static final ForwardCurve FORWARD_CURVE;
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final EuropeanVanillaOption OPTION;
-  private static final ConvectionDiffusionPDEDataBundle DATA;
+  private static final ZZConvectionDiffusionPDEDataBundle DATA;
 
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
@@ -187,7 +187,7 @@ public class SABRFiniteDifferenceTest {
     }, 5 * SPOT, false);
 
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, lower.getLevel(), upper.getLevel());
-    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
+    final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
     final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
 
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -231,7 +231,7 @@ public class SABRFiniteDifferenceTest {
     for (int j = 0; j < 50; j++) {
       final double strike = forward * (0.5 + 1.5 * j / 49.);
       final BoundaryCondition upper = new DirichletBoundaryCondition(maxForward - strike, maxForward);
-      final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(strike, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(strike, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
       final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
 
       //since the grid of forwards values may not contain the desired forward, we interpolate
@@ -277,7 +277,7 @@ public class SABRFiniteDifferenceTest {
 
     final double maxMoneyness = 6.0;
 
-    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(SABR_LOCAL_VOL, FORWARD_CURVE, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(SABR_LOCAL_VOL, FORWARD_CURVE, true);
 
     final BoundaryCondition lower = new DirichletBoundaryCondition(1.0, 0.0);
     // BoundaryCondition upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -319,7 +319,7 @@ public class SABRFiniteDifferenceTest {
     final double fwd = FORWARD_CURVE.getForward(T);
     final double maxStrike = 4.0 * fwd;
 
-    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT, true, SABR_LOCAL_VOL);
+    final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT, true, SABR_LOCAL_VOL);
 
     final BoundaryCondition lower = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
       @Override
@@ -378,11 +378,11 @@ public class SABRFiniteDifferenceTest {
     final LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
     final LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
-    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
-    final ConvectionDiffusionPDEDataBundle pdeDataCUp = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 + shift), true, SABR_LOCAL_VOL);
-    final ConvectionDiffusionPDEDataBundle pdeDataCDown = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 - shift), true, SABR_LOCAL_VOL);
-    final ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
-    final ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataCUp = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 + shift), true, SABR_LOCAL_VOL);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataCDown = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 - shift), true, SABR_LOCAL_VOL);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -432,7 +432,7 @@ public class SABRFiniteDifferenceTest {
       final double deltaCFwd = (priceUp - priceDown) / 2 / SPOT / shift / q;
 
       final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
-      final ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final ZZConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
       final PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
@@ -477,9 +477,9 @@ public class SABRFiniteDifferenceTest {
     final LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
     final LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
-    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
-    final ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
-    final ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -509,7 +509,7 @@ public class SABRFiniteDifferenceTest {
       final double gammaFwd = fixedSurfaceGamma + 2 * surfaceDelta - 2 * x * surfaceVanna + surfaceGamma;
 
       final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
-      final ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final ZZConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
       final PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
@@ -561,7 +561,7 @@ public class SABRFiniteDifferenceTest {
     final SABRFormulaData sabrData = new SABRFormulaData(ATM_VOL.evaluate(T), 1.0, RHO, NU.evaluate(T));
     final LocalVolatilitySurfaceStrike locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
 
-    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
+    final ZZConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);

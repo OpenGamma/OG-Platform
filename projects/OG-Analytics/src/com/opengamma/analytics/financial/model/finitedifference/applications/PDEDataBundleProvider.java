@@ -7,10 +7,10 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
@@ -38,7 +38,7 @@ public class PDEDataBundleProvider {
    * @param isCall is a call
    * @return a convection data bundle
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholes(final double vol, final double rate, final double strike, final boolean isCall) {
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsBlackScholes(final double vol, final double rate, final double strike, final boolean isCall) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -59,10 +59,11 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial(final double vol, final double rate, final double strike) {
+  //TODO write some documentation as to what this is for, or get rid 
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial(final double vol, final double rate, final double strike) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -109,10 +110,11 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), constant);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), constant);
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial2(final double vol, final double rate) {
+  //TODO write some documentation as to what this is for, or get rid 
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial2(final double vol, final double rate) {
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
@@ -140,7 +142,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), constant);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), constant);
 
   }
 
@@ -153,7 +155,7 @@ public class PDEDataBundleProvider {
    * @param isCall is a call
    * @return a convection data bundle
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLogBlackScholes(final double vol, final double rate, final double strike, final boolean isCall) {
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLogBlackScholes(final double vol, final double rate, final double strike, final boolean isCall) {
 
     final double a = -vol * vol / 2;
     final double b = -a - rate;
@@ -171,7 +173,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(ConstantDoublesSurface.from(a), ConstantDoublesSurface.from(b), ConstantDoublesSurface.from(rate), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(ConstantDoublesSurface.from(a), ConstantDoublesSurface.from(b), ConstantDoublesSurface.from(rate), payoff);
   }
 
   /**
@@ -185,7 +187,7 @@ public class PDEDataBundleProvider {
    * @param isCall Is a call
    * @return A convection data bundle
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsCEV(final double vol, final double rate, final double strike, final double beta, final boolean isCall) {
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsCEV(final double vol, final double rate, final double strike, final double beta, final boolean isCall) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -198,7 +200,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0.0), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0.0), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
   }
 
   /**
@@ -217,7 +219,7 @@ public class PDEDataBundleProvider {
    * @param localVol Local Volatility
    * @return A convection diffusion data bundle
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final ForwardCurve forward, final double strike, final double maturity, final double beta, final boolean isCall,
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final ForwardCurve forward, final double strike, final double maturity, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -264,7 +266,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
 
   /**
@@ -280,7 +282,7 @@ public class PDEDataBundleProvider {
    * @return The data to run through a PDE solver that will give the time-zero option price as a function of the time-zero
    * value of the underlying
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double rate, final double yield, final double strike,
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double rate, final double yield, final double strike,
       final double maturity, final boolean isCall, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -316,7 +318,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
         ConstantDoublesSurface.from(rate), payoff);
   }
 
@@ -332,7 +334,7 @@ public class PDEDataBundleProvider {
    * @return The data to run through a PDE solver that will give the time-zero forward option price as a function of the time-zero
    * value of the underlying
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
       final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve) {
 
     final double fT = forwardCurve.getForward(maturity);
@@ -362,7 +364,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
   }
 
   /**
@@ -376,7 +378,7 @@ public class PDEDataBundleProvider {
    * @return The data to run through a PDE solver that will give the time-zero forward option price as a function of the time-zero
    * value of the underlying
    */
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
       final LocalVolatilitySurfaceMoneyness localVol) {
 
     final ForwardCurve fc = localVol.getForwardCurve();
@@ -406,10 +408,10 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
   }
 
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward, final double beta, final boolean isCall,
+  public ZZConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -454,7 +456,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
   }
 
   /**
@@ -467,7 +469,7 @@ public class PDEDataBundleProvider {
    * @return The data to run through a PDE solver that will give the modified option price (the true option price is this
    * multiplied by the discount factor AND the forward) as a function of expiry and <b>moneyness</b>
    */
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve,
+  public ZZConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve,
       final boolean isCall) {
     final LocalVolatilitySurfaceMoneyness lvm = LocalVolatilitySurfaceConverter.toMoneynessSurface(localVol, forwardCurve);
     return getForwardLocalVol(lvm, isCall);
@@ -482,7 +484,7 @@ public class PDEDataBundleProvider {
    * @return The data to run through a PDE solver that will give the modified option price (the true option price is this
    * multiplied by the discount factor AND the forward) as a function of expiry and <b>moneyness</b>
    */
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol,
+  public ZZConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol,
       final boolean isCall) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -509,7 +511,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
   }
 
   /**
@@ -524,7 +526,7 @@ public class PDEDataBundleProvider {
    * the value of the underlying at that time
    * @return The data to run through a PDE solver that will give the option price as a function of strike and expiry
    */
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final double rate, final double yield, final double spot,
+  public ZZConvectionDiffusionPDEDataBundle getForwardLocalVol(final double rate, final double yield, final double spot,
       final boolean isCall, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -560,10 +562,10 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(yield), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(yield), payoff);
   }
 
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVolMoneyness(final double spot, final boolean isCall,
+  public ZZConvectionDiffusionPDEDataBundle getForwardLocalVolMoneyness(final double spot, final boolean isCall,
       final LocalVolatilitySurfaceStrike localVol) {
     final double lambda = 100;
 
@@ -610,7 +612,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
   }
 
   public ExtendedConvectionDiffusionPDEDataBundle getFokkerPlank(final ForwardCurve forward, final double beta, final AbsoluteLocalVolatilitySurface localVol) {
@@ -996,7 +998,7 @@ public class PDEDataBundleProvider {
 
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVolLogPayoff(final double maturity, final LocalVolatilitySurfaceMoneyness localVol) {
+  public ZZConvectionDiffusionPDEDataBundle getBackwardsLocalVolLogPayoff(final double maturity, final LocalVolatilitySurfaceMoneyness localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -1032,7 +1034,7 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
         ConstantDoublesSurface.from(0.0), payoff);
   }
 
