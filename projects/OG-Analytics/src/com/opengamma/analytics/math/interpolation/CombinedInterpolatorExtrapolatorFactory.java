@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-
 /**
  * 
  */
@@ -50,7 +49,7 @@ public final class CombinedInterpolatorExtrapolatorFactory {
     return new CombinedInterpolatorExtrapolator(interpolator, leftExtrapolator, rightExtrapolator);
   }
 
-  private static Interpolator1D getExtrapolator(final String extrapolatorName, final Interpolator1D interpolator) {
+  public static Interpolator1D getExtrapolator(final String extrapolatorName, final Interpolator1D interpolator) {
     if (extrapolatorName.equals(Interpolator1DFactory.FLAT_EXTRAPOLATOR)) {
       return new FlatExtrapolator1D();
     } else if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
