@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.bloomberglp.blpapi.SessionOptions;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.EHCachingReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -62,11 +63,11 @@ public class BloombergReferenceDataComponentFactory extends AbstractComponentFac
   }
 
   protected void initReferenceDataProvider(ComponentRepository repo) {
-    final SessionOptions bbgSessionOptions = new SessionOptions();
-    bbgSessionOptions.setServerHost(getServerHost());
-    bbgSessionOptions.setServerPort(getServerPort());
-    
-    BloombergReferenceDataProvider bbgRdp = new BloombergReferenceDataProvider(bbgSessionOptions);
+    final SessionOptions sessionOptions = new SessionOptions();
+    sessionOptions.setServerHost(getServerHost());
+    sessionOptions.setServerPort(getServerPort());
+    BloombergConnector connector = new BloombergConnector("BloombergHistoricalTimeSeriesSourceComponentFactory", sessionOptions);
+    BloombergReferenceDataProvider bbgRdp = new BloombergReferenceDataProvider(connector);
     repo.registerLifecycle(bbgRdp);
     
     ReferenceDataProvider rdp;

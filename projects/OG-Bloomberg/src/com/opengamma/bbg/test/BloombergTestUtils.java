@@ -18,6 +18,7 @@ import org.fudgemsg.MutableFudgeMsg;
 
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.id.ExternalId;
@@ -35,6 +36,15 @@ public class BloombergTestUtils {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates a Bloomberg connector for testing.
+   * 
+   * @return the connector, not null
+   */
+  public static BloombergConnector getBloombergConnector() {
+    return new BloombergConnector("Test", getSessionOptions());
+  }
+
   /**
    * Creates Bloomberg session options for testing.
    * 
@@ -117,7 +127,7 @@ public class BloombergTestUtils {
    * @return the ticker, not null
    */
   public static String getSampleEquityOptionTicker() {
-    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getSessionOptions());
+    BloombergReferenceDataProvider rdp = new BloombergReferenceDataProvider(getBloombergConnector());
     rdp.start();
     
     Set<ExternalId> options = BloombergDataUtils.getOptionChain(rdp, "AAPL US Equity");

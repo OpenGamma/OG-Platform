@@ -24,6 +24,7 @@ import org.springframework.context.Lifecycle;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -194,7 +195,8 @@ public class BloombergRefDataCollector implements Lifecycle {
     SessionOptions sessionOptions = new SessionOptions();
     sessionOptions.setServerHost(host);
     sessionOptions.setServerPort(Integer.parseInt(port));
-    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(sessionOptions);
+    BloombergConnector bloombergConnector = new BloombergConnector("BloombergRefDataCollector", sessionOptions);
+    BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(bloombergConnector);
     refDataProvider.start();
     
     BloombergRefDataCollector refDataCollector = new BloombergRefDataCollector(new File(identifiersFile), refDataProvider, new File(dataFieldFile), new File(outputFile));

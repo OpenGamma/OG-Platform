@@ -27,7 +27,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -52,8 +51,8 @@ public class BloombergHistoricalTimeSeriesSourceTest {
    */
   @BeforeMethod
   public void setUp() throws Exception {
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergHistoricalTimeSeriesSource source = new BloombergHistoricalTimeSeriesSource(connector);
     
     source.start();
     _source = source;

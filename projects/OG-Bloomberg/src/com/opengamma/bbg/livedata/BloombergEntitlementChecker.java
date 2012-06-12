@@ -20,10 +20,10 @@ import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.UserHandle;
 import com.google.common.collect.Sets;
 import com.opengamma.bbg.AbstractBloombergStaticDataProvider;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.PerSecurityReferenceDataResult;
@@ -74,19 +74,19 @@ public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProv
   /**
    * Creates an instance.
    * 
-   * @param sessionOptions  the session options, not null
-   * @param refDataProvider  the reference data provider, not null
+   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param referenceDataProvider  the reference data provider, not null
    * @param resolver  the resolver, not null
    */
   public BloombergEntitlementChecker(
-      SessionOptions sessionOptions,
-      BloombergReferenceDataProvider refDataProvider,
+      BloombergConnector bloombergConnector,
+      BloombergReferenceDataProvider referenceDataProvider,
       DistributionSpecificationResolver resolver) {
-    super(sessionOptions);
-    ArgumentChecker.notNull(refDataProvider, "Reference data provider");
-    ArgumentChecker.notNull(resolver, "Distribution spec resolver");
+    super(bloombergConnector);
+    ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
+    ArgumentChecker.notNull(resolver, "resolver");
     
-    _refDataProvider = refDataProvider;
+    _refDataProvider = referenceDataProvider;
     _resolver = resolver;
     
     // Cache will contain max 100 entries, each of which will expire in 12 hours  

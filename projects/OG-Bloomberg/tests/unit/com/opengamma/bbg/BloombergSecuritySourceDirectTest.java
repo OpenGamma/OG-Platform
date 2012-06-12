@@ -7,7 +7,6 @@ package com.opengamma.bbg;
 
 import org.testng.annotations.Test;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.test.BloombergTestUtils;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 
@@ -20,8 +19,8 @@ public class BloombergSecuritySourceDirectTest extends BloombergSecuritySourceTe
 
   @Override
   protected BloombergSecuritySource createSecuritySource() {
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
-    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(options);
+    BloombergConnector connector = BloombergTestUtils.getBloombergConnector();
+    BloombergReferenceDataProvider dataProvider = new BloombergReferenceDataProvider(connector);
     dataProvider.start();
     _dataProvider = dataProvider;
     
