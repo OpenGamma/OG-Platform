@@ -1,0 +1,28 @@
+.OG-icon.og-icon-presets-1,
+.OG-icon.og-icon-presets-2,
+.OG-icon.og-icon-presets-3 {
+    height: 14px;
+    width: 16px;
+    position: relative;
+}
+
+.OG-icon.og-icon-presets-1:after,
+.OG-icon.og-icon-presets-2:after,
+.OG-icon.og-icon-presets-3:after {
+    background-color: transparent;
+    height: 14px;
+    width: 16px;
+    position: absolute;
+}
+
+.OG-icon.og-icon-presets-1:after {
+    background-position: -129px -60px;
+}
+
+.OG-icon.og-icon-presets-2:after {
+    background-position: -147px -60px;
+}
+
+.OG-icon.og-icon-presets-3:after {
+    background-position: -165px -60px;
+}

@@ -49,3 +49,32 @@
     width: 16px;
     height: 16px;
 }
+
+.OG-analytics-resize.og-menu {
+    color: #999;
+    display: inline-block;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 0 5px;
+    position: absolute!important; /* jquery ui position keeps assigning relative position for IE only! */
+    top: 0;
+    z-index: 2;
+}
+
+.OG-analytics-resize.og-menu ul {
+    list-style: none;
+}
+
+.OG-analytics-resize.og-menu li {
+    margin: 5px 0;
+    cursor: default;
+}
+
+.OG-analytics-resize.og-menu div {
+    display: inline-block;
+}
+
+.OG-analytics-resize.og-menu .OG-icon {
+    vertical-align: middle;
+    margin-right: 5px;
+}
