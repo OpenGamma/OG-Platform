@@ -8,24 +8,28 @@ package com.opengamma.engine.view.cache;
 import java.util.Collection;
 
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * A {@link FilteredViewComputationCache} which allows rescheduling of the puts
+ * A {@link ViewComputation} cache that can reschedule and condense concurrent put calls into single underlying calls.
  */
-public abstract class DeferredViewComputationCache extends FilteredViewComputationCache {
+public interface DeferredViewComputationCache extends ViewComputationCache {
 
-  public DeferredViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
-    super(cache, filter);
-  }
+  void putSharedValue(ComputedValue value, DeferredStatistics statistics);
 
-  public abstract void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics);
+  void putPrivateValue(ComputedValue value, DeferredStatistics statistics);
+
+  void putValue(ComputedValue value, CacheSelectHint filter, DeferredStatistics statistics);
+
+  void putSharedValues(Collection<ComputedValue> values, DeferredStatistics statistics);
+
+  void putPrivateValues(Collection<ComputedValue> values, DeferredStatistics statistics);
+
+  void putValues(Collection<ComputedValue> values, CacheSelectHint filter, DeferredStatistics statistics);
 
   /**
-   * Cause all "write-behind" operations to complete. Do not call this concurrently with {@link #putValue} or {@link #putValues}. This may block until the operations have completed or return an
-   * asynchronous handle to that additional work can be done.
+   * Cause all put operations issued by this thread to complete. This may block until the operations have completed or return an asynchronous handle to that additional work can be done.
    */
-  public abstract void flush() throws AsynchronousExecution;
-
+  void flush() throws AsynchronousExecution;
+  
 }

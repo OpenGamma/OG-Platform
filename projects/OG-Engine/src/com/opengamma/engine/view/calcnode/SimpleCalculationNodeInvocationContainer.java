@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousHandle;
 import com.opengamma.util.async.AsynchronousHandleExecution;
 import com.opengamma.util.async.AsynchronousResult;
@@ -357,7 +358,6 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       blocked = execution.getBlocked();
       // Add to failure set first, so the job is never missing from both
       _failures.put(execution.getJobId(), execution);
-      _executions.remove(execution.getJobId());
       _failureCount.incrementAndGet();
     }
     if (blocked != null) {
@@ -365,6 +365,26 @@ public abstract class SimpleCalculationNodeInvocationContainer {
         tail.invalidate();
         failExecution(tail.getExecution());
       }
+    }
+  }
+
+  private void succeedExecution(final JobExecution execution) {
+    final Set<JobEntry> blocked;
+    synchronized (execution) {
+      execution.setStatus(JobExecution.Status.COMPLETED);
+      blocked = execution.getBlocked();
+    }
+    if (blocked != null) {
+      s_logger.info("Job {} completed - releasing blocked jobs", execution.getJobId());
+      for (JobEntry tail : blocked) {
+        if (tail.getReceiver() != null) {
+          if (tail.releaseBlockCount()) {
+            spawnOrQueueJob(tail, null);
+          }
+        }
+      }
+    } else {
+      s_logger.info("Job {} completed - no tail jobs", execution.getJobId());
     }
   }
 
@@ -517,39 +537,44 @@ public abstract class SimpleCalculationNodeInvocationContainer {
               spawnOrQueueJob(new PartialJobEntry(originalJob, state, result));
             }
           });
+        } catch (AsynchronousExecution e) {
+          // Job has completed but its cache writes are being flushed asynchronously. We'll mark it as succeeded to release any
+          // tail jobs but not report back to the receiver until the flush is complete.
+          threadFree(job.getExecution());
+          succeedExecution(job.getExecution());
+          final JobEntry originalJob = job;
+          e.setResultListener(new ResultListener<CalculationJobResult>() {
+            @Override
+            public void operationComplete(final AsynchronousResult<CalculationJobResult> aresult) {
+              final CalculationJobResult result;
+              try {
+                result = aresult.getResult();
+              } catch (RuntimeException e) {
+                // Don't fail the execution locally as we already declared it as completed; just report back to the receiver
+                s_logger.warn("Jop {} failed: {}", originalJob.getExecution().getJobId(), e.getMessage());
+                originalJob.getReceiver().executionFailed(node, e);
+                _executions.remove(originalJob.getExecution().getJobId());
+                return;
+              }
+              originalJob.getReceiver().executionComplete(result);
+              _executions.remove(originalJob.getExecution().getJobId());
+            }
+          });
         } catch (Exception e) {
           // Any tail jobs will be abandoned
           threadFree(job.getExecution());
-          s_logger.warn("Job {} failed", job.getExecution().getJobId());
+          s_logger.warn("Job {} failed: {}", job.getExecution().getJobId(), e.getMessage());
           failExecution(job.getExecution());
           job.getReceiver().executionFailed(node, e);
+          _executions.remove(job.getExecution().getJobId());
         }
       } else {
         s_logger.debug("Job {} cancelled", job.getExecution().getJobId());
       }
       if (result != null) {
-        final Set<JobEntry> blocked;
-        synchronized (job.getExecution()) {
-          job.getExecution().setStatus(JobExecution.Status.COMPLETED);
-          blocked = job.getExecution().getBlocked();
-          _executions.remove(job.getExecution().getJobId());
-        }
-        if (blocked != null) {
-          s_logger.info("Job {} completed - releasing blocked jobs", job.getExecution().getJobId());
-          for (JobEntry tail : blocked) {
-            if (tail.getReceiver() != null) {
-              if (tail.releaseBlockCount()) {
-                spawnOrQueueJob(tail, null);
-              }
-            }
-          }
-        } else {
-          s_logger.info("Job {} completed - no tail jobs", job.getExecution().getJobId());
-        }
-      }
-      // PLAT-2293 -- we might have an early completion indicator so don't want to let the receiver know just yet
-      if (result != null) {
+        succeedExecution(job.getExecution());
         job.getReceiver().executionComplete(result);
+        _executions.remove(job.getExecution().getJobId());
       }
       resumeJob = _partialJobs.poll();
       if (resumeJob == null) {

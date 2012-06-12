@@ -311,7 +311,6 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     Object obj = value.getValue();
     final FudgeMsg data = serializeValue(serializer, obj);
     cacheValueSize(value.getSpecification(), data, obj);
-    final boolean isPrivate = (dataStore == getPrivateDataStore());
     dataStore.put(identifier, data);
   }
 

@@ -167,16 +167,16 @@ public final class ViewDefinitionCompiler {
         long t = -System.nanoTime();
         EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
         t += System.nanoTime();
-        s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
+        s_logger.info("Added specific requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
         boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
         Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
         t += System.nanoTime();
-        s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
+        s_logger.info("Added portfolio requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
         Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
         t += System.nanoTime();
-        s_logger.debug("Processed dependency graphs after {}ms", (double) t / 1e6);
+        s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
         timer.finished();
         _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
         if (OUTPUT_DEPENDENCY_GRAPHS) {

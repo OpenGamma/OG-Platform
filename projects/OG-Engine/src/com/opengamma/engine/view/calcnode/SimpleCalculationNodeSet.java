@@ -39,7 +39,8 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
   private double _nodesPerCore;
 
   private Collection<SimpleCalculationNode> _nodes;
-  private boolean _useWriteBehindCache;
+  private boolean _useWriteBehindSharedCache;
+  private boolean _useWriteBehindPrivateCache;
   private boolean _useAsynchronousTargetResolve;
 
   /**
@@ -127,12 +128,20 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
     _executorService = executorService;
   }
 
-  public boolean isUseWriteBehindCache() {
-    return _useWriteBehindCache;
+  public boolean isUseWriteBehindSharedCache() {
+    return _useWriteBehindSharedCache;
   }
 
-  public void setUseWriteBehindCache(final boolean useWriteBehindCache) {
-    _useWriteBehindCache = useWriteBehindCache;
+  public void setUseWriteBehindSharedCache(final boolean useWriteBehindCache) {
+    _useWriteBehindSharedCache = useWriteBehindCache;
+  }
+
+  public boolean isUseWriteBehindPrivateCache() {
+    return _useWriteBehindPrivateCache;
+  }
+
+  public void setUseWriteBehindPrivateCache(final boolean useWriteBehindCache) {
+    _useWriteBehindPrivateCache = useWriteBehindCache;
   }
 
   public boolean isUseAsynchronousTargetResolve() {
@@ -222,7 +231,8 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
       }
       final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
           getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer());
-      node.setUseWriteBehindCache(isUseWriteBehindCache());
+      node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
+      node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
       node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
       _nodes.add(node);
     }

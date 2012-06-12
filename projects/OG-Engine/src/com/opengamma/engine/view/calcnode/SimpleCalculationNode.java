@@ -12,12 +12,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -30,7 +32,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.DeferredViewComputationCache;
 import com.opengamma.engine.view.cache.DirectWriteViewComputationCache;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
@@ -47,7 +48,6 @@ import com.opengamma.util.async.AsynchronousHandleOperation;
 import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
-import com.opengamma.util.monitor.InvocationCount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -67,6 +67,12 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleCalculationNode.class);
   private static int s_nodeUniqueID;
 
+  /**
+   * The deferred caches for performing write-behind and late write completion (asynchronous flush) to the value cache. The map contains weak values so that entries can be cleared when the deferred
+   * cache is dead (i.e. no calculation node is currently using it and its writer is not running).
+   */
+  private static final ConcurrentMap<ViewComputationCache, DeferredViewComputationCache> s_deferredCaches = new MapMaker().weakValues().makeMap();
+
   private final ViewComputationCacheSource _cacheSource;
   private final CompiledFunctionService _functionCompilationService;
   private final ComputationTargetResolver _targetResolver;
@@ -74,7 +80,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private final FunctionInvocationStatisticsGatherer _functionInvocationStatistics;
   private final String _nodeId;
   private final ExecutorService _executorService;
-  private boolean _writeBehindCache;
+  private boolean _writeBehindSharedCache;
+  private boolean _writeBehindPrivateCache;
   private boolean _asynchronousTargetResolve;
 
   public SimpleCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
@@ -113,17 +120,42 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return _viewProcessorQuerySender;
   }
 
-  public boolean isUseWriteBehindCache() {
-    return _writeBehindCache;
+  public boolean isUseWriteBehindSharedCache() {
+    return _writeBehindSharedCache;
   }
 
-  public void setUseWriteBehindCache(final boolean writeBehind) {
+  public boolean isUseWriteBehindPrivateCache() {
+    return _writeBehindPrivateCache;
+  }
+
+  /**
+   * Sets whether to use a write-behind strategy when writing to the shared value cache. Write-behind can work well if the cost of writing is high (e.g. network overhead). If the write is cheap (e.g.
+   * to an in-process, in-memory store) then the overheads of the write-behind become a burden. An executor service must be available if this is selected.
+   * 
+   * @param writeBehind true to use write-behind on the shared value cache, false not to
+   */
+  public void setUseWriteBehindSharedCache(final boolean writeBehind) {
     if (writeBehind) {
       if (getExecutorService() == null) {
         throw new IllegalArgumentException("Can't use write behind cache without an executor service");
       }
     }
-    _writeBehindCache = writeBehind;
+    _writeBehindSharedCache = writeBehind;
+  }
+
+  /**
+   * Sets whether to use a write-behind strategy when writing to the private value cache. Write-behind can work well if the cost of writing is high (e.g. disk overhead). If the write is cheap (e.g. to
+   * an in-process, in-memory store) then the overheads of the write-behind become a burden. An executor service must be available if this is selected.
+   * 
+   * @param writeBehind true to use write-behind on the private value cache, false not to
+   */
+  public void setUseWriteBehindPrivateCache(final boolean writeBehind) {
+    if (writeBehind) {
+      if (getExecutorService() == null) {
+        throw new IllegalArgumentException("Can't use write behind cache without an executor service");
+      }
+    }
+    _writeBehindPrivateCache = writeBehind;
   }
 
   public boolean isUseAsynchronousTargetResolve() {
@@ -162,10 +194,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return sb.toString();
   }
 
-  private static final InvocationCount s_executeJob = new InvocationCount("executeJob");
-  private static final InvocationCount s_executeJobItems = new InvocationCount("executeJobItems");
-  private static final InvocationCount s_writeBack = new InvocationCount("writeBack");
-
   private CalculationJobResult executeJobResult(final List<CalculationJobResultItem> resultItems) throws AsynchronousExecution {
     if (resultItems == null) {
       return null;
@@ -173,7 +201,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final long executionTime = System.nanoTime() - getExecutionStartTime();
     final CalculationJobResult jobResult = new CalculationJobResult(getJob().getSpecification(), executionTime, resultItems, getNodeId());
     s_logger.info("Executed {} in {}ns", getJob(), executionTime);
-    s_writeBack.enter();
     try {
       getCache().flush();
     } catch (AsynchronousExecution e) {
@@ -190,8 +217,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         }
       });
       return async.getResult();
-    } finally {
-      s_writeBack.leave();
     }
     return jobResult;
   }
@@ -234,33 +259,22 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
    */
   public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousHandleExecution, AsynchronousExecution {
     s_logger.info("Executing {} on {}", job, _nodeId);
-    s_executeJob.enter();
-    try {
       setJob(job);
       final CalculationJobSpecification spec = job.getSpecification();
       getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
       getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
       getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
       setFunctions(getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime()));
-      // TODO: don't create a new cache instance each time -- if there are peer nodes then we may be able to share
-      setCache(getDeferredViewComputationCache(getCache(spec), job.getCacheSelectHint()));
+      setCache(getDeferredViewComputationCache(getCache(spec)));
       setExecutionStartTime(System.nanoTime());
       setConfiguration(spec.getCalcConfigName());
       final List<CalculationJobResultItem> resultItems;
-      s_executeJobItems.enter();
       try {
         resultItems = executeJobItems();
       } catch (AsynchronousHandleExecution ex) {
         return executeJobAsyncResult(ex);
-      } finally {
-        s_executeJobItems.leave();
       }
       return executeJobResult(resultItems);
-    } finally {
-      if (s_executeJob.leave() > 500) {
-        System.exit(1);
-      }
-    }
   }
 
   private void postEvaluationErrors(final Set<ValueSpecification> outputs) {
@@ -268,7 +282,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     for (ValueSpecification output : outputs) {
       results.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
     }
-    getCache().putValues(results);
+    getCache().putValues(results, getJob().getCacheSelectHint());
   }
 
   private CalculationJobResultItem invocationFailure(final Throwable t, final CalculationJobItem jobItem) {
@@ -323,13 +337,20 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return executeJobItems(getJob().getJobItems().iterator(), new ArrayList<CalculationJobResultItem>());
   }
 
-  private DeferredViewComputationCache getDeferredViewComputationCache(ViewComputationCache cache,
-      CacheSelectHint cacheSelectHint) {
-    if (isUseWriteBehindCache()) {
-      return new WriteBehindViewComputationCache(cache, cacheSelectHint, getExecutorService());
-    } else {
-      return new DirectWriteViewComputationCache(cache, cacheSelectHint);
+  private DeferredViewComputationCache getDeferredViewComputationCache(final ViewComputationCache cache) {
+    DeferredViewComputationCache deferred = s_deferredCaches.get(cache);
+    if (deferred == null) {
+      if (isUseWriteBehindSharedCache() || isUseWriteBehindPrivateCache()) {
+        deferred = new WriteBehindViewComputationCache(cache, getExecutorService(), isUseWriteBehindSharedCache(), isUseWriteBehindPrivateCache());
+      } else {
+        deferred = new DirectWriteViewComputationCache(cache);
+      }
+      final DeferredViewComputationCache existing = s_deferredCaches.putIfAbsent(cache, deferred);
+      if (existing != null) {
+        return existing;
+      }
     }
+    return deferred;
   }
 
   @Override
@@ -345,10 +366,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     return result;
   }
-
-  private static final InvocationCount s_resolveTarget = new InvocationCount("resolveTarget");
-  private static final InvocationCount s_invoke = new InvocationCount("invoke");
-  private static final InvocationCount s_prepareInputs = new InvocationCount("prepareInputs");
 
   private CalculationJobResultItem invokeResult(FunctionInvoker invoker, DeferredInvocationStatistics statistics, Set<ValueSpecification> missing, Set<ValueSpecification> outputs,
       Collection<ComputedValue> results, CalculationJobResultItem itemResult) {
@@ -376,7 +393,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       results = newResults;
       itemResult = itemResult.withMissingOutputs(missing);
     }
-    getCache().putValues(results, statistics);
+    getCache().putValues(results, getJob().getCacheSelectHint(), statistics);
     return itemResult;
   }
 
@@ -392,9 +409,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         }
       });
     } else {
-      s_resolveTarget.enter();
       target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
-      s_resolveTarget.leave();
       if (target == null) {
         return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
       }
@@ -410,26 +425,21 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final Set<ValueSpecification> missing = new HashSet<ValueSpecification>();
     int inputBytes = 0;
     int inputSamples = 0;
-    s_prepareInputs.enter();
-    try {
-      final DeferredViewComputationCache cache = getCache();
-      for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs())) {
-        if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
-          missing.add(input.getKey());
-        } else {
-          final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
-          inputs.add(value);
-          final Integer bytes = cache.estimateValueSize(value);
-          if (bytes != null) {
-            inputBytes += bytes;
-            inputSamples++;
-          }
+    final DeferredViewComputationCache cache = getCache();
+    for (Pair<ValueSpecification, Object> input : cache.getValues(jobItem.getInputs(), getJob().getCacheSelectHint())) {
+      if ((input.getValue() == null) || (input.getValue() instanceof MissingInput)) {
+        missing.add(input.getKey());
+      } else {
+        final ComputedValue value = new ComputedValue(input.getKey(), input.getValue());
+        inputs.add(value);
+        final Integer bytes = cache.estimateValueSize(value);
+        if (bytes != null) {
+          inputBytes += bytes;
+          inputSamples++;
         }
       }
-      statistics.setDataInputBytes(inputBytes, inputSamples);
-    } finally {
-      s_prepareInputs.leave();
     }
+    statistics.setDataInputBytes(inputBytes, inputSamples);
     final CalculationJobResultItem itemResult;
     if (missing.isEmpty()) {
       itemResult = CalculationJobResultItem.success();
@@ -441,14 +451,11 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         s_logger.info("Not able to execute as missing inputs {}", missing);
         if (targetFuture != null) {
           // Cancelling doesn't do anything so we have to block and clear the result
-          s_resolveTarget.enter();
           try {
             targetFuture.get();
           } catch (Throwable t) {
             s_logger.warn("Error resolving target", t);
             return CalculationJobResultItem.failure(t);
-          } finally {
-            s_resolveTarget.leave();
           }
         }
         return CalculationJobResultItem.missingInputs(missing);
@@ -456,14 +463,11 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     }
     final FunctionInputs functionInputs = new FunctionInputsImpl(inputs, missing);
     if (target == null) {
-      s_resolveTarget.enter();
       try {
         target = targetFuture.get();
       } catch (Throwable t) {
         s_logger.warn("Error resolving target", t);
         return CalculationJobResultItem.failure(t);
-      } finally {
-        s_resolveTarget.leave();
       }
       if (target == null) {
         return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
@@ -472,7 +476,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     // execute
     statistics.beginInvocation(functionUniqueId);
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    s_invoke.enter();
     try {
       return invokeResult(invoker, statistics, missing, outputs, invoker.execute(getFunctionExecutionContext(), functionInputs, target, plat2290(outputs)), itemResult);
     } catch (AsynchronousExecution e) {
@@ -493,8 +496,6 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       s_logger.warn("Caught exception", t);
       postEvaluationErrors(outputs);
       return itemResult.withFailure(t);
-    } finally {
-      s_invoke.leave();
     }
   }
 }
