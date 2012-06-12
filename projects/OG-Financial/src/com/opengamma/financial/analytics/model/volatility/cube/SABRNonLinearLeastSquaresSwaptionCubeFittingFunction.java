@@ -41,6 +41,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -165,7 +166,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians);
     final ValueProperties properties = getResultProperties(currency, cubeName);
     final ValueSpecification sabrSurfacesSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, target.toSpecification(), properties);
-    return Sets.newHashSet(new ComputedValue(sabrSurfacesSpecification, fittedSurfaces));
+    final ValueSpecification smileIdsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, target.toSpecification(), properties);
+    return Sets.newHashSet(new ComputedValue(sabrSurfacesSpecification, fittedSurfaces), new ComputedValue(smileIdsSpecification, new FittedSmileDataPoints(fittedSmileIds, fittedRelativeStrikes)));
   }
 
   @Override
@@ -200,7 +202,8 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
     final ValueSpecification sabrSurfacesSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, target.toSpecification(), properties);
-    return Sets.newHashSet(sabrSurfacesSpecification);
+    final ValueSpecification smileIdsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_FITTED_POINTS, target.toSpecification(), properties);
+    return Sets.newHashSet(sabrSurfacesSpecification, smileIdsSpecification);
   }
 
   private double getTime(final Tenor tenor) {
@@ -229,5 +232,4 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
   }
-
 }

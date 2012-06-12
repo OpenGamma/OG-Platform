@@ -9,20 +9,22 @@ package com.opengamma.financial.analytics.volatility.surface;
  * 
  */
 public class SurfaceAndCubeQuoteType {
-  /** Surfaces defined using call options and deltas */
+  /** Surfaces or cubes defined using call options and deltas */
   public static final String CALL_DELTA = "CallDelta";
-  /** Surfaces defined using put options and deltas */
+  /** Surfaces or cubes defined using put options and deltas */
   public static final String PUT_DELTA = "PutDelta";
-  /** Surfaces defined using call options and strike */
+  /** Surfaces or cubes defined using call options and strike */
   public static final String CALL_STRIKE = "CallStrike";
-  /** Surfaces defined using call and put options and strike */
+  /** Surfaces or cubes defined using call and put options and strike */
   public static final String CALL_AND_PUT_STRIKE = "CallPutStrike";
-  /** Surfaces defined using put options and strike */
+  /** Surfaces or cubes defined using put options and strike */
   public static final String PUT_STRIKE = "PutStrike";
-  /** Surfaces defined using pay/receive deltas */
+  /** Surfaces or cubes defined using pay/receive deltas */
   public static final String PAY_RECEIVE_DELTA = "PayReceiveDelta";
-  /** Surfaces defined using strangles and risk reversals */
+  /** Surfaces or cubes defined using strangles and risk reversals */
   public static final String MARKET_STRANGLE_RISK_REVERSAL = "MarketStrangleRiskReversal";
-  /** Surfaces defined using expiry / maturity ATM values (useful for swaptions) */
+  /** Surfaces or cubes defined using expiry / maturity ATM values (useful for swaptions) */
   public static final String EXPIRY_MATURITY_ATM = "ExpiryMaturityATM";
+  /** Surfaces or cubes defined using relative (to the forward) strikes */
+  public static final String RELATIVE_STRIKE = "RelativeStrike";
 }
