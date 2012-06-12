@@ -36,7 +36,7 @@ public class BloombergTestUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Setup the Bloomberg session options.
+   * Creates Bloomberg session options for testing.
    * 
    * @return the session options, not null
    */
@@ -59,6 +59,7 @@ public class BloombergTestUtils {
     return options;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a random tick.
    * 
@@ -111,7 +112,7 @@ public class BloombergTestUtils {
   }
 
   /**
-   * Gets an example equity option ticker.
+   * Gets an example equity option ticker directly from Bloomberg reference data.
    * 
    * @return the ticker, not null
    */

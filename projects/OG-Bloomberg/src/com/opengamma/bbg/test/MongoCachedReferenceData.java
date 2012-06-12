@@ -16,18 +16,40 @@ import com.opengamma.util.test.MongoTestUtils;
  */
 public class MongoCachedReferenceData {
 
+  /**
+   * Wraps a Bloomberg reference data provider with Mongo for caching.
+   * 
+   * @param underlying  the underlying provider
+   * @param testClass  the test class, not null
+   * @return the wrapped provider, not null
+   */
   public static MongoDBCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass) {
     return makeMongoProvider(underlying, testClass, false);
   }
 
-  public static MongoDBCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass, boolean clearData) {
-    MongoDBCachingReferenceDataProvider mongoProvider = new MongoDBCachingReferenceDataProvider(
-        underlying, getMongoConnector(testClass, clearData));
+  /**
+   * Wraps a Bloomberg reference data provider with Mongo for caching.
+   * 
+   * @param underlying  the underlying provider
+   * @param testClass  the test class, not null
+   * @param makeUnique  whether to make the database totally unique
+   * @return the wrapped provider, not null
+   */
+  public static MongoDBCachingReferenceDataProvider makeMongoProvider(ReferenceDataProvider underlying, Class<?> testClass, boolean makeUnique) {
+    MongoConnector mongoConnector = getMongoConnector(testClass, makeUnique);
+    MongoDBCachingReferenceDataProvider mongoProvider = new MongoDBCachingReferenceDataProvider(underlying, mongoConnector);
     return mongoProvider;
   }
 
-  private static MongoConnector getMongoConnector(Class<?> testClass, boolean clearData) {
-    return MongoTestUtils.makeTestConnector(testClass.getSimpleName(), clearData);
+  /**
+   * Creates a Mongo connector specific to the specified class.
+   * 
+   * @param testClass  the test class, not null
+   * @param makeUnique  whether to make the database totally unique
+   * @return the connector, not null
+   */
+  private static MongoConnector getMongoConnector(Class<?> testClass, boolean makeUnique) {
+    return MongoTestUtils.makeTestConnector(testClass.getSimpleName(), makeUnique);
   }
 
 }

@@ -37,29 +37,44 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * 
+ * A collector of Bloomberg data.
  */
 public class BloombergRefDataCollector implements Lifecycle {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergRefDataCollector.class);
-
+  /** Fudge context. */
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  private final File _watchListFile;
-  private final File _fieldsFile;
-  private final LoggingReferenceDataProvider _loggingRefDataProvider;
-  private final FudgeContext _fudgeContext;
-  private final AtomicBoolean _started = new AtomicBoolean();
-  
   /**
-   * Create BloombergRefDataCollector 
+   * The watch list file.
+   */
+  private final File _watchListFile;
+  /**
+   * The fields file.
+   */
+  private final File _fieldsFile;
+  /**
+   * The reference data provider.
+   */
+  private final LoggingReferenceDataProvider _loggingRefDataProvider;
+  /**
+   * The Fudge context.
+   */
+  private final FudgeContext _fudgeContext;
+  /**
+   * Whether the service has started.
+   */
+  private final AtomicBoolean _started = new AtomicBoolean();
+
+  /**
+   * Create an instance.
    * 
-   * @param fudgeContext the fudgeContext, not null
-   * @param watchListFile the watch list file, not null
-   * @param refDataProvider the reference data provider, not null
-   * @param fieldsFile the file containing the fields
-   * @param outputFile the output file, not null
+   * @param fudgeContext  the fudgeContext, not null
+   * @param watchListFile  the watch list file, not null
+   * @param refDataProvider  the reference data provider, not null
+   * @param fieldsFile  the file containing the fields
+   * @param outputFile  the output file, not null
    */
   public BloombergRefDataCollector(FudgeContext fudgeContext, File watchListFile, ReferenceDataProvider refDataProvider, File fieldsFile, File outputFile) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
@@ -72,19 +87,20 @@ public class BloombergRefDataCollector implements Lifecycle {
     _fieldsFile = fieldsFile;
     _loggingRefDataProvider = new LoggingReferenceDataProvider(refDataProvider, _fudgeContext, outputFile);
   }
-  
+
   /**
-   * Create BloombergRefDataCollector
+   * Create an instance.
    * 
-   * @param watchListFile the watch list file, not null
-   * @param refDataProvider the reference data provider, not null
-   * @param fieldsFile the file containing the fields
-   * @param outputFile the output file, not null
+   * @param watchListFile  the watch list file, not null
+   * @param refDataProvider  the reference data provider, not null
+   * @param fieldsFile  the file containing the fields
+   * @param outputFile  the output file, not null
    */
   public BloombergRefDataCollector(File watchListFile, ReferenceDataProvider refDataProvider, File fieldsFile, File outputFile) {
     this(s_fudgeContext, watchListFile, refDataProvider, fieldsFile, outputFile);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public synchronized void start() {
     s_logger.info("starting bloombergRefDataCollector");
@@ -118,7 +134,7 @@ public class BloombergRefDataCollector implements Lifecycle {
     }
     return fields;
   }
-  
+
   private Set<String> loadSecurities() {
     Set<String> bloombergKeys = Sets.newHashSet();
     try {
@@ -141,7 +157,8 @@ public class BloombergRefDataCollector implements Lifecycle {
   public synchronized boolean isRunning() {
     return _started.get() == true;
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Main entry point from command line
    * 
@@ -167,7 +184,7 @@ public class BloombergRefDataCollector implements Lifecycle {
     String outputFile = cmdLine.getOptionValue(BloombergCliOptions.OUPUT_OPTION);
     String host = cmdLine.getOptionValue(BloombergCliOptions.HOST_OPTION);
     String port = cmdLine.getOptionValue(BloombergCliOptions.PORT_OPTION);
-
+    
     if (port == null) {
       port = BloombergConstants.DEFAULT_PORT;
     }
@@ -182,7 +199,6 @@ public class BloombergRefDataCollector implements Lifecycle {
     
     BloombergRefDataCollector refDataCollector = new BloombergRefDataCollector(new File(identifiersFile), refDataProvider, new File(dataFieldFile), new File(outputFile));
     refDataCollector.start();
-
   }
 
   private static BloombergCliOptions createOptions() {
@@ -194,4 +210,5 @@ public class BloombergRefDataCollector implements Lifecycle {
       .withPort(false);
     return builder.build();
   }
+
 }

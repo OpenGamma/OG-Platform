@@ -21,6 +21,14 @@ public final class MongoTestUtils {
   private MongoTestUtils() {
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Makes a connector suitable for testing.
+   * 
+   * @param testName  the name of the testing database, used as a suffix, not null
+   * @param makeUnique  whether to make the connector unique by date-time
+   * @return the Mongo connector, not null
+   */
   public static MongoConnector makeTestConnector(String testName, boolean makeUnique) {
     MongoConnectorFactoryBean factory = new MongoConnectorFactoryBean();
     factory.setName("MongoTestUtils");
