@@ -12,18 +12,18 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.analytics.volatility.cube.VolatilityDeltaCubeData;
+import com.opengamma.financial.analytics.volatility.cube.SwaptionVolatilityCubeData;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * 
  */
-public class VolatilityDeltaCubeDataBuilderTest extends AnalyticsTestBase {
+public class SwaptionVolatilityCubeDataBuilderTest extends AnalyticsTestBase {
   private static final Object[] SWAP_TENORS = new Tenor[] {Tenor.SIX_MONTHS, Tenor.ONE_YEAR, Tenor.FIVE_YEARS };
   private static final Object[] SWAPTION_EXPIRY = new Tenor[] {Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SEVEN_MONTHS };
   private static final Object[] DELTAS = new Double[] {0.15, 0.2, 0.5, 0.75, 0.9 };
-  private static final VolatilityDeltaCubeData<Object, Object, Object> DATA;
+  private static final SwaptionVolatilityCubeData<Object, Object, Object> DATA;
 
   static {
     final Map<Triple<Object, Object, Object>, Double> data = new HashMap<Triple<Object, Object, Object>, Double>();
@@ -36,13 +36,13 @@ public class VolatilityDeltaCubeDataBuilderTest extends AnalyticsTestBase {
         }
       }
     }
-    DATA = new VolatilityDeltaCubeData<Object, Object, Object>(data);
+    DATA = new SwaptionVolatilityCubeData<Object, Object, Object>(data);
   }
 
   @Test
   public void test() {
     @SuppressWarnings("unchecked")
-    final VolatilityDeltaCubeData<Object, Object, Object> cycled = cycleObject(VolatilityDeltaCubeData.class, DATA);
+    final SwaptionVolatilityCubeData<Object, Object, Object> cycled = cycleObject(SwaptionVolatilityCubeData.class, DATA);
     assertEquals(cycled, DATA);
   }
 }
