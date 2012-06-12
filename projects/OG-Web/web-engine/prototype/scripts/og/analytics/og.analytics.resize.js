@@ -30,7 +30,6 @@ $.register_module({
                 });
                 $overlay.on('mouseup', function () {
                     if (!bottom || !right) return;
-                    console.log(bottom, layout.main.south.options.size);
                     layout.inner.sizePane('south', bottom - layout.main.south.options.size);
                     layout.main.sizePane('east', right);
                     $bars.remove(), $overlay.remove();
