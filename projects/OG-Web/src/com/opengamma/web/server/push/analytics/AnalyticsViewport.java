@@ -5,8 +5,16 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -17,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
   private final AnalyticsGridStructure _gridStructure;
   private final ViewportSpecification _viewportSpec;
 
-  private AnalyticsResults _latestResults;
+  private ViewportResults _latestResults;
 
   /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
                                   ViewportSpecification viewportSpec,
@@ -32,31 +40,45 @@ import com.opengamma.util.ArgumentChecker;
     updateResults(latestResults, history);
   }
 
-  /**
-   * @return An empty viewport with no rows or columns
-   */
-  /* package */ static AnalyticsViewport empty() {
-    return new AnalyticsViewport(AnalyticsGridStructure.empty(),
-                                 ViewportSpecification.empty(),
-                                 new InMemoryViewComputationResultModel(),
-                                 new AnalyticsHistory());
-  }
-
-  /* package */ AnalyticsViewport updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
+  /* package */ void updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     /*
     get the target for each row in the viewport from the grid structure
     query the results for the results for the target
     for each value get the column index from the grid structure
     if the column is in the viewport update the results
     */
-    throw new UnsupportedOperationException("updateResults not implemented");
+    // TODO should this logic go in ViewportResults?
+    List<List<Object>> allResults = new ArrayList<List<Object>>();
+    for (Integer rowIndex : _viewportSpec.getRows()) {
+      AnalyticsGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
+      ComputationTargetSpecification target = row.getTarget();
+      String rowName = row.getName();
+      List<Object> rowResults = new ArrayList<Object>(_viewportSpec.getColumns().size() + 1);
+      // row label always goes in the first column
+      rowResults.add(rowName);
+      Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
+      ViewTargetResultModel targetResult = results.getTargetResult(target);
+      for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
+        for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
+          for (ValueRequirement req : value.getRequirements()) {
+            int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
+            if (_viewportSpec.getColumns().contains(colIndex)) {
+              rowResultsMap.put(colIndex, value.getValue());
+            }
+          }
+        }
+      }
+      rowResults.addAll(rowResultsMap.values());
+      allResults.add(rowResults);
+    }
+    _latestResults = new ViewportResults(allResults);
   }
 
-  /* package */ AnalyticsResults getData() {
+  /* package */ ViewportResults getData() {
     return _latestResults;
   }
 
-  public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results) {
+  public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
     // TODO implement AnalyticsViewport.update()
     throw new UnsupportedOperationException("update not implemented");
   }

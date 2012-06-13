@@ -62,8 +62,10 @@ import com.opengamma.util.ArgumentChecker;
     return viewportId;
   }
 
-  /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
-    getViewport(viewportId).update(viewportSpecification, _latestResults);
+  /* package */ void updateViewport(String viewportId,
+                                    ViewportSpecification viewportSpecification,
+                                    AnalyticsHistory history) {
+    getViewport(viewportId).update(viewportSpecification, _latestResults, history);
   }
 
   /* package */ void deleteViewport(String viewportId) {
@@ -73,7 +75,7 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /* package */ AnalyticsResults getData(String viewportId) {
+  /* package */ ViewportResults getData(String viewportId) {
     return getViewport(viewportId).getData();
   }
 }

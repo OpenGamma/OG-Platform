@@ -25,6 +25,10 @@ public class AnalyticsColumnGroup {
     _columns = ImmutableList.copyOf(columns);
   }
 
+  /* package */ String getName() {
+    return _name;
+  }
+
   /* package */ List<AnalyticsColumn<?>> getColumns() {
     return _columns;
   }

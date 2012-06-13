@@ -39,6 +39,8 @@ public class ViewportSpecificationMessageBodyReader implements MessageBodyReader
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new ViewportSpecification();
+    // TODO JSON writer for ViewportSpecification that lives in the same package
+    //return new ViewportSpecification(rows, columns);
+    throw new UnsupportedOperationException();
   }
 }

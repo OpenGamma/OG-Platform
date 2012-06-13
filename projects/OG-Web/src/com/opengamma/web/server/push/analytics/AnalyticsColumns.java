@@ -104,4 +104,7 @@ public class AnalyticsColumns {
     return _columns.get(index);
   }
 
+  public List<AnalyticsColumnGroup> getColumnGroups() {
+    return _columnGroups;
+  }
 }
