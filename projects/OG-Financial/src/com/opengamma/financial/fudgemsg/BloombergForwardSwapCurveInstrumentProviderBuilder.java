@@ -12,20 +12,20 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.analytics.fxforwardcurve.BloombergFXForwardCurveInstrumentProvider;
+import com.opengamma.financial.analytics.forwardcurve.BloombergForwardSwapCurveInstrumentProvider;
 
 /**
  * 
  */
-@FudgeBuilderFor(BloombergFXForwardCurveInstrumentProvider.class)
-public class BloombergFXForwardCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<BloombergFXForwardCurveInstrumentProvider> {
+@FudgeBuilderFor(BloombergForwardSwapCurveInstrumentProvider.class)
+public class BloombergForwardSwapCurveInstrumentProviderBuilder implements FudgeBuilder<BloombergForwardSwapCurveInstrumentProvider> {
   private static final String DATA_FIELD_NAME = "dataFieldName";
   private static final String POSTFIX = "postfix";
   private static final String PREFIX = "prefix";
   private static final String SPOT_PREFIX = "spotPrefix";
 
   @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergFXForwardCurveInstrumentProvider object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergForwardSwapCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();
     message.add(PREFIX, object.getPrefix());
     message.add(POSTFIX, object.getPostfix());
@@ -37,7 +37,7 @@ public class BloombergFXForwardCurveInstrumentProviderFudgeBuilder implements Fu
   }
 
   @Override
-  public BloombergFXForwardCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public BloombergForwardSwapCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final String prefix = message.getString(PREFIX);
     final String postfix = message.getString(POSTFIX);
     String spotPrefix = message.getString(SPOT_PREFIX);
@@ -45,7 +45,7 @@ public class BloombergFXForwardCurveInstrumentProviderFudgeBuilder implements Fu
       spotPrefix = prefix;
     }
     final String dataFieldName = message.getString(DATA_FIELD_NAME);
-    return new BloombergFXForwardCurveInstrumentProvider(prefix, postfix, spotPrefix, dataFieldName);
+    return new BloombergForwardSwapCurveInstrumentProvider(prefix, postfix, spotPrefix, dataFieldName);
   }
 
 }
