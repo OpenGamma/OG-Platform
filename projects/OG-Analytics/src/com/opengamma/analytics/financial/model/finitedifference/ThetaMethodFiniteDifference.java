@@ -64,9 +64,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     Validate.notNull(lowerBoundary, "lowerBoundary");
     Validate.notNull(upperBoundary, "upperBoundary");
     final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DStandardCoefficients>(pdeCoeff, initialCondition, lowerBoundary,
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeCoeff, initialCondition, lowerBoundary,
         upperBoundary, grid);
-    final SolverImpl solver = new SolverImpl(pdeCoeff, null, lowerBoundary, upperBoundary, null, grid);
+    final SolverImpl solver = getSolverImpl(pdeData);
     return solver.solve();
   }
 
@@ -336,10 +336,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     private void solveMatrixSystem() {
       final double omega = 1.0;
-      @SuppressWarnings("unused")
+      //   @SuppressWarnings("unused")
       //NOTE get this working again with dynamic omega
-      final int count = solveBySOR(omega);
-      //   solveByLU();
+      //final int count = solveBySOR(omega);
+      solveByLU();
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
       //          omega = Math.max(1.0, omega * 0.9);

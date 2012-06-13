@@ -41,7 +41,7 @@ public class PDE1DCoefficientsProvider {
    * @param vol The volatility
    * @return a ConvectionDiffusionPDE1DStandardCofficients
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsBlackScholes(final double rate, final double yield, final double vol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getBlackScholes(final double rate, final double yield, final double vol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -75,7 +75,7 @@ public class PDE1DCoefficientsProvider {
    * @param vol The volatility
    * @return a ConvectionDiffusionPDE1DStandardCofficients
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsBlackScholes(final Curve<Double, Double> rate,
+  public ConvectionDiffusionPDE1DStandardCoefficients getBlackScholes(final Curve<Double, Double> rate,
       final Curve<Double, Double> yield, final Curve<Double, Double> vol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -366,7 +366,7 @@ public class PDE1DCoefficientsProvider {
    * @param localVol $\sigma(T,k)$ The local volatility
    * @return The data to run through a PDE solver that will give the option price as a function of strike and expiry
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getForwardBlackSholes(final double rate, final double yield, final LocalVolatilitySurfaceStrike localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getForwardLocalVolatility(final double rate, final double yield, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override

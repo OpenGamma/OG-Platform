@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.CoupledPDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -38,7 +38,7 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 @SuppressWarnings("unused")
 public class CoupledFiniteDifferenceTest {
   
-  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
+  private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;

@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.CoupledPDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
 @SuppressWarnings("unused")
 public class CoupledFokkerPlankPDEtest {
 
-  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
+  private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
 
   //private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BoundaryCondition LOWER;
