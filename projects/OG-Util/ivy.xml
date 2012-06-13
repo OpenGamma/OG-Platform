@@ -25,7 +25,7 @@
     <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->context-support,jms,web,orm,test"/>
     <dependency org="org.springframework" name="spring-amqp" rev="1.0.0.M1"/>
     <dependency org="com.rabbitmq" name="java-client" rev="2.1.0"/>
-    <dependency org="org.freemarker" name="freemarker" rev="2.3.16"/>
+    <dependency org="org.freemarker" name="freemarker" rev="2.3.19"/>
     <dependency org="javax.servlet" name="servletapi" rev="2.5"/>
     <dependency org="javax.servlet" name="jstl" rev="1.2"/>
     <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.2"/>
