@@ -76,14 +76,14 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportSpecification viewportSpec) {
-    getDependencyGraph(dependencyGraphId).updateViewport(viewportId, viewportSpec);
+    getDependencyGraph(dependencyGraphId).updateViewport(viewportId, viewportSpec, null);
   }
 
   /* package */ void deleteViewport(String dependencyGraphId, String viewportId) {
     getDependencyGraph(dependencyGraphId).deleteViewport(viewportId);
   }
 
-  /* package */ AnalyticsResults getData(String dependencyGraphId, String viewportId) {
+  /* package */ ViewportResults getData(String dependencyGraphId, String viewportId) {
     return getDependencyGraph(dependencyGraphId).getData(viewportId);
   }
 }

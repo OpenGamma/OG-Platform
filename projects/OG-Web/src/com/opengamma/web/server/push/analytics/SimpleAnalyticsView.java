@@ -75,7 +75,7 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
-    getGrid(gridType).updateViewport(viewportId, viewportSpec);
+    getGrid(gridType).updateViewport(viewportId, viewportSpec, null);
   }
 
   @Override
@@ -85,7 +85,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public AnalyticsResults getData(GridType gridType, String viewportId) {
+  public ViewportResults getData(GridType gridType, String viewportId) {
     s_logger.debug("Getting data for viewport {} of the {} grid", viewportId, gridType);
     return getGrid(gridType).getData(viewportId);
   }
@@ -128,7 +128,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId) {
+  public ViewportResults getData(GridType gridType, String dependencyGraphId, String viewportId) {
     s_logger.debug("Getting data for the viewport {} of the dependency graph {} of the {} grid", new Object[]{viewportId, dependencyGraphId, gridType});
     return getGrid(gridType).getData(dependencyGraphId, viewportId);
   }

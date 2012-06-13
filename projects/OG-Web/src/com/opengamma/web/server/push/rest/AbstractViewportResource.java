@@ -11,7 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsResults;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
@@ -41,5 +41,5 @@ public abstract class AbstractViewportResource {
 
   @GET
   @Path("data")
-  public abstract AnalyticsResults getData();
+  public abstract ViewportResults getData();
 }

@@ -17,22 +17,22 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
-import com.opengamma.web.server.push.analytics.AnalyticsResults;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 
 /**
  *
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class AnalyticsResultsMessageBodyWriter implements MessageBodyWriter<AnalyticsResults> {
+public class AnalyticsResultsMessageBodyWriter implements MessageBodyWriter<ViewportResults> {
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(AnalyticsResults.class);
+    return type.equals(ViewportResults.class);
   }
 
   @Override
-  public long getSize(AnalyticsResults results,
+  public long getSize(ViewportResults results,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
@@ -41,7 +41,7 @@ public class AnalyticsResultsMessageBodyWriter implements MessageBodyWriter<Anal
   }
 
   @Override
-  public void writeTo(AnalyticsResults results,
+  public void writeTo(ViewportResults results,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,

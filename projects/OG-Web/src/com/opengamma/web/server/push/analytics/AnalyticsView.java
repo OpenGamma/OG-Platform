@@ -34,7 +34,7 @@ public interface AnalyticsView {
 
   void deleteViewport(GridType gridType, String viewportId);
 
-  AnalyticsResults getData(GridType gridType, String viewportId);
+  ViewportResults getData(GridType gridType, String viewportId);
 
   // -------- dependency graph grids --------
 
@@ -57,5 +57,5 @@ public interface AnalyticsView {
 
   void deleteViewport(GridType gridType, String dependencyGraphId, String viewportId);
 
-  AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId);
+  ViewportResults getData(GridType gridType, String dependencyGraphId, String viewportId);
 }
