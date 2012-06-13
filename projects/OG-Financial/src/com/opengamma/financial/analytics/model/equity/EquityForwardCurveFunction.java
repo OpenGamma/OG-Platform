@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.equity.variance.EquityForwardFromSpotAndYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveValuePropertyNames;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -40,7 +40,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-      .with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE)  
+      .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)  
       .withAny(ValuePropertyNames.CURVE_CURRENCY)  
       .withAny(ValuePropertyNames.CURVE)
       .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
@@ -139,7 +139,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     
     final ValueProperties properties = createValueProperties()
       .with(ValuePropertyNames.CURVE, forwardCurveName)
-      .with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE)
+      .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CURRENCY, ccyName)
       .get();

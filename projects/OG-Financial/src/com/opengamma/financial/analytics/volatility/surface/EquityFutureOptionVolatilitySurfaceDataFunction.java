@@ -90,8 +90,8 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
         Double vol = rawSurface.getVolatility(nthExpiry, strike);
         if (vol != null) {
           tList.add(t);
-          kList.add(strike / 100.);
-          volValues.put(Pair.of(t, strike / 100.), vol / 100.);
+          kList.add(strike);
+          volValues.put(Pair.of(t, strike), vol / 100.);
         }
       }
     }
