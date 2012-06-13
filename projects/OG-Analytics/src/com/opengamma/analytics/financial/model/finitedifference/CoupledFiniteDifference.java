@@ -49,6 +49,7 @@ public class CoupledFiniteDifference {
     return DCOMP;
   }
 
+  @SuppressWarnings("deprecation")
   public PDEResults1D[] solve(final CoupledPDEDataBundle pdeData1, final CoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
       final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2,
       @SuppressWarnings("unused") final Surface<Double, Double, Double> freeBoundary) {
@@ -162,55 +163,55 @@ public class CoupledFiniteDifference {
         m[xNodes + i][i] = dt * _theta * lambda2;
       }
 
-      double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
+      double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1.getCoefficients(), grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
       }
 
-      temp = upperBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
+      temp = upperBoundary1.getLeftMatrixCondition(pdeData1.getCoefficients(), grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes - 1][xNodes - temp.length + k] = temp[k];
       }
 
-      temp = lowerBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
+      temp = lowerBoundary2.getLeftMatrixCondition(pdeData2.getCoefficients(), grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[xNodes][xNodes + k] = temp[k];
       }
 
-      temp = upperBoundary2.getLeftMatrixCondition(pdeData2, grid, t2);
+      temp = upperBoundary2.getLeftMatrixCondition(pdeData2.getCoefficients(), grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[2 * xNodes - 1][2 * xNodes - temp.length + k] = temp[k];
       }
 
-      temp = lowerBoundary1.getRightMatrixCondition(pdeData1, grid, t1);
+      temp = lowerBoundary1.getRightMatrixCondition(pdeData1.getCoefficients(), grid, t1);
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[0] = sum + lowerBoundary1.getConstant(pdeData1, t2);
+      q[0] = sum + lowerBoundary1.getConstant(pdeData1.getCoefficients(), t2);
 
-      temp = upperBoundary1.getRightMatrixCondition(pdeData1, grid, t1);
+      temp = upperBoundary1.getRightMatrixCondition(pdeData1.getCoefficients(), grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[xNodes - 1] = sum + upperBoundary1.getConstant(pdeData1, t2);
+      q[xNodes - 1] = sum + upperBoundary1.getConstant(pdeData1.getCoefficients(), t2);
 
-      temp = lowerBoundary2.getRightMatrixCondition(pdeData2, grid, t1);
+      temp = lowerBoundary2.getRightMatrixCondition(pdeData2.getCoefficients(), grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[k];
       }
-      q[xNodes] = sum + lowerBoundary2.getConstant(pdeData2, t2);
+      q[xNodes] = sum + lowerBoundary2.getConstant(pdeData2.getCoefficients(), t2);
 
-      temp = upperBoundary2.getRightMatrixCondition(pdeData2, grid, t1);
+      temp = upperBoundary2.getRightMatrixCondition(pdeData2.getCoefficients(), grid, t1);
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * f[xNodes - 1 - k];
       }
 
-      q[2 * xNodes - 1] = sum + upperBoundary2.getConstant(pdeData2, t2);
+      q[2 * xNodes - 1] = sum + upperBoundary2.getConstant(pdeData2.getCoefficients(), t2);
 
       //TODO work out why SOR does not converge here
       //      final DoubleMatrix2D mM = new DoubleMatrix2D(m);

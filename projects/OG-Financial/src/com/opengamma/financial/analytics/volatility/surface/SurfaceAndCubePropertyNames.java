@@ -10,7 +10,7 @@ package com.opengamma.financial.analytics.volatility.surface;
  */
 public class SurfaceAndCubePropertyNames {
   /** The name of the surface quote type property */
-  public static final String PROPERTY_SURFACE_QUOTE_TYPE = "SurfaceAndCubeQuoteType";
+  public static final String PROPERTY_SURFACE_QUOTE_TYPE = "SurfaceQuoteType";
   /** The name of the surface units property */
   public static final String PROPERTY_SURFACE_UNITS = "SurfaceUnits";
   /** The name of the surface definition property */

@@ -17,29 +17,30 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
-import com.opengamma.web.server.push.analytics.ViewRequest;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  *
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)
-public class ViewportRequestMessageBodyReader implements MessageBodyReader<ViewportRequest> {
+public class ViewportSpecificationMessageBodyReader implements MessageBodyReader<ViewportSpecification> {
 
   @Override
   public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(ViewportRequest.class);
+    return type.equals(ViewportSpecification.class);
   }
 
   @Override
-  public ViewportRequest readFrom(Class<ViewportRequest> type,
+  public ViewportSpecification readFrom(Class<ViewportSpecification> type,
                               Type genericType,
                               Annotation[] annotations,
                               MediaType mediaType,
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new ViewportRequest();
+    // TODO JSON writer for ViewportSpecification that lives in the same package
+    //return new ViewportSpecification(rows, columns);
+    throw new UnsupportedOperationException();
   }
 }

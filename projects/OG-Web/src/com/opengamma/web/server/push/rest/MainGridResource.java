@@ -11,7 +11,7 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.DependencyGraphRequest;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  * TODO need methods to create and return depgraphs
@@ -28,8 +28,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  public String createViewport(ViewportRequest viewportRequest) {
-    return _view.createViewport(_gridType, viewportRequest);
+  public String createViewport(ViewportSpecification viewportSpecification) {
+    return _view.createViewport(_gridType, viewportSpecification);
   }
 
   @Override

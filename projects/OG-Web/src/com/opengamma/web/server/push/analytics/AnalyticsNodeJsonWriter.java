@@ -30,10 +30,18 @@ public class AnalyticsNodeJsonWriter {
     }
   }
 
+  /**
+   * Creates an array containing the contents of {@code node}. Recursively creates arrays for child nodes.
+   * <pre>
+   *   [startRow,endRow,[childNode1,childNode2,...]]
+   * </pre>
+   * @param node The grid node
+   * @return <pre>[startRow,endRow,[childNode1,childNode2,...]]</pre>
+   */
   private static Object[] createNodeArray(AnalyticsNode node) {
     Object[] nodeArray = new Object[3];
-    nodeArray[0] = node.getStart();
-    nodeArray[1] = node.getEnd();
+    nodeArray[0] = node.getStartRow();
+    nodeArray[1] = node.getEndRow();
 
     List<AnalyticsNode> children = node.getChildren();
     Object[] childArray = new Object[children.size()];

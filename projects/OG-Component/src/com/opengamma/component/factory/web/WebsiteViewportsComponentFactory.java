@@ -67,7 +67,7 @@ import com.opengamma.web.server.push.rest.json.AnalyticsGridStructureMessageBody
 import com.opengamma.web.server.push.rest.json.AnalyticsResultsMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.DependencyGraphRequestMessageBodyReader;
 import com.opengamma.web.server.push.rest.json.ViewRequestMessageBodyReader;
-import com.opengamma.web.server.push.rest.json.ViewportRequestMessageBodyReader;
+import com.opengamma.web.server.push.rest.json.ViewportSpecificationMessageBodyReader;
 
 /**
  * Component factory for the main website viewports (for analytics).
@@ -184,7 +184,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
-    repo.getRestComponents().publishHelper(new ViewportRequestMessageBodyReader());
+    repo.getRestComponents().publishHelper(new ViewportSpecificationMessageBodyReader());
     repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
     repo.getRestComponents().publishHelper(new AnalyticsResultsMessageBodyWriter());

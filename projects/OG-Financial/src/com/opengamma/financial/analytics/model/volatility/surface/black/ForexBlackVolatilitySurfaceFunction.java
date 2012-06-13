@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
+
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -16,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
@@ -48,6 +52,16 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
     return ForexSurfaceUtils.getDataFromStrangleRiskReversalQuote(forwardCurve, fxVolatilitySurface);
+  }
+  
+  @Override
+  protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String forwardCurveName = desiredValue.getConstraint(CURVE);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(CURVE_CALCULATION_METHOD, curveCalculationMethodName)
+        .with(CURVE, forwardCurveName).get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
   @Override

@@ -91,4 +91,5 @@ public class PDETerminalResults1D implements PDEResults1D {
   public double[] getFinalTimePrices() {
     return _f;
   }
+
 }

@@ -27,7 +27,7 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
     String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
-            targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME));
+            targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)); // TODO Remove this one. It is here to test redundant nature of target as both these are in vol spec. See View: Case Variance Swap test target
   }
 
 }

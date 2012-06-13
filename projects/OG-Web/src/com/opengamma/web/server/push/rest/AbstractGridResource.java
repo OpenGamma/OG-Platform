@@ -22,7 +22,7 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  * REST resource superclass for all analytics grids.
@@ -56,12 +56,12 @@ public abstract class AbstractGridResource {
   @POST
   @Path("viewports")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response createViewport(@Context UriInfo uriInfo, ViewportRequest viewportRequest) {
-    String viewportId = createViewport(viewportRequest);
+  public Response createViewport(@Context UriInfo uriInfo, ViewportSpecification viewportSpecification) {
+    String viewportId = createViewport(viewportSpecification);
     return createdResponse(uriInfo, viewportId);
   }
 
-  public abstract String createViewport(ViewportRequest viewportRequest);
+  public abstract String createViewport(ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);

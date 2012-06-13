@@ -20,7 +20,7 @@ public class AnalyticsNodeJsonWriterTest {
 
   @Test
   public void emptyPortfolio() {
-    String json = AnalyticsNodeJsonWriter.getJson(AnalyticsNode.empty());
+    String json = AnalyticsNodeJsonWriter.getJson(AnalyticsNode.emptyRoot());
     assertEquals("[0,0,[]]", json);
   }
 

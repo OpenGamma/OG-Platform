@@ -14,7 +14,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -31,10 +32,8 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -44,7 +43,9 @@ import com.opengamma.util.time.Expiry;
  */
 public class ConvectionDiffusionPDESolverTestCase {
 
-  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
+  //private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
+  private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();
+  private static final InitialConditionsProvider INITIAL_CONDITION_PROVIDER = new InitialConditionsProvider();
 
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
@@ -61,15 +62,15 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static final double STRIKE;
   private static final double BETA = 0.4;
   private static final double T = 5.0;
-  private static final double RATE = 0.05;// TODO change back to 5%
+  private static final double RATE = 0.05;
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   private static final double VOL_BETA;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
-  private static final ConvectionDiffusionPDEDataBundle DATA;
-  private static final ConvectionDiffusionPDEDataBundle LN_DATA;
-  private static final ConvectionDiffusionPDEDataBundle BETA_DATA;
+  private static final ConvectionDiffusionPDE1DStandardCoefficients DATA;
+  private static final ConvectionDiffusionPDE1DStandardCoefficients LN_DATA;
+  private static final ConvectionDiffusionPDE1DStandardCoefficients CEV_DATA;
 
   private static VolatilitySurface VOL_SURFACE;
   private static final EuropeanVanillaOptionDefinition OPTION_DEFINITION;
@@ -77,7 +78,9 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static Function1D<StandardOptionDataBundle, Double> BS_PRICE;
 
   private static boolean ISCALL = false;
-  private static Surface<Double, Double, Double> AMERICAN_PAYOFF;
+  private static Function1D<Double, Double> PAYOFF;
+  private static Function1D<Double, Double> PAYOFF_LOG_COOR;
+  private static Surface<Double, Double, Double> EARLY_EXCISE;
 
   static {
     GREEKS = new HashSet<Greek>();
@@ -145,25 +148,30 @@ public class ConvectionDiffusionPDESolverTestCase {
     LN_LOWER = new DirichletBoundaryCondition(logSpotZeroPrice, logGridLow);
     LN_UPPER = new DirichletBoundaryCondition(0.0, logGridHi); // put only
 
-    final Function<Double, Double> payoff = new Function<Double, Double>() {
+    //    final Function<Double, Double> payoff = new Function<Double, Double>() {
+    //
+    //      @SuppressWarnings("synthetic-access")
+    //      @Override
+    //      public Double evaluate(final Double... ts) {
+    //        final double s = ts[1];
+    //        if (ISCALL) {
+    //          return Math.max(0, s - STRIKE);
+    //        }
+    //        return Math.max(0, STRIKE - s);
+    //      }
+    //
+    //    };
 
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double... ts) {
-        final double s = ts[1];
-        if (ISCALL) {
-          return Math.max(0, s - STRIKE);
-        }
-        return Math.max(0, STRIKE - s);
-      }
+    PAYOFF = INITIAL_CONDITION_PROVIDER.getEuropeanPayoff(STRIKE, ISCALL);
+    PAYOFF_LOG_COOR = INITIAL_CONDITION_PROVIDER.getLogEuropeanPayoff(STRIKE, ISCALL);
+    EARLY_EXCISE = INITIAL_CONDITION_PROVIDER.getAmericanEarlyExcise(STRIKE, ISCALL);
 
-    };
-
-    AMERICAN_PAYOFF = FunctionalDoublesSurface.from(payoff);
-
-    DATA = PDE_DATA_PROVIDER.getBackwardsBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
-    LN_DATA = PDE_DATA_PROVIDER.getBackwardsLogBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
-    BETA_DATA = PDE_DATA_PROVIDER.getBackwardsCEV(VOL_BETA, RATE, STRIKE, BETA, ISCALL);
+    DATA = PDE_PROVIDER.getBlackScholes(RATE, 0.0, ATM_VOL);
+    LN_DATA = PDE_PROVIDER.getLogBlackScholes(RATE, 0.0, ATM_VOL);
+    CEV_DATA = PDE_PROVIDER.getCEV(RATE, BETA, VOL_BETA);
+    //    DATA = PDE_DATA_PROVIDER.getBackwardsBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
+    //    LN_DATA = PDE_DATA_PROVIDER.getBackwardsLogBlackScholes(ATM_VOL, RATE, STRIKE, ISCALL);
+    //    BETA_DATA = PDE_DATA_PROVIDER.getBackwardsCEV(VOL_BETA, RATE, STRIKE, BETA, ISCALL);
   }
 
   /**
@@ -171,7 +179,9 @@ public class ConvectionDiffusionPDESolverTestCase {
    */
   public void testBlackScholesEquationUniformGrid(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness,
       final double volTol, final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
-    final PDEResults1D res = solver.solve(DATA, timeSteps, spotSteps, T, LOWER, UPPER);
+    //final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
+    //PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
+    final PDEResults1D res = solver.solve(DATA, PAYOFF, timeSteps, spotSteps, T, LOWER, UPPER);
     testBlackScholesEquation(res, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }
 
@@ -182,19 +192,9 @@ public class ConvectionDiffusionPDESolverTestCase {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), OPTION.getStrike(), spotSteps + 1, 0.1);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spotSteps + 1, 0.0);
 
-    final double[] timeGrid = new double[timeSteps + 1];
-    for (int n = 0; n <= timeSteps; n++) {
-      timeGrid[n] = timeMesh.evaluate(n);
-    }
-
-    final double[] spaceGrid = new double[spotSteps + 1];
-    for (int i = 0; i <= spotSteps; i++) {
-      spaceGrid[i] = spaceMesh.evaluate(i);
-    }
-
-    final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
-
-    final PDEResults1D res = solver.solve(DATA, grid, LOWER, UPPER);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
+    final PDEResults1D res = solver.solve(data);
     testBlackScholesEquation(res, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }
 
@@ -271,8 +271,11 @@ public class ConvectionDiffusionPDESolverTestCase {
       final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
     final PDEGrid1D grid1 = new PDEGrid1D(timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
     final PDEGrid1D grid2 = new PDEGrid1D(2 * timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
-    final PDEResults1D res1 = solver.solve(DATA, grid1, LOWER, UPPER);
-    final PDEResults1D res2 = solver.solve(DATA, grid2, LOWER, UPPER);
+
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data1 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid1);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data2 = data1.withGrid(grid2);
+    final PDEResults1D res1 = solver.solve(data1);
+    final PDEResults1D res2 = solver.solve(data2);
 
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res1.getNumberSpaceNodes();
@@ -318,7 +321,11 @@ public class ConvectionDiffusionPDESolverTestCase {
    */
   public void testLogTransformedBlackScholesEquation(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int spotSteps, final double lowerMoneyness, final double upperMoneyness,
       final double volTol, final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
-    final PDEResults1D res = solver.solve(LN_DATA, timeSteps, spotSteps, T, LN_LOWER, LN_UPPER);
+    //    final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, spotSteps + 1, T, LN_LOWER.getLevel(), LN_UPPER.getLevel());
+    //    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db =
+    //        new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(LN_DATA, PAYOFF_LOG_COOR, LN_LOWER, LN_UPPER, grid);
+    //    final PDEResults1D res = solver.solve(db);
+    final PDEResults1D res = solver.solve(LN_DATA, PAYOFF_LOG_COOR, timeSteps, spotSteps, T, LN_LOWER, LN_UPPER);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res.getNumberSpaceNodes();
 
@@ -367,8 +374,10 @@ public class ConvectionDiffusionPDESolverTestCase {
    */
   public void testCEV(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int priceSteps, final double lowerMoneyness, final double upperMoneyness, final double volTol,
       final boolean print) {
-
-    final PDEResults1D res = solver.solve(BETA_DATA, timeSteps, priceSteps, T, LOWER, UPPER);
+    //    final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, priceSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
+    //    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(CEV_DATA, PAYOFF, LOWER, UPPER, grid);
+    //    final PDEResults1D res = solver.solve(db);
+    final PDEResults1D res = solver.solve(CEV_DATA, PAYOFF, timeSteps, priceSteps, T, LOWER, UPPER);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res.getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -403,7 +412,10 @@ public class ConvectionDiffusionPDESolverTestCase {
     final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model = new BjerksundStenslandModel();
     final Function1D<StandardOptionDataBundle, Double> pFunc = model.getPricingFunction(option);
 
-    final PDEResults1D res = solver.solve(DATA, timeSteps, priceSteps, T, LOWER, UPPER, AMERICAN_PAYOFF);
+    final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, priceSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, EARLY_EXCISE, grid);
+
+    final PDEResults1D res = solver.solve(db);
     final int n = res.getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
       final double spot = res.getSpaceValue(i);

@@ -11,9 +11,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsResults;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  * REST resource superclass
@@ -34,12 +34,12 @@ public abstract class AbstractViewportResource {
   }
 
   @POST
-  public abstract void update(ViewportRequest viewportRequest);
+  public abstract void update(ViewportSpecification viewportSpecification);
 
   @DELETE
   public abstract void delete();
 
   @GET
   @Path("data")
-  public abstract AnalyticsResults getData();
+  public abstract ViewportResults getData();
 }

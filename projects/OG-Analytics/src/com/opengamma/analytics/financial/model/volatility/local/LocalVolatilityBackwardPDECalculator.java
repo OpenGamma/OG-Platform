@@ -6,16 +6,18 @@
 package com.opengamma.analytics.financial.model.volatility.local;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.DoubleExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 
@@ -46,8 +48,10 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final BoundaryCondition lower = getLowerBoundaryCondition(option, strike);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, _maxMoneyness * forward);
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility);
-    return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
+    final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getBackwardsLocalVol(expiry, localVolatility);
+    final Function1D<Double, Double> payoff = getInitialConditionProvider().getEuropeanPayoff(strike, isCall);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    return (PDETerminalResults1D) getSolver().solve(db);
   }
 
   @Override
@@ -60,8 +64,10 @@ public class LocalVolatilityBackwardPDECalculator extends LocalVolatilityPDECalc
     final BoundaryCondition lower = getLowerBoundaryCondition(option, strike);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, expiry);
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(maxForward, forward));
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
-    return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
+    final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getBackwardsLocalVol(forwardCurve, expiry, localVolatility);
+    final Function1D<Double, Double> payoff = getInitialConditionProvider().getEuropeanPayoff(strike, isCall);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    return (PDETerminalResults1D) getSolver().solve(db);
   }
 
   private MeshingFunction getTimeMesh(final double maxTime) {

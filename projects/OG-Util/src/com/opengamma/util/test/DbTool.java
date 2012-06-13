@@ -532,7 +532,7 @@ public class DbTool extends Task {
    *
    * @return db_name => version_number => (create_script, migrate_script)
    */
-  private Map<String, Map<Integer, Pair<File, File>>> getScriptDirs() {
+  public Map<String, Map<Integer, Pair<File, File>>> getScriptDirs() {
 
     Map<String, ConcurrentHashMap<Integer, File>> createScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
       private static final long serialVersionUID = 1L;
@@ -672,41 +672,49 @@ public class DbTool extends Task {
 
   public void createTables(String database, Map<Integer, Pair<File, File>> dbScripts, String catalog, String schema, final TableCreationCallback callback) {
     int highestVersion = Collections.max(dbScripts.keySet());
-    int targetVersion = getTargetVersion() == null ? highestVersion : getTargetVersion();
-    int createVersion = getCreateVersion() == null ? targetVersion : getCreateVersion();    
-    createTables(database, dbScripts, highestVersion, targetVersion, createVersion, catalog, schema, callback);
+    int lowestVersion = Collections.min(dbScripts.keySet());
+    int targetVersion = getTargetVersion() == null ? 0 : getTargetVersion();
+    int createVersion = getCreateVersion() == null ? targetVersion : getCreateVersion(); 
+    if((highestVersion-lowestVersion) < targetVersion || (highestVersion-lowestVersion) < createVersion){
+      System.out.println("to low");
+    }else{
+      createTables(database, dbScripts, highestVersion, targetVersion, createVersion, catalog, schema, callback);
+    }
   }
 
   public void createTables(String database, Map<Integer, Pair<File, File>> dbScripts, int version, int targetVersion, int createVersion, String catalog, String schema,
       final TableCreationCallback callback) {
     if (version < 1) {
-//      throw new IllegalArgumentException("Invalid creation or target version (" + createVersion + "/" + targetVersion + ")");
-      return;
+      throw new IllegalArgumentException("Invalid creation or target version (" + createVersion + "/" + targetVersion + ")");
     }
 
-    if (targetVersion >= version) {
+    if (targetVersion == 0) {
       if (dbScripts.get(version) == null) {
         return;
       }
-      final File createScript = dbScripts.get(version).getFirst();
-      if (createVersion >= version && createScript.exists()) {
+      final File createScript = dbScripts.get(version).getFirst();      
+      if (createVersion == 0) {        
+        if (createScript == null || !createScript.exists()){
+          throw new OpenGammaRuntimeException("The "+version+" create script is missing ("+createScript+")");
+        }
         s_logger.info("Creating DB version " + version);
         s_logger.info("Executing create script " + dbScripts.get(version).getFirst());
-        executeCreateScript(catalog, schema, dbScripts.get(version).getFirst());
+        executeCreateScript(catalog, schema, createScript);
         if (callback != null) {
           callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
         }
       } else {
-        createTables(database, dbScripts, version - 1, targetVersion, createVersion, catalog, schema, callback);
+        createTables(database, dbScripts, version - 1, targetVersion, createVersion-1, catalog, schema, callback);
         final File migrateScript = dbScripts.get(version).getSecond();
-        if (migrateScript != null && migrateScript.exists()) {
-          s_logger.info("Upgrading to DB version " + version);
-          s_logger.info("Executing upgrade script " + migrateScript);
-          executeCreateScript(catalog, schema, migrateScript);
-          if (callback != null) {
-            callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
-          }
-        }
+        if (migrateScript == null || !migrateScript.exists()){
+          throw new OpenGammaRuntimeException("The "+version+" migrate script is missing ("+migrateScript+")");
+        }        
+        s_logger.info("Upgrading to DB version " + version);
+        s_logger.info("Executing upgrade script " + migrateScript);
+        executeCreateScript(catalog, schema, migrateScript);
+        if (callback != null) {
+          callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
+        }     
       }
     } else {
       createTables(database, dbScripts, version - 1, targetVersion, createVersion, catalog, schema, callback);
@@ -832,8 +840,8 @@ public class DbTool extends Task {
     options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/{dbtype}/scripts_<latest version>/create-db.sql.");
     options.addOption("dbscriptbasedir", "dbscriptbasedir", true, "Directory for reading db create scripts. " +
       "Optional. If not specified, the working directory is used.");
-    options.addOption("targetversion", "targetversion", true, "Version number for the end result database. Optional. If not specified, assumes latest version.");
-    options.addOption("createversion", "createversion", true, "Version number to run the creation script from. Optional. If not specified, defaults to {targetversion}.");
+    options.addOption("targetversion", "targetversion", true, "Version number for the end result database. 0 means latest. 1 means last but one etc. Optional. If not specified, assumes latest version.");
+    options.addOption("createversion", "createversion", true, "Version number to run the creation script from. 0 means latest. 1 means last but one etc. Optional. If not specified, defaults to {targetversion}.");
     options.addOption("testpropertiesdir", "testpropertiesdir", true, "Directory for reading test.properties. Only used with the --createstdb option. " +
       "Optional. If not specified, the working directory is used.");
 

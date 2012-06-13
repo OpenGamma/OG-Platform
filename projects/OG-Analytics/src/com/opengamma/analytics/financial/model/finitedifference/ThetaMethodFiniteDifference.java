@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.Decomposition;
 import com.opengamma.analytics.math.linearalgebra.DecompositionResult;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
@@ -48,41 +49,128 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   }
 
   @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary) {
-    return solve(pdeData, tSteps, xSteps, tMax, lowerBoundary, upperBoundary, null);
-  }
-
-  @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    return solve(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
-  }
-
-  @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
-    return solve(pdeData, grid, lowerBoundary, upperBoundary, null);
-  }
-
-  @Override
-  public PDEResults1D solve(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
+  public PDEResults1D solve(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
     Validate.notNull(pdeData, "pde data");
-    Validate.notNull(grid, "need a grid");
-    validateSetup(grid, lowerBoundary, upperBoundary);
-
-    final SolverImpl solver = new SolverImpl(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
+    final SolverImpl solver = getSolverImpl(pdeData);
     return solver.solve();
   }
 
+  //************************************************************************************************************
+  // TODO These are all from ConvectionDiffusionPDESolver - remove in next refactor
+  //************************************************************************************************************
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeCoeff, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary) {
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeCoeff, initialCondition, lowerBoundary,
+        upperBoundary, grid);
+    final SolverImpl solver = getSolverImpl(pdeData);
+    return solver.solve();
+  }
+
+  @Override
+  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeCoeff, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
+      BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeCoeff, initialCondition, lowerBoundary,
+        upperBoundary, freeBoundary, grid);
+    final SolverImpl solver = getSolverImpl(pdeData);
+    return solver.solve();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary) {
+    Validate.notNull(pdeData, "pde data");
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+    final ConvectionDiffusionPDE1DStandardCoefficients coeff = pdeData.getCoefficients();
+    final Function1D<Double, Double> initialCondition = pdeData.getInitialCondition();
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coeff, initialCondition, lowerBoundary, upperBoundary,
+        grid);
+    final SolverImpl solver = getSolverImpl(data);
+    return solver.solve();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
+      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
+    Validate.notNull(pdeData, "pde data");
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
+    final ConvectionDiffusionPDE1DStandardCoefficients coeff = pdeData.getCoefficients();
+    final Function1D<Double, Double> initialCondition = pdeData.getInitialCondition();
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coeff, initialCondition, lowerBoundary, upperBoundary,
+        freeBoundary, grid);
+    final SolverImpl solver = getSolverImpl(data);
+    return solver.solve();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
+    Validate.notNull(pdeData, "pde data");
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final ConvectionDiffusionPDE1DStandardCoefficients coeff = pdeData.getCoefficients();
+    final Function1D<Double, Double> initialCondition = pdeData.getInitialCondition();
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coeff, initialCondition, lowerBoundary, upperBoundary,
+        grid);
+    final SolverImpl solver = getSolverImpl(data);
+    return solver.solve();
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
+      final Surface<Double, Double, Double> freeBoundary) {
+    Validate.notNull(pdeData, "pde data");
+    Validate.notNull(lowerBoundary, "lowerBoundary");
+    Validate.notNull(upperBoundary, "upperBoundary");
+    final ConvectionDiffusionPDE1DStandardCoefficients coeff = pdeData.getCoefficients();
+    final Function1D<Double, Double> initialCondition = pdeData.getInitialCondition();
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coeff, initialCondition, lowerBoundary, upperBoundary,
+        freeBoundary, grid);
+    final SolverImpl solver = getSolverImpl(data);
+    return solver.solve();
+  }
+
+  //************************************************************************************************************
+
+  /*
+   * TODO This code get the right solver implementation is ugly and should be removed on the next refactor 
+   */
+  private SolverImpl getSolverImpl(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData) {
+    ConvectionDiffusionPDE1DCoefficients coeff = pdeData.getCoefficients();
+    if (coeff instanceof ConvectionDiffusionPDE1DStandardCoefficients) {
+      ConvectionDiffusionPDE1DStandardCoefficients temp = (ConvectionDiffusionPDE1DStandardCoefficients) coeff;
+      return new SolverImpl(temp, pdeData.getInitialCondition(), pdeData.getLowerBoundary(), pdeData.getUpperBoundary(),
+          pdeData.getFreeBoundary(), pdeData.getGrid());
+    } else if (coeff instanceof ConvectionDiffusionPDE1DFullCoefficients) {
+      ConvectionDiffusionPDE1DFullCoefficients temp = (ConvectionDiffusionPDE1DFullCoefficients) coeff;
+      return new ExtendedSolverImpl(temp, pdeData.getInitialCondition(), pdeData.getLowerBoundary(), pdeData.getUpperBoundary(),
+          pdeData.getFreeBoundary(), pdeData.getGrid());
+    }
+    throw new IllegalArgumentException(coeff.getClass() + " not handled");
+  }
+
   class SolverImpl {
-    private final ConvectionDiffusionPDEDataBundle _pdeData;
+    // private final ConvectionDiffusionPDEDataBundle _pdeData;
+    private final ConvectionDiffusionPDE1DStandardCoefficients _coefficients;
+    private final double[] _initialCondition;
     private final PDEGrid1D _grid;
     private final BoundaryCondition _lowerBoundary;
     private final BoundaryCondition _upperBoundary;
     private final Surface<Double, Double, Double> _freeBoundary;
-    private final double[] _f;
+    private double[] _f;
     private double[][] _full;
 
     private final double[] _q;
@@ -96,18 +184,17 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     private double _t1;
     private double _t2;
 
-    @SuppressWarnings("synthetic-access")
-    public SolverImpl(final ConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-        final Surface<Double, Double, Double> freeBoundary) {
-
-      _pdeData = pdeData;
-      _grid = grid;
+    public SolverImpl(final ConvectionDiffusionPDE1DStandardCoefficients coeff, final double[] initialCondition, final BoundaryCondition lowerBoundary,
+        final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary, final PDEGrid1D grid) {
+      _coefficients = coeff;
+      _initialCondition = initialCondition;
       _lowerBoundary = lowerBoundary;
       _upperBoundary = upperBoundary;
       _freeBoundary = freeBoundary;
+      _grid = grid;
 
-      final int tNodes = grid.getNumTimeNodes();
-      final int xNodes = grid.getNumSpaceNodes();
+      final int tNodes = _grid.getNumTimeNodes();
+      final int xNodes = _grid.getNumSpaceNodes();
 
       _f = new double[xNodes];
       if (_showFullResults) {
@@ -120,7 +207,6 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       _a = new double[xNodes - 2];
       _b = new double[xNodes - 2];
       _c = new double[xNodes - 2];
-
     }
 
     @SuppressWarnings("synthetic-access")
@@ -155,24 +241,21 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     @SuppressWarnings("synthetic-access")
     void initialise() {
-      for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
-        _f[i] = _pdeData.getInitialValue(getGrid().getSpaceNode(i));
-      }
+      final double t0 = getGrid().getTimeNode(0);
+      setT1(t0);
+      _f = Arrays.copyOf(_initialCondition, getGrid().getNumSpaceNodes());
       if (_showFullResults) {
-        _full[0] = Arrays.copyOf(_f, _f.length);
+        _full[0] = _initialCondition;
       }
 
       double x;
       for (int i = 0; i < getGrid().getNumSpaceNodes() - 2; i++) {
         x = getGrid().getSpaceNode(i + 1);
-        setA(i, _pdeData.getA(0, x));
-        setB(i, _pdeData.getB(0, x));
-        setC(i, _pdeData.getC(0, x));
-        //TODO R White 4/08/2011 change this back debug
-        //setRho(i, getA(i));
+        setA(i, _coefficients.getA(t0, x));
+        setB(i, _coefficients.getB(t0, x));
+        setC(i, _coefficients.getC(t0, x));
         setRho(i, getFittingParameter(getGrid(), getA(i), getB(i), i + 1));
       }
-      setT1(0.0);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -196,20 +279,20 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
      * 
      */
     void updateRHSBoundary() {
-      double[] temp = _lowerBoundary.getRightMatrixCondition(_pdeData, getGrid(), getT1());
+      double[] temp = _lowerBoundary.getRightMatrixCondition(_coefficients, getGrid(), getT1());
       double sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * getF(k);
       }
-      setQ(0, sum + _lowerBoundary.getConstant(_pdeData, getT2()));
+      setQ(0, sum + _lowerBoundary.getConstant(_coefficients, getT2()));
 
-      temp = _upperBoundary.getRightMatrixCondition(_pdeData, getGrid(), getT1());
+      temp = _upperBoundary.getRightMatrixCondition(_coefficients, getGrid(), getT1());
       sum = 0;
       for (int k = 0; k < temp.length; k++) {
         sum += temp[k] * getF(getGrid().getNumSpaceNodes() - 1 - k);
       }
 
-      setQ(getGrid().getNumSpaceNodes() - 1, sum + _upperBoundary.getConstant(_pdeData, getT2()));
+      setQ(getGrid().getNumSpaceNodes() - 1, sum + _upperBoundary.getConstant(_coefficients, getT2()));
     }
 
     @SuppressWarnings("synthetic-access")
@@ -227,12 +310,12 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     void updateLHSBoundary() {
-      double[] temp = _lowerBoundary.getLeftMatrixCondition(_pdeData, getGrid(), getT2());
+      double[] temp = _lowerBoundary.getLeftMatrixCondition(_coefficients, getGrid(), getT2());
       for (int k = 0; k < temp.length; k++) {
         setM(0, k, temp[k]);
       }
 
-      temp = _upperBoundary.getLeftMatrixCondition(_pdeData, getGrid(), getT2());
+      temp = _upperBoundary.getLeftMatrixCondition(_coefficients, getGrid(), getT2());
       for (int k = 0; k < temp.length; k++) {
         setM(getGrid().getNumSpaceNodes() - 1, getGrid().getNumSpaceNodes() - temp.length + k, temp[k]);
       }
@@ -242,9 +325,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       double x;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
         x = getGrid().getSpaceNode(i);
-        setA(i - 1, _pdeData.getA(getT2(), x));
-        setB(i - 1, _pdeData.getB(getT2(), x));
-        setC(i - 1, _pdeData.getC(getT2(), x));
+        setA(i - 1, _coefficients.getA(getT2(), x));
+        setB(i - 1, _coefficients.getB(getT2(), x));
+        setC(i - 1, _coefficients.getC(getT2(), x));
         //TODO R White 4/08/2011 change this back debug
         //setRho(i - 1, getA(i - 1));
         setRho(i - 1, getFittingParameter(getGrid(), getA(i - 1), getB(i - 1), i));
@@ -253,10 +336,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
     private void solveMatrixSystem() {
       final double omega = 1.0;
-      @SuppressWarnings("unused")
+      //   @SuppressWarnings("unused")
       //NOTE get this working again with dynamic omega
-      final int count = solveBySOR(omega);
-      //   solveByLU();
+      //final int count = solveBySOR(omega);
+      solveByLU();
       //      if (oldCount > 0) {
       //        if ((omegaIncrease && count > oldCount) || (!omegaIncrease && count < oldCount)) {
       //          omega = Math.max(1.0, omega * 0.9);
@@ -426,16 +509,92 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
   }
 
-  /**
-   * Checks that the lower and upper boundaries match up with the grid
-   * @param grid The grid
-   * @param lowerBoundary The lower boundary
-   * @param upperBoundary The upper boundary
-   */
-  protected void validateSetup(final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
-    // TODO would like more sophistication that simply checking to the grid is consistent with the boundary level
-    Validate.isTrue(Math.abs(grid.getSpaceNode(0) - lowerBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
-    Validate.isTrue(Math.abs(grid.getSpaceNode(grid.getNumSpaceNodes() - 1) - upperBoundary.getLevel()) < 1e-7, "space grid not consistent with boundary level");
+  private class ExtendedSolverImpl extends SolverImpl {
+
+    //private final ExtendedConvectionDiffusionPDEDataBundle _pdeData;
+    private final ConvectionDiffusionPDE1DFullCoefficients _coeff;
+    private final double[] _alpha;
+    private final double[] _beta;
+
+    public ExtendedSolverImpl(final ConvectionDiffusionPDE1DFullCoefficients coeff, final double[] initialCondition,
+        final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary, final PDEGrid1D grid) {
+      super(coeff.getStandardCoefficients(), initialCondition, lowerBoundary, upperBoundary, freeBoundary, grid);
+      _coeff = coeff;
+      final int xNodes = grid.getNumSpaceNodes();
+      _alpha = new double[xNodes];
+      _beta = new double[xNodes];
+    }
+
+    /**
+     * @param pdeData
+     * @param grid
+     * @param lowerBoundary
+     * @param upperBoundary
+     * @param freeBoundary
+     */
+    //    public ExtendedSolverImpl(ExtendedConvectionDiffusionPDEDataBundle pdeData, PDEGrid1D grid, BoundaryCondition lowerBoundary, BoundaryCondition upperBoundary,
+    //        Surface<Double, Double, Double> freeBoundary) {
+    //      super(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
+    //      _pdeData = pdeData;
+    //      final int xNodes = grid.getNumSpaceNodes();
+    //      _alpha = new double[xNodes];
+    //      _beta = new double[xNodes];
+    //    }
+
+    @Override
+    void initialise() {
+      super.initialise();
+      double x;
+      double t = getT1();
+      for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
+        x = getGrid().getSpaceNode(i);
+        _alpha[i] = _coeff.getAlpha(t, x);
+        _beta[i] = _coeff.getBeta(t, x);
+      }
+    }
+
+    @Override
+    void updateRHSVector() {
+      double dt = getT2() - getT1();
+      double[] x1st, x2nd;
+      double temp;
+      for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
+        x1st = getGrid().getFirstDerivativeCoefficients(i);
+        x2nd = getGrid().getSecondDerivativeCoefficients(i);
+        //TODO Work out a fitting scheme
+        temp = getF(i);
+        temp -= (1 - getTheta()) * dt * (x2nd[0] * getA(i - 1) * _alpha[i - 1] + x1st[0] * getB(i - 1) * _beta[i - 1]) * getF(i - 1);
+        temp -= (1 - getTheta()) * dt * (x2nd[1] * getA(i - 1) * _alpha[i] + x1st[1] * getB(i - 1) * _beta[i] + getC(i - 1)) * getF(i);
+        temp -= (1 - getTheta()) * dt * (x2nd[2] * getA(i - 1) * _alpha[i + 1] + x1st[2] * getB(i - 1) * _beta[i + 1]) * getF(i + 1);
+        setQ(i, temp);
+      }
+    }
+
+    @Override
+    void updateLHSMatrix() {
+      double dt = getT2() - getT1();
+      double[] x1st, x2nd;
+      for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
+        x1st = getGrid().getFirstDerivativeCoefficients(i);
+        x2nd = getGrid().getSecondDerivativeCoefficients(i);
+
+        setM(i, i - 1, getTheta() * dt * (x2nd[0] * getA(i - 1) * _alpha[i - 1] + x1st[0] * getB(i - 1) * _beta[i - 1]));
+        setM(i, i, 1 + getTheta() * dt * (x2nd[1] * getA(i - 1) * _alpha[i] + x1st[1] * getB(i - 1) * _beta[i] + getC(i - 1)));
+        setM(i, i + 1, getTheta() * dt * (x2nd[2] * getA(i - 1) * _alpha[i + 1] + x1st[2] * getB(i - 1) * _beta[i + 1]));
+      }
+    }
+
+    @Override
+    void updateCoefficents() {
+      super.updateCoefficents();
+      double x;
+      for (int i = 0; i < getGrid().getNumSpaceNodes(); i++) {
+        x = getGrid().getSpaceNode(i);
+        _alpha[i] = _coeff.getAlpha(getT2(), x);
+        _beta[i] = _coeff.getBeta(getT2(), x);
+      }
+    }
+
   }
 
   /**

@@ -11,7 +11,8 @@ import com.opengamma.analytics.math.surface.Surface;
 /**
  * 
  */
-public class CoupledPDEDataBundle extends ConvectionDiffusionPDEDataBundle {
+@SuppressWarnings("deprecation")
+public class CoupledPDEDataBundle extends ZZConvectionDiffusionPDEDataBundle {
 
   private final double _lambda;
 

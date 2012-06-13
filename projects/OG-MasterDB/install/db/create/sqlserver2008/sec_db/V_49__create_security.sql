@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '48');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '49');
 
 -- CREATE SEQUENCE sec_security_seq
 --     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -76,12 +76,6 @@ CREATE INDEX ix_sec_sec2idkey_idkey ON sec_security2idkey(idkey_id);
 
 -- Hibernate controlled tables
 CREATE TABLE sec_currency (
-    id BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    PRIMARY KEY (id)
-);
-
-CREATE TABLE sec_commodityfuturetype (
     id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL UNIQUE,
     PRIMARY KEY (id)

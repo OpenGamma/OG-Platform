@@ -21,12 +21,12 @@ public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t) {
+  public double getConstant(final ConvectionDiffusionPDE1DStandardCoefficients data, final double t) {
     return _secondDev;
   }
 
   @Override
-  public double[] getLeftMatrixCondition(final PDEDataBundle data, PDEGrid1D grid, final double t) {
+  public double[] getLeftMatrixCondition(final ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, final double t) {
     double[] temp;
     if (_isLower) {
       temp = grid.getSecondDerivativeCoefficients(0);
@@ -37,7 +37,7 @@ public class FixedSecondDerivativeBoundaryCondition implements BoundaryCondition
   }
 
   @Override
-  public double[] getRightMatrixCondition(final PDEDataBundle data, PDEGrid1D grid, final double t) {
+  public double[] getRightMatrixCondition(final ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, final double t) {
     return new double[0];
   }
 

@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.push.analytics.AnalyticsResults;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  *
@@ -19,8 +19,8 @@ public class MainGridViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public void update(ViewportRequest viewportRequest) {
-    _view.updateViewport(_gridType, _viewportId, viewportRequest);
+  public void update(ViewportSpecification viewportSpec) {
+    _view.updateViewport(_gridType, _viewportId, viewportSpec);
   }
 
   @Override
@@ -29,7 +29,7 @@ public class MainGridViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public AnalyticsResults getData() {
+  public ViewportResults getData() {
     return _view.getData(_gridType, _viewportId);
   }
 }

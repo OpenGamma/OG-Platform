@@ -6,16 +6,18 @@
 package com.opengamma.analytics.financial.model.volatility.local;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDETerminalResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 
@@ -48,8 +50,10 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(minMoneyness, maxMoneyness));
     final BoundaryCondition lower = getLowerBoundaryCondition(option, minMoneyness);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, isCall);
-    return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
+    final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getForwardLocalVol(localVolatility);
+    final Function1D<Double, Double> intCond = getInitialConditionProvider().getForwardCallPut(isCall);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid);
+    return (PDETerminalResults1D) getSolver().solve(db);
   }
 
   @Override
@@ -61,8 +65,10 @@ public class LocalVolatilityForwardPDECalculator extends LocalVolatilityPDECalcu
     final PDEGrid1D grid = getGrid(getTimeMesh(expiry), getSpaceMesh(minMoneyness, maxMoneyness));
     final BoundaryCondition lower = getLowerBoundaryCondition(option, minMoneyness);
     final BoundaryCondition upper = getUpperBoundaryCondition(option, maxMoneyness);
-    final ConvectionDiffusionPDEDataBundle db = getProvider().getForwardLocalVol(localVolatility, forwardCurve, isCall);
-    return (PDETerminalResults1D) getSolver().solve(db, grid, lower, upper);
+    final ConvectionDiffusionPDE1DCoefficients pde = getPDEProvider().getForwardLocalVol(forwardCurve, localVolatility);
+    final Function1D<Double, Double> intCond = getInitialConditionProvider().getForwardCallPut(isCall);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid);
+    return (PDETerminalResults1D) getSolver().solve(db);
   }
 
   public int getNTimeSteps() {

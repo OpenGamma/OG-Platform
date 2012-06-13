@@ -28,13 +28,13 @@ public interface AnalyticsView {
 
   AnalyticsGridStructure getGridStructure(GridType gridType);
 
-  String createViewport(GridType gridType, ViewportRequest request);
+  String createViewport(GridType gridType, ViewportSpecification viewportSpec);
 
-  void updateViewport(GridType gridType, String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
 
   void deleteViewport(GridType gridType, String viewportId);
 
-  AnalyticsResults getData(GridType gridType, String viewportId);
+  ViewportResults getData(GridType gridType, String viewportId);
 
   // -------- dependency graph grids --------
 
@@ -51,11 +51,11 @@ public interface AnalyticsView {
 
   AnalyticsGridStructure getGridStructure(GridType gridType, String dependencyGraphId);
 
-  String createViewport(GridType gridType, String dependencyGraphId, ViewportRequest request);
+  String createViewport(GridType gridType, String dependencyGraphId, ViewportSpecification viewportSpec);
 
-  void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportRequest request);
+  void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportSpecification viewportSpec);
 
   void deleteViewport(GridType gridType, String dependencyGraphId, String viewportId);
 
-  AnalyticsResults getData(GridType gridType, String dependencyGraphId, String viewportId);
+  ViewportResults getData(GridType gridType, String dependencyGraphId, String viewportId);
 }

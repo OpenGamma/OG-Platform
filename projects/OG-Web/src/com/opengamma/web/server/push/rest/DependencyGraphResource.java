@@ -9,7 +9,7 @@ import javax.ws.rs.DELETE;
 
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  *
@@ -34,8 +34,8 @@ public class DependencyGraphResource extends AbstractGridResource {
   }
 
   @Override
-  public String createViewport(ViewportRequest viewportRequest) {
-    return _view.createViewport(_gridType, _graphId, viewportRequest);
+  public String createViewport(ViewportSpecification viewportSpecification) {
+    return _view.createViewport(_gridType, _graphId, viewportSpecification);
   }
 
   @Override
