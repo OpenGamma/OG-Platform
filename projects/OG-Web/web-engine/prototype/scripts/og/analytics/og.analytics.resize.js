@@ -7,12 +7,11 @@ $.register_module({
     dependencies: ['og.views.common.layout', 'og.common.gadgets.manager'],
     obj: function () {
         return function () {
-            var $main = $('.OG-layout-analytics-center'), $menu,
-                $r = $('<div class="OG-analytics-resize og-resizer" title="Drag (resize) / Right click (menu)" />'),
+            var $main = $('.OG-layout-analytics-center'), $menu, block_menu = false,
+                $resizer = $('<div class="OG-analytics-resize og-resizer" ' +
+                    'title="Drag (resize) / Right click (menu)" />'),
                 layout = og.views.common.layout, icon_size = 16, offset = $main.offset();
-            var left_click_handler = function (e) {
-                e.preventDefault();
-                if (e.which !== 1) return; // if not left click return
+            var left_handler = function () {
                 var $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
                     $overlay = $('<div class="OG-analytics-resize og-overlay"></div>'),
                     offset = $main.offset(), right, bottom;
@@ -21,11 +20,11 @@ $.register_module({
                     'width': $main.width(), 'height': $main.height() + 1,
                     'top': offset.top, 'left': offset.left + 1
                 });
-                $overlay.on('mousemove', function (e) {
+                $overlay.on('mousemove', function (event) {
                     $bars.css({
-                        'width': 'auto', 'height': 'auto',
-                        'right': right = $(document).outerWidth() - e.pageX,
-                        'bottom': bottom = $(document).outerHeight() - e.pageY
+                        width: 'auto', height: 'auto',
+                        right: right = $(document).outerWidth() - event.pageX,
+                        bottom: bottom = $(document).outerHeight() - event.pageY
                     });
                 });
                 $overlay.on('mouseup', function () {
@@ -35,6 +34,7 @@ $.register_module({
                     $bars.remove(), $overlay.remove();
                 });
                 $([$bars, $overlay]).appendTo('body');
+                return false;
             };
             var load_preset = function (preset) {
                 var inner = layout.inner.sizePane, right = layout.right.sizePane, main = layout.main.sizePane;
@@ -46,32 +46,46 @@ $.register_module({
                 right('north', '33%');
                 right('south', '33%');
             };
-            var resize = function () {$r.css({
-                'left': offset.left + $main.width() - icon_size,
-                'top': offset.top + $main.height() - icon_size
-            })};
-            var right_click_handler = function () {
+            var resize = function () {
+                $resizer.css({
+                    left: offset.left + $main.width() - icon_size, top: offset.top + $main.height() - icon_size
+                });
+            };
+            var mousedown_handler = function (event) {
+                if (event.which === 3 || event.button === 2) {
+                    event.stopPropagation();
+                    block_menu = true;
+                    return right_handler();
+                };
+                return left_handler();
+            };
+            var right_handler = function () {
                 $.when(og.api.text({module: 'og.analytics.resize_menu_tash'})).then(function (template) {
                     $menu = $(template)
-                        .position({my: 'left top', at: 'right bottom', of: $r})
-                        .on('click', 'div', function () {
+                        .position({my: 'left top', at: 'right bottom', of: $resizer})
+                        .on('mousedown', 'div', function () {
                             // extract preset number from class and load
                             load_preset(+$(this).find('> span').attr('class').replace(/^(?:.*)([1-3])$/, '$1'));
                         })
                         .appendTo('body');
-                    $(document).on('click.analytics.resize.menu', function () {
-                        $(document).off('click.analytics.resize.menu');
-                        $menu.remove();
+                    $(document).on('mouseup.og_analytics_resize', function () {
+                        $(document).off('mouseup.og_analytics_resize');
+                        setTimeout(function () {
+                            $(document).on('mousedown.og_analytics_resize', function () {
+                                $menu.remove();
+                                $(document).off('mousedown.og_analytics_resize');
+                            });
+                        }, 50);
                     });
                 });
                 return false;
             };
             og.common.gadgets.manager.register({alive: function () {return true;}, resize: resize});
             resize();
-            $r
-                .on('mousedown', left_click_handler)
-                .on('contextmenu', right_click_handler)
-                .appendTo('body');
+            $(document).on('contextmenu.og_analytics_resize', function (event) {
+                if (block_menu) return event.stopPropagation(), (block_menu = false);
+            });
+            $resizer.on('mousedown', mousedown_handler).appendTo('body');
         }
     }
 });
