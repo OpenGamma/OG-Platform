@@ -58,7 +58,7 @@ public class BloombergForwardSwapCurveInstrumentProvider extends ForwardSwapCurv
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor forwardTenor) {
     final String swapCode = getTenorCode(tenor.getPeriod(), false);
     final String forwardCode = getTenorCode(forwardTenor.getPeriod(), true);
-    return ExternalId.of(SCHEME, _prefix + forwardCode + swapCode + _postfix);
+    return ExternalId.of(SCHEME, _prefix + forwardCode + swapCode + " " + _postfix);
   }
 
   @Override

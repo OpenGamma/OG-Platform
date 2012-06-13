@@ -184,10 +184,11 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         }
         final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
         final LocalDate localNow = now.toLocalDate();
-        final Period forwardTenor = Period.parse(forwardTenorName);
-        final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardTenor), settlementDays, calendar); //TODO check adjustments
+        final Period forwardPeriod = Period.parse(forwardTenorName);
+        final Tenor forwardTenor = new Tenor(forwardPeriod);
+        final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardPeriod), settlementDays, calendar); //TODO check adjustments
         for (final Tenor tenor : definition.getTenors()) {
-          final ExternalId identifier = provider.getInstrument(localNow, tenor);
+          final ExternalId identifier = provider.getInstrument(localNow, tenor, forwardTenor);
           if (data.containsKey(identifier)) {
             final LocalDate expiry = ScheduleCalculator.getAdjustedDate(forwardStart.plus(tenor.getPeriod()), settlementDays, calendar);
             expiries.add(dayCount.getDayCountFraction(localNow, expiry));
