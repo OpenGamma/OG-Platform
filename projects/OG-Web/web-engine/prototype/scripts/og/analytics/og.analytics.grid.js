@@ -9,14 +9,13 @@ $.register_module({
         var module = this, counter = 1, scrollbar_size = 19, header_height = 49, row_height = 19, templates = null;
         if (window.parent !== window && window.parent.og.analytics && window.parent.og.analytics.Grid)
             return window.parent.og.analytics.Grid.partial(undefined, $); // if already compiled, use that
-        var background = function (sets, width, background) {
-            var height = row_height, pixels = [], lcv, foreground = 'dadcdd',
+        var background = function (sets, width, bg_color) {
+            var height = row_height, pixels = [], lcv, fg_color = 'dadcdd',
                 columns = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, []),
-                dots = columns.reduce(function (acc, col) {
-                    return acc.concat([[background, col.width - 1], [foreground, 1]]);
-                }, []);
+                dots = columns
+                    .reduce(function (acc, col) {return acc.concat([[bg_color, col.width - 1], [fg_color, 1]]);}, []);
             for (lcv = 0; lcv < height - 1; lcv += 1) Array.prototype.push.apply(pixels, dots);
-            pixels.push([foreground, width]);
+            pixels.push([fg_color, width]);
             return BMP.rle8(width, height, pixels);
         };
         var col_css = function (id, sets, offset) {
@@ -78,7 +77,6 @@ $.register_module({
             grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll');
             grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
-            grid.set_viewport = set_viewport.partial(grid);
             grid.elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             grid.elements.parent.on('mousedown', function (event) {
                 event.preventDefault();
@@ -90,7 +88,7 @@ $.register_module({
                     grid.elements.scroll_head.scrollLeft(grid.elements.scroll_body.scrollLeft());
                     grid.elements.fixed_body.scrollTop(grid.elements.scroll_body.scrollTop());
                     timeout = clearTimeout(timeout) ||
-                        setTimeout(function () {grid.set_viewport(function () {grid.dataman.busy(false);})}, 200);
+                        setTimeout(function () {set_viewport(grid, function () {grid.dataman.busy(false);})}, 200);
                 }
             })(null));
             grid.selector = new og.analytics.Selector(grid);
@@ -196,7 +194,7 @@ $.register_module({
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
-            grid.set_viewport();
+            set_viewport(grid);
             if (grid.elements.style[0].styleSheet) return grid.elements.style[0].styleSheet.cssText = css; // IE
             grid.elements.style[0].appendChild(document.createTextNode(css));
         };
@@ -204,9 +202,8 @@ $.register_module({
             var top_position = grid.elements.scroll_body.scrollTop(),
                 left_position = grid.elements.scroll_head.scrollLeft(),
                 row_start, scroll_position = left_position + grid.meta.viewport.width,
-                scroll_cols = grid.meta.columns.scroll.reduce(function (acc, set) {
-                    return acc.concat(set.columns);
-                }, []);
+                scroll_cols = grid.meta.columns.scroll
+                    .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
             grid.meta.viewport.rows = [
                 row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
                 row_start + grid.meta.visible_rows

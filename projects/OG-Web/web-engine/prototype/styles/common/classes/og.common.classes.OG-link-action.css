@@ -1,0 +1,15 @@
+/*
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-link-action {
+  border-bottom: 1px solid #d7f3d3;
+  color: #61d050;
+  cursor: pointer;
+}
+
+.OG-link-action:hover {
+  border-bottom: 1px solid #61d050;
+  color: #61d050;
+}

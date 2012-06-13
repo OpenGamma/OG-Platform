@@ -47,11 +47,13 @@
     <fragment>/styles/common/classes/og.common.classes.OG-list.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link-add.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-link-action.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link-small.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-link-cancel.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-expand.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-collapse.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-presets.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>

@@ -27,7 +27,6 @@ $.register_module({
             var clean_up = function () {
                 $(document).off(namespace);
                 (auto_scroll.timeout = clearTimeout(auto_scroll.timeout)), (auto_scroll.scroll = false);
-                grid.set_viewport();
             };
             var initialize = function () {
                 clean_up();
