@@ -140,7 +140,14 @@ public abstract class DbTest implements TableCreationCallback {
     if (databaseType == null) {
       databaseType = "all";
     }
-    return getParameters(databaseType, previousVersionCount);
+    Collection<String> databaseTypes = TestProperties.getDatabaseTypes(databaseType);
+    ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
+    for (String dbType : databaseTypes) {
+      for (int i = previousVersionCount; i >= 0; i--) {
+        returnValue.add(new Object[] {dbType, ""+i});  
+      }      
+    }
+    return returnValue;
   }
 
   protected static Collection<Object[]> getParameters(final String databaseType, final int previousVersionCount) {
