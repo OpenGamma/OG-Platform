@@ -82,7 +82,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
-    result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, specification.getTarget(), specProperties));    return result;
+    result.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, specification.getTarget(), specProperties));    
+    return result;
   }
 
   @Override
