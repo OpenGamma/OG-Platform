@@ -81,12 +81,6 @@ CREATE TABLE sec_currency (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE sec_commodityfuturetype (
-    id BIGINT NOT NULL,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE sec_cashrate (
     id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL UNIQUE,

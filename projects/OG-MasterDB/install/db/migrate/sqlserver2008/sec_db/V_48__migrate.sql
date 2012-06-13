@@ -4,12 +4,12 @@ BEGIN TRAN;
   UPDATE sec_schema_version SET version_value='48' WHERE version_key='schema_patch';
   
   CREATE TABLE sec_contract_category (
-      
+      id bigint identity(1,1) primary key,
       name varchar(255) NOT NULL UNIQUE,
       description varchar(255)
   );
   
-  ALTER TABLE sec_future ADD COLUMN contract_category_id bigint; -- most of the current future has no category defined so the column needs to stay nullable
+  ALTER TABLE sec_future ADD contract_category_id bigint; -- most of the current future has no category defined so the column needs to stay nullable
   ALTER TABLE sec_future ADD CONSTRAINT sec_fk_future2contract_category FOREIGN KEY (contract_category_id) REFERENCES sec_contract_category (id);
   
   INSERT INTO sec_contract_category (NAME)
