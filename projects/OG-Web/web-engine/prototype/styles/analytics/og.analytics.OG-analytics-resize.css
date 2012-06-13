@@ -5,6 +5,7 @@
 .OG-analytics-resize.og-bars {
     border-width: 0 5px 5px 0;
     position: absolute;
+    -webkit-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     -moz-border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
     border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVQIW2NkQAJr1679HxwczAijGWFy6BIgPlgSmwTIBLgRdNQJAAPqVRodzsnGAAAAAElFTkSuQmCC') 0 5 5 0 repeat;
 }
