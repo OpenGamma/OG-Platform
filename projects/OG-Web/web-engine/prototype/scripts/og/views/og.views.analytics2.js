@@ -17,7 +17,7 @@ $.register_module({
                     $('.OG-layout-analytics-center').html(template({}));
                 });
             },
-            load: function (args) {if (!args.id) view.default_details();},
+            load: function (args) {if (!args.id) view.default_details(), og.analytics.resize();},
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
