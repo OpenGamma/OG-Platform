@@ -1,28 +1,30 @@
 START TRANSACTION;
+
   -- update the version
   UPDATE sec_schema_version SET version_value='48' WHERE version_key='schema_patch';
   
   CREATE TABLE sec_contract_category (
-      id bigint identity(1,1) primary key,
+      id bigint NOT NULL,
       name varchar(255) NOT NULL UNIQUE,
-      description varchar(255)
+      description varchar(255),
+      PRIMARY KEY (id)
   );
   
   ALTER TABLE sec_future ADD COLUMN contract_category_id bigint; -- most of the current future has no category defined so the column needs to stay nullable
   ALTER TABLE sec_future ADD CONSTRAINT sec_fk_future2contract_category FOREIGN KEY (contract_category_id) REFERENCES sec_contract_category (id);
   
-  INSERT INTO sec_contract_category (NAME)
+  INSERT INTO sec_contract_category (ID, NAME)
   VALUES 
-    ('Precious Matal'),
-    ('Crude Oil'),
-    ('Natural Gas'),
-    ('Wheat'),
-    ('Livestock'),
-    ('Equity Index'),
-    ('Interest Rate'),
-    ('Bond'),
-    ('Cross Currency'),
-    ('STOCK FUTURE');
+    (nextval('sec_security_seq'), 'Precious Matal'),
+    (nextval('sec_security_seq'), 'Crude Oil'),
+    (nextval('sec_security_seq'), 'Natural Gas'),
+    (nextval('sec_security_seq'), 'Wheat'),
+    (nextval('sec_security_seq'), 'Livestock'),
+    (nextval('sec_security_seq'), 'Equity Index'),
+    (nextval('sec_security_seq'), 'Interest Rate'),
+    (nextval('sec_security_seq'), 'Bond'),
+    (nextval('sec_security_seq'), 'Cross Currency'),
+    (nextval('sec_security_seq'), 'STOCK FUTURE');
               
   -- setting contract categories from commodity type                    
                       

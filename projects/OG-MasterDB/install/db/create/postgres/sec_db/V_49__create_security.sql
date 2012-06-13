@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '47');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '49');
 
 CREATE SEQUENCE sec_security_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

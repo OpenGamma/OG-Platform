@@ -14,102 +14,108 @@ START TRANSACTION;
   
   INSERT INTO sec_contract_category (ID, NAME)
   VALUES 
-    (call next value for sec_security_seq, 'Precious Matal'),
-    (call next value for sec_security_seq, 'Crude Oil'),
-    (call next value for sec_security_seq, 'Natural Gas'),
-    (call next value for sec_security_seq, 'Wheat'),
-    (call next value for sec_security_seq, 'Livestock'),
-    (call next value for sec_security_seq, 'Equity Index'),
-    (call next value for sec_security_seq, 'Interest Rate'),
-    (call next value for sec_security_seq, 'Bond'),
-    (call next value for sec_security_seq, 'Cross Currency'),
-    (call next value for sec_security_seq, 'STOCK FUTURE');
+    (next value for sec_security_seq, 'Precious Matal'),
+    (next value for sec_security_seq, 'Crude Oil'),
+    (next value for sec_security_seq, 'Natural Gas'),
+    (next value for sec_security_seq, 'Wheat'),
+    (next value for sec_security_seq, 'Livestock'),
+    (next value for sec_security_seq, 'Equity Index'),
+    (next value for sec_security_seq, 'Interest Rate'),
+    (next value for sec_security_seq, 'Bond'),
+    (next value for sec_security_seq, 'Cross Currency'),
+    (next value for sec_security_seq, 'STOCK FUTURE');
               
   -- setting contract categories from commodity type                    
                       
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_commodityfuturetype T, sec_contract_category C
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_commodityfuturetype T, sec_contract_category C
   WHERE
     C.name = 'Precious Matal'
   AND   
-    T.id = sec_future.commoditytype_id AND T.name = 'Precious Metal'; 
-    
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_commodityfuturetype T, sec_contract_category C
+    T.id = F.commoditytype_id AND T.name = 'Precious Metal'); 
+  
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_commodityfuturetype T, sec_contract_category C
   WHERE
     C.name = 'Crude Oil'
   AND   
-    T.id = sec_future.commoditytype_id AND T.name = 'Crude Oil'; 
-    
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_commodityfuturetype T, sec_contract_category C
+    T.id = F.commoditytype_id AND T.name = 'Crude Oil'); 
+ 
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_commodityfuturetype T, sec_contract_category C
   WHERE
     C.name = 'Natural Gas'
   AND   
-    T.id = sec_future.commoditytype_id AND T.name = 'Natural Gas';
-    
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_commodityfuturetype T, sec_contract_category C
+    T.id = F.commoditytype_id AND T.name = 'Natural Gas'); 
+        
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_commodityfuturetype T, sec_contract_category C
   WHERE
     C.name = 'Wheat'
   AND   
-    T.id = sec_future.commoditytype_id AND T.name = 'Wheat';  
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_commodityfuturetype T, sec_contract_category C
+    T.id = F.commoditytype_id AND T.name = 'Wheat'); 
+            
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_commodityfuturetype T, sec_contract_category C
   WHERE
     C.name = 'Livestock'
   AND   
-    T.id = sec_future.commoditytype_id AND T.name = 'Livestock';  
-          
+    T.id = F.commoditytype_id AND T.name = 'Livestock');             
+
   -- setting contract categories from future type
-    
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'Equity Index'
   AND   
-    sec_future.future_type = 'Index';
+    F.future_type = 'Index');             
   
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'Equity Index'
   AND   
-    sec_future.future_type = 'Equity Index Dividend';
-  
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+    F.future_type = 'Equity Index Dividend');             
+     
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'Interest Rate'
   AND   
-    sec_future.future_type = 'Interest Rate';
-  
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+    F.future_type = 'Interest Rate');             
+ 
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'Bond'
   AND   
-    sec_future.future_type = 'Bond';
+    F.future_type = 'Bond');             
   
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'STOCK FUTURE'
   AND   
-    sec_future.future_type = 'Equity';
-  
-  
-  UPDATE sec_future SET contract_category_id = C.id
-  FROM sec_contract_category C
+    F.future_type = 'Equity');             
+      
+  UPDATE sec_future AS F SET F.contract_category_id = (select C.id 
+  FROM 
+    sec_contract_category C
   WHERE
     C.name = 'Cross Currency'
   AND   
-    sec_future.future_type = 'FX';
+    F.future_type = 'FX');                      
   
   --------------------------------------------------------------                     
   
