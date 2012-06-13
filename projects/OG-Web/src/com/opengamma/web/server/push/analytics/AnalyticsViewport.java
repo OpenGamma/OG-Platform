@@ -15,8 +15,10 @@ import com.opengamma.engine.view.ViewComputationResultModel;
   // TODO list of rows
   // TODO list of columns
 
-  /* package */ AnalyticsViewport(ViewportRequest viewportRequest, AnalyticsHistory history, ViewComputationResultModel results) {
-
+  /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
+                                  ViewportRequest viewportRequest,
+                                  ViewComputationResultModel latestResults,
+                                  AnalyticsHistory history) {
   }
 
   /**
@@ -28,7 +30,12 @@ import com.opengamma.engine.view.ViewComputationResultModel;
   }
 
   /* package */ AnalyticsViewport updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history) {
-    // TODO implement AnalyticsViewport.updateResults()
+    /*
+    get the target for each row in the viewport from the grid structure
+    query the results for the results for the target
+    for each value get the column index from the grid structure
+    if the column is in the viewport update the results
+    */
     throw new UnsupportedOperationException("updateResults not implemented");
   }
 

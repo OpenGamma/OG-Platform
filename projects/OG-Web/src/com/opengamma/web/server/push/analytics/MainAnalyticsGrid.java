@@ -22,10 +22,24 @@ import com.opengamma.util.ArgumentChecker;
 
   private int nextDependencyGraphId = 0;
 
-  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType) {
-    super(AnalyticsColumns.empty(), AnalyticsNode.emptyRoot());
+  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
+                                  AnalyticsGridStructure gridStructure) {
+    super(gridStructure);
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
+  }
+
+  // TODO does this actually need the grid type parameter? could hard code it as one or other and it probably wouldn't matter
+  /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType) {
+    return new MainAnalyticsGrid(gridType, AnalyticsGridStructure.empty());
+  }
+
+  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, AnalyticsGridStructure.portoflio(compiledViewDef));
+  }
+
+  /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, AnalyticsGridStructure.primitives(compiledViewDef));
   }
 
   // -------- dependency graph grids --------
@@ -53,20 +67,12 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  @Override
-  void updateStructure(CompiledViewDefinition compiledViewDef) {
-    super.updateStructure(compiledViewDef);
-    // TODO dep graph grids. what should be done? are they still valid after a structure change?
-    // the row and col that defined them might not point to the same cell any more
-    // should they be keyed on the position / node (row) and value spec / req (column)? so they can possibly be rebuilt
-  }
-
   /* package */ AnalyticsGridStructure getGridStructure(String dependencyGraphId) {
-    return getDependencyGraph(dependencyGraphId).getGridStructure();
+    return getDependencyGraph(dependencyGraphId)._gridStructure;
   }
 
-  /* package */ String createViewport(String dependencyGraphId, ViewportRequest viewportRequest) {
-    return getDependencyGraph(dependencyGraphId).createViewport(viewportRequest);
+  /* package */ String createViewport(String dependencyGraphId, ViewportRequest viewportRequest, AnalyticsHistory history) {
+    return getDependencyGraph(dependencyGraphId).createViewport(viewportRequest, history);
   }
 
   /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportRequest viewportRequest) {
