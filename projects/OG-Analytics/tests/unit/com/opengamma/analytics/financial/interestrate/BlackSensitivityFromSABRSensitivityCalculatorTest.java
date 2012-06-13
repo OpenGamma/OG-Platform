@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
@@ -42,6 +43,7 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -176,7 +178,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
 
     double[] pv = new double[NB_INS];
 
-    //    final OperationTimer timer = new OperationTimer(_logger, "Calibrating {}x{}x{}x{} SABR and computing Black sensitivities for {} instruments", NB_INS, NB_EXPIRY, NB_MATURITY, NB_STRIKE, NB_INS);
+    final OperationTimer timer = new OperationTimer(_logger, "Calibrating {}x{}x{}x{} SABR and computing Black sensitivities for {} instruments", NB_INS, NB_EXPIRY, NB_MATURITY, NB_STRIKE, NB_INS);
     for (int loopins = 0; loopins < NB_INS; loopins++) {
       pv[loopins] = METHOD_SWAPTION_SABR.presentValue(INSTRUMENTS[loopins], sabrBundle).getAmount();
       PresentValueSABRSensitivityDataBundle sensiPoint = PVSSC_SABR.visit(INSTRUMENTS[loopins], sabrBundle);
@@ -199,7 +201,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
         } // end loopmat
       } // end loopexpiry
     } // end loopins
-    //    timer.finished();
+    timer.finished();
   }
 
   private double[][][] bump(int exp, int mat, int str, double bump) {
@@ -213,6 +215,47 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     }
     vol[exp][mat][str] += bump;
     return vol;
+  }
+
+  @Test(enabled = true)
+  /**
+   * Analyzes the smoothness of the Black sensitivities to change in strike.
+   */
+  public void analysisSensitivitySmoothness() {
+
+    ObjectsPair<SABRInterestRateParameters, HashMap<DoublesPair, DoubleMatrix2D>> result = calibration(VOLATILITIES_BLACK);
+    SABRInterestRateParameters sabrParameters = result.getFirst();
+    HashMap<DoublesPair, DoubleMatrix2D> inverseJacobianMap = result.getSecond();
+    SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameters, CURVES);
+
+    double strikeRange = 0.0600;
+    double strikeStart = 0.0050;
+    int nbStrikeSwapt = 100;
+    double[] strikes = new double[nbStrikeSwapt + 1];
+    SwaptionPhysicalFixedIbor[] swaptions = new SwaptionPhysicalFixedIbor[nbStrikeSwapt + 1];
+    double[] pv = new double[nbStrikeSwapt + 1];
+    double[][][][] blackSensi1 = new double[2][2][NB_STRIKE][nbStrikeSwapt + 1];
+    for (int loopswpt = 0; loopswpt <= nbStrikeSwapt; loopswpt++) {
+      strikes[loopswpt] = strikeStart + loopswpt * strikeRange / nbStrikeSwapt;
+      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLE_1_SWPT_DATE, MATURITY_1_SWPT, USD6MLIBOR3M, NOTIONAL, strikes[loopswpt], true);
+      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, swapDefinition, true);
+      swaptions[loopswpt] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVE_NAMES);
+      pv[loopswpt] = METHOD_SWAPTION_SABR.presentValue(swaptions[loopswpt], sabrBundle).getAmount();
+      PresentValueSABRSensitivityDataBundle sensiPoint = PVSSC_SABR.visit(swaptions[loopswpt], sabrBundle);
+      PresentValueSABRSensitivityDataBundle sensiNode = SABRSensitivityNodeCalculator.calculateNodeSensitivities(sensiPoint, sabrParameters);
+      Map<DoublesPair, DoubleMatrix1D> sensiBlack = BlackSensitivityFromSABRSensitivityCalculator.blackSensitivity(sensiNode, inverseJacobianMap);
+      for (int loopexpiry = 0; loopexpiry < 2; loopexpiry++) {
+        for (int loopmat = 0; loopmat < 2; loopmat++) {
+          for (int loopstr = 0; loopstr < NB_STRIKE; loopstr++) {
+            blackSensi1[loopexpiry][loopmat][loopstr][loopswpt] = sensiBlack.get(DoublesPair.of(EXPIRY_TIME[loopexpiry + 1], MATURITY_TIME[loopmat + 2])).getEntry(loopstr);
+          }
+        }
+      }
+    } // end loopswpt
+    @SuppressWarnings("unused")
+    double atm = PRC.visit(swaptions[0].getUnderlyingSwap(), sabrBundle);
+    int test = 0;
+    test++;
   }
 
 }
