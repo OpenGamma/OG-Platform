@@ -6,7 +6,9 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
@@ -44,6 +46,7 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_OPTIONFUTURESMARGIN_BLACK = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionPremiumTransactionMethod METHOD_OPTIONFUTURESPREMIUM = null;//InterestRateFutureOptionPremiumTransactionMethod.getInstance();
 
   @Override
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
@@ -74,4 +77,11 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
     return METHOD_OPTIONFUTURESMARGIN_BLACK.presentValue(option, curves).getAmount();
   }
 
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(option, "option");
+    return METHOD_OPTIONFUTURESPREMIUM.presentValue(option, curves).getAmount();
+  }
 }
