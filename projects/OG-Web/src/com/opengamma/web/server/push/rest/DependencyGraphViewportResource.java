@@ -8,7 +8,7 @@ package com.opengamma.web.server.push.rest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  *
@@ -24,8 +24,8 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
   }
 
   @Override
-  public void update(ViewportRequest viewportRequest) {
-    _view.updateViewport(_gridType, _graphId, _viewportId, viewportRequest);
+  public void update(ViewportSpecification viewportSpecification) {
+    _view.updateViewport(_gridType, _graphId, _viewportId, viewportSpecification);
   }
 
   @Override

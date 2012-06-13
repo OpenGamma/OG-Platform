@@ -11,7 +11,6 @@ import java.util.Map;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,15 +55,15 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /* package */ String createViewport(ViewportRequest viewportRequest, AnalyticsHistory history) {
+  /* package */ String createViewport(ViewportSpecification viewportSpecification, AnalyticsHistory history) {
     // TODO pass this in
     String viewportId = Integer.toString(nextViewportId++);
-    _viewports.put(viewportId, new AnalyticsViewport(_gridStructure, viewportRequest, _latestResults, history));
+    _viewports.put(viewportId, new AnalyticsViewport(_gridStructure, viewportSpecification, _latestResults, history));
     return viewportId;
   }
 
-  /* package */ void updateViewport(String viewportId, ViewportRequest viewportRequest) {
-    getViewport(viewportId).update(viewportRequest);
+  /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
+    getViewport(viewportId).update(viewportSpecification, _latestResults);
   }
 
   /* package */ void deleteViewport(String viewportId) {

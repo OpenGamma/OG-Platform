@@ -66,16 +66,16 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String createViewport(GridType gridType, ViewportRequest viewportRequest) {
-    String viewportId = getGrid(gridType).createViewport(viewportRequest, _history);
-    s_logger.debug("Created viewport ID {} for the {} grid from {}", new Object[]{viewportId, gridType, viewportRequest});
+  public String createViewport(GridType gridType, ViewportSpecification viewportSpec) {
+    String viewportId = getGrid(gridType).createViewport(viewportSpec, _history);
+    s_logger.debug("Created viewport ID {} for the {} grid from {}", new Object[]{viewportId, gridType, viewportSpec});
     return viewportId;
   }
 
   @Override
-  public void updateViewport(GridType gridType, String viewportId, ViewportRequest viewportRequest) {
-    s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportRequest});
-    getGrid(gridType).updateViewport(viewportId, viewportRequest);
+  public void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
+    s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
+    getGrid(gridType).updateViewport(viewportId, viewportSpec);
   }
 
   @Override
@@ -109,16 +109,16 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String createViewport(GridType gridType, String dependencyGraphId, ViewportRequest viewportRequest) {
-    String viewportId = getGrid(gridType).createViewport(dependencyGraphId, viewportRequest, _history);
-    s_logger.debug("Created viewport ID {} for dependency graph {} of the {} grid using {}", new Object[]{viewportId, dependencyGraphId, gridType, viewportRequest});
+  public String createViewport(GridType gridType, String dependencyGraphId, ViewportSpecification viewportSpec) {
+    String viewportId = getGrid(gridType).createViewport(dependencyGraphId, viewportSpec, _history);
+    s_logger.debug("Created viewport ID {} for dependency graph {} of the {} grid using {}", new Object[]{viewportId, dependencyGraphId, gridType, viewportSpec});
     return viewportId;
   }
 
   @Override
-  public void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportRequest viewportRequest) {
-    s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{dependencyGraphId, gridType, viewportRequest});
-    getGrid(gridType).updateViewport(dependencyGraphId, viewportId, viewportRequest);
+  public void updateViewport(GridType gridType, String dependencyGraphId, String viewportId, ViewportSpecification viewportSpec) {
+    s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{dependencyGraphId, gridType, viewportSpec});
+    getGrid(gridType).updateViewport(dependencyGraphId, viewportId, viewportSpec);
   }
 
   @Override

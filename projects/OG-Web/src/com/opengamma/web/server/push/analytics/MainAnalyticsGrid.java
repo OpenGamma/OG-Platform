@@ -71,12 +71,12 @@ import com.opengamma.util.ArgumentChecker;
     return getDependencyGraph(dependencyGraphId)._gridStructure;
   }
 
-  /* package */ String createViewport(String dependencyGraphId, ViewportRequest viewportRequest, AnalyticsHistory history) {
-    return getDependencyGraph(dependencyGraphId).createViewport(viewportRequest, history);
+  /* package */ String createViewport(String dependencyGraphId, ViewportSpecification viewportSpecification, AnalyticsHistory history) {
+    return getDependencyGraph(dependencyGraphId).createViewport(viewportSpecification, history);
   }
 
-  /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportRequest viewportRequest) {
-    getDependencyGraph(dependencyGraphId).updateViewport(viewportId, viewportRequest);
+  /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportSpecification viewportSpec) {
+    getDependencyGraph(dependencyGraphId).updateViewport(viewportId, viewportSpec);
   }
 
   /* package */ void deleteViewport(String dependencyGraphId, String viewportId) {
