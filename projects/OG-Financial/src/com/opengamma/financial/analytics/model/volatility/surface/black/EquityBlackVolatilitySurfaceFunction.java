@@ -35,8 +35,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
 /**
@@ -136,13 +136,13 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
 
   @Override
   protected String getSurfaceQuoteUnits() {
-    return SurfacePropertyNames.VOLATILITY_QUOTE;
+    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
   }
 
   @Override
   /** TODO Consider whether we might make this variable by reading the volatility specification. */
   protected String getSurfaceQuoteType() {
-    return SurfaceQuoteType.CALL_STRIKE;
+    return SurfaceAndCubeQuoteType.CALL_STRIKE;
   }
 
   @Override
