@@ -13,6 +13,8 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -58,6 +60,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  * 
  */
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentFunction.class);
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
   private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
@@ -183,10 +186,16 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
-    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
+    try {
+      final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
+          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
+      final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+      return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
+    } catch (OpenGammaRuntimeException ogre) {
+      s_logger.error("Error thrown by analytics on security {} with funding curve name {}, forward curve name {}.  Rethrowing.", 
+                     new Object[] {security.toString(), fundingCurveName, forwardCurveName });
+      throw ogre;
+    }
   }
 
   protected ValueProperties.Builder getResultProperties(final String currency) {
