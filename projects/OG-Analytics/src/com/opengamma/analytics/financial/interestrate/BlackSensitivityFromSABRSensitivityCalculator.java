@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -40,9 +40,10 @@ public class BlackSensitivityFromSABRSensitivityCalculator {
     final HashMap<DoublesPair, DoubleMatrix1D> result = new HashMap<DoublesPair, DoubleMatrix1D>();
     for (DoublesPair expiryMaturity : sabrSensitivity.getAlpha().getMap().keySet()) {
       double alphaSensitivity = sabrSensitivity.getAlpha().getMap().get(expiryMaturity);
+      double betaSensitivity = sabrSensitivity.getBeta().getMap().get(expiryMaturity);
       double rhoSensitivity = sabrSensitivity.getRho().getMap().get(expiryMaturity);
       double nuSensitivity = sabrSensitivity.getNu().getMap().get(expiryMaturity);
-      DoubleMatrix1D sabrPointSensitivity = new DoubleMatrix1D(alphaSensitivity, 0.0, rhoSensitivity, nuSensitivity); // Beta is fixed
+      DoubleMatrix1D sabrPointSensitivity = new DoubleMatrix1D(alphaSensitivity, betaSensitivity, rhoSensitivity, nuSensitivity);
       DoubleMatrix2D inverseJacobian = inverseJacobianMap.get(expiryMaturity);
       DoubleMatrix1D blackPointSensitivity = (DoubleMatrix1D) ALGEBRA.multiply(sabrPointSensitivity, inverseJacobian);
       result.put(expiryMaturity, blackPointSensitivity);

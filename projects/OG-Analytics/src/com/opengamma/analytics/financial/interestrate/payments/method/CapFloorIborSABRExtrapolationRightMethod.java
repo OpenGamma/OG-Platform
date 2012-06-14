@@ -166,7 +166,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
     final double forward = PRC.visit(cap, sabrData);
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
-    double[] bsDsabr = new double[3];
+    double[] bsDsabr = new double[4];
     if (cap.getStrike() <= _cutOffStrike) { // No extrapolation
       double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
       BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
@@ -174,6 +174,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       bsDsabr[0] = bsAdjoint[2] * volatilityAdjoint[3];
       bsDsabr[1] = bsAdjoint[2] * volatilityAdjoint[4];
       bsDsabr[2] = bsAdjoint[2] * volatilityAdjoint[5];
+      bsDsabr[3] = bsAdjoint[2] * volatilityAdjoint[6];
     } else { // With extrapolation
       DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
       double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
@@ -187,8 +188,9 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
     PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[0]);
-    sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);
-    sensi.addNu(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[2]);
+    sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);
+    sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[2]);
+    sensi.addNu(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[3]);
     return sensi;
   }
 

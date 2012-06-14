@@ -151,12 +151,13 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
     final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forwardModified, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
-    final double[] priceDSabr = new double[3];
+    final double[] priceDSabr = new double[4];
     sabrExtrapolation.priceAdjointSABR(option, priceDSabr);
     final double omega = (swaption.isLong() ? 1.0 : -1.0);
     sensi.addAlpha(expiryMaturity, omega * pvbpModified * priceDSabr[0]);
-    sensi.addRho(expiryMaturity, omega * pvbpModified * priceDSabr[1]);
-    sensi.addNu(expiryMaturity, omega * pvbpModified * priceDSabr[2]);
+    sensi.addBeta(expiryMaturity, omega * pvbpModified * priceDSabr[1]);
+    sensi.addRho(expiryMaturity, omega * pvbpModified * priceDSabr[2]);
+    sensi.addNu(expiryMaturity, omega * pvbpModified * priceDSabr[3]);
     return sensi;
   }
 

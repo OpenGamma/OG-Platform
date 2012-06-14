@@ -119,6 +119,38 @@ public class TestsDataSetsSABR {
   }
 
   /**
+   * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Beta data is bumped by a given shift with respect to SABR1.
+   * @param sabrFunction The SABR function.
+   * @param shift The shift.
+   * @return The SABR parameters parameters.
+   */
+  public static SABRInterestRateParameters createSABR1BetaBumped(final VolatilityFunctionProvider<SABRFormulaData> sabrFunction, final double shift) {
+    final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
+        new double[] {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100}, new double[] {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
+            0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06}, INTERPOLATOR_2D);
+    final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5,
+        10, 100}, new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100, 100}, new double[] {0.5 + shift, 0.5 + shift, 0.5 + shift,
+        0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift,
+        0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift, 0.5 + shift}, INTERPOLATOR_2D);
+    final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5,
+        10, 100}, new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100, 100}, new double[] {-0.25, -0.25, -0.25, -0.25, -0.25, -0.25,
+        -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00}, INTERPOLATOR_2D);
+    final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(new double[] {0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5, 10, 100, 0.0, 0.5, 1, 2, 5,
+        10, 100}, new double[] {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 100, 100, 100, 100, 100, 100, 100}, new double[] {0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50,
+        0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30, 0.30}, INTERPOLATOR_2D);
+    return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT, sabrFunction);
+  }
+
+  /**
+   * Create a set of SABR parameter surface (linearly interpolated) with Hagan volatility function. Beta data is bumped by a given shift with respect to SABR1.
+   * @param shift The shift.
+   * @return The SABR parameters parameters.
+   */
+  public static SABRInterestRateParameters createSABR1BetaBumped(final double shift) {
+    return createSABR1BetaBumped(new SABRHaganVolatilityFunction(), shift);
+  }
+
+  /**
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Rho data is bumped by the shift with respect to SABR1.
    * @return The SABR parameters parameters.
    */

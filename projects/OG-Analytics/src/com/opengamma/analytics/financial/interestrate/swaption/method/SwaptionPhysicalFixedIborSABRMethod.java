@@ -143,8 +143,9 @@ public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod 
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     final double omega = (swaption.isLong() ? 1.0 : -1.0);
     sensi.addAlpha(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[3]);
-    sensi.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[4]);
-    sensi.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
+    sensi.addBeta(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[4]);
+    sensi.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
+    sensi.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[6]);
     return sensi;
   }
 

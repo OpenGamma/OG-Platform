@@ -307,6 +307,14 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     assertEquals("Number of alpha sensitivity", pvsLongPayer.getAlpha().getMap().keySet().size(), 1);
     assertEquals("Alpha sensitivity expiry/tenor", pvsLongPayer.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsLongPayer.getAlpha().getMap().get(expectedExpiryTenor), 2.0E+3);
+    // Beta sensitivity vs finite difference computation
+    final SABRInterestRateParameters sabrParameterBetaBumped = TestsDataSetsSABR.createSABR1BetaBumped(shift);
+    final SABRInterestRateDataBundle sabrBundleBetaBumped = new SABRInterestRateDataBundle(sabrParameterBetaBumped, curves);
+    final double pvLongPayerBetaBumped = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundleBetaBumped);
+    final double expectedBetaSensi = (pvLongPayerBetaBumped - pvLongPayer) / shift;
+    assertEquals("Number of Beta sensitivity", pvsLongPayer.getBeta().getMap().keySet().size(), 1);
+    assertEquals("Beta sensitivity expiry/tenor", pvsLongPayer.getBeta().getMap().keySet().contains(expectedExpiryTenor), true);
+    assertEquals("Beta sensitivity value", expectedBetaSensi, pvsLongPayer.getBeta().getMap().get(expectedExpiryTenor), 1.5E+2);
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped(shift);
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, curves);
