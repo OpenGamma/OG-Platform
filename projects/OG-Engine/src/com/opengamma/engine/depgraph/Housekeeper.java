@@ -70,9 +70,15 @@ public final class Housekeeper {
       _cancel = s_executor.scheduleWithFixedDelay(new Runnable() {
         @Override
         public void run() {
-          if (!housekeep()) {
-            cancel();
+          try {
+            if (housekeep()) {
+              return;
+            }
+          } catch (Throwable t) {
+            s_logger.error("Cancelling errored {} for {}", getCallback(), _builder);
+            s_logger.warn("Caught exception", t);
           }
+          cancel();
         }
       }, 1, 1, TimeUnit.SECONDS);
     }

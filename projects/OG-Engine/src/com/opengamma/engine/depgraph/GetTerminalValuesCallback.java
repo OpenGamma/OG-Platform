@@ -11,11 +11,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Handles callback notifications of terminal values to populate a graph set.
@@ -33,29 +35,20 @@ import com.opengamma.engine.value.ValueSpecification;
 /* package */class GetTerminalValuesCallback implements ResolvedValueCallback {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GetTerminalValuesCallback.class);
-  private static final AtomicInteger s_nextDebugId = new AtomicInteger();
 
-  private interface DependencyNodeCallback {
-
-    void node(DependencyNode node);
-
-  }
-
-  private interface DependencyNodeProducer {
-
-    void getNode(DependencyNodeCallback callback);
-
-  }
-
+  private final GraphBuildingContext _context;
   private final Map<ValueSpecification, DependencyNode> _spec2Node = new HashMap<ValueSpecification, DependencyNode>();
-  private final Map<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNodeProducer>>> _func2target2nodes =
-      new HashMap<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNodeProducer>>>();
+  private final Map<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>> _func2target2nodes =
+      new HashMap<ParameterizedFunction, Map<ComputationTargetSpecification, Set<DependencyNode>>>();
   private final Collection<DependencyNode> _graphNodes = new ArrayList<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _resolvedValues = new HashMap<ValueRequirement, ValueSpecification>();
+  private final BlockingQueue<Pair<ValueRequirement, ResolvedValue>> _resolved = new LinkedBlockingQueue<Pair<ValueRequirement, ResolvedValue>>();
+  private final AtomicReference<Thread> _singleton = new AtomicReference<Thread>();
   private ResolutionFailureVisitor<?> _failureVisitor;
 
-  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor) {
+  public GetTerminalValuesCallback(final ResolutionFailureVisitor<?> failureVisitor, final GraphBuildingContext context) {
     _failureVisitor = failureVisitor;
+    _context = context;
   }
 
   public void setResolutionFailureVisitor(final ResolutionFailureVisitor<?> failureVisitor) {
@@ -75,20 +68,6 @@ import com.opengamma.engine.value.ValueSpecification;
       s_logger.warn("No failure state for {}", value);
       context.exception(new UnsatisfiableDependencyGraphException(value));
     }
-  }
-
-  private synchronized Set<DependencyNodeProducer> getOrCreateNodes(final ParameterizedFunction function, final ComputationTargetSpecification target) {
-    Map<ComputationTargetSpecification, Set<DependencyNodeProducer>> target2nodes = _func2target2nodes.get(function);
-    if (target2nodes == null) {
-      target2nodes = new HashMap<ComputationTargetSpecification, Set<DependencyNodeProducer>>();
-      _func2target2nodes.put(function, target2nodes);
-    }
-    Set<DependencyNodeProducer> nodes = target2nodes.get(target);
-    if (nodes == null) {
-      nodes = new HashSet<DependencyNodeProducer>();
-      target2nodes.put(target, nodes);
-    }
-    return nodes;
   }
 
   private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
@@ -119,8 +98,8 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   /**
-   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed.
-   * Given the intersection of common value names, the properties must be mutually compatible.
+   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed. Given the intersection of common value names, the properties must be mutually
+   * compatible.
    * 
    * @param as the first set of values, not null
    * @param bs the second set of values, not null
@@ -130,387 +109,178 @@ import com.opengamma.engine.value.ValueSpecification;
     return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
   }
 
-  private final class NodeInputProduction {
-
-    private final ResolvedValue _resolvedValue;
-    private final DependencyNodeCallback _result;
-    private final boolean _isNew;
-    private int _count = 2;
-    private DependencyNode _node;
-
-    public NodeInputProduction(final ResolvedValue resolvedValue, final DependencyNode node, final DependencyNodeCallback result, final boolean isNew) {
-      _resolvedValue = resolvedValue;
-      _node = node;
-      _result = result;
-      _isNew = isNew;
-    }
-
-    public synchronized void addProducer() {
-      _count++;
-    }
-
-    public void failed() {
-      final boolean done;
-      synchronized (this) {
-        _node = null;
-        done = (--_count == 0);
-      }
-      if (done) {
-        _result.node(null);
-      }
-    }
-
-    public void completed() {
-      final boolean done;
-      final DependencyNode node;
-      synchronized (this) {
-        node = _node;
-        done = (--_count == 0);
-      }
-      if (done) {
-        if (node != null) {
-          nodeProduced(_resolvedValue, node, _result, _isNew);
-        } else {
-          s_logger.warn("Couldn't produce node for {}", _resolvedValue);
-          _result.node(null);
-        }
-      }
-    }
-
-  }
-
-  private void nodeProduced(final ResolvedValue resolvedValue, final DependencyNode node, final DependencyNodeCallback result, final boolean isNew) {
-    if (isNew) {
-      synchronized (this) {
-        s_logger.debug("Adding {} to graph set", node);
-        // [PLAT-346] Here is a good spot to tackle PLAT-346; which node's outputs do we discard if there are multiple
-        // productions for a given value specification?
-        for (ValueSpecification valueSpecification : resolvedValue.getFunctionOutputs()) {
-          DependencyNode existing = _spec2Node.get(valueSpecification);
-          if (existing == null) {
-            _spec2Node.put(valueSpecification, node);
-          } else {
-            // Simplest to keep the existing one (otherwise have to reconnect dependent nodes in the graph)
-            node.removeOutputValue(valueSpecification);
-          }
-        }
-        _graphNodes.add(node);
-      }
-    }
-    result.node(node);
-  }
-
-  private final class FindExistingNodes implements DependencyNodeCallback, DependencyNodeProducer {
-
-    private final ResolvedValue _resolvedValue;
-    private int _pending;
-    private DependencyNode _found;
-    private DependencyNodeCallback _callback;
-
-    public FindExistingNodes(final ResolvedValue resolvedValue, final Set<DependencyNodeProducer> nodes) {
-      _resolvedValue = resolvedValue;
-      synchronized (nodes) {
-        _pending = nodes.size();
-        for (DependencyNodeProducer node : nodes) {
-          node.getNode(this);
-        }
-      }
-    }
-
-    public synchronized boolean isDeferred() {
-      assert _callback == null;
-      return _pending > 0;
-    }
-
-    public synchronized DependencyNode getNode() {
-      assert _pending == 0;
-      assert _callback == null;
-      return _found;
-    }
-
-    @Override
-    public void node(final DependencyNode node) {
-      DependencyNodeCallback callback = null;
-      synchronized (this) {
-        _pending--;
-        if (_found == null) {
-          if (node != null) {
-            // Any node that is candidate for reuse can't be considered concurrently as the composition
-            // may become mutually exclusive.
-            synchronized (node) {
-              final Set<ValueSpecification> outputValues = node.getOutputValues();
-              if (mismatchUnion(outputValues, _resolvedValue.getFunctionOutputs())) {
-                s_logger.debug("Can't reuse {} for {}", node, _resolvedValue);
-              } else {
-                s_logger.debug("Reusing {} for {}", node, _resolvedValue);
-                synchronized (GetTerminalValuesCallback.this) {
-                  // Update the output values for the node with the union. The input values will
-                  // be dealt with by the callback.
-                  List<ValueSpecification> replacements = null;
-                  for (ValueSpecification output : _resolvedValue.getFunctionOutputs()) {
-                    if (outputValues.contains(output)) {
-                      // Exact match found
-                      continue;
-                    }
-                    final String outputName = output.getValueName();
-                    final ValueProperties outputProperties = output.getProperties();
-                    for (ValueSpecification outputValue : outputValues) {
-                      if (outputName == outputValue.getValueName()) {
-                        if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
-                          // Found match
-                          final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
-                          if (!composedProperties.equals(outputValue.getProperties())) {
-                            final ValueSpecification newOutputValue = MemoryUtils
-                                .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
-                            s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
-                            if (replacements == null) {
-                              replacements = new ArrayList<ValueSpecification>(outputValues.size() * 2);
-                            }
-                            replacements.add(outputValue);
-                            replacements.add(newOutputValue);
-                          }
-                        }
-                      }
-                    }
-                  }
-                  if (replacements != null) {
-                    final Iterator<ValueSpecification> replacement = replacements.iterator();
-                    while (replacement.hasNext()) {
-                      final ValueSpecification oldValue = replacement.next();
-                      final ValueSpecification newValue = replacement.next();
-                      node.replaceOutputValue(oldValue, newValue);
-                    }
-                  }
-                }
-                _found = node;
-                callback = _callback;
-                _callback = null;
-              }
-            }
-          }
-        }
-      }
-      if (callback != null) {
-        callback.node(_found);
-      }
-    }
-
-    @Override
-    public void getNode(final DependencyNodeCallback callback) {
-      synchronized (this) {
-        assert _callback == null;
-        if ((_found == null) && (_pending > 0)) {
-          _callback = callback;
-          return;
-        }
-      }
-      callback.node(_found);
-    }
-
-  }
-
-  private static final class PublishNode implements DependencyNodeProducer, DependencyNodeCallback {
-
-    private final DependencyNodeCallback _underlying;
-    private DependencyNode _node;
-    private Collection<DependencyNodeCallback> _callbacks = new LinkedList<DependencyNodeCallback>();
-
-    public PublishNode(final DependencyNodeCallback underlying) {
-      _underlying = underlying;
-    }
-
-    @Override
-    public void node(final DependencyNode node) {
-      _underlying.node(node);
-      final Collection<DependencyNodeCallback> callbacks;
-      synchronized (this) {
-        _node = node;
-        if (_callbacks == null) {
-          return;
-        }
-        if (_callbacks.isEmpty()) {
-          callbacks = Collections.emptyList();
-        } else {
-          callbacks = new ArrayList<DependencyNodeCallback>(_callbacks);
-        }
-        _callbacks = null;
-      }
-      for (DependencyNodeCallback callback : callbacks) {
-        callback.node(node);
-      }
-    }
-
-    @Override
-    public void getNode(final DependencyNodeCallback callback) {
-      final DependencyNode node;
-      synchronized (this) {
-        if (_callbacks != null) {
-          _callbacks.add(callback);
-          return;
-        }
-        node = _node;
-      }
-      callback.node(node);
-    }
-
-  }
-
-  private void getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream,
-      final DependencyNodeCallback result, final DependencyNode node, final boolean nodeIsNew) {
-    final int debugId = s_nextDebugId.incrementAndGet();
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode node,
+      final boolean newNode) {
     Set<ValueSpecification> downstreamCopy = null;
-    NodeInputProduction producers = null;
-    if (s_logger.isDebugEnabled()) {
-      s_logger.debug("Searching for node for {} inputs at {}", resolvedValue.getFunctionInputs().size(), debugId);
-    }
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
-      final DependencyNode inputNode;
-      synchronized (this) {
-        node.addInputValue(input);
-        inputNode = _spec2Node.get(input);
-        if (inputNode != null) {
-          s_logger.debug("Found node {} for input {}", inputNode, input);
-          node.addInputNode(inputNode);
-        }
-      }
-      if (inputNode == null) {
+      DependencyNode inputNode;
+      node.addInputValue(input);
+      inputNode = _spec2Node.get(input);
+      if (inputNode != null) {
+        s_logger.debug("Found node {} for input {}", inputNode, input);
+        node.addInputNode(inputNode);
+      } else {
         s_logger.debug("Finding node production for {}", input);
-        final ResolvedValue inputValue = context.getProduction(input);
+        final ResolvedValue inputValue = _context.getProduction(input);
         if (inputValue != null) {
-          final Set<ValueSpecification> downstreamFinal;
-          if (downstreamCopy != null) {
-            downstreamFinal = downstreamCopy;
-          } else {
+          if (downstreamCopy == null) {
             downstreamCopy = new HashSet<ValueSpecification>(downstream);
             downstreamCopy.add(resolvedValue.getValueSpecification());
-            downstreamFinal = downstreamCopy;
-            s_logger.debug("Downstream = {}", downstreamFinal);
+            s_logger.debug("Downstream = {}", downstreamCopy);
           }
-          if (producers == null) {
-            producers = new NodeInputProduction(resolvedValue, node, result, nodeIsNew);
-            // Starts with count of 2 (for this producer, and for the overall "block")
+          inputNode = getOrCreateNode(inputValue, downstreamCopy);
+          if (inputNode != null) {
+            node.addInputNode(inputNode);
           } else {
-            producers.addProducer();
+            s_logger.warn("No node production for {}", inputValue);
+            return null;
           }
-          final NodeInputProduction producersFinal = producers;
-          getOrCreateNode(context, inputValue, downstreamFinal, new DependencyNodeCallback() {
-
-            @Override
-            public void node(final DependencyNode inputNode) {
-              if (inputNode != null) {
-                synchronized (GetTerminalValuesCallback.this) {
-                  node.addInputNode(inputNode);
-                }
-                producersFinal.completed();
-              } else {
-                s_logger.warn("No node production for {} at {}", inputValue, debugId);
-                producersFinal.failed();
-              }
-            }
-
-          });
         } else {
-          s_logger.warn("No registered node production for {} at {}", input, debugId);
-          result.node(null);
-          return;
+          s_logger.warn("No registered production for {}", input);
+          return null;
         }
       }
     }
-    if (producers == null) {
-      nodeProduced(resolvedValue, node, result, nodeIsNew);
-    } else {
-      if (s_logger.isDebugEnabled()) {
-        s_logger.debug("Production of {} deferred at {}", node, debugId);
+    if (newNode) {
+      s_logger.debug("Adding {} to graph set", node);
+      // [PLAT-346] Here is a good spot to tackle PLAT-346; which node's outputs do we discard if there are multiple
+      // productions for a given value specification?
+      for (ValueSpecification valueSpecification : resolvedValue.getFunctionOutputs()) {
+        DependencyNode existing = _spec2Node.get(valueSpecification);
+        if (existing == null) {
+          _spec2Node.put(valueSpecification, node);
+        } else {
+          // Simplest to keep the existing one (otherwise have to reconnect dependent nodes in the graph)
+          node.removeOutputValue(valueSpecification);
+        }
       }
-      // Release the first call
-      producers.completed();
+      _graphNodes.add(node);
     }
+    return node;
   }
 
-  private void getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream,
-      final DependencyNodeCallback result, final DependencyNode existingNode, final Set<DependencyNodeProducer> nodes) {
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
+      final Set<DependencyNode> nodes) {
     if (existingNode != null) {
-      getOrCreateNode(context, resolvedValue, downstream, result, existingNode, false);
+      return getOrCreateNode(resolvedValue, downstream, existingNode, false);
     } else {
       final DependencyNode newNode = new DependencyNode(resolvedValue.getValueSpecification().getTargetSpecification());
       newNode.setFunction(resolvedValue.getFunction());
       newNode.addOutputValues(resolvedValue.getFunctionOutputs());
-      final PublishNode publisher = new PublishNode(result);
-      synchronized (nodes) {
-        nodes.add(publisher);
-      }
-      getOrCreateNode(context, resolvedValue, downstream, publisher, newNode, true);
-      publisher.getNode(new DependencyNodeCallback() {
+      return getOrCreateNode(resolvedValue, downstream, newNode, true);
+    }
+  }
 
-        @Override
-        public void node(final DependencyNode node) {
-          if (node == null) {
-            synchronized (nodes) {
-              nodes.remove(publisher);
+  private Set<DependencyNode> getOrCreateNodes(final ParameterizedFunction function, final ComputationTargetSpecification targetSpecification) {
+    Map<ComputationTargetSpecification, Set<DependencyNode>> target2nodes = _func2target2nodes.get(function);
+    if (target2nodes == null) {
+      target2nodes = new HashMap<ComputationTargetSpecification, Set<DependencyNode>>();
+      _func2target2nodes.put(function, target2nodes);
+    }
+    Set<DependencyNode> nodes = target2nodes.get(targetSpecification);
+    if (nodes == null) {
+      nodes = new HashSet<DependencyNode>();
+      target2nodes.put(targetSpecification, nodes);
+    }
+    return nodes;
+  }
+
+  private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
+    for (DependencyNode node : nodes) {
+      final Set<ValueSpecification> outputValues = node.getOutputValues();
+      if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
+        s_logger.debug("Can't reuse {} for {}", node, resolvedValue);
+      } else {
+        s_logger.debug("Reusing {} for {}", node, resolvedValue);
+        // Update the output values for the node with the union. The input values will be dealt with by the caller.
+        List<ValueSpecification> replacements = null;
+        for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
+          if (outputValues.contains(output)) {
+            // Exact match found
+            continue;
+          }
+          final String outputName = output.getValueName();
+          final ValueProperties outputProperties = output.getProperties();
+          for (ValueSpecification outputValue : outputValues) {
+            if (outputName == outputValue.getValueName()) {
+              if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
+                // Found match
+                final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
+                if (!composedProperties.equals(outputValue.getProperties())) {
+                  final ValueSpecification newOutputValue = MemoryUtils
+                      .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
+                  s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
+                  if (replacements == null) {
+                    replacements = new ArrayList<ValueSpecification>(outputValues.size() * 2);
+                  }
+                  replacements.add(outputValue);
+                  replacements.add(newOutputValue);
+                }
+              }
             }
           }
         }
-
-      });
+        if (replacements != null) {
+          final Iterator<ValueSpecification> replacement = replacements.iterator();
+          while (replacement.hasNext()) {
+            final ValueSpecification oldValue = replacement.next();
+            final ValueSpecification newValue = replacement.next();
+            node.replaceOutputValue(oldValue, newValue);
+          }
+        }
+        return node;
+      }
     }
+    return null;
   }
 
-  private void getOrCreateNode(final GraphBuildingContext context, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream,
-      final DependencyNodeCallback result) {
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream) {
     s_logger.debug("Resolved {}", resolvedValue.getValueSpecification());
     if (downstream.contains(resolvedValue.getValueSpecification())) {
       s_logger.debug("Already have downstream production of {} in {}", resolvedValue.getValueSpecification(), downstream);
-      result.node(null);
-      return;
+      return null;
     }
-    final DependencyNode existingNode;
-    synchronized (this) {
-      existingNode = _spec2Node.get(resolvedValue.getValueSpecification());
-    }
+    final DependencyNode existingNode = _spec2Node.get(resolvedValue.getValueSpecification());
     if (existingNode != null) {
       s_logger.debug("Existing production of {} found in graph set", resolvedValue);
-      result.node(existingNode);
-      return;
+      return existingNode;
     }
-    final Set<DependencyNodeProducer> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getValueSpecification().getTargetSpecification());
-    final FindExistingNodes findExisting = new FindExistingNodes(resolvedValue, nodes);
-    if (findExisting.isDeferred()) {
-      s_logger.debug("Deferring evaluation of {} existing nodes", nodes.size());
-      findExisting.getNode(new DependencyNodeCallback() {
+    final Set<DependencyNode> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getValueSpecification().getTargetSpecification());
+    return getOrCreateNode(resolvedValue, downstream, findExistingNode(nodes, resolvedValue), nodes);
+  }
 
-        @Override
-        public void node(final DependencyNode node) {
-          getOrCreateNode(context, resolvedValue, downstream, result, node, nodes);
+  private void completeGraphBuild() {
+    while (!_resolved.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
+      synchronized (this) {
+        Pair<ValueRequirement, ResolvedValue> resolved = _resolved.poll();
+        while (resolved != null) {
+          final DependencyNode node = getOrCreateNode(resolved.getSecond(), Collections.<ValueSpecification>emptySet());
+          if (node != null) {
+            assert node.getOutputValues().contains(resolved.getSecond().getValueSpecification());
+            _resolvedValues.put(resolved.getFirst(), resolved.getSecond().getValueSpecification());
+          } else {
+            s_logger.error("Resolved {} to {} but couldn't create one or more dependency node", resolved.getFirst(), resolved.getSecond().getValueSpecification());
+          }
+          resolved = _resolved.poll();
         }
-
-      });
-    } else {
-      getOrCreateNode(context, resolvedValue, downstream, result, findExisting.getNode(), nodes);
+      }
+      _singleton.set(null);
     }
   }
 
+  /**
+   * Reports a successful resolution of a top level requirement. The production of linked {@link DependencyNode} instances to form the final graph is single threaded. The resolution is added to a
+   * queue of successful resolutions. If this is the only (or first) thread to report resolutions then this will work to drain the queue and produce nodes for the graph based on the resolved value
+   * cache in the building context. If other threads report resolutions while this is happening they are added to the queue and those threads return immediately.
+   */
   @Override
-  public synchronized void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
+  public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.info("Resolved {} to {}", valueRequirement, resolvedValue.getValueSpecification());
     if (pump != null) {
       context.close(pump);
     }
-    getOrCreateNode(context, resolvedValue, Collections.<ValueSpecification>emptySet(), new DependencyNodeCallback() {
-
-      @Override
-      public void node(final DependencyNode node) {
-        if (node == null) {
-          s_logger.error("Resolved {} to {} but couldn't create one or more dependency nodes", valueRequirement, resolvedValue.getValueSpecification());
-        } else {
-          assert node.getOutputValues().contains(resolvedValue.getValueSpecification());
-          synchronized (GetTerminalValuesCallback.this) {
-            assert _graphNodes.contains(node);
-            _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
-          }
-        }
-      }
-
-    });
+    _resolved.add(Pair.of(valueRequirement, resolvedValue));
+    completeGraphBuild();
   }
 
   @Override
@@ -518,10 +288,23 @@ import com.opengamma.engine.value.ValueSpecification;
     return "TerminalValueCallback";
   }
 
+  /**
+   * Returns the dependency graph nodes built by calls to {@link #resolved}. It is only valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned.
+   * A copy of the internal structure is used so that it may be modified by the caller and this callback instance be used to process subsequent resolutions.
+   * 
+   * @return the dependency graph nodes, not null
+   */
   public synchronized Collection<DependencyNode> getGraphNodes() {
     return new ArrayList<DependencyNode>(_graphNodes);
   }
 
+  /**
+   * Returns the map of top level requirements requested of the graph builder to the specifications it produced that are in the dependency graph. Failed resolutions are not reported here. It is only
+   * valid to call this when there are no pending resolutions - that is all calls to {@link #resolved} have returned. A copy of the internal structure is used so that it may be modified by the caller
+   * and this callback instance be used to process subsequent resolutions.
+   * 
+   * @return the map of resolutions, not null
+   */
   public synchronized Map<ValueRequirement, ValueSpecification> getTerminalValues() {
     return new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues);
   }

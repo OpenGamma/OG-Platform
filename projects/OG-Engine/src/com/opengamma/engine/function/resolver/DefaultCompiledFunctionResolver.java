@@ -97,7 +97,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    */
   public void addRules(Iterable<ResolutionRule> resolutionRules) {
     for (ResolutionRule resolutionRule : resolutionRules) {
-      final ComputationTargetType type = resolutionRule.getFunction().getFunction().getTargetType();
+      final ComputationTargetType type = resolutionRule.getParameterizedFunction().getFunction().getTargetType();
       SortedMap<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(type);
       if (priority2Rules == null) {
         priority2Rules = new TreeMap<Integer, Collection<ResolutionRule>>(Collections.reverseOrder());
@@ -147,11 +147,16 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private static final Comparator<Pair<ResolutionRule, Collection<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Collection<ValueSpecification>>>() {
     @Override
     public int compare(Pair<ResolutionRule, Collection<ValueSpecification>> o1, Pair<ResolutionRule, Collection<ValueSpecification>> o2) {
-      final int c = o1.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId().compareTo(o2.getFirst().getFunction().getFunction().getFunctionDefinition().getUniqueId());
+      int c = o1.getFirst().getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId()
+          .compareTo(o2.getFirst().getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId());
       if (c != 0) {
         return c;
       }
-      // Have the same function, can't prioritize the "FunctionInputs"
+      // Have the same function, can try and order the "FunctionParameters" as we know it implements a hash code
+      c = o1.getFirst().getParameterizedFunction().getParameters().hashCode() - o2.getFirst().getParameterizedFunction().getParameters().hashCode();
+      if (c != 0) {
+        return c;
+      }
       throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
     }
   };
@@ -167,7 +172,8 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   @SuppressWarnings("unchecked")
   @Override
   public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final ComputationTarget target) {
-    Pair<ResolutionRule[], Collection<ValueSpecification>[]> cached = _targetCache.get(target.toSpecification());
+    final ComputationTargetSpecification targetSpecification = MemoryUtils.instance(target.toSpecification());
+    Pair<ResolutionRule[], Collection<ValueSpecification>[]> cached = _targetCache.get(targetSpecification);
     if (cached == null) {
       final LinkedList<ResolutionRule> resolutionRules = new LinkedList<ResolutionRule>();
       final LinkedList<Collection<ValueSpecification>> resolutionResults = new LinkedList<Collection<ValueSpecification>>();
@@ -208,14 +214,15 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       } else {
         s_logger.warn("No rules for target type {}", target);
       }
+      // TODO: the array of rules is probably getting duplicated for each similar target (e.g. all swaps probably use the same rules)
       cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
           resolutionResults.toArray(new Collection[resolutionResults.size()]));
-      final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(MemoryUtils.instance(target.toSpecification()), cached);
+      final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(targetSpecification, cached);
       if (existing != null) {
         cached = existing;
       }
     }
-    return new It(target, getTargetResolver(), requirement, cached);
+    return new It(target, targetSpecification, getTargetResolver(), requirement, cached);
   }
 
   /**
@@ -229,9 +236,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     private int _itr;
     private Pair<ParameterizedFunction, ValueSpecification> _next;
 
-    private It(final ComputationTarget target, final ComputationTargetResolver resolver, final ValueRequirement requirement, final Pair<ResolutionRule[], Collection<ValueSpecification>[]> values) {
+    private It(final ComputationTarget target, final ComputationTargetSpecification targetSpecification, final ComputationTargetResolver resolver, final ValueRequirement requirement,
+        final Pair<ResolutionRule[], Collection<ValueSpecification>[]> values) {
       _resolver = resolver;
-      _target = MemoryUtils.instance(target.toSpecification());
+      _target = targetSpecification;
       _requirement = requirement;
       _values = values;
       findNext(target);
@@ -245,7 +253,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         final Collection<ValueSpecification> resultSet = resultSets[_itr++];
         final ValueSpecification result = rule.getResult(_requirement, target, resultSet);
         if (result != null) {
-          _next = Pair.of(rule.getFunction(), result);
+          _next = Pair.of(rule.getParameterizedFunction(), result);
           return;
         }
       }

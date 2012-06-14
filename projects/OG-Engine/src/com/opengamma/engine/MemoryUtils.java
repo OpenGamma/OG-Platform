@@ -5,11 +5,10 @@
  */
 package com.opengamma.engine;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueProperties;
@@ -67,20 +66,16 @@ public final class MemoryUtils {
    * @param object the object to estimate the size of
    * @return the size estimate in bytes
    */
-  public static long estimateSize(final Object object) {
+  public static long estimateSize(final Serializable object) {
     if (object == null) {
       return 0;
     }
     try {
-      final File temp = File.createTempFile("object", "bin");
-      try {
-        final ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(temp)));
-        out.writeObject(object);
-        out.close();
-        return temp.length();
-      } finally {
-        temp.delete();
-      }
+      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      final ObjectOutputStream out = new ObjectOutputStream(baos);
+      out.writeObject(object);
+      out.close();
+      return baos.toByteArray().length;
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("I/O error", e);
     }

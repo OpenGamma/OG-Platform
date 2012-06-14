@@ -56,7 +56,6 @@ public class ComputationTargetResults {
    * 
    * @param rules the resolution rules to use, not null
    * @param context the containing context, not null
-   * @param resolver the computation target resolver, not null
    */
   public ComputationTargetResults(final Collection<ResolutionRule> rules, final FunctionCompilationContext context) {
     ArgumentChecker.notNull(rules, "rules");
@@ -196,7 +195,7 @@ public class ComputationTargetResults {
     }
     s_logger.debug("Partially resolving {}", requirement);
     for (ResolutionRule rule : getRules()) {
-      final CompiledFunctionDefinition function = rule.getFunction().getFunction();
+      final CompiledFunctionDefinition function = rule.getParameterizedFunction().getFunction();
       if (function.getTargetType() != target.getType()) {
         continue;
       }

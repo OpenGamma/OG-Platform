@@ -65,7 +65,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
   private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
-      : ResolutionFailureVisitor.DEFAULT_INSTANCE);
+      : ResolutionFailureVisitor.DEFAULT_INSTANCE, _context);
   private final Executor _executor;
   private final Housekeeper _contextCleaner = Housekeeper.of(this, ResolutionCacheCleanup.INSTANCE);
   private final PendingRequirements _pendingRequirements = new PendingRequirements(this);
@@ -353,7 +353,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     // If the run-queue was empty, we may not have started enough threads, so double check 
     startBackgroundConstructionJob();
   }
-
+  
   protected void addToRunQueue(final ContextRunnable runnable) {
     final boolean dontSpawn = _runQueue.isEmpty();
     _scheduledSteps.incrementAndGet();
@@ -683,9 +683,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         while (itrProducer.hasNext()) {
           final Map.Entry<ResolveTask, ResolvedValueProducer> producer = itrProducer.next();
           if (!producer.getValue().hasActiveCallbacks()) {
-            producer.getKey().addRef();
             discards.add(producer.getValue());
-            discards.add(producer.getKey());
             itrProducer.remove();
           }
         }
@@ -698,7 +696,7 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (context == null) {
           context = new GraphBuildingContext(this);
         }
-        removed += discards.size() / 2;
+        removed += discards.size();
         for (ResolvedValueProducer discard : discards) {
           discard.release(context);
         }

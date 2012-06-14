@@ -77,7 +77,9 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   //-------------------------------------------------------------------------
   @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
+  public ComputationTarget resolve(ComputationTargetSpecification specification) {
+    // The underlying (if a DefaultComputationTargetResolver) will use this for recursive resolutions so for it to build a PORTFOLIO_NODE
+    // will mean we have been queried for POSITIONs and TRADEs and they will be in the front cache.
     switch (specification.getType()) {
       case POSITION:
       case TRADE:
@@ -90,13 +92,14 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         final Element e = _computationTarget.get(specification);
         if (e != null) {
           target = (ComputationTarget) e.getValue();
-          final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
+          final ComputationTarget existing = _frontCache.putIfAbsent(MemoryUtils.instance(specification), target);
           if (existing != null) {
             target = existing;
           }
         } else {
           target = super.resolve(specification);
           if (target != null) {
+            specification = MemoryUtils.instance(specification);
             final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
             if (existing != null) {
               target = existing;
@@ -128,7 +131,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
 
   @Override
   public void cachePortfolioNodeHierarchy(PortfolioNode root) {
-    addToCache(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, root.getUniqueId()), new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, root));
+    addToCache(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, root.getUniqueId())), new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, root));
     for (PortfolioNode child : root.getChildNodes()) {
       cachePortfolioNodeHierarchy(child);
     }
@@ -137,12 +140,12 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   //-------------------------------------------------------------------------
   private void addToCache(ComputationTargetSpecification specification, ComputationTarget ct) {
     _computationTarget.put(new Element(specification, ct));
-    _frontCache.put(MemoryUtils.instance(specification), ct);
+    _frontCache.put(specification, ct);
   }
 
   private void addToCache(Collection<? extends UniqueIdentifiable> targets, ComputationTargetType targetType) {
     for (UniqueIdentifiable target : targets) {
-      addToCache(new ComputationTargetSpecification(targetType, target.getUniqueId()), new ComputationTarget(targetType, target));
+      addToCache(MemoryUtils.instance(new ComputationTargetSpecification(targetType, target.getUniqueId())), new ComputationTarget(targetType, target));
     }
   }
 
