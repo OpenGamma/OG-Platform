@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Default implementation of the compiled function resolver.
@@ -161,17 +163,27 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     }
   };
 
-  private static Collection<ValueSpecification> reduceMemory(final Collection<ValueSpecification> specifications) {
-    final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(specifications.size());
-    for (ValueSpecification specification : specifications) {
-      result.add(MemoryUtils.instance(specification));
+  private static Collection<ValueSpecification> reduceMemory(final Set<ValueSpecification> specifications) {
+    if (specifications.size() == 1) {
+      final ValueSpecification specification = specifications.iterator().next();
+      final ValueSpecification reducedSpecification = MemoryUtils.instance(specification);
+      if (specification == reducedSpecification) {
+        return specifications;
+      } else {
+        return Collections.singleton(reducedSpecification);
+      }
+    } else {
+      final Collection<ValueSpecification> result = new ArrayList<ValueSpecification>(specifications.size());
+      for (ValueSpecification specification : specifications) {
+        result.add(MemoryUtils.instance(specification));
+      }
+      return result;
     }
-    return result;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final ComputationTarget target) {
+  public Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(final ValueRequirement requirement, final ComputationTarget target) {
     final ComputationTargetSpecification targetSpecification = MemoryUtils.instance(target.toSpecification());
     Pair<ResolutionRule[], Collection<ValueSpecification>[]> cached = _targetCache.get(targetSpecification);
     if (cached == null) {
@@ -182,7 +194,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         for (Collection<ResolutionRule> rules : priority2Rules.values()) {
           int rulesFound = 0;
           for (ResolutionRule rule : rules) {
-            final Collection<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
+            final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
             if ((results != null) && !results.isEmpty()) {
               resolutionRules.add(rule);
               resolutionResults.add(reduceMemory(results));
@@ -228,13 +240,13 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   /**
    * Iterator of functions and specifications from a dependency node.
    */
-  private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
+  private static final class It implements Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> {
     private final ComputationTargetResolver _resolver;
     private final ComputationTargetSpecification _target;
     private final ValueRequirement _requirement;
     private final Pair<ResolutionRule[], Collection<ValueSpecification>[]> _values;
     private int _itr;
-    private Pair<ParameterizedFunction, ValueSpecification> _next;
+    private Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _next;
 
     private It(final ComputationTarget target, final ComputationTargetSpecification targetSpecification, final ComputationTargetResolver resolver, final ValueRequirement requirement,
         final Pair<ResolutionRule[], Collection<ValueSpecification>[]> values) {
@@ -253,7 +265,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         final Collection<ValueSpecification> resultSet = resultSets[_itr++];
         final ValueSpecification result = rule.getResult(_requirement, target, resultSet);
         if (result != null) {
-          _next = Pair.of(rule.getParameterizedFunction(), result);
+          _next = Triple.of(rule.getParameterizedFunction(), result, resultSet);
           return;
         }
       }
@@ -269,11 +281,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     }
 
     @Override
-    public Pair<ParameterizedFunction, ValueSpecification> next() {
+    public Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> next() {
       if (_next == null) {
         findNext(_resolver.resolve(_target));
       }
-      Pair<ParameterizedFunction, ValueSpecification> next = _next;
+      Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> next = _next;
       _next = null;
       return next;
     }

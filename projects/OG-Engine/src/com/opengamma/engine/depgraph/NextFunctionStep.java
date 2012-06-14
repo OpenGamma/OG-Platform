@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -20,20 +21,21 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /* package */class NextFunctionStep extends ResolveTask.State {
 
   private static final Logger s_logger = LoggerFactory.getLogger(NextFunctionStep.class);
 
-  private final Iterator<Pair<ParameterizedFunction, ValueSpecification>> _functions;
+  private final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> _functions;
 
-  public NextFunctionStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions) {
+  public NextFunctionStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions) {
     super(task);
     assert functions != null;
     _functions = functions;
   }
 
-  protected Iterator<Pair<ParameterizedFunction, ValueSpecification>> getFunctions() {
+  protected Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> getFunctions() {
     return _functions;
   }
 
@@ -71,7 +73,7 @@ import com.opengamma.util.tuple.Pair;
       setTaskStateFinished(context);
       return;
     }
-    final Pair<ParameterizedFunction, ValueSpecification> resolvedFunction = getFunctions().next();
+    final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction = getFunctions().next();
     if (getTask().getFunctionExclusion() != null) {
       final FunctionExclusionGroup exclusion = context.getFunctionExclusionGroups().getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
       if ((exclusion != null) && getTask().getFunctionExclusion().contains(exclusion)) {
@@ -82,19 +84,22 @@ import com.opengamma.util.tuple.Pair;
     }
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());
     final ValueSpecification originalOutput = resolvedFunction.getSecond();
-    final ValueSpecification resolvedOutput = MemoryUtils.instance(originalOutput.compose(getValueRequirement()));
+    ValueSpecification resolvedOutput = originalOutput.compose(getValueRequirement());
+    if (resolvedOutput != originalOutput) {
+      resolvedOutput = MemoryUtils.instance(resolvedOutput);
+    }
     final Pair<ResolveTask[], ResolvedValueProducer[]> existing = context.getTasksProducing(resolvedOutput);
     if (existing == null) {
       final ResolvedValue existingValue = context.getProduction(resolvedOutput);
       if (existingValue == null) {
         // We're going to work on producing
         s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
-        final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+        final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput);
         setRunnableTaskState(state, context);
       } else {
         // Value has already been produced
         s_logger.debug("Using existing production of {} (original={})", resolvedOutput, originalOutput);
-        final ExistingProductionStep state = new ExistingProductionStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+        final ExistingProductionStep state = new ExistingProductionStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput);
         setTaskState(state);
         if (!pushResult(context, existingValue, false)) {
           s_logger.debug("Production not accepted - rescheduling");
@@ -104,7 +109,7 @@ import com.opengamma.util.tuple.Pair;
     } else {
       // Other tasks are working on it, or have already worked on it
       s_logger.debug("Delegating to existing producers for {} (original={})", resolvedOutput, originalOutput);
-      final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
+      final ExistingResolutionsStep state = new ExistingResolutionsStep(getTask(), getFunctions(), resolvedFunction, resolvedOutput);
       setTaskState(state);
       ResolvedValueProducer singleTask = null;
       AggregateResolvedValueProducer aggregate = null;

@@ -14,6 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.NormalizingWeakInstanceCache;
 import com.opengamma.util.WeakInstanceCache;
 
 /**
@@ -26,8 +27,30 @@ public final class MemoryUtils {
 
   private static final WeakInstanceCache<ComputationTargetSpecification> s_computationTargetSpecification = new WeakInstanceCache<ComputationTargetSpecification>();
   private static final WeakInstanceCache<ValueProperties> s_valueProperties = new WeakInstanceCache<ValueProperties>();
-  private static final WeakInstanceCache<ValueRequirement> s_valueRequirement = new WeakInstanceCache<ValueRequirement>();
-  private static final WeakInstanceCache<ValueSpecification> s_valueSpecification = new WeakInstanceCache<ValueSpecification>();
+  private static final WeakInstanceCache<ValueRequirement> s_valueRequirement = new NormalizingWeakInstanceCache<ValueRequirement>() {
+    @Override
+    protected ValueRequirement normalize(final ValueRequirement valueRequirement) {
+      final ComputationTargetSpecification ctspec = instance(valueRequirement.getTargetSpecification());
+      final ValueProperties constraints = instance(valueRequirement.getConstraints());
+      if ((ctspec == valueRequirement.getTargetSpecification()) && (constraints == valueRequirement.getConstraints())) {
+        return valueRequirement;
+      } else {
+        return new ValueRequirement(valueRequirement.getValueName(), ctspec, constraints);
+      }
+    }
+  };
+  private static final WeakInstanceCache<ValueSpecification> s_valueSpecification = new NormalizingWeakInstanceCache<ValueSpecification>() {
+    @Override
+    protected ValueSpecification normalize(final ValueSpecification valueSpecification) {
+      final ComputationTargetSpecification ctspec = instance(valueSpecification.getTargetSpecification());
+      final ValueProperties properties = instance(valueSpecification.getProperties());
+      if ((ctspec == valueSpecification.getTargetSpecification()) && (properties == valueSpecification.getProperties())) {
+        return valueSpecification;
+      } else {
+        return new ValueSpecification(valueSpecification.getValueName(), ctspec, properties);
+      }
+    }
+  };
 
   private MemoryUtils() {
   }
@@ -41,23 +64,11 @@ public final class MemoryUtils {
   }
 
   public static ValueRequirement instance(final ValueRequirement valueRequirement) {
-    final ComputationTargetSpecification ctspec = instance(valueRequirement.getTargetSpecification());
-    final ValueProperties constraints = instance(valueRequirement.getConstraints());
-    if ((ctspec == valueRequirement.getTargetSpecification()) && (constraints == valueRequirement.getConstraints())) {
-      return s_valueRequirement.get(valueRequirement);
-    } else {
-      return s_valueRequirement.get(new ValueRequirement(valueRequirement.getValueName(), ctspec, constraints));
-    }
+    return s_valueRequirement.get(valueRequirement);
   }
 
   public static ValueSpecification instance(final ValueSpecification valueSpecification) {
-    final ComputationTargetSpecification ctspec = instance(valueSpecification.getTargetSpecification());
-    final ValueProperties properties = instance(valueSpecification.getProperties());
-    if ((ctspec == valueSpecification.getTargetSpecification()) && (properties == valueSpecification.getProperties())) {
-      return s_valueSpecification.get(valueSpecification);
-    } else {
-      return s_valueSpecification.get(new ValueSpecification(valueSpecification.getValueName(), ctspec, properties));
-    }
+    return s_valueSpecification.get(valueSpecification);
   }
 
   /**

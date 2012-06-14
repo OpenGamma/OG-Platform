@@ -188,9 +188,10 @@ public class AsynchronousOperation<T> {
    * @param ex the caught exception
    * @return the result
    */
+  @SuppressWarnings("unchecked")
   public static <T> T getResult(final AsynchronousExecution ex) {
     try {
-      return ex.getResult();
+      return (T) ex.getResult();
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("interrupted", e);
     }

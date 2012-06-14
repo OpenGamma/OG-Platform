@@ -5,22 +5,23 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /* package */final class ExistingProductionStep extends FunctionApplicationStep {
 
-  public ExistingProductionStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> nextFunctions, final ParameterizedFunction function,
-      final ValueSpecification originalOutput, final ValueSpecification resolvedOutput) {
-    super(task, nextFunctions, function, originalOutput, resolvedOutput);
+  public ExistingProductionStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> nextFunctions,
+      final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
+    super(task, nextFunctions, resolved, resolvedOutput);
   }
 
   @Override
   protected void pump(final GraphBuildingContext context) {
-    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getFunction(), getOriginalOutput(), getResolvedOutput()), context);
+    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getResolved(), getResolvedOutput()), context);
   }
 
   @Override
