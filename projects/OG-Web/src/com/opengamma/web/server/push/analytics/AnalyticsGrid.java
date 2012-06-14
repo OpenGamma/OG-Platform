@@ -22,7 +22,6 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Map<String, AnalyticsViewport> _viewports = new HashMap<String, AnalyticsViewport>();
 
-  private int nextViewportId = 0;
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
 
   protected AnalyticsGrid(AnalyticsGridStructure gridStructure) {
@@ -55,9 +54,12 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /* package */ String createViewport(ViewportSpecification viewportSpecification, AnalyticsHistory history) {
-    // TODO pass this in
-    String viewportId = Integer.toString(nextViewportId++);
+  /* package */ String createViewport(String viewportId,
+                                      ViewportSpecification viewportSpecification,
+                                      AnalyticsHistory history) {
+    if (_viewports.containsKey(viewportId)) {
+      throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
+    }
     _viewports.put(viewportId, new AnalyticsViewport(_gridStructure, viewportSpecification, _latestResults, history));
     return viewportId;
   }

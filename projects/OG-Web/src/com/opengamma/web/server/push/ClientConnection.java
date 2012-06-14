@@ -33,6 +33,7 @@ import com.opengamma.web.server.push.rest.MasterType;
  * The published notifications contain the REST URL of the thing that has changed.
  * All subscriptions for a URL are automatically cancelled the first time a notification is published for the URL
  * and must be re-established every time the client accesses the URL.  This class is thread safe.
+ * TODO switch to AnalyticsViewManager instead of ViewportManager, create views instead of viewports
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 

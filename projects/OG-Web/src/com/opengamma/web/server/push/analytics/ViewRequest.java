@@ -10,4 +10,8 @@ package com.opengamma.web.server.push.analytics;
  */
 public class ViewRequest {
 
+  /*
+  viewDefId
+  aggregatorNames
+  */
 }

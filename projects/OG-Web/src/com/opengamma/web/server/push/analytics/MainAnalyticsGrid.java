@@ -20,8 +20,6 @@ import com.opengamma.util.ArgumentChecker;
   private final AnalyticsView.GridType _gridType;
   private final Map<String, AnalyticsGrid> _depGraphs = new HashMap<String, AnalyticsGrid>();
 
-  private int nextDependencyGraphId = 0;
-
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
                                   AnalyticsGridStructure gridStructure) {
     super(gridStructure);
@@ -44,46 +42,50 @@ import com.opengamma.util.ArgumentChecker;
 
   // -------- dependency graph grids --------
 
-  private AnalyticsGrid getDependencyGraph(String dependencyGraphId) {
-    AnalyticsGrid grid = _depGraphs.get(dependencyGraphId);
+  private AnalyticsGrid getDependencyGraph(String graphId) {
+    AnalyticsGrid grid = _depGraphs.get(graphId);
     if (grid == null) {
-      throw new DataNotFoundException("No dependency graph found with ID " + dependencyGraphId + " for " + _gridType + " grid");
+      throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
     }
     return grid;
   }
 
   // TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
-  /* package */ String openDependencyGraph(int row, int col) {
-    // TODO this should be passed in
-    String dependencyGraphId = Integer.toString(nextDependencyGraphId++);
-    _depGraphs.put(dependencyGraphId, AnalyticsGrid.empty());
-    return dependencyGraphId;
+  /* package */ String openDependencyGraph(String graphId, int row, int col) {
+    if (_depGraphs.containsKey(graphId)) {
+      throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
+    }
+    _depGraphs.put(graphId, AnalyticsGrid.empty());
+    return graphId;
   }
 
-  /* package */ void closeDependencyGraph(String dependencyGraphId) {
-    AnalyticsGrid grid = _depGraphs.remove(dependencyGraphId);
+  /* package */ void closeDependencyGraph(String graphId) {
+    AnalyticsGrid grid = _depGraphs.remove(graphId);
     if (grid == null) {
-      throw new DataNotFoundException("No dependency graph found with ID " + dependencyGraphId + " for " + _gridType + " grid");
+      throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
     }
   }
 
-  /* package */ AnalyticsGridStructure getGridStructure(String dependencyGraphId) {
-    return getDependencyGraph(dependencyGraphId)._gridStructure;
+  /* package */ AnalyticsGridStructure getGridStructure(String graphId) {
+    return getDependencyGraph(graphId)._gridStructure;
   }
 
-  /* package */ String createViewport(String dependencyGraphId, ViewportSpecification viewportSpecification, AnalyticsHistory history) {
-    return getDependencyGraph(dependencyGraphId).createViewport(viewportSpecification, history);
+  /* package */ String createViewport(String graphId,
+                                      String viewportId,
+                                      ViewportSpecification viewportSpecification,
+                                      AnalyticsHistory history) {
+    return getDependencyGraph(graphId).createViewport(viewportId, viewportSpecification, history);
   }
 
-  /* package */ void updateViewport(String dependencyGraphId, String viewportId, ViewportSpecification viewportSpec) {
-    getDependencyGraph(dependencyGraphId).updateViewport(viewportId, viewportSpec, null);
+  /* package */ void updateViewport(String graphId, String viewportId, ViewportSpecification viewportSpec) {
+    getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, null);
   }
 
-  /* package */ void deleteViewport(String dependencyGraphId, String viewportId) {
-    getDependencyGraph(dependencyGraphId).deleteViewport(viewportId);
+  /* package */ void deleteViewport(String graphId, String viewportId) {
+    getDependencyGraph(graphId).deleteViewport(viewportId);
   }
 
-  /* package */ ViewportResults getData(String dependencyGraphId, String viewportId) {
-    return getDependencyGraph(dependencyGraphId).getData(viewportId);
+  /* package */ ViewportResults getData(String graphId, String viewportId) {
+    return getDependencyGraph(graphId).getData(viewportId);
   }
 }

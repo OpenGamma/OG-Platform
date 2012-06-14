@@ -28,7 +28,9 @@ public class AnalyticsViewManager {
     // TODO this should be passed in
     long viewId = _nextViewId.getAndIncrement();
     String viewIdStr = Long.toString(viewId);
-    _views.put(viewIdStr, new SimpleAnalyticsView(request));
+    // TODO contact the view processor, create view client
+    // TODO need to pass a listener to the view
+    _views.put(viewIdStr, new SimpleAnalyticsView(request/* TODO view client arg */));
     s_logger.debug("Created new view with ID {}", viewId);
     return viewIdStr;
   }
