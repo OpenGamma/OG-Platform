@@ -107,9 +107,9 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, _nExpiries, expiryIndex), "Invalid index for expiry; {}", expiryIndex);
     final double[][] strikes = getStrikes();
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, strikes[expiryIndex].length, strikeIndex), "Invalid index for strike; {}", strikeIndex);
-    final int nStrikes = strikes[expiryIndex].length;
     final double[][] vols = new double[_nExpiries][];
     for (int i = 0; i < _nExpiries; i++) {
+      int nStrikes = strikes[i].length;
       vols[i] = new double[nStrikes];
       System.arraycopy(_impliedVols[i], 0, vols[i], 0, nStrikes);
     }
