@@ -423,36 +423,42 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   /**
    * Tests the second order adjoint derivatives for the SABR Hagan volatility function. Only the derivatives with respect to the forward and the strike are provided.
    */
-  public void testVolatilityAdjoint2() {
+  public void volatilityAdjoint2() {
+    volatilityAdjoint2ForInstrument(CALL_ITM, 1.0E-6, 1.0E-2);
+    volatilityAdjoint2ForInstrument(CALL_ATM, 1.0E-6, 1.0E+2); // ATM the second order derivative is poor.
+    volatilityAdjoint2ForInstrument(CALL_OTM, 1.0E-6, 1.0E-2);
+  }
+
+  private void volatilityAdjoint2ForInstrument(final EuropeanVanillaOption option, final double tolerance1, final double tolerance2) {
     // Price
-    final double volatility = FUNCTION.getVolatilityFunction(CALL_ITM, FORWARD).evaluate(DATA);
-    final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_ITM, FORWARD, DATA);
+    final double volatility = FUNCTION.getVolatilityFunction(option, FORWARD).evaluate(DATA);
+    final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(option, FORWARD, DATA);
     final double[] volD = new double[6];
     final double[][] volD2 = new double[2][2];
-    final double vol = FUNCTION.getVolatilityAdjoint2(CALL_ITM, FORWARD, DATA, volD, volD2);
-    assertEquals(volatility, vol, 1E-6);
+    final double vol = FUNCTION.getVolatilityAdjoint2(option, FORWARD, DATA, volD, volD2);
+    assertEquals("SABR Hagan: adjoint 2", volatility, vol, tolerance1);
     // Derivative
     for (int loopder = 0; loopder < 6; loopder++) {
-      assertEquals("Derivative " + loopder, volatilityAdjoint[loopder + 1], volD[loopder], 1E-6);
+      assertEquals("Derivative " + loopder, volatilityAdjoint[loopder + 1], volD[loopder], tolerance1);
     }
     // Derivative forward-forward
     final double deltaF = 0.000001;
-    final double volatilityFP = FUNCTION.getVolatilityFunction(CALL_ITM, FORWARD + deltaF).evaluate(DATA);
-    final double volatilityFM = FUNCTION.getVolatilityFunction(CALL_ITM, FORWARD - deltaF).evaluate(DATA);
+    final double volatilityFP = FUNCTION.getVolatilityFunction(option, FORWARD + deltaF).evaluate(DATA);
+    final double volatilityFM = FUNCTION.getVolatilityFunction(option, FORWARD - deltaF).evaluate(DATA);
     final double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
-    assertEquals("SABR adjoint order 2: forward-forward", derivativeFF_FD, volD2[0][0], 1E-2);
+    assertEquals("SABR adjoint order 2: forward-forward", derivativeFF_FD, volD2[0][0], tolerance2);
     // Derivative strike-strike
     final double deltaK = 0.000001;
-    final EuropeanVanillaOption optionKP = new EuropeanVanillaOption(STRIKE_ITM + deltaK, T, true);
-    final EuropeanVanillaOption optionKM = new EuropeanVanillaOption(STRIKE_ITM - deltaK, T, true);
+    final EuropeanVanillaOption optionKP = new EuropeanVanillaOption(option.getStrike() + deltaK, T, true);
+    final EuropeanVanillaOption optionKM = new EuropeanVanillaOption(option.getStrike() - deltaK, T, true);
     final double volatilityKP = FUNCTION.getVolatilityFunction(optionKP, FORWARD).evaluate(DATA);
     final double volatilityKM = FUNCTION.getVolatilityFunction(optionKM, FORWARD).evaluate(DATA);
     final double derivativeKK_FD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
-    assertEquals("SABR adjoint order 2: strike-strike", derivativeKK_FD, volD2[1][1], 1E-2);
+    assertEquals("SABR adjoint order 2: strike-strike", derivativeKK_FD, volD2[1][1], tolerance2);
     // Derivative strike-forward
     final double volatilityFPKP = FUNCTION.getVolatilityFunction(optionKP, FORWARD + deltaF).evaluate(DATA);
     final double derivativeFK_FD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
-    assertEquals("SABR adjoint order 2: forward-strike", derivativeFK_FD, volD2[0][1], 1E-2);
+    assertEquals("SABR adjoint order 2: forward-strike", derivativeFK_FD, volD2[0][1], tolerance2);
     assertEquals("SABR adjoint order 2: strike-forward", volD2[0][1], volD2[1][0], 1E-6);
   }
 
