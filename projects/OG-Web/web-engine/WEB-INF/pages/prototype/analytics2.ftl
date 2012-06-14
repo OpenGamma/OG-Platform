@@ -10,7 +10,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <#include "modules/common/og.common.gadget_container.ftl">
     </div>
   </div>
-  <div class="ui-layout-north">header</div>
+  <div class="ui-layout-north"></div>
   <div class="ui-layout-south OG-analytics-footer">
     <div class="OG-logo-light-small"><small>Analytics</small></div>
   </div>

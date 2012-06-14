@@ -8,6 +8,9 @@
   max-height: 150px;
   overflow-y: auto;
   color: #555;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .ui-autocomplete li {

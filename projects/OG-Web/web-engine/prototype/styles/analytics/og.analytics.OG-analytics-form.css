@@ -1,0 +1,43 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-analytics-form .og-view,
+.OG-analytics-form .og-aggregation,
+.OG-analytics-form .og-datasources {
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.OG-analytics-form .og-view input {
+    position: relative;
+    font-size: 26px;
+    text-overflow: ellipsis;
+    top: 2px;
+    left: 2px;
+    color: #475562
+}
+
+.OG-analytics-form .og-aggregation input {
+    position: relative;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    top: 2px;
+    left: 2px;
+    color: #475562
+}
+
+.OG-analytics-form .og-icon-down {
+    width: 15px;
+    height: 36px;
+    line-height: 30px;
+    position: absolute;
+    top: 4px;
+    margin-left: 2px;
+}
+
+.OG-analytics-form .og-icon-down:after {
+    top: 16px;
+    left: 4px;
+}

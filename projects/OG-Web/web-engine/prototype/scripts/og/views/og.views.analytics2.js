@@ -17,13 +17,20 @@ $.register_module({
                     $('.OG-layout-analytics-center').html(template({}));
                 });
             },
-            load: function (args) {if (!args.id) view.default_details(), og.analytics.resize();},
+            load: function (args) {
+                if (!args.id) {
+                    view.default_details();
+                    og.analytics.resize();
+                    og.analytics.form('.OG-layout-analytics-masthead');
+                }
+            },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 new og.analytics.Grid({selector: '.OG-layout-analytics-center'});
                 ['south', 'dock-north', 'dock-center', 'dock-south'].forEach(function (val) {
                     new GadgetsContainer('.OG-layout-analytics-', val).add(args[val]);
                 });
+                og.analytics.form('.OG-layout-analytics-masthead');
                 og.analytics.resize();
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

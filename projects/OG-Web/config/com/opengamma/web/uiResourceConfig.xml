@@ -53,6 +53,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-expand.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-collapse.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-down.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-presets.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
@@ -137,6 +138,7 @@
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-form.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -229,6 +231,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.combobox.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
   </bundle>
@@ -260,6 +263,7 @@
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
