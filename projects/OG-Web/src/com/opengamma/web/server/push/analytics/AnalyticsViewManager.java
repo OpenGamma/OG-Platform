@@ -22,18 +22,14 @@ public class AnalyticsViewManager {
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewManager.class);
 
   private final Map<String, AnalyticsView> _views = new ConcurrentHashMap<String, AnalyticsView>();
-  private final AtomicLong _nextViewId = new AtomicLong(0);
 
-  public String createView(ViewRequest request) {
-    // TODO this should be passed in
-    long viewId = _nextViewId.getAndIncrement();
-    String viewIdStr = Long.toString(viewId);
+  public void createView(ViewRequest request, String viewId, String portfolioGridId, String primitivesGridId) {
     // TODO contact the view processor, create view client
-    // TODO need to pass a listener to the view
-    // TODO generate dataIds for the primitives and portfolio grids
-    _views.put(viewIdStr, new SimpleAnalyticsView(request/* TODO view client arg */, null, null));
+    if (_views.containsKey(viewId)) {
+      throw new IllegalArgumentException("View ID " + viewId + " is already in use");
+    }
+    _views.put(viewId, new SimpleAnalyticsView(request/* TODO view client arg */, portfolioGridId, primitivesGridId));
     s_logger.debug("Created new view with ID {}", viewId);
-    return viewIdStr;
   }
 
   public void deleteView(String viewId) {

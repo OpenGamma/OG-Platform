@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.util.ArgumentChecker;
@@ -63,9 +62,8 @@ public abstract class AbstractGridResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createViewport(@Context UriInfo uriInfo, ViewportSpecification viewportSpecification) {
     String viewportId = Long.toString(s_nextId.getAndIncrement());
-    UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(viewportId);
-    URI viewportUri = builder.build();
-    URI dataUri = builder.path(AbstractViewportResource.class, "getData").build();
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
+    URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
     String dataId = dataUri.toString();
     createViewport(viewportId, dataId, viewportSpecification);
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();

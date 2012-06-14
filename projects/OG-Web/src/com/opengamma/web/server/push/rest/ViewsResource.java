@@ -6,9 +6,9 @@
 package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,6 +16,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ import com.opengamma.web.server.push.analytics.ViewRequest;
 public class ViewsResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewsResource.class);
+  private static final AtomicLong s_nextViewId = new AtomicLong(0);
 
   private final AnalyticsViewManager _viewManager;
 
@@ -43,7 +45,16 @@ public class ViewsResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @POST
   public Response createView(@Context UriInfo uriInfo, ViewRequest viewRequest) {
-    String viewId = _viewManager.createView(viewRequest);
+    String viewId = Long.toString(s_nextViewId.getAndIncrement());
+    URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPortfolioGrid")
+        .path(AbstractGridResource.class, "getGridStructure").build();
+    URI primitivesGridUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPrimitivesGrid")
+        .path(AbstractGridResource.class, "getGridStructure").build();
+    _viewManager.createView(viewRequest, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }

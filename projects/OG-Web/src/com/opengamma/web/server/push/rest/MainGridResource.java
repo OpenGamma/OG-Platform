@@ -44,9 +44,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   @Override
   public Response openDependencyGraph(UriInfo uriInfo, DependencyGraphRequest request) {
     String graphId = Long.toString(s_nextId.getAndIncrement());
-    UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(graphId);
-    URI graphUri = builder.build();
-    URI gridUri = builder.path(AbstractGridResource.class, "getGridStructure").build();
+    URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphId).build();
+    URI gridUri = uriInfo.getAbsolutePathBuilder().path(graphId).path(AbstractGridResource.class, "getGridStructure").build();
     String gridId = gridUri.toString();
     _view.openDependencyGraph(_gridType, graphId, gridId, request.getRow(), request.getColumn());
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, graphUri).build();
