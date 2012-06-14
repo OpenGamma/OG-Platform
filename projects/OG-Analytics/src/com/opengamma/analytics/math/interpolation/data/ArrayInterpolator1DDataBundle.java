@@ -38,7 +38,7 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
 
   private void checkSameKeys() {
     for (int i = 1; i < _n; i++) {
-      ArgumentChecker.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator");
+      ArgumentChecker.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator {}", _keys[i - 1]);
     }
   }
 
