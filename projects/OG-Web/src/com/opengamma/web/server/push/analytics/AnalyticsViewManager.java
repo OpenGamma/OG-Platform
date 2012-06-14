@@ -23,12 +23,16 @@ public class AnalyticsViewManager {
 
   private final Map<String, AnalyticsView> _views = new ConcurrentHashMap<String, AnalyticsView>();
 
-  public void createView(ViewRequest request, String viewId, String portfolioGridId, String primitivesGridId) {
+  public void createView(ViewRequest request,
+                         AnalyticsViewListener listener,
+                         String viewId,
+                         String portfolioGridId,
+                         String primitivesGridId) {
     // TODO contact the view processor, create view client
     if (_views.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
-    _views.put(viewId, new SimpleAnalyticsView(request/* TODO view client arg */, portfolioGridId, primitivesGridId));
+    _views.put(viewId, new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId));
     s_logger.debug("Created new view with ID {}", viewId);
   }
 

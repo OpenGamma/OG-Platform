@@ -16,13 +16,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.AnalyticsViewListener;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ViewRequest;
 
@@ -54,7 +54,8 @@ public class ViewsResource {
         .path(viewId)
         .path(ViewResource.class, "getPrimitivesGrid")
         .path(AbstractGridResource.class, "getGridStructure").build();
-    _viewManager.createView(viewRequest, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
+    AnalyticsViewListener listener = null; // TODO this needs to connect to the async web stuff
+    _viewManager.createView(viewRequest, listener, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }
