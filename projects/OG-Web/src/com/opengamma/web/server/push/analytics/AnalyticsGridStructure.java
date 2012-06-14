@@ -52,6 +52,12 @@ public class AnalyticsGridStructure {
                                       rowsForViewDefinition(compiledViewDef));
   }
 
+  public static AnalyticsGridStructure depdencyGraph(CompiledViewDefinition compiledViewDef) {
+    return new AnalyticsGridStructure(AnalyticsNode.create(compiledViewDef),
+                                      AnalyticsColumns.dependencyGraph(/*compiledViewDef*/),
+                                      /*rowsForViewDefinition(compiledViewDef)*/null/* TODO what here? */);
+  }
+
   private static List<Row> rowsForViewDefinition(CompiledViewDefinition viewDef) {
     PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
       @Override

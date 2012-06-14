@@ -28,7 +28,7 @@ public interface AnalyticsView {
 
   AnalyticsGridStructure getGridStructure(GridType gridType);
 
-  void createViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
+  void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
 
@@ -45,13 +45,13 @@ public interface AnalyticsView {
   // i.e. specify the target spec
   // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
   // structure and perform that logic on the server?
-  void openDependencyGraph(GridType gridType, String graphId, int row, int col);
+  void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col);
 
   void closeDependencyGraph(GridType gridType, String graphId);
 
   AnalyticsGridStructure getGridStructure(GridType gridType, String graphId);
 
-  void createViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
+  void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   void updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
 

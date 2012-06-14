@@ -21,23 +21,24 @@ import com.opengamma.util.ArgumentChecker;
   private final Map<String, AnalyticsGrid> _depGraphs = new HashMap<String, AnalyticsGrid>();
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                  AnalyticsGridStructure gridStructure) {
-    super(gridStructure);
+                                  AnalyticsGridStructure gridStructure,
+                                  String gridId) {
+    super(gridStructure, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
   }
 
   // TODO does this actually need the grid type parameter? could hard code it as one or other and it probably wouldn't matter
-  /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType) {
-    return new MainAnalyticsGrid(gridType, AnalyticsGridStructure.empty());
+  /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType, String gridId) {
+    return new MainAnalyticsGrid(gridType, AnalyticsGridStructure.empty(), gridId);
   }
 
-  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, AnalyticsGridStructure.portoflio(compiledViewDef));
+  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, AnalyticsGridStructure.portoflio(compiledViewDef), gridId);
   }
 
-  /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, AnalyticsGridStructure.primitives(compiledViewDef));
+  /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef, String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, AnalyticsGridStructure.primitives(compiledViewDef), gridId);
   }
 
   // -------- dependency graph grids --------
@@ -51,11 +52,11 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   // TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
-  /* package */ String openDependencyGraph(String graphId, int row, int col) {
+  /* package */ String openDependencyGraph(String graphId, String gridId, int row, int col) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    _depGraphs.put(graphId, AnalyticsGrid.empty());
+    _depGraphs.put(graphId, AnalyticsGrid.dependencyGraph(null/*TODO*/, gridId));
     return graphId;
   }
 
@@ -72,9 +73,10 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ String createViewport(String graphId,
                                       String viewportId,
+                                      String dataId,
                                       ViewportSpecification viewportSpecification,
                                       AnalyticsHistory history) {
-    return getDependencyGraph(graphId).createViewport(viewportId, viewportSpecification, history);
+    return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpecification, history);
   }
 
   /* package */ void updateViewport(String graphId, String viewportId, ViewportSpecification viewportSpec) {

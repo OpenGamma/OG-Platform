@@ -27,7 +27,7 @@ public class ViewportSpecification {
     _columns = Collections.unmodifiableSortedSet(columns);
   }
 
-  /* package */ static ViewportSpecification empty() {
+  public static ViewportSpecification empty() {
     return new ViewportSpecification(Collections.<Integer>emptyList(), new TreeSet<Integer>());
   }
 

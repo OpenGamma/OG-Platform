@@ -30,7 +30,8 @@ public class AnalyticsViewManager {
     String viewIdStr = Long.toString(viewId);
     // TODO contact the view processor, create view client
     // TODO need to pass a listener to the view
-    _views.put(viewIdStr, new SimpleAnalyticsView(request/* TODO view client arg */));
+    // TODO generate dataIds for the primitives and portfolio grids
+    _views.put(viewIdStr, new SimpleAnalyticsView(request/* TODO view client arg */, null, null));
     s_logger.debug("Created new view with ID {}", viewId);
     return viewIdStr;
   }

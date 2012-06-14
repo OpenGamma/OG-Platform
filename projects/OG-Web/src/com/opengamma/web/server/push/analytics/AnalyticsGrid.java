@@ -11,6 +11,7 @@ import java.util.Map;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,19 +22,26 @@ import com.opengamma.util.ArgumentChecker;
   protected final AnalyticsGridStructure _gridStructure;
 
   private final Map<String, AnalyticsViewport> _viewports = new HashMap<String, AnalyticsViewport>();
+  private final String _gridId;
 
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
 
-  protected AnalyticsGrid(AnalyticsGridStructure gridStructure) {
+  protected AnalyticsGrid(AnalyticsGridStructure gridStructure, String gridId) {
     ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(gridId, "gridId");
     _gridStructure = gridStructure;
+    _gridId = gridId;
   }
 
   /**
    * @return An empty grid structure with no rows or columns
    */
   /* package */ static AnalyticsGrid empty() {
-    return new AnalyticsGrid(AnalyticsGridStructure.empty());
+    return new AnalyticsGrid(AnalyticsGridStructure.empty(), "");
+  }
+
+  /* package */ static AnalyticsGrid dependencyGraph(CompiledViewDefinition compiledViewDef, String gridId) {
+    return new AnalyticsGrid(AnalyticsGridStructure.depdencyGraph(compiledViewDef), gridId);
   }
 
   private AnalyticsViewport getViewport(String viewportId) {
@@ -55,12 +63,13 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ String createViewport(String viewportId,
+                                      String dataId,
                                       ViewportSpecification viewportSpecification,
                                       AnalyticsHistory history) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    _viewports.put(viewportId, new AnalyticsViewport(_gridStructure, viewportSpecification, _latestResults, history));
+    _viewports.put(viewportId, new AnalyticsViewport(_gridStructure, viewportSpecification, _latestResults, history, dataId));
     return viewportId;
   }
 
@@ -79,5 +88,9 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ ViewportResults getData(String viewportId) {
     return getViewport(viewportId).getData();
+  }
+
+  /* package */ String getGridId() {
+    return _gridId;
   }
 }

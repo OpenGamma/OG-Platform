@@ -9,6 +9,7 @@ import java.net.URI;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
@@ -31,8 +32,8 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  public void createViewport(String viewportId, ViewportSpecification viewportSpecification) {
-    _view.createViewport(_gridType, viewportId, viewportSpecification);
+  public void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpecification) {
+    _view.createViewport(_gridType, viewportId, dataId, viewportSpecification);
   }
 
   @Override
@@ -42,11 +43,13 @@ public class MainGridResource extends AbstractGridResource implements Dependency
 
   @Override
   public Response openDependencyGraph(UriInfo uriInfo, DependencyGraphRequest request) {
-    String nextId = Long.toString(s_nextId.getAndIncrement());
-    URI uri = uriInfo.getAbsolutePathBuilder().path(nextId).build();
-    String graphId = uri.toString();
-    _view.openDependencyGraph(_gridType, graphId, request.getRow(), request.getColumn());
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
+    String graphId = Long.toString(s_nextId.getAndIncrement());
+    UriBuilder builder = uriInfo.getAbsolutePathBuilder().path(graphId);
+    URI graphUri = builder.build();
+    URI gridUri = builder.path(AbstractGridResource.class, "getGridStructure").build();
+    String gridId = gridUri.toString();
+    _view.openDependencyGraph(_gridType, graphId, gridId, request.getRow(), request.getColumn());
+    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, graphUri).build();
   }
 
   @Override

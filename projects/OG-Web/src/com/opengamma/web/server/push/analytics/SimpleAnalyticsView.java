@@ -21,11 +21,15 @@ import com.opengamma.util.ArgumentChecker;
 
   private final AnalyticsHistory _history = new AnalyticsHistory();
 
-  private MainAnalyticsGrid _portfolioGrid = MainAnalyticsGrid.empty(GridType.PORTFORLIO);
-  private MainAnalyticsGrid _primitivesGrid = MainAnalyticsGrid.empty(GridType.PRIMITIVES);
+  private MainAnalyticsGrid _portfolioGrid;
+  private MainAnalyticsGrid _primitivesGrid;
 
-  public SimpleAnalyticsView(ViewRequest request) {
+  public SimpleAnalyticsView(ViewRequest request, String portoflioGridId, String primitivesGridId) {
     ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(portoflioGridId, "portoflioGridId");
+    ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
+    _portfolioGrid = MainAnalyticsGrid.empty(GridType.PORTFORLIO, portoflioGridId);
+    _primitivesGrid = MainAnalyticsGrid.empty(GridType.PRIMITIVES, primitivesGridId);
   }
 
   @Override
@@ -35,9 +39,15 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void updateStructure(CompiledViewDefinition compiledViewDefinition) {
-    _portfolioGrid = MainAnalyticsGrid.portfolio(compiledViewDefinition);
-    _primitivesGrid = MainAnalyticsGrid.primitives(compiledViewDefinition);
-    // TODO notify listener
+    _portfolioGrid = MainAnalyticsGrid.portfolio(compiledViewDefinition, _portfolioGrid.getGridId());
+    _primitivesGrid = MainAnalyticsGrid.primitives(compiledViewDefinition, _primitivesGrid.getGridId());
+    /*
+    TODO
+    collect IDs for primitives grid, portfolio grid and all depgraph grids
+      portfolio and primitives grids don't have ID ATM, implicit in view URL
+      need to pass them in when creating the view?
+    publish IDs to listener
+    */
   }
 
   @Override
@@ -45,7 +55,11 @@ import com.opengamma.util.ArgumentChecker;
     _history.addResults(fullResult);
     _portfolioGrid.updateResults(fullResult, _history);
     _primitivesGrid.updateResults(fullResult, _history);
-    // TODO notify listener
+    /*
+    TODO
+    collect IDs for all viewports, multiple for each of primitives, portfolio and depgraph grids
+    publish IDs to listener
+    */
   }
 
   private MainAnalyticsGrid getGrid(GridType gridType) {
@@ -66,8 +80,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
-    getGrid(gridType).createViewport(viewportId, viewportSpec, _history);
+  public void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+    getGrid(gridType).createViewport(viewportId, dataId, viewportSpec, _history);
     s_logger.debug("Created viewport ID {} for the {} grid from {}", new Object[]{viewportId, gridType, viewportSpec});
   }
 
@@ -90,9 +104,9 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void openDependencyGraph(GridType gridType, String graphId, int row, int col) {
+  public void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col) {
     s_logger.debug("Opening dependency graph for cell ({}, {}) of the {} grid", new Object[]{row, col, gridType});
-    getGrid(gridType).openDependencyGraph(graphId, row, col);
+    getGrid(gridType).openDependencyGraph(graphId, gridId,row, col);
   }
 
   @Override
@@ -108,8 +122,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void createViewport(GridType gridType, String viewportId, String graphId, ViewportSpecification viewportSpec) {
-    getGrid(gridType).createViewport(graphId, viewportId, viewportSpec, _history);
+  public void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec) {
+    getGrid(gridType).createViewport(graphId, viewportId, dataId, viewportSpec, _history);
     s_logger.debug("Created viewport ID {} for dependency graph {} of the {} grid using {}", new Object[]{viewportId, graphId, gridType, viewportSpec});
   }
 

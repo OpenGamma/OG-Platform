@@ -24,19 +24,23 @@ import com.opengamma.util.ArgumentChecker;
 
   private final AnalyticsGridStructure _gridStructure;
   private final ViewportSpecification _viewportSpec;
+  private final String _dataId;
 
   private ViewportResults _latestResults;
 
   /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
                                   ViewportSpecification viewportSpec,
                                   ViewComputationResultModel latestResults,
-                                  AnalyticsHistory history) {
+                                  AnalyticsHistory history,
+                                  String dataId) {
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(latestResults, "latestResults");
     ArgumentChecker.notNull(history, "history");
+    ArgumentChecker.notNull(dataId, "dataId");
     _gridStructure = gridStructure;
     _viewportSpec = viewportSpec;
+    _dataId = dataId;
     updateResults(latestResults, history);
   }
 
@@ -81,5 +85,9 @@ import com.opengamma.util.ArgumentChecker;
   public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
     // TODO implement AnalyticsViewport.update()
     throw new UnsupportedOperationException("update not implemented");
+  }
+
+  public String getDataId() {
+    return _dataId;
   }
 }
