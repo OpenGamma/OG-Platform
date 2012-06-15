@@ -20,8 +20,8 @@ public abstract class SmileInterpolatorTestCase {
 
   protected static final double FORWARD = 1172.011012;
   protected static final double EXPIRY = 1.5;
-  protected static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534 };
-  protected static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276 };
+  protected static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534};
+  protected static final double[] VOLS = new double[] {0.311, 0.288, 0.267, 0.271, 0.276};
 
   public abstract GeneralSmileInterpolator getSmileInterpolator();
 
@@ -48,7 +48,7 @@ public abstract class SmileInterpolatorTestCase {
 
   @Test
   public void smileTest() {
-    final long startTime = System.nanoTime();
+    //    final long startTime = System.nanoTime();
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final Function1D<Double, Double> smile = interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
     final int n = STRIKES.length;
@@ -57,8 +57,8 @@ public abstract class SmileInterpolatorTestCase {
       final double vol = smile.evaluate(k);
       assertEquals(VOLS[i], vol, 1e-6);
     }
-    final long endTime = System.nanoTime();
-    System.out.println("smileTest time: " + (endTime - startTime) / 1e6 + "ms");
+    //    final long endTime = System.nanoTime();
+    //    System.out.println("smileTest time: " + (endTime - startTime) / 1e6 + "ms");
   }
 
   @Test
@@ -67,7 +67,7 @@ public abstract class SmileInterpolatorTestCase {
     final double flatVol = 0.11;
     final double[] vols = new double[n];
     Arrays.fill(vols, flatVol);
-    final long startTime = System.nanoTime();
+    //    final long startTime = System.nanoTime();
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final Function1D<Double, Double> smile = interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
 
@@ -76,8 +76,8 @@ public abstract class SmileInterpolatorTestCase {
       final double vol = smile.evaluate(k);
       assertEquals(flatVol, vol, 1e-8);
     }
-    final long endTime = System.nanoTime();
-    System.out.println("flat time: " + (endTime - startTime) / 1e6 + "ms");
+    //    final long endTime = System.nanoTime();
+    //    System.out.println("flat time: " + (endTime - startTime) / 1e6 + "ms");
   }
 
   @Test
@@ -101,9 +101,8 @@ public abstract class SmileInterpolatorTestCase {
   // The following are debug tests that print output. Ensure enabled = false before committing
   //**********************************************************************************************
 
-  @Test
-      (enabled = false)
-      public void printSmileTest() {
+  @Test(enabled = false)
+  public void printSmileTest() {
 
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final Function1D<Double, Double> smile = interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
@@ -115,9 +114,8 @@ public abstract class SmileInterpolatorTestCase {
     }
   }
 
-  @Test
-      (enabled = false)
-      public void bumpTest() {
+  @Test(enabled = false)
+  public void bumpTest() {
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final double bump = 1e-3;
     final int index = 1;
@@ -155,9 +153,9 @@ public abstract class SmileInterpolatorTestCase {
   public void badFitTest() {
     final GeneralSmileInterpolator interpolator = getSmileInterpolator();
     final double forward = 1.30276013603506;
-    final double[] strikes = new double[] {1.080256504787705, 1.161299691076151, 1.329077636516407, 1.5210230159922162, 1.635211041136184 };
+    final double[] strikes = new double[] {1.080256504787705, 1.161299691076151, 1.329077636516407, 1.5210230159922162, 1.635211041136184};
     final double expiry = 1.0;
-    final double[] impVols = new double[] {0.2, 0.2, 0.2, 0.2, 0.2 };
+    final double[] impVols = new double[] {0.2, 0.2, 0.2, 0.2, 0.2};
     final double bump = 1e-3;
     final int index = 2;
     impVols[index] += bump;
