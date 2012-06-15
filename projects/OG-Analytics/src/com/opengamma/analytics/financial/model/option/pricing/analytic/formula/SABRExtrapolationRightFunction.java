@@ -173,6 +173,7 @@ public class SABRExtrapolationRightFunction {
       final double fDb = f / k;
       final double fDc = fDb / k;
       priceDerivative = fDa * _parameterDerivativeForward[0] + fDb * _parameterDerivativeForward[1] + fDc * _parameterDerivativeForward[2];
+      //TODO: check put
     }
     return priceDerivative;
   }

@@ -61,12 +61,14 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final boolean IS_CAP = true;
   private static final CapFloorIborDefinition CAP_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
   private static final CapFloorIborDefinition CAP_SHORT_DEFINITION = CapFloorIborDefinition.from(-NOTIONAL, FIXING_DATE, INDEX, STRIKE, IS_CAP);
+  private static final CapFloorIborDefinition PUT_LONG_DEFINITION = CapFloorIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, STRIKE, !IS_CAP);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String[] CURVES_NAME = TestsDataSetsSABR.curves1Names();
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorIbor CAP_SHORT = (CapFloorIbor) CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final CapFloorIbor PUT_LONG = (CapFloorIbor) PUT_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CapFloorIborHullWhiteMethod METHOD_HW = new CapFloorIborHullWhiteMethod();
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
@@ -143,6 +145,43 @@ public class CapFloorIborHullWhiteMethodTest {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor Ibor pv to forward curve with HW: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity " + loopnode, sensiDiscMethod[loopnode], pairPv.second, TOLERANCE_DELTA);
+    }
+  }
+
+  @Test
+  /**
+   * Tests the Hull-White parameters sensitivity.
+   */
+  public void presentValueHullWhiteSensitivity() {
+    presentValueHullWhiteSensitivityInstrument(CAP_LONG);
+    presentValueHullWhiteSensitivityInstrument(CAP_SHORT);
+    presentValueHullWhiteSensitivityInstrument(PUT_LONG);
+  }
+
+  private void presentValueHullWhiteSensitivityInstrument(final CapFloorIbor instrument) {
+    double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(instrument, BUNDLE_HW);
+    int nbVolatility = PARAMETERS_HW.getVolatility().length;
+    double shiftVol = 1.0E-6;
+    double[] volatilityBumped = new double[nbVolatility];
+    System.arraycopy(PARAMETERS_HW.getVolatility(), 0, volatilityBumped, 0, nbVolatility);
+    double[] volatilityTime = new double[nbVolatility - 1];
+    System.arraycopy(PARAMETERS_HW.getVolatilityTime(), 1, volatilityTime, 0, nbVolatility - 1);
+    double[] pvBumpedPlus = new double[nbVolatility];
+    double[] pvBumpedMinus = new double[nbVolatility];
+    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(PARAMETERS_HW.getMeanReversion(), volatilityBumped, volatilityTime);
+    HullWhiteOneFactorPiecewiseConstantDataBundle bundleBumped = new HullWhiteOneFactorPiecewiseConstantDataBundle(parametersBumped, CURVES);
+    double[] hwSensitivityExpected = new double[hwSensitivity.length];
+    for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
+      volatilityBumped[loopvol] += shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
+      pvBumpedPlus[loopvol] = METHOD_HW.presentValue(instrument, bundleBumped).getAmount();
+      volatilityBumped[loopvol] -= 2 * shiftVol;
+      parametersBumped.setVolatility(volatilityBumped);
+      pvBumpedMinus[loopvol] = METHOD_HW.presentValue(instrument, bundleBumped).getAmount();
+      hwSensitivityExpected[loopvol] = (pvBumpedPlus[loopvol] - pvBumpedMinus[loopvol]) / (2 * shiftVol);
+      assertEquals("Cap/floor Ibor - Hull-White sensitivity adjoint: derivative " + loopvol + " - difference:" + (hwSensitivityExpected[loopvol] - hwSensitivity[loopvol]),
+          hwSensitivityExpected[loopvol], hwSensitivity[loopvol], 1.0E-0);
+      volatilityBumped[loopvol] = PARAMETERS_HW.getVolatility()[loopvol];
     }
   }
 

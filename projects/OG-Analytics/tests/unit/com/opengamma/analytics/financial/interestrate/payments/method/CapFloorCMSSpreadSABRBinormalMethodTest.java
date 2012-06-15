@@ -752,24 +752,60 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       pv[looptest] = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS spread cap by replication (price): " + (endTime - startTime) + " ms");
+    System.out.println(nbTest + " CMS spread cap by SABR replication (price): " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvcs[looptest] = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS spread cap by replication (curve risk): " + (endTime - startTime) + " ms");
+    System.out.println(nbTest + " CMS spread cap by SABR replication (curve risk): " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvss[looptest] = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " CMS spread cap by replication (sabr risk): " + (endTime - startTime) + " ms");
+    System.out.println(nbTest + " CMS spread cap by SABR replication (sabr risk): " + (endTime - startTime) + " ms");
     // Performance note: price: 8-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 30 ms for 100 caplet 10Y-2Y.
     // Performance note: delta: 8-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 135 ms for 100 caplet 10Y-2Y.
     // Performance note: vega: 8-Dec-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 100 caplet 10Y-2Y.
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests of performance. "enabled = false" for the standard testing.
+   */
+  public void performanceExtrapolation() {
+    long startTime, endTime;
+    final int nbTest = 100;
+    double[] pv = new double[nbTest];
+    PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
+    InterestRateCurveSensitivity[] pvcs = new InterestRateCurveSensitivity[nbTest];
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by SABR extrapolation replication (price): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvcs[looptest] = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by SABR extrapolation replication (curve risk): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvss[looptest] = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " CMS spread cap by SABR extrapolation replication (sabr risk): " + (endTime - startTime) + " ms");
+    // Performance note: CMS spread binormal SABR extrapolation price: 13-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 caplet 10Y-2Y.
+    // Performance note: CMS spread binormal SABR extrapolation delta: 13-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 caplet 10Y-2Y.
+    // Performance note: CMS spread binormal SABR extrapolation vega: 13-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 caplet 10Y-2Y.
   }
 
 }

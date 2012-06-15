@@ -502,8 +502,11 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
 
   private class CMSDeltaIntegrant extends CMSIntegrant {
 
+    private final double[] _nnp;
+
     public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRFormulaData sabrPoint, final double forward, final double cutOffStrike, final double mu) {
       super(cmsCap, sabrPoint, forward, cutOffStrike, mu);
+      _nnp = nnp(forward);
     }
 
     @Override
@@ -511,8 +514,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
       final double[] kD = kpkpp(x);
       // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
       final double[] bs = bsbsp(x);
-      final double[] n = nnp(getForward());
-      return (kD[1] * (x - getStrike()) + 2.0 * kD[0]) * (n[1] * bs[0] + n[0] * bs[1]);
+      return (kD[1] * (x - getStrike()) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
     }
 
     /**

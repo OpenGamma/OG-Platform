@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPi
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -61,6 +62,8 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final CapFloorIbor cap, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
+    ArgumentChecker.notNull(hwData, "The Hull-White data shoud not be null");
     double tp = cap.getPaymentTime();
     double t0 = cap.getFixingPeriodStartTime();
     double t1 = cap.getFixingPeriodEndTime();
@@ -86,7 +89,15 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     return presentValue((CapFloorIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
+  /**
+   * Computes the present value curve sensitivity of a cap/floor in the Hull-White one factor model.
+   * @param cap The cap/floor.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value curve sensitivity.
+   */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
+    ArgumentChecker.notNull(hwData, "The Hull-White data shoud not be null");
     double tp = cap.getPaymentTime();
     double t0 = cap.getFixingPeriodStartTime();
     double t1 = cap.getFixingPeriodEndTime();
@@ -119,6 +130,57 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     listForward.add(new DoublesPair(cap.getFixingPeriodEndTime(), -cap.getFixingPeriodEndTime() * dfForwardT1 * dfForwardT1Bar));
     result = result.plus(cap.getForwardCurveName(), listForward);
     return result;
+  }
+
+  /**
+   * Computes the present value Hull-White parameters sensitivity of a cap/floor in the Hull-White one factor model.
+   * @param cap The cap/floor.
+   * @param hwData The Hull-White parameters and the curves.
+   * @return The present value parameters sensitivity.
+   */
+  public double[] presentValueHullWhiteSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
+    ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
+    ArgumentChecker.notNull(hwData, "The Hull-White data shoud not be null");
+    double tp = cap.getPaymentTime();
+    double[] t = new double[2];
+    t[0] = cap.getFixingPeriodStartTime();
+    t[1] = cap.getFixingPeriodEndTime();
+    double deltaF = cap.getFixingYearFraction();
+    double deltaP = cap.getPaymentYearFraction();
+    double k = cap.getStrike();
+    double omega = (cap.isCap() ? 1.0 : -1.0);
+    // Forward sweep
+    double dfPay = hwData.getCurve(cap.getFundingCurveName()).getDiscountFactor(tp);
+    double dfForwardT0 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t[0]);
+    double dfForwardT1 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t[1]);
+    int nbSigma = hwData.getHullWhiteParameter().getVolatility().length;
+    double[] alpha = new double[2];
+    double[][] alphaDerivatives = new double[2][nbSigma];
+    for (int loopcf = 0; loopcf < 2; loopcf++) {
+      alpha[loopcf] = _model.alpha(hwData.getHullWhiteParameter(), 0.0, cap.getFixingTime(), tp, t[loopcf], alphaDerivatives[loopcf]);
+    }
+    double kappa = (Math.log((1 + deltaF * k) * dfForwardT1 / dfForwardT0) - (alpha[1] * alpha[1] - alpha[0] * alpha[0]) / 2.0) / (alpha[1] - alpha[0]);
+    double[] n = new double[2];
+    for (int loopcf = 0; loopcf < 2; loopcf++) {
+      n[loopcf] = NORMAL.getCDF(omega * (-kappa - alpha[loopcf]));
+    }
+    //    double pv = deltaP / deltaF * dfPay * omega * (dfForwardT0 / dfForwardT1 * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional();
+    // Backward sweep
+    double pvBar = 1.0;
+    double[] nBar = new double[2];
+    nBar[1] = deltaP / deltaF * dfPay * omega * (1.0 + deltaF * k) * cap.getNotional() * pvBar;
+    nBar[0] = deltaP / deltaF * dfPay * omega * dfForwardT0 / dfForwardT1 * cap.getNotional();
+    double[] alphaBar = new double[2];
+    for (int loopcf = 0; loopcf < 2; loopcf++) {
+      alphaBar[loopcf] = NORMAL.getPDF(omega * (-kappa - alpha[loopcf])) * -omega * nBar[loopcf];
+    }
+    double[] sigmaBar = new double[nbSigma];
+    for (int loopcf = 0; loopcf < 2; loopcf++) {
+      for (int loopsigma = 0; loopsigma < nbSigma; loopsigma++) {
+        sigmaBar[loopsigma] += alphaDerivatives[loopcf][loopsigma] * alphaBar[loopcf];
+      }
+    }
+    return sigmaBar;
   }
 
 }

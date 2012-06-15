@@ -9,9 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
@@ -70,7 +67,7 @@ public class BlackPriceFunctionTest {
   }
 
   @Test
-  public void testPriceAdjoint() {
+  public void priceAdjoint() {
     // Price
     double price = FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
     double[] priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
@@ -191,131 +188,43 @@ public class BlackPriceFunctionTest {
   }
 
   @Test(enabled = false)
-  public void testPerformanceAdjoint() {
+  /**
+   * Assess the performance of the adjoint implementation against a finite difference and a non-optimized adjoint implementation.
+   */
+  public void performanceAdjoint() {
     // Used only to assess performance
     double[] bsD = new double[3];
     double[][] bsD2 = new double[3][3];
-    double bs = FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
-    double[] priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
-    assertEquals(bs, priceAdjoint[0], 1E-10);
-    // Derivative forward.
-    double deltaF = 0.01;
-    BlackFunctionData dataFP = new BlackFunctionData(F + deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
-    double derivativeF_FD = (priceFP - bs) / deltaF;
-    assertEquals(derivativeF_FD, priceAdjoint[1], 1E-4);
-    // Derivative strike.
-    double deltaK = 0.001;
-    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, true);
-    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, true);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
-    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
-    double derivativeK_FD = (priceKP - bs) / deltaK;
-    assertEquals(derivativeK_FD, priceAdjoint[3], 1E-5);
-    // Derivative volatility.
-    double deltaV = 0.0001;
-    BlackFunctionData dataVP = new BlackFunctionData(F, DF, SIGMA + deltaV);
-    BlackFunctionData dataVM = new BlackFunctionData(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
-    double derivativeV_FD = (priceVP - bs) / deltaV;
-    assertEquals(derivativeV_FD, priceAdjoint[2], 1E-2);
-    // Second derivative
-    // Derivative volatility-volatility.
-    double derivativeVV_FD = (priceVP + priceVM - 2 * bs) / (deltaV * deltaV);
-    assertEquals(derivativeVV_FD, bsD2[1][1], 1E-3);
-    // Derivative strike-strike.
-    double derivativeKK_FD = (priceKP + priceKM - 2 * bs) / (deltaK * deltaK);
-    assertEquals(derivativeKK_FD, bsD2[2][2], 1E-8);
-    // Derivative strike-volatility.
-    double priceKPVP = FUNCTION.getPriceFunction(optionKP).evaluate(dataVP);
-    double derivativeKV_FD = (priceKPVP + bs - priceKP - priceVP) / (deltaV * deltaK);
-    assertEquals(derivativeKV_FD, bsD2[2][1], 1E-4);
+    @SuppressWarnings("unused")
+    double bsP;
+    @SuppressWarnings("unused")
+    double[] bsPD = new double[4];
 
     long startTime, endTime;
     int nbTest = 1000000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
+      bsP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
+      bsPD = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
+      bsP = FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Black price + adjoint (first and second order): " + (endTime - startTime) + " ms");
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA); // Init
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP); // Forward +
-      FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA); // Strike +
-      FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA); // Strike -
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP); // Volatility +
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM); // Volatility -
-      FUNCTION.getPriceFunction(optionKP).evaluate(dataVP); // Strike +, volatility +
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price + finite difference derivatives (first and second order): " + (endTime - startTime) + " ms");
-    // Performance note: price: 21-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 155 ms for 1000000.
-    // Performance note: price+1st order derivatives: 21-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 185 ms for 1000000.
-    // Performance note: price+1st and 2nd order derivatives: 21-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 240 ms for 1000000.
-    // Performance note: price+finite difference: 21-Apr-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1067 ms for 1000000.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price + first order adjoint: " + (endTime - startTime) + " ms");
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price : " + (endTime - startTime) + " ms");
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price + adjoint (first and second order): " + (endTime - startTime) + " ms");
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(ATM_DATA); // Init
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP); // Forward +
-      FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA); // Strike +
-      FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA); // Strike -
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP); // Volatility +
-      FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM); // Volatility -
-      FUNCTION.getPriceFunction(optionKP).evaluate(dataVP); // Strike +, volatility +
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " Black price + finite difference derivatives (first and second order): " + (endTime - startTime) + " ms");
+    // Performance note: price: 14-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 175 ms for 1000000.
+    // Performance note: price+1st order derivatives: 14-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 195 ms for 1000000.
+    // Performance note: price+1st and 2nd order derivatives: 14-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 250 ms for 1000000.
   }
+
 }
