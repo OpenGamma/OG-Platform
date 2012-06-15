@@ -1109,15 +1109,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
-    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-    final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaults.class, leftExtrapolatorName, rightExtrapolatorName, USD, "EUR", "DKK", "AUD", "MYR"));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "AUD", USD, "CAD"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR", 
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR", 
         "GBP", "JPY", "NZD", USD));
   }
 
