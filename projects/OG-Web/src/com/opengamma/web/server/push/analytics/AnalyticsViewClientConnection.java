@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -12,9 +15,13 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
  *
@@ -23,23 +30,27 @@ import com.opengamma.util.ArgumentChecker;
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
-  private final NamedMarketDataSpecificationRepository _namedMarketDataSpecRepo;
-
-  private boolean _running = false;
-  private final ViewRequest _viewRequest;
+  private final AggregatedViewDefinition _aggregatedViewDef;
+  private final ViewExecutionOptions _executionOptions;
 
   public AnalyticsViewClientConnection(ViewRequest viewRequest,
                                        ViewClient viewClient,
                                        AnalyticsView view,
-                                       NamedMarketDataSpecificationRepository namedMarketDataSpecRepo) {
+                                       NamedMarketDataSpecificationRepository namedMarketDataSpecRepo,
+                                       AggregatedViewDefinitionManager aggregatedViewDefManager,
+                                       MarketDataSnapshotMaster snapshotMaster) {
     ArgumentChecker.notNull(viewRequest, "viewRequest");
     ArgumentChecker.notNull(viewClient, "viewClient");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(namedMarketDataSpecRepo, "namedMarketDataSpecRepo");
-    _viewRequest = viewRequest;
+    ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _view = view;
     _viewClient = viewClient;
-    _namedMarketDataSpecRepo = namedMarketDataSpecRepo;
+    _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager,
+                                                      viewRequest.getViewDefinitionId(),
+                                                      viewRequest.getAggregatorName());
+    _executionOptions = viewRequest.getMarketDataType().createExecutionOptions(snapshotMaster, namedMarketDataSpecRepo);
   }
 
   @Override
@@ -58,26 +69,59 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ void start() {
-    if (_running) {
-      throw new IllegalStateException("Already running");
-    }
-    // TODO process the request and set up the execution options property
     _viewClient.setResultListener(this);
-    String liveMarketDataProvider = "Live market data (Bloomberg, Activ)";
-    MarketDataSpecification marketDataSpec = _namedMarketDataSpecRepo.getSpecification(liveMarketDataProvider);
-    _viewClient.attachToViewProcess(_viewRequest.getViewDefinitionId(), ExecutionOptions.infinite(marketDataSpec));
-    _running = true;
-  }
-
-  /* package */ void stop() {
-    if (!_running) {
-      throw new IllegalStateException("Already stopped");
+    try {
+      _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
+    } catch (Exception e) {
+      _aggregatedViewDef.close();
+      throw new OpenGammaRuntimeException("Failed to attach view client to view process", e);
     }
-    _viewClient.detachFromViewProcess();
-    _running = false;
   }
 
-  public AnalyticsView getView() {
+  /* package */ void close() {
+    try {
+      _viewClient.detachFromViewProcess();
+    } finally {
+      _aggregatedViewDef.close();
+    }
+  }
+
+  /* package */ AnalyticsView getView() {
     return _view;
+  }
+
+  /**
+   * Wrapper that hides a bit of the ugliness of {@link AggregatedViewDefinitionManager}.
+   */
+  private static class AggregatedViewDefinition {
+
+    private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
+    private final UniqueId _baseViewDefId;
+    private final String _aggregatorName;
+    private final UniqueId _id;
+
+    private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager,
+                                     UniqueId baseViewDefId,
+                                     String aggregatorName) {
+      ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
+      ArgumentChecker.notNull(baseViewDefId, "baseViewDefId");
+      _aggregatedViewDefManager = aggregatedViewDefManager;
+      _baseViewDefId = baseViewDefId;
+      _aggregatorName = aggregatorName;
+      try {
+        _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
+      } catch (Exception e) {
+        close();
+        throw new OpenGammaRuntimeException("Failed to get aggregated view definition", e);
+      }
+    }
+
+    private UniqueId getUniqueId() {
+      return _id;
+    }
+
+    private void close() {
+      _aggregatedViewDefManager.releaseViewDefinition(_baseViewDefId, _aggregatorName);
+    }
   }
 }

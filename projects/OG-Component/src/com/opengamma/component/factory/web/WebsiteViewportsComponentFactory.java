@@ -45,6 +45,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
@@ -176,12 +177,23 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
 
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(
+        getPositionSource(),
+        getSecuritySource(),
+        getViewDefinitionRepository(),
+        getUserViewDefinitionRepository(),
+        getUserPortfolioMaster(),
+        getUserPositionMaster(),
+        getPortfolioAggregationFunctions().getMappedFunctions());
+    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
+                                                                         aggregatedViewDefManager,
+                                                                         getMarketDataSnapshotMaster());
+
     repo.getRestComponents().publishResource(viewportsResource);
     repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new ViewsResource(new AnalyticsViewManager(getViewProcessor())));
-
+    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager));
     repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewportSpecificationMessageBodyReader());

@@ -40,6 +40,6 @@ public class ViewRequestMessageBodyReader implements MessageBodyReader<ViewReque
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new ViewRequest(UniqueId.of("TODO", "123"));
+    return new ViewRequest(UniqueId.of("TODO", "123"), "TODO", null/*TODO*/);
   }
 }

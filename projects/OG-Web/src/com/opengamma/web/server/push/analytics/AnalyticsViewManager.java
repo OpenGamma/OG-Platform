@@ -12,10 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
  *
@@ -25,12 +28,20 @@ public class AnalyticsViewManager {
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewManager.class);
 
   private final ViewProcessor _viewProcessor;
+  private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
+  private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections =
       new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
 
-  public AnalyticsViewManager(ViewProcessor viewProcessor) {
+  public AnalyticsViewManager(ViewProcessor viewProcessor,
+                              AggregatedViewDefinitionManager aggregatedViewDefManager,
+                              MarketDataSnapshotMaster snapshotMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _viewProcessor = viewProcessor;
+    _aggregatedViewDefManager = aggregatedViewDefManager;
+    _snapshotMaster = snapshotMaster;
   }
 
   public void createView(ViewRequest request,
@@ -44,8 +55,13 @@ public class AnalyticsViewManager {
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId);
-    AnalyticsViewClientConnection connection =
-        new AnalyticsViewClientConnection(request, viewClient, view, _viewProcessor.getNamedMarketDataSpecificationRepository());
+    NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
+    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
+                                                                                 viewClient,
+                                                                                 view,
+                                                                                 marketDataSpecRepo,
+                                                                                 _aggregatedViewDefManager,
+                                                                                 _snapshotMaster);
     _viewConnections.put(viewId, connection);
     connection.start();
     s_logger.debug("Created new view with ID {}", viewId);
@@ -56,7 +72,7 @@ public class AnalyticsViewManager {
     if (connection == null) {
       throw new DataNotFoundException("No view found with ID " + viewId);
     }
-    connection.stop();
+    connection.close();
   }
 
   public AnalyticsView getView(String viewId) {
