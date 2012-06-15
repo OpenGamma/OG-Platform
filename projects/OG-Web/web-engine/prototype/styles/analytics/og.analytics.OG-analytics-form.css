@@ -4,40 +4,140 @@
  */
 
 .OG-analytics-form .og-view,
-.OG-analytics-form .og-aggregation,
-.OG-analytics-form .og-datasources {
+.OG-analytics-form .og-option-title {
+    position: absolute;
     display: inline-block;
-    margin-right: 30px;
+    float: left;
 }
 
-.OG-analytics-form .og-view input {
-    position: relative;
-    font-size: 26px;
+.OG-analytics-form input {
     text-overflow: ellipsis;
-    top: 2px;
-    left: 2px;
-    color: #475562
-}
-
-.OG-analytics-form .og-aggregation input {
-    position: relative;
-    font-size: 16px;
-    text-overflow: ellipsis;
-    top: 2px;
-    left: 2px;
-    color: #475562
 }
 
 .OG-analytics-form .og-icon-down {
     width: 15px;
-    height: 36px;
-    line-height: 30px;
     position: absolute;
-    top: 4px;
+    top: 5px;
     margin-left: 2px;
+    background-color: #eee;
+    border: 1px solid #fff;
+    outline: 1px solid #ddd;
+    right: 1px;
+}
+
+.OG-analytics-form .og-icon-down:before {
+    content: '';
+    position: absolute;
+    background: #fff;
+    top: 0;
+    bottom: 50%;
+    left: 0;
+    right: 0;
 }
 
 .OG-analytics-form .og-icon-down:after {
-    top: 16px;
+    top: 45%;
     left: 4px;
 }
+
+/**
+ * View
+ */
+.OG-analytics-form .og-view {
+    width: 20%;
+    left: 0;
+}
+
+.OG-analytics-form .og-view:hover input {
+    background: #fffee5;
+}
+
+.OG-analytics-form .og-view div:first-child {
+    position: absolute;
+    top: 4px;
+    left: 2px;
+    right: 21px;
+}
+
+.OG-analytics-form .og-view input {
+    width: 100%;
+    height: 32px;
+    font-size: 26px;
+    color: #475562;
+    font-family: 'Open Sans', arial, serif;
+}
+
+.OG-analytics-form .og-view .og-icon-down {
+    height: 32px;
+}
+
+/**
+ * Title (for aggregation and datasource)
+ */
+
+.OG-analytics-form .og-option-title {
+    cursor: default;
+}
+
+.OG-analytics-form .og-option-title:hover ul {
+    background: #fffee5;
+}
+
+.OG-analytics-form .og-option-title header {
+    font-size: 10px;
+    color: #fff;
+    display: inline-block;
+    padding: 0 2px 2px 2px;
+    line-height: 12px;
+    position: relative;
+    top: -4px;
+}
+
+.OG-analytics-form .og-option-title ul {
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    right: 21px;
+    color: #475562;
+    height: 21px;
+    padding-top: 2px;
+    top: 17px;
+}
+
+.OG-analytics-form .og-option-title li {
+    list-style: none;
+    display: inline-block;
+    font-family: 'Open Sans', arial, serif;
+}
+
+.OG-analytics-form .og-option-title span {
+    color: #999;
+    text-transform: uppercase;
+    font-size: 12px;
+    padding-left: 5px;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.OG-analytics-form .og-option-title .og-icon-down {
+    height: 19px;
+    top: 18px;
+}
+
+/**
+ * Aggregation
+ */
+.OG-analytics-form .og-aggregation {
+    width: 20%;
+    left: 21%;
+}
+
+/**
+ * Datasources
+ */
+.OG-analytics-form .og-datasources {
+    width: 30%;
+    left: 42%;
+}
+

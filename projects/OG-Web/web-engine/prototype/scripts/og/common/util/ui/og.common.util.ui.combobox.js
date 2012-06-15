@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (obj) {
-            var placeholder = obj.placeholder, selector = obj.selector, $input, $button, autocomplete_obj,
+            var placeholder = obj.placeholder, selector = obj.selector, $wrapper, $input, $button, autocomplete_obj,
                 list = obj.data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}),
                 open = function () {
                     // open using the current input value or an empty string
@@ -30,7 +30,8 @@ $.register_module({
                     }, []));
                 }
             };
-            $input = $('<input type="text" />')
+            $wrapper = $('<div />'); // wrap input in div to enable input width at 100% of parent, FF, IE
+            $input = $wrapper.html('<input type="text" />').find('input')
                 .autocomplete(autocomplete_obj).attr('placeholder', placeholder).on('mouseup', open);
             // Enable html list items
             $input.data('autocomplete')._renderItem = function(ul, item) {
@@ -39,7 +40,8 @@ $.register_module({
             $button = $('<div class="OG-icon og-icon-down"></div>').on('click', function () {
                 return $input.autocomplete('widget').is(':visible') ? $input.autocomplete('close').select() : open();
             });
-            return $([$input, $button]).prependTo(selector);
+            $([$wrapper, $button]).prependTo(selector);
+            return $input; // return input for chaining
         }
     }
 });
