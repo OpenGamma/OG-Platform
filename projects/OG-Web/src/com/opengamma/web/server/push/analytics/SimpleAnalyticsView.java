@@ -23,10 +23,10 @@ import com.opengamma.util.ArgumentChecker;
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleAnalyticsView.class);
 
   private final AnalyticsHistory _history = new AnalyticsHistory();
+  private final AnalyticsViewListener _listener;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
-  private final AnalyticsViewListener _listener;
 
   public SimpleAnalyticsView(AnalyticsViewListener listener, String portoflioGridId, String primitivesGridId) {
     ArgumentChecker.notNull(listener, "listener");
@@ -35,11 +35,6 @@ import com.opengamma.util.ArgumentChecker;
     _portfolioGrid = MainAnalyticsGrid.empty(GridType.PORTFORLIO, portoflioGridId);
     _primitivesGrid = MainAnalyticsGrid.empty(GridType.PRIMITIVES, primitivesGridId);
     _listener = listener;
-  }
-
-  @Override
-  public void close() {
-    // TODO implement close()
   }
 
   @Override

@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.rest;
 
 import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -38,8 +39,14 @@ public class ViewResource {
     return new MainGridResource(AnalyticsView.GridType.PRIMITIVES, _view);
   }
 
+  // TODO will the PathParam work? I don't think so. pass in? it's known at construction time
   @DELETE
   public void deleteView(@PathParam("viewId") String viewId) {
     _viewManager.deleteView(viewId);
+  }
+
+  @POST
+  public void pauseUnpauseView(boolean paused) {
+    // TODO implement
   }
 }

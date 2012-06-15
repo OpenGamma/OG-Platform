@@ -17,8 +17,6 @@ public interface AnalyticsView {
     PORTFORLIO,
     PRIMITIVES
   }
-  
-  void close();
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 

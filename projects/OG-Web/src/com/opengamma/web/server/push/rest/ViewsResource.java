@@ -21,6 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsViewListener;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
@@ -55,7 +56,9 @@ public class ViewsResource {
         .path(ViewResource.class, "getPrimitivesGrid")
         .path(AbstractGridResource.class, "getGridStructure").build();
     AnalyticsViewListener listener = null; // TODO this needs to connect to the async web stuff
-    _viewManager.createView(viewRequest, listener, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
+    // TODO this is very obviously wrong - where can I get the user?
+    UserPrincipal user = UserPrincipal.getTestUser();
+    _viewManager.createView(viewRequest, user, listener, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }

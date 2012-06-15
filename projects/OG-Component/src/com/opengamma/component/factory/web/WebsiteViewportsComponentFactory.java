@@ -180,7 +180,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new ViewsResource(new AnalyticsViewManager()));
+    repo.getRestComponents().publishResource(new ViewsResource(new AnalyticsViewManager(getViewProcessor())));
 
     repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
