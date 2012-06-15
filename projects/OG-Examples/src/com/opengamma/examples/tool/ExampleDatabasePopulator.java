@@ -82,7 +82,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadSwapPortfolio();
     loadMultiCurrencySwapPortfolio();
     loadForwardSwapPortfolio();
-    loadSwaptionPortfolio();
+//    loadSwaptionPortfolio();
     loadBondPortfolio();
     loadCapFloorCMSSpreadPortfolio();
     loadCapFloorPortfolio();
@@ -90,7 +90,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadFRAPortfolio();
     loadLiborRawSecurities();
     loadMixedFXPortfolio();
-    loadMixedPortfolio();
+//    loadMixedPortfolio();
     loadMultiAssetPortfolio();
     loadViews();
   }
