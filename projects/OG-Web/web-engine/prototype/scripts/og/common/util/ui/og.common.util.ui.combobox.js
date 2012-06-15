@@ -1,14 +1,21 @@
 /*
  * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
+ *
+ * autosuggest combobox
+ *
  */
 $.register_module({
     name: 'og.common.util.ui.combobox',
     dependencies: [],
     obj: function () {
+        /**
+         * @param {Object} obj configuration object,
+         * selector (String) and data (Array) are required, placeholder (String) is optional
+         */
         return function (obj) {
-            var placeholder = obj.placeholder, selector = obj.selector, $wrapper, $input, $button, autocomplete_obj,
-                list = obj.data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}),
+            var placeholder = obj.placeholder || '', selector = obj.selector, $wrapper, $input, $button,
+                list = obj.data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
                 open = function () {
                     // open using the current input value or an empty string
                     $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
