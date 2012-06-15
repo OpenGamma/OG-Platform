@@ -44,7 +44,8 @@ public class AnalyticsViewManager {
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId);
-    AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request, viewClient, view);
+    AnalyticsViewClientConnection connection =
+        new AnalyticsViewClientConnection(request, viewClient, view, _viewProcessor.getNamedMarketDataSpecificationRepository());
     _viewConnections.put(viewId, connection);
     connection.start();
     s_logger.debug("Created new view with ID {}", viewId);

@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
+import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.analytics.ViewRequest;
 
 /**
@@ -39,6 +40,6 @@ public class ViewRequestMessageBodyReader implements MessageBodyReader<ViewReque
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new ViewRequest();
+    return new ViewRequest(UniqueId.of("TODO", "123"));
   }
 }
