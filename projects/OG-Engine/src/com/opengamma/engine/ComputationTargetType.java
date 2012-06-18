@@ -18,6 +18,12 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public enum ComputationTargetType {
+  
+  // TODO: move to com.opengamma.engine.target
+
+  // REVIEW 2012-06-14 Andrew -- A Portfolio can't be used as a PORTFOLIO_NODE. Some bits of code will recognise it, but the ComputationTarget has a getPortfolioNode method
+  // that will throw a class cast exception. This has its origins from when Portfolio stopped extending PortfolioNode. We either need PORTFOLIO as a target type, or get rid
+  // of the code that maps a Portfolio to PORTFOLIO_NODE
 
   /**
    * A set of positions (a portfolio node, or whole portfolio).

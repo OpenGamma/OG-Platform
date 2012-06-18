@@ -476,7 +476,6 @@ public final class DependencyGraphBuilder implements Cancelable {
           // started. We are officially "dead"; another worker thread may become active
         }
       }
-      _contextCleaner.stop();
       s_logger.debug("Building job {} stopped after {} operations", _objectId, completed);
     }
 
@@ -615,16 +614,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     return getDependencyGraph(true);
   }
 
-  /**
-   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, the calling thread will participate in graph
-   * construction (which will be the full graph construction if additional threads is set to zero). When background threads are being used, the caller may optionally be blocked until all have
-   * completed. For a completely non-blocking form see {@link #pollDependencyGraph}.
-   * 
-   * @param allowBackgroundContinuation whether to block the caller until graph construction is complete. If set to false the function may return null if background threads are still completing but
-   *          there was no work for the calling thread to do.
-   * @return the graph if built, null if still being built in the background
-   */
-  public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
+  protected boolean isGraphBuilt(final boolean allowBackgroundContinuation) throws InterruptedException {
     if (!isGraphBuilt()) {
       s_logger.info("Building dependency graph");
       do {
@@ -645,17 +635,41 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (allowBackgroundContinuation) {
           // ... but nothing in the queue for us so take a nap
           s_logger.info("Waiting for background threads");
-          try {
-            Thread.sleep(100);
-          } catch (InterruptedException e) {
-            throw new OpenGammaRuntimeException("Interrupted during graph building", e);
-          }
+          Thread.sleep(100);
         } else {
-          return null;
+          return false;
         }
       } while (!isGraphBuilt());
     }
+    return true;
+  }
+
+  /**
+   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, the calling thread will participate in graph
+   * construction (which will be the full graph construction if additional threads is set to zero). When background threads are being used, the caller may optionally be blocked until all have
+   * completed. For a completely non-blocking form see {@link #pollDependencyGraph}.
+   * 
+   * @param allowBackgroundContinuation whether to block the caller until graph construction is complete. If set to false the function may return null if background threads are still completing but
+   *          there was no work for the calling thread to do.
+   * @return the graph if built, null if still being built in the background
+   */
+  public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
+    try {
+      if (!isGraphBuilt(allowBackgroundContinuation)) {
+        return null;
+      }
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
     return createDependencyGraph();
+  }
+
+  /**
+   * Blocks the caller until {@link #getDependencyGraph} is able to return without blocking. This can be used to build large graphs by submitting requirements in batches and waiting for each batch to
+   * complete. This will reduce the amount of working memory required during the build if the fragments are sufficiently disjoint.
+   */
+  public void waitForDependencyGraphBuild() throws InterruptedException {
+    isGraphBuilt(true);
   }
 
   protected void discardIntermediateState() {

@@ -17,29 +17,31 @@ import com.opengamma.core.security.Security;
  */
 public interface CachingComputationTargetResolver extends ComputationTargetResolver {
 
+  // TODO: move to com.opengamma.engine.target
+
   /**
-   * Ensures a collection of positions are cached as computation targets
+   * Hints that a collection of positions should be cached as computation targets.
    * 
-   * @param positions  the positions to cache
+   * @param positions the positions to cache
    */
   void cachePositions(Collection<Position> positions);
-  
+
   /**
-   * Ensures a collection of securities are cached as computation targets
+   * Hints that a collection of securities should be cached as computation targets
    * 
-   * @param securities  the securities to cache
+   * @param securities the securities to cache
    */
   void cacheSecurities(Collection<Security> securities);
-  
+
   /**
-   * Ensures the nodes in a portfolio hierarchy are cached as computation targets
+   * Hints that a collection of nodes should be cached as computation targets
    * 
-   * @param root  the root node in the hierarchy to cache
+   * @param portfolioNodes the portfolio nodes to cache
    */
-  void cachePortfolioNodeHierarchy(PortfolioNode root);
-  
+  void cachePortfolioNodes(Collection<PortfolioNode> portfolioNodes);
+
   /**
-   * Ensure a collection of trades are cached as computation targets
+   * Hints that a collection of trades should be cached as computation targets
    * 
    * @param trades the trades to cache
    */

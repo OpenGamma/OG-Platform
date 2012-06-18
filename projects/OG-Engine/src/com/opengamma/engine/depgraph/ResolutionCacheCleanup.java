@@ -76,8 +76,9 @@ import org.slf4j.LoggerFactory;
 
   @Override
   public boolean completed(final DependencyGraphBuilder builder, final Void data) {
-    // Ignore completion - might be an intermediate state
-    return true;
+    // Flush the cache and stop. If this is an intermediate state we'll be restarted.
+    builder.flushCachedStates();
+    return false;
   }
 
 }

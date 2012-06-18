@@ -73,6 +73,8 @@ public final class Housekeeper {
           try {
             if (housekeep()) {
               return;
+            } else {
+              s_logger.info("Housekeeper {} for {} returned false", getCallback(), _builder);
             }
           } catch (Throwable t) {
             s_logger.error("Cancelling errored {} for {}", getCallback(), _builder);
@@ -85,8 +87,10 @@ public final class Housekeeper {
   }
 
   public synchronized void stop() {
-    if (--_startCount == 0) {
-      cancel();
+    if (_startCount > 0) {
+      if (--_startCount == 0) {
+        cancel();
+      }
     }
   }
 

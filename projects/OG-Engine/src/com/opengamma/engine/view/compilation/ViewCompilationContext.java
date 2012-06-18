@@ -6,10 +6,9 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.time.Instant;
 
@@ -18,10 +17,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Holds context relating to the partially-completed compilation of a view definition, for passing to different stages
@@ -31,13 +28,12 @@ public class ViewCompilationContext {
 
   private final ViewDefinition _viewDefinition;
   private final ViewCompilationServices _services;
-  private final Map<String, Pair<DependencyGraphBuilder, Set<ValueRequirement>>> _configurations;
+  private final Map<String, DependencyGraphBuilder> _configurationGraphs;
 
-  @SuppressWarnings("unchecked")
   /* package */ViewCompilationContext(ViewDefinition viewDefinition, ViewCompilationServices compilationServices, Instant valuationTime) {
     _viewDefinition = viewDefinition;
     _services = compilationServices;
-    final Map<String, Pair<DependencyGraphBuilder, Set<ValueRequirement>>> configurations = new HashMap<String, Pair<DependencyGraphBuilder, Set<ValueRequirement>>>();
+    final Map<String, DependencyGraphBuilder> configurationGraphs = new HashMap<String, DependencyGraphBuilder>();
     final Collection<ResolutionRule> rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
     for (String configName : viewDefinition.getAllCalculationConfigurationNames()) {
       final DependencyGraphBuilder builder = compilationServices.getDependencyGraphBuilder().newInstance();
@@ -50,9 +46,9 @@ public class ViewCompilationContext {
       compilationContext.setComputationTargetResults(new ComputationTargetResults(transformedRules, compilationContext));
       builder.setFunctionResolver(new DefaultCompiledFunctionResolver(compilationContext, transformedRules));
       builder.setCompilationContext(compilationContext);
-      configurations.put(configName, (Pair<DependencyGraphBuilder, Set<ValueRequirement>>) (Pair<?, ?>) Pair.of(builder, new HashSet<ValueRequirement>()));
+      configurationGraphs.put(configName, builder);
     }
-    _configurations = configurations;
+    _configurationGraphs = configurationGraphs;
   }
 
   public ViewDefinition getViewDefinition() {
@@ -64,15 +60,11 @@ public class ViewCompilationContext {
   }
 
   public DependencyGraphBuilder getBuilder(final String calcConfig) {
-    return _configurations.get(calcConfig).getFirst();
+    return _configurationGraphs.get(calcConfig);
   }
 
-  public Set<ValueRequirement> getValueRequirements(final String calcConfig) {
-    return _configurations.get(calcConfig).getSecond();
-  }
-
-  public Collection<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> getBuilders() {
-    return _configurations.values();
+  public Collection<DependencyGraphBuilder> getBuilders() {
+    return Collections.unmodifiableCollection(_configurationGraphs.values());
   }
 
 }

@@ -125,8 +125,6 @@ public class ViewProcessorTestEnvironment {
     MarketDataProviderResolver marketDataProviderResolver = getMarketDataProviderResolver() != null ? getMarketDataProviderResolver() : generateMarketDataProviderResolver(securitySource);
     vpFactBean.setMarketDataProviderResolver(marketDataProviderResolver);
 
-    vpFactBean.setPositionSource(positionSource);
-    vpFactBean.setSecuritySource(securitySource);
     vpFactBean.setComputationTargetResolver(generateCachingComputationTargetResolver(positionSource, securitySource));
     vpFactBean.setViewDefinitionRepository(viewDefinitionRepository);
     vpFactBean.setViewPermissionProvider(new DefaultViewPermissionProvider());
@@ -162,9 +160,7 @@ public class ViewProcessorTestEnvironment {
         getFunctionCompilationContext(),
         getCachingComputationTargetResolver(),
         getViewProcessor().getFunctionCompilationService().getExecutorService(),
-        (getDependencyGraphBuilderFactory() != null) ? getDependencyGraphBuilderFactory() : generateDependencyGraphBuilderFactory(),
-        getSecuritySource(),
-        getPositionSource());
+        (getDependencyGraphBuilderFactory() != null) ? getDependencyGraphBuilderFactory() : generateDependencyGraphBuilderFactory());
     return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
   }
 

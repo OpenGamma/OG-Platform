@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine;
 
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -14,6 +16,8 @@ import com.opengamma.id.UniqueId;
  * The resolver converts the specifications, identified by a unique identifier, back to a real target.
  */
 public interface ComputationTargetResolver {
+
+  // TODO: move to com.opengamma.engine.target
 
   /**
    * Resolves the specification to a real target.
@@ -25,5 +29,23 @@ public interface ComputationTargetResolver {
    * @return the resolved target, null if not found
    */
   ComputationTarget resolve(ComputationTargetSpecification specification);
+
+  /**
+   * Returns the {@link SecuritySource} associated with the resolver, if any. If there is no security source then the resolver will not be able to resolve {@link ComputationTargetType#SECURITY}
+   * targets. Structures returned by the source will be fully resolved, as they would be if returned from the {@link #resolve} method. A security source should only be obtained from a resolver if the
+   * same resolution semantics are necessary.
+   * 
+   * @return the security source, or null if none
+   */
+  SecuritySource getSecuritySource();
+
+  /**
+   * Returns the {@link PositionSource} associated with the resolver, if any. If there is no position source then the resolver may not be able to resolve {@link ComputationTargetType#POSITION},
+   * {@link ComputationTargetType#PORTFOLIO_NODE}, or {@link ComputationTargetType#TRADE} targets. Structures returned by the source will be fully resolved, as they would be if returned from the
+   * {@link #resolve} method. A position source should only be obtained from a resolver if the same resolution semantics are necessary.
+   * 
+   * @return the position source, or null if none
+   */
+  PositionSource getPositionSource();
 
 }

@@ -34,7 +34,7 @@ public final class PortfolioMapper {
   
   //-------------------------------------------------------------------------
   private static <T, V extends Collection<T>> V getValues(PortfolioNode node, MappingCallback<T, V> callback) {
-    PortfolioNodeTraverser traverser = new PortfolioNodeTraverser(PortfolioNodeTraverser.TraversalStyle.DEPTH_FIRST, callback);
+    PortfolioNodeTraverser traverser = PortfolioNodeTraverser.depthFirst(callback);
     traverser.traverse(node);
     return callback.getValues();
   }
