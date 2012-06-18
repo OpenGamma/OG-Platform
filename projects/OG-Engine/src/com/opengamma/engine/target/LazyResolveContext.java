@@ -24,9 +24,9 @@ public class LazyResolveContext {
 
   // TODO: should be package visible
 
-  private final transient SecuritySource _securities;
-  private final transient CachingComputationTargetResolver _targetResolver;
-  private final ThreadLocal<AtomicInteger> _writeCount = new ThreadLocal<AtomicInteger>();
+  private final SecuritySource _securities;
+  private final CachingComputationTargetResolver _targetResolver;
+  private static final ThreadLocal<AtomicInteger> s_writeCount = new ThreadLocal<AtomicInteger>();
 
   public LazyResolveContext(final SecuritySource securities, final CachingComputationTargetResolver targetResolver) {
     _securities = securities;
@@ -107,11 +107,11 @@ public class LazyResolveContext {
    * Called by a thread at the start of any serialization operations which might result in further call backs to the cache. This is to allow a cache to detect such scenarios and work around an
    * re-entrance problems that its underlying implementation might otherwise experience. Each call from a thread must be balanced by a call to {@link #endWrite}.
    */
-  public void beginWrite() {
-    AtomicInteger c = _writeCount.get();
+  public static void beginWrite() {
+    AtomicInteger c = s_writeCount.get();
     if (c == null) {
       c = new AtomicInteger(1);
-      _writeCount.set(c);
+      s_writeCount.set(c);
     } else {
       c.incrementAndGet();
     }
@@ -123,16 +123,16 @@ public class LazyResolveContext {
    * 
    * @return true if the thread is engaged in serialization behavior, false otherwise
    */
-  public boolean isWriting() {
-    AtomicInteger c = _writeCount.get();
+  public static boolean isWriting() {
+    final AtomicInteger c = s_writeCount.get();
     return (c != null) && (c.get() > 0);
   }
 
   /**
    * Called by a thread at the end of any serialization operations flagged by a previous call to {@link #beginWrite}.
    */
-  public void endWrite() {
-    _writeCount.get().decrementAndGet();
+  public static void endWrite() {
+    s_writeCount.get().decrementAndGet();
   }
 
 }

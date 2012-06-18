@@ -37,11 +37,11 @@ import com.opengamma.engine.ComputationTargetResolver;
 
   public Object writeReplace() throws ObjectStreamException {
     if (getLazyResolveContext().getTargetResolver() != null) {
-      getLazyResolveContext().beginWrite();
+      LazyResolveContext.beginWrite();
       try {
         return targetResolverObject(getLazyResolveContext().getTargetResolver());
       } finally {
-        getLazyResolveContext().endWrite();
+        LazyResolveContext.endWrite();
       }
     } else {
       return simpleObject();

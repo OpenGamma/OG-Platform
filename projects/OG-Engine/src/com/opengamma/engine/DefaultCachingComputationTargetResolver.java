@@ -96,7 +96,8 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     return _cacheManager;
   }
 
-  private ComputationTarget resolveImpl(ComputationTargetSpecification specification) {
+  @Override
+  public ComputationTarget resolve(ComputationTargetSpecification specification) {
     ComputationTarget target = _frontCache.get(specification);
     if (target != null) {
       return target;
@@ -106,7 +107,9 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
       target = (ComputationTarget) e.getValue();
       final ComputationTarget existing = _frontCache.putIfAbsent(MemoryUtils.instance(specification), target);
       if (existing != null) {
-        target = existing;
+        return existing;
+      } else {
+        return target;
       }
     } else {
       target = super.resolve(specification);
@@ -118,35 +121,8 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         }
         addToCache(specification, target);
       }
+      return target;
     }
-    return target;
-  }
-
-  @Override
-  public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    final ComputationTarget target = resolveImpl(specification);
-    if (target == null) {
-      return null;
-    }
-    switch (specification.getType()) {
-      case POSITION:
-        cachePosition(target.getPosition());
-        break;
-      case TRADE:
-        cacheTrade(target.getTrade());
-        break;
-      case PORTFOLIO_NODE:
-        cachePortfolioNode(target.getPortfolioNode());
-        break;
-      case SECURITY:
-        cacheSecurity(target.getSecurity());
-        break;
-    }
-    return target;
-  }
-
-  private void cachePosition(final Position position) {
-    addToCache(position, ComputationTargetType.POSITION);
   }
 
   @Override
@@ -154,26 +130,14 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     addToCache(positions, ComputationTargetType.POSITION);
   }
 
-  private void cacheTrade(final Trade trade) {
-    addToCache(trade, ComputationTargetType.TRADE);
-  }
-
   @Override
   public void cacheTrades(Collection<Trade> trades) {
     addToCache(trades, ComputationTargetType.TRADE);
   }
 
-  private void cacheSecurity(final Security security) {
-    addToCache(security, ComputationTargetType.SECURITY);
-  }
-
   @Override
   public void cacheSecurities(Collection<Security> securities) {
     addToCache(securities, ComputationTargetType.SECURITY);
-  }
-
-  private void cachePortfolioNode(PortfolioNode node) {
-    addToCache(node, ComputationTargetType.PORTFOLIO_NODE);
   }
 
   @Override
@@ -184,29 +148,29 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
   private void addToCache(ComputationTargetSpecification specification, final ComputationTarget ct) {
     specification = MemoryUtils.instance(specification);
     _frontCache.put(specification, ct);
-    // Don't allow re-entrance to the cache; part of the serialization of a LazyResolver can try to write entries to the
-    // cache.
+    // Don't allow re-entrance to the cache; serialization of a LazyResolver can try to write entries to the
+    // cache. Put them into the frontCache only so that we can do a quick lookup if they stay in memory. The
+    // problem is that spooling a big root portfolio node to disk can try to resolve and cache all of the
+    // child nodes and positions.
+    if (LazyResolveContext.isWriting()) {
+      return;
+    }
     Element e = new Element(specification, ct);
+    // If the cache is going to write to disk and two threads hit this then one gets blocked; better to let the
+    // second one carry on with something else and the first can do "cache writing" duties until the queue is
+    // clear.
     if (_cachePutLock.compareAndSet(false, true)) {
-      if (getLazyResolveContext().isWriting()) {
-        // Being called from serialization logic; hope another thread does an 'addToCache' at some point
-        // TODO: could we ask a helper thread to do the pending puts later
-        _pendingCachePuts.add(e);
-        _cachePutLock.set(false);
-        System.err.println("Deferring write from serialization thread " + Thread.currentThread());
-      } else {
-        int count = 1;
-        _computationTarget.put(e);
-        do {
+      int count = 1;
+      _computationTarget.put(e);
+      do {
+        e = _pendingCachePuts.poll();
+        while (e != null) {
+          _computationTarget.put(e);
           e = _pendingCachePuts.poll();
-          while (e != null) {
-            _computationTarget.put(e);
-            e = _pendingCachePuts.poll();
-            count++;
-          }
-          _cachePutLock.set(false);
-        } while (!_pendingCachePuts.isEmpty() && _cachePutLock.compareAndSet(false, true));
-      }
+          count++;
+        }
+        _cachePutLock.set(false);
+      } while (!_pendingCachePuts.isEmpty() && _cachePutLock.compareAndSet(false, true));
     } else {
       _pendingCachePuts.add(e);
     }
