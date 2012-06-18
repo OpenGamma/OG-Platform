@@ -78,7 +78,7 @@ import com.opengamma.id.UniqueId;
         }
       }
     }
-    return null;
+    return _childNodes;
   }
 
   @Override
