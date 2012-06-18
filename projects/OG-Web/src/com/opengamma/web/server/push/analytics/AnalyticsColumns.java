@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueProperties;
@@ -30,6 +31,8 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
  * associated columns that are displayed and controlled as a unit.
  */
 public class AnalyticsColumns {
+
+  private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
 
   private final List<AnalyticsColumnGroup> _columnGroups;
   private final List<AnalyticsColumn<?>> _columns;
@@ -119,7 +122,11 @@ public class AnalyticsColumns {
     if (specToReqs == null) {
       return null;
     }
-    return specToReqs.get(spec);
+    Set<ValueRequirement> reqs = specToReqs.get(spec);
+    if (reqs == null) {
+      return NO_MAPPINGS;
+    }
+    return reqs;
   }
 
   /* package */ AnalyticsColumn<?> getColumn(int index) {

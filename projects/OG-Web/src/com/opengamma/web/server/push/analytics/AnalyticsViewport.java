@@ -70,12 +70,10 @@ import com.opengamma.util.ArgumentChecker;
             ValueSpecification valueSpec = value.getSpecification();
             Set<ValueRequirement> valueReqs =
                 _gridStructure.getColumns().getRequirementsForSpecification(calcConfigName, valueSpec);
-            if (valueReqs != null) {
-              for (ValueRequirement req : valueReqs) {
-                int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
-                if (_viewportSpec.getColumns().contains(colIndex)) {
-                  rowResultsMap.put(colIndex, value.getValue());
-                }
+            for (ValueRequirement req : valueReqs) {
+              int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
+              if (_viewportSpec.getColumns().contains(colIndex)) {
+                rowResultsMap.put(colIndex, value.getValue());
               }
             }
           }

@@ -56,9 +56,9 @@ import com.opengamma.util.ArgumentChecker;
     _portfolioGrid.updateResults(fullResult, _history);
     _primitivesGrid.updateResults(fullResult, _history);
     List<String> dataIds = new ArrayList<String>();
-    dataIds.addAll(_portfolioGrid.getDependencyGraphGridIds());
+    dataIds.addAll(_portfolioGrid.getViewportDataIds());
     dataIds.addAll(_portfolioGrid.getDependencyGraphViewportDataIds());
-    dataIds.addAll(_primitivesGrid.getDependencyGraphGridIds());
+    dataIds.addAll(_primitivesGrid.getViewportDataIds());
     dataIds.addAll(_primitivesGrid.getDependencyGraphViewportDataIds());
     _listener.gridDataChanged(dataIds);
   }
