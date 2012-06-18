@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.component;
+package com.opengamma.component.factory;
 
 import java.net.URI;
 import java.util.ArrayList;

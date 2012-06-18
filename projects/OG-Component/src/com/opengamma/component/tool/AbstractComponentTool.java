@@ -3,8 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool;
+package com.opengamma.component.tool;
 
+import com.opengamma.component.factory.RemoteComponentFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.component.RemoteComponentFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
 
@@ -51,7 +51,7 @@ public abstract class AbstractComponentTool {
 
   /**
    * Initializes the tool statically.
-   * 
+   *
    * @param logbackResource the logback resource location, not null
    * @return true if successful
    */
@@ -229,7 +229,7 @@ public abstract class AbstractComponentTool {
     formatter.setWidth(120);
     formatter.printHelp("java " + getEntryPointClass().getName(), options, true);
   }
-  
+
   //-------------------------------------------------------------------------
   private String resolveComponentServerUri(String componentServerUri) {
     componentServerUri = componentServerUri.trim();
@@ -241,5 +241,5 @@ public abstract class AbstractComponentTool {
       return "http://" + componentServerUri + "/jax";
     }
   }
-  
+
 }

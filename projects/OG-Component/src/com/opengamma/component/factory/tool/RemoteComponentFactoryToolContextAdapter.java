@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.component;
+package com.opengamma.component.factory.tool;
 
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.component.factory.RemoteComponentFactory;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.tool.ToolContext;

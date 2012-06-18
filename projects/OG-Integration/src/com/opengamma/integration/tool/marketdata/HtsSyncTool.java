@@ -7,62 +7,20 @@ package com.opengamma.integration.tool.marketdata;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.internal.annotations.Sets;
 
-import com.beust.jcommander.internal.Lists;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
-import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.calc.EngineResourceReference;
-import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.engine.view.calc.ViewCycleMetadata;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.integration.tool.AbstractDualComponentTool;
-import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.component.tool.AbstractDualComponentTool;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
 /**
  * The entry point for running OpenGamma batches. 

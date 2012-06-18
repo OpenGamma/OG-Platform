@@ -3,8 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.integration.tool;
+package com.opengamma.component.tool;
 
+import com.opengamma.component.factory.RemoteComponentFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.component.RemoteComponentFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
 
