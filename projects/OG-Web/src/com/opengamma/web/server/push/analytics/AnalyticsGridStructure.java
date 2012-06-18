@@ -92,7 +92,7 @@ public class AnalyticsGridStructure {
   }
 
   public int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
-    return _columns.getIndexForRequirement(calcConfigName, requirement);
+    return _columns.getColumnIndexForRequirement(calcConfigName, requirement);
   }
 
   public static class Row {
@@ -113,6 +113,14 @@ public class AnalyticsGridStructure {
 
     public String getName() {
       return _name;
+    }
+
+    @Override
+    public String toString() {
+      return "Row [" +
+          "_target=" + _target +
+          ", _name='" + _name + '\'' +
+          "]";
     }
   }
 }

@@ -30,9 +30,12 @@ public class ViewRequest {
   private final String _aggregatorName;
   private final MarketDataType _marketDataType;
 
+  public ViewRequest(UniqueId viewDefinitionId, MarketDataType marketDataType) {
+    this(viewDefinitionId, null, marketDataType);
+  }
+
   public ViewRequest(UniqueId viewDefinitionId, String aggregatorName, MarketDataType marketDataType) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
-    ArgumentChecker.notNull(aggregatorName, "aggregatorName");
     ArgumentChecker.notNull(marketDataType, "marketDataType");
     _viewDefinitionId = viewDefinitionId;
     _aggregatorName = aggregatorName;
@@ -49,6 +52,15 @@ public class ViewRequest {
 
   public MarketDataType getMarketDataType() {
     return _marketDataType;
+  }
+
+  @Override
+  public String toString() {
+    return "ViewRequest [" +
+        "_viewDefinitionId=" + _viewDefinitionId +
+        ", _aggregatorName='" + _aggregatorName + '\'' +
+        ", _marketDataType=" + _marketDataType +
+        "]";
   }
 
   /* package */ interface MarketDataType {
@@ -97,6 +109,14 @@ public class ViewRequest {
       EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().triggerOnMarketData().get();
       return ExecutionOptions.infinite(marketDataSpec, flags, actualVersionCorrection);
     }
+
+    @Override
+    public String toString() {
+      return "ViewRequest.Snapshot [" +
+          "_snapshotId=" + _snapshotId +
+          ", _versionCorrection=" + _versionCorrection +
+          "]";
+    }
   }
 
   public static class Live implements MarketDataType {
@@ -117,6 +137,14 @@ public class ViewRequest {
       MarketDataSpecification marketDataSpec = namedMarketDataSpecRepo.getSpecification(_dataProvider);
       EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().get();
       return ExecutionOptions.infinite(marketDataSpec, flags, _versionCorrection);
+    }
+
+    @Override
+    public String toString() {
+      return "ViewRequest.Live [" +
+          "_dataProvider='" + _dataProvider + '\'' +
+          ", _versionCorrection=" + _versionCorrection +
+          "]";
     }
   }
 }

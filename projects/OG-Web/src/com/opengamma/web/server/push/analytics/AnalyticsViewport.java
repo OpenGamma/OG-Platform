@@ -8,11 +8,13 @@ package com.opengamma.web.server.push.analytics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.util.ArgumentChecker;
@@ -62,12 +64,19 @@ import com.opengamma.util.ArgumentChecker;
       rowResults.add(rowName);
       Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
-      for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
-        for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
-          for (ValueRequirement req : value.getRequirements()) {
-            int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
-            if (_viewportSpec.getColumns().contains(colIndex)) {
-              rowResultsMap.put(colIndex, value.getValue());
+      if (targetResult != null) {
+        for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
+          for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
+            ValueSpecification valueSpec = value.getSpecification();
+            Set<ValueRequirement> valueReqs =
+                _gridStructure.getColumns().getRequirementsForSpecification(calcConfigName, valueSpec);
+            if (valueReqs != null) {
+              for (ValueRequirement req : valueReqs) {
+                int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
+                if (_viewportSpec.getColumns().contains(colIndex)) {
+                  rowResultsMap.put(colIndex, value.getValue());
+                }
+              }
             }
           }
         }

@@ -10,21 +10,24 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO should there be subclasses for portfolio, depgraph, primitives? and associated visitors
+ * TODO expanded cells that need full data (matrices, vectors, curves etc)
  */
 public class ViewportSpecification {
 
   private final List<Integer> _rows;
   private final SortedSet<Integer> _columns;
 
-  /* package */ ViewportSpecification(List<Integer> rows, SortedSet<Integer> columns) {
+  public ViewportSpecification(List<Integer> rows, SortedSet<Integer> columns) {
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
-    _rows = Collections.unmodifiableList(rows);
-    _columns = Collections.unmodifiableSortedSet(columns);
+    _rows = ImmutableList.copyOf(rows);
+    _columns = ImmutableSortedSet.copyOf(columns);
   }
 
   public static ViewportSpecification empty() {

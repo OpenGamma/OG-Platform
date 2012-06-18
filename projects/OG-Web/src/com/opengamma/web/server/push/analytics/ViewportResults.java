@@ -26,4 +26,11 @@ public class ViewportResults {
   public List<List<Object>> getResults() {
     return _allResults;
   }
+
+  @Override
+  public String toString() {
+    return "ViewportResults [" +
+        "_allResults=" + _allResults +
+        "]";
+  }
 }

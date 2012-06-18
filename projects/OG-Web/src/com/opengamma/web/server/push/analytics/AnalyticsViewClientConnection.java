@@ -5,16 +5,12 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
@@ -47,9 +43,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _view = view;
     _viewClient = viewClient;
-    _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager,
-                                                      viewRequest.getViewDefinitionId(),
-                                                      viewRequest.getAggregatorName());
+    _aggregatedViewDef = new AggregatedViewDefinition(aggregatedViewDefManager, viewRequest);
     _executionOptions = viewRequest.getMarketDataType().createExecutionOptions(snapshotMaster, namedMarketDataSpecRepo);
   }
 
@@ -100,14 +94,12 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     private final String _aggregatorName;
     private final UniqueId _id;
 
-    private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager,
-                                     UniqueId baseViewDefId,
-                                     String aggregatorName) {
+    private AggregatedViewDefinition(AggregatedViewDefinitionManager aggregatedViewDefManager, ViewRequest viewRequest) {
       ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
-      ArgumentChecker.notNull(baseViewDefId, "baseViewDefId");
+      ArgumentChecker.notNull(viewRequest, "viewRequest");
       _aggregatedViewDefManager = aggregatedViewDefManager;
-      _baseViewDefId = baseViewDefId;
-      _aggregatorName = aggregatorName;
+      _baseViewDefId = viewRequest.getViewDefinitionId();
+      _aggregatorName = viewRequest.getAggregatorName();
       try {
         _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
       } catch (Exception e) {
