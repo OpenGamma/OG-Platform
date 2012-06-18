@@ -234,7 +234,10 @@ import com.opengamma.engine.value.ValueSpecification;
     }
     if (state != null) {
       s_logger.debug("Aborting worker {}", this);
-      finished(context);
+      // If last result has already been pushed then finished will have already been called
+      if (!isFinished()) {
+        finished(context);
+      }
     } else {
       s_logger.debug("Ignoring abort call {}", this);
     }

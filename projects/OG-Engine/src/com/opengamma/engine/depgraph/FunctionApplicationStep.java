@@ -152,8 +152,7 @@ import com.opengamma.util.tuple.Triple;
     private final FunctionApplicationWorker _worker;
 
     private PumpingState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
-        final ValueSpecification valueSpecification,
-        final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
+        final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
       super(task, functions);
       assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;

@@ -57,10 +57,13 @@ import org.slf4j.LoggerFactory;
   public boolean tick(final DependencyGraphBuilder builder, final Void data) {
     if (isLowMemory()) {
       final int originalActive = builder.getActiveResolveTasks();
-      builder.flushCachedStates();
-      final int freedActive = originalActive - builder.getActiveResolveTasks();
-      if (s_logger.isInfoEnabled()) {
-        s_logger.info("Freed {} tasks for {}", freedActive, builder);
+      if (builder.flushCachedStates()) {
+        final int freedActive = originalActive - builder.getActiveResolveTasks();
+        if (s_logger.isInfoEnabled()) {
+          s_logger.info("Freed {} tasks for {}", freedActive, builder);
+        }
+      } else {
+        s_logger.warn("Low memory detected, but no intermediate state to flush");
       }
     } else {
       builder.reportStateSize();
@@ -76,9 +79,9 @@ import org.slf4j.LoggerFactory;
 
   @Override
   public boolean completed(final DependencyGraphBuilder builder, final Void data) {
-    // Flush the cache and stop. If this is an intermediate state we'll be restarted.
-    builder.flushCachedStates();
-    return false;
+    // Flush the cache and stop. If this is an intermediate state we'll be restarted. If the cache isn't empty, we'll run again
+    // and keep going until the cache is empty.
+    return builder.flushCachedStates();
   }
 
 }
