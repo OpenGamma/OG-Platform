@@ -22,6 +22,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingRule;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Example code to create a timeseries rating document
@@ -29,6 +30,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
  * It is designed to run against the HSQLDB example database.  
  * It should be possible to run this class with no extra command line parameters.
  */
+@Scriptable
 public class ExampleTimeSeriesRatingLoader extends AbstractExampleTool {
 
   /** Logger. */

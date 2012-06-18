@@ -21,10 +21,12 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
  */
+@Scriptable
 public class PortfolioLoaderTool extends AbstractTool {
 
   /** File name option flag */

@@ -16,10 +16,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.timeseries.TimeSeriesLoader;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The timeseries loader tool
  */
+@Scriptable
 public class TimeSeriesLoaderTool extends AbstractTool {
 
   /** File name option flag */

@@ -33,6 +33,7 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -41,6 +42,7 @@ import com.opengamma.util.time.Tenor;
  * <p>
  * It is designed to run against the HSQLDB example database.
  */
+@Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);

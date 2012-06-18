@@ -7,10 +7,12 @@ package com.opengamma.examples.loader;
 
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Example tool to initialize historical data.
  */
+@Scriptable
 public class ExampleHistoricalDataGeneratorTool extends AbstractExampleTool {
 
   //-------------------------------------------------------------------------

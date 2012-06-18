@@ -63,6 +63,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -70,6 +71,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Example code to load a multi asset portfolio.
  */
+@Scriptable
 public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   /**

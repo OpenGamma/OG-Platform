@@ -19,10 +19,12 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
  */
+@Scriptable
 public class PortfolioHtsResolverTool extends AbstractIntegrationTool {
 
   /** Portfolio name option flag*/
