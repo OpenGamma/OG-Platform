@@ -25,7 +25,6 @@ public class ConnectionManagerImplTest {
     MasterChangeManager masterChangeManager = new MasterChangeManager(Collections.<MasterType, ChangeProvider>emptyMap());
     ConnectionManagerImpl connectionManager = new ConnectionManagerImpl(mock(ChangeManager.class),
                                                                         masterChangeManager,
-                                                                        mock(ViewportManager.class),
                                                                         new LongPollingConnectionManager(),
                                                                         1000,
                                                                         500);

@@ -8,6 +8,7 @@ package com.opengamma.web.server.push;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,25 +18,24 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.AnalyticsViewListener;
 import com.opengamma.web.server.push.rest.MasterType;
 
 /**
- * Connection associated with one client (i.e. one browser window / tab / client app instance).  Allows creation
- * and retrieval of a {@link Viewport} for a set of analytics and notifies the client when any changes occur.
- * Also allows subscriptions to be set up so the client is notified if an entity or the contents of a master changes.
+ * Connection associated with one client (i.e. one browser window / tab / client app instance). Allows subscriptions
+ * to be set up so the client is notified if an entity or the contents of a master changes.
  * The published notifications contain the REST URL of the thing that has changed.
  * All subscriptions for a URL are automatically cancelled the first time a notification is published for the URL
- * and must be re-established every time the client accesses the URL.  This class is thread safe.
- * TODO switch to AnalyticsViewManager instead of ViewportManager, create views instead of viewports
+ * and| must be re-established every time the client accesses the URL.  This class is thread safe.
+ * TODO should this be package-private and everything moved into the same package?
  */
-/* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
+public class ClientConnection implements ChangeListener, MasterChangeListener, AnalyticsViewListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ClientConnection.class);
   
@@ -47,8 +47,6 @@ import com.opengamma.web.server.push.rest.MasterType;
   private final ConnectionTimeoutTask _timeoutTask;
   /** Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes */
   private final RestUpdateListener _listener;
-  /** For creating and returning viewports on the analytics data */
-  private final ViewportManager _viewportManager;
   private final Object _lock = new Object();
 
   /** URLs which should be published when a master changes, keyed by the type of the master */
@@ -58,28 +56,21 @@ import com.opengamma.web.server.push.rest.MasterType;
   /** TODO what's this all about? */
   private final Map<String, UrlMapping> _urlMappings = new HashMap<String, UrlMapping>();
 
-  /** The ID of this client's current viewport */
-  private String _viewportId;
-
   /**
    * @param userId Login ID of the user that owns this connection TODO this isn't used yet
    * @param clientId Unique ID of this connection 
    * @param listener Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes 
-   * @param viewportManager For creating and returning viewports on the analytics data
-   * @param timeoutTask Task that closes this connection if it is idle for too long 
+   * @param timeoutTask Task that closes this connection if it is idle for too long
    */
   /* package */ ClientConnection(String userId,
                                  String clientId,
                                  RestUpdateListener listener,
-                                 ViewportManager viewportManager,
                                  ConnectionTimeoutTask timeoutTask) {
-    ArgumentChecker.notNull(viewportManager, "viewportManager");
     //ArgumentChecker.notNull(userId, "userId"); // TODO user login not done
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(timeoutTask, "timeoutTask");
     s_logger.debug("Creating new client connection. userId: {}, clientId: {}", userId, clientId);
-    _viewportManager = viewportManager;
     _userId = userId;
     _listener = listener;
     _clientId = clientId;
@@ -94,50 +85,13 @@ import com.opengamma.web.server.push.rest.MasterType;
   }
 
   /**
-   * Creates a new subscription for a view client, replacing any existing subscription for that view client.
-   * @param viewportDefinition Defines which cells and dependency graphs are in the viewport
-   * @param viewportId Unique ID of the viewport
-   * @param dataUrl REST URL of the viewport analytics data
-   * @param gridStructureUrl REST URL of the structure of the viewport grids
-   */
-  /* package */ void createViewport(ViewportDefinition viewportDefinition, String viewportId, String dataUrl, String gridStructureUrl) {
-    ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
-    ArgumentChecker.notNull(viewportId, "viewportId");
-    ArgumentChecker.notNull(dataUrl, "dataUrl");
-    ArgumentChecker.notNull(gridStructureUrl, "gridStructureUrl");
-    synchronized (_lock) {
-      _timeoutTask.reset();
-      String previousViewportId = _viewportId;
-      _viewportId = viewportId;
-      AnalyticsListener listener = new AnalyticsListenerImpl(dataUrl, gridStructureUrl, _listener);
-      _viewportManager.createViewport(viewportId, previousViewportId, viewportDefinition, listener);
-    }
-  }
-
-  /**
-   * @param viewportId Unique ID of the viewport
-   * @return The viewport
-   * @throws DataNotFoundException If the viewport ID doesn't match this connection's current viewport ID
-   */
-  /* package */ Viewport getViewport(String viewportId) {
-    ArgumentChecker.notNull(viewportId, "viewportId");
-    synchronized (_lock) {
-      _timeoutTask.reset();
-      if (!_viewportId.equals(viewportId)) {
-        throw new DataNotFoundException("Viewport ID " + viewportId + " not assiociated with client ID " + _clientId);
-      }
-      return _viewportManager.getViewport(_viewportId);
-    }
-  }
-
-  /**
    * Closes this connection
    */
   /* package */ void disconnect() {
     s_logger.debug("Disconnecting client connection, userId: {}, clientId: {}", _userId, _clientId);
     synchronized (_lock) {
       _timeoutTask.reset();
-      _viewportManager.closeViewport(_viewportId);
+      // TODO need to close any views for this clientId
     }
   }
 
@@ -224,6 +178,16 @@ import com.opengamma.web.server.push.rest.MasterType;
         _entityUrls.remove(entityId, url);
       }
     }
+  }
+
+  @Override
+  public void gridStructureChanged(List<String> gridIds) {
+    _listener.itemsUpdated(gridIds);
+  }
+
+  @Override
+  public void gridDataChanged(List<String> dataIds) {
+    _listener.itemsUpdated(dataIds);
   }
 
   /**

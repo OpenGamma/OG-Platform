@@ -18,18 +18,18 @@ import com.opengamma.web.server.push.rest.MasterType;
 public interface ConnectionManager {
 
   /**
-   * Closes the connection for a client and cleans up its resources.
-   * @param userId The ID of the user that owns the connection
-   * @param clientId The ID of the client
-   */
-  void clientDisconnected(String userId, String clientId);
-
-  /**
    * Handshake method that returns the client ID needed to identify the connection when calling all other operations.
    * @param userId The ID of the user creating the connection
    * @return The client ID needed to identify the connection when calling all other operations
    */
   String clientConnected(String userId);
+
+  /**
+   * Closes the connection for a client and cleans up its resources.
+   * @param userId The ID of the user that owns the connection
+   * @param clientId The ID of the client
+   */
+  void clientDisconnected(String userId, String clientId);
 
   /**
    * Creates a subscription for changes to an entity that was requested via the REST interface.  If the entity
@@ -55,33 +55,4 @@ public interface ConnectionManager {
    * @param masterType The type of master which should trigger the update
    */
   void subscribe(String userId, String clientId, MasterType masterType, String url);
-
-  /**
-   * Returns an existing viewport which must belong to the specified user and client.
-   * @param userId ID of the user
-   * @param clientId ID of the connection, can be null if asynchronous updates aren't needed when the viewport data changes
-   * @param viewportId ID of the viewport
-   * @return The viewport
-   * @throws com.opengamma.DataNotFoundException If any of the IDs are invalid or the viewport or client
-   * aren't associated with the specified user
-   */
-  Viewport getViewport(String userId, String clientId, String viewportId);
-
-  /**
-   * Creates a new viewport
-   * @param userId ID of the user
-   * @param clientId ID of the connection
-   * @param viewportDefinition Definition of the viewport contents (cells, timestampts, dependency graphs)
-   * @param viewportId ID that should be assigned to the new viewport.  Must be unique
-   * @param dataUrl REST URL for requesting the viewport data.  This is published in the asynchronous notification
-   *                when the viewport's data changes
-   * @param gridStructureUrl REST URL for requesting the viewport grid structure.  This is published in the
-   *                         asynchronous notification when the viewport's grid structure changes
-   */
-  void createViewport(String userId,
-                      String clientId,
-                      ViewportDefinition viewportDefinition,
-                      String viewportId,
-                      String dataUrl,
-                      String gridStructureUrl);
 }

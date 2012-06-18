@@ -45,7 +45,7 @@ public class ClientConnectionTest {
   public void setUp() throws Exception {
     _listener = mock(RestUpdateListener.class);
     ConnectionTimeoutTask timeoutTask = mock(ConnectionTimeoutTask.class);
-    _connection = new ClientConnection(USER_ID, CLIENT_ID, _listener, mock(ViewportManager.class), timeoutTask);
+    _connection = new ClientConnection(USER_ID, CLIENT_ID, _listener, timeoutTask);
   }
 
   /**

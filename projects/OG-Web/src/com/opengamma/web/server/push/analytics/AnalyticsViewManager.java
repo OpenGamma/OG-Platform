@@ -21,7 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- *
+ * TODO handle userId and clientId
+ * when view is created wrap in an impl that contains the IDs
+ * could just add them to add them to SimpleAnalyticsView
+ * when view is requested (including IDs) create another impl that wraps those IDs and delegates to the one that
+ * holds the real IDs. but before delegating it compares the IDs
  */
 public class AnalyticsViewManager {
 

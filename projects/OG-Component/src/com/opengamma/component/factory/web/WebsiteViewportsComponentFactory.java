@@ -171,7 +171,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     ChangeManager changeMgr = buildChangeManager();
     MasterChangeManager masterChangeMgr = buildMasterChangeManager();
     
-    final ConnectionManager connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, liveResults, longPolling);
+    final ConnectionManagerImpl connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, longPolling);
     ViewportsResource viewportsResource = new ViewportsResource(connectionMgr, reportFactory);
     ViewDefinitionEntriesResource viewDefinitionResource = new ViewDefinitionEntriesResource(getViewDefinitionRepository());
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
@@ -193,14 +193,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager));
-    repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
+    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewportSpecificationMessageBodyReader());
     repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
     repo.getRestComponents().publishHelper(new AnalyticsResultsMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new ReportMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {
