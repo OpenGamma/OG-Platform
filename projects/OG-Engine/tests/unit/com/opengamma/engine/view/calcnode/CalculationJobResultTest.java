@@ -53,7 +53,7 @@ public class CalculationJobResultTest {
     CalculationJobResult outputJob = deserializationContext.fudgeMsgToObject(CalculationJobResult.class, outputMsg);
     
     assertNotNull(outputJob);
-    AbstractIdentifierMap.resolveIdentifiers(identifierMap, result);
+    AbstractIdentifierMap.resolveIdentifiers(identifierMap, outputJob);
     assertEquals(spec, outputJob.getSpecification());
     assertEquals(500, outputJob.getDuration());
     assertEquals("localhost", outputJob.getComputeNodeId());

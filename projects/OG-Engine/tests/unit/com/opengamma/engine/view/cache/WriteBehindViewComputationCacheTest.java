@@ -125,6 +125,7 @@ public class WriteBehindViewComputationCacheTest {
   private static final ValueSpecification s_valueSpec1 = new ValueSpecification(new ValueRequirement("Value 1", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
   private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
   private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
+  private static final ValueSpecification s_valueSpec4 = new ValueSpecification(new ValueRequirement("Value 4", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
 
   private final CacheSelectHint _filter;
   private ExecutorService _executorService;
@@ -155,6 +156,7 @@ public class WriteBehindViewComputationCacheTest {
     } catch (AsynchronousExecution e) {
       AsynchronousOperation.getResult(e);
     }
+    cache.clearBuffer();
   }
 
   @Test
@@ -174,27 +176,35 @@ public class WriteBehindViewComputationCacheTest {
 
   @Test
   public void getValuesHittingUnderlying() {
-    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
+    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3, s_valueSpec4);
     _cache.getValues(valueSpec);
     assertEquals(valueSpec, _underlying._getValues);
   }
 
   @Test
   public void getValuesOneUnderlying() {
-    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3);
+    final Collection<ValueSpecification> valueSpec = Arrays.asList(s_valueSpec1, s_valueSpec2, s_valueSpec3, s_valueSpec4);
     _cache.putValue(new ComputedValue(s_valueSpec1, "foo"), _filter);
     _cache.putValue(new ComputedValue(s_valueSpec2, "bar"), _filter);
+    _cache.putValue(new ComputedValue(s_valueSpec3, "cow"), _filter);
     final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
     assertEquals(valueSpec.size(), values.size());
     assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
     assertTrue(values.contains(Pair.of(s_valueSpec2, "bar")));
+    assertTrue(values.contains(Pair.of(s_valueSpec3, "cow")));
     assertNull(_underlying._putValue);
     assertNull(_underlying._putValues);
     assertNull(_underlying._getValues);
-    assertEquals(s_valueSpec3, _underlying._getValue);
+    assertEquals(s_valueSpec4, _underlying._getValue);
+    _underlying._allowPutValue.countDown();
     _underlying._allowPutValues.countDown();
     flush(_cache);
     assertNotNull(_underlying._putValues);
+    if (_underlying._putValue != null) {
+      assertEquals(2, _underlying._putValues.size());
+    } else {
+      assertEquals(3, _underlying._putValues.size());
+    }
     // With nothing pending, we should hit the underlying completely
     _cache.getValues(valueSpec);
     assertEquals(valueSpec, _underlying._getValues);

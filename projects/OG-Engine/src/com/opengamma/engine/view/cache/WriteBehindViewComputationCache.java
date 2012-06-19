@@ -293,7 +293,7 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
     _pendingPrivateValues = usePrivate ? new ConcurrentLinkedQueue<Entry>() : null;
     _pendingSharedValues = useShared ? new ConcurrentLinkedQueue<Entry>() : null;
   }
-
+  
   protected ViewComputationCache getUnderlying() {
     return _underlying;
   }
@@ -312,6 +312,10 @@ public class WriteBehindViewComputationCache implements DeferredViewComputationC
 
   protected void putBuffered(final ValueSpecification specification, final Object value) {
     _buffer.put(specification, value);
+  }
+
+  protected void clearBuffer() {
+    _buffer.clear();
   }
 
   protected PendingLock pending(final int count) {

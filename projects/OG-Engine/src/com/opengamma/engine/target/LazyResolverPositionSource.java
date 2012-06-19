@@ -30,7 +30,7 @@ public class LazyResolverPositionSource implements PositionSource, LazyResolver 
     _context = context;
   }
 
-  private PositionSource getUnderlying() {
+  public/* should be protected */PositionSource getUnderlying() {
     return _underlying;
   }
 

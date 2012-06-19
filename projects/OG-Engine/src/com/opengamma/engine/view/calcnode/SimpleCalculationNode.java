@@ -259,22 +259,22 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
    */
   public CalculationJobResult executeJob(final CalculationJob job) throws AsynchronousHandleExecution, AsynchronousExecution {
     s_logger.info("Executing {} on {}", job, _nodeId);
-      setJob(job);
-      final CalculationJobSpecification spec = job.getSpecification();
-      getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
-      getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
-      getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
-      setFunctions(getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime()));
-      setCache(getDeferredViewComputationCache(getCache(spec)));
-      setExecutionStartTime(System.nanoTime());
-      setConfiguration(spec.getCalcConfigName());
-      final List<CalculationJobResultItem> resultItems;
-      try {
-        resultItems = executeJobItems();
-      } catch (AsynchronousHandleExecution ex) {
-        return executeJobAsyncResult(ex);
-      }
-      return executeJobResult(resultItems);
+    setJob(job);
+    final CalculationJobSpecification spec = job.getSpecification();
+    getFunctionExecutionContext().setViewProcessorQuery(new ViewProcessorQuery(getViewProcessorQuerySender(), spec));
+    getFunctionExecutionContext().setValuationTime(spec.getValuationTime());
+    getFunctionExecutionContext().setValuationClock(DateUtils.fixedClockUTC(spec.getValuationTime()));
+    setFunctions(getFunctionCompilationService().compileFunctionRepository(spec.getValuationTime()));
+    setCache(getDeferredViewComputationCache(getCache(spec)));
+    setExecutionStartTime(System.nanoTime());
+    setConfiguration(spec.getCalcConfigName());
+    final List<CalculationJobResultItem> resultItems;
+    try {
+      resultItems = executeJobItems();
+    } catch (AsynchronousHandleExecution ex) {
+      return executeJobAsyncResult(ex);
+    }
+    return executeJobResult(resultItems);
   }
 
   private void postEvaluationErrors(final Set<ValueSpecification> outputs) {

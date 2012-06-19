@@ -6,6 +6,7 @@
 package com.opengamma.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.math.BigDecimal;
 
@@ -26,6 +27,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.engine.target.LazyResolverPositionSource;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -42,13 +44,17 @@ public class DefaultComputationTargetResolverTest {
   private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new SimpleSecurity(UniqueId.of("Test", "SEC"), ExternalIdBundle.EMPTY, "Test security", "EQUITY");
 
-  //-------------------------------------------------------------------------
   public void test_constructor() {
     SecuritySource secSource = new MockSecuritySource();
     PositionSource posSource = new MockPositionSource();
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
-    assertEquals(secSource, test.getSecuritySource());
-    assertEquals(posSource, test.getPositionSource());
+    assertSame(secSource, test.getSecuritySource());
+    assertSame(posSource, ((LazyResolverPositionSource) test.getPositionSource()).getUnderlying());
+  }
+
+  private void assertExpected(final ComputationTarget expected, final ComputationTarget actual) {
+    assertEquals(expected.getType(), actual.getType());
+    assertEquals(expected.getUniqueId(), actual.getUniqueId());
   }
 
   //-------------------------------------------------------------------------
@@ -59,7 +65,7 @@ public class DefaultComputationTargetResolverTest {
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(PORTFOLIO);
     ComputationTarget expected = new ComputationTarget(PORTFOLIO);
-    assertEquals(expected, test.resolve(spec));
+    assertExpected(expected, test.resolve(spec));
   }
 
   public void test_resolve_portfolioNode() {
@@ -71,7 +77,7 @@ public class DefaultComputationTargetResolverTest {
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(NODE);
     ComputationTarget expected = new ComputationTarget(NODE);
-    assertEquals(expected, test.resolve(spec));
+    assertExpected(expected, test.resolve(spec));
   }
 
   public void test_resolve_position() {
@@ -83,7 +89,7 @@ public class DefaultComputationTargetResolverTest {
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(POSITION);
     ComputationTarget expected = new ComputationTarget(POSITION);
-    assertEquals(expected, test.resolve(spec));
+    assertExpected(expected, test.resolve(spec));
   }
   
   public void test_resolve_trade() {
@@ -100,7 +106,7 @@ public class DefaultComputationTargetResolverTest {
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secSource, posSource);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(trade);
     ComputationTarget expected = new ComputationTarget(trade);
-    assertEquals(expected, test.resolve(spec));
+    assertExpected(expected, test.resolve(spec));
   }
   
   public void test_resolve_security() {

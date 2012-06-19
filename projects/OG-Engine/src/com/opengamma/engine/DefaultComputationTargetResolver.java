@@ -95,7 +95,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * 
    * @return the security source, may be null
    */
-  public SecuritySource getSecuritySourceImpl() {
+  protected SecuritySource getSecuritySourceImpl() {
     return _securitySource;
   }
 
