@@ -58,7 +58,9 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   @Override
   public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
     final Map<UniqueId, Security> securities = getUnderlying().getSecurities(uniqueIds);
-    getCache().cacheSecurities(securities.values());
+    if (!securities.isEmpty()) {
+      getCache().cacheSecurities(securities.values());
+    }
     return securities;
   }
 
@@ -74,14 +76,18 @@ public class CacheNotifyingSecuritySource implements SecuritySource {
   @Override
   public Collection<Security> getSecurities(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     final Collection<Security> securities = getUnderlying().getSecurities(bundle, versionCorrection);
-    getCache().cacheSecurities(securities);
+    if (!securities.isEmpty()) {
+      getCache().cacheSecurities(securities);
+    }
     return securities;
   }
 
   @Override
   public Collection<Security> getSecurities(final ExternalIdBundle bundle) {
     final Collection<Security> securities = getUnderlying().getSecurities(bundle);
-    getCache().cacheSecurities(securities);
+    if (!securities.isEmpty()) {
+      getCache().cacheSecurities(securities);
+    }
     return securities;
   }
 
