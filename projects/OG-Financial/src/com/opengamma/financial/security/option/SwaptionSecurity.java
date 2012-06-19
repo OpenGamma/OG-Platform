@@ -112,17 +112,6 @@ public class SwaptionSecurity extends FinancialSecurity {
     return visitor.visitSwaptionSecurity(this);
   }
 
-  /**
-   * Accepts a visitor to manage traversal of the hierarchy.
-   * 
-   * @param <T> the result type of the visitor
-   * @param visitor  the visitor, not null
-   * @return the result
-   */
-  public <T> T accept(SwaptionSecurityVisitor<T> visitor) {
-    return visitor.visitSwaptionSecurity(this);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Checks if the long/short type is long.

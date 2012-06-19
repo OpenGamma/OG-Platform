@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -65,7 +66,7 @@ public class BondFutureSecurity extends FutureSecurity {
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitBondFutureSecurity(this);
   }
 

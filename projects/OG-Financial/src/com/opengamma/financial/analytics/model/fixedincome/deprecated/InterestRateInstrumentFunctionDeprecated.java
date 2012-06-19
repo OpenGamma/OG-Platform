@@ -43,7 +43,6 @@ import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
@@ -52,6 +51,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -64,7 +64,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentFunctionDeprecated.class);
   private FixedIncomeConverterDataProvider _definitionConverter;
   private final String _valueRequirementName;
-  private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
+  private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
   public InterestRateInstrumentFunctionDeprecated(final String valueRequirementName) {
     Validate.notNull(valueRequirementName, "value requirement name");
@@ -87,13 +87,12 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
+        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
-  protected FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> getVisitor() {
+  protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
     return _visitor;
   }
 

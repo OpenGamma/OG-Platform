@@ -1,14 +1,11 @@
-/**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
- */
-package com.opengamma.financial.security.future;
+package com.opengamma.financial.security;
+
+import com.opengamma.financial.security.future.*;
 
 /**
- * Visitor for the {@code FutureSecurity} subclasses.
- * 
- * @param <T> visitor method return type
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
  */
 public interface FutureSecurityVisitor<T> {
 
@@ -25,11 +22,10 @@ public interface FutureSecurityVisitor<T> {
   T visitFXFutureSecurity(FXFutureSecurity security);
 
   T visitIndexFutureSecurity(IndexFutureSecurity security);
-
+  
   T visitInterestRateFutureSecurity(InterestRateFutureSecurity security);
 
   T visitMetalFutureSecurity(MetalFutureSecurity security);
 
   T visitStockFutureSecurity(StockFutureSecurity security);
-
 }

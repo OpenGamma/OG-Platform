@@ -365,7 +365,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
    * Gets the the {@code computationTargetsByCalcConfig} property.
    * @return the property, not null
    */
-  public final Property<Map<String, Collection<ComputationTarget>>> computationTargetsByCalcConfig() {
+  public final Property<Map<String, Collection<ComputationTargetSpecification>>> computationTargetsByCalcConfig() {
     return metaBean().computationTargetsByCalcConfig().createProperty(this);
   }
 
@@ -432,19 +432,19 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     /**
      * The meta-property for the {@code allCalculationConfigurationNames} property.
      */
-    @SuppressWarnings({"unchecked" })
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<Collection<String>> _allCalculationConfigurationNames = DirectMetaProperty.ofReadWrite(
         this, "allCalculationConfigurationNames", DefaultViewCycleMetadata.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code computationTargetsByCalcConfig} property.
      */
-    @SuppressWarnings({"unchecked" })
-    private final MetaProperty<Map<String, Collection<ComputationTarget>>> _computationTargetsByCalcConfig = DirectMetaProperty.ofReadWrite(
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, Collection<ComputationTargetSpecification>>> _computationTargetsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "computationTargetsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**
      * The meta-property for the {@code terminalOutputsByCalcConfig} property.
      */
-    @SuppressWarnings({"unchecked" })
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> _terminalOutputsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "terminalOutputsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**
@@ -558,7 +558,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
      * The meta-property for the {@code computationTargetsByCalcConfig} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<String, Collection<ComputationTarget>>> computationTargetsByCalcConfig() {
+    public final MetaProperty<Map<String, Collection<ComputationTargetSpecification>>> computationTargetsByCalcConfig() {
       return _computationTargetsByCalcConfig;
     }
 

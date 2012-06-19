@@ -18,12 +18,10 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurityVisitor;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -31,8 +29,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ZeroDepositConverter implements PeriodicZeroDepositSecurityVisitor<InstrumentDefinition<?>>, SimpleZeroDepositSecurityVisitor<InstrumentDefinition<?>>,
-  ContinuousZeroDepositSecurityVisitor<InstrumentDefinition<?>> {
+public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final ConventionBundleSource _conventionSource;
   
   public ZeroDepositConverter(final ConventionBundleSource conventionSource) {

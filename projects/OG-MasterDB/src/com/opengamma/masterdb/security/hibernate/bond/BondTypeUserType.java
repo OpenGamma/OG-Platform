@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.security.hibernate.bond;
 
-import com.opengamma.financial.security.bond.BondSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -15,7 +15,7 @@ import com.opengamma.masterdb.security.hibernate.EnumUserType;
  * Custom Hibernate usertype for the BondType enum
  */
 public class BondTypeUserType extends EnumUserType<BondType> {
-  
+
   private static final String CORPORATE_BOND_TYPE = "Corporate";
   private static final String GOVERNMENT_BOND_TYPE = "Government";
   private static final String MUNICIPAL_BOND_TYPE = "Municipal";
@@ -26,7 +26,7 @@ public class BondTypeUserType extends EnumUserType<BondType> {
 
   @Override
   protected String enumToStringNoCache(BondType value) {
-    return value.accept(new BondSecurityVisitor<String>() {
+    return value.accept(new FinancialSecurityVisitorAdapter<String>() {
 
       @Override
       public String visitCorporateBondSecurity(CorporateBondSecurity bond) {

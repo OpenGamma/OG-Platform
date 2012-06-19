@@ -113,17 +113,6 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
     return visitor.visitNonDeliverableFXOptionSecurity(this);
   }
 
-  /**
-   * Accepts a visitor to manage traversal of the hierarchy.
-   * 
-   * @param <T> the result type of the visitor
-   * @param visitor  the visitor, not null
-   * @return the result
-   */
-  public <T> T accept(NonDeliverableFXOptionSecurityVisitor<T> visitor) {
-    return visitor.visitNonDeliverableFXOptionSecurity(this);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Checks if the long/short type is long.

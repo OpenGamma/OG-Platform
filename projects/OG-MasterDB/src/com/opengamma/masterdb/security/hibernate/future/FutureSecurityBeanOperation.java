@@ -9,6 +9,7 @@ import static com.opengamma.masterdb.security.hibernate.Converters.*;
 
 import java.util.*;
 
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -356,7 +357,7 @@ public final class FutureSecurityBeanOperation extends
   public FutureSecurityBean createBean(final OperationContext context,
                                        final HibernateSecurityMasterDao secMasterSession,
                                        final FutureSecurity security) {
-    return security.accept(new FutureSecurityVisitor<FutureSecurityBean>() {
+    return security.accept(new FinancialSecurityVisitorAdapter<FutureSecurityBean>() {
 
       private <F extends FutureSecurityBean> F createFutureBean(final F bean, final FutureSecurity security) {
         bean.setExpiry(expiryToExpiryBean(security.getExpiry()));

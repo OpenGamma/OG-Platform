@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -42,10 +43,10 @@ public class MunicipalBondSecurity extends BondSecurity {
     super(issuerName, issuerType, issuerDomicile, market, currency, yieldConvention, lastTradeDate, couponType, couponRate, couponFrequency,
         dayCountConvention, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice, totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
   }
+  
 
-  //-------------------------------------------------------------------------
   @Override
-  public <T> T accept(BondSecurityVisitor<T> visitor) {
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitMunicipalBondSecurity(this);
   }
 

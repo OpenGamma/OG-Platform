@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.aggregation;
@@ -14,50 +14,27 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurityVisitor;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquitySecurityVisitor;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurityVisitor;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.fra.FRASecurityVisitor;
-import com.opengamma.financial.security.future.AgricultureFutureSecurity;
-import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
-import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
-import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.future.MetalFutureSecurity;
-import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurityVisitor;
 import com.opengamma.financial.security.option.*;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 
 /**
- * 
+ *
  */
 public class DetailedAssetClassAggregationFunction implements AggregationFunction<String> {
 
@@ -107,220 +84,198 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
     final Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
-      return finSec.accept(new FinancialSecurityVisitorAdapter<String>(new BondSecurityVisitor<String>() {
-        @Override
-        public String visitCorporateBondSecurity(final CorporateBondSecurity security) {
-          return CORPORATE_BONDS;
-        }
 
+      return finSec.accept(new FinancialSecurityVisitorAdapter<String>() {
         @Override
-        public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-          return GOVERNMENT_BONDS;
-        }
-
-        @Override
-        public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
-          return MUNICIPAL_BONDS;
-        }
-      }, new CashSecurityVisitor<String>() {
-
-        @Override
-        public String visitCashSecurity(final CashSecurity security) {
-          return CASH;
-        }
-
-      }, new EquitySecurityVisitor<String>() {
-
-        @Override
-        public String visitEquitySecurity(final EquitySecurity security) {
-          return EQUITIES;
-        }
-      }, new FRASecurityVisitor<String>() {
-
-        @Override
-        public String visitFRASecurity(final FRASecurity security) {
-          return FRAS;
-        }
-      }, new FutureSecurityVisitor<String>() {
-
-        @Override
-        public String visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+        public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
           return AGRICULTURAL_FUTURES;
         }
 
         @Override
-        public String visitBondFutureSecurity(final BondFutureSecurity security) {
-          return BOND_FUTURES;
+        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
+          return CORPORATE_BONDS;
         }
 
         @Override
-        public String visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-          return ENERGY_FUTURES;
+        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+          return GOVERNMENT_BONDS;
         }
 
         @Override
-        public String visitFXFutureSecurity(final FXFutureSecurity security) {
-          return CURRENCY_FUTURES;
+        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+          return MUNICIPAL_BONDS;
         }
 
         @Override
-        public String visitIndexFutureSecurity(final IndexFutureSecurity security) {
-          return INDEX_FUTURES;
+        public String visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
+          return CAP_FLOOR_CMS_SPREAD;
         }
 
         @Override
-        public String visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+        public String visitCapFloorSecurity(CapFloorSecurity security) {
+          return CAP_FLOOR;
+        }
+
+        @Override
+        public String visitCashSecurity(CashSecurity security) {
+          return CASH;
+        }
+
+        @Override
+        public String visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a ContinuousZeroDepositSecurity");
+        }
+
+        @Override
+        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+          return EQUITY_BARRIER_OPTIONS;
+        }
+
+        @Override
+        public String visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+          return EQUITY_INDEX_OPTIONS;
+        }
+
+        @Override
+        public String visitEquityOptionSecurity(EquityOptionSecurity security) {
+          return EQUITY_OPTIONS;
+        }
+
+        @Override
+        public String visitEquitySecurity(EquitySecurity security) {
+          return EQUITIES;
+        }
+
+        @Override
+        public String visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+          return EQUITY_VARIANCE_SWAPS;
+        }
+
+        @Override
+        public String visitFRASecurity(FRASecurity security) {
+          return FRAS;
+        }
+
+        @Override
+        public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+          return FX_BARRIER_OPTIONS;
+        }
+
+        @Override
+        public String visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+          return FX_DIGITAL_OPTIONS;
+        }
+
+        @Override
+        public String visitFXForwardSecurity(FXForwardSecurity security) {
+          return FX_FORWARDS;
+        }
+
+        @Override
+        public String visitFXOptionSecurity(FXOptionSecurity security) {
+          return FX_OPTIONS;
+        }
+
+        @Override
+        public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+          return IRFUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
           return INTEREST_RATE_FUTURES;
         }
 
         @Override
-        public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
-          return METAL_FUTURES;
+        public String visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+          return NONDELIVERABLE_FX_DIGITAL_OPTIONS;
         }
 
         @Override
-        public String visitStockFutureSecurity(final StockFutureSecurity security) {
-          return STOCK_FUTURES;
+        public String visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+          return NONDELIVERABLE_FX_FORWARDS;
         }
 
         @Override
-        public String visitEquityFutureSecurity(final EquityFutureSecurity security) {
-          return EQUITY_FUTURES;
+        public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+          return NONDELIVERABLE_FX_OPTIONS;
         }
 
         @Override
-        public String visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
-          return EQUITY_INDEX_DIVIDEND_FUTURES;
+        public String visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a PeriodicZeroDepositSecurity");
         }
-      }, new SwapSecurityVisitor<String>() {
 
         @Override
-        public String visitForwardSwapSecurity(final ForwardSwapSecurity security) {
+        public String visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a SimpleZeroDepositSecurity");
+        }
+
+        @Override
+        public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
           return FORWARD_SWAPS;
         }
 
         @Override
-        public String visitSwapSecurity(final SwapSecurity security) {
+        public String visitSwapSecurity(SwapSecurity security) {
           return SWAPS;
         }
-      }, new EquityIndexOptionSecurityVisitor<String>() {
 
         @Override
-        public String visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-          return EQUITY_INDEX_OPTIONS;
-        }
-      }, new EquityIndexDividendFutureOptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-          return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
-        }
-      }, new EquityOptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitEquityOptionSecurity(final EquityOptionSecurity equityOptionSecurity) {
-          return EQUITY_OPTIONS;
-        }
-      }, new EquityBarrierOptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity equityOptionSecurity) {
-          return EQUITY_BARRIER_OPTIONS;
-        }
-      }, new FXOptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
-          return FX_OPTIONS;
-        }
-      }, new NonDeliverableFXOptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
-          return NONDELIVERABLE_FX_OPTIONS;
-        }
-      }, new SwaptionSecurityVisitor<String>() {
-
-        @Override
-        public String visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
+        public String visitSwaptionSecurity(SwaptionSecurity security) {
           return SWAPTIONS;
         }
-      }, new IRFutureOptionSecurityVisitor<String>() {
 
         @Override
-        public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity irFutureOptionSecurity) {
-          return IRFUTURE_OPTIONS;
+        public String visitBondFutureSecurity(BondFutureSecurity security) {
+          return BOND_FUTURES;
         }
-      }, new CommodityFutureOptionSecurityVisitor<String>() {
+
         @Override
         public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
           return COMMODITY_FUTURE_OPTIONS;
         }
-      },                 
-        new FXBarrierOptionSecurityVisitor<String>() {
 
         @Override
-        public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          return FX_BARRIER_OPTIONS;
+        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+          return ENERGY_FUTURES;
         }
-      }, new FXDigitalOptionSecurityVisitor<String>() {
 
         @Override
-        public String visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
-          return FX_DIGITAL_OPTIONS;
+        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+          return EQUITY_FUTURES;
         }
-      }, new NonDeliverableFXDigitalOptionSecurityVisitor<String>() {
 
         @Override
-        public String visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity nonDeliverableFxDigitalOptionSecurity) {
-          return NONDELIVERABLE_FX_DIGITAL_OPTIONS;
+        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURES;
         }
-      }, new FXForwardSecurityVisitor<String>() {
 
         @Override
-        public String visitFXForwardSecurity(final FXForwardSecurity security) {
-          return FX_FORWARDS;
+        public String visitFXFutureSecurity(FXFutureSecurity security) {
+          return CURRENCY_FUTURES;
         }
-      }, new NonDeliverableFXForwardSecurityVisitor<String>() {
 
         @Override
-        public String visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-          return NONDELIVERABLE_FX_FORWARDS;
+        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+          return INDEX_FUTURES;
         }
-      }, new CapFloorSecurityVisitor<String>() {
-        @Override
-        public String visitCapFloorSecurity(final CapFloorSecurity security) {
-          return CAP_FLOOR;
-        }
-      }, new CapFloorCMSSpreadSecurityVisitor<String>() {
-        @Override
-        public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-          return CAP_FLOOR_CMS_SPREAD;
-        }
-      }, new EquityVarianceSwapSecurityVisitor<String>() {
-        @Override
-        public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-          return EQUITY_VARIANCE_SWAPS;
-        }
-      }, new SimpleZeroDepositSecurityVisitor<String>() {
 
         @Override
-        public String visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-          throw new UnsupportedOperationException("Should not form a position containing a SimpleZeroDepositSecurity");
+        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+          return METAL_FUTURES;
         }
-      }, new PeriodicZeroDepositSecurityVisitor<String>() {
 
         @Override
-        public String visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-          throw new UnsupportedOperationException("Should not form a position containing a PeriodicZeroDepositSecurity");
+        public String visitStockFutureSecurity(StockFutureSecurity security) {
+          return STOCK_FUTURES;
         }
-      }, new ContinuousZeroDepositSecurityVisitor<String>() {
-
-        @Override
-        public String visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-          throw new UnsupportedOperationException("Should not form a position containing a ContinuousZeroDepositSecurity");
-        }
-      }));
+      });
     } else {
       return UNKNOWN;
     }

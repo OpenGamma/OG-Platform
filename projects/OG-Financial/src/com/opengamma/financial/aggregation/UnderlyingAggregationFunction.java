@@ -15,19 +15,14 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurityVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -63,7 +58,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     _useAttributes = useAttributes;
   }
   
-  private EquityIndexOptionSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new EquityIndexOptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
       Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
@@ -72,7 +67,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }
   };
   
-  private EquityOptionSecurityVisitor<String> _equityOptionSecurityVisitor = new EquityOptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
       Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
@@ -81,7 +76,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }    
   };
   
-  private FXOptionSecurityVisitor<String> _fxOptionSecurityVisitor = new FXOptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _fxOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitFXOptionSecurity(FXOptionSecurity fxOptionSecurity) {
       UnorderedCurrencyPair unorderedPair = UnorderedCurrencyPair.of(fxOptionSecurity.getCallCurrency(), fxOptionSecurity.getPutCurrency());
@@ -89,7 +84,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }
   };
   
-  private FXBarrierOptionSecurityVisitor<String> _fxBarrierOptionSecurityVisitor = new FXBarrierOptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _fxBarrierOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity fxBarrierOptionSecurity) {
       UnorderedCurrencyPair unorderedPair = UnorderedCurrencyPair.of(fxBarrierOptionSecurity.getCallCurrency(), fxBarrierOptionSecurity.getPutCurrency());
@@ -97,7 +92,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }
   };
   
-  private IRFutureOptionSecurityVisitor<String> _irFutureOptionSecurityVisitor = new IRFutureOptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _irFutureOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
       Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
@@ -106,7 +101,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }
   };
   
-  private SwaptionSecurityVisitor<String> _swaptionSecurityVisitor = new SwaptionSecurityVisitor<String>() {
+  private FinancialSecurityVisitor<String> _swaptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     public String visitSwaptionSecurity(SwaptionSecurity security) {
       SwapSecurity underlying = (SwapSecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
       String name = underlying.getName();
@@ -124,7 +119,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
         return NOT_APPLICABLE;
       } 
     } else {
-      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+      FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
                                                                                               .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
                                                                                               .equityOptionVisitor(_equityOptionSecurityVisitor)
                                                                                               .fxOptionVisitor(_fxOptionSecurityVisitor)
