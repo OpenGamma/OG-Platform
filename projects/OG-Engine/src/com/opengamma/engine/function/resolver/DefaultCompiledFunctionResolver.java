@@ -57,9 +57,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    */
   private final FunctionCompilationContext _functionCompilationContext;
   /**
-   * Cache of targets. The values are "soft" so that when the function iterators drop out of scope as the requirements on the target are resolved the entry can be dropped.
+   * Cache of targets. The values are weak so that when the function iterators drop out of scope as the requirements on the target are resolved the entry can be dropped.
    */
-  private final ConcurrentMap<ComputationTargetSpecification, Pair<ResolutionRule[], Collection<ValueSpecification>[]>> _targetCache = new MapMaker().softValues().makeMap();
+  private final ConcurrentMap<ComputationTargetSpecification, Pair<ResolutionRule[], Collection<ValueSpecification>[]>> _targetCache = new MapMaker().weakValues().makeMap();
 
   /**
    * Creates a resolver.

@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -50,8 +49,8 @@ import com.opengamma.id.UniqueId;
         if (_trades == null) {
           _trades = new TargetResolverList<Trade>(getTargetResolver(), _tradeSpecs) {
             @Override
-            protected Trade getTargetObject(final ComputationTarget target) {
-              return target.getTrade();
+            protected Trade createObject(final ComputationTargetSpecification specification) {
+              return new LazyTargetResolverTrade(getTargetResolver(), specification);
             }
           };
         }

@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -25,7 +24,7 @@ import com.opengamma.id.UniqueId;
   private final Map<String, String> _attributes;
   private final UniqueId _uniqueId;
   private final ComputationTargetSpecification _rootNodeSpec;
-  private transient volatile ComputationTarget _rootNode;
+  private transient volatile PortfolioNode _rootNode;
   private final String _name;
 
   public TargetResolverPortfolio(final ComputationTargetResolver targetResolver, final Portfolio copyFrom) {
@@ -33,7 +32,6 @@ import com.opengamma.id.UniqueId;
     _attributes = copyFrom.getAttributes();
     _uniqueId = copyFrom.getUniqueId();
     _rootNodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, copyFrom.getRootNode().getUniqueId());
-    _rootNode = new ComputationTarget(ComputationTargetType.PORTFOLIO_NODE, copyFrom.getRootNode());
     _name = copyFrom.getName();
   }
 
@@ -63,11 +61,11 @@ import com.opengamma.id.UniqueId;
     if (_rootNode == null) {
       synchronized (this) {
         if (_rootNode == null) {
-          _rootNode = getTargetResolver().resolve(_rootNodeSpec);
+          _rootNode = new LazyTargetResolverPortfolioNode(getTargetResolver(), _rootNodeSpec);
         }
       }
     }
-    return _rootNode.getPortfolioNode();
+    return _rootNode;
   }
 
   @Override

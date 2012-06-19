@@ -45,20 +45,23 @@ public final class LazyResolvedPosition extends LazyResolvedPositionOrTrade<Posi
   @Override
   public Collection<Trade> getTrades() {
     if (_trades == null) {
+      Collection<Trade> newTrades = null;
       synchronized (this) {
         if (_trades == null) {
           final Collection<Trade> trades = getUnderlying().getTrades();
           if (trades.isEmpty()) {
             _trades = Collections.emptySet();
           } else {
-            final Collection<Trade> newTrades = new ArrayList<Trade>(trades.size());
+            newTrades = new ArrayList<Trade>(trades.size());
             for (Trade trade : trades) {
               newTrades.add(new LazyResolvedTrade(getLazyResolveContext(), trade));
             }
             _trades = newTrades;
-            getLazyResolveContext().cacheTrades(newTrades);
           }
         }
+      }
+      if (newTrades != null) {
+        getLazyResolveContext().cacheTrades(newTrades);
       }
     }
     return _trades;

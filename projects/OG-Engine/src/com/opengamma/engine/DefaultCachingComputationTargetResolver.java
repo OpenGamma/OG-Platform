@@ -117,9 +117,9 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
         specification = MemoryUtils.instance(specification);
         final ComputationTarget existing = _frontCache.putIfAbsent(specification, target);
         if (existing != null) {
-          target = existing;
+          return existing;
         }
-        addToCache(specification, target);
+        addToCacheImpl(specification, target);
       }
       return target;
     }
@@ -145,9 +145,7 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     addToCache(nodes, ComputationTargetType.PORTFOLIO_NODE);
   }
 
-  private void addToCache(ComputationTargetSpecification specification, final ComputationTarget ct) {
-    specification = MemoryUtils.instance(specification);
-    _frontCache.put(specification, ct);
+  private void addToCacheImpl(final ComputationTargetSpecification specification, final ComputationTarget ct) {
     // Don't allow re-entrance to the cache; serialization of a LazyResolver can try to write entries to the
     // cache. Put them into the frontCache only so that we can do a quick lookup if they stay in memory. The
     // problem is that spooling a big root portfolio node to disk can try to resolve and cache all of the
@@ -173,6 +171,13 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
       } while (!_pendingCachePuts.isEmpty() && _cachePutLock.compareAndSet(false, true));
     } else {
       _pendingCachePuts.add(e);
+    }
+  }
+
+  private void addToCache(ComputationTargetSpecification specification, final ComputationTarget ct) {
+    specification = MemoryUtils.instance(specification);
+    if (_frontCache.putIfAbsent(specification, ct) == null) {
+      addToCacheImpl(specification, ct);
     }
   }
 

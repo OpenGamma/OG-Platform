@@ -8,7 +8,6 @@ package com.opengamma.engine.target;
 import java.util.AbstractList;
 import java.util.Iterator;
 
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 
@@ -19,19 +18,19 @@ import com.opengamma.engine.ComputationTargetSpecification;
 
   private final ComputationTargetResolver _resolver;
   private final ComputationTargetSpecification[] _specifications;
-  private final ComputationTarget[] _resolved;
+  private final Object[] _resolved;
 
   public TargetResolverList(final ComputationTargetResolver resolver, final ComputationTargetSpecification[] specifications) {
     _resolver = resolver;
     _specifications = specifications;
-    _resolved = new ComputationTarget[specifications.length];
+    _resolved = new Object[specifications.length];
   }
 
   protected ComputationTargetResolver getTargetResolver() {
     return _resolver;
   }
 
-  protected abstract T getTargetObject(ComputationTarget target);
+  protected abstract T createObject(ComputationTargetSpecification specification);
 
   @Override
   public int size() {
@@ -62,12 +61,13 @@ import com.opengamma.engine.ComputationTargetSpecification;
     };
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public synchronized T get(final int index) {
     if (_resolved[index] == null) {
-      _resolved[index] = getTargetResolver().resolve(_specifications[index]);
+      _resolved[index] = createObject(_specifications[index]);
     }
-    return getTargetObject(_resolved[index]);
+    return (T) _resolved[index];
   }
 
 }

@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -71,8 +70,8 @@ import com.opengamma.id.UniqueId;
         if (_childNodes == null) {
           _childNodes = new TargetResolverList<PortfolioNode>(getTargetResolver(), _childNodeSpecs) {
             @Override
-            protected PortfolioNode getTargetObject(final ComputationTarget target) {
-              return target.getPortfolioNode();
+            protected PortfolioNode createObject(final ComputationTargetSpecification target) {
+              return new LazyTargetResolverPortfolioNode(getTargetResolver(), target);
             }
           };
         }
@@ -88,8 +87,8 @@ import com.opengamma.id.UniqueId;
         if (_positions == null) {
           _positions = new TargetResolverList<Position>(getTargetResolver(), _positionSpecs) {
             @Override
-            protected Position getTargetObject(final ComputationTarget target) {
-              return target.getPosition();
+            protected Position createObject(final ComputationTargetSpecification target) {
+              return new LazyTargetResolverPosition(getTargetResolver(), target);
             }
           };
         }

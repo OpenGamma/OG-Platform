@@ -51,10 +51,15 @@ public final class LazyResolvedPortfolio extends LazyResolvedObject<Portfolio> i
   @Override
   public PortfolioNode getRootNode() {
     if (_rootNode == null) {
+      PortfolioNode rootNode = null;
       synchronized (this) {
         if (_rootNode == null) {
-          _rootNode = new LazyResolvedPortfolioNode(getLazyResolveContext(), getUnderlying().getRootNode());
+          rootNode = new LazyResolvedPortfolioNode(getLazyResolveContext(), getUnderlying().getRootNode());
+          _rootNode = rootNode;
         }
+      }
+      if (rootNode != null) {
+        getLazyResolveContext().cachePortfolioNode(rootNode);
       }
     }
     return _rootNode;
