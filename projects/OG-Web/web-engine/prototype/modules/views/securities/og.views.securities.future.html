@@ -29,6 +29,8 @@
               </tr>
             {{/if}}
             {{if underlyingBond}}
+              <tr><td><span>First Delivery Date</span></td><td>${firstDeliveryDate}</td></tr>
+              <tr><td><span>Last Delivery Date</span></td><td>${lastDeliveryDate}</td></tr>
               <tr><td style="vertical-align: top"><span>Underlying Bond</span></td><td>
                 {{each underlyingBond}}${$index}: ${$value} <br />{{/each}}
               </td></tr>
