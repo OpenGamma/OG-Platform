@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -56,7 +56,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
   /**
    * 
    */
-  private static final SmileDeltaParameter[] EMPTY_ARRAY = new SmileDeltaParameter[0];
+  private static final SmileDeltaParameters[] EMPTY_ARRAY = new SmileDeltaParameters[0];
   private static final Logger s_logger = LoggerFactory.getLogger(ForexStrangleRiskReversalVolatilitySurfaceFunction.class);
 
   @Override
@@ -77,7 +77,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
     Arrays.sort(tenors);
     final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
     final Number[] deltaValues = getDeltaValues(quotes);
-    final ObjectArrayList<SmileDeltaParameter> smile = new ObjectArrayList<SmileDeltaParameter>();
+    final ObjectArrayList<SmileDeltaParameters> smile = new ObjectArrayList<SmileDeltaParameters>();
     final int nSmileValues = deltaValues.length - 1;
     final Set<String> shifts = desiredValue.getConstraints().getValues(VolatilitySurfaceShiftFunction.SHIFT);
     final double shiftMultiplier;
@@ -114,7 +114,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
             s_logger.info("Had a null delta value for tenor {}", j);
           }
         }
-        smile.add(new SmileDeltaParameter(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray()));
+        smile.add(new SmileDeltaParameters(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray()));
       } else {
         s_logger.info("Could not get atm data for tenor {}", tenor);
       }
@@ -123,7 +123,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
       throw new OpenGammaRuntimeException("Could not get any data for surface " + surfaceName);
     }
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile.toArray(EMPTY_ARRAY), interpolator);
+    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = new SmileDeltaTermStructureParametersStrikeInterpolation(smile.toArray(EMPTY_ARRAY), interpolator);
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)

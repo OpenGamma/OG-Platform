@@ -30,6 +30,8 @@ public final class Interpolator1DFactory {
   public static final String STEP = "Step";
   /** Double quadratic */
   public static final String DOUBLE_QUADRATIC = "DoubleQuadratic";
+  /** Time square */
+  public static final String TIME_SQUARE = "TimeSquare";
   /** Flat extrapolator */
   public static final String FLAT_EXTRAPOLATOR = "FlatExtrapolator";
   /** Linear extrapolator */
@@ -46,6 +48,8 @@ public final class Interpolator1DFactory {
   public static final StepInterpolator1D STEP_INSTANCE = new StepInterpolator1D();
   /** Double quadratic instance */
   public static final DoubleQuadraticInterpolator1D DOUBLE_QUADRATIC_INSTANCE = new DoubleQuadraticInterpolator1D();
+  /** Time square instance */
+  public static final TimeSquareInterpolator1D TIME_SQUARE_INSTANCE = new TimeSquareInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -61,10 +65,12 @@ public final class Interpolator1DFactory {
     instanceNames.put(LogLinearInterpolator1D.class, LOG_LINEAR);
     staticInstances.put(NATURAL_CUBIC_SPLINE, NATURAL_CUBIC_SPLINE_INSTANCE);
     instanceNames.put(NaturalCubicSplineInterpolator1D.class, NATURAL_CUBIC_SPLINE);
-    staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
-    instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
     staticInstances.put(STEP, STEP_INSTANCE);
     instanceNames.put(StepInterpolator1D.class, STEP);
+    staticInstances.put(DOUBLE_QUADRATIC, DOUBLE_QUADRATIC_INSTANCE);
+    instanceNames.put(DoubleQuadraticInterpolator1D.class, DOUBLE_QUADRATIC);
+    staticInstances.put(TIME_SQUARE, TIME_SQUARE_INSTANCE);
+    instanceNames.put(TimeSquareInterpolator1D.class, TIME_SQUARE);
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);

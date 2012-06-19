@@ -17,8 +17,8 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 /**
  * A base class for interpolation in one dimension.
  */
-
 public abstract class Interpolator1D implements Interpolator<Interpolator1DDataBundle, Double>, Serializable {
+
   private static final long serialVersionUID = 1L;
   private static final double EPS = 1e-6;
 
@@ -28,9 +28,15 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
   public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value, boolean useFiniteDifferenceSensitivities) {
     return useFiniteDifferenceSensitivities ? getFiniteDifferenceSensitivities(data, value) : getNodeSensitivitiesForValue(data, value);
   }
-  
+
+  /**
+   * Computes the sensitivities of the interpolated value to the input data y.
+   * @param data The interpolation data.
+   * @param value The value for which the interpolation is computed.
+   * @return The sensitivity.
+   */
   public abstract double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value);
-  
+
   protected double[] getFiniteDifferenceSensitivities(Interpolator1DDataBundle data, Double value) {
     Validate.notNull(data, "data");
     final double[] x = data.getKeys();
@@ -52,7 +58,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
     }
     return result;
   }
-  
+
   public abstract Interpolator1DDataBundle getDataBundle(double[] x, double[] y);
 
   public abstract Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y);
@@ -97,7 +103,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
     }
     return true;
   }
-  
+
   protected boolean classEquals(final Object o) {
     if (o == null) {
       return false;

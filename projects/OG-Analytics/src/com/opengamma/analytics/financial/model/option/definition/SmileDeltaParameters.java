@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * Class describing the data required to describe a delta dependent smile from ATM, risk reversal and strangle as used in Forex market.
  * The delta used is the delta with respect to forward.
  */
-public class SmileDeltaParameter {
+public class SmileDeltaParameters {
 
   /**
    * The time to expiry associated to the data.
@@ -35,7 +35,7 @@ public class SmileDeltaParameter {
    * @param delta Delta of the different data points. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
    * @param volatility The volatilities.
    */
-  public SmileDeltaParameter(final double timeToExpiration, final double[] delta, final double[] volatility) {
+  public SmileDeltaParameters(final double timeToExpiration, final double[] delta, final double[] volatility) {
     ArgumentChecker.notNull(delta, "Delta");
     ArgumentChecker.notNull(volatility, "Volatility");
     ArgumentChecker.isTrue(2 * delta.length + 1 == volatility.length, "Length of delta {} should be coherent with volatility length {}", 2 * delta.length + 1, volatility.length);
@@ -52,7 +52,7 @@ public class SmileDeltaParameter {
    * @param riskReversal The risk reversal volatility figures, in the same order as the delta.
    * @param strangle The strangle volatility figures, in the same order as the delta.
    */
-  public SmileDeltaParameter(final double timeToExpiry, final double atm, final double[] delta, final double[] riskReversal, final double[] strangle) {
+  public SmileDeltaParameters(final double timeToExpiry, final double atm, final double[] delta, final double[] riskReversal, final double[] strangle) {
     ArgumentChecker.notNull(delta, "Delta");
     ArgumentChecker.notNull(riskReversal, "Risk Reversal");
     ArgumentChecker.notNull(strangle, "Strangle");
@@ -135,7 +135,7 @@ public class SmileDeltaParameter {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SmileDeltaParameter other = (SmileDeltaParameter) obj;
+    final SmileDeltaParameters other = (SmileDeltaParameters) obj;
     if (!Arrays.equals(_delta, other._delta)) {
       return false;
     }

@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 /**
  * Tests related to the construction of the data required to describe a delta dependent smile from ATM, risk reversal and strangle as used in Forex market.
  */
-public class SmileDeltaParameterTest {
+public class SmileDeltaParametersTest {
 
   private static final double TIME_TO_EXPIRY = 2.0;
   private static final double FORWARD = 1.40;
@@ -26,21 +26,21 @@ public class SmileDeltaParameterTest {
   private static final double[] RISK_REVERSAL = new double[] {-0.0130, -0.0050};
   private static final double[] STRANGLE = new double[] {0.0300, 0.0100};
 
-  private static final SmileDeltaParameter SMILE = new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+  private static final SmileDeltaParameters SMILE = new SmileDeltaParameters(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelta() {
-    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, null, RISK_REVERSAL, STRANGLE);
+    new SmileDeltaParameters(TIME_TO_EXPIRY, ATM, null, RISK_REVERSAL, STRANGLE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testRRLength() {
-    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, new double[3], STRANGLE);
+    new SmileDeltaParameters(TIME_TO_EXPIRY, ATM, DELTA, new double[3], STRANGLE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStrangleLength() {
-    new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, new double[3]);
+    new SmileDeltaParameters(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, new double[3]);
   }
 
   @Test
@@ -49,7 +49,7 @@ public class SmileDeltaParameterTest {
    */
   public void constructorVolatility() {
     double[] volatility = SMILE.getVolatility();
-    SmileDeltaParameter smileFromVolatility = new SmileDeltaParameter(TIME_TO_EXPIRY, DELTA, volatility);
+    SmileDeltaParameters smileFromVolatility = new SmileDeltaParameters(TIME_TO_EXPIRY, DELTA, volatility);
     assertEquals("Smile by delta: constructor", SMILE, smileFromVolatility);
   }
 
@@ -60,7 +60,7 @@ public class SmileDeltaParameterTest {
   public void getter() {
     assertEquals("Smile by delta: time to expiry", TIME_TO_EXPIRY, SMILE.getTimeToExpiry());
     assertEquals("Smile by delta: delta", DELTA, SMILE.getDelta());
-    SmileDeltaParameter smile2 = new SmileDeltaParameter(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
+    SmileDeltaParameters smile2 = new SmileDeltaParameters(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
     assertEquals("Smile by delta: volatility", SMILE.getVolatility(), smile2.getVolatility());
   }
 
@@ -113,10 +113,10 @@ public class SmileDeltaParameterTest {
     int nbDelta = DELTA.length;
     long startTime, endTime;
     final int nbTest = 1000;
-    SmileDeltaParameter[] smile = new SmileDeltaParameter[nbTest];
+    SmileDeltaParameters[] smile = new SmileDeltaParameters[nbTest];
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      smile[looptest] = new SmileDeltaParameter(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+      smile[looptest] = new SmileDeltaParameters(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " smile from ATM/RR/S in delta term: " + (endTime - startTime) + " ms");

@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -88,37 +88,37 @@ public class TestsDataSetsForex {
   private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
-  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate) {
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2);
   }
 
-  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2, interpolator);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_2, STRANGLE_2, interpolator);
   }
 
-  public static SmileDeltaTermStructureParameter smile3points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smile3points(final ZonedDateTime referenceDate, final Interpolator1D interpolator) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_1, ATM, RISK_REVERSAL_1, STRANGLE_1, interpolator);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_1, ATM, RISK_REVERSAL_1, STRANGLE_1, interpolator);
   }
 
-  public static SmileDeltaTermStructureParameter smile5points(final ZonedDateTime referenceDate, final double shift) {
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smile5points(final ZonedDateTime referenceDate, final double shift) {
     double[] atmShift = ATM.clone();
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
@@ -127,17 +127,17 @@ public class TestsDataSetsForex {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, atmShift, RISK_REVERSAL_2, STRANGLE_2);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, atmShift, RISK_REVERSAL_2, STRANGLE_2);
   }
 
-  public static SmileDeltaTermStructureParameter smileFlat(final ZonedDateTime referenceDate) {
+  public static SmileDeltaTermStructureParametersStrikeInterpolation smileFlat(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
     double[] timeToExpiry = new double[NB_EXP];
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }
 
   public static FXMatrix fxMatrix() {
