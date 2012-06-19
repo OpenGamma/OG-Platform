@@ -5,7 +5,6 @@
  */
 package com.opengamma.component.tool;
 
-import com.opengamma.component.factory.RemoteComponentFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -17,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.component.factory.RemoteComponentFactory;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.LogUtils;
