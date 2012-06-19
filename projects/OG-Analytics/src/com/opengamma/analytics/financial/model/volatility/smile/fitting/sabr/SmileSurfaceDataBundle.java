@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -94,7 +95,9 @@ public abstract class SmileSurfaceDataBundle {
       int nVars = intVar.size();
       if (nVars > 1) {
         for (int t = 1; t < nVars; t++) {
-          ArgumentChecker.isTrue(intVar.get(t) >= intVar.get(t - 1), "integrated variance not increasing, have {}, {}", intVar.get(t), intVar.get(t - 1));
+          if (intVar.get(t) < intVar.get(t - 1)) {
+            throw new OpenGammaRuntimeException("Integrated variance not increasing, have " + intVar.get(t) + "," + intVar.get(t - 1));
+          }
         }
       }
     }

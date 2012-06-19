@@ -47,7 +47,6 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     final VolatilitySurfaceInterpolator surfaceInterpolator = (VolatilitySurfaceInterpolator) interpolatorObject;
     final SmileSurfaceDataBundle data = getData(inputs, getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits()),
         getForwardCurveRequirement(target, desiredValue));
-    
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = surfaceInterpolator.getVolatilitySurface(data);
     final ValueProperties properties = getResultProperties(desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);

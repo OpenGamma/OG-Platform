@@ -5,12 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
 
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -20,6 +14,12 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -220,6 +220,31 @@ public class PDEUtilityTools {
       result += t;
       for (int i = 0; i <= ySteps; i++) {
         final double k = yMin + ((yMax - yMin) * i) / ySteps;
+        result += "\t" + surface.getZValue(t, k);
+      }
+      result += "\n";
+    }
+    result += "\n";
+    System.out.println(result);
+  }
+
+  /** This form takes vectors of x (typically expiry) and y (typically strike) */
+  public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double[] x, final double[] y) {
+    Validate.isTrue(x.length > 0, "The x-array was empty");
+    Validate.isTrue(y.length > 0, "The y-array was empty");
+
+    String result = "";
+    result += name;
+    result += "\n";
+    for (int i = 0; i < y.length; i++) {
+      result += ("\t" + y[i]);
+    }
+    result += "\n";
+    for (int j = 0; j < x.length; j++) {
+      final double t = x[j];
+      result += t;
+      for (int i = 0; i < y.length; i++) {
+        final double k = y[i];
         result += "\t" + surface.getZValue(t, k);
       }
       result += "\n";
