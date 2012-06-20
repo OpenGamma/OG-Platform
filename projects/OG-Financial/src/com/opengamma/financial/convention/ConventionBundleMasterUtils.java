@@ -14,21 +14,22 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Class of utility methods for adding convention bundles to a convention bundle master
  */
 public class ConventionBundleMasterUtils {
-  private ConventionBundleMaster _master;
+  private final ConventionBundleMaster _master;
 
-  public ConventionBundleMasterUtils(ConventionBundleMaster master) {
+  public ConventionBundleMasterUtils(final ConventionBundleMaster master) {
     _master = master;
   }
-  
-  private UniqueId add(ExternalIdBundle bundle, ConventionBundleImpl conventionBundle) {
+
+  private UniqueId add(final ExternalIdBundle bundle, final ConventionBundleImpl conventionBundle) {
     return _master.add(bundle, conventionBundle);
   }
-  
+
   //-------------------------------------------------------------------------
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final Frequency frequency, final int settlementDays) {
@@ -55,8 +56,8 @@ public class ConventionBundleMasterUtils {
   }
 
   // (Case) Overnight Indices 
-  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, Period period,
-      int settlementDays, boolean isEOM, ExternalId region, Integer publicationLag) {
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, period, settlementDays, isEOM, region, publicationLag);
     return add(bundle, convention);
   }
@@ -129,6 +130,13 @@ public class ConventionBundleMasterUtils {
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
       final int exDividendDays, final int settlementDays, final boolean rollToSettlement) {
     final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, settlementDays, rollToSettlement);
+    return add(bundle, convention);
+  }
+
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity,
+      final int exDividendDays, final int shortSettlementDays, final int longSettlementDays, final boolean rollToSettlement, final Tenor cutoffTenor) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(name, isEOMConvention, calculateScheduleFromMaturity, exDividendDays, shortSettlementDays, longSettlementDays, rollToSettlement,
+        cutoffTenor);
     return add(bundle, convention);
   }
 
