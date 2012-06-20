@@ -9,16 +9,9 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.CompiledFunctionService;
-import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.view.cache.ViewComputationCacheSource;
-import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,130 +19,18 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculationNode> implements InitializingBean {
 
-  private ViewComputationCacheSource _viewComputationCache;
-  private CompiledFunctionService _functionCompilationService;
-  private FunctionExecutionContext _functionExecutionContext;
-  private ComputationTargetResolver _computationTargetResolver;
-  private ViewProcessorQuerySender _viewProcessorQuery;
-  private ExecutorService _executorService;
-  private FunctionInvocationStatisticsGatherer _statisticsGatherer = new DiscardingInvocationStatisticsGatherer();
-  private String _nodeIdentifier;
-
+  private SimpleCalculationNodeFactory _factory;
   private int _nodeCount;
   private double _nodesPerCore;
-
   private Collection<SimpleCalculationNode> _nodes;
-  private boolean _useWriteBehindSharedCache;
-  private boolean _useWriteBehindPrivateCache;
-  private boolean _useAsynchronousTargetResolve;
 
-  /**
-   * Gets the viewComputationCache field.
-   * @return the viewComputationCache
-   */
-  public ViewComputationCacheSource getViewComputationCache() {
-    return _viewComputationCache;
+  public SimpleCalculationNodeFactory getNodeFactory() {
+    return _factory;
   }
 
-  /**
-   * Sets the viewComputationCache field.
-   * @param viewComputationCache  the viewComputationCache
-   */
-  public void setViewComputationCache(ViewComputationCacheSource viewComputationCache) {
-    ArgumentChecker.notNull(viewComputationCache, "viewComputationCache");
-    _viewComputationCache = viewComputationCache;
-  }
-
-  public CompiledFunctionService getFunctionCompilationService() {
-    return _functionCompilationService;
-  }
-
-  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
-    ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
-    _functionCompilationService = functionCompilationService;
-  }
-
-  /**
-   * Gets the functionExecutionContext field.
-   * @return the functionExecutionContext
-   */
-  public FunctionExecutionContext getFunctionExecutionContext() {
-    return _functionExecutionContext;
-  }
-
-  /**
-   * Sets the functionExecutionContext field.
-   * @param functionExecutionContext  the functionExecutionContext
-   */
-  public void setFunctionExecutionContext(FunctionExecutionContext functionExecutionContext) {
-    ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
-    _functionExecutionContext = functionExecutionContext;
-  }
-
-  /**
-   * Gets the computationTargetResolver field.
-   * @return the computationTargetResolver
-   */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  /**
-   * Sets the computationTargetResolver field.
-   * @param computationTargetResolver  the computationTargetResolver
-   */
-  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
-    _computationTargetResolver = computationTargetResolver;
-  }
-
-  /**
-   * Gets the viewProcessorQuery field.
-   * @return the viewProcessorQuery
-   */
-  public ViewProcessorQuerySender getViewProcessorQuery() {
-    return _viewProcessorQuery;
-  }
-
-  /**
-   * Sets the viewProcessorQuery field.
-   * @param viewProcessorQuery  the viewProcessorQuery
-   */
-  public void setViewProcessorQuery(ViewProcessorQuerySender viewProcessorQuery) {
-    ArgumentChecker.notNull(viewProcessorQuery, "viewProcessorQuery");
-    _viewProcessorQuery = viewProcessorQuery;
-  }
-
-  public ExecutorService getExecutorService() {
-    return _executorService;
-  }
-
-  public void setExecutorService(ExecutorService executorService) {
-    _executorService = executorService;
-  }
-
-  public boolean isUseWriteBehindSharedCache() {
-    return _useWriteBehindSharedCache;
-  }
-
-  public void setUseWriteBehindSharedCache(final boolean useWriteBehindCache) {
-    _useWriteBehindSharedCache = useWriteBehindCache;
-  }
-
-  public boolean isUseWriteBehindPrivateCache() {
-    return _useWriteBehindPrivateCache;
-  }
-
-  public void setUseWriteBehindPrivateCache(final boolean useWriteBehindCache) {
-    _useWriteBehindPrivateCache = useWriteBehindCache;
-  }
-
-  public boolean isUseAsynchronousTargetResolve() {
-    return _useAsynchronousTargetResolve;
-  }
-
-  public void setUseAsynchronousTargetResolve(final boolean useAsynchronousTargetResolve) {
-    _useAsynchronousTargetResolve = useAsynchronousTargetResolve;
+  public void setNodeFactory(final SimpleCalculationNodeFactory factory) {
+    ArgumentChecker.notNull(factory, "factory");
+    _factory = factory;
   }
 
   public void setNodeCount(final int nodeCount) {
@@ -170,23 +51,6 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
     return _nodesPerCore;
   }
 
-  public void setNodeIdentifier(final String nodeIdentifier) {
-    _nodeIdentifier = nodeIdentifier;
-  }
-
-  public String getNodeIdentifier() {
-    return _nodeIdentifier;
-  }
-
-  public void setStatisticsGatherer(final FunctionInvocationStatisticsGatherer statisticsGatherer) {
-    ArgumentChecker.notNull(statisticsGatherer, "statisticsGatherer");
-    _statisticsGatherer = statisticsGatherer;
-  }
-
-  public FunctionInvocationStatisticsGatherer getStatisticsGatherer() {
-    return _statisticsGatherer;
-  }
-
   protected int getCores() {
     return Runtime.getRuntime().availableProcessors();
   }
@@ -203,11 +67,7 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    ArgumentChecker.notNull(getViewComputationCache(), "viewComputationCache");
-    ArgumentChecker.notNull(getFunctionCompilationService(), "functionCompilationService");
-    ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
-    ArgumentChecker.notNull(getComputationTargetResolver(), "computationTargetResolver");
-    ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
+    ArgumentChecker.notNullInjected(getNodeFactory(), "nodeFactory");
     final int nodes;
     if (getNodeCount() == 0) {
       if (getNodesPerCore() == 0) {
@@ -219,22 +79,7 @@ public class SimpleCalculationNodeSet extends AbstractCollection<SimpleCalculati
     }
     _nodes = new ArrayList<SimpleCalculationNode>(nodes);
     for (int i = 0; i < nodes; i++) {
-      final String identifier;
-      if (getNodeIdentifier() != null) {
-        if (nodes > 1) {
-          identifier = getNodeIdentifier() + ":" + (i + 1);
-        } else {
-          identifier = getNodeIdentifier();
-        }
-      } else {
-        identifier = SimpleCalculationNode.createNodeId();
-      }
-      final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer());
-      node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
-      node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
-      node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
-      _nodes.add(node);
+      _nodes.add(getNodeFactory().createNode());
     }
   }
 

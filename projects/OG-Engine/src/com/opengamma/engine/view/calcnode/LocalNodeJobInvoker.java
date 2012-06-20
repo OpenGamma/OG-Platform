@@ -35,7 +35,7 @@ public class LocalNodeJobInvoker extends SimpleCalculationNodeInvocationContaine
   }
 
   public LocalNodeJobInvoker(final Collection<SimpleCalculationNode> nodes) {
-    getNodes().addAll(nodes);
+    addNodes(nodes);
     recalculateCapabilities();
   }
 

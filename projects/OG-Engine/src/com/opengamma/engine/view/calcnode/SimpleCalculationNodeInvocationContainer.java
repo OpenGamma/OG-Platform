@@ -219,7 +219,15 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   }
 
+  /**
+   * The nodes that are available for execution.
+   */
   private final Queue<SimpleCalculationNode> _nodes = new ConcurrentLinkedQueue<SimpleCalculationNode>();
+
+  /**
+   * The total number of nodes that are in the container.
+   */
+  private final AtomicInteger _nodeCount = new AtomicInteger();
 
   /**
    * The set of jobs that are either running, in the runnable queue or blocked by other jobs.
@@ -252,12 +260,14 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   public void addNode(final SimpleCalculationNode node) {
     ArgumentChecker.notNull(node, "node");
+    _nodeCount.incrementAndGet();
     getNodes().add(node);
     onNodeChange();
   }
 
   public void addNodes(final Collection<SimpleCalculationNode> nodes) {
     ArgumentChecker.notNull(nodes, "nodes");
+    _nodeCount.addAndGet(nodes.size());
     getNodes().addAll(nodes);
     onNodeChange();
   }
@@ -265,6 +275,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   public void setNode(final SimpleCalculationNode node) {
     ArgumentChecker.notNull(node, "node");
     getNodes().clear();
+    _nodeCount.set(1);
     getNodes().add(node);
     onNodeChange();
   }
@@ -272,8 +283,69 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   public void setNodes(final Collection<SimpleCalculationNode> nodes) {
     ArgumentChecker.notNull(nodes, "nodes");
     getNodes().clear();
+    _nodeCount.set(nodes.size());
     getNodes().addAll(nodes);
     onNodeChange();
+  }
+
+  /**
+   * Removes a node if one is available.
+   * 
+   * @return the node removed from the live set, or null if there are none to remove
+   */
+  public SimpleCalculationNode removeNode() {
+    final SimpleCalculationNode node = getNodes().poll();
+    if (node != null) {
+      _nodeCount.decrementAndGet();
+    }
+    return node;
+  }
+
+  /**
+   * Returns the total number of nodes in this invocation set. This includes those in the available set and those that are currently busy executing jobs.
+   * 
+   * @return the total number of nodes
+   */
+  public int getTotalNodeCount() {
+    return _nodeCount.get();
+  }
+
+  /**
+   * Returns the number of available nodes in the set. Note that the structure that holds the nodes may have quite a costly size operation.
+   * 
+   * @return the number of available nodes in the set
+   */
+  public int getAvailableNodeCount() {
+    return getNodes().size();
+  }
+
+  /**
+   * Returns the total number of jobs enqueued at this node. This includes both runnable, partial and blocked jobs. Note that the structure that holds the jobs may have quite a costly size operation.
+   * 
+   * @return the number of jobs
+   */
+  public int getTotalJobCount() {
+    return _executions.size();
+  }
+
+  /**
+   * Returns the number of jobs enqueued at this node that are available to start. This includes both runnable, partial and blocked jobs. Note that the structure that holds the jobs may have quite a
+   * costly size operation.
+   * 
+   * @return the number of jobs
+   */
+  public int getRunnableJobCount() {
+    return _runnableJobs.size();
+  }
+
+  /**
+   * Returns the number of jobs enqueued at this node that have been partially completed and are ready for continuation. Note that the structure that holds the jobs may have quite a costly size
+   * operation.
+   * 
+   * @return the number of jobs
+   */
+  public int getPartialJobCount() {
+    return _partialJobs.size();
   }
 
   protected abstract void onNodeChange();

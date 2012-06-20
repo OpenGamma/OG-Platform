@@ -280,7 +280,7 @@
   </bean>
   
   <!-- Calculation node(s) -->
-  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+  <bean id="calcNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />
@@ -290,6 +290,9 @@
     <property name="useWriteBehindSharedCache" value="true" />
     <property name="useAsynchronousTargetResolve" value="true" />
     <property name="statisticsGatherer" ref="statisticsSender" />
+  </bean>
+  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+    <property name="nodeFactory" ref="calcNodeFactory" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>
   
@@ -312,6 +315,21 @@
     </constructor-arg>
     <constructor-arg ref="statisticsSender" />
     <constructor-arg ref="calcNodes" />
+  </bean>
+  
+  <!-- JMX -->
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.view.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="jobInvoker" />
+        <ref bean="calcNodeFactory" />
+        <ref bean="mbeanServer" />
+      </list>
+    </property>
   </bean>
 
 </beans>
