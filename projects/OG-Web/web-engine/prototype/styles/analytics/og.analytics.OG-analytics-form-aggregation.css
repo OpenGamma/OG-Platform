@@ -1,0 +1,91 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-analytics-form-menu {
+    position: absolute;
+    background: #e0f2e7;
+    border: 1px solid #dadcdd;
+    z-index: 1;
+}
+
+.OG-analytics-form-menu .OG-background-03 {
+    height: 3px;
+}
+
+.OG-analytics-form-menu table {
+    margin: 7px 10px;
+}
+
+.OG-analytics-form-menu table td {
+    padding: 3px;
+}
+
+.OG-analytics-form-menu tr td:nth-child(1) span {
+    border: 1px solid #ccc;
+    background-color: #cdded4;
+    border-radius: 6px;
+    line-height: 12px;
+    height: 12px;
+    width: 12px;
+    display: block;
+    text-indent: 3px;
+    font-size: 11px;
+}
+
+/* aggregation */
+    .OG-analytics-form-menu.og-menu-aggregation tr td:nth-child(2) {
+        color: #999;
+        white-space: nowrap;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation tr td:nth-child(4) {
+        text-align: right;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation select {
+        width: 265px;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation input {
+        vertical-align: bottom;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation table + div {
+        margin: 7px 10px;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation .og-option {
+        white-space: nowrap;
+        border: 1px solid #ccc;
+        background-color: #cdded4;
+        border-radius: 2px;
+        padding: 1px 4px 1px 0;
+        position: relative;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation .og-option:after {
+        content: '';
+        position: absolute;
+        display: block;
+        background: #fff;
+        opacity: 0.1;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 50%;
+    }
+
+/* datacources */
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(2) select {
+        width: 95px;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(3) {
+        text-align: right;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(3) select {
+        width: 335px;
+    }

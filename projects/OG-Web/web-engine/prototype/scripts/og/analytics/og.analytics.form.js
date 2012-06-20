@@ -4,19 +4,117 @@
  */
 $.register_module({
     name: 'og.analytics.form',
-    dependencies: [],
+    dependencies: ['og.common.util.ui.AutoCombo'],
     obj: function () {
         return function (selector) {
+            var FormCombo = function (selector, module, data) {
+                var $popdiv, menu = this, $title;
+                $.when(og.api.text({module: module})).then(function (template) {
+                    var html = $((Handlebars.compile(template))(data));
+                    $title = $(selector).html(html).find('.og-option-title').on('click', function () {
+                        menu.state === 'open' ? menu.close() : menu.open().focus();
+                    });
+                    menu.state = 'closed';
+                    menu.focus = function () {return $popdiv.find('select').first().focus() && menu};
+                    menu.open = function () {
+                        $popdiv = $(selector + ' .OG-analytics-form-menu').show().trigger('open', $title);
+                        $title.addClass('og-active');
+                        menu.state = 'open';
+                        return menu;
+                    };
+                    menu.close = function () {
+                        if ($popdiv) $popdiv.hide();
+                        $title.removeClass('og-active');
+                        menu.state = 'closed';
+                    };
+                });
+            };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.rest.configs.get({handler: function (r) {return r}})
             ).then(function (template, search) {
-                $(selector).html(template);
-                og.common.util.ui.combobox({
-                    selector: '.OG-analytics-form .og-view',
-                    data: search.data.data,
-                    placeholder: 'search...'
-                }).select();
+                var response = { // dummy response
+                    view: search.data.data,
+                    aggregation: {
+                        aggregators: ['Long / Short', 'Asset Class'],
+                        row: [
+                            {num: 1, label: 'Aggregated by', by: 'Long / Short'},
+                            {num: 2, label: 'Then by', by: 'Asset Class', last: true}
+                        ]
+                    },
+                    datasources: {
+                        type: ['Live', 'Snapsot', 'Historical', 'Data Type'],
+                        live: ['Bloomberg', 'Reuters'],
+                        snapshot: ['Alan', 'Alan 2'],
+                        historical: ['01 June 2012', '02 June 2012', '03 June 2012'],
+                        datatype: ['type 1', 'type 2'],
+                        row: [
+                            {num: 1, type: 'Live', value: 'Bloomberg'},
+                            {num: 2, type: 'Snapshot', value: 'Alan'},
+                            {num: 3, type: 'Historical', value: '02 June 2012'},
+                            {num: 4, type: 'Data Type', value: 'type 2', last: true}
+                        ]
+                    }
+                };
+                $(selector).html(template)
+                    /**
+                     * Custom tab event, only triggers between top level menu items. e.g. a tab event will trigger
+                     * when tab entering or tab leaving the evented element
+                     */
+                    .on('keydown', 'input, select, button', function (event) {
+                        if (event.keyCode !== 9) return;
+                        var $aggr = $(selector + ' .og-aggregation').find('input, select, button'),
+                            $data = $(selector + ' .og-datasources').find('input, select, button'),
+                            $self = $(this), shift_key = event.shiftKey,
+                            trigger = function (menu) {$self.trigger('tab', menu);},
+                            active_pos = function (elms, pos) {return $self.is(elms[pos]())},
+                            view = $self.closest('.og-view').length,
+                            aggregation = $self.closest('.og-aggregation').length,
+                            datasources = $self.closest('.og-datasources').length,
+                            load = $self.hasClass('og-load');
+                        if (view && shift_key) return;
+                        if (view && !shift_key) return trigger('aggregation');
+                        if (aggregation && active_pos($aggr, 'last') && !shift_key) return trigger('datasources');
+                        if (datasources && active_pos($data, 'first') && shift_key) return trigger('aggregation');
+                        if (datasources && active_pos($data, 'last') && !shift_key) return trigger('load');
+                        if (load && shift_key) return trigger('datasources');
+                    })
+                    .on('tab', function (event, type) {
+                        switch (type) {
+                            case 'aggregation': aggregation_menu.open(); break;
+                            case 'datasources': datasources_menu.open(); break;
+                            case 'load': aggregation_menu.close(); datasources_menu.close(); break;
+                        }
+                    })
+                    /**
+                     * The "open" event fires everytime a menu item is opened
+                     */
+                    .on('open', function (event, elm) {
+                        if (!aggregation_menu.state || !datasources_menu.state) return;
+                        if ($(elm).closest('.og-view').length) {datasources_menu.close(), aggregation_menu.close();}
+                        if ($(elm).closest('.og-aggregation').length) {datasources_menu.close();}
+                        if ($(elm).closest('.og-datasources').length) {aggregation_menu.close();}
+                    })
+                    .on('click', '.og-menu-aggregation button', function () {
+                        var val = $(this).text();
+                        if (val === 'OK') $(selector).trigger('tab', 'datasources'), datasources_menu.focus();
+                        if (val === 'Cancel') aggregation_menu.close(), auto_combo_menu.select();
+                    })
+                    .on('click', '.og-menu-datasources button', function () {
+                        var val = $(this).text();
+                        if (val === 'OK') $(selector).trigger('tab', 'load'), $(selector + ' .og-load').focus();
+                        if (val === 'Cancel') datasources_menu.close(), auto_combo_menu.select();
+                    });
+                var auto_combo_menu = new og.common.util.ui.AutoCombo(
+                    '.OG-analytics-form .og-view', 'search...', response.view
+                );
+                var aggregation_menu = new FormCombo(
+                    selector + ' .og-aggregation', 'og.analytics.form_aggregation_tash', response.aggregation
+                );
+                var datasources_menu = new FormCombo(
+                    selector + ' .og-datasources', 'og.analytics.form_datasources_tash', response.datasources
+                );
+                auto_combo_menu.select();
             });
         }
     }

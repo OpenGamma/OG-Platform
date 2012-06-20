@@ -1,0 +1,43 @@
+<div class="og-option-title">
+  <header class="OG-background-03">data sources:</header>
+  <ul>
+    {{#each row}}
+    <li>{{this.type}}: {{this.value}}<span>{{^this.last}}then{{/this.last}}</span></li>
+    {{/each}}
+  </ul>
+  <div class="OG-icon og-icon-down"></div>
+</div>
+<div class="OG-analytics-form-menu og-menu-datasources OG-shadow" style="display: none">
+  <div class="OG-background-03"></div>
+  <table>
+    {{#each row}}
+    <tr>
+      <td><span>{{this.num}}</span></td>
+      <td>
+        <select>
+          <option>select...</option>
+          {{#each ../type}}
+          <option>{{this}}</option>
+          {{/each}}
+        </select>
+      </td>
+      <td>
+        <select>
+          <option>select...</option>
+        </select>
+      </td>
+      <td>
+        <div class="OG-icon og-icon-delete"></div>
+      </td>
+    </tr>
+    {{/each}}
+    <tr>
+      <td></td>
+      <td><a href="#" class="OG-link-add">add</a></td>
+      <td colspan="2">
+        <button>OK</button>
+        <button>Cancel</button>
+      </td>
+    </tr>
+  </table>
+</div>

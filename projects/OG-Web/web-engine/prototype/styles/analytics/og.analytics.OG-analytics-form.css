@@ -4,7 +4,9 @@
  */
 
 .OG-analytics-form .og-view,
-.OG-analytics-form .og-option-title {
+.OG-analytics-form .og-aggregation,
+.OG-analytics-form .og-datasources,
+.OG-analytics-form .og-load {
     position: absolute;
     display: inline-block;
     float: left;
@@ -77,6 +79,7 @@
 
 .OG-analytics-form .og-option-title {
     cursor: default;
+    height: 40px;
 }
 
 .OG-analytics-form .og-option-title:hover ul {
@@ -101,9 +104,10 @@
     left: 0;
     right: 21px;
     color: #475562;
-    height: 21px;
-    padding-top: 2px;
-    top: 17px;
+    height: 22px;
+    padding: 2px 0 0 5px;
+    top: 15px;
+    line-height: 20px;
 }
 
 .OG-analytics-form .og-option-title li {
@@ -121,8 +125,18 @@
 }
 
 .OG-analytics-form .og-option-title .og-icon-down {
-    height: 19px;
-    top: 18px;
+    height: 22px;
+    top: 16px;
+}
+
+.OG-analytics-form .og-option-title ul {
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+}
+
+.OG-analytics-form .og-option-title.og-active ul {
+    border: 1px solid #ccc;
+    border-right: none;
 }
 
 /**
@@ -139,5 +153,13 @@
 .OG-analytics-form .og-datasources {
     width: 30%;
     left: 42%;
+}
+
+/**
+ * Load
+ */
+.OG-analytics-form .og-load {
+    left: 73%;
+    top: 7px;
 }
 

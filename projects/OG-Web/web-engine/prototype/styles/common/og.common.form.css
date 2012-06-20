@@ -12,7 +12,3 @@ input[type="text"] {
   border-right: 1px solid #e3e9ef;
   border-top: 1px solid #abadb3;
 }
-
-input, select, textarea {
-  outline: 0 none;
-}

@@ -1,0 +1,43 @@
+<div class="og-option-title">
+  <header class="OG-background-03">aggregated by:</header>
+  <ul>
+    {{#each row}}
+    <li>{{this.by}}<span>{{^this.last}}then{{/this.last}}</span></li>
+    {{/each}}
+  </ul>
+  <div class="OG-icon og-icon-down"></div>
+</div>
+<div class="OG-analytics-form-menu og-menu-aggregation OG-shadow" style="display: none">
+  <div class="OG-background-03"></div>
+  <table>
+    {{#each row}}
+    <tr>
+      <td><span>{{this.num}}</span></td>
+      <td><label for="agg{{this.num}}">{{this.label}}</label></td>
+      <td>
+        <select id="agg{{this.num}}">
+          <option>select aggregation type...</option>
+          {{#each ../aggregators}}
+            <option>{{this}}</option>
+          {{/each}}
+        </select>
+      </td>
+      <td>
+        <label class="og-option"><input type="checkbox" /><span>Include required fields</span></label>
+      </td>
+      <td>
+        <div class="OG-icon og-icon-delete"></div>
+      </td>
+    </tr>
+    {{/each}}
+    <tr>
+      <td></td>
+      <td></td>
+      <td><a href="#" class="OG-link-add">add</a></td>
+      <td colspan="2">
+        <button>OK</button>
+        <button>Cancel</button>
+      </td>
+    </tr>
+  </table>
+</div>
