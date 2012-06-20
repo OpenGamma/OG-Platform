@@ -19,7 +19,7 @@ $.register_module({
             RLTR = 'resolutionRuleTransform',
             SPEC = 'specificRequirement',
             SPVN = 'valueName',
-            SPCT = 'computationTargetIdentifier',
+            SPCT = 'computationTargetId',
             SPTT = 'computationTargetType',
             REQS = 'portfolioRequirement',
             SECU = 'securityType',
