@@ -83,12 +83,24 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
     final double rate = security.getCouponRate() / 100;
     final DayCount dayCount = security.getDayCount();
-    final boolean isEOM = convention.isEOMConvention();
-    final int settlementDays = convention.getSettlementDays();
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("No convention bundle provided for " + security);
+    }
+    final Boolean isEOM = convention.isEOMConvention();
+    final int settlementDays = getSettlementDays(security, convention);
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final YieldConvention yieldConvention = security.getYieldConvention();
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
     return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay, yieldConvention, isEOM);
+  }
+  
+  private int getSettlementDays(BondSecurity security, ConventionBundle convention) {
+    if (security instanceof GovernmentBondSecurity && security.getCurrency().equals(Currency.CAD)) {
+      if (security.getAnnouncementDate().plusYears(3).isAfter(security.getLastTradeDate().getExpiry())) { // this might be a bit wrong.
+        return 2;
+      }
+    }    
+    return convention.getSettlementDays();
   }
 
   @Override

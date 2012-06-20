@@ -5,10 +5,13 @@
  */
 package com.opengamma.core.position.impl;
 
+import java.util.concurrent.ConcurrentMap;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.google.common.collect.MapMaker;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -81,6 +84,8 @@ public class EHCachingPositionSource implements PositionSource {
    */
   private final ChangeManager _changeManager;
 
+  private final ConcurrentMap<UniqueId, Object> _frontCache = new MapMaker().weakValues().makeMap();
+
   /**
    * Creates the cache around an underlying position source.
    * 
@@ -138,18 +143,38 @@ public class EHCachingPositionSource implements PositionSource {
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(UniqueId uniqueId) {
+    Object f = _frontCache.get(uniqueId);
+    if (f instanceof Portfolio) {
+      return (Portfolio) f;
+    }
     if (uniqueId.isLatest()) {
       Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
-      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-      return portfolio;
+      f = _frontCache.putIfAbsent(portfolio.getUniqueId(), portfolio);
+      if (f instanceof Portfolio) {
+        return (Portfolio) f;
+      } else {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+        return portfolio;
+      }
     }
     Element e = _portfolioCache.get(uniqueId);
     if (e != null) {
-      return (Portfolio) e.getValue();
+      final Portfolio portfolio = (Portfolio) e.getValue();
+      f = _frontCache.putIfAbsent(uniqueId, portfolio);
+      if (f instanceof Portfolio) {
+        return (Portfolio) f;
+      } else {
+        return portfolio;
+      }
     } else {
       Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
-      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-      return portfolio;
+      f = _frontCache.putIfAbsent(uniqueId, portfolio);
+      if (f instanceof Portfolio) {
+        return (Portfolio) f;
+      } else {
+        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
+        return portfolio;
+      }
     }
   }
 
@@ -162,46 +187,91 @@ public class EHCachingPositionSource implements PositionSource {
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+    Object f = _frontCache.get(uniqueId);
+    if (f instanceof PortfolioNode) {
+      return (PortfolioNode) f;
+    }
     if (uniqueId.isLatest()) {
       return getUnderlying().getPortfolioNode(uniqueId);
     }
     Element e = _portfolioNodeCache.get(uniqueId);
     if (e != null) {
-      return (PortfolioNode) e.getValue();
+      final PortfolioNode node = (PortfolioNode) e.getValue();
+      f = _frontCache.putIfAbsent(uniqueId, node);
+      if (f instanceof PortfolioNode) {
+        return (PortfolioNode) f;
+      } else {
+        return (PortfolioNode) e.getValue();
+      }
     } else {
       PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId);
-      _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
-      return node;
+      f = _frontCache.putIfAbsent(uniqueId, node);
+      if (f instanceof PortfolioNode) {
+        return (PortfolioNode) f;
+      } else {
+        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
+        return node;
+      }
     }
   }
 
   @Override
   public Position getPosition(UniqueId uniqueId) {
+    Object f = _frontCache.get(uniqueId);
+    if (f instanceof Position) {
+      return (Position) f;
+    }
     if (uniqueId.isLatest()) {
       return getUnderlying().getPosition(uniqueId);
     }
     Element e = _positionCache.get(uniqueId);
     if (e != null) {
-      return (Position) e.getValue();
+      final Position position = (Position) e.getValue();
+      f = _frontCache.putIfAbsent(uniqueId, position);
+      if (f instanceof Position) {
+        return (Position) f;
+      } else {
+        return position;
+      }
     } else {
-      Position position = getUnderlying().getPosition(uniqueId);
-      _positionCache.put(new Element(position.getUniqueId(), position));
-      return position;
+      final Position position = getUnderlying().getPosition(uniqueId);
+      f = _frontCache.putIfAbsent(uniqueId, position);
+      if (f instanceof Position) {
+        return (Position) f;
+      } else {
+        _positionCache.put(new Element(position.getUniqueId(), position));
+        return position;
+      }
     }
   }
 
   @Override
   public Trade getTrade(UniqueId uniqueId) {
+    Object f = _frontCache.get(uniqueId);
+    if (f instanceof Trade) {
+      return (Trade) f;
+    }
     if (uniqueId.isLatest()) {
       return getUnderlying().getTrade(uniqueId);
     }
     Element e = _tradeCache.get(uniqueId);
     if (e != null) {
-      return (Trade) e.getValue();
+      final Trade trade = (Trade) e.getValue();
+      f = _frontCache.putIfAbsent(uniqueId, trade);
+      if (f instanceof Trade) {
+        return (Trade) f;
+      } else {
+        return trade;
+      }
     } else {
-      Trade trade = getUnderlying().getTrade(uniqueId);
-      _tradeCache.put(new Element(trade.getUniqueId(), trade));
-      return trade;
+      final Trade trade = getUnderlying().getTrade(uniqueId);
+      f = _frontCache.putIfAbsent(uniqueId, trade);
+      if (f instanceof Trade) {
+        return (Trade) f;
+      } else {
+        _tradeCache.put(new Element(trade.getUniqueId(), trade));
+        return trade;
+      }
     }
   }
 
@@ -231,6 +301,7 @@ public class EHCachingPositionSource implements PositionSource {
     _portfolioCache.remove(latestId);
     _positionCache.remove(latestId);
     _tradeCache.remove(latestId);
+    _frontCache.remove(latestId);
   }
 
   //-------------------------------------------------------------------------

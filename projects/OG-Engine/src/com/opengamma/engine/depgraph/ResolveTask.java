@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
+import com.opengamma.engine.target.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -220,7 +221,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private ComputationTarget getComputationTarget(final GraphBuildingContext context) {
     final ComputationTargetSpecification specification = getValueRequirement().getTargetSpecification();
-    final ComputationTarget target = context.getCompilationContext().getComputationTargetResolver().resolve(specification);
+    final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
     if (target == null) {
       s_logger.warn("Computation target {} not found", specification);
     }

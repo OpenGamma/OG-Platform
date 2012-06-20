@@ -90,7 +90,7 @@ public final class FutureOptionExpiries {
       return getMonthlyExpiry(nthFuture, valDate);
     } else {  // And for Quarterly expiries thereafter
       final int nthExpiryAfterSixMonths = nthFuture - 6;
-      final LocalDate sixMonthsForward = valDate.plusMonths(6);
+      final LocalDate sixMonthsForward = getMonthlyExpiry(6, valDate);
       return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
     }
   }

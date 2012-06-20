@@ -13,11 +13,6 @@ import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
-import com.opengamma.language.async.AsynchronousExecution;
-import com.opengamma.language.async.AsynchronousOperation;
-import com.opengamma.language.async.AsynchronousResult;
-import com.opengamma.language.async.ResultCallback;
-import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.context.GlobalContext;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
@@ -25,6 +20,11 @@ import com.opengamma.language.error.Constants;
 import com.opengamma.language.invoke.AbstractInvoker;
 import com.opengamma.language.invoke.ParameterConverter;
 import com.opengamma.language.invoke.ResultConverter;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultCallback;
+import com.opengamma.util.async.ResultListener;
 
 /**
  * Partial implementation of a {@link FunctionInvoker} that converts the parameters and results using

@@ -114,7 +114,7 @@
   </bean>
   
   <!-- Holiday Source -->
-  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.EHCachingHolidaySource">
+  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.CachedHolidaySource">
     <constructor-arg>
       <bean class="com.opengamma.core.holiday.impl.RemoteHolidaySource">
         <constructor-arg>
@@ -124,7 +124,6 @@
         </constructor-arg>
       </bean>
     </constructor-arg>
-    <constructor-arg ref="cacheManager" />
   </bean>
   
   <!-- Currency conversions -->
@@ -191,9 +190,12 @@
     <constructor-arg>
       <bean class="com.opengamma.engine.view.cache.DefaultFudgeMessageStoreFactory">
         <constructor-arg>
+          <!--
           <bean class="com.opengamma.engine.view.cache.BerkeleyDBBinaryDataStoreFactoryFactoryBean">
             <property name="dataStoreFolder" value="${opengamma.engine.calcnode.localdatastore}" />
           </bean>
+          -->
+          <bean class="com.opengamma.engine.view.cache.InMemoryBinaryDataStoreFactory" />
         </constructor-arg>
         <constructor-arg ref="fudgeContext" />
       </bean>
@@ -278,14 +280,19 @@
   </bean>
   
   <!-- Calculation node(s) -->
-  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
+  <bean id="calcNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />
     <property name="computationTargetResolver" ref="targetResolver" />
     <property name="viewProcessorQuery" ref="viewProcessorQuery" />
-    <property name="writeBehindExecutorService" ref="slaveThreads" />
+    <property name="executorService" ref="slaveThreads" />
+    <property name="useWriteBehindSharedCache" value="true" />
+    <property name="useAsynchronousTargetResolve" value="true" />
     <property name="statisticsGatherer" ref="statisticsSender" />
+  </bean>
+  <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+    <property name="nodeFactory" ref="calcNodeFactory" />
     <property name="nodesPerCore" value="${opengamma.engine.calcnode.nodespercore}" />
   </bean>
   
@@ -308,6 +315,21 @@
     </constructor-arg>
     <constructor-arg ref="statisticsSender" />
     <constructor-arg ref="calcNodes" />
+  </bean>
+  
+  <!-- JMX -->
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.view.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="jobInvoker" />
+        <ref bean="calcNodeFactory" />
+        <ref bean="mbeanServer" />
+      </list>
+    </property>
   </bean>
 
 </beans>

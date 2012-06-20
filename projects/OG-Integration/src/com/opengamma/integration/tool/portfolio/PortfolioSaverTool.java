@@ -25,10 +25,12 @@ import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
 import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The portfolio saver tool
  */
+@Scriptable
 public class PortfolioSaverTool extends AbstractTool {
 
   /** File name option flag */

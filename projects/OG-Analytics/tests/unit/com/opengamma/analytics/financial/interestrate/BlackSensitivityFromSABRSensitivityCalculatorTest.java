@@ -217,7 +217,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     return vol;
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Analyzes the smoothness of the Black sensitivities to change in strike.
    */
@@ -254,8 +254,6 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     } // end loopswpt
     @SuppressWarnings("unused")
     double atm = PRC.visit(swaptions[0].getUnderlyingSwap(), sabrBundle);
-    int test = 0;
-    test++;
   }
 
 }

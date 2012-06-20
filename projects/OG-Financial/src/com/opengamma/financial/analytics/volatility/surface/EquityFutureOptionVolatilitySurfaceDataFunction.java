@@ -86,12 +86,14 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
     final DoubleArrayList kList = new DoubleArrayList();
     for (Number nthExpiry : rawSurface.getXs()) {
       Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
-      for (Double strike : rawSurface.getYs()) {
-        Double vol = rawSurface.getVolatility(nthExpiry, strike);
-        if (vol != null) {
-          tList.add(t);
-          kList.add(strike);
-          volValues.put(Pair.of(t, strike), vol / 100.);
+      if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable. 
+        for (Double strike : rawSurface.getYs()) {
+          Double vol = rawSurface.getVolatility(nthExpiry, strike);
+          if (vol != null) {
+            tList.add(t);
+            kList.add(strike);
+            volValues.put(Pair.of(t, strike), vol / 100.);
+          }
         }
       }
     }

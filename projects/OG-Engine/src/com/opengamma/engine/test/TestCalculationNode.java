@@ -18,7 +18,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource;
-import com.opengamma.engine.view.calcnode.AbstractCalculationNode;
+import com.opengamma.engine.view.calcnode.SimpleCalculationNode;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuerySender;
 import com.opengamma.engine.view.calcnode.stats.DiscardingInvocationStatisticsGatherer;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -26,7 +26,7 @@ import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-public class TestCalculationNode extends AbstractCalculationNode {
+public class TestCalculationNode extends SimpleCalculationNode {
 
   private static CompiledFunctionService initializedCFS() {
     final CompiledFunctionService cfs = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());

@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -25,7 +25,6 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -66,7 +65,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
   }
   
   @Override
-  public Future<Object> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<Object> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     // Partition graph into primitives, securities, positions, portfolios
     final Collection<DependencyNode> primitiveNodes = new HashSet<DependencyNode>();
     final List<Map<UniqueId, Collection<DependencyNode>>> passNumber2Target2SecurityAndPositionNodes = 
@@ -136,7 +135,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     
     DependencyGraph primitiveGraph = graph.subGraph(primitiveNodes);
     try {
-      Future<?> future = _delegate.execute(primitiveGraph, calcJobResultQueue, statistics);
+      Future<?> future = _delegate.execute(primitiveGraph, executionResultQueue, statistics);
       future.get();
     } catch (InterruptedException e) {
       Thread.interrupted();
@@ -159,7 +158,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
       for (Collection<DependencyNode> nodesRelatedToSingleTarget : target2SecurityAndPositionNodes.values()) {
         DependencyGraph secAndPositionGraph = graph.subGraph(nodesRelatedToSingleTarget);
         nodeCount += nodesRelatedToSingleTarget.size();
-        Future<?> future = _delegate.execute(secAndPositionGraph, calcJobResultQueue, statistics);
+        Future<?> future = _delegate.execute(secAndPositionGraph, executionResultQueue, statistics);
         secAndPositionFutures.add(future);
       }
       
@@ -185,7 +184,7 @@ public class BatchExecutor implements DependencyGraphExecutor<Object> {
     
     DependencyGraph portfolioGraph = graph.subGraph(portfolioNodes);
     try {
-      Future<?> future = _delegate.execute(portfolioGraph, calcJobResultQueue, statistics);
+      Future<?> future = _delegate.execute(portfolioGraph, executionResultQueue, statistics);
       future.get();
     } catch (InterruptedException e) {
       Thread.interrupted();

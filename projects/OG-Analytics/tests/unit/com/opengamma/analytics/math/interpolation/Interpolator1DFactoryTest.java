@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-
 /**
  * 
  */
@@ -35,5 +33,6 @@ public class Interpolator1DFactoryTest {
     assertEquals(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE)));
     assertEquals(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC)));
     assertEquals(Interpolator1DFactory.STEP, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.STEP)));
+    assertEquals(Interpolator1DFactory.TIME_SQUARE, Interpolator1DFactory.getInterpolatorName(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.TIME_SQUARE)));
   }
 }

@@ -3,7 +3,7 @@
 // CSOFF: Generated File
 package com.opengamma.language.livedata;
 public class Connect extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
-  public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution { return visitor.visitConnect (this, data); }
+  public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.util.async.AsynchronousExecution { return visitor.visitConnect (this, data); }
   private static final long serialVersionUID = -46357954519297920l;
   private int _identifier;
   public static final String IDENTIFIER_KEY = "identifier";

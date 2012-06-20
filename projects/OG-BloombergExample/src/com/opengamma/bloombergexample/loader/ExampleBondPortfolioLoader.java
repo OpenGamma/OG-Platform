@@ -24,6 +24,7 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Example code to load and aggregate a bond portfolio.
@@ -34,6 +35,7 @@ import com.opengamma.master.security.SecuritySearchResult;
  * some bond securities, so you typically need some static market data lookup 
  * service.
  */
+@Scriptable
 public class ExampleBondPortfolioLoader extends AbstractExampleTool {
 
   /** Logger. */

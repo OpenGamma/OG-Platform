@@ -45,6 +45,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
@@ -170,25 +171,34 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     ChangeManager changeMgr = buildChangeManager();
     MasterChangeManager masterChangeMgr = buildMasterChangeManager();
     
-    final ConnectionManager connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, liveResults, longPolling);
+    final ConnectionManagerImpl connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, longPolling);
     ViewportsResource viewportsResource = new ViewportsResource(connectionMgr, reportFactory);
     ViewDefinitionEntriesResource viewDefinitionResource = new ViewDefinitionEntriesResource(getViewDefinitionRepository());
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
 
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(
+        getPositionSource(),
+        getSecuritySource(),
+        getViewDefinitionRepository(),
+        getUserViewDefinitionRepository(),
+        getUserPortfolioMaster(),
+        getUserPositionMaster(),
+        getPortfolioAggregationFunctions().getMappedFunctions());
+    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
+                                                                         aggregatedViewDefManager,
+                                                                         getMarketDataSnapshotMaster());
+
     repo.getRestComponents().publishResource(viewportsResource);
     repo.getRestComponents().publishResource(viewDefinitionResource);
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new ViewsResource(new AnalyticsViewManager()));
-
-    repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
+    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishHelper(new ViewRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new ViewportSpecificationMessageBodyReader());
     repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
     repo.getRestComponents().publishHelper(new AnalyticsResultsMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new ReportMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {

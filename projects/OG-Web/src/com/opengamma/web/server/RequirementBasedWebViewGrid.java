@@ -38,6 +38,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
@@ -94,6 +95,10 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
     if (resultModel != null) {
       for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
         for (ComputedValue value : resultModel.getAllValues(calcConfigName)) {
+          if (value.getValue() instanceof MissingInput) {
+            // Ignore the value -- before PLAT-1765 we wouldn't have seen a result at all
+            continue;
+          }
           ValueSpecification specification = value.getSpecification();
           Collection<WebViewGridColumn> columns = getGridStructure().getColumns(calcConfigName, specification);
           if (columns == null) {

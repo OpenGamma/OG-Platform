@@ -45,11 +45,13 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.functional.Function1;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 
 /**
  */
+@Scriptable
 public class CurveHtsResolverTool extends AbstractTool {
   /**
    * Logger.

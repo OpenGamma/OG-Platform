@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -16,7 +17,7 @@ import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /* package */final class GetFunctionsStep extends ResolveTask.State {
 
@@ -43,7 +44,7 @@ import com.opengamma.util.tuple.Pair;
       case NOT_AVAILABLE:
         final ComputationTarget target = getComputationTarget(context);
         if (target != null) {
-          final Iterator<Pair<ParameterizedFunction, ValueSpecification>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), target);
+          final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(getValueRequirement(), target);
           if (itr.hasNext()) {
             s_logger.debug("Found functions for {}", getValueRequirement());
             setRunnableTaskState(new NextFunctionStep(getTask(), itr), context);
@@ -54,7 +55,7 @@ import com.opengamma.util.tuple.Pair;
           }
         } else {
           s_logger.info("No functions for unresolved target {}", getValueRequirement());
-          storeFailure(context.noFunctions(getValueRequirement()));
+          storeFailure(context.couldNotResolve(getValueRequirement()));
           setTaskStateFinished(context);
         }
         break;

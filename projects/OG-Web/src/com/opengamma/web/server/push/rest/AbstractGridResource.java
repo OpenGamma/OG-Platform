@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -29,6 +30,9 @@ import com.opengamma.web.server.push.analytics.ViewportSpecification;
  */
 public abstract class AbstractGridResource {
 
+  /** For generating IDs for grids and viewports. */
+  protected static final AtomicLong s_nextId = new AtomicLong(0);
+
   /** The view whose data the grid displays. */
   protected final AnalyticsView _view;
 
@@ -36,7 +40,7 @@ public abstract class AbstractGridResource {
 
   /**
    * @param gridType The type of grid
-   * @param view The view whose data the grid displays.
+   * @param view The view whose data the grid displays
    */
   public AbstractGridResource(AnalyticsView.GridType gridType, AnalyticsView view) {
     ArgumentChecker.notNull(gridType, "gridType");
@@ -46,7 +50,7 @@ public abstract class AbstractGridResource {
   }
 
   /**
-   * @return
+   * @return The structure of the grid
    */
   @GET
   @Path("grid")
@@ -57,17 +61,17 @@ public abstract class AbstractGridResource {
   @Path("viewports")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createViewport(@Context UriInfo uriInfo, ViewportSpecification viewportSpecification) {
-    String viewportId = createViewport(viewportSpecification);
-    return createdResponse(uriInfo, viewportId);
+    String viewportId = Long.toString(s_nextId.getAndIncrement());
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
+    URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
+    String dataId = dataUri.toString();
+    createViewport(viewportId, dataId, viewportSpecification);
+    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();
   }
 
-  public abstract String createViewport(ViewportSpecification viewportSpec);
+  public abstract void createViewport(String viewportId, String dataId, ViewportSpecification viewportSpec);
 
   @Path("viewports/{viewportId}")
   public abstract AbstractViewportResource getViewport(@PathParam("viewportId") String viewportId);
 
-  /* package */ static Response createdResponse(UriInfo uriInfo, String createdId) {
-    URI uri = uriInfo.getAbsolutePathBuilder().path(createdId).build();
-    return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
-  }
 }

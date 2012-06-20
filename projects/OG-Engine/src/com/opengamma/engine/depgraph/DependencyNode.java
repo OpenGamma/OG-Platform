@@ -240,19 +240,6 @@ public class DependencyNode {
   }
 
   /**
-   * Returns the set of output values expressed as {@link ValueRequirement} instances.
-   * 
-   * @return the set of output values
-   */
-  public Set<ValueRequirement> getOutputRequirements() {
-    Set<ValueRequirement> outputRequirements = new HashSet<ValueRequirement>();
-    for (ValueSpecification outputValue : _outputValues) {
-      outputRequirements.add(outputValue.toRequirementSpecification());
-    }
-    return outputRequirements;
-  }
-
-  /**
    * Returns the set of input values.
    * 
    * @return the set of input values

@@ -31,10 +31,12 @@ import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
  */
+@Scriptable
 public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
 
   /** File name option flag */

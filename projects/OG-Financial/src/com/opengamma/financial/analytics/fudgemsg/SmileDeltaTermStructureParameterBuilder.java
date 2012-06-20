@@ -11,37 +11,37 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 
 /**
  * 
  */
-@FudgeBuilderFor(SmileDeltaTermStructureParameter.class)
-public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilder<SmileDeltaTermStructureParameter> {
+@FudgeBuilderFor(SmileDeltaTermStructureParametersStrikeInterpolation.class)
+public class SmileDeltaTermStructureParameterBuilder extends AbstractFudgeBuilder<SmileDeltaTermStructureParametersStrikeInterpolation> {
   private static final String T_DATA_FIELD_NAME = "Time data";
   private static final String DELTA_DATA_FIELD_NAME = "Delta data";
   private static final String VOLATILITY_DATA_FIELD_NAME = "Volatility data";
   private static final String INTERPOLATOR_NAME = "Interpolator";
 
   @Override
-  public SmileDeltaTermStructureParameter buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+  public SmileDeltaTermStructureParametersStrikeInterpolation buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     final double[] t = deserializer.fieldValueToObject(double[].class, message.getByName(T_DATA_FIELD_NAME));
     final double[][] delta = deserializer.fieldValueToObject(double[][].class, message.getByName(DELTA_DATA_FIELD_NAME));
     final double[][] volatility = deserializer.fieldValueToObject(double[][].class, message.getByName(VOLATILITY_DATA_FIELD_NAME));
     final int n = t.length;
-    final SmileDeltaParameter[] smiles = new SmileDeltaParameter[n];
+    final SmileDeltaParameters[] smiles = new SmileDeltaParameters[n];
     for (int i = 0; i < n; i++) {
-      smiles[i] = new SmileDeltaParameter(t[i], delta[i], volatility[i]);
+      smiles[i] = new SmileDeltaParameters(t[i], delta[i], volatility[i]);
     }
     final Interpolator1D interpolator = deserializer.fieldValueToObject(Interpolator1D.class, message.getByName(INTERPOLATOR_NAME));
-    return new SmileDeltaTermStructureParameter(smiles, interpolator);
+    return new SmileDeltaTermStructureParametersStrikeInterpolation(smiles, interpolator);
   }
 
   @Override
-  protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SmileDeltaTermStructureParameter object) {
-    final SmileDeltaParameter[] smiles = object.getVolatilityTerm();
+  protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final SmileDeltaTermStructureParametersStrikeInterpolation object) {
+    final SmileDeltaParameters[] smiles = object.getVolatilityTerm();
     final int n = smiles.length;
     final double[] t = new double[n];
     final double[][] delta = new double[n][];

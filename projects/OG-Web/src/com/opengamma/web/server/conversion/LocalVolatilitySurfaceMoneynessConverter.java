@@ -75,24 +75,27 @@ public class LocalVolatilitySurfaceMoneynessConverter implements ResultConverter
       }
     } else if (value.getSurface() instanceof FunctionalDoublesSurface) {
       FunctionalDoublesSurface functional = (FunctionalDoublesSurface) value.getSurface();
-      result.put("xCount", 20);
-      result.put("yCount", 20);
+
+      final double[] expiries = {0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3., 4., 5.};
+      final int nX = expiries.length;
+      
+      result.put("xCount", nX);
+      result.put("yCount", 21);
       if (mode == ConversionMode.FULL) {
-        String[] xLabels = new String[20];
-        String[] yLabels = new String[20];
-        double[][] surface = new double[20][20];
-        boolean[][] missingValues = new boolean[20][20];
-        double x = 0;
-        for (int i = 0; i < 20; i++) {
-          x += 0.5;
+        String[] xLabels = new String[nX];
+        String[] yLabels = new String[21];
+        double[][] surface = new double[21][nX];
+        boolean[][] missingValues = new boolean[21][nX];
+        for (int i = 0; i < nX; i++) {
+          double x = expiries[i];
           xLabels[i] = LABEL_FORMAT.format(x);
-          double y = .5;
-          for (int j = 0; j < 20; j++) {
+          double y = .45; // Moneyness from 0.5 to 2.0
+          for (int j = 0; j < 21; j++) {
             y += 0.05;
             if (i == 0) {
               yLabels[j] = LABEL_FORMAT.format(y);
             }
-            surface[i][j] = 100 * functional.getZValue(x, y);
+            surface[j][i] = 100 * functional.getZValue(x, y);
           }
         }
         result.put("xs", xLabels);

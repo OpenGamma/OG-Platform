@@ -6,8 +6,8 @@
 
 package com.opengamma.language.procedure;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Procedure;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Pass through adapter for filtering of all incoming procedure messages.

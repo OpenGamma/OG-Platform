@@ -7,8 +7,8 @@
 package com.opengamma.language.livedata;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Handler for asynchronous values from a live data component.

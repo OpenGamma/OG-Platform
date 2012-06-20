@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.language.Data;
-import com.opengamma.language.async.AsynchronousExecution;
-import com.opengamma.language.async.AsynchronousOperation;
-import com.opengamma.language.async.ResultCallback;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.async.ResultCallback;
 import com.opengamma.util.tuple.Pair;
 
 /**

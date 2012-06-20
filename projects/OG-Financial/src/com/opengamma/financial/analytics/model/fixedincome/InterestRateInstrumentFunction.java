@@ -191,10 +191,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
           FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
       final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
       return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
-    } catch (OpenGammaRuntimeException ogre) {
+    } catch (Exception ogre) {
       s_logger.error("Error thrown by analytics on security {} with funding curve name {}, forward curve name {}.  Rethrowing.", 
                      new Object[] {security.toString(), fundingCurveName, forwardCurveName });
-      throw ogre;
+      throw new OpenGammaRuntimeException("Error thrown by analytics", ogre);
     }
   }
 

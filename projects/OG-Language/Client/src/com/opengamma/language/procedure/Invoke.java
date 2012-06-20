@@ -3,7 +3,7 @@
 // CSOFF: Generated File
 package com.opengamma.language.procedure;
 public class Invoke extends com.opengamma.language.connector.Procedure implements java.io.Serializable {
-  public <T1,T2> T1 accept (final ProcedureVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution { return visitor.visitInvoke (this, data); }
+  public <T1,T2> T1 accept (final ProcedureVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.util.async.AsynchronousExecution { return visitor.visitInvoke (this, data); }
   private static final long serialVersionUID = -48154412771264l;
   private int _identifier;
   public static final String IDENTIFIER_KEY = "identifier";

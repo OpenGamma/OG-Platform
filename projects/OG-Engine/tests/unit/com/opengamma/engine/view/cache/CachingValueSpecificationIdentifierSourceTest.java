@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.cache;
 
 import static org.testng.AssertJUnit.assertEquals;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,8 +76,7 @@ public class CachingValueSpecificationIdentifierSourceTest {
     final Map<Long, ValueSpecification> valueSpecs2 = new HashMap<Long, ValueSpecification> ();
     valueSpecs2.put (4L, valueSpec[4]);
     valueSpecs2.put (5L, valueSpec[5]);
-    assertEquals (valueSpecs2, cachingSource.getValueSpecifications (Arrays.asList (4L, 5L)));
-    
+    assertEquals(valueSpecs2, cachingSource.getValueSpecifications(new LongArraySet(new long[] {4L, 5L })));
     shouldFail.set(true);
     for (int i = 0; i < valueSpec.length; i++) {
       assertEquals((long)i, cachingSource.getIdentifier(valueSpec[i]));
@@ -86,12 +86,12 @@ public class CachingValueSpecificationIdentifierSourceTest {
     }
     assertEquals (identifiers1, cachingSource.getIdentifiers (Arrays.asList(valueSpec[1], valueSpec[2])));
     assertEquals (identifiers1, cachingSource.getIdentifiers (Arrays.asList(valueSpec[1], valueSpec[2])));
-    assertEquals (valueSpecs1, cachingSource.getValueSpecifications (Arrays.asList (1L, 2L)));
-    assertEquals (valueSpecs1, cachingSource.getValueSpecifications (Arrays.asList (1L, 2L)));
+    assertEquals(valueSpecs1, cachingSource.getValueSpecifications(new LongArraySet(new long[] {1L, 2L })));
+    assertEquals(valueSpecs1, cachingSource.getValueSpecifications(new LongArraySet(new long[] {1L, 2L })));
     assertEquals (identifiers2, cachingSource.getIdentifiers (Arrays.asList(valueSpec[3], valueSpec[4])));
     assertEquals (identifiers2, cachingSource.getIdentifiers (Arrays.asList(valueSpec[3], valueSpec[4])));
-    assertEquals (valueSpecs2, cachingSource.getValueSpecifications (Arrays.asList (4L, 5L)));
-    assertEquals (valueSpecs2, cachingSource.getValueSpecifications (Arrays.asList (4L, 5L)));
+    assertEquals(valueSpecs2, cachingSource.getValueSpecifications(new LongArraySet(new long[] {4L, 5L })));
+    assertEquals(valueSpecs2, cachingSource.getValueSpecifications(new LongArraySet(new long[] {4L, 5L })));
     
   }
 

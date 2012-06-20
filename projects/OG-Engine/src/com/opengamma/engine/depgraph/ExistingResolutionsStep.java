@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /* package */final class ExistingResolutionsStep extends FunctionApplicationStep implements ResolvedValueCallback {
 
@@ -21,9 +22,9 @@ import com.opengamma.util.tuple.Pair;
 
   private ResolutionPump _pump;
 
-  public ExistingResolutionsStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> nextFunctions, final ParameterizedFunction function,
-      final ValueSpecification originalOutput, final ValueSpecification resolvedOutput) {
-    super(task, nextFunctions, function, originalOutput, resolvedOutput);
+  public ExistingResolutionsStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> nextFunctions,
+      final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
+    super(task, nextFunctions, resolved, resolvedOutput);
   }
 
   @Override
@@ -34,7 +35,7 @@ import com.opengamma.util.tuple.Pair;
       _pump = null;
     }
     // All existing resolutions have been completed, so now try the actual application
-    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getFunction(), getOriginalOutput(), getResolvedOutput()), context);
+    setRunnableTaskState(new FunctionApplicationStep(getTask(), getFunctions(), getResolved(), getResolvedOutput()), context);
   }
 
   @Override

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.util.ArgumentChecker;
@@ -59,7 +59,7 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
         rr[j] = riskReversals[j][i];
         s[j] = strangle[j][i];
       }
-      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas, rr, s);
+      final SmileDeltaParameters cal = new SmileDeltaParameters(_expiries[i], atms[i], deltas, rr, s);
       _strikes[i] = cal.getStrike(_forwards[i]);
       _vols[i] = cal.getVolatility();
     }
@@ -98,7 +98,7 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
         rr[j] = riskReversals[j][i];
         s[j] = strangle[j][i];
       }
-      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas, rr, s);
+      final SmileDeltaParameters cal = new SmileDeltaParameters(_expiries[i], atms[i], deltas, rr, s);
       _strikes[i] = cal.getStrike(_forwards[i]);
       _vols[i] = cal.getVolatility();
     }

@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.CachingComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -84,9 +82,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final String _name;
   private final ViewDefinitionRepository _viewDefinitionRepository;
   private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
-  private final SecuritySource _securitySource;
-  private final PositionSource _positionSource;
-  private final CachingComputationTargetResolver _computationTargetResolver;
+  private final ComputationTargetResolver _computationTargetResolver;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final MarketDataProviderResolver _marketDataProviderFactoryResolver;
@@ -125,9 +121,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       String name,
       ViewDefinitionRepository viewDefinitionRepository,
       NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
-      SecuritySource securitySource,
-      PositionSource positionSource,
-      CachingComputationTargetResolver computationTargetResolver,
+      ComputationTargetResolver computationTargetResolver,
       CompiledFunctionService compiledFunctionService,
       FunctionResolver functionResolver,
       MarketDataProviderResolver marketDataProviderFactoryResolver,
@@ -143,8 +137,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _name = name;
     _viewDefinitionRepository = viewDefinitionRepository;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
-    _securitySource = securitySource;
-    _positionSource = positionSource;
     _computationTargetResolver = computationTargetResolver;
     _functionCompilationService = compiledFunctionService;
     _functionResolver = functionResolver;
@@ -555,8 +547,6 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
-        _positionSource,
-        _securitySource,
         _computationTargetResolver,
         _computationCacheSource,
         _computationJobDispatcher,

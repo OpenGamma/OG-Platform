@@ -18,8 +18,6 @@ import com.opengamma.web.server.push.rest.MasterType;
 public class TestConnectionManager implements ConnectionManager {
 
   private volatile RestUpdateListener _listener;
-
-  private final ConcurrentHashMap<String, Viewport> _viewports = new ConcurrentHashMap<String, Viewport>();
   private final LongPollingConnectionManager _longPollingConnectionManager;
 
   public TestConnectionManager() {
@@ -50,25 +48,6 @@ public class TestConnectionManager implements ConnectionManager {
   @Override
   public void subscribe(String userId, String clientId, MasterType masterType, String url) {
     throw new UnsupportedOperationException("subscribe not implemented");
-  }
-
-  @Override
-  public Viewport getViewport(String userId, String clientId, String viewportId) {
-    return _viewports.get(viewportId);
-  }
-
-  @Override
-  public void createViewport(String userId,
-                             String clientId,
-                             ViewportDefinition viewportDefinition,
-                             String viewportId,
-                             String dataUrl,
-                             String gridStructureUrl) {
-    throw new UnsupportedOperationException("createViewport not implemented");
-  }
-
-  public void addViewport(String viewportId, Viewport viewport) {
-    _viewports.put(viewportId, viewport);
   }
   
   public void sendUpdate(String update) {

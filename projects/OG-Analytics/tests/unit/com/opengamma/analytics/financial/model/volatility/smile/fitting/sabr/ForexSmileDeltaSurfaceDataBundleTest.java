@@ -13,7 +13,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -250,7 +250,7 @@ public class ForexSmileDeltaSurfaceDataBundleTest {
         rr[j] = RR[j][i];
         s[j] = STRANGLE[j][i];
       }
-      final SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS, rr, s);
+      final SmileDeltaParameters cal = new SmileDeltaParameters(EXPIRIES[i], ATM[i], DELTAS, rr, s);
       assertArrayEquals(cal.getStrike(FORWARD_CURVE.getForward(EXPIRIES[i])), DATA.getStrikes()[i], EPS);
       assertArrayEquals(cal.getVolatility(), DATA.getVolatilities()[i], EPS);
     }

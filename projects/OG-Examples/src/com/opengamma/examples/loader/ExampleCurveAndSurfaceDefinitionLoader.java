@@ -16,10 +16,12 @@ import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionSurfac
 import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySurfaceConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * 
  */
+@Scriptable
 public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractExampleTool {
 
   @Override

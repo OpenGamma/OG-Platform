@@ -63,6 +63,7 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
       result.put("surface", surface);
       result.put("missingValues", missingValues);
     }
+    result.put("axesLabel", "Strike \\ Expiry");
     return result;
   }
 

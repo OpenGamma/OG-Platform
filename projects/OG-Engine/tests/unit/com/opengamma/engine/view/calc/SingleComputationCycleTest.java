@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calc;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -23,7 +23,6 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.view.ViewProcessImpl;
 import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.livedata.UserPrincipal;
@@ -68,7 +67,7 @@ public class SingleComputationCycleTest {
     assertTrue(executor.wasInterrupted());
   }
   
-  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory<CalculationJobResult> {
+  private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory<ExecutionResult> {
 
     private final BlockingDependencyGraphExecutor _instance;
     
@@ -77,7 +76,7 @@ public class SingleComputationCycleTest {
     }
     
     @Override
-    public DependencyGraphExecutor<CalculationJobResult> createExecutor(SingleComputationCycle cycle) {
+    public DependencyGraphExecutor<ExecutionResult> createExecutor(SingleComputationCycle cycle) {
       return _instance;
     }
     
@@ -87,7 +86,7 @@ public class SingleComputationCycleTest {
     
   }
   
-  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor<CalculationJobResult> {
+  private class BlockingDependencyGraphExecutor implements DependencyGraphExecutor<ExecutionResult> {
 
     private final long _timeout;
     private final CountDownLatch _firstRunLatch = new CountDownLatch(1);
@@ -106,8 +105,8 @@ public class SingleComputationCycleTest {
     }
     
     @Override
-    public Future<CalculationJobResult> execute(DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, GraphExecutorStatisticsGatherer statistics) {
-      FutureTask<CalculationJobResult> future = new FutureTask<CalculationJobResult>(new Runnable() {
+    public Future<ExecutionResult> execute(DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue, GraphExecutorStatisticsGatherer statistics) {
+      FutureTask<ExecutionResult> future = new FutureTask<ExecutionResult>(new Runnable() {
         @Override
         public void run() {
           _firstRunLatch.countDown();
@@ -118,7 +117,6 @@ public class SingleComputationCycleTest {
           }
         }
       }, null);
-      
       // Cheat a bit - don't give the job to the dispatcher, etc, just run it.
       new Thread(future).start();
       return future;

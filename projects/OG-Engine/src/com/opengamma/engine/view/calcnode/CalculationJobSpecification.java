@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.io.Serializable;
-
 import javax.time.Instant;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -19,13 +17,23 @@ import com.opengamma.id.UniqueId;
  * Providers of jobs pass over a full {@link CalculationJob}, and the
  * specification of that job is returned by the Calculation Node.
  */
-public class CalculationJobSpecification implements Serializable {
+public class CalculationJobSpecification {
   
-  private static final long serialVersionUID = 1L;
-  
+  /**
+   * The cycle identifier.
+   */
   private final UniqueId _viewCycleId;
+  /**
+   * The calculation configuration name, unique within a given cycle identifier. This combined with the cycle identifier uniquely identifies the cache being used for the job.
+   */
   private final String _calcConfigName;
+  /**
+   * The valuation time for the job.
+   */
   private final Instant _valuationTime;
+  /**
+   * The unique job identifier within the system.
+   */
   private final long _jobId;
   
   public CalculationJobSpecification(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {
@@ -36,10 +44,6 @@ public class CalculationJobSpecification implements Serializable {
     _jobId = jobId;
   }
   
-  public CalculationJobSpecification(CalculationJobSpecification other) {
-    this(other._viewCycleId, other._calcConfigName, other._valuationTime, other._jobId);
-  }
-
   /**
    * @return the unique identifier of the view cycle
    */

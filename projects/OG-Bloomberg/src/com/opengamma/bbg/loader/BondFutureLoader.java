@@ -146,7 +146,7 @@ public class BondFutureLoader extends SecurityLoader {
     Currency currency = Currency.parse(currencyStr);
 
     ZonedDateTime firstDeliverDate = decodeDeliveryDate(firstDeliveryDateStr);
-    ZonedDateTime lastDeliverDate = decodeDeliveryDate(firstDeliveryDateStr);
+    ZonedDateTime lastDeliverDate = decodeDeliveryDate(lastDeliveryDateStr);
     Set<BondFutureDeliverable> basket = createBondDeliverables(fieldData);
     BondFutureSecurity security = new BondFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, basket,
                                                          firstDeliverDate, lastDeliverDate, category);

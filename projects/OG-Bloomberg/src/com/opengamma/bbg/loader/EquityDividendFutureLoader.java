@@ -5,14 +5,27 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.*;
+import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LONG_NAME;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_TRADING_HRS;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
+import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_SPOT_TICKER;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
 import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.proto.antlr.ProtoParser.field_modifier_return;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +61,7 @@ public class EquityDividendFutureLoader extends SecurityLoader {
 //      FIELD_FUT_TRADING_UNITS,
       FIELD_PARSEKYABLE_DES,
       FIELD_SETTLE_DT,
+      FIELD_FUTURES_CATEGORY,
 //      FIELD_FUT_CONT_SIZE,
       FIELD_UNDL_SPOT_TICKER,
       FIELD_ID_BBG_UNIQUE,
@@ -102,6 +116,11 @@ public class EquityDividendFutureLoader extends SecurityLoader {
     }
     if (!isValidField(settleDate)) {
       s_logger.warn("settle date is null, cannot construct equity dividend future security");
+      return null;
+    }
+    if (!isValidField(category)) {
+      s_logger.warn("futures category is null, cannot construct equity dividend index future security");
+      return null;
     }
     if (!isValidField(futureTradingHours)) {
       s_logger.warn("futures trading hours is null, cannot construct equity dividend index future security");

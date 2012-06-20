@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.opengamma.component.factory.tool.RemoteComponentFactoryToolContextAdapter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -23,10 +24,8 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.component.RemoteComponentFactoryToolContextAdapter;
-import com.opengamma.integration.tool.AbstractComponentTool;
+import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 

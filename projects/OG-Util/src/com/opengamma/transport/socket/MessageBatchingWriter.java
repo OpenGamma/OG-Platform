@@ -109,7 +109,10 @@ public class MessageBatchingWriter {
                 _flushRequired = true;
               }
             } else {
-              getFudgeMsgWriter().flush();
+              final FudgeMsgWriter writer = getFudgeMsgWriter();
+              if (writer != null) {
+                writer.flush();
+              }
             }
           }
         }

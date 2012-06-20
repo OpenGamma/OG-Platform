@@ -6,8 +6,8 @@
 
 package com.opengamma.language.livedata;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.LiveData;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Defines a visitor interface for incoming live-data messages.

@@ -8,11 +8,13 @@ package com.opengamma.web.server.push.analytics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.util.ArgumentChecker;
@@ -24,19 +26,23 @@ import com.opengamma.util.ArgumentChecker;
 
   private final AnalyticsGridStructure _gridStructure;
   private final ViewportSpecification _viewportSpec;
+  private final String _dataId;
 
   private ViewportResults _latestResults;
 
   /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
                                   ViewportSpecification viewportSpec,
                                   ViewComputationResultModel latestResults,
-                                  AnalyticsHistory history) {
+                                  AnalyticsHistory history,
+                                  String dataId) {
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(latestResults, "latestResults");
     ArgumentChecker.notNull(history, "history");
+    ArgumentChecker.notNull(dataId, "dataId");
     _gridStructure = gridStructure;
     _viewportSpec = viewportSpec;
+    _dataId = dataId;
     updateResults(latestResults, history);
   }
 
@@ -58,12 +64,17 @@ import com.opengamma.util.ArgumentChecker;
       rowResults.add(rowName);
       Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
-      for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
-        for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
-          for (ValueRequirement req : value.getRequirements()) {
-            int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
-            if (_viewportSpec.getColumns().contains(colIndex)) {
-              rowResultsMap.put(colIndex, value.getValue());
+      if (targetResult != null) {
+        for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
+          for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
+            ValueSpecification valueSpec = value.getSpecification();
+            Set<ValueRequirement> valueReqs =
+                _gridStructure.getColumns().getRequirementsForSpecification(calcConfigName, valueSpec);
+            for (ValueRequirement req : valueReqs) {
+              int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
+              if (_viewportSpec.getColumns().contains(colIndex)) {
+                rowResultsMap.put(colIndex, value.getValue());
+              }
             }
           }
         }
@@ -81,5 +92,9 @@ import com.opengamma.util.ArgumentChecker;
   public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
     // TODO implement AnalyticsViewport.update()
     throw new UnsupportedOperationException("update not implemented");
+  }
+
+  public String getDataId() {
+    return _dataId;
   }
 }

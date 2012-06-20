@@ -36,6 +36,7 @@ import static com.opengamma.financial.analytics.model.volatility.surface.black.B
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -310,7 +311,11 @@ public class BlackVolatilitySurfaceUtils {
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final String smileInterpolationMethod = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR).iterator().next();
+    final Set<String> smileInterpolationMethods = constraints.getValues(PROPERTY_SMILE_INTERPOLATOR);
+    if (smileInterpolationMethods == null || smileInterpolationMethods.size() != 1) {
+      return null;
+    }
+    final String smileInterpolationMethod = Iterables.getOnlyElement(smileInterpolationMethods);
     if (smileInterpolationMethod.equals(SPLINE)) {
       requirements = ensureSplineVolatilityInterpolatorProperties(constraints);
       if (requirements == null) {

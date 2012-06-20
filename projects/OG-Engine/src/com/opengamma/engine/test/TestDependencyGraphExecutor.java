@@ -5,12 +5,13 @@
  */
 package com.opengamma.engine.test;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.view.calc.DependencyGraphExecutor;
+import com.opengamma.engine.view.calc.ExecutionResult;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 
@@ -26,15 +27,11 @@ public class TestDependencyGraphExecutor implements DependencyGraphExecutor<Calc
   }
   
   @Override
-  public Future<CalculationJobResult> execute(DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<CalculationJobResult> execute(final DependencyGraph graph, final Queue<ExecutionResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     FutureTask<CalculationJobResult> future = new FutureTask<CalculationJobResult>(new Runnable() {
       @Override
       public void run() {
-        try {
-          calcJobResultQueue.put(_result);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
+        calcJobResultQueue.add(new ExecutionResult(graph.getExecutionOrder(), _result));
       }
     }, _result);
     future.run();

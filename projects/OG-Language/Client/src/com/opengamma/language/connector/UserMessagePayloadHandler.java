@@ -8,7 +8,6 @@ package com.opengamma.language.connector;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.custom.CustomMessageVisitor;
 import com.opengamma.language.custom.CustomMessageVisitorRegistry;
@@ -17,6 +16,7 @@ import com.opengamma.language.function.FunctionVisitor;
 import com.opengamma.language.livedata.LiveDataVisitor;
 import com.opengamma.language.procedure.ProcedureVisitor;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Delegating visitor for the top level messages. Each message type has a default visitor that can be overridden.

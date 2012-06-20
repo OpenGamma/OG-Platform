@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaParameters;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -68,7 +68,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
     Arrays.sort(tenors);
     Arrays.sort(deltaValues);
     final int nPoints = tenors.length;
-    final SmileDeltaParameter[] smile = new SmileDeltaParameter[nPoints];
+    final SmileDeltaParameters[] smile = new SmileDeltaParameters[nPoints];
     final int nSmileValues = deltaValues.length;
     final Set<String> shifts = desiredValues.iterator().next().getConstraints().getValues(VolatilitySurfaceShiftFunction.SHIFT);
     final double shiftMultiplier;
@@ -98,10 +98,10 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
           s_logger.info("Had a null value for tenor number " + j);
         }
       }
-      smile[i] = new SmileDeltaParameter(t, deltas.toDoubleArray(), volatilities.toDoubleArray());
+      smile[i] = new SmileDeltaParameters(t, deltas.toDoubleArray(), volatilities.toDoubleArray());
     }
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-    final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile, interpolator);
+    final SmileDeltaTermStructureParametersStrikeInterpolation smiles = new SmileDeltaTermStructureParametersStrikeInterpolation(smile, interpolator);
     final ValueProperties.Builder resultProperties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)

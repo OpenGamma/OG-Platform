@@ -38,6 +38,7 @@ public class FXUtils {
     BASE_ORDER.put(Currency.NZD, 4);
     BASE_ORDER.put(Currency.USD, 5);
     BASE_ORDER.put(Currency.CHF, 6);
+    BASE_ORDER.put(Currency.of("BRL"), 7);
   }
 
   /**
@@ -142,8 +143,7 @@ public class FXUtils {
     if (BASE_ORDER.containsKey(currency2)) {
       return false;
     }
-    // TODO: Review what to do when none of the currencies is in the given list
-    return true;
+    throw new OpenGammaRuntimeException("Base quote order information for " + currency1 + " and " + currency2 + " not available");
   }
 
   /**

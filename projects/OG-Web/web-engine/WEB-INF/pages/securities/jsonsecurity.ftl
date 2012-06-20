@@ -86,6 +86,8 @@
         "redemptionValue":"${security.currency}",
 
         <#if futureSecurityType == "BondFuture">
+            "firstDeliveryDate":"${security.firstDeliveryDate}",
+            "lastDeliveryDate":"${security.lastDeliveryDate}",
             "underlyingBond":{<#list basket?keys as key>"${key}":"${basket[key]}"<#if key_has_next>,</#if></#list>},
         <#else>
             <#if security.underlyingId?has_content>

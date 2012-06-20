@@ -16,6 +16,5 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 
   /* package */ void addResults(ViewComputationResultModel fullResult) {
     // TODO implement AnalyticsHistory.addResults()
-    throw new UnsupportedOperationException("addResults not implemented");
   }
 }

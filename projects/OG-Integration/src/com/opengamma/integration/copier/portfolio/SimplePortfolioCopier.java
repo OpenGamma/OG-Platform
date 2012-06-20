@@ -60,10 +60,15 @@ public class SimplePortfolioCopier implements PortfolioCopier {
         }
       } else {
         if (visitor != null) {
-          visitor.error("Could not load" + (next.getFirst() == null ? " position" : "") + (next.getSecond() == null ? " security" : ""));
+          if (next.getFirst() == null) {
+            visitor.error("Could not load position");
+          }
+          if (next.getSecond() == null) {
+            visitor.error("Could not load security(ies)");
+          }
         }
       }
-      
+
     }
 
     // Flush changes to portfolio master

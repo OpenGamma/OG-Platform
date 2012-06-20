@@ -148,8 +148,9 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod extends Inte
     final double volatilityBar = priceAdjoint[2] * priceBar;
     final DoublesPair expiryDelay = new DoublesPair(security.getExpirationTime(), delay);
     sensi.addAlpha(expiryDelay, volatilityAdjoint[3] * volatilityBar);
-    sensi.addRho(expiryDelay, volatilityAdjoint[4] * volatilityBar);
-    sensi.addNu(expiryDelay, volatilityAdjoint[5] * volatilityBar);
+    sensi.addBeta(expiryDelay, volatilityAdjoint[4] * volatilityBar);
+    sensi.addRho(expiryDelay, volatilityAdjoint[5] * volatilityBar);
+    sensi.addNu(expiryDelay, volatilityAdjoint[6] * volatilityBar);
     return sensi;
   }
 

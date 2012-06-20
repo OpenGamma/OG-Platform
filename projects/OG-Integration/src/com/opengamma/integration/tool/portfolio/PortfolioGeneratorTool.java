@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import com.opengamma.component.factory.tool.RemoteComponentFactoryToolContextAdapter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -12,8 +13,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
-import com.opengamma.integration.component.RemoteComponentFactoryToolContextAdapter;
-import com.opengamma.integration.tool.AbstractComponentTool;
+import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 

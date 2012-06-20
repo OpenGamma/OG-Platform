@@ -203,19 +203,16 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final double relativeTolerance = 1E-3;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, getNbIteration());
     final double factor2 = factor * integrantVega.k(strike) * integrantVega.bs(strike);
-    final double[] strikePartPrice = new double[3];
+    final double[] strikePartPrice = new double[4];
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cmsCapFloor.getFixingTime(), maturity, strike, forward);
     strikePartPrice[0] = factor2 * volatilityAdjoint[3];
     strikePartPrice[1] = factor2 * volatilityAdjoint[4];
     strikePartPrice[2] = factor2 * volatilityAdjoint[5];
-    final double[] integralPart = new double[3];
-    final double[] totalSensi = new double[3];
-    final int[] parameterIndex = new int[3];
-    parameterIndex[0] = 0; // sabr-alpha
-    parameterIndex[1] = 2; // sabr-rho
-    parameterIndex[2] = 3; // sabr-nu
-    for (int loopparameter = 0; loopparameter < 3; loopparameter++) {
-      integrantVega.setParameterIndex(parameterIndex[loopparameter]);
+    strikePartPrice[3] = factor2 * volatilityAdjoint[6];
+    final double[] integralPart = new double[4];
+    final double[] totalSensi = new double[4];
+    for (int loopparameter = 0; loopparameter < 4; loopparameter++) {
+      integrantVega.setParameterIndex(loopparameter);
       try {
         if (cmsCapFloor.isCap()) {
           integralPart[loopparameter] = discountFactor * integrator.integrate(integrantVega, strike, strike + getIntegrationInterval());
@@ -230,8 +227,9 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, totalSensi[0]);
-    sensi.addRho(expiryMaturity, totalSensi[1]);
-    sensi.addNu(expiryMaturity, totalSensi[2]);
+    sensi.addBeta(expiryMaturity, totalSensi[1]);
+    sensi.addRho(expiryMaturity, totalSensi[2]);
+    sensi.addNu(expiryMaturity, totalSensi[3]);
     return sensi;
   }
 

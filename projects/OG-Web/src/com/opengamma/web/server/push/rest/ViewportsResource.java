@@ -71,7 +71,7 @@ public class ViewportsResource {
     String viewportUrl = generateViewportUrl(viewportId, request);
     String gridUrl = generateGridUrl(viewportId, viewportUrl);
     String dataUrl = generateDataUrl(viewportId, viewportUrl);
-    _connectionManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
+    //_connectionManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
     JSONObject jsonObject = new JSONObject();
     try {
       jsonObject.put("viewportUrl", viewportUrl);
@@ -94,14 +94,15 @@ public class ViewportsResource {
   public ViewportResource findViewport(@QueryParam("clientId") String clientId, // TODO should this be optional? how? different method?
                                        @PathParam("viewportId") String viewportId,
                                        @Context HttpServletRequest request) {
-    String userId = request.getRemoteUser();
-    Viewport viewport = _connectionManager.getViewport(userId, clientId, viewportId);
-    if (viewport != null) {
-      return new ViewportResource(viewport, _reportGeneratorFactory);
-    } else {
-      throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
-                                          ", viewportId: " + viewportId);
-    }
+    //String userId = request.getRemoteUser();
+    //Viewport viewport = _connectionManager.getViewport(userId, clientId, viewportId);
+    //if (viewport != null) {
+    //  return new ViewportResource(viewport, _reportGeneratorFactory);
+    //} else {
+    //  throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
+    //                                      ", viewportId: " + viewportId);
+    //}
+    throw new UnsupportedOperationException();
   }
 
   private String generateViewportId() {

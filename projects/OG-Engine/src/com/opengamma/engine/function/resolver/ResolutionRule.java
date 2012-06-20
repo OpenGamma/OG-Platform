@@ -56,9 +56,21 @@ public class ResolutionRule {
    * Gets the parameterized function.
    * 
    * @return the function this rule is advertising, not null
+   * @deprecated {@link #getParameterizedFunction} is a clearer name for the method to avoid ".getFunction().getFunction()"
    */
+  @Deprecated
   public ParameterizedFunction getFunction() {
     return _parameterizedFunction;
+  }
+
+  /**
+   * Gets the parameterized function.
+   * 
+   * @return the function and behavioral parameters this rule is advertising, not null
+   */
+  public ParameterizedFunction getParameterizedFunction() {
+    // Call the original method in case anyone has subclassed this and overridden it.
+    return getFunction();
   }
 
   /**
@@ -81,24 +93,20 @@ public class ResolutionRule {
   }
 
   /**
-   * The function advertised by this rule can validly produce the desired
-   * output only if:
+   * The function advertised by this rule can validly produce the desired output only if:
    * <ol>
+   * <li>The function is declared as applying to the target; and
    * <li>The function can produce the output; and
-   * <li>This resolution rule applies to the given computation target  
+   * <li>This resolution rule applies to the given computation target
    * </ol>
    * <p>
-   * The implementation has been split into two accessible components to allow
-   * a resolver to cache the intermediate results. This is more efficient than
-   * repeated calls to this method.
+   * The implementation has been split into two accessible components to allow a resolver to cache the intermediate results. This is more efficient than repeated calls to this method.
    * 
    * @param output Output you want the function to produce
-   * @param target Computation target  
+   * @param target Computation target
    * @param context Function compilation context
-   * @return Null if this the function advertised by this rule cannot produce 
-   * the desired output, a valid ValueSpecification otherwise - as returned by
-   * the function. The specification is not composed against the requirement
-   * constraints.
+   * @return Null if this the function advertised by this rule cannot produce the desired output, a valid ValueSpecification otherwise - as returned by the function. The specification is not composed
+   *         against the requirement constraints.
    */
   public ValueSpecification getResult(ValueRequirement output, ComputationTarget target, FunctionCompilationContext context) {
     final Set<ValueSpecification> resultSpecs = getResults(target, context);
@@ -161,7 +169,7 @@ public class ResolutionRule {
 
   @Override
   public String toString() {
-    return "ResolutionRule[" + getFunction() + " at priority " + getPriority() + "]";
+    return "ResolutionRule[" + getParameterizedFunction() + " at priority " + getPriority() + "]";
   }
 
 }

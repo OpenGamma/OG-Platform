@@ -6,9 +6,15 @@
 package com.opengamma.core.position.impl;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
@@ -59,7 +65,7 @@ public class PortfolioNodeTraverserTest {
 
     private final Queue<Integer> _visited = new LinkedList<Integer>();
 
-    private void visit(final int type, final UniqueIdentifiable uniqueId) {
+    protected void visit(final int type, final UniqueIdentifiable uniqueId) {
       _visited.add(type);
       _visited.add(Integer.parseInt(uniqueId.getUniqueId().getValue()));
     }
@@ -89,6 +95,28 @@ public class PortfolioNodeTraverserTest {
         assertEquals(_visited.remove().intValue(), type);
         assertEquals(_visited.remove().intValue(), identifier);
       }
+    }
+
+    private void assertVisitBefore(final int t1, final int i1, final int t2, final int i2) {
+      final Iterator<Integer> itr = _visited.iterator();
+      while (itr.hasNext()) {
+        int t = itr.next();
+        int i = itr.next();
+        if ((t == t1) && (i == i1)) {
+          while (itr.hasNext()) {
+            t = itr.next();
+            i = itr.next();
+            if ((t == t2) && (i == i2)) {
+              return;
+            }
+          }
+          fail("Expected " + t1 + "/" + i1 + " before " + t2 + "/" + i2);
+        }
+      }
+    }
+
+    private void assertVisitAfter(final int t1, final int i1, final int t2, final int i2) {
+      assertVisitBefore(t2, i2, t1, i1);
     }
 
     private void assertVisitCount() {
@@ -157,6 +185,89 @@ public class PortfolioNodeTraverserTest {
   public void testBreadthFirstBroken() {
     final Callback cb = new Callback();
     PortfolioNodeTraverser.breadthFirst(cb).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
+  }
+
+  private void assertParallelOrder(final Callback cb) {
+    cb.assertVisitCount();
+    // Exact ordering can't be predicted but make sure some thing happened before or after others
+    cb.assertVisitBefore(NODE_PRE, 0, NODE_PRE, 1);
+    cb.assertVisitBefore(NODE_PRE, 0, NODE_PRE, 10);
+    cb.assertVisitBefore(NODE_PRE, 0, POSITION_PRE, 19);
+    cb.assertVisitBefore(NODE_PRE, 0, POSITION_PRE, 20);
+    cb.assertVisitAfter(NODE_POST, 0, NODE_POST, 1);
+    cb.assertVisitAfter(NODE_POST, 0, NODE_POST, 10);
+    cb.assertVisitAfter(NODE_POST, 0, POSITION_POST, 19);
+    cb.assertVisitAfter(NODE_POST, 0, POSITION_POST, 20);
+    cb.assertVisitBefore(NODE_PRE, 1, NODE_PRE, 2);
+    cb.assertVisitBefore(NODE_PRE, 1, NODE_PRE, 5);
+    cb.assertVisitBefore(NODE_PRE, 1, POSITION_PRE, 8);
+    cb.assertVisitBefore(NODE_PRE, 1, POSITION_PRE, 9);
+    cb.assertVisitBefore(NODE_PRE, 2, POSITION_PRE, 3);
+    cb.assertVisitBefore(NODE_PRE, 2, POSITION_PRE, 4);
+    cb.assertVisitBefore(POSITION_PRE, 3, POSITION_POST, 4);
+    cb.assertVisitBefore(POSITION_PRE, 4, POSITION_POST, 4);
+    cb.assertVisitAfter(NODE_POST, 2, POSITION_POST, 3);
+    cb.assertVisitAfter(NODE_POST, 2, POSITION_POST, 4);
+    cb.assertVisitAfter(POSITION_POST, 8, POSITION_POST, 3);
+    cb.assertVisitAfter(POSITION_POST, 8, POSITION_POST, 4);
+    cb.assertVisitAfter(POSITION_POST, 9, POSITION_POST, 3);
+    cb.assertVisitAfter(POSITION_POST, 9, POSITION_POST, 4);
+  }
+
+  @Test
+  public void testParallelNoSlaveThreads() {
+    final Callback cb = new Callback();
+    PortfolioNodeTraverser.parallel(cb, new AbstractExecutorService() {
+
+      @Override
+      public void shutdown() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public List<Runnable> shutdownNow() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean isShutdown() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean isTerminated() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        return false;
+      }
+
+      @Override
+      public void execute(final Runnable command) {
+        // No-op; don't want to run the command so that calling thread does the full traversal
+      }
+
+    }).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
+    // With a single thread (the caller) should be depth first 
+    assertParallelOrder(cb);
+  }
+
+  @Test
+  public void testParallelSlaveThreads() {
+    final Callback cb = new Callback() {
+      @Override
+      protected synchronized void visit(final int type, final UniqueIdentifiable uniqueId) {
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        super.visit(type, uniqueId);
+      }
+    };
+    PortfolioNodeTraverser.parallel(cb, Executors.newCachedThreadPool()).traverse(createTestPortfolioNode(new AtomicInteger(), 2));
+    assertParallelOrder(cb);
   }
 
 }

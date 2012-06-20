@@ -15,9 +15,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,18 +31,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * This DependencyGraphExecutor executes the given dependency graph as a number of
- * dependent jobs suitable for a number of calculation nodes to exploit parallelism
- * from the dependency graph.
+ * This DependencyGraphExecutor executes the given dependency graph as a number of dependent jobs suitable for a number of calculation nodes to exploit parallelism from the dependency graph.
  */
 public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyGraph> {
 
@@ -130,7 +127,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     } else {
       fragment.setCacheSelectHint(CacheSelectHint.privateValues(privateValues));
     }
-    fragment.execute();
+    fragment.execute(context);
     return fragment;
   }
 
@@ -150,7 +147,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
           break;
         }
       }
-      if (mergeSingleDependencies(allFragments)) {
+      if (mergeSingleDependencies(context, allFragments)) {
         failCount = 0;
       } else {
         if (++failCount >= 2) {
@@ -182,23 +179,22 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
     for (MutableGraphFragment fragment : allFragments) {
-      fragment.execute();
+      fragment.execute(context);
     }
     return logicalRoot;
   }
 
   /**
-   * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built
-   * it is cached for future use.
+   * Partitions the graph and starts it executing. The future returned corresponds to the whole graph. Once an execution plan is built it is cached for future use.
    * 
    * @param graph the graph to execute, not null
-   * @param calcJobResultQueue a queue to feed intermediate job result notifications to, not null
+   * @param executionResultQueue a queue to feed intermediate job result notifications to, not null
    * @param statistics the statistics reporter, not null
    * @return a future that indicates complete execution of the graph
    */
-  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  protected Future<DependencyGraph> executeImpl(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final OperationTimer timer = new OperationTimer(s_logger, "Creating execution plan for {}", graph);
-    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, calcJobResultQueue);
+    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(this, graph, executionResultQueue);
     // writeGraphForTestingPurposes(graph);
     if (graph.getSize() <= getMinJobItems()) {
       // If the graph is too small, run it as-is
@@ -216,19 +212,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
 
   /**
    * @param graph the graph to execute, not null
-   * @param calcJobResultQueue the queue to report partial results to, not null
+   * @param executionResultQueue the queue to report partial results to, not null
    * @param statistics the statistics gathering object, not null
    * @return a future that the caller can block on until the execution is complete. The future holds the graph (as passed to this method) that has been executed
    */
   @Override
-  public Future<DependencyGraph> execute(final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue, final GraphExecutorStatisticsGatherer statistics) {
+  public Future<DependencyGraph> execute(final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue, final GraphExecutorStatisticsGatherer statistics) {
     final ExecutionPlan plan = getCache().getCachedPlan(graph, getCycle().getFunctionInitId());
     if (plan != null) {
       s_logger.info("Using cached execution plan for {}", graph);
-      return plan.run(new GraphFragmentContext(this, graph, calcJobResultQueue), statistics);
+      return plan.run(new GraphFragmentContext(this, graph, executionResultQueue), statistics);
     } else {
       s_logger.debug("Creating new execution plan for {}", graph);
-      return executeImpl(graph, calcJobResultQueue, statistics);
+      return executeImpl(graph, executionResultQueue, statistics);
     }
   }
 
@@ -289,8 +285,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * Finds pairs of nodes with the same input set (i.e. that would execute concurrently) that are below the minimum job size
-   * and merge them together.
+   * Finds pairs of nodes with the same input set (i.e. that would execute concurrently) that are below the minimum job size and merge them together.
    */
   private boolean mergeSharedInputs(final MutableGraphFragment logicalRoot, final Set<MutableGraphFragment> allFragments) {
     final Map<Set<MutableGraphFragment>, MutableGraphFragment> possibleCandidates = new HashMap<Set<MutableGraphFragment>, MutableGraphFragment>();
@@ -359,10 +354,9 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * If a fragment has only one dependency, and both it and its dependent are below the
-   * maximum job size they are merged.
+   * If a fragment has only one dependency, and both it and its dependent are below the maximum job size they are merged.
    */
-  private boolean mergeSingleDependencies(final Set<MutableGraphFragment> allFragments) {
+  private boolean mergeSingleDependencies(final MutableGraphFragmentContext context, final Set<MutableGraphFragment> allFragments) {
     int changes = 0;
     final Iterator<MutableGraphFragment> fragmentIterator = allFragments.iterator();
     while (fragmentIterator.hasNext()) {
@@ -380,7 +374,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
         continue;
       }
       // Merge fragment with it's dependency and slice it out of the graph
-      dependency.prependFragment(fragment);
+      dependency.prependFragment(context, fragment);
       fragmentIterator.remove();
       dependency.getInputFragments().remove(fragment);
       for (MutableGraphFragment input : fragment.getInputFragments()) {
@@ -394,8 +388,8 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   }
 
   /**
-   * If a fragment has only a single input, it can be a tail to the fragment generating that input. A fragment with multiple inputs can
-   * be a tail to all of them iff they are tails to a common fragment (i.e. all will end up at the same node).
+   * If a fragment has only a single input, it can be a tail to the fragment generating that input. A fragment with multiple inputs can be a tail to all of them iff they are tails to a common fragment
+   * (i.e. all will end up at the same node).
    */
   private void findTailFragments(final Set<MutableGraphFragment> allFragments) {
     // Estimate start times based on fragment costs and dependencies
@@ -494,21 +488,19 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     }
   }
 
-  public void printFragment(final GraphFragment<?, ?> root) {
-    printFragment("", Collections.singleton(root), new HashSet<GraphFragment<?, ?>>());
+  public static void printFragment(final GraphFragment<?> root) {
+    printFragment("", Collections.singleton(root), new HashSet<GraphFragment<?>>());
   }
 
-  private void printFragment(final String indent, final Collection<? extends GraphFragment<?, ?>> fragments, final Set<GraphFragment<?, ?>> printed) {
+  private static void printFragment(final String indent, final Collection<? extends GraphFragment<?>> fragments, final Set<GraphFragment<?>> printed) {
     if (indent.length() > 16) {
       return;
     }
-    for (GraphFragment<?, ?> fragment : fragments) {
-      /*
-       * if (!printed.add(fragment)) {
-       * System.out.println(indent + " Fragments " + fragment.fragmentList());
-       * continue;
-       * }
-       */
+    for (GraphFragment<?> fragment : fragments) {
+      if (!printed.add(fragment)) {
+        System.out.println(indent + " " + fragment + " ...");
+        continue;
+      }
       System.out.println(indent + " " + fragment);
       if (!fragment.getInputFragments().isEmpty()) {
         printFragment(indent + "  ", fragment.getInputFragments(), printed);

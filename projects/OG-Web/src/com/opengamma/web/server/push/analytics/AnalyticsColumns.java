@@ -10,11 +10,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.RequirementBasedColumnKey;
@@ -26,11 +32,17 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
  */
 public class AnalyticsColumns {
 
+  private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
+
   private final List<AnalyticsColumnGroup> _columnGroups;
   private final List<AnalyticsColumn<?>> _columns;
-  private final Map<RequirementBasedColumnKey, Integer> _indexByRequiement;
+  private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
+  /** Mappings of specification to requirements, keyed by calculation config name. */
+  private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
 
-  private AnalyticsColumns(List<AnalyticsColumnGroup> columnGroups, Map<RequirementBasedColumnKey, Integer> indexByRequiement) {
+  private AnalyticsColumns(List<AnalyticsColumnGroup> columnGroups,
+                           Map<RequirementBasedColumnKey, Integer> indexByRequirement,
+                           Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
     List<AnalyticsColumn<?>> colList = new ArrayList<AnalyticsColumn<?>>();
     _columnGroups = columnGroups;
     for (AnalyticsColumnGroup group : columnGroups) {
@@ -39,7 +51,8 @@ public class AnalyticsColumns {
       }
     }
     _columns = Collections.unmodifiableList(colList);
-    _indexByRequiement = indexByRequiement;
+    _indexByRequirement = new HashMap<RequirementBasedColumnKey, Integer>(indexByRequirement);
+    _specsToReqs = specsToReqs;
   }
 
   /**
@@ -47,7 +60,8 @@ public class AnalyticsColumns {
    */
   /* package */ static AnalyticsColumns empty() {
     return new AnalyticsColumns(Collections.<AnalyticsColumnGroup>emptyList(),
-                                Collections.<RequirementBasedColumnKey, Integer>emptyMap());
+                                Collections.<RequirementBasedColumnKey, Integer>emptyMap(),
+                                Collections.<String, Map<ValueSpecification,Set<ValueRequirement>>>emptyMap());
   }
 
   /**
@@ -55,11 +69,14 @@ public class AnalyticsColumns {
    */
   /* package */ static AnalyticsColumns portfolio(CompiledViewDefinition compiledViewDef) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
-    Map<RequirementBasedColumnKey, Integer> indexMap = new HashMap<RequirementBasedColumnKey, Integer>();
-    List<AnalyticsColumnGroup> columnGroups = new ArrayList<AnalyticsColumnGroup>();
+    Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
+    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList();
+    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
     int colIndex = 1; // col 0 is the node name
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
+      CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
+      specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
       List<AnalyticsColumn<?>> configColumns = new ArrayList<AnalyticsColumn<?>>();
       for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
         String valueName = portfolioOutput.getFirst();
@@ -75,7 +92,7 @@ public class AnalyticsColumns {
     }
     // TODO what about unsatisfied columns?
     // TODO fixed column group for the position name? what about the position column
-    return new AnalyticsColumns(columnGroups, indexMap);
+    return new AnalyticsColumns(columnGroups, indexMap, specsToReqs);
   }
 
   /**
@@ -94,10 +111,22 @@ public class AnalyticsColumns {
     return AnalyticsColumns.empty();
   }
 
-  /* package */ int getIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
+  /* package */ int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
     RequirementBasedColumnKey key =
         new RequirementBasedColumnKey(calcConfigName, requirement.getValueName(), requirement.getConstraints());
-    return _indexByRequiement.get(key);
+    return _indexByRequirement.get(key);
+  }
+
+  /* package */ Set<ValueRequirement> getRequirementsForSpecification(String calcConfigName, ValueSpecification spec) {
+    Map<ValueSpecification, Set<ValueRequirement>> specToReqs = _specsToReqs.get(calcConfigName);
+    if (specToReqs == null) {
+      return null;
+    }
+    Set<ValueRequirement> reqs = specToReqs.get(spec);
+    if (reqs == null) {
+      return NO_MAPPINGS;
+    }
+    return reqs;
   }
 
   /* package */ AnalyticsColumn<?> getColumn(int index) {

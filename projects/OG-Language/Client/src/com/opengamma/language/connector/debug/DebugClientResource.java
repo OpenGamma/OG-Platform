@@ -14,9 +14,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.language.async.AsynchronousExecution;
-import com.opengamma.language.async.AsynchronousResult;
-import com.opengamma.language.async.ResultListener;
 import com.opengamma.language.connector.ClientContext;
 import com.opengamma.language.connector.MessageSender;
 import com.opengamma.language.connector.StashMessage;
@@ -27,6 +24,9 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextInitializationEventHandler;
 import com.opengamma.transport.FudgeConnection;
 import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousResult;
+import com.opengamma.util.async.ResultListener;
 
 /**
  * The back-end resource with which a {@link DebugClient} communicates. This handles user function invocations and

@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,42 +26,34 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
 /**
- * Base class of the graph fragments. A graph fragment is a subset of an executable dependency graph
- * that corresponds to a single computation job. Fragments are links to create a graph of fragments.
- * At the extreme, there could be a fragment for each node in the original graph and the graph of
- * fragments will be the same shape as the graph of nodes.
+ * Base class of the graph fragments. A graph fragment is a subset of an executable dependency graph that corresponds to a single computation job. Fragments are linked to create a graph of fragments.
+ * At the extreme, there could be a fragment for each node in the original graph and the graph of fragments will be the same shape as the graph of nodes.
  */
-/* package */class GraphFragment<C extends GraphFragmentContext, F extends GraphFragment<C, F>> {
+/* package */class GraphFragment<F extends GraphFragment<F>> {
 
   private final int _graphFragmentIdentifier;
-  private final C _context;
   private final List<DependencyNode> _nodes;
   private final Set<F> _inputFragments = new HashSet<F>();
   private final Set<F> _outputFragments = new HashSet<F>();
   private CacheSelectHint _cacheSelectHint;
   private AtomicInteger _blockCount;
-  private Collection<Long> _requiredJobs;
+  private long[] _requiredJobs;
+  private int _requiredJobIndex;
   private Collection<F> _tail;
 
-  public GraphFragment(final C context) {
-    _context = context;
+  public GraphFragment(final GraphFragmentContext context) {
     _graphFragmentIdentifier = context.nextIdentifier();
     _nodes = new LinkedList<DependencyNode>();
   }
 
-  public GraphFragment(final C context, final DependencyNode node) {
+  public GraphFragment(final GraphFragmentContext context, final DependencyNode node) {
     this(context);
     _nodes.add(node);
   }
 
-  public GraphFragment(final C context, final Collection<DependencyNode> nodes) {
-    _context = context;
+  public GraphFragment(final GraphFragmentContext context, final Collection<DependencyNode> nodes) {
     _graphFragmentIdentifier = context.nextIdentifier();
     _nodes = new ArrayList<DependencyNode>(nodes);
-  }
-
-  public C getContext() {
-    return _context;
   }
 
   public List<DependencyNode> getNodes() {
@@ -100,55 +92,90 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return _nodes.size();
   }
 
-  public void inputCompleted() {
+  public void inputCompleted(final GraphFragmentContext context) {
     // If _blockCount is null, we are a tail job that has already been dispatched
     if (_blockCount != null) {
       final int blockCount = _blockCount.decrementAndGet();
       if (blockCount == 0) {
-        execute();
+        execute(context);
         _blockCount = null;
       }
     }
   }
 
-  public CalculationJob createCalculationJob() {
-    final CalculationJobSpecification jobSpec = getContext().getExecutor().createJobSpecification(getContext().getGraph());
-    final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>();
-    for (DependencyNode node : getNodes()) {
+  public CalculationJob createCalculationJob(final GraphFragmentContext context) {
+    final CalculationJobSpecification jobSpec = context.getExecutor().createJobSpecification(context.getGraph());
+    final List<DependencyNode> nodes = getNodes();
+    final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
+    for (DependencyNode node : nodes) {
       final Set<ValueSpecification> inputs = node.getInputValues();
       CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
-          node.getComputationTarget(), inputs, node.getOutputRequirements());
+          node.getComputationTarget(), inputs, node.getOutputValues());
       items.add(jobItem);
-      getContext().registerJobItem(jobItem, node);
     }
-    getContext().getExecutor().addJobToViewProcessorQuery(jobSpec, getContext().getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, getFunctionInitializationTimestamp(), _requiredJobs, items, getCacheSelectHint());
+    context.getExecutor().addJobToViewProcessorQuery(jobSpec, context.getGraph());
+    final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), _requiredJobs, items, getCacheSelectHint());
     if (getTail() != null) {
-      for (GraphFragment<C, F> tail : getTail()) {
+      for (GraphFragment<F> tail : getTail()) {
         tail._blockCount = null;
         final int size = tail.getInputFragments().size();
         if (tail._requiredJobs == null) {
-          if (size == 1) {
-            tail._requiredJobs = Collections.singleton(jobSpec.getJobId());
-          } else {
-            tail._requiredJobs = new ArrayList<Long>(size);
-            tail._requiredJobs.add(jobSpec.getJobId());
-          }
+          tail._requiredJobs = new long[size];
+          tail._requiredJobs[0] = jobSpec.getJobId();
+          tail._requiredJobIndex = 1;
         } else {
-          tail._requiredJobs.add(jobSpec.getJobId());
+          tail._requiredJobs[tail._requiredJobIndex++] = jobSpec.getJobId();
         }
-        if (tail._requiredJobs.size() == size) {
-          final CalculationJob tailJob = tail.createCalculationJob();
+        if (tail._requiredJobIndex == size) {
+          final CalculationJob tailJob = tail.createCalculationJob(context);
           job.addTail(tailJob);
         }
       }
     }
-    getContext().registerCallback(jobSpec, this);
+    context.registerCallback(jobSpec, this);
     return job;
   }
 
-  public void execute() {
-    getContext().dispatchJob(createCalculationJob());
+  private static String toString(final long[] a) {
+    final StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < a.length; i++) {
+      if (i > 0) {
+        sb.append(", ");
+      }
+      sb.append(a[i]);
+    }
+    return sb.toString();
+  }
+
+  private void printJob(final PrintStream out, final String indent, final CalculationJob job) {
+    out.println(indent + getIdentifier() + " - " + job.getSpecification());
+    final long[] required = job.getRequiredJobIds();
+    if (required != null) {
+      out.println(indent + "\trequires " + toString(required));
+    }
+    for (CalculationJobItem item : job.getJobItems()) {
+      out.println(indent + "\t" + item.getFunctionUniqueIdentifier() + " on " + item.getComputationTargetSpecification());
+    }
+    Collection<CalculationJob> tailJobs = job.getTail();
+    if (tailJobs != null) {
+      for (CalculationJob tailJob : tailJobs) {
+        printJob(out, indent + "  ", tailJob);
+      }
+    }
+  }
+
+  public void execute(final GraphFragmentContext context) {
+    final CalculationJob job = createCalculationJob(context);
+    /*try {
+      synchronized (System.out) {
+        final PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream("/tmp/graphFragment.txt", true)));
+        printJob(out, "", job);
+        out.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }*/
+    context.dispatchJob(job);
   }
 
   @Override
@@ -156,16 +183,12 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     return getIdentifier() + ": " + getJobItems() + " dep. node(s)";
   }
 
-  public void resultReceived(final CalculationJobResult result) {
+  public void resultReceived(final GraphFragmentContext context, final CalculationJobResult result) {
     // Release tree fragments up the tree
-    getContext().addExecutionTime(result.getDuration());
-    for (GraphFragment<C, F> dependent : getOutputFragments()) {
-      dependent.inputCompleted();
+    context.addExecutionTime(result.getDuration());
+    for (GraphFragment<F> dependent : getOutputFragments()) {
+      dependent.inputCompleted(context);
     }
-  }
-
-  public long getFunctionInitializationTimestamp() {
-    return getContext().getFunctionInitId();
   }
 
   /**
@@ -184,11 +207,11 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
     public Root(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
       super(context);
-      _future = new RootGraphFragmentFuture(this, statistics);
+      _future = new RootGraphFragmentFuture(context, this, statistics);
     }
 
     @Override
-    public void execute() {
+    public void execute(final GraphFragmentContext context) {
       _future.executed();
     }
 

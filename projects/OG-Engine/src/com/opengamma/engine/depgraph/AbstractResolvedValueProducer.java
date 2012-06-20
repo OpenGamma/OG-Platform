@@ -246,9 +246,10 @@ import com.opengamma.engine.value.ValueSpecification;
       s_logger.debug("Pushing failure");
       context.failed(valueCallback, getValueRequirement(), failure);
       release(context); // reference held by callback object
-      return null;
+    } else {
+      return callback;
     }
-    return callback;
+    return null;
   }
 
   private void pumpCallbacks(final GraphBuildingContext context, final Collection<Callback> pumped, final boolean lastResult) {

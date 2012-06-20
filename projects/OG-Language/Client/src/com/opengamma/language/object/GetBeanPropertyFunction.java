@@ -11,12 +11,12 @@ import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * A function which can retrieve a property value from a Joda {@link Bean} instance.

@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -110,8 +111,21 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
       fullStrikes[i] = availableStrikes.toDoubleArray();
       fullVols[i] = availableVols.toDoubleArray(); 
     }
-   
-    return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, fullStrikes, fullVols, false); // TODO Where does it matter whether calls are used? No prices are given, just vols..
+ // TODO Where does it matter whether calls are used? No prices are given, just vols..
+    return new StandardSmileSurfaceDataBundle(forwardCurve, uniqueExpiries, fullStrikes, fullVols, false); 
+  }
+  
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> curveCurrencyNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (curveCurrencyNames == null || curveCurrencyNames.size() != 1) {
+      return null;
+    }
+    final Set<String> fundingCurveNames = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurveNames == null || fundingCurveNames.size() != 1) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
   }
   
   @Override
@@ -171,9 +185,14 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
   
   @Override
   protected ValueProperties getResultProperties(ValueRequirement desiredValue) {
+    final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
+    final String fundingCurve = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE); 
     ValueProperties properties = createValueProperties().get();
     properties = BlackVolatilitySurfaceUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue).get();
     properties = BlackVolatilitySurfaceUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
+    properties = properties.copy()
+      .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
+      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurve).get();
     return properties; 
   }
   

@@ -40,7 +40,6 @@ public class ViewportSpecificationMessageBodyReader implements MessageBodyReader
                               InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
     // TODO JSON writer for ViewportSpecification that lives in the same package
-    //return new ViewportSpecification(rows, columns);
-    throw new UnsupportedOperationException();
+    return ViewportSpecification.empty();
   }
 }
