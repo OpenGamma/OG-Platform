@@ -190,7 +190,12 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       //TODO: could be more precise here, only those which weren't in _failedRequirements
       valuesChanged(valueRequirements); //PLAT-1429: wake up the init call
       
-      s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+      if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
+        s_logger.warn("Subscription to {} failed because user is not authorised: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+      } else {
+        s_logger.debug("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+      }
+      
       super.subscriptionFailed(valueRequirements, subscriptionResult.getUserMessage());
     }
   }
