@@ -11,7 +11,7 @@
         border-color: #ccc #999 #999 #ccc!important;
         border-style: solid!important;
         border-width: 1px!important;
-        color: #475562;
+        color: #555;
         cursor: pointer;
         padding: 4px 8px;
         vertical-align: middle;
@@ -22,16 +22,6 @@
         background: -ms-linear-gradient(top, #f3f3f3 0%,#f3f3f3 50%,#ebebeb 52%,#f3f3f3 100%)!important; /* IE10+ */
         background: linear-gradient(top, #f3f3f3 0%,#f3f3f3 50%,#ebebeb 52%,#f3f3f3 100%)!important; /* W3C */
     }
-
-    button:focus,
-    button:hover {
-        outline: 1px solid #efefef;
-    }
-
-    button:active {
-        outline: 1px solid #efefef;
-    }
-
 
 /* Inline with form elements */
 
