@@ -383,31 +383,6 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     return result;
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Refreshes the value for the specified security key.
-   * 
-   * @param securityKey the security key, not null
-   */
-  @SuppressWarnings("unchecked")
-  public void refresh(Object securityKey) {
-    ArgumentChecker.notNull(securityKey, "securityKey");
-    Element element = _bundleCache.get(securityKey);
-    if (element != null) {
-      Serializable value = element.getValue();
-      if (value instanceof Collection<?>) {
-        Collection<Security> securities = (Collection<Security>) value;
-        for (Security sec : securities) {
-          _uidCache.remove(sec.getUniqueId());
-        }
-      }
-      _bundleCache.remove(securityKey);
-    } else {
-      _uidCache.remove(securityKey);
-    }
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
