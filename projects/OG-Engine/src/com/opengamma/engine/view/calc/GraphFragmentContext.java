@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,6 +39,9 @@ import com.opengamma.util.async.Cancelable;
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
 
+  private static final AtomicInteger s_nextObjectId = new AtomicInteger();
+
+  private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
   private final long _functionInitializationTimestamp;
   private final AtomicLong _executionTime = new AtomicLong();
@@ -141,6 +148,16 @@ import com.opengamma.util.async.Cancelable;
 
   public long getFunctionInitId() {
     return _functionInitializationTimestamp;
+  }
+
+  protected PrintStream openDebugStream(final String name) {
+    try {
+      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
+      return new PrintStream(new FileOutputStream(fileName));
+    } catch (IOException e) {
+      s_logger.error("Can't open debug file", e);
+      return System.out;
+    }
   }
 
 }

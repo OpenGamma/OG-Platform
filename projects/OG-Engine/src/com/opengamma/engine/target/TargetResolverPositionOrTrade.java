@@ -7,6 +7,7 @@ package com.opengamma.engine.target;
 
 import java.math.BigDecimal;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
@@ -55,6 +56,9 @@ import com.opengamma.id.UniqueId;
       synchronized (this) {
         if (_security == null) {
           _security = getTargetResolver().resolve(_securitySpec);
+          if (_security == null) {
+            throw new OpenGammaRuntimeException("Couldn't resolve " + _securitySpec);
+          }
         }
       }
     }

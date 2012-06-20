@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,6 +39,9 @@ import com.opengamma.id.UniqueIdentifiable;
       synchronized (this) {
         if (_resolved == null) {
           _resolved = getTargetResolver().resolve(getTargetSpecification());
+          if (_resolved == null) {
+            throw new OpenGammaRuntimeException("Unable to resolve target " + getTargetSpecification());
+          }
         }
       }
     }

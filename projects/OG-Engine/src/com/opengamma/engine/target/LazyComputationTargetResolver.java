@@ -28,6 +28,13 @@ public final class LazyComputationTargetResolver implements ComputationTargetRes
     return _underlying;
   }
 
+  /**
+   * If the specification is lazily resolvable, returns a target that will resolve it on demand. Otherwise it is resolved immediately.
+   * 
+   * @param underlying the underlying resolver to use for resolution
+   * @param specification the specification to resolve
+   * @return the target
+   */
   public static ComputationTarget resolve(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification) {
     switch (specification.getType()) {
       case PORTFOLIO_NODE:
@@ -38,6 +45,23 @@ public final class LazyComputationTargetResolver implements ComputationTargetRes
         return new ComputationTarget(ComputationTargetType.TRADE, new LazyTargetResolverTrade(underlying, specification));
       default:
         return underlying.resolve(specification);
+    }
+  }
+
+  /**
+   * Tests if the specification can be lazily resolved by a call to {@link #resolve}.
+   * 
+   * @param specification the specification to test
+   * @return true if lazy resolution will happen, false if the underlying will be queried immediately
+   */
+  public static boolean isLazilyResolvable(final ComputationTargetSpecification specification) {
+    switch (specification.getType()) {
+      case PORTFOLIO_NODE:
+      case POSITION:
+      case TRADE:
+        return true;
+      default:
+        return false;
     }
   }
 

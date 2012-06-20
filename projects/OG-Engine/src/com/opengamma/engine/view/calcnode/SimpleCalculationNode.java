@@ -28,6 +28,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.target.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -401,7 +402,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
     ComputationTarget target = null;
-    if (isUseAsynchronousTargetResolve()) {
+    if (isUseAsynchronousTargetResolve() && !LazyComputationTargetResolver.isLazilyResolvable(jobItem.getComputationTargetSpecification())) {
       targetFuture = getExecutorService().submit(new Callable<ComputationTarget>() {
         @Override
         public ComputationTarget call() {
@@ -409,7 +410,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         }
       });
     } else {
-      target = getTargetResolver().resolve(jobItem.getComputationTargetSpecification());
+      target = LazyComputationTargetResolver.resolve(getTargetResolver(), jobItem.getComputationTargetSpecification());
       if (target == null) {
         return CalculationJobResultItem.failure(ERROR_CANT_RESOLVE, "Unable to resolve target " + jobItem.getComputationTargetSpecification());
       }

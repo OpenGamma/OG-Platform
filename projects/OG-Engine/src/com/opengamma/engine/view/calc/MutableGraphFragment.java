@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +32,11 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
    * Data input/output rate from shared cache. Assumes 1Gb/s. This needs to be tunable through the executor.
    */
   private static final double NANOS_PER_BYTE = 1.0;
+
+  /**
+   * Flag to dump the execution plan to a temporary file.
+   */
+  private static final boolean PRINT_EXECUTION_PLAN = false; // Don't check in with != false
 
   private final Map<ValueSpecification, Integer> _inputValues = new HashMap<ValueSpecification, Integer>();
   private final Map<ValueSpecification, Integer> _outputValues = new HashMap<ValueSpecification, Integer>();
@@ -312,6 +318,11 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
 
     @Override
     public void execute(final GraphFragmentContext context) {
+      if (PRINT_EXECUTION_PLAN) {
+        final PrintStream ps = context.openDebugStream("executionPlan");
+        printExecutionPlan(ps, this, new HashSet<Integer>());
+        ps.close();
+      }
       context.getExecutor().getCache().cachePlan(context.getGraph(), context.getFunctionInitId(), ExecutionPlan.of(this));
       _future.executed();
     }
@@ -320,6 +331,33 @@ import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatistics;
       return _future;
     }
 
+  }
+  
+  private static void printExecutionPlan(final PrintStream out, final MutableGraphFragment fragment, final Set<Integer> visited) {
+    if (!visited.add(fragment.getIdentifier())) {
+      return;
+    }
+    final StringBuilder sb = new StringBuilder();
+    sb.append(fragment.getIdentifier()).append(": ");
+    sb.append(fragment.getJobItems()).append(" item(s), ");
+    sb.append(fragment.getJobDataInputCost()).append(" input, ");
+    sb.append(fragment.getJobDataOutputCost()).append(" output, ");
+    sb.append(fragment.getJobInvocationCost()).append(" execution");
+    if (!fragment.getInputFragments().isEmpty()) {
+      sb.append(" after");
+      for (MutableGraphFragment input : fragment.getInputFragments()) {
+        sb.append(' ').append(input.getIdentifier());
+        printExecutionPlan(out, input, visited);
+      }
+    }
+    if (fragment.getTail() != null) {
+      sb.append(" (tail");
+      for (MutableGraphFragment tail : fragment.getTail()) {
+        sb.append(' ').append(tail.getIdentifier());
+      }
+      sb.append(')');
+    }
+    out.println(sb.toString());
   }
 
 }
