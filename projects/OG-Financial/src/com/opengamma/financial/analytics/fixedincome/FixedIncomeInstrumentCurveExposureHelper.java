@@ -12,6 +12,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 /**
  * 
  */
+@Deprecated
 public final class FixedIncomeInstrumentCurveExposureHelper {
 
   private FixedIncomeInstrumentCurveExposureHelper() {
@@ -119,4 +120,38 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
+  public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String[] curveNames) {
+    final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+    final String fundingCurveName = curveNames[0];
+    final String forward1CurveName = curveNames[1];
+    final String forward2CurveName = curveNames[2];
+    switch (type) {
+      case SWAP_FIXED_IBOR:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case SWAP_FIXED_IBOR_WITH_SPREAD:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case SWAP_IBOR_IBOR:
+        return new String[] {fundingCurveName, forward1CurveName, forward2CurveName};
+      case CASH:
+        return new String[] {fundingCurveName };
+      case FRA:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case IR_FUTURE:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case COUPON_BOND:
+        return new String[] {fundingCurveName, fundingCurveName };
+      case SWAP_FIXED_CMS:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case SWAP_IBOR_CMS:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case SWAP_CMS_CMS:
+        return new String[] {fundingCurveName, forward1CurveName };
+      case BOND_FUTURE:
+        return new String[] {fundingCurveName, fundingCurveName };
+      case SWAP_FIXED_OIS:
+        return new String[] {fundingCurveName, fundingCurveName };
+      default:
+        throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
+    }
+  }
 }

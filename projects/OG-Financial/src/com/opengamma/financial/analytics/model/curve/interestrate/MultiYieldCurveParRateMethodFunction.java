@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.curve.interestrate;
 
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
-import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
@@ -216,7 +215,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
   @Override
   protected ValueProperties getProperties(final String curveCalculationConfigName) {
     return createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PRESENT_VALUE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
         .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)

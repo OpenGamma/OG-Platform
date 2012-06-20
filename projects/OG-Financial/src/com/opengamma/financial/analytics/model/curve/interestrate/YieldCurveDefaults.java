@@ -21,9 +21,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class YieldCurveDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.YIELD_CURVE,
-      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-      ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY
+    ValueRequirementNames.YIELD_CURVE,
+    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+    ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.PAR_RATE,
+    ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
+    ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;

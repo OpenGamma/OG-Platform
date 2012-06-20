@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.fixedincome;
+package com.opengamma.financial.analytics.model.fixedincome.deprecated;
 
 import java.util.List;
 import java.util.Map;
@@ -13,28 +13,27 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
+@Deprecated
+public class InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated extends InterestRateInstrumentCurveSpecificFunctionDeprecated {
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
-  public InterestRateInstrumentParRateCurveSensitivityFunction() {
+  public InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
   }
 
   @Override
-  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,
-      final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
-      final ValueSpecification resultSpec) {
+  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+      final YieldCurveBundle curves, final ValueSpecification resultSpec) {
     final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, curves);
     if (!sensitivities.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get par rate curve sensitivities for curve named " + curveName + "; should never happen");

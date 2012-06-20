@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.fixedincome;
+package com.opengamma.financial.analytics.model.fixedincome.deprecated;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,26 +13,24 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.ParRateParallelSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 
 /**
  * 
  */
-public class InterestRateInstrumentParRateParallelCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
+public class InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated extends InterestRateInstrumentCurveSpecificFunctionDeprecated {
   private static final ParRateParallelSensitivityCalculator CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 
-  public InterestRateInstrumentParRateParallelCurveSensitivityFunction() {
+  public InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
   }
 
   @Override
-  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,
-      final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
-      final ValueSpecification resultSpec) {
+  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+      final YieldCurveBundle curves, final ValueSpecification resultSpec) {
     final Map<String, Double> sensitivities = CALCULATOR.visit(derivative, curves);
     if (!sensitivities.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get par rate parallel curve shift sensitivity for curve named " + curveName + "; should never happen");

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.fixedincome;
+package com.opengamma.financial.analytics.model.fixedincome.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -25,7 +25,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
-public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
+@Deprecated
+public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PAR_RATE,
@@ -35,27 +36,20 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA};
   private final String _curveCalculationMethod;
-  private final String _curveCalculationConfig;
-  private final String _excludedSecurityName;
-  private final PriorityClass _priority;
+  private final String _forwardCurve;
+  private final String _fundingCurve;
   private final String[] _applicableCurrencyNames;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String... applicableCurrencyNames) {
-    this(curveCalculationMethod, curveCalculationConfig, priority, null, applicableCurrencyNames);
-  }
-
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String excludedSecurityName,
-      final String... applicableCurrencyNames) {
+  public InterestRateInstrumentDefaultCurveNameFunctionDeprecated(final String curveCalculationMethod, final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
-    ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
-    ArgumentChecker.notNull(priority, "priority");
+    ArgumentChecker.notNull(forwardCurve, "forward curve name");
+    ArgumentChecker.notNull(fundingCurve, "funding curve name");
     ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names list");
     ArgumentChecker.notEmpty(applicableCurrencyNames, "applicable currency names list");
     _curveCalculationMethod = curveCalculationMethod;
-    _curveCalculationConfig = curveCalculationConfig;
-    _priority = PriorityClass.valueOf(priority);
-    _excludedSecurityName = excludedSecurityName;
+    _forwardCurve = forwardCurve;
+    _fundingCurve = fundingCurve;
     _applicableCurrencyNames = applicableCurrencyNames;
   }
 
@@ -65,9 +59,6 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (security.getClass().getName().equals(_excludedSecurityName)) {
-      return false;
-    }
     if (security instanceof SwapSecurity) {
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
@@ -102,8 +93,11 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationConfig);
+    if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
+      return Collections.singleton(_forwardCurve);
+    }
+    if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
+      return Collections.singleton(_fundingCurve);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_curveCalculationMethod);
@@ -113,7 +107,10 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
 
   @Override
   public PriorityClass getPriority() {
-    return _priority;
+    if ("SECONDARY".equals(_forwardCurve) || "SECONDARY".equals(_fundingCurve)) {
+      return PriorityClass.BELOW_NORMAL;
+    }
+    return super.getPriority();
   }
 
 }

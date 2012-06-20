@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.fixedincome;
+package com.opengamma.financial.analytics.model.fixedincome.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -19,18 +19,19 @@ import com.opengamma.financial.security.FinancialSecurity;
 /**
  * 
  */
-public class InterestRateInstrumentParRateFunction extends InterestRateInstrumentFunction {
+@Deprecated
+public class InterestRateInstrumentParRateFunctionDeprecated extends InterestRateInstrumentFunctionDeprecated {
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
 
-  public InterestRateInstrumentParRateFunction() {
+  public InterestRateInstrumentParRateFunctionDeprecated() {
     super(ValueRequirementNames.PAR_RATE);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security,
-      final ComputationTarget target, final String curveCalculationConfig, final String curveCalculationMethod, final String currency) {
+      final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, final String currency) {
     final Double parRate = CALCULATOR.visit(derivative, bundle);
-    return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfig, curveCalculationMethod, currency), parRate));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), parRate));
   }
 
 }
