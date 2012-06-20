@@ -336,7 +336,7 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody)).hide().fadeIn();
+                $(selector).html(html.og_table.replace('{TBODY}', tbody));
                 /*
                  * Remove expand links when no trade attributes are available
                  */
