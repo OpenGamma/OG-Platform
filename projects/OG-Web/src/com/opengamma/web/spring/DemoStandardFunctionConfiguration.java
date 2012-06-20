@@ -1035,9 +1035,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     // commonForexLOCALSurfaceProperties
     final List<String> commonForexLocalSurfaceProperties = new ArrayList<String>(commonForexBlackSurfaceProperties);
-
-    commonForexLocalSurfaceProperties.add("1e-3"); // ?!?
-
+    commonForexLocalSurfaceProperties.add("1e-3"); // "SurfaceDerivativeEPS" shift used for FD derivative approximations
     final List<String> forexLocalSurfaceMixedLogNormalProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
     forexLocalSurfaceMixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
     final List<String> forexLocalSurfaceSABRProperties = new ArrayList<String>(commonForexLocalSurfaceProperties);
