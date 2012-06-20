@@ -6,20 +6,21 @@
  *
  */
 $.register_module({
-    name: 'og.common.util.ui.combobox',
+    name: 'og.common.util.ui.AutoCombo',
     dependencies: [],
     obj: function () {
         /**
          * @param {Object} obj configuration object,
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
-        return function (obj) {
-            var placeholder = obj.placeholder || '', selector = obj.selector, $wrapper, $input, $button,
-                list = obj.data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
+        return function (selector, placeholder, data) {
+            var $wrapper, $input, $button,
+                list = data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
                 open = function () {
                     // open using the current input value or an empty string
                     $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
                 };
+            placeholder = placeholder || '';
             autocomplete_obj = {
                 minLength: 0, delay: 0,
                 source: function (req, res) {
@@ -39,7 +40,9 @@ $.register_module({
             };
             $wrapper = $('<div />'); // wrap input in div to enable input width at 100% of parent, FF, IE
             $input = $wrapper.html('<input type="text" />').find('input')
-                .autocomplete(autocomplete_obj).attr('placeholder', placeholder).on('mouseup', open);
+                .autocomplete(autocomplete_obj).attr('placeholder', placeholder).on('mouseup', open)
+                .on('blur', function () {if ($input.val() === placeholder) $input.val('');})
+                .on('focus', function () {$input.trigger('open', $input)});
             // Enable html list items
             $input.data('autocomplete')._renderItem = function(ul, item) {
                 return $('<li></li>').data('item.autocomplete', item).append('<a>' + item.label + '</a>').appendTo(ul);
@@ -48,7 +51,7 @@ $.register_module({
                 return $input.autocomplete('widget').is(':visible') ? $input.autocomplete('close').select() : open();
             });
             $([$wrapper, $button]).prependTo(selector);
-            return $input; // return input for chaining
+            this.select = function () {$input.select();};
         }
     }
 });

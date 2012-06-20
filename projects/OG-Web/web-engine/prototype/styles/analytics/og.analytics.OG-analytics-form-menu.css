@@ -1,0 +1,132 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-analytics-form-menu {
+    position: absolute;
+    background: #e0f2e7;
+    border: 1px solid #dadcdd;
+    z-index: 1;
+}
+
+.OG-analytics-form-menu .OG-background-03 {
+    height: 3px;
+}
+
+.OG-analytics-form-menu .OG-icon.og-icon-delete {
+    left: 4px; top: -3px;
+    display: none;
+}
+
+.OG-analytics-form-menu table {
+    margin: 7px 1px;
+}
+
+.OG-analytics-form-menu table td {
+    padding: 3px;
+}
+
+.OG-analytics-form-menu table td:first-child {
+    padding-left: 10px;
+}
+
+.OG-analytics-form-menu table td:last-child {
+    padding-right: 20px;
+}
+
+.OG-analytics-form-menu table tr:hover {
+    background-color: #e9f6ee;
+}
+
+.OG-analytics-form-menu table tr:last-child:hover {
+    background-color: inherit;
+}
+
+.OG-analytics-form-menu table tr:hover .OG-icon.og-icon-delete {
+    display: block;
+}
+
+.OG-analytics-form-menu tr td:nth-child(1) span {
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background-color: #fff;
+    line-height: 10px;
+    height: 10px;
+    width: 10px;
+    display: block;
+    text-indent: 2px;
+    font-size: 11px;
+    color: #aaa;
+}
+
+/* aggregation */
+    .OG-analytics-form-menu.og-menu-aggregation tr td:nth-child(2) {
+        color: #999;
+        white-space: nowrap;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation tr td:nth-child(4) {
+        text-align: right;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation select {
+        width: 265px;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation input {
+        vertical-align: bottom;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation table + div {
+        margin: 7px 10px;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation .og-option {
+        white-space: nowrap;
+        border: 1px solid #8bcfa8;
+        background-color: #8bcfa8;
+        color: #fff;
+        border-radius: 2px;
+        padding: 1px 4px 1px 0;
+        position: relative;
+    }
+
+    .OG-analytics-form-menu.og-menu-aggregation .og-option:after {
+        content: '';
+        position: absolute;
+        display: block;
+        background: #fff;
+        opacity: 0.1;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 50%;
+    }
+
+/* datacources */
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(2) select {
+        width: 95px;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(3) {
+        text-align: right;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources tr td:nth-child(3) select {
+        width: 335px;
+    }
+
+/* ie8 doesnt support nth or last child...degrade */
+    .ie8 .OG-analytics-form-menu select {
+        min-width: 150px;
+    }
+
+    .ie8 .OG-analytics-form-menu label {
+        white-space: nowrap;
+    }
+
+    .ie8 .OG-analytics-form-menu .OG-icon.og-icon-delete {
+        display: block;
+        width: 20px;
+    }

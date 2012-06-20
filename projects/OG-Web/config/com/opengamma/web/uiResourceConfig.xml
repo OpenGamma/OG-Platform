@@ -139,6 +139,7 @@
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-form-menu.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -231,7 +232,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
-    <fragment>/scripts/og/common/util/ui/og.common.util.ui.combobox.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.AutoCombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
   </bundle>
