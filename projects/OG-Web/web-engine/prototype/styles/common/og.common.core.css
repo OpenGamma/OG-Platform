@@ -8,10 +8,19 @@
  */
 
 html {
-  background-color: #cdcdcd;
-  background-image: -moz-radial-gradient(cover, #fff, #cdcdcd);
-  background-image: -webkit-radial-gradient(cover, #fff, #cdcdcd);
-  background-image: radial-gradient(cover, #fff, #cdcdcd);
+    background-color: #cdcdcd;
+    background-image:
+        -webkit-radial-gradient(center, circle closest-corner, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)),
+        -webkit-radial-gradient(top left, circle farthest-side, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)),
+        -webkit-radial-gradient(top right, circle farthest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0)),
+        -webkit-radial-gradient(30% 80%, 30% 30%, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0)),
+        url(/prototype/images/common/furniture/background-noise-64x64.png);
+    background-image:
+        -moz-radial-gradient(center, circle closest-corner, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)),
+        -moz-radial-gradient(top left, circle farthest-side, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)),
+        -moz-radial-gradient(top right, circle farthest-side, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0)),
+        -moz-radial-gradient(30% 80%, circle closest-corner, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0)),
+        url(/prototype/images/common/furniture/background-noise-64x64.png);
   height: 100%;
 }
 
