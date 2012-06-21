@@ -3,6 +3,7 @@ foo~
 *.class
 *.log
 build/
+target/
 dist/
 ivy/
 lib/
