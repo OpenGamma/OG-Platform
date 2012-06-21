@@ -95,10 +95,6 @@
   top: 14px;
 }
 
-.OG-tabs a:hover.og-home:after {
-  background-position: -20px -75px;
-}
-
 .OG-tabs .og-home.og-active:before {
   background-position: -20px -75px;
 }
@@ -117,7 +113,7 @@
   cursor: pointer;
   background-position: 0 -75px;
   height: 16px;
-  width: 16px;
+  width: 17px;
   position: absolute;
   top: 8px; left: 6px;
 }
