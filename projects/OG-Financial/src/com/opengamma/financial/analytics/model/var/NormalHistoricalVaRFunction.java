@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.var;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -33,6 +36,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(NormalHistoricalVaRFunction.class);
   /** The property for the VaR distribution type */
   public static final String PROPERTY_VAR_DISTRIBUTION = "VaRDistributionType";
   /** The name for the normal historical VaR calculation method */
@@ -127,7 +131,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
       }
     }
-    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    Set<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    s_logger.debug("For {} on {} requirements are {}", new Object[] {desiredValue, target, requirements});
+    return requirements;
   }
 
   @Override
