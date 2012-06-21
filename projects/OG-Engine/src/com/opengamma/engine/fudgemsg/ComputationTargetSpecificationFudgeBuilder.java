@@ -36,12 +36,14 @@ public class ComputationTargetSpecificationFudgeBuilder implements FudgeBuilder<
    * Fudge field name.
    */
   private static final String IDENTIFIER_FIELD_NAME = "computationTargetId";
+  private static final String OLD_IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
   protected static void buildMessageImpl(final MutableFudgeMsg msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());
     UniqueId uid = object.getUniqueId();
     if (uid != null) {
       msg.add(IDENTIFIER_FIELD_NAME, uid);
+      msg.add(OLD_IDENTIFIER_FIELD_NAME, uid);
     }
   }
 
@@ -54,8 +56,13 @@ public class ComputationTargetSpecificationFudgeBuilder implements FudgeBuilder<
 
   protected static ComputationTargetSpecification buildObjectImpl(final FudgeMsg message) {
     final ComputationTargetType type = ComputationTargetType.valueOf(message.getString(TYPE_FIELD_NAME));
-    UniqueId uid = message.getValue(UniqueId.class, IDENTIFIER_FIELD_NAME);
-    return new ComputationTargetSpecification(type, uid);
+    if (message.hasField(OLD_IDENTIFIER_FIELD_NAME)) {
+      UniqueId uid = message.getValue(UniqueId.class, OLD_IDENTIFIER_FIELD_NAME);
+      return new ComputationTargetSpecification(type, uid);
+    } else {
+      UniqueId uid = message.getValue(UniqueId.class, IDENTIFIER_FIELD_NAME);
+      return new ComputationTargetSpecification(type, uid);      
+    }
   }
 
   @Override
