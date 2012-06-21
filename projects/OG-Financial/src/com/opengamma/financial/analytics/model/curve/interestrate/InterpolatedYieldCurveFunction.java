@@ -140,8 +140,19 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+<<<<<<< HEAD
         final UniqueId uid = target.getUniqueId();
         return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
+=======
+        if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
+          return false;
+        }
+        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+>>>>>>> Adding checks for null target unique ids to functions
       }
 
       @Override

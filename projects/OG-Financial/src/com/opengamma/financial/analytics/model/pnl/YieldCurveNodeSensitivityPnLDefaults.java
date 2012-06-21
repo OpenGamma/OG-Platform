@@ -38,8 +38,8 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
   private final String _scheduleCalculator;
   private final String _samplingFunction;
   private final String[] _applicableCurrencies;
-  
-  public YieldCurveNodeSensitivityPnLDefaults(final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, 
+
+  public YieldCurveNodeSensitivityPnLDefaults(final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
       final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String... applicableCurrencies) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -57,7 +57,7 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
     _samplingFunction = samplingFunction;
     _applicableCurrencies = applicableCurrencies;
   }
- 
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getPositionOrTrade().getSecurity();
@@ -73,7 +73,7 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
         if (type != InterestRateInstrumentType.SWAP_FIXED_IBOR && type != InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD && type != InterestRateInstrumentType.SWAP_IBOR_IBOR) {
           return false;
         }
-      } catch (OpenGammaRuntimeException ogre) {
+      } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
     }
@@ -86,7 +86,7 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
     }
     return true;
   }
-  
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
@@ -96,7 +96,7 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
   }
-  
+
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {

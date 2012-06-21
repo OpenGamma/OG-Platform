@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -22,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * <i>likely</i> to be available based on the scheme of its unique identifier and other factors.
  */
 public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(DomainMarketDataAvailabilityProvider.class);
   /**
    * The security source to resolve against.
    */
@@ -59,19 +62,22 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
     }
     switch (requirement.getTargetSpecification().getType()) {
       case PRIMITIVE: {
-        ExternalScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
+        if (requirement.getTargetSpecification().getIdentifier() == null) {
+          return MarketDataAvailability.NOT_AVAILABLE;
+        }
+        final ExternalScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
         return _acceptableSchemes.contains(scheme) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
       }
       case SECURITY: {
         try {
-          Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
-          for (ExternalId identifier : security.getExternalIdBundle()) {
+          final Security security = _securitySource.getSecurity(requirement.getTargetSpecification().getUniqueId());
+          for (final ExternalId identifier : security.getExternalIdBundle()) {
             if (_acceptableSchemes.contains(identifier.getScheme())) {
               return MarketDataAvailability.AVAILABLE;
             }
           }
           return MarketDataAvailability.NOT_AVAILABLE;
-        } catch (DataNotFoundException ex) {
+        } catch (final DataNotFoundException ex) {
           return MarketDataAvailability.NOT_AVAILABLE;
         }
       }
