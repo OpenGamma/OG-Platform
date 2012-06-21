@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.forwardcurve.ForwardSwapCurveDefinition
 import com.opengamma.financial.analytics.forwardcurve.ForwardSwapCurveInstrumentProvider;
 import com.opengamma.financial.analytics.forwardcurve.ForwardSwapCurveSpecification;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -113,8 +112,13 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        final UniqueId uid = target.getUniqueId();
-        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
+        if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
+        }
+        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @Override

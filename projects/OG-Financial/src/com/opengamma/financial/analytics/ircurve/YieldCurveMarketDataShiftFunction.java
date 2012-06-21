@@ -58,8 +58,11 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null; {}", target);
+      return false;
+    }
+    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

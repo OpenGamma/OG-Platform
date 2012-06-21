@@ -43,6 +43,9 @@ public class InterpolatedYieldCurveDefaults extends DefaultPropertyFunction {
     if (uid == null) {
       return false;
     }
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     for (final String applicableCurrencyName : _applicableCurrencyNames) {
       if (applicableCurrencyName.equals(uid.getValue())) {
         return true;

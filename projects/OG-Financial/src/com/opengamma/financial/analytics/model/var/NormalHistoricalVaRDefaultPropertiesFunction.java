@@ -28,9 +28,10 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  
+  private final PriorityClass _priority;
+
   public NormalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
-      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final ComputationTargetType target) {
+      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final String priority, final ComputationTargetType target) {
     super(target, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
@@ -41,32 +42,33 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
     ArgumentChecker.notNull(horizon, "horizon name");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
-    _samplingCalculator = samplingCalculator;    
+    _samplingCalculator = samplingCalculator;
     _meanCalculator = meanCalculator;
     _stdDevCalculator = stdDevCalculator;
     _confidenceLevel = confidenceLevel;
     _horizon = horizon;
+    _priority = PriorityClass.valueOf(priority);
   }
-  
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (String requirementName : new String[] {ValueRequirementNames.HISTORICAL_VAR, ValueRequirementNames.HISTORICAL_VAR_STDDEV}) {
+    for (final String requirementName : new String[] {ValueRequirementNames.HISTORICAL_VAR, ValueRequirementNames.HISTORICAL_VAR_STDDEV}) {
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_PERIOD);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.SCHEDULE_CALCULATOR);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_FUNCTION);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.MEAN_CALCULATOR);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.STD_DEV_CALCULATOR);
       defaults.addValuePropertyName(requirementName, ValuePropertyNames.CONFIDENCE_LEVEL);
-      defaults.addValuePropertyName(requirementName, ValuePropertyNames.HORIZON);    
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.HORIZON);
     }
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, 
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
-    } 
+    }
     if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
       return Collections.singleton(_scheduleCalculator);
     }
@@ -88,4 +90,8 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
     return null;
   }
 
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
+  }
 }

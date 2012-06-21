@@ -64,7 +64,7 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (security.getClass().getName().equals(_excludedSecurityName)) {
+    if (_excludedSecurityName != null && security.getClass().getName().equals(_excludedSecurityName)) {
       return false;
     }
     if (security instanceof SwapSecurity) {

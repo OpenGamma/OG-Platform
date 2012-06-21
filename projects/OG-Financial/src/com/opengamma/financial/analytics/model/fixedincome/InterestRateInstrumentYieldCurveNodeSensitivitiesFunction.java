@@ -38,6 +38,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -87,6 +88,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
@@ -108,6 +110,10 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
+    final UniqueIdentifiable uniqueId = curveCalculationConfig.getUniqueIds()[0].getUniqueId(); //TODO configs need an id?
+    if (Currency.OBJECT_SCHEME.equals(uniqueId.getUniqueId().getScheme()) && !(uniqueId.getUniqueId().getValue().equals(currency.getCode()))) {
+      return null;
+    }
     if (curveCalculationConfig.getExogenousConfigData() != null) {
       //TODO fix this
       s_logger.error("Cannot handle configurations with exogenous curves");
@@ -116,12 +122,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curve = curves.iterator().next();
     if (Arrays.binarySearch(curveNames, curve) < 0) {
-      s_logger.error("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
+      s_logger.info("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     requirements.addAll(InterestRateInstrumentFunction.getCurveRequirements(currency, curveNames, curveCalculationConfigName, curveCalculationMethod));
     requirements.add(getCurveSpecRequirement(currency, curve));
     requirements.add(getJacobianRequirement(currency, curveCalculationConfigName, curveCalculationMethod));

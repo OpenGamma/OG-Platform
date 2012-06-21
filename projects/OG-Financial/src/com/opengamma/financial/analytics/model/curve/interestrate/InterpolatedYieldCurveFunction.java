@@ -58,7 +58,6 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -140,10 +139,6 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-<<<<<<< HEAD
-        final UniqueId uid = target.getUniqueId();
-        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
-=======
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
@@ -152,7 +147,6 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
           return false;
         }
         return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
->>>>>>> Adding checks for null target unique ids to functions
       }
 
       @Override

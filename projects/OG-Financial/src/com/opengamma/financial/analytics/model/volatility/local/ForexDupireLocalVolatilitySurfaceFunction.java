@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -22,16 +21,11 @@ public abstract class ForexDupireLocalVolatilitySurfaceFunction extends DupireLo
 
   @Override
   protected boolean isCorrectIdType(final ComputationTarget target) {
-<<<<<<< HEAD
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
-=======
     if (target.getUniqueId() == null) {
       s_logger.error("Target unique id was null; {}", target);
       return false;
     }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
->>>>>>> Adding checks for null target unique ids to functions
   }
 
   @Override

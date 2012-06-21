@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
+import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunctionDeprecated;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -147,7 +147,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
+        .with(YieldCurveNodePnLFunctionDeprecated.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -165,7 +165,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
       }
     }
-    Set<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    final Set<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
     s_logger.debug("For {} on {} requirements are {}", new Object[] {desiredValue, target, requirements});
     return requirements;
   }

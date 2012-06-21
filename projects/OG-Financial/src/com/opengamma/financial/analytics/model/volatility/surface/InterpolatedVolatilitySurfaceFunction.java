@@ -106,10 +106,14 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     if (uid == null) {
       return false;
     }
-    final String scheme = uid.getScheme();
-    return (scheme.equals(Currency.OBJECT_SCHEME) 
-         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null, {}", target);
+      return false;
+    }
+    final String scheme = target.getUniqueId().getScheme();
+    return (scheme.equals(Currency.OBJECT_SCHEME)
+        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
 
   @Override

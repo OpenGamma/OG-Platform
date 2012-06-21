@@ -18,29 +18,20 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
-import com.opengamma.id.UniqueId;
 
 /**
  * 
  */
 public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireLocalVolatilitySurfaceFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityDupireLocalVolatilitySurfaceFunction.class);
+
   @Override
-<<<<<<< HEAD
-  protected boolean isCorrectIdType(ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    if (uid == null) {
-      return false;
-    }
-    final String targetScheme = uid.getScheme();
-=======
   protected boolean isCorrectIdType(final ComputationTarget target) {
     if (target.getUniqueId() == null) {
       s_logger.error("Target unique id was null; {}", target);
       return false;
     }
     final String targetScheme = target.getUniqueId().getScheme();
->>>>>>> Adding checks for null target unique ids to functions
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
         targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }

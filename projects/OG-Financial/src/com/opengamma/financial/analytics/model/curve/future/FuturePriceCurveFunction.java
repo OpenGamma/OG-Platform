@@ -47,7 +47,6 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefi
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -56,7 +55,7 @@ import com.opengamma.util.money.Currency;
 public class FuturePriceCurveFunction extends AbstractFunction {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
-  
+
   @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
       final String definitionName) {
@@ -98,8 +97,14 @@ public class FuturePriceCurveFunction extends AbstractFunction {
 
       @Override
       public final boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
-        final UniqueId uid = target.getUniqueId();
-        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
+        if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
+          return false;
+        }
+        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @SuppressWarnings("synthetic-access")
@@ -171,7 +176,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
               final Double ttm = IRFutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
               xList.add(ttm);
               prices.add(futurePrice);
-            } 
+            }
           }
         }
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,

@@ -15,7 +15,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -36,11 +35,10 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults extends Defaul
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    if (uid == null) {
+    if (target.getUniqueId() == null) {
       return false;
     }
-    return Currency.OBJECT_SCHEME.equals(uid.getScheme());
+    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

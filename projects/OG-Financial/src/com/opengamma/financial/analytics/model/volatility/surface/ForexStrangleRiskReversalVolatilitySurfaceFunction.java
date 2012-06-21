@@ -44,7 +44,6 @@ import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySur
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -144,8 +143,14 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final UniqueId uid = target.getUniqueId();
-    return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null; {}", target);
+      return false;
+    }
+    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
@@ -168,7 +173,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
-    return Collections.<ValueRequirement> singleton(getDataRequirement(surfaceName, target));
+    return Collections.<ValueRequirement>singleton(getDataRequirement(surfaceName, target));
   }
 
   @Override
@@ -183,7 +188,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
         resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts.iterator().next());
       }
     }
-    return Collections.<ValueSpecification> singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
+    return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         resultProperties.get()));
   }
 
