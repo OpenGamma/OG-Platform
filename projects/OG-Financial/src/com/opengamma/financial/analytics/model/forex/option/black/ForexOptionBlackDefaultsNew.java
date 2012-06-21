@@ -137,4 +137,9 @@ public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
     }
     return null;
   }
+
+  @Override
+  public PriorityClass getPriority() {
+    return PriorityClass.ABOVE_NORMAL;
+  }
 }

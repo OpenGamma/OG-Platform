@@ -21,6 +21,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String LOCAL_VOLATILITY_SURFACE_DEFAULTS = "LOCAL_VOLATILITY_SURFACE_DEFAULTS";
   public static final String PNL_SERIES = "PNL_SERIES";
   public static final String SABR_NO_EXTRAPOLATION_DEFAULTS = "SABR_NO_EXTRAPOLATION_DEFAULTS";
+  public static final String INTEREST_RATE_INSTRUMENT_DEFAULTS = "INTEREST_RATE_INSTRUMENT_DEFAULTS";
   //CSON
 
 }

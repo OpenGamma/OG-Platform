@@ -123,8 +123,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
   public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String[] curveNames) {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     final String fundingCurveName = curveNames[0];
-    final String forward1CurveName = curveNames[1];
-    final String forward2CurveName = curveNames[2];
+    final String forward1CurveName = curveNames.length > 1 ? curveNames[1] : fundingCurveName;
+    final String forward2CurveName = curveNames.length == 3 ? curveNames[2] : forward1CurveName;
     switch (type) {
       case SWAP_FIXED_IBOR:
         return new String[] {fundingCurveName, forward1CurveName };

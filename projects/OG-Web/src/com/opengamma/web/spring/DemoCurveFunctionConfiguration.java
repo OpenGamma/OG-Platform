@@ -57,7 +57,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Creates function repository configuration for curve supplying functions.
  * 
- * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available. 
+ * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available.
  */
 public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
 
@@ -79,9 +79,8 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     configs.add(new StaticFunctionConfiguration(MultiYieldCurvePresentValueMethodFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(MultiYieldCurveParRateMethodFunction.class.getName()));
-    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF"));
+    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF", "CAD", "GBP"));
     configs.add(functionConfiguration(FXImpliedYieldCurveFunctionNew.class));
-    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD"));
     configs.add(functionConfiguration(FXImpliedYieldCurveDefaultsNew.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false",
         "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "MYR"));
 
@@ -93,7 +92,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       searchRequest.setType(YieldCurveDefinition.class);
 
       final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-      for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
+      for (final ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
         if (underscore <= 0) {
@@ -129,11 +128,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
 
-    Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
-    for (Currency currency : volCubeCurrencies) {
+    final Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    for (final Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
-    
+
     addNewVolatilityCubeFunction(configs);
     addForwardSwapCurveFunction(configs);
   }
@@ -146,12 +145,12 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
 
   private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromMarketQuotesFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class.getName(), 
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class.getName(),
         Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("FUNDING-FUNDING", "FUNDING", "FUNDING")));
   }
-  
+
   private void addForwardSwapCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveMarketDataFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveFromMarketQuotesFunction.class.getName()));
@@ -160,11 +159,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
   }
-  private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
+  private void addVolatilityCubeFunction(final List<FunctionConfiguration> configs, final String... parameters) {
     addVolatilityCubeFunction(configs, Arrays.asList(parameters));
   }
 
-  private void addVolatilityCubeFunction(final List<FunctionConfiguration> configs, List<String> parameters) {
+  private void addVolatilityCubeFunction(final List<FunctionConfiguration> configs, final List<String> parameters) {
     if (parameters.size() != 2) {
       throw new IllegalArgumentException();
     }
@@ -176,7 +175,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   private void addNewVolatilityCubeFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(RawSwaptionVolatilityCubeDataFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew.class.getName()));
-    List<String> defaults = Arrays.asList("0.05", "0.5", "0.7", "0.3", "false", "true", "false", "false", "0.001", "Linear", "FlatExtrapolator", "Linear", "FlatExtrapolator", 
+    final List<String> defaults = Arrays.asList("0.05", "0.5", "0.7", "0.3", "false", "true", "false", "false", "0.001", "Linear", "FlatExtrapolator", "Linear", "FlatExtrapolator",
         "ForwardSwapQuotes", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator");
     configs.add(new ParameterizedFunctionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingDefaults.class.getName(), defaults));
   }

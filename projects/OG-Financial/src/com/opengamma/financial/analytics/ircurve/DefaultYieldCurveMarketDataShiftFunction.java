@@ -41,6 +41,9 @@ public class DefaultYieldCurveMarketDataShiftFunction extends StaticDefaultPrope
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 

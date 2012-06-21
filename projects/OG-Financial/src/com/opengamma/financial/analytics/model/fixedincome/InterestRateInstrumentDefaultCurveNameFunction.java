@@ -14,8 +14,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -38,25 +38,24 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   private final String _curveCalculationConfig;
   private final String _excludedSecurityName;
   private final PriorityClass _priority;
-  private final String[] _applicableCurrencyNames;
+  private final String _applicableCurrencyName;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String... applicableCurrencyNames) {
-    this(curveCalculationMethod, curveCalculationConfig, priority, null, applicableCurrencyNames);
+  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String applicableCurrencyName) {
+    this(curveCalculationMethod, curveCalculationConfig, priority, null, applicableCurrencyName);
   }
 
   public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String excludedSecurityName,
-      final String... applicableCurrencyNames) {
+      final String applicableCurrencyName) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names list");
-    ArgumentChecker.notEmpty(applicableCurrencyNames, "applicable currency names list");
+    ArgumentChecker.notNull(applicableCurrencyName, "applicable currency name");
     _curveCalculationMethod = curveCalculationMethod;
     _curveCalculationConfig = curveCalculationConfig;
     _priority = PriorityClass.valueOf(priority);
     _excludedSecurityName = excludedSecurityName;
-    _applicableCurrencyNames = applicableCurrencyNames;
+    _applicableCurrencyName = applicableCurrencyName;
   }
 
   @Override
@@ -73,19 +72,15 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
           || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
-        for (final String applicableCurrencyName : _applicableCurrencyNames) {
-          if (currencyName.equals(applicableCurrencyName)) {
-            return true;
-          }
+        if (currencyName.equals(_applicableCurrencyName)) {
+          return true;
         }
       }
     }
     if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
       final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-      for (final String applicableCurrencyName : _applicableCurrencyNames) {
-        if (currencyName.equals(applicableCurrencyName)) {
-          return true;
-        }
+      if (currencyName.equals(_applicableCurrencyName)) {
+        return true;
       }
     }
     return false;
@@ -94,8 +89,7 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-      defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
@@ -116,4 +110,8 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     return _priority;
   }
 
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.INTEREST_RATE_INSTRUMENT_DEFAULTS;
+  }
 }
