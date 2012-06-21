@@ -1,0 +1,45 @@
+/*
+* Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+* Please see distribution for license.
+*/
+
+.OG-login {
+    width: 400px;
+    height: 200px;
+    margin-left: -200px;
+    margin-top: -100px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.OG-login table img {
+    width: 296px;
+    height: 58px;
+}
+
+.OG-login table {
+    position: relative;
+    left: 56px;
+}
+
+.OG-login td {
+    padding: 4px;
+}
+
+.OG-login input {
+    width: 250px;
+    height: 22px;
+    font-size: 16px;
+}
+
+.OG-login span {
+    font-size: 16px;
+    color: #bbb;
+    line-height: 22px;
+    text-shadow: 0 1px 0 #fff;
+}
+
+.OG-login button {
+    margin: 2px 0 0 0;
+}

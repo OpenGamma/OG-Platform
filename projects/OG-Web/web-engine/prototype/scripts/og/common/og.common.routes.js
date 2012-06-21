@@ -57,7 +57,7 @@ $.register_module({
                     else
                         if (og.api.rest) og.api.rest.subscribe();
                     routes.handler();
-                    set_title(routes.current().hash);
+                    set_title(routes.current() && routes.current().hash || 'OpenGamma');
                 });
                 // IE does not allow deleting from window so set to void 0 if it fails
                 try {delete window.RouteMap;} catch (error) {window.RouteMap = void 0;}

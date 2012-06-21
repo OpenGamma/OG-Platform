@@ -82,6 +82,9 @@
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
   </bundle>
+  <bundle id="login.css">
+    <fragment>/styles/login/og.login.OG-login.css</fragment>
+  </bundle>
   <bundle id="common.details.css">
     <fragment>/styles/common/details/og.common.OG-details-content.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details-grid.css</fragment>
@@ -143,6 +146,7 @@
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
+    <bundle idref="login.css" />
     <bundle idref="common.util.css" />
     <bundle idref="common.classes.css" />
     <bundle idref="common.search.css" />
