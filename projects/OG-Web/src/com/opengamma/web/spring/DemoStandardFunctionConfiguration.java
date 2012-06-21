@@ -781,7 +781,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFuturePV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, "FUTURES", "FUNDING", "PresentValue", "USD", "EUR", "GBP", "AUD"));
   }
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
