@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -36,6 +39,7 @@ import com.opengamma.livedata.UserPrincipal;
  */
 public final class UserViewClient implements UniqueIdentifiable {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(UserViewClient.class);
   private static final ViewResultListener[] EMPTY = new ViewResultListener[0];
 
   private static final int ET_FINISH = 1;
@@ -242,8 +246,19 @@ public final class UserViewClient implements UniqueIdentifiable {
       }
     }
     // Don't call getViewClient as that will attach to a remote process (probably not what we want)
-    _viewClient.setResultListener(null);
-    _viewClient.shutdown();
+    // We are only doing some housekeeping, so don't bail out if either method throws exceptions (e.g. from the JMS transport)
+    try {
+      _viewClient.setResultListener(null);
+    } catch (Throwable t) {
+      s_logger.warn("Error clearing result listener: {}", t.getMessage());
+      s_logger.debug("Caught exception", t);
+    }
+    try {
+      _viewClient.shutdown();
+    } catch (Throwable t) {
+      s_logger.warn("Error shutting down view client: {}", t.getMessage());
+      s_logger.debug("Caught exception", t);
+    }
   }
 
   public UserContext getUserContext() {
