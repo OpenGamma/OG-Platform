@@ -21,6 +21,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String PNL_SERIES = "PNL_SERIES";
   public static final String INTEREST_RATE_INSTRUMENT_DEFAULTS = "INTEREST_RATE_INSTRUMENT_DEFAULTS";
   public static final String SABR_FITTING_DEFAULTS = "SABR_FITTING_DEFAULTS";
+  public static final String FX_FORWARD_DEFAULTS = "FX_FORWARD_DEFAULTS";
   //CSON
 
 }

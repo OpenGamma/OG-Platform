@@ -16,6 +16,9 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
@@ -37,6 +40,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSp
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification.QuoteType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -45,6 +49,7 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class FXForwardCurveMarketDataFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveMarketDataFunction.class);
   /** Name of the calculation method */
   public static final String FX_FORWARD_QUOTES = "FXForwardQuotes";
 
@@ -63,8 +68,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CURVE).get();
+        final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURVE).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
@@ -86,6 +90,11 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         if (specification == null) {
           throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + curveName + " with target " + target);
         }
+        final QuoteType quoteType = specification.getQuoteType();
+        if (quoteType != FXForwardCurveSpecification.QuoteType.Outright && quoteType != FXForwardCurveSpecification.QuoteType.Points) {
+          s_logger.error("Cannot handle quote type " + quoteType);
+          return null;
+        }
         final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
         for (final Tenor tenor : definition.getTenors()) {
@@ -105,7 +114,8 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -130,8 +140,17 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
           final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
-            final Double spread = (Double) inputs.getValue(requirement);
-            data.put(identifier, spot + spread);
+            final Double value = (Double) inputs.getValue(requirement);
+            switch (specification.getQuoteType()) {
+              case Points:
+                data.put(identifier, spot + value);
+                break;
+              case Outright:
+                data.put(identifier, value);
+                break;
+              default:
+                throw new OpenGammaRuntimeException("Cannot handle quote type " + specification.getQuoteType());
+            }
           }
         }
         if (data.isEmpty()) {
@@ -141,8 +160,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
       }
 
       private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName) {
-        final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURVE, curveName).get();
+        final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).get();
         return new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, target.toSpecification(), properties);
       }
     };

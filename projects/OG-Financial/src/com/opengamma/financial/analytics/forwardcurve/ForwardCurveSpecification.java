@@ -24,7 +24,7 @@ public abstract class ForwardCurveSpecification {
     _target = target;
     _curveInstrumentProvider = curveInstrumentProvider;
   }
-
+  
   public String getName() {
     return _name;
   }
