@@ -148,6 +148,7 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList nodeTimes = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
+    // final DoubleArrayList myRatesGuess = new DoubleArrayList();
     final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
@@ -155,9 +156,11 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
         final double paymentTime = TimeCalculator.getTimeBetween(now, now.plus(tenor.getPeriod())); //TODO
-        derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, fullDomesticCurveName, fullForeignCurveName));
-        marketValues.add(fxForwardData.get(identifier));
+        final double forwardFX = fxForwardData.get(identifier);
+        derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
+        marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO
+        // myRatesGuess.add(( forwardFX / spotFX / foreignCurve.getDiscountFactor(paymentTime) - 1.0 ) / paymentTime);
         initialRatesGuess.add(0.02);
       }
     }
@@ -357,10 +360,9 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
   }
 
   //TODO determine domestic and notional from dominance data
-  private ForexForward getFXForward(final Currency currency1, final Currency currency2, final double paymentTime, final double spotFX, final String curveName1,
-      final String curveName2) {
-    final PaymentFixed paymentCurrency1 = new PaymentFixed(currency1, paymentTime, 1, curveName1);
-    final PaymentFixed paymentCurrency2 = new PaymentFixed(currency2, paymentTime, -1. / spotFX, curveName2);
+  private ForexForward getFXForward(final Currency ccy1, final Currency ccy2, final double paymentTime, final double spotFX, final double forwardFX, final String curveName1, final String curveName2) {
+    final PaymentFixed paymentCurrency1 = new PaymentFixed(ccy1, paymentTime, 1, curveName1);
+    final PaymentFixed paymentCurrency2 = new PaymentFixed(ccy2, paymentTime, -1. / forwardFX, curveName2);
     return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
   }
 }
