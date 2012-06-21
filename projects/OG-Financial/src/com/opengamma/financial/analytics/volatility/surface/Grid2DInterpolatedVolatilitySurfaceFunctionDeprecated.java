@@ -45,9 +45,10 @@ import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwa
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * @deprecated This has been replaced by the pair, RawEquityOptionVolatilitySurfaceDataFunction, EquityFutureOptionVolatilitySurfaceDataFunction
  */
-public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker { //TODO rename or make less specific to equity vol surfaces
+@Deprecated
+public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends AbstractFunction.NonCompiledInvoker { //TODO rename or make less specific to equity vol surfaces
   private final String _definitionName;
   private final String _instrumentType;
   private final GridInterpolator2D _interpolator;
@@ -56,7 +57,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   private Set<ValueSpecification> _results;
   private ValueRequirement _requirement;
 
-  public Grid2DInterpolatedVolatilitySurfaceFunction(final String definitionName, final String instrumentType, final String tInterpolatorName, final String tLeftExtrapolatorName,
+  public Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated(final String definitionName, final String instrumentType, final String tInterpolatorName, final String tLeftExtrapolatorName,
       final String tRightExtrapolatorName, final String kInterpolatorName, final String kLeftExtrapolatorName, final String kRightExtrapolatorName) {
     Validate.notNull(definitionName, "definition name");
     Validate.notNull(instrumentType, "instrument type");

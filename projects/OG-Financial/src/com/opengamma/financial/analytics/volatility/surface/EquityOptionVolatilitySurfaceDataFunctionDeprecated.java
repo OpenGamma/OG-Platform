@@ -56,11 +56,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated This has been replaced by the pair, RawEquityOptionVolatilitySurfaceDataFunction, EquityFutureOptionVolatilitySurfaceDataFunction 
  */
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
-public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
+@Deprecated
+public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunctionDeprecated.class);
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
@@ -70,7 +71,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
   private final String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public EquityOptionVolatilitySurfaceDataFunction(final String definitionName, final String instrumentType, final String specificationName) {
+  public EquityOptionVolatilitySurfaceDataFunctionDeprecated(final String definitionName, final String instrumentType, final String specificationName) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
     Validate.notNull(specificationName, "Specification Name");
