@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification.QuoteType;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -27,6 +28,7 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     final MutableFudgeMsg message = serializer.newMessage();
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
+    message.add("quoteType", object.getQuoteType().name());
     serializer.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
     return message;
   }
@@ -36,6 +38,9 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     final UnorderedCurrencyPair target = deserializer.fieldValueToObject(UnorderedCurrencyPair.class, message.getByName("target"));
     final String name = message.getString("name");
     final FXForwardCurveInstrumentProvider provider = deserializer.fieldValueToObject(FXForwardCurveInstrumentProvider.class, message.getByName("curveInstrumentProvider"));
+    if (message.hasField("quoteType")) {
+      return new FXForwardCurveSpecification(name, target, provider, QuoteType.valueOf(message.getString("quoteType")));
+    }
     return new FXForwardCurveSpecification(name, target, provider);
   }
 

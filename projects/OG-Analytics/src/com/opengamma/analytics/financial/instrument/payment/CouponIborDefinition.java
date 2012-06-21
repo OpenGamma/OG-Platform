@@ -220,7 +220,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     Validate.notNull(dateTime, "date");
     LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + dateTime);
+    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()),
+        "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date " + getFixingDate());
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");

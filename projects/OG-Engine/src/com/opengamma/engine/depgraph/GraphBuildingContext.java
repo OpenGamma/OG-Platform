@@ -200,7 +200,7 @@ import com.opengamma.util.tuple.Pair;
       for (ResolveTask task : tasks) {
         if ((dependent == null) || !dependent.hasParent(task)) {
           if (resolver == null) {
-            resolver = new RequirementResolver(requirement, dependent);
+            resolver = new RequirementResolver(requirement, dependent, functionExclusion);
           }
           resolver.addTask(this, task);
         }

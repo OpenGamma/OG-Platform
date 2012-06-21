@@ -163,8 +163,8 @@ import com.opengamma.engine.value.ValueSpecification;
       hc = valueRequirement.hashCode();
     }
     if (functionExclusion != null) {
-      _functionExclusion = new HashSet<FunctionExclusionGroup>(functionExclusion);
-      _hashCode = hc * 31 + _functionExclusion.hashCode();
+      _functionExclusion = functionExclusion;
+      _hashCode = hc * 31 + functionExclusion.hashCode();
     } else {
       _functionExclusion = null;
       _hashCode = hc;
