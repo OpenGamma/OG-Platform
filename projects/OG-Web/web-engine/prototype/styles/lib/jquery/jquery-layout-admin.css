@@ -52,6 +52,16 @@
     overflow: auto;
 }
 
+/* IE has some glitch at 3px, renders wierdly */
+.ie9 .OG-layout-admin-search {
+    border-radius: 4px;
+}
+
+.ie9 .OG-layout-admin-details-center,
+.ie9 .OG-layout-admin-details-south {
+    border-radius: 4px;
+}
+
 .OG-layout-admin-details-center .ui-layout-header { /* Keeps the header in the main section from jumping on load */
     min-height: 74px;
 }
