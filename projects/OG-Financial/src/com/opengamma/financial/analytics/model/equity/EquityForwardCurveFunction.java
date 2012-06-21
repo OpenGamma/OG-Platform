@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -51,10 +52,11 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   @Override
   /** Expected Target is a BLOOMBERG_TICKER, e.g. DJX Index */
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != getTargetType()) {
-      return false;  
+    final UniqueId uid = target.getUniqueId();
+    if (uid == null) {
+      return false;
     }
-    String targetScheme = target.getUniqueId().getScheme();
+    String targetScheme = uid.getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }

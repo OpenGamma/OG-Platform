@@ -113,6 +113,9 @@ import com.opengamma.engine.value.ValueRequirement;
     final String prefix = getTargetType().name() + ".";
     if (isIdentifier()) {
       final List<String> identifiers = getIdentifiers(target);
+      if (identifiers == null) {
+        return false;
+      }
       final List<String> suffixes = new ArrayList<String>(identifiers.size());
       for (String identifier : identifiers) {
         suffixes.add("." + identifier);

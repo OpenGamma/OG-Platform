@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -93,10 +94,8 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
   @Override

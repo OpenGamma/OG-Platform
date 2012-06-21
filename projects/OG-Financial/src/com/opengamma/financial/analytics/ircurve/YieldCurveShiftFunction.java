@@ -27,6 +27,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -53,7 +54,8 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
   @Override

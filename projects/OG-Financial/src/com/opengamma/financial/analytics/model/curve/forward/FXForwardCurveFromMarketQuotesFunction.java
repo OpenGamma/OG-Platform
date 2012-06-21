@@ -46,6 +46,7 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
@@ -108,10 +109,8 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+        final UniqueId uid = target.getUniqueId();
+        return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
       }
 
       @Override

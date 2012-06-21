@@ -16,6 +16,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -29,7 +30,8 @@ public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceData
 
   @Override
   public boolean isCorrectIdType(final ComputationTarget target) {
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
   @Override

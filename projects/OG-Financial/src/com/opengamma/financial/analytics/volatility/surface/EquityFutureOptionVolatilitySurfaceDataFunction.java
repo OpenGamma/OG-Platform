@@ -36,6 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -118,11 +119,11 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
   @Override
   // TODO Review choice of target as BLOOMBERG_TICKER_WEAK~DJX. Seems arbitrary. Both are contained in the specification itself.
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() != getTargetType()) {
-      return false;  
+    final UniqueId uid = target.getUniqueId();
+    if (uid == null) {
+      return false;
     }
-    
-    String targetScheme = target.getUniqueId().getScheme();
+    final String targetScheme = uid.getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
             targetScheme.equalsIgnoreCase(Currency.OBJECT_SCHEME)

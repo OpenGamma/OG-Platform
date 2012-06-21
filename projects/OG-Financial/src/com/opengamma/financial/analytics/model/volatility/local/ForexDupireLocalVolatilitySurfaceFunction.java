@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.volatility.local;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -17,7 +18,8 @@ public abstract class ForexDupireLocalVolatilitySurfaceFunction extends DupireLo
 
   @Override
   protected boolean isCorrectIdType(final ComputationTarget target) {
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && UnorderedCurrencyPair.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
   @Override

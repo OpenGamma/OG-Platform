@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -20,7 +21,8 @@ public class RawIRFutureOptionVolatilitySurfaceDataFunction extends RawVolatilit
 
   @Override
   public boolean isCorrectIdType(final ComputationTarget target) {
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
 }

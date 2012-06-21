@@ -15,6 +15,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -23,7 +24,11 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
 
   @Override
   protected boolean isCorrectIdType(ComputationTarget target) {
-    String targetScheme = target.getUniqueId().getScheme();
+    final UniqueId uid = target.getUniqueId();
+    if (uid == null) {
+      return false;
+    }
+    final String targetScheme = uid.getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }

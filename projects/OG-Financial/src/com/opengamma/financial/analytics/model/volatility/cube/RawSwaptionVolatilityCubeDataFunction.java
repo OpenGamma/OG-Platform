@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -157,7 +158,8 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        return target.getType() == ComputationTargetType.PRIMITIVE && Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+        final UniqueId uid = target.getUniqueId();
+        return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
       }
 
       @Override

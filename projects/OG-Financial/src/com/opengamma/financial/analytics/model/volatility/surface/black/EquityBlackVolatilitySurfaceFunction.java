@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySu
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.id.UniqueId;
 
 /**
  * New BlackVolSurfaceFunction BETA - Assumes SABR as interpolation scheme. 
@@ -48,7 +49,11 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
 
   @Override
   protected boolean isCorrectIdType(ComputationTarget target) {
-    String targetScheme = target.getUniqueId().getScheme();
+    final UniqueId uid = target.getUniqueId();
+    if (uid == null) {
+      return false;
+    }
+    final String targetScheme = uid.getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
             targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
