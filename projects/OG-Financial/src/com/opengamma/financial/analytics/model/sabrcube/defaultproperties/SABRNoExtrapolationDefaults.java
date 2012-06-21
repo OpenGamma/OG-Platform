@@ -121,7 +121,7 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.SABR_NO_EXTRAPOLATION_DEFAULTS;
+    return OpenGammaFunctionExclusions.SABR_FITTING_DEFAULTS;
   }
 
 }

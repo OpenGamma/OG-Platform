@@ -34,6 +34,10 @@ public abstract class AbstractFunctionExclusionGroups<K> implements FunctionExcl
    */
   protected abstract K getKey(FunctionDefinition function);
 
+  protected String createDisplayName(final K key) {
+    return key.toString();
+  }
+
   @Override
   public FunctionExclusionGroup getExclusionGroup(final FunctionDefinition function) {
     FunctionExclusionGroup group = _groupsByFunction.get(function);
@@ -45,7 +49,7 @@ public abstract class AbstractFunctionExclusionGroups<K> implements FunctionExcl
       } else {
         group = _groupsByKey.get(key);
         if (group == null) {
-          group = new FunctionExclusionGroup();
+          group = new FunctionExclusionGroup(createDisplayName(key));
           final FunctionExclusionGroup existing = _groupsByKey.putIfAbsent(key, group);
           if (existing == null) {
             _groupsByFunction.putIfAbsent(function, group);
