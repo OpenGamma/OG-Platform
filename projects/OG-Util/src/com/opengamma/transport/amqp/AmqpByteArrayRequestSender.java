@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Address;
-import org.springframework.amqp.core.ExchangeType;
+import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageCreator;
 import org.springframework.amqp.core.MessageListener;
-import org.springframework.amqp.core.SimpleMessageProperties;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -32,7 +32,6 @@ import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.rabbitmq.client.AMQP.Queue;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 
 /**
  * RabbitMQ based sender for AMQP.
@@ -86,7 +85,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     
     try {
       Connection connection = connectionFactory.createConnection();
-      Channel channel = connection.createChannel();
+      Channel channel = connection.createChannel(false);
       
       Queue.DeclareOk declareResult = channel.queueDeclare();
       _replyToQueue = declareResult.getQueue();
@@ -100,7 +99,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     
     _container = new SimpleMessageListenerContainer(); 
     _container.setConnectionFactory(connectionFactory);
-    _container.setQueueName(_replyToQueue);
+    _container.setQueueNames(_replyToQueue);
     _container.setMessageListener(this);
   }
 
@@ -116,45 +115,51 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
 
   //-------------------------------------------------------------------------
   @Override
-  public void sendRequest(final byte[] request,
-      final ByteArrayMessageReceiver responseReceiver) {
+  public void sendRequest(final byte[] request, final ByteArrayMessageReceiver responseReceiver) {
     s_logger.debug("Dispatching request of size {} to exchange {}, routing key = {}", 
         new Object[] {request.length, getExchange(), getRoutingKey()});
     
-    getAmqpTemplate().send(getExchange(), getRoutingKey(), new MessageCreator() {
-      public Message createMessage() {
-        SimpleMessageProperties properties = new SimpleMessageProperties();
-        Address replyTo = new Address(ExchangeType.direct, getExchange(), getReplyToQueue());
-        properties.setReplyTo(replyTo);
-        
-        final String correlationId = getReplyToQueue() + "-" + _correlationIdGenerator.getAndIncrement();
-        byte[] correlationIdBytes;
-        try {
-          correlationIdBytes = correlationId.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          throw new OpenGammaRuntimeException("This should never happen - UTF-8 should be supported", e);
-        }
-        properties.setCorrelationId(correlationIdBytes);
+    getAmqpTemplate().send(getExchange(), getRoutingKey(), createMessage(request, responseReceiver));
+  }
 
-        Message message = new Message(request, properties);
-        
-        _correlationId2MessageReceiver.put(correlationId, responseReceiver);
-        
-        // Make sure the map stays clean if no response is received before timeout occurs. 
-        // It would be nice if AmqpTemplate had a receive() method with a timeout parameter.
-        _executor.schedule(new Runnable() {
-          @Override
-          public void run() {
-            ByteArrayMessageReceiver receiver = _correlationId2MessageReceiver.remove(correlationId);
-            if (receiver != null) {
-              s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
-            }
-          }
-        }, _timeout, TimeUnit.MILLISECONDS);
-        
-        return message;
+  /**
+   * Creates the message.
+   * 
+   * @param request  the request, not null
+   * @param responseReceiver  the receiver, not null
+   * @return the message, not null
+   */
+  private Message createMessage(final byte[] request, final ByteArrayMessageReceiver responseReceiver) {
+    MessageProperties properties = new MessageProperties();
+    Address replyTo = new Address(ExchangeTypes.DIRECT, getExchange(), getReplyToQueue());
+    properties.setReplyToAddress(replyTo);
+    
+    final String correlationId = getReplyToQueue() + "-" + _correlationIdGenerator.getAndIncrement();
+    byte[] correlationIdBytes;
+    try {
+      correlationIdBytes = correlationId.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new OpenGammaRuntimeException("This should never happen - UTF-8 should be supported", e);
+    }
+    properties.setCorrelationId(correlationIdBytes);
+    
+    Message message = new Message(request, properties);
+    
+    _correlationId2MessageReceiver.put(correlationId, responseReceiver);
+    
+    // Make sure the map stays clean if no response is received before timeout occurs. 
+    // It would be nice if AmqpTemplate had a receive() method with a timeout parameter.
+    _executor.schedule(new Runnable() {
+      @Override
+      public void run() {
+        ByteArrayMessageReceiver receiver = _correlationId2MessageReceiver.remove(correlationId);
+        if (receiver != null) {
+          s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
+        }
       }
-    });
+    }, _timeout, TimeUnit.MILLISECONDS);
+    
+    return message;
   }
 
   //-------------------------------------------------------------------------

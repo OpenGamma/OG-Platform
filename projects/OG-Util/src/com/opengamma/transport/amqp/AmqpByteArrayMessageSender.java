@@ -57,11 +57,8 @@ public class AmqpByteArrayMessageSender extends AbstractAmqpByteArraySender impl
   //-------------------------------------------------------------------------
   @Override
   public void send(final byte[] message) {
-    getAmqpTemplate().send(getExchange(), getRoutingKey(), new MessageCreator() {
-      public Message createMessage() {
-        return new Message(message, getMessageProperties());
-      }
-    });
+    Message amqpMsg = new Message(message, getMessageProperties());
+    getAmqpTemplate().send(getExchange(), getRoutingKey(), amqpMsg);
   }
 
 }
