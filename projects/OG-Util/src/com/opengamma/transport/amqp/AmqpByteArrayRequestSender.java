@@ -35,22 +35,39 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 
 /**
- * This only works with RabbitMQ at the moment.
+ * RabbitMQ based sender for AMQP.
  */
 public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender implements ByteArrayRequestSender, MessageListener, Lifecycle {
+
   private static final Logger s_logger = LoggerFactory.getLogger(AmqpByteArrayRequestSender.class);
-  
+
   private final String _replyToQueue;
   private final AtomicLong _correlationIdGenerator = new AtomicLong();
   private final long _timeout;
   private final ScheduledExecutorService _executor;
   private final SimpleMessageListenerContainer _container;
   private final ConcurrentHashMap<String, ByteArrayMessageReceiver> _correlationId2MessageReceiver = new ConcurrentHashMap<String, ByteArrayMessageReceiver>();
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param connectionFactory  the connection factory, not null
+   * @param exchange  the exchange, not null
+   * @param routingKey  the routing key, not null
+   */
   public AmqpByteArrayRequestSender(ConnectionFactory connectionFactory, String exchange, String routingKey) {
     this(connectionFactory, 30000, Executors.newSingleThreadScheduledExecutor(), exchange, routingKey);
   }
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param connectionFactory  the connection factory, not null
+   * @param timeout  the timeout, positive
+   * @param executor  the executor, not null
+   * @param exchange  the exchange, not null
+   * @param routingKey  the routing key, not null
+   */
   public AmqpByteArrayRequestSender(
       ConnectionFactory connectionFactory,
       long timeout,
@@ -58,7 +75,6 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
       String exchange,
       String routingKey) {
     super(new RabbitTemplate(connectionFactory), exchange, routingKey);
-    
     ArgumentChecker.notNull(connectionFactory, "connectionFactory");    
     ArgumentChecker.notNull(executor, "executor");
     
@@ -66,7 +82,6 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
       throw new IllegalArgumentException("Timeout must be positive");
     }
     _timeout = timeout;
-    
     _executor = executor;
     
     try {
@@ -77,8 +92,8 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
       _replyToQueue = declareResult.getQueue();
       
       channel.queueBind(_replyToQueue, getExchange(), _replyToQueue);
-      
       connection.close();
+      
     } catch (IOException e) {
       throw new RuntimeException("Failed to create reply to queue", e);
     }
@@ -88,11 +103,18 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     _container.setQueueName(_replyToQueue);
     _container.setMessageListener(this);
   }
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the reply-to queue.
+   * 
+   * @return the queue, not null
+   */
   public String getReplyToQueue() {
     return _replyToQueue;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void sendRequest(final byte[] request,
       final ByteArrayMessageReceiver responseReceiver) {
@@ -135,6 +157,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     });
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void start() {
     _container.start();
@@ -150,6 +173,7 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
     return _container.isRunning();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void onMessage(Message message) {
     byte[] correlationIdBytes = message.getMessageProperties().getCorrelationId();
@@ -172,5 +196,5 @@ public class AmqpByteArrayRequestSender extends AbstractAmqpByteArraySender impl
       s_logger.warn("No receiver for message: {}", message);      
     }
   }
-  
+
 }
