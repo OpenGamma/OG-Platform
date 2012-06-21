@@ -12,7 +12,7 @@ $.register_module({
         var module = this, Form = og.common.util.ui.Form, constructor,
             INDX = '<INDEX>',
             CRCV = 'crossConvert', UNIQ = 'uniqueId',
-            VLRQ = 'valueReq', VLNM = 'valueName', CPTI = 'computationTargetIdentifier',
+            VLRQ = 'valueReq', VLNM = 'valueName', CPTI = 'computationTargetId',
             CPTT = 'computationTargetType', RECP = 'reciprocal',
             type_map = [
                 [['0', INDX].join('.'),             Form.type.STR],
