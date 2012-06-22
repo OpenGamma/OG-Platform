@@ -778,7 +778,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public Boolean visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-          throw new NotImplementedException();
+          return false;
         }
 
         @Override
