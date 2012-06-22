@@ -37,6 +37,7 @@ public class AnalyticsColumns {
   private final List<AnalyticsColumnGroup> _columnGroups;
   private final List<AnalyticsColumn<?>> _columns;
   private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
+  // TODO should this be a field of the grid structure rather than the columns?
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
 

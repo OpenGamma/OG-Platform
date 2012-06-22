@@ -59,7 +59,9 @@ public class ViewsResource {
         .path(AbstractGridResource.class, "getGridStructure").build();
     // TODO this is very obviously wrong - where can I get the user?
     UserPrincipal user = UserPrincipal.getTestUser();
-    AnalyticsViewListener listener = _connectionManager.getConnectionByClientId(user.getUserName(), clientId);
+    String userName = null;
+    //String userName = user.getUserName();
+    AnalyticsViewListener listener = _connectionManager.getConnectionByClientId(userName, clientId);
     _viewManager.createView(viewRequest, user, listener, viewId, portfolioGridUri.toString(), primitivesGridUri.toString());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();

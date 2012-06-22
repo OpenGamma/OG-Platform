@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.rest.json;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
@@ -17,8 +18,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
-import com.opengamma.id.UniqueId;
+import org.apache.commons.io.IOUtils;
+
 import com.opengamma.web.server.push.analytics.ViewRequest;
+import com.opengamma.web.server.push.analytics.ViewRequestJsonReader;
 
 /**
  *
@@ -39,7 +42,6 @@ public class ViewRequestMessageBodyReader implements MessageBodyReader<ViewReque
                               MediaType mediaType,
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
-    //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new ViewRequest(UniqueId.of("TODO", "123"), "TODO", null/*TODO*/);
+    return ViewRequestJsonReader.createViewRequest(IOUtils.toString(new BufferedInputStream(entityStream)));
   }
 }

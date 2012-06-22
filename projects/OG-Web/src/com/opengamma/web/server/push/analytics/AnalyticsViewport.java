@@ -46,6 +46,7 @@ import com.opengamma.util.ArgumentChecker;
     updateResults(latestResults, history);
   }
 
+  // TODO this is specific to the portfolio grid, need separate subclasses
   /* package */ void updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     /*
     get the target for each row in the viewport from the grid structure
