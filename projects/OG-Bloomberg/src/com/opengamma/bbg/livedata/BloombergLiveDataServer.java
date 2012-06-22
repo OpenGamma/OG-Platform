@@ -22,6 +22,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.CachingReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -36,7 +37,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergLiveDataServer.class);
   
   // Injected Inputs:
-  private final SessionOptions _sessionOptions;
+  private final BloombergConnector _bloombergConnector;
   private final CachingReferenceDataProvider _cachingRefDataProvider;
   private final ReferenceDataProvider _underlyingReferenceDataProvider;
 
@@ -48,39 +49,41 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   private long _subscriptionLimit = Long.MAX_VALUE;
   private volatile RejectedDueToSubscriptionLimitEvent _lastLimitRejection; // = null
   
-  public BloombergLiveDataServer(SessionOptions sessionOptions, CachingReferenceDataProvider cachingReferenceDataProvider) {
-    this(sessionOptions, cachingReferenceDataProvider, cachingReferenceDataProvider.getUnderlying());
+  public BloombergLiveDataServer(BloombergConnector bloombergConnector, CachingReferenceDataProvider cachingReferenceDataProvider) {
+    this(bloombergConnector, cachingReferenceDataProvider, cachingReferenceDataProvider.getUnderlying());
   }
 
-  private BloombergLiveDataServer(SessionOptions sessionOptions,
+  private BloombergLiveDataServer(BloombergConnector bloombergConnector,
       CachingReferenceDataProvider cachingRefDataProvider,
       ReferenceDataProvider underlyingReferenceDataProvider) {
-    ArgumentChecker.notNull(sessionOptions, "Bloomberg Session Options");
+    ArgumentChecker.notNull(bloombergConnector, "Bloomberg Session Options");
     ArgumentChecker.notNull(cachingRefDataProvider, "Caching Reference Data Provider");
     ArgumentChecker.notNull(underlyingReferenceDataProvider, "Bloomberg Reference Data Provider");
-    _sessionOptions = sessionOptions;
+    _bloombergConnector = bloombergConnector;
     _cachingRefDataProvider = cachingRefDataProvider;
     _underlyingReferenceDataProvider = underlyingReferenceDataProvider;
   }
 
   /**
-   * @return the sessionOptions
+   * Gets the Bloomberg session options.
+   * 
+   * @return the session options
    */
-  public SessionOptions getSessionOptions() {
-    return _sessionOptions;
+  public BloombergConnector getBloombergConnector() {
+    return _bloombergConnector;
   }
 
   /**
    * @return the session
    */
-  public Session getSession() {
+  private Session getSession() {
     return _session;
   }
 
   /**
    * @param session the session to set
    */
-  public void setSession(Session session) {
+  private void setSession(Session session) {
     _session = session;
   }
 
@@ -139,16 +142,17 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
   @Override
   protected void doConnect() {
     s_logger.info("Making Bloomberg service connection...");
-    Session session = new Session(getSessionOptions());
+    SessionOptions sessionOptions = getBloombergConnector().getSessionOptions();
+    Session session = new Session(sessionOptions);
     try {
       if (!session.start()) {
-        throw new OpenGammaRuntimeException("Unable to start session with options " + getSessionOptions());
+        throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions);
       }
     } catch (InterruptedException e) {
       Thread.interrupted();
-      throw new OpenGammaRuntimeException("Unable to start session with options " + getSessionOptions(), e);
+      throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions, e);
     } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Unable to start session with options " + getSessionOptions(), e);
+      throw new OpenGammaRuntimeException("Unable to start session with options " + sessionOptions, e);
     }
     // TODO kirk 2009-10-12 -- Should stop session if we fail here. Not doing so
     // due to the interrupted exception crap.
