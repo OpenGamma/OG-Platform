@@ -147,6 +147,7 @@ public final class CalculationNodeProcess {
       System.exit(1);
     }
     // Terminate if the configuration changes - the O/S will restart us
+    int retry = 0;
     do {
       sleep(CONFIGURATION_POLL_PERIOD);
       final String newConfiguration = getConfigurationXml(url);
@@ -154,6 +155,24 @@ public final class CalculationNodeProcess {
         if (!configuration.equals(newConfiguration)) {
           s_logger.info("Configuration at {} has changed", url);
           System.exit(0);
+        }
+        retry = 0;
+      } else {
+        switch (++retry) {
+          case 1:
+            s_logger.debug("No response from configuration at {}", url);
+            break;
+          case 2:
+            s_logger.info("No response from configuration at {}", url);
+            break;
+          case 3:
+            s_logger.warn("No response from configuration at {}", url);
+            break;
+          case 4:
+            s_logger.error("No response from configuration at {}", url);
+            // TODO: be a bit more graceful - stop accepting jobs, allow current ones to run to completion, then disconnect 
+            System.exit(0);
+            break;
         }
       }
       s_logger.info("Free memory = {}Mb, total memory = {}Mb", (double) Runtime.getRuntime().freeMemory() / (1024d * 1024d), (double) Runtime.getRuntime().totalMemory() / (1024d * 1024d));
