@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
 
@@ -56,7 +57,6 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
   }
 
   private static String columnsJson(AnalyticsGridStructure gridStructure) {
-    // TODO implement AnalyticsGridStructureMessageBodyWriter.columnsJson()
-    throw new UnsupportedOperationException("columnsJson not implemented");
+    return AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumns().getColumnGroups());
   }
 }

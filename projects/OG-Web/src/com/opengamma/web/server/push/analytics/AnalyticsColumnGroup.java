@@ -16,9 +16,9 @@ import com.opengamma.util.ArgumentChecker;
 public class AnalyticsColumnGroup {
 
   private final String _name;
-  private final List<AnalyticsColumn<?>> _columns;
+  private final List<AnalyticsColumn> _columns;
 
-  /* package */ AnalyticsColumnGroup(String name, List<AnalyticsColumn<?>> columns) {
+  /* package */ AnalyticsColumnGroup(String name, List<AnalyticsColumn> columns) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(columns, "cols");
     _name = name;
@@ -29,7 +29,7 @@ public class AnalyticsColumnGroup {
     return _name;
   }
 
-  /* package */ List<AnalyticsColumn<?>> getColumns() {
+  /* package */ List<AnalyticsColumn> getColumns() {
     return _columns;
   }
 }

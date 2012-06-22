@@ -5,13 +5,10 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
@@ -19,15 +16,18 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
  * @param <T> The type of data the column displays. TODO is this actually useful?
  * TODO what about position column that isn't associated with a requirement
  */
-public class AnalyticsColumn<T> {
+public class AnalyticsColumn {
 
   private final String _header;
   private final String _description;
 
-  AnalyticsColumn(RequirementBasedColumnKey columnKey) {
-    ArgumentChecker.notNull(columnKey, "columnKey");
-    _header = getHeader(columnKey);
-    _description = getDescription(columnKey.getValueProperties());
+  public AnalyticsColumn(String header, String description) {
+    _header = header;
+    _description = description;
+  }
+
+  public static AnalyticsColumn forKey(RequirementBasedColumnKey key) {
+    return new AnalyticsColumn(getHeader(key), getDescription(key.getValueProperties()));
   }
 
   /* package */ String getHeader() {

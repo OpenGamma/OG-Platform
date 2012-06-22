@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,7 +36,7 @@ public class AnalyticsColumns {
   private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
 
   private final List<AnalyticsColumnGroup> _columnGroups;
-  private final List<AnalyticsColumn<?>> _columns;
+  private final List<AnalyticsColumn> _columns;
   private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
   // TODO should this be a field of the grid structure rather than the columns?
   /** Mappings of specification to requirements, keyed by calculation config name. */
@@ -44,10 +45,10 @@ public class AnalyticsColumns {
   private AnalyticsColumns(List<AnalyticsColumnGroup> columnGroups,
                            Map<RequirementBasedColumnKey, Integer> indexByRequirement,
                            Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
-    List<AnalyticsColumn<?>> colList = new ArrayList<AnalyticsColumn<?>>();
+    List<AnalyticsColumn> colList = new ArrayList<AnalyticsColumn>();
     _columnGroups = columnGroups;
     for (AnalyticsColumnGroup group : columnGroups) {
-      for (AnalyticsColumn<?> column : group.getColumns()) {
+      for (AnalyticsColumn column : group.getColumns()) {
         colList.add(column);
       }
     }
@@ -71,14 +72,15 @@ public class AnalyticsColumns {
   /* package */ static AnalyticsColumns portfolio(CompiledViewDefinition compiledViewDef) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
-    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList();
+    AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "")));
+    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
     Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
     int colIndex = 1; // col 0 is the node name
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
       specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
-      List<AnalyticsColumn<?>> configColumns = new ArrayList<AnalyticsColumn<?>>();
+      List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
       for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
         String valueName = portfolioOutput.getFirst();
         ValueProperties constraints = portfolioOutput.getSecond();
@@ -86,7 +88,7 @@ public class AnalyticsColumns {
         if (!indexMap.containsKey(columnKey)) {
           indexMap.put(columnKey, colIndex);
           colIndex++;
-          configColumns.add(new AnalyticsColumn<Object>(columnKey));
+          configColumns.add(AnalyticsColumn.forKey(columnKey));
         }
       }
       columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
@@ -130,7 +132,7 @@ public class AnalyticsColumns {
     return reqs;
   }
 
-  /* package */ AnalyticsColumn<?> getColumn(int index) {
+  /* package */ AnalyticsColumn getColumn(int index) {
     return _columns.get(index);
   }
 
