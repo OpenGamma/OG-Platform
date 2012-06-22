@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.analytics.form',
-    dependencies: ['og.common.util.ui.AutoCombo'],
+    dependencies: ['og.common.util.ui.AutoCombo', 'og.views.common.layout'],
     obj: function () {
         return function (selector) {
             var FormCombo = function (selector, module, data) {
@@ -115,6 +115,7 @@ $.register_module({
                     selector + ' .og-datasources', 'og.analytics.form_datasources_tash', response.datasources
                 );
                 auto_combo_menu.select();
+                og.views.common.layout.main.allowOverflow('north');
             });
         }
     }
