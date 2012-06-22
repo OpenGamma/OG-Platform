@@ -11,7 +11,8 @@ $.register_module({
                 var $popdiv, menu = this, $title;
                 $.when(og.api.text({module: module})).then(function (template) {
                     var html = $((Handlebars.compile(template))(data));
-                    $title = $(selector).html(html).find('.og-option-title').on('click', function () {
+                    $title = $(selector).html(html).find('.og-option-title').on('click', function (event) {
+                        event.stopPropagation();
                         menu.state === 'open' ? menu.close() : menu.open().focus();
                     });
                     menu.state = 'closed';
@@ -94,6 +95,13 @@ $.register_module({
                         if ($(elm).closest('.og-view').length) {datasources_menu.close(), aggregation_menu.close();}
                         if ($(elm).closest('.og-aggregation').length) {datasources_menu.close();}
                         if ($(elm).closest('.og-datasources').length) {aggregation_menu.close();}
+                        $(document).on('click.analytics.form', function (event) {
+                            // if not self click, close
+                            if (!$(event.target).closest('.OG-analytics-form-menu').length) {
+                                aggregation_menu.close(); datasources_menu.close();
+                                $(document).off('click.analytics.form');
+                            }
+                        });
                     })
                     .on('click', '.og-menu-aggregation button', function () {
                         var val = $(this).text();
