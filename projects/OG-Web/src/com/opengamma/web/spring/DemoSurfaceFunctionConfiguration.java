@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.EquityFutureOptionVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
@@ -78,7 +78,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, RawSwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawEquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
-    addConfigFor(configs, EquityFutureOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunctionDeprecated.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
     addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
