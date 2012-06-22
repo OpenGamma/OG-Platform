@@ -94,6 +94,7 @@
     line-height: 12px;
     position: relative;
     top: -4px;
+    text-transform: uppercase;
 }
 
 .OG-analytics-form .og-option-title ul {
@@ -162,4 +163,3 @@
     left: 73%;
     top: 7px;
 }
-
