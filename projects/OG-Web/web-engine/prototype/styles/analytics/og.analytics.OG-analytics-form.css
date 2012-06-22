@@ -163,3 +163,60 @@
     left: 73%;
     top: 7px;
 }
+
+/**
+ * Status
+ */
+.OG-analytics-form .og-status {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    font-size: 10px;
+}
+
+.OG-analytics-form .og-status span {
+    color: #999;
+    vertical-align: middle;
+}
+
+.OG-analytics-form .og-status button {
+    width: 20px;
+    height: 15px;
+    position: relative;
+    margin-left: 4px;
+}
+
+.OG-analytics-form .og-status .og-icon-pause:after {
+    top: 2px;
+    left: 7px;
+}
+
+.OG-analytics-form .og-status .og-icon-play:after {
+    top: 2px;
+    left: 6px;
+}
+
+.OG-analytics-form .og-status em {
+    background-color: #ccc;
+    color: #fff;
+    display: inline-block;
+    text-transform: uppercase;
+    height: 13px;
+    line-height: 13px;
+    padding: 0 2px;
+    font-style: normal;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.ie9 .OG-analytics-form .og-status em {
+    line-height: 15px;
+}
+
+.OG-analytics-form .og-status .paused {
+    background-color: #f08800;
+}
+
+.OG-analytics-form .og-status .live {
+    background-color: #0c9605;
+}
