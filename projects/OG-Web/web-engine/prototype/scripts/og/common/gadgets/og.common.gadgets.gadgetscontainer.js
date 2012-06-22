@@ -183,9 +183,7 @@ $.register_module({
                         over: function () {setTimeout(toggle_dropbox)}, // can't guarantee over and out fire in correct
                         out: function () {setTimeout(toggle_dropbox)},  // order, toggle function seems to solve issue
                         drop: function(e, ui) {
-                            var has_ancestor = function (elm, sel) {
-                                    return $(elm).parentsUntil('.' + sel).parent().hasClass(sel);
-                                },
+                            var has_ancestor = function (elm, sel) {return $(elm).closest('.' + sel).length},
                                 pane_class = class_prefix + pane,
                                 overflow_class = 'og-js-overflow-' + pane,
                                 data = ui.draggable.data(),
