@@ -7,7 +7,6 @@ package com.opengamma.bbg.test;
 
 import java.lang.reflect.Method;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.BloombergConnector;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.CachingReferenceDataProvider;
@@ -102,9 +101,8 @@ public class BloombergLiveDataServerUtils {
   }
 
   public static BloombergLiveDataServer getTestServer(CachingReferenceDataProvider cachingRefDataProvider) {
-    SessionOptions options = BloombergTestUtils.getSessionOptions();
     
-    BloombergLiveDataServer server = new BloombergLiveDataServer(options, cachingRefDataProvider);
+    BloombergLiveDataServer server = new BloombergLiveDataServer(BloombergTestUtils.getBloombergConnector(), cachingRefDataProvider);
     DistributionSpecificationResolver distributionSpecificationResolver = server.getDefaultDistributionSpecificationResolver();
     server.setDistributionSpecificationResolver(distributionSpecificationResolver);
     
