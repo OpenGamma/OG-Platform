@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.VersionCorrection;
@@ -26,7 +27,11 @@ import com.opengamma.id.VersionCorrection;
   }
 
   protected Security resolveLinkImpl(final SecurityLink link) {
-    return link.resolve(getSecuritySource(), getVersionCorrection());
+    try {
+      return link.resolve(getSecuritySource(), getVersionCorrection());
+    } catch (DataNotFoundException e) {
+      return null;
+    }
   }
 
 }
