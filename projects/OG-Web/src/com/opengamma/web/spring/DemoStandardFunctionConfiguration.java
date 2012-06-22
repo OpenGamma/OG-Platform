@@ -450,7 +450,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, PortfolioExchangeTradedDailyPnLFunction.Impl.AGGREGATION_STYLE_FULL));
 
-    //addPnLCalculators(functionConfigs);
+    addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
     addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);

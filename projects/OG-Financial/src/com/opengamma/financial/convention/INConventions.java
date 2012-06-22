@@ -53,8 +53,8 @@ public class INConventions {
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_SWAPTION")), "INR_SWAPTION", false);
 
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NSERO Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR OVERNIGHT CASH RATE")),
-        "INR OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, in, 0);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NSERO Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+        "INR OVERNIGHT CASH RATE")), "INR OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, in, 0);
 
   }
 
