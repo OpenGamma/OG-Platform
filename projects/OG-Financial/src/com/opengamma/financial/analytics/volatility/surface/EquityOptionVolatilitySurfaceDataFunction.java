@@ -46,9 +46,10 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityFutureOptionVolatilitySurfaceDataFunction.class);
+public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
+  
   @Override
   /**
    * {@inheritDoc} <p>
