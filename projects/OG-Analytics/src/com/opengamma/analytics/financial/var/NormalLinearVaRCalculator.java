@@ -34,14 +34,15 @@ public class NormalLinearVaRCalculator<T> implements VaRCalculator<NormalVaRPara
   }
 
   @Override
-  public Double evaluate(final NormalVaRParameters parameters, final T... data) {
+  public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
     Validate.notNull(parameters, "parameters");
     Validate.notNull(data, "data");
     double z = parameters.getZ();
     double mult = parameters.getTimeScaling();
     double mean = _meanCalculator.evaluate(data);
     double stddev = _stdCalculator.evaluate(data);
-    return z * mult * stddev - mult * mult * mean;
+    double result = z * mult * stddev - mult * mult * mean;
+    return new VaRCalculationResult(result, stddev);
   }
 
   @Override

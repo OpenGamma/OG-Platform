@@ -71,8 +71,8 @@ public class StudentTLinearVaRCalculatorTest {
   @Test
   public void test() {
     final Double data = 0.;
-    assertEquals(NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data), STUDENT_T_VAR.evaluate(HIGH_DOF_PARAMETERS, data), 1e-6);
-    assertTrue(STUDENT_T_VAR.evaluate(STUDENT_T_PARAMETERS, data) > NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data));
+    assertEquals(NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data).getVaRValue(), STUDENT_T_VAR.evaluate(HIGH_DOF_PARAMETERS, data).getVaRValue(), 1e-6);
+    assertTrue(STUDENT_T_VAR.evaluate(STUDENT_T_PARAMETERS, data).getVaRValue() > NORMAL_VAR.evaluate(NORMAL_PARAMETERS, data).getVaRValue());
   }
 
   @Test

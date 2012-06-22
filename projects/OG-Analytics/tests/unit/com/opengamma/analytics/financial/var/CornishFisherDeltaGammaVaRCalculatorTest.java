@@ -94,8 +94,8 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
   public void testAgainstNormal() {
     final double eps = 1e-6;
     final Double data = 0.;
-    assertEquals(NORMAL.evaluate(PARAMETERS, data), CF1.evaluate(PARAMETERS, data), eps);
-    assertTrue(CF2.evaluate(PARAMETERS, data) > NORMAL.evaluate(PARAMETERS, data));
+    assertEquals(NORMAL.evaluate(PARAMETERS, data).getVaRValue(), CF1.evaluate(PARAMETERS, data).getVaRValue(), eps);
+    assertTrue(CF2.evaluate(PARAMETERS, data).getVaRValue() > NORMAL.evaluate(PARAMETERS, data).getVaRValue());
   }
 
   @Test

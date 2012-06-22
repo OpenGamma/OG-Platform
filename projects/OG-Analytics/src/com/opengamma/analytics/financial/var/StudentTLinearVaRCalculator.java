@@ -26,10 +26,13 @@ public class StudentTLinearVaRCalculator<T> implements VaRCalculator<StudentTVaR
   }
 
   @Override
-  public Double evaluate(final StudentTVaRParameters parameters, final T... data) {
+  public VaRCalculationResult evaluate(final StudentTVaRParameters parameters, final T... data) {
     Validate.notNull(parameters, "parameters");
     Validate.notNull(data, "data");
-    return parameters.getMult() * _stdCalculator.evaluate(data) - parameters.getScale() * _meanCalculator.evaluate(data);
+    Double value = parameters.getMult() * _stdCalculator.evaluate(data) - parameters.getScale() * _meanCalculator.evaluate(data);
+    // REVIEW kirk 2012-06-22 -- Is the "stdCalculator" a standard deviation calculator
+    // that we can use for the result?
+    return new VaRCalculationResult(value, null);
   }
 
   public Function<T, Double> getMeanCalculator() {

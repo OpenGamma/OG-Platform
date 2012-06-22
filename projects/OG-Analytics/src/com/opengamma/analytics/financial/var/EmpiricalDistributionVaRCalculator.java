@@ -17,14 +17,15 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class EmpiricalDistributionVaRCalculator implements VaRCalculator<EmpiricalDistributionVaRParameters, DoubleTimeSeries<?>> {
 
   @Override
-  public Double evaluate(final EmpiricalDistributionVaRParameters parameters, final DoubleTimeSeries<?>... returns) {
+  public VaRCalculationResult evaluate(final EmpiricalDistributionVaRParameters parameters, final DoubleTimeSeries<?>... returns) {
     Validate.notNull(parameters, "parameters");
     Validate.notNull(returns, "time series");
     Validate.notNull(returns, "returns");
     Validate.isTrue(returns.length > 0);
     final double[] data = returns[0].valuesArrayFast();
     Arrays.sort(data);
-    return -parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
+    double result = -parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
+    return new VaRCalculationResult(result, null);
   }
 
 }

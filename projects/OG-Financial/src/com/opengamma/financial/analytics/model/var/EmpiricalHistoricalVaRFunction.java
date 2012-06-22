@@ -53,7 +53,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
     final Set<String> confidenceLevelNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CONFIDENCE_LEVEL);
     final Set<String> horizonNames = desiredValue.getConstraints().getValues(ValuePropertyNames.HORIZON);
     final EmpiricalDistributionVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
-    final double var = CALCULATOR.evaluate(parameters, pnlSeries);
+    final double var = CALCULATOR.evaluate(parameters, pnlSeries).getVaRValue();
     final ValueProperties resultProperties = getResultProperties(currency, desiredValues.iterator().next());
     return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
   }

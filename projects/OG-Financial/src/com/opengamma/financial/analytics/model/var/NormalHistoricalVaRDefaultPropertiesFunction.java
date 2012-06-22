@@ -50,13 +50,15 @@ public abstract class NormalHistoricalVaRDefaultPropertiesFunction extends Defau
   
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_PERIOD);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SCHEDULE_CALCULATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_FUNCTION);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.MEAN_CALCULATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.STD_DEV_CALCULATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.CONFIDENCE_LEVEL);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.HORIZON);    
+    for (String requirementName : new String[] {ValueRequirementNames.HISTORICAL_VAR, ValueRequirementNames.HISTORICAL_VAR_STDDEV}) {
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_PERIOD);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.SCHEDULE_CALCULATOR);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.SAMPLING_FUNCTION);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.MEAN_CALCULATOR);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.STD_DEV_CALCULATOR);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.CONFIDENCE_LEVEL);
+      defaults.addValuePropertyName(requirementName, ValuePropertyNames.HORIZON);    
+    }
   }
 
   @Override

@@ -737,6 +737,10 @@ public final class ValueRequirementNames {
    */
   public static final String HISTORICAL_VAR = "HistoricalVaR";
   /**
+   * The standard deviation for VaR calculated using the historical P&L series. Should be combined with {@link #HISTORICAL_VAR}.
+   */
+  public static final String HISTORICAL_VAR_STDDEV = "HistoricalVaR Standard Deviation";
+  /**
    * The VaR of a position or portfolio calculated using the variance-covariance method (where the model can be first- or second-order). 
    */
   public static final String PARAMETRIC_VAR = "ParametricVaR";
