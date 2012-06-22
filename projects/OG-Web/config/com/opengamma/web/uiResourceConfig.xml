@@ -55,6 +55,8 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-down.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-presets.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-play.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-pause.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
