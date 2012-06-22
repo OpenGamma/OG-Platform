@@ -7,8 +7,8 @@ ${ogStyle.print('og_all.css', 'all', false)}
   <img src="/prototype/images/common/logos/opengamma_shiny.png" alt="OpenGamma Logo" />
   <form>
     <table>
-      <tr><td><span>Username</span></td><td><input type="text" /></td></tr>
-      <tr><td><span>Password</span></td><td><input type="text" /></td></tr>
+      <tr><td><label for="username">Username</label></td><td><input type="text" id="username" /></td></tr>
+      <tr><td><label for="password">Password</label></td><td><input type="text" id="password" /></td></tr>
       <tr><td></td><td><button>Login</button></td></tr>
     </table>
   </form>
