@@ -86,15 +86,22 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
           } else {
             _secondPass = true;
             final List<Position> positions = _node.getPositions();
-            _count.addAndGet(positions.size());
-            for (final Position position : positions) {
-              submit(new Runnable() {
-                @Override
-                public void run() {
-                  getCallback().postOrderOperation(position);
-                  childDone();
-                }
-              });
+            if (positions.isEmpty()) {
+              getCallback().postOrderOperation(_node);
+              if (_parent != null) {
+                _parent.childDone();
+              }
+            } else {
+              _count.addAndGet(positions.size());
+              for (final Position position : positions) {
+                submit(new Runnable() {
+                  @Override
+                  public void run() {
+                    getCallback().postOrderOperation(position);
+                    childDone();
+                  }
+                });
+              }
             }
           }
         }
