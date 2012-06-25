@@ -79,32 +79,96 @@
  * <p>The structure of the REST URLs for analytics data reflects the hierarchical structure of views, grids and
  * viewports used to view the data.</p>
  * <pre>
- *   /views                                                                      POST to create view
- *   /views/{viewId}                                                             POST to pause and resume, DELETE to close
+ *   /jax/views                                                                      POST to create view
+ *   /jax/views/{viewId}                                                             POST to pause and resume, DELETE to close
  *
- *   /views/{viewId}/portfolio/grid                                              GET column and row structure, notification on structure change
- *   /views/{viewId}/portfolio/viewports                                         POST to create viewport
- *   /views/{viewId}/portfolio/viewports/{viewportId}                            POST to update, DELETE to close
- *   /views/{viewId}/portfolio/viewports/{viewportId}/data                       GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/grid                                              GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/viewports                                         POST to create viewport
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            POST to update, DELETE to close
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data                       GET data, notification when new data is available
  *
- *   /views/{viewId}/portfolio/depgraphs                                         POST to create dependency graph grid
- *   /views/{viewId}/portfolio/depgraphs/{graphId}                               DELETE to close
- *   /views/{viewId}/portfolio/depgraphs/{graphId}/grid                          GET column and row structure, notification on structure change
- *   /views/{viewId}/portfolio/depgraphs/{graphId}/viewports                     POST to create viewport
- *   /views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        POST to update, DELETE to close
- *   /views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data   GET data, notification when new data is available
+ *   /jax/views/{viewId}/portfolio/depgraphs                                         POST to create dependency graph grid
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               DELETE to close
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid                          GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports                     POST to create viewport
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        POST to update, DELETE to close
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data   GET data, notification when new data is available
  *
- *   /views/{viewId}/primitives/grid                                             GET column and row structure, notification on structure change
- *   /views/{viewId}/primitives/viewports                                        POST to create viewport
- *   /views/{viewId}/primitives/viewports/{viewportId}                           POST to update, DELETE to close
- *   /views/{viewId}/primitives/viewports/{viewportId}/data                      GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/grid                                             GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/viewports                                        POST to create viewport
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           POST to update, DELETE to close
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data                      GET data, notification when new data is available
  *
- *   /views/{viewId}/primitives/depgraphs                                        POST to create dependency graph grid
- *   /views/{viewId}/primitives/depgraphs/{graphId}                              DELETE to close
- *   /views/{viewId}/primitives/depgraphs/{graphId}/grid                         GET column and row structure, notification on structure change
- *   /views/{viewId}/primitives/depgraphs/{graphId}/viewports                    POST to create viewport
- *   /views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       POST to update, DELETE to close
- *   /views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data  GET data, notification when new data is available
+ *   /jax/views/{viewId}/primitives/depgraphs                                        POST to create dependency graph grid
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              DELETE to close
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid                         GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports                    POST to create viewport
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       POST to update, DELETE to close
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data  GET data, notification when new data is available
  * </pre>
+ *
+ * <h3>Views</h3>
+ * <p>Before a client can receive data for a view it must create a view. This is done by making a {@code POST}
+ * request to:</p>
+ * <pre>
+ *   /jax/views?clientId=...</pre>
+ * <p>The request must contain JSON which defines the view:</p>
+ * <pre>
+ *   {"viewDefinitionId": ...
+ *    "aggregator": ...
+ *    "marketDataType": ...
+ *    "provider": ...
+ *    "snapshotId": ...
+ *    "versionDateTime": ...}
+ * </pre>
+ * <ul>
+ *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
+ *   <li>{@code aggregator}: name of the aggregator used to aggregate the portfolio, {@code null} for no aggregation.</li>
+ *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}.</li>
+ *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg, Activ)" for testing</em>.</li>
+ *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
+ *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
+ * </ul>
+ * <p>The response header will contain the location of the new view. To close a view the client should make a
+ * {@code DELETE} request to the view's location.</p>
+ *
+ * <h3>Grids</h3>
+ * <p>A view always has at least two grids, the portfolio and primitives grids. TODO depgraphs</p>
+ *
+ * <h3>Grid Structure</h3>
+ * <p>To retrieve the row and column structure for each grid the client should make a {@code GET} request to:</p>
+ * <pre>
+ *   /jax/view/{viewId}/portfolio/grid
+ *   /jax/view/{viewId}/primitives/grid
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid
+ * </pre>
+ * <p>TODO document the grid structure JSON</p>
+ *
+ * <h3>Viewports</h3>
+ * <p>After creating a view the client must create a viewport in order to receive data. This is done by making a
+ * {@code POST} request to:</p>
+ * <pre>
+ *   /jax/view/{viewId}/portfolio/viewports
+ *   /jax/view/{viewId}/primitives/viewports
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports
+ * </pre>
+ * <p>The request must contain JSON that defines the viewport:</p>
+ * <pre>{"rows": ["1", "2", ...], "columns": ["3", "4", ...]}</pre>
+ * <p>The response header will contain the location of the new viewport. To close the viewport the client should make
+ * a {@code DELETE} request to the view's location.</p>
+ *
+ * <h3>Viewport Data</h3>
+ * <p>To retrieve data for the viewport the client must make a {@code GET} request to:</p>
+ * <pre>
+ *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data
+ * </pre>
+ * <p>TODO document data JSON</p>
+ *
+ * <p>TODO async updates</p>
  */
 package com.opengamma.web.server.push.rest;

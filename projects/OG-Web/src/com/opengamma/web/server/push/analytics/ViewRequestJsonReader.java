@@ -29,6 +29,7 @@ public class ViewRequestJsonReader {
       aggregator = jsonObject.optString("aggregator", null);
       String marketDataType = jsonObject.getString("marketDataType");
       if (marketDataType.equals("live")) {
+        // TODO should this be optional for auto / default behaviour?
         String provider = jsonObject.getString("provider");
         marketData = new ViewRequest.Live(provider);
       } else {
