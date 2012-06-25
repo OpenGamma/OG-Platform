@@ -17,7 +17,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
@@ -27,7 +26,7 @@ import com.opengamma.util.money.Currency;
  * Security parameterisation. It might be convenient for some to quote month/year and for the system
  * to establish expiry and settlement dates from conventions
  */
-public class EquityIndexOptionConverter implements EquityIndexOptionSecurityVisitor<EquityIndexOptionDefinition>{
+public class EquityIndexOptionConverter {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
@@ -41,7 +40,6 @@ public class EquityIndexOptionConverter implements EquityIndexOptionSecurityVisi
     _regionSource = regionSource;
   }
 
-  @Override
   public EquityIndexOptionDefinition visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
     Validate.notNull(security, "security");
 
