@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -30,7 +30,7 @@ public class InterestRateFutureTradeConverter {
     Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity, "Can only handle trades with security type InterestRateFutureSecurity");
     final InterestRateFutureDefinition securityDefinition = _securityConverter.visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
     final int quantity = 1;
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(TimeZone.UTC); //TODO get the real time zone
     final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception
     return new InterestRateFutureDefinition(tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
         securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), quantity, securityDefinition.getName());
