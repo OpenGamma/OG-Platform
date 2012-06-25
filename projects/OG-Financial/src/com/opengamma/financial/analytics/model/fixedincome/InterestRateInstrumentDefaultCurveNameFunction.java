@@ -34,24 +34,21 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA};
-  private final String _curveCalculationMethod;
   private final String _curveCalculationConfig;
   private final String _excludedSecurityName;
   private final PriorityClass _priority;
   private final String _applicableCurrencyName;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String applicableCurrencyName) {
-    this(curveCalculationMethod, curveCalculationConfig, priority, null, applicableCurrencyName);
+  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationConfig, final String priority, final String applicableCurrencyName) {
+    this(curveCalculationConfig, priority, null, applicableCurrencyName);
   }
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String curveCalculationConfig, final String priority, final String excludedSecurityName,
+  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationConfig, final String priority, final String excludedSecurityName,
       final String applicableCurrencyName) {
     super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(applicableCurrencyName, "applicable currency name");
-    _curveCalculationMethod = curveCalculationMethod;
     _curveCalculationConfig = curveCalculationConfig;
     _priority = PriorityClass.valueOf(priority);
     _excludedSecurityName = excludedSecurityName;
@@ -90,7 +87,6 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -98,9 +94,6 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(_curveCalculationConfig);
-    }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }

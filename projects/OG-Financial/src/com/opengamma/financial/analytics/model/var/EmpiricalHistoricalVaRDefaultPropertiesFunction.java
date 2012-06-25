@@ -21,12 +21,13 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final String[] VALUE_REQUIREMENTS = new String[] {ValueRequirementNames.HISTORICAL_VAR, ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR};
   private final String _confidenceLevel;
   private final String _horizon;
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  
+
   public EmpiricalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
       final String confidenceLevel, final String horizon, final ComputationTargetType target) {
     super(target, true);
@@ -37,26 +38,28 @@ public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends De
     ArgumentChecker.notNull(horizon, "horizon name");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
-    _samplingCalculator = samplingCalculator;    
+    _samplingCalculator = samplingCalculator;
     _confidenceLevel = confidenceLevel;
     _horizon = horizon;
   }
-  
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_PERIOD);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SCHEDULE_CALCULATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.SAMPLING_FUNCTION);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.CONFIDENCE_LEVEL);
-    defaults.addValuePropertyName(ValueRequirementNames.HISTORICAL_VAR, ValuePropertyNames.HORIZON);    
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SAMPLING_PERIOD);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SCHEDULE_CALCULATOR);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SAMPLING_FUNCTION);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CONFIDENCE_LEVEL);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.HORIZON);
+    }
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, 
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
-    } 
+    }
     if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
       return Collections.singleton(_scheduleCalculator);
     }

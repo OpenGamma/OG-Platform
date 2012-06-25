@@ -28,9 +28,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunction {
+public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   private final String _curveCalculationConfig;
-  private final String _curveCalculationMethod;
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
@@ -38,24 +37,21 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
   private final String _excludedSecurityName;
   private final String _applicableCurrency;
 
-  public YieldCurveNodeSensitivityPnLDefaults(final String curveCalculationConfig, final String curveCalculationMethod,
-      final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority, final String applicableCurrency) {
-    this(curveCalculationConfig, curveCalculationMethod, samplingPeriod, scheduleCalculator, samplingFunction, priority, null, applicableCurrency);
+  public YieldCurveNodePnLDefaults(final String curveCalculationConfig, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
+      final String priority, final String applicableCurrency) {
+    this(curveCalculationConfig, samplingPeriod, scheduleCalculator, samplingFunction, priority, null, applicableCurrency);
   }
 
-  public YieldCurveNodeSensitivityPnLDefaults(final String curveCalculationConfig, final String curveCalculationMethod,
-      final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority, final String excludedSecurityName,
-      final String applicableCurrency) {
+  public YieldCurveNodePnLDefaults(final String curveCalculationConfig, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
+      final String priority, final String excludedSecurityName, final String applicableCurrency) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
-    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(applicableCurrency, "applicable currency");
     _curveCalculationConfig = curveCalculationConfig;
-    _curveCalculationMethod = curveCalculationMethod;
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
@@ -79,7 +75,8 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
     if (security instanceof SwapSecurity) {
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
-        if (type != InterestRateInstrumentType.SWAP_FIXED_IBOR && type != InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD && type != InterestRateInstrumentType.SWAP_IBOR_IBOR) {
+        if (type != InterestRateInstrumentType.SWAP_FIXED_IBOR && type != InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD && type != InterestRateInstrumentType.SWAP_IBOR_IBOR
+            && type != InterestRateInstrumentType.SWAP_FIXED_OIS) {
           return false;
         }
       } catch (final OpenGammaRuntimeException ogre) {
@@ -98,7 +95,6 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -110,9 +106,6 @@ public class YieldCurveNodeSensitivityPnLDefaults extends DefaultPropertyFunctio
       final String propertyName) {
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(_curveCalculationConfig);
-    }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationMethod);
     }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);

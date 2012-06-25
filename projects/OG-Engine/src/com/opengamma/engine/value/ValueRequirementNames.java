@@ -81,7 +81,7 @@ public final class ValueRequirementNames {
   ///// Curves
 
   /**
-   * Curve containing (date, discount factor) pairs. 
+   * Curve containing (date, discount factor) pairs.
    */
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   /**
@@ -93,7 +93,7 @@ public final class ValueRequirementNames {
    */
   public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
   /**
-   * Curve containing (time, rate) pairs. 
+   * Curve containing (time, rate) pairs.
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
@@ -113,7 +113,7 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
   /**
-   * Curve property metadata. 
+   * Curve property metadata.
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
   /**
@@ -128,7 +128,7 @@ public final class ValueRequirementNames {
    * The raw forward swap and spot market data that is used in curve construction
    */
   public static final String FORWARD_SWAP_CURVE_MARKET_DATA = "ForwardSwapCurveMarketData";
-  /** 
+  /**
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
@@ -146,12 +146,12 @@ public final class ValueRequirementNames {
    * Surface containing (x, y, volatility) triples that is constructed by piecewise fitting the SABR model through the smiles.
    */
   public static final String PIECEWISE_SABR_VOL_SURFACE = "Piecewise SABR fitted surface";
-  /** 
+  /**
    * Interpolator for Black volatility surfaces
    */
   public static final String BLACK_VOLATILITY_SURFACE_INTERPOLATOR = "BlackVolatilitySurfaceInterpolator";
-  /** 
-   * Surface containing (x, y, Black volatility) triples  
+  /**
+   * Surface containing (x, y, Black volatility) triples
    */
   public static final String BLACK_VOLATILITY_SURFACE = "BlackVolatilitySurface";
   /**
@@ -159,11 +159,11 @@ public final class ValueRequirementNames {
    */
   public static final String SABR_SURFACES = "SABR Surfaces";
   /**
-   * Surface containing (x, y, volatility) triples that are the outer join of the values on the x and y axes. 
+   * Surface containing (x, y, volatility) triples that are the outer join of the values on the x and y axes.
    */
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   /**
-   * Surface containing (x, y, volatility) triples (where (x, y) can be (expiry, strike) (equity options) or (expiry, tenor) (swaptions). 
+   * Surface containing (x, y, volatility) triples (where (x, y) can be (expiry, strike) (equity options) or (expiry, tenor) (swaptions).
    */
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   /**
@@ -182,11 +182,11 @@ public final class ValueRequirementNames {
   ///// Cubes
 
   /**
-   * Cube containing sets of (x, y, z, volatility) that are the outer join of the values on the x, y and z axes.  
+   * Cube containing sets of (x, y, z, volatility) that are the outer join of the values on the x, y and z axes.
    */
   public static final String STANDARD_VOLATILITY_CUBE_DATA = "StandardVolatilityCubeData";
   /**
-   * Cube containing sets of (x, y, z, volatility) 
+   * Cube containing sets of (x, y, z, volatility)
    */
   public static final String VOLATILITY_CUBE = "VolatilityCube";
   /**
@@ -220,7 +220,7 @@ public final class ValueRequirementNames {
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
   /**
-   * The change in the dollar value of an instrument if a yield curve is moved by one basis point. 
+   * The change in the dollar value of an instrument if a yield curve is moved by one basis point.
    */
   public static final String DV01 = "DV01";
   /**
@@ -232,11 +232,11 @@ public final class ValueRequirementNames {
    */
   public static final String FAIR_VALUE = "FairValue";
   /**
-   * The present value of a cash-flow based fixed-income instrument. 
+   * The present value of a cash-flow based fixed-income instrument.
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
-   * The rate that prices a cash-flow based fixed-income instrument to zero. 
+   * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
   /**
@@ -268,7 +268,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE = "Value";
   /**
-   * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value). 
+   * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
 
@@ -279,11 +279,11 @@ public final class ValueRequirementNames {
    */
   public static final String CARRY_RHO = "CarryRho";
   /**
-   * The delta of an option (first order derivative of price with respect to the spot). 
+   * The delta of an option (first order derivative of price with respect to the spot).
    */
   public static final String DELTA = "Delta";
   /**
-   * The delta bleed of an option (derivative of the delta with respect to the spot and time). 
+   * The delta bleed of an option (derivative of the delta with respect to the spot and time).
    */
   public static final String DELTA_BLEED = "DeltaBleed";
   /**
@@ -291,7 +291,7 @@ public final class ValueRequirementNames {
    */
   public static final String DRIFTLESS_THETA = "DriftlessTheta";
   /**
-   * Second order derivative of delta with respect to the volatility. 
+   * Second order derivative of delta with respect to the volatility.
    */
   public static final String DVANNA_DVOL = "dVanna_dVol";
   /**
@@ -303,11 +303,11 @@ public final class ValueRequirementNames {
    */
   public static final String ELASTICITY = "Elasticity";
   /**
-   * The gamma of an option (second order derivative of price with respect to the spot). 
+   * The gamma of an option (second order derivative of price with respect to the spot).
    */
   public static final String GAMMA = "Gamma";
   /**
-   * The gamma bleed of an option (derivative of the gamma with respect to time). 
+   * The gamma bleed of an option (derivative of the gamma with respect to time).
    */
   public static final String GAMMA_BLEED = "GammaBleed";
   /**
@@ -315,7 +315,7 @@ public final class ValueRequirementNames {
    */
   public static final String GAMMA_P = "GammaP";
   /**
-   * The percentage gamma bleed. 
+   * The percentage gamma bleed.
    */
   public static final String GAMMA_P_BLEED = "GammaPBleed";
   /**
@@ -327,11 +327,11 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_CARRY_RHO = "PositionCarryRho";
   /**
-   * The aggregate delta of an option (first order derivative of price with respect to the spot). 
+   * The aggregate delta of an option (first order derivative of price with respect to the spot).
    */
   public static final String POSITION_DELTA = "PositionDelta";
   /**
-   * The aggregate delta bleed of an option (derivative of the delta with respect to the spot and time). 
+   * The aggregate delta bleed of an option (derivative of the delta with respect to the spot and time).
    */
   public static final String POSITION_DELTA_BLEED = "PositionDeltaBleed";
   /**
@@ -339,7 +339,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_DRIFTLESS_THETA = "PositionDriftlessTheta";
   /**
-   * Aggregate second order derivative of delta with respect to the volatility. 
+   * Aggregate second order derivative of delta with respect to the volatility.
    */
   public static final String POSITION_DVANNA_DVOL = "PositiondVanna_dVol";
   /**
@@ -355,7 +355,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_GAMMA = "PositionGamma";
   /**
-   * The aggregate gamma bleed of an option (derivative of the gamma with respect to time). 
+   * The aggregate gamma bleed of an option (derivative of the gamma with respect to time).
    */
   public static final String POSITION_GAMMA_BLEED = "PositionGammaBleed";
   /**
@@ -363,7 +363,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_GAMMA_P = "PositionGammaP";
   /**
-   * The aggregate percentage gamma bleed. 
+   * The aggregate percentage gamma bleed.
    */
   public static final String POSITION_GAMMA_P_BLEED = "PositionGammaPBleed";
   /**
@@ -371,7 +371,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_PHI = "PositionPhi";
   /**
-   * The aggregate rho of an option (first order derivative of price with respect to the interest rate). 
+   * The aggregate rho of an option (first order derivative of price with respect to the interest rate).
    */
   public static final String POSITION_RHO = "PositionRho";
   /**
@@ -379,7 +379,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_SPEED = "PositionSpeed";
   /**
-   * The aggregate strike delta of an option (first order derivative of price with respect to the strike). 
+   * The aggregate strike delta of an option (first order derivative of price with respect to the strike).
    */
   public static final String POSITION_STRIKE_DELTA = "PositionStrikeDelta";
   /**
@@ -415,7 +415,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VARIANCE_VEGA = "PositionVarianceVega";
   /**
-   * The aggregate variance vomma of an option (second order derivative of price with respect to the variance). 
+   * The aggregate variance vomma of an option (second order derivative of price with respect to the variance).
    */
   public static final String POSITION_VARIANCE_VOMMA = "PositionVarianceVomma";
   /**
@@ -427,7 +427,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VEGA = "PositionVega";
   /**
-   * The aggregate percentage vega of an option. 
+   * The aggregate percentage vega of an option.
    */
   public static final String POSITION_VEGA_P = "PositionVegaP";
   /**
@@ -435,7 +435,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_VOMMA = "PositionVomma";
   /**
-   * The aggregate percentage vomma of an option. 
+   * The aggregate percentage vomma of an option.
    */
   public static final String POSITION_VOMMA_P = "PositionVommaP";
   /**
@@ -455,7 +455,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_ZOMMA_P = "PositionZommaP";
   /**
-   * The rho of an option (first order derivative of price with respect to the interest rate). 
+   * The rho of an option (first order derivative of price with respect to the interest rate).
    */
   public static final String RHO = "Rho";
   /**
@@ -467,7 +467,7 @@ public final class ValueRequirementNames {
    */
   public static final String SPEED_P = "SpeedP";
   /**
-   * The strike delta of an option (first order derivative of price with respect to the strike). 
+   * The strike delta of an option (first order derivative of price with respect to the strike).
    */
   public static final String STRIKE_DELTA = "StrikeDelta";
   /**
@@ -487,11 +487,11 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
-   * The amount by which the value of a portfolio would change due to delta. 
+   * The amount by which the value of a portfolio would change due to delta.
    */
   public static final String VALUE_DELTA = "ValueDelta";
   /**
-   * The amount by which the value of a portfolio would change due to delta bleed. 
+   * The amount by which the value of a portfolio would change due to delta bleed.
    */
   public static final String VALUE_DELTA_BLEED = "ValueDeltaBleed";
   /**
@@ -499,7 +499,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
   /**
-   * The amount by which the value of a portfolio would change due to dVannadVol. 
+   * The amount by which the value of a portfolio would change due to dVannadVol.
    */
   public static final String VALUE_DVANNA_DVOL = "ValuedVanna_dVol";
   /**
@@ -511,11 +511,11 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_ELASTICITY = "ValueElasticity";
   /**
-   * The amount by which the value of a portfolio would change due to gamma. 
+   * The amount by which the value of a portfolio would change due to gamma.
    */
   public static final String VALUE_GAMMA = "ValueGamma";
   /**
-   * The amount by which the value of a portfolio would change due to gamma bleed. 
+   * The amount by which the value of a portfolio would change due to gamma bleed.
    */
   public static final String VALUE_GAMMA_BLEED = "ValueGammaBleed";
   /**
@@ -523,7 +523,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_GAMMA_P = "ValueGammaP";
   /**
-   * The amount by which the value of a portfolio would change due to gamma bleed. 
+   * The amount by which the value of a portfolio would change due to gamma bleed.
    */
   public static final String VALUE_GAMMA_P_BLEED = "ValueGammaPBleed";
   /**
@@ -531,7 +531,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_PHI = "ValuePhi";
   /**
-   * The amount by which the value of a portfolio would change due to rho. 
+   * The amount by which the value of a portfolio would change due to rho.
    */
   public static final String VALUE_RHO = "ValueRho";
   /**
@@ -543,7 +543,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_SPEED_P = "ValueSpeedP";
   /**
-   * The amount by which the value of a portfolio would change due to strike delta. 
+   * The amount by which the value of a portfolio would change due to strike delta.
    */
   public static final String VALUE_STRIKE_DELTA = "ValueStrikeDelta";
   /**
@@ -611,7 +611,7 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_ZOMMA = "ValueZomma";
   /**
-   * The amount by which the value of a portfolio would change due to percentage zomma. 
+   * The amount by which the value of a portfolio would change due to percentage zomma.
    */
   public static final String VALUE_ZOMMA_P = "ValueZommaP";
   /**
@@ -631,7 +631,7 @@ public final class ValueRequirementNames {
    */
   public static final String VARIANCE_VEGA = "VarianceVega";
   /**
-   * The variance vomma of an option (second order derivative of price with respect to the variance). 
+   * The variance vomma of an option (second order derivative of price with respect to the variance).
    */
   public static final String VARIANCE_VOMMA = "VarianceVomma";
   /**
@@ -643,7 +643,7 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_BLEED = "VegaBleed";
   /**
-   * The bucketed vega of a security for a (expiry, delta) volatility surface. 
+   * The bucketed vega of a security for a (expiry, delta) volatility surface.
    */
   public static final String VEGA_MATRIX = "Vega Matrix";
   /**
@@ -663,7 +663,7 @@ public final class ValueRequirementNames {
    */
   public static final String VOMMA = "Vomma";
   /**
-   * The percentage vomma of an option. 
+   * The percentage vomma of an option.
    */
   public static final String VOMMA_P = "VommaP";
   /**
@@ -733,7 +733,7 @@ public final class ValueRequirementNames {
   ///// Value At Risk
 
   /**
-   * The VaR of a position or portfolio calculated using the historical P&L series (where the models make assumptions about the distribution e.g. assuming a Gaussian distribution). 
+   * The VaR of a position or portfolio calculated using the historical P&L series.
    */
   public static final String HISTORICAL_VAR = "HistoricalVaR";
   /**
@@ -741,30 +741,34 @@ public final class ValueRequirementNames {
    */
   public static final String HISTORICAL_VAR_STDDEV = "HistoricalVaR Standard Deviation";
   /**
-   * The VaR of a position or portfolio calculated using the variance-covariance method (where the model can be first- or second-order). 
+   * The conditional VaR of a position or portfolio calculated using a historical P&L series.
+   */
+  public static final String CONDITIONAL_HISTORICAL_VAR = "HistoricalCVaR";
+  /**
+   * The VaR of a position or portfolio calculated using the variance-covariance method (where the model can be first- or second-order).
    */
   public static final String PARAMETRIC_VAR = "ParametricVaR";
 
   ///// Capital Asset Pricing Model
 
   /**
-   * The beta of an equity position or portfolio calculated using the CAPM model. 
+   * The beta of an equity position or portfolio calculated using the CAPM model.
    */
   public static final String CAPM_BETA = "CAPM Beta";
   /**
-   * The adjusted R-squared value of the regression. 
+   * The adjusted R-squared value of the regression.
    */
   public static final String CAPM_REGRESSION_ADJUSTED_R_SQUARED = "CAPM Regression Adjusted R-Squared";
   /**
-   * The alpha of an equity position or portfolio calculated using linear regression on the CAPM model. 
+   * The alpha of an equity position or portfolio calculated using linear regression on the CAPM model.
    */
   public static final String CAPM_REGRESSION_ALPHA = "CAPM Regression Alpha";
   /**
-   * The p-value of alpha. 
+   * The p-value of alpha.
    */
   public static final String CAPM_REGRESSION_ALPHA_PVALUES = "CAPM Regression Alpha p-Values";
   /**
-   * The residual of the regression for alpha. 
+   * The residual of the regression for alpha.
    */
   public static final String CAPM_REGRESSION_ALPHA_RESIDUALS = "CAPM Regression Alpha Residual";
   /**
@@ -772,15 +776,15 @@ public final class ValueRequirementNames {
    */
   public static final String CAPM_REGRESSION_ALPHA_TSTATS = "CAPM Regression Alpha t-Stats";
   /**
-   * The beta of an equity position or portfolio calculated using linear regression on the CAPM model. 
+   * The beta of an equity position or portfolio calculated using linear regression on the CAPM model.
    */
   public static final String CAPM_REGRESSION_BETA = "CAPM Regression Beta";
   /**
-   * The p-value of beta. 
+   * The p-value of beta.
    */
   public static final String CAPM_REGRESSION_BETA_PVALUES = "CAPM Regression Beta p-Values";
   /**
-   * The residual of the regression for beta. 
+   * The residual of the regression for beta.
    */
   public static final String CAPM_REGRESSION_BETA_RESIDUALS = "CAPM Regression Beta Residual";
   /**
@@ -788,38 +792,38 @@ public final class ValueRequirementNames {
    */
   public static final String CAPM_REGRESSION_BETA_TSTATS = "CAPM Regression Beta t-Stats";
   /**
-   * The mean squared error of the regression. 
+   * The mean squared error of the regression.
    */
   public static final String CAPM_REGRESSION_MEAN_SQUARE_ERROR = "CAPM Regression Mean Square Error";
   /**
-   * The R-squared value of the regression. 
+   * The R-squared value of the regression.
    */
   public static final String CAPM_REGRESSION_R_SQUARED = "CAPM Regression R-Squared";
   /**
-   * The standard error of alpha. 
+   * The standard error of alpha.
    */
   public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_ALPHA = "CAPM Regression Alpha Standard Error";
   /**
-   * The standard error of beta. 
+   * The standard error of beta.
    */
   public static final String CAPM_REGRESSION_STANDARD_ERROR_OF_BETA = "CAPM Regression Beta Standard Error";
 
   ///// Traditional Risk-Reward
 
   /**
-   * Jensen's alpha of an equity position or sub-portfolio in the portfolio. 
+   * Jensen's alpha of an equity position or sub-portfolio in the portfolio.
    */
   public static final String JENSENS_ALPHA = "Jensen's Alpha";
   /**
-   * The Sharpe ratio of an equity position or sub-portfolio in the portfolio. 
+   * The Sharpe ratio of an equity position or sub-portfolio in the portfolio.
    */
   public static final String SHARPE_RATIO = "Sharpe Ratio";
   /**
-   * The total risk alpha of an equity position or sub-portfolio in the portfolio. 
+   * The total risk alpha of an equity position or sub-portfolio in the portfolio.
    */
   public static final String TOTAL_RISK_ALPHA = "Total Risk Alpha";
   /**
-   * The Treynor ratio of an equity position or sub-portfolio in the portfolio. 
+   * The Treynor ratio of an equity position or sub-portfolio in the portfolio.
    */
   public static final String TREYNOR_RATIO = "Treynor Ratio";
   /**
@@ -834,15 +838,15 @@ public final class ValueRequirementNames {
    */
   public static final String ACTUAL_REPO = "Actual Repo";
   /**
-   * The payment dates (actual settlement dates, not nominal) of the coupons and notional of a bond. 
+   * The payment dates (actual settlement dates, not nominal) of the coupons and notional of a bond.
    */
   public static final String BOND_COUPON_PAYMENT_TIMES = "Bond Coupon Payment Times";
   /**
-   * The original tenor of a bond. 
+   * The original tenor of a bond.
    */
   public static final String BOND_TENOR = "Bond Tenor";
   /**
-   * The clean price of a bond. 
+   * The clean price of a bond.
    */
   public static final String CLEAN_PRICE = "Clean Price";
   /**
@@ -850,7 +854,7 @@ public final class ValueRequirementNames {
    */
   public static final String CONVERTION_FACTOR = "Convertion Factor";
   /**
-   * The convexity of a bond. 
+   * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
   /**
@@ -858,19 +862,19 @@ public final class ValueRequirementNames {
    */
   public static final String CURRENT_YIELD = "Current Yield";
   /**
-   * The dirty price of a bond. 
+   * The dirty price of a bond.
    */
   public static final String DIRTY_PRICE = "Dirty Price";
   /**
-   * The gross basis of a bond in the deliverable basket of a bond future. 
+   * The gross basis of a bond in the deliverable basket of a bond future.
    */
   public static final String GROSS_BASIS = "Gross Basis";
   /**
-   * The implied repo rate of a bond in the deliverable basket of a bond future. 
+   * The implied repo rate of a bond in the deliverable basket of a bond future.
    */
   public static final String IMPLIED_REPO = "Implied Repo";
   /**
-   * The Macaulay duration of a bond. 
+   * The Macaulay duration of a bond.
    */
   public static final String MACAULAY_DURATION = "Macaulay Duration";
   /**
@@ -890,15 +894,15 @@ public final class ValueRequirementNames {
    */
   public static final String MODIFIED_DURATION = "Modified Duration";
   /**
-   * The net basis of a bond in the deliverable basket of a bond future. 
+   * The net basis of a bond in the deliverable basket of a bond future.
    */
   public static final String NET_BASIS = "Net Basis";
   /**
-   * A bond curve calculated using the Nelson-Siegel method. 
+   * A bond curve calculated using the Nelson-Siegel method.
    */
   public static final String NS_BOND_CURVE = "Nelson-Siegel Bond Curve";
   /**
-   * A bond curve calculated using the Nelson-Siegel-Svennson. 
+   * A bond curve calculated using the Nelson-Siegel-Svennson.
    */
   public static final String NSS_BOND_CURVE = "Nelson-Siegel-Svennson Bond Curve";
   /**
@@ -906,11 +910,11 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE_Z_SPREAD_SENSITIVITY = "PV Z Spread Sensitivity";
   /**
-   * The yield to maturity of a bond. 
+   * The yield to maturity of a bond.
    */
   public static final String YTM = "Yield To Maturity";
   /**
-   * The z-spread of a bond. 
+   * The z-spread of a bond.
    */
   public static final String Z_SPREAD = "Z Spread";
 
@@ -921,7 +925,7 @@ public final class ValueRequirementNames {
    */
   public static final String FORWARD = "Forward";
   /**
-   * The sensitivity of the par rate of a cash-flow instrument to a shift of 100 percent in the (named) yield curve. 
+   * The sensitivity of the par rate of a cash-flow instrument to a shift of 100 percent in the (named) yield curve.
    */
   public static final String PAR_RATE_CURVE_SENSITIVITY = "Par Rate Curve Sensitivity";
   /**
@@ -978,8 +982,8 @@ public final class ValueRequirementNames {
    * The present value in both currencies of a FX instrument.
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
-  
-  
+
+
   /**
    * The value vega of a digital option that is priced using call spread replication
    */
@@ -1056,7 +1060,7 @@ public final class ValueRequirementNames {
    * The forward delta of an instrument
    */
   public static final String FORWARD_DELTA = "Forward Delta";
-  /** 
+  /**
    * The forward gamma of an instrument
    */
   public static final String FORWARD_GAMMA = "Forward Gamma";
@@ -1076,11 +1080,11 @@ public final class ValueRequirementNames {
    * The dual delta of an instrument
    */
   public static final String DUAL_DELTA = "Dual Delta";
-  /** 
+  /**
    * The dual gamma of an instrument
    */
   public static final String DUAL_GAMMA = "Dual Gamma";
-  /** 
+  /**
    * The domestic price for FX options
    */
   public static final String FOREX_DOMESTIC_PRICE = "Forex Domestic Price";
@@ -1096,7 +1100,7 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the forward delta of an instrument
    */
   public static final String GRID_FORWARD_DELTA = "Grid Forward Delta";
-  /** 
+  /**
    * The PDE space grid values of the forward gamma of an instrument
    */
   public static final String GRID_FORWARD_GAMMA = "Grid Forward Gamma";
@@ -1116,7 +1120,7 @@ public final class ValueRequirementNames {
    * The PDE space grid values of the dual delta of an instrument
    */
   public static final String GRID_DUAL_DELTA = "Grid Dual Delta";
-  /** 
+  /**
    * The PDE space grid values of the dual gamma of an instrument
    */
   public static final String GRID_DUAL_GAMMA = "Grid Dual Gamma";

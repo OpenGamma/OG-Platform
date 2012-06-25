@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.var;
 
-import com.opengamma.analytics.math.function.Function;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -19,8 +19,8 @@ public class NormalLinearVaRCalculator<T> implements VaRCalculator<NormalVaRPara
   private final Function<T, Double> _stdCalculator;
 
   public NormalLinearVaRCalculator(final Function<T, Double> meanCalculator, final Function<T, Double> stdCalculator) {
-    Validate.notNull(meanCalculator, "mean calculator");
-    Validate.notNull(stdCalculator, "standard deviation calculator");
+    ArgumentChecker.notNull(meanCalculator, "mean calculator");
+    ArgumentChecker.notNull(stdCalculator, "standard deviation calculator");
     _meanCalculator = meanCalculator;
     _stdCalculator = stdCalculator;
   }
@@ -35,13 +35,13 @@ public class NormalLinearVaRCalculator<T> implements VaRCalculator<NormalVaRPara
 
   @Override
   public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
-    Validate.notNull(parameters, "parameters");
-    Validate.notNull(data, "data");
-    double z = parameters.getZ();
-    double mult = parameters.getTimeScaling();
-    double mean = _meanCalculator.evaluate(data);
-    double stddev = _stdCalculator.evaluate(data);
-    double result = z * mult * stddev - mult * mult * mean;
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(data, "data");
+    final double z = parameters.getZ();
+    final double mult = parameters.getTimeScaling();
+    final double mean = _meanCalculator.evaluate(data);
+    final double stddev = _stdCalculator.evaluate(data);
+    final double result = z * mult * stddev - mult * mult * mean;
     return new VaRCalculationResult(result, stddev);
   }
 
@@ -55,7 +55,7 @@ public class NormalLinearVaRCalculator<T> implements VaRCalculator<NormalVaRPara
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

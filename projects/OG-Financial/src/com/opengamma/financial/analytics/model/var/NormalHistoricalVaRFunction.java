@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunctionDeprecated;
+import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -63,7 +63,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     ValueRequirement sampleRequirement = null;
     boolean computeVar = false;
     boolean computeStddev = false;
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       constraints = (constraints == null) ? desiredValue.getConstraints() : constraints;
       sampleRequirement = (sampleRequirement == null) ? desiredValue : sampleRequirement;
       if (ValueRequirementNames.HISTORICAL_VAR.equals(desiredValue.getValueName())) {
@@ -80,11 +80,11 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     final Set<String> horizonNames = constraints.getValues(ValuePropertyNames.HORIZON);
     final NormalVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
     final NormalLinearVaRCalculator<DoubleTimeSeries<?>> varCalculator = getVaRCalculator(meanCalculatorNames, stdDevCalculatorNames);
-    VaRCalculationResult calcResult = varCalculator.evaluate(parameters, pnlSeries);
+    final VaRCalculationResult calcResult = varCalculator.evaluate(parameters, pnlSeries);
     final double var = calcResult.getVaRValue();
     final double stddev = calcResult.getStdDev();
     final ValueProperties resultProperties = getResultProperties(currency, sampleRequirement);
-    Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<ComputedValue>();
     if (computeVar) {
       results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
     }
@@ -118,12 +118,12 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR).get();
-    ValueSpecification hVaRSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
+    final ValueSpecification hVaRSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
     // TODO kirk 2012-06-22 -- These are certainly not the optimal properties. Rather,
     // things like CONFIDENCE_LEVEL actually depend on the stddev, so this doesn't make
     // 100% of sense. However, in an effort to make this the simplest addition possible
     // I'm just reusing the identical properties.
-    ValueSpecification stddevSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
+    final ValueSpecification stddevSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
     return Sets.newHashSet(hVaRSpec, stddevSpec);
   }
 
@@ -147,7 +147,7 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(YieldCurveNodePnLFunctionDeprecated.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta"); //TODO
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);

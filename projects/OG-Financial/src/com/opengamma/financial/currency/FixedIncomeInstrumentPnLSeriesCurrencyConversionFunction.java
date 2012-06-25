@@ -15,20 +15,20 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunctionDeprecated;
+import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 
 /**
  * 
  */
 public class FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
-  public FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction(String currencyMatrixName) {
+  public FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ValueProperties properties = createValueProperties()
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
@@ -36,12 +36,13 @@ public class FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction extends Pn
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(YieldCurveNodePnLFunctionDeprecated.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
-  
-  protected ValueSpecification getValueSpec(ValueSpecification inputSpec, String currencyCode) {
-    ValueProperties properties = inputSpec.getProperties().copy()
+
+  @Override
+  protected ValueSpecification getValueSpec(final ValueSpecification inputSpec, final String currencyCode) {
+    final ValueProperties properties = inputSpec.getProperties().copy()
         .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId())
         .withoutAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURRENCY, currencyCode).get();
     return new ValueSpecification(ValueRequirementNames.PNL_SERIES, inputSpec.getTargetSpecification(), properties);

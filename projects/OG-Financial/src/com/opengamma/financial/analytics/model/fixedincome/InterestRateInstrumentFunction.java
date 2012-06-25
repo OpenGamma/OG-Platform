@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -31,10 +33,21 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.*;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.*;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
@@ -46,6 +59,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -76,20 +90,19 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-      .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).create();
+        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-                                    final Set<ValueRequirement> desiredValues) {
+      final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -98,14 +111,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final YieldCurveBundle bundle = getYieldCurves(currency, inputs, curveNames, curveCalculationConfigName, curveCalculationMethod);
+    final YieldCurveBundle bundle = getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-      FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
-    return getComputedValues(derivative, bundle, security, target, curveCalculationConfigName, curveCalculationMethod, currency.getCode());
+        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
+    return getComputedValues(derivative, bundle, security, target, curveCalculationConfigName, currency.getCode());
   }
 
   @Override
@@ -128,7 +141,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
         return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
-          || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
       } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
@@ -150,10 +163,6 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final Set<String> curveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethodNames == null || curveCalculationMethodNames.size() != 1) {
-      return null;
-    }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -162,12 +171,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    requirements.addAll(getCurveRequirements(currency, curveNames, curveCalculationConfigName, curveCalculationMethod));
-    return requirements;
+    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    }
+    return getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
@@ -183,51 +191,86 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   }
 
   protected abstract Set<ComputedValue> getComputedValues(InstrumentDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target,
-                                                          String curveCalculationConfigName, String curveCalculationMethod, String currency);
+      String curveCalculationConfigName, String currency);
 
   protected ValueProperties.Builder getResultProperties(final String currency) {
     final ValueProperties.Builder properties = createValueProperties()
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-      .with(ValuePropertyNames.CURRENCY, currency);
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .with(ValuePropertyNames.CURRENCY, currency);
     return properties;
   }
 
-  protected ValueProperties.Builder getResultProperties(final String currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
+  protected ValueProperties.Builder getResultProperties(final String currency, final String curveCalculationConfigName) {
     final ValueProperties.Builder properties = createValueProperties()
-      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-      .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-      .with(ValuePropertyNames.CURRENCY, currency);
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .with(ValuePropertyNames.CURRENCY, currency);
     return properties;
   }
 
-  protected ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfigName, final String curveCalculationMethod, final String currency) {
-    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(currency, curveCalculationConfigName, curveCalculationMethod).get());
+  protected ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfigName, final String currency) {
+    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(currency, curveCalculationConfigName).get());
   }
 
-  protected static Set<ValueRequirement> getCurveRequirements(final Currency currency, final String[] yieldCurveNames, final String curveCalculationConfigName, final String curveCalculationMethod) {
+  protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    if (curveConfig.getExogenousConfigData() != null) {
+      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
+      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
+        final String exogenousConfigName = entry.getKey();
+        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
+        final UniqueIdentifiable id = exogenousConfig.getUniqueId();
+        final String curveCalculationMethod = exogenousConfig.getCalculationMethod();
+        for (final String exogenousCurveName : entry.getValue()) {
+          requirements.add(getCurveRequirement(id, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
+        }
+        requirements.addAll(getCurveRequirements(exogenousConfig, configSource));
+      }
+    }
+    final String[] yieldCurveNames = curveConfig.getYieldCurveNames();
+    final String curveCalculationConfigName = curveConfig.getCalculationConfigName();
+    final String curveCalculationMethod = curveConfig.getCalculationMethod();
+    final UniqueIdentifiable uniqueId = curveConfig.getUniqueId();
     for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getCurveRequirement(currency, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
+      requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
     }
     return requirements;
   }
 
-  protected static ValueRequirement getCurveRequirement(final Currency currency, final String yieldCurveName, final String curveCalculationConfigName,
-                                                        final String curveCalculationMethod) {
+  protected static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
+      final String curveCalculationMethod) {
     final ValueProperties properties = ValueProperties.builder()
-      .with(ValuePropertyNames.CURVE, yieldCurveName)
-      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-      .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties);
+        .with(ValuePropertyNames.CURVE, yieldCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, id.getUniqueId(), properties);
   }
 
-  protected static YieldCurveBundle getYieldCurves(final Currency currency, final FunctionInputs inputs, final String[] curveNames, final String curveCalculationConfigName,
-                                                   final String curveCalculationMethod) {
-    final
-    YieldCurveBundle curves = new YieldCurveBundle();
+  //TODO won't work if curves have different currencies
+  protected static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
+    final YieldCurveBundle curves = new YieldCurveBundle();
+    if (curveConfig.getExogenousConfigData() != null) {
+      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
+      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
+        final String exogenousConfigName = entry.getKey();
+        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
+        final UniqueIdentifiable exogenousId = exogenousConfig.getUniqueId();
+        final String exogenousCalculationMethod = exogenousConfig.getCalculationMethod();
+        for (final String curveName : entry.getValue()) {
+          final ValueRequirement curveRequirement = getCurveRequirement(exogenousId, curveName, exogenousConfigName, exogenousCalculationMethod);
+          final Object curveObject = inputs.getValue(curveRequirement);
+          if (curveObject == null) {
+            throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
+          }
+          final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
+          curves.setCurve(curveName, curve);
+        }
+        curves.addAll(getYieldCurves(inputs, exogenousConfig, configSource));
+      }
+    }
+    final String[] curveNames = curveConfig.getYieldCurveNames();
+    final UniqueIdentifiable id = curveConfig.getUniqueId();
     for (final String curveName : curveNames) {
-      final ValueRequirement curveRequirement = getCurveRequirement(currency, curveName, curveCalculationConfigName, curveCalculationMethod);
+      final ValueRequirement curveRequirement = getCurveRequirement(id, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
       final Object curveObject = inputs.getValue(curveRequirement);
       if (curveObject == null) {
         throw new OpenGammaRuntimeException("Could not get curve called " + curveName);

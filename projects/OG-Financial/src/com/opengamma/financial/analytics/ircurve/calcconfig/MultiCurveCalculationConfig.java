@@ -22,32 +22,24 @@ public class MultiCurveCalculationConfig {
   //TODO check inputs for instrument exposures - need some or all of yield curve names in the array of names
   private final String _calculationConfigName;
   private final String[] _yieldCurveNames;
-  private final UniqueIdentifiable[] _uniqueIds;
-  private final String[] _calculationMethods;
+  private final UniqueIdentifiable _uniqueId;
+  private final String _calculationMethod;
   private final LinkedHashMap<String, String[]> _exogenousConfigAndCurveNames;
   private final LinkedHashMap<String, CurveInstrumentConfig> _curveExposuresForInstruments;
 
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
+  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable uniqueId, final String calculationMethod,
       final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments) {
-    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethod, curveExposuresForInstruments, null);
+    this(calculationConfigName, yieldCurveNames, uniqueId, calculationMethod, curveExposuresForInstruments, null);
   }
 
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments) {
-    this(calculationConfigName, yieldCurveNames, uniqueIds, calculationMethods, curveExposuresForInstruments, null);
-  }
-
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String calculationMethod,
+  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable uniqueId, final String calculationMethod,
       final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments, final LinkedHashMap<String, String[]> exogenousConfigAndCurveNames) {
     ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.notNull(uniqueIds, "unique identifiables");
+    ArgumentChecker.notNull(uniqueId, "unique identifiables");
     ArgumentChecker.notNull(calculationMethod, "calculation methods");
     ArgumentChecker.notEmpty(yieldCurveNames, "yield curve names");
-    ArgumentChecker.notEmpty(uniqueIds, "unique ids");
     ArgumentChecker.noNulls(yieldCurveNames, "yield curve names");
-    ArgumentChecker.noNulls(uniqueIds, "unique ids");
-    ArgumentChecker.isTrue(yieldCurveNames.length == uniqueIds.length, "yield curve names length {} didn't match unique ids length {}", yieldCurveNames.length, uniqueIds.length);
     if (curveExposuresForInstruments != null) {
       ArgumentChecker.notEmpty(curveExposuresForInstruments, "curve exposures for instruments");
     }
@@ -57,36 +49,8 @@ public class MultiCurveCalculationConfig {
     }
     _calculationConfigName = calculationConfigName;
     _yieldCurveNames = yieldCurveNames;
-    _uniqueIds = uniqueIds;
-    _calculationMethods = new String[_yieldCurveNames.length];
-    Arrays.fill(_calculationMethods, calculationMethod);
-    _curveExposuresForInstruments = curveExposuresForInstruments;
-    _exogenousConfigAndCurveNames = exogenousConfigAndCurveNames;
-  }
-
-  public MultiCurveCalculationConfig(final String calculationConfigName, final String[] yieldCurveNames, final UniqueIdentifiable[] uniqueIds, final String[] calculationMethods,
-      final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments, final LinkedHashMap<String, String[]> exogenousConfigAndCurveNames) {
-    ArgumentChecker.notNull(calculationConfigName, "calculation configuration name");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.notNull(uniqueIds, "unique identifiables");
-    ArgumentChecker.notNull(calculationMethods, "calculation methods");
-    ArgumentChecker.notEmpty(yieldCurveNames, "yield curve names");
-    ArgumentChecker.notEmpty(uniqueIds, "unique ids");
-    ArgumentChecker.notEmpty(calculationMethods, "calculation methods");
-    ArgumentChecker.noNulls(yieldCurveNames, "yield curve names");
-    ArgumentChecker.noNulls(uniqueIds, "unique ids");
-    ArgumentChecker.noNulls(calculationMethods, "calculation methods");
-    ArgumentChecker.isTrue(yieldCurveNames.length == uniqueIds.length, "yield curve names length {} didn't match unique ids length {}", yieldCurveNames.length, uniqueIds.length);
-    ArgumentChecker.isTrue(yieldCurveNames.length == calculationMethods.length, "yield curve names length {} didn't match calculationMethods length {}",
-        yieldCurveNames.length, calculationMethods.length);
-    if (exogenousConfigAndCurveNames != null) {
-      ArgumentChecker.notEmpty(exogenousConfigAndCurveNames, "exogenous config names");
-      ArgumentChecker.noNulls(exogenousConfigAndCurveNames.entrySet(), "exogenous config names");
-    }
-    _calculationConfigName = calculationConfigName;
-    _yieldCurveNames = yieldCurveNames;
-    _uniqueIds = uniqueIds;
-    _calculationMethods = calculationMethods;
+    _uniqueId = uniqueId;
+    _calculationMethod = calculationMethod;
     _curveExposuresForInstruments = curveExposuresForInstruments;
     _exogenousConfigAndCurveNames = exogenousConfigAndCurveNames;
   }
@@ -99,12 +63,12 @@ public class MultiCurveCalculationConfig {
     return _yieldCurveNames;
   }
 
-  public String[] getCalculationMethods() {
-    return _calculationMethods;
+  public String getCalculationMethod() {
+    return _calculationMethod;
   }
 
-  public UniqueIdentifiable[] getUniqueIds() {
-    return _uniqueIds;
+  public UniqueIdentifiable getUniqueId() {
+    return _uniqueId;
   }
 
   public LinkedHashMap<String, CurveInstrumentConfig> getCurveExposuresForInstruments() {
@@ -124,9 +88,9 @@ public class MultiCurveCalculationConfig {
     final int prime = 31;
     int result = 1;
     result = prime * result + _calculationConfigName.hashCode();
-    result = prime * result + Arrays.hashCode(_calculationMethods);
+    result = prime * result + _calculationMethod.hashCode();
     result = prime * result + (_exogenousConfigAndCurveNames == null ? 0 : _exogenousConfigAndCurveNames.hashCode());
-    result = prime * result + Arrays.hashCode(_uniqueIds);
+    result = prime * result + _uniqueId.hashCode();
     result = prime * result + Arrays.hashCode(_yieldCurveNames);
     result = prime * result + (_curveExposuresForInstruments == null ? 0 : _curveExposuresForInstruments.hashCode());
     return result;
@@ -153,10 +117,10 @@ public class MultiCurveCalculationConfig {
     if (!ObjectUtils.equals(_curveExposuresForInstruments, other._curveExposuresForInstruments)) {
       return false;
     }
-    if (!Arrays.equals(_uniqueIds, other._uniqueIds)) {
+    if (!ObjectUtils.equals(_uniqueId, other._uniqueId)) {
       return false;
     }
-    if (!Arrays.equals(_calculationMethods, other._calculationMethods)) {
+    if (!ObjectUtils.equals(_calculationMethod, other._calculationMethod)) {
       return false;
     }
     if (_exogenousConfigAndCurveNames != null) {

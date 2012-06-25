@@ -89,7 +89,7 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
       final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String domesticCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    String domesticCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Currency domesticCurrency = Currency.of(target.getUniqueId().getValue());
     Object foreignCurveObject = null;
     Currency foreignCurrency = null;
@@ -123,6 +123,14 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
+    if (domesticCurveName == null) {
+      final ConfigDBCurveCalculationConfigSource curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+      final String[] curveNames = curveConfigSource.getConfig(curveCalculationConfigName).getYieldCurveNames();
+      if (curveNames.length != 1) {
+        throw new OpenGammaRuntimeException("Can only handle a single curve at the moment");
+      }
+      domesticCurveName = curveNames[0];
+    }
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency);
     final FXForwardCurveDefinition definition = fxCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
     if (definition == null) {
@@ -148,7 +156,6 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList nodeTimes = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-    // final DoubleArrayList myRatesGuess = new DoubleArrayList();
     final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
@@ -160,7 +167,6 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime); //TODO
-        // myRatesGuess.add(( forwardFX / spotFX / foreignCurve.getDiscountFactor(paymentTime) - 1.0 ) / paymentTime);
         initialRatesGuess.add(0.02);
       }
     }
@@ -271,7 +277,7 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Can only handle one curve at the moment");
     }
     final String domesticCurveName = domesticCurveCalculationConfig.getYieldCurveNames()[0];
-    final UniqueIdentifiable domesticId = domesticCurveCalculationConfig.getUniqueIds()[0];
+    final UniqueIdentifiable domesticId = domesticCurveCalculationConfig.getUniqueId();
     if (!(domesticId instanceof Currency)) {
       throw new OpenGammaRuntimeException("Can only handle curves with currencies as ids at the moment");
     }
@@ -283,7 +289,7 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     }
     final Map.Entry<String, String[]> entry = exogenousConfigs.entrySet().iterator().next();
     final MultiCurveCalculationConfig foreignConfig = curveCalculationConfigSource.getConfig(entry.getKey());
-    final UniqueIdentifiable foreignId = foreignConfig.getUniqueIds()[0];
+    final UniqueIdentifiable foreignId = foreignConfig.getUniqueId();
     if (!(foreignId instanceof Currency)) {
       throw new OpenGammaRuntimeException("Can only handle curves with currencies as ids at the moment");
     }
@@ -302,60 +308,76 @@ public class FXImpliedYieldCurveFunctionNew extends AbstractFunction.NonCompiled
     final ValueProperties foreignCurveProperties = getForeignCurveProperties(foreignConfig, foreignCurveName);
     final FXForwardCurveInstrumentProvider provider = fxForwardCurveSpec.getCurveInstrumentProvider();
     requirements
-        .add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));
+    .add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));
     requirements.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument()));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, new ComputationTargetSpecification(foreignCurrency), foreignCurveProperties));
     return requirements;
   }
 
   private ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
-    return ValueProperties.builder().with(ValuePropertyNames.CURVE, foreignCurveName)
+    return ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, foreignCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName()).get();
   }
 
   private ValueProperties getCurveProperties() {
-    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+    return createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getProperties() {
-    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+    return createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
         .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
-        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE).withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION)
+        .withAny(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
   private ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance,
       final String relativeTolerance, final String maxIterations, final String decomposition, final String useFiniteDifference, final String interpolatorName,
       final String leftExtrapolatorName, final String rightExtrapolatorName) {
-    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED).with(ValuePropertyNames.CURVE, curveName)
+    return createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
+        .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName).with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
   private ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance,
       final String maxIterations, final String decomposition, final String useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName) {
-    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
+    return createValueProperties()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION, decomposition)
         .with(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference)
-        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName).with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 

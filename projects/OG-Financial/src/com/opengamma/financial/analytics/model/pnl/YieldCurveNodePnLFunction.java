@@ -55,6 +55,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -81,6 +82,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
+    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
@@ -88,7 +90,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final String curveCalculationMethodName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final Set<String> yieldCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
     final Period samplingPeriod = getSamplingPeriod(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD));
@@ -97,20 +98,27 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION));
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
     DoubleTimeSeries<?> result = null;
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     for (final String yieldCurveName : yieldCurveNames) {
-      final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, yieldCurveName);
-      final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
-      if (curveSpecObject == null) {
-        throw new OpenGammaRuntimeException("Could not get curve specification; " + curveSpecRequirement);
-      }
-      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-      final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, curveCalculationMethodName, yieldCurveName, target);
+      final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target);
       final Object ycnsObject = inputs.getValue(ycnsRequirement);
       if (ycnsObject == null) {
         throw new OpenGammaRuntimeException("Could not get yield curve node sensitivities; " + ycnsRequirement);
       }
       final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) ycnsObject;
-      final DoubleTimeSeries<?> pnLSeries = getPnLSeries(curveSpec, ycns, historicalSource, startDate, now, schedule, samplingFunction);
+      final DoubleTimeSeries<?> pnLSeries;
+      if (curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+        pnLSeries = getPnLSeries(ycns, historicalSource, startDate, now, schedule, samplingFunction);
+      } else {
+        final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, yieldCurveName);
+        final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
+        if (curveSpecObject == null) {
+          throw new OpenGammaRuntimeException("Could not get curve specification; " + curveSpecRequirement);
+        }
+        final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
+        pnLSeries = getPnLSeries(curveSpec, ycns, historicalSource, startDate, now, schedule, samplingFunction);
+      }
       if (result == null) {
         result = pnLSeries;
       } else {
@@ -122,7 +130,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     }
     result = result.multiply(position.getQuantity().doubleValue());
     final ValueProperties resultProperties = getResultProperties(desiredValue, currencyString, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
-        curveCalculationConfigName, curveCalculationMethodName);
+        curveCalculationConfigName);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Sets.newHashSet(new ComputedValue(resultSpec, result));
   }
@@ -139,7 +147,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     if (security instanceof SwapSecurity) {
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
-        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD ||
+            type == InterestRateInstrumentType.SWAP_IBOR_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_OIS;
       } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
@@ -153,15 +164,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethodNames == null || curveCalculationMethodNames.isEmpty() || curveCalculationMethodNames.size() != 1) {
-      return null;
-    }
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final String curveCalculationMethodName = curveCalculationMethodNames.iterator().next();
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -185,8 +191,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getYCNSRequirement(currencyString, curveCalculationConfigName, curveCalculationMethodName, yieldCurveName, target));
-      requirements.add(getCurveSpecRequirement(currency, yieldCurveName));
+      requirements.add(getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target));
+      if (!curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+        requirements.add(getCurveSpecRequirement(currency, yieldCurveName));
+      }
     }
     return requirements;
   }
@@ -196,7 +204,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
@@ -217,7 +224,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURVE, curveNames)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
@@ -232,11 +238,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return ComputationTargetType.POSITION;
   }
 
-  private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig,
-      final String curveCalculationMethod) {
+  private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {
     return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, desiredValue.getConstraint(ValuePropertyNames.CURRENCY))
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD))
+        .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG))
         .with(ValuePropertyNames.CURVE, desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE))
         .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
@@ -299,13 +303,33 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return pnlSeries;
   }
 
-  private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String curveCalculationMethodName,
-      final String yieldCurveName, final ComputationTarget target) {
+  private DoubleTimeSeries<?> getPnLSeries(final DoubleLabelledMatrix1D curveSensitivities, final HistoricalTimeSeriesSource historicalSource, final LocalDate startDate,
+      final LocalDate now, final LocalDate[] schedule, final TimeSeriesSamplingFunction samplingFunction) {
+    DoubleTimeSeries<?> pnlSeries = null;
+    final Object[] labels = curveSensitivities.getLabels();
+    final double[] values = curveSensitivities.getValues();
+    for (int i = 0; i < labels.length; i++) {
+      final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) labels[i]);
+      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
+      if (dbNodeTimeSeries == null) {
+        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " using the field " + MarketDataRequirementNames.MARKET_VALUE);
+      }
+      DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
+      nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
+      if (pnlSeries == null) {
+        pnlSeries = nodeTimeSeries.multiply(values[i]);
+      } else {
+        pnlSeries = pnlSeries.add(nodeTimeSeries.multiply(values[i]));
+      }
+    }
+    return pnlSeries;
+  }
+
+  private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target) {
     final UniqueId uniqueId = target.getPosition().getSecurity().getUniqueId();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currencyString)
         .with(ValuePropertyNames.CURVE_CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
         .with(ValuePropertyNames.CURVE, yieldCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ComputationTargetType.SECURITY, uniqueId, properties);

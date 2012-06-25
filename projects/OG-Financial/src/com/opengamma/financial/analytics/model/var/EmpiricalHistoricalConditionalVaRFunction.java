@@ -13,8 +13,9 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRCalculator;
 import com.opengamma.analytics.financial.var.EmpiricalDistributionVaRParameters;
+import com.opengamma.analytics.financial.var.conditional.EmpiricalDistributionConditionalVaRCalculator;
+import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -32,10 +33,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
-  /** The name for the empirical historical VaR calculation method */
-  public static final String EMPIRICAL_VAR = "Empirical";
-  private static final EmpiricalDistributionVaRCalculator CALCULATOR = new EmpiricalDistributionVaRCalculator();
+public abstract class EmpiricalHistoricalConditionalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final EmpiricalDistributionConditionalVaRCalculator CALCULATOR = new EmpiricalDistributionConditionalVaRCalculator(StatisticsCalculatorFactory.MEAN_CALCULATOR);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -55,7 +54,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
     final EmpiricalDistributionVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
     final double var = CALCULATOR.evaluate(parameters, pnlSeries).getVaRValue();
     final ValueProperties resultProperties = getResultProperties(currency, desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
+    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
   }
 
   private String getCurrency(final FunctionInputs inputs) {
@@ -79,8 +78,8 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
-        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR).get();
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
+        .with(PROPERTY_VAR_DISTRIBUTION, EmpiricalHistoricalVaRFunction.EMPIRICAL_VAR).get();
+    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
   @Override
@@ -132,7 +131,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
       return null;
     }
     final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION));
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
+    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR, target.toSpecification(), properties));
   }
 
   private ValueProperties getResultProperties(final String currency, final String aggregationStyle) {
@@ -143,7 +142,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.CONFIDENCE_LEVEL)
         .withAny(ValuePropertyNames.HORIZON)
-        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
+        .with(PROPERTY_VAR_DISTRIBUTION, EmpiricalHistoricalVaRFunction.EMPIRICAL_VAR);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -158,7 +157,7 @@ public abstract class EmpiricalHistoricalVaRFunction extends AbstractFunction.No
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
         .with(ValuePropertyNames.CONFIDENCE_LEVEL, desiredValue.getConstraint(ValuePropertyNames.CONFIDENCE_LEVEL))
         .with(ValuePropertyNames.HORIZON, desiredValue.getConstraint(ValuePropertyNames.HORIZON))
-        .with(PROPERTY_VAR_DISTRIBUTION, EMPIRICAL_VAR);
+        .with(PROPERTY_VAR_DISTRIBUTION, EmpiricalHistoricalVaRFunction.EMPIRICAL_VAR);
     final String aggregationStyle = desiredValue.getConstraint(ValuePropertyNames.AGGREGATION);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
