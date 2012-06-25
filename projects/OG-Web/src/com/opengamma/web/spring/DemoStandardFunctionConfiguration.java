@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.web.spring;
@@ -77,6 +77,7 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
@@ -343,7 +344,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   /**
    * Adds a summing function for the value.
-   * 
+   *
    * @param functionConfigs the configuration block to add the definition to
    * @param requirementName the requirement to sum at portfolio node levels
    */
@@ -717,6 +718,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, "FUNDING", "TEST",
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
     functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
+    // This is temporary. Change when the base function becomes abstract, change again when defaults are set up :)
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexOptionFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE))); // See addBlackCalculators
+    // functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
