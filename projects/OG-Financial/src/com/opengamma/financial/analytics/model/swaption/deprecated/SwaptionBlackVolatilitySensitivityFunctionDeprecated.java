@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.deprecated;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,12 +20,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use the version of this function that does not refer to funding and forward curves
+ * @see SwaptionBlackFunction
  */
-public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
+@Deprecated
+public class SwaptionBlackVolatilitySensitivityFunctionDeprecated extends SwaptionBlackFunctionDeprecated {
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
-  public SwaptionBlackVolatilitySensitivityFunction() {
+  public SwaptionBlackVolatilitySensitivityFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
 

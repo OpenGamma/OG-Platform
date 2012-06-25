@@ -3,16 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -55,14 +52,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version of this function that does not refer to funding and forward curves
+ * @see SwaptionBlackFunction
  */
-public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackCurveSpecificFunction.class);
+@Deprecated
+public abstract class SwaptionBlackFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private final String _valueRequirementName;
   private SwaptionSecurityConverter _visitor;
 
-  public SwaptionBlackCurveSpecificFunction(final String valueRequirementName) {
+  public SwaptionBlackFunctionDeprecated(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
@@ -87,7 +85,6 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final Object forwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
@@ -110,13 +107,13 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     final InstrumentDerivative swaption = definition.toDerivative(now, new String[] {fundingCurveName, forwardCurveName});
-    final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, curveName);
+    final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(),
+    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
-    return getResult(swaption, data, curveName, spec);
+    return getResult(swaption, data, spec);
   }
 
   @Override
@@ -141,11 +138,6 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
-      return null;
-    }
     final Set<String> forwardCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
@@ -164,11 +156,6 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     }
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String fundingCurveName = fundingCurveNames.iterator().next();
-    final String curveName = curveNames.iterator().next();
-    if (!(curveName.equals(forwardCurveName) || curveName.equals(fundingCurveName))) {
-      s_logger.error("Did not specify a curve to which this instrument is sensitive; asked for {}, {} and {} are allowed", new String[]{curveName, forwardCurveName, fundingCurveName});
-      return null;
-    }
     final String surfaceName = surfaceNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
@@ -179,8 +166,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     return requirements;
   }
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final String curveName,
-      final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
@@ -189,25 +175,21 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .withAny(ValuePropertyNames.CURVE).get();
+        .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
-      final String surfaceName, final String curveName) {
+      final String surfaceName) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE, curveName).get();
+        .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
-  private static ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
+  private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
     final ValueProperties.Builder properties;
     if (calculationMethod == InterpolatedDataProperties.CALCULATION_METHOD_NAME) {
       properties = ValueProperties.builder()

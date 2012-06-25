@@ -228,12 +228,12 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackImpliedVolatilityFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPV01Function;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPresentValueFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackVolatilitySensitivityFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackDefaultPropertiesFunctionDeprecated;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackImpliedVolatilityFunctionDeprecated;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackPV01FunctionDeprecated;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackPresentValueFunctionDeprecated;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackVolatilitySensitivityFunctionDeprecated;
+import com.opengamma.financial.analytics.model.swaption.deprecated.SwaptionBlackYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.var.NormalPortfolioHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.NormalPortfolioHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.var.NormalPositionHistoricalVaRDefaultPropertiesFunction;
@@ -1174,12 +1174,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
     // TODO Change FORWARD_3M to FUTURES once available in db
-    functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackPV01FunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunctionDeprecated.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
   }
 
   private static void addDeprecatedFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {

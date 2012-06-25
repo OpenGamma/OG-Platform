@@ -3,16 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -63,10 +60,11 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version of this function that does not refer to funding and forward curves
+ * @see SwaptionBlackYieldCurveNodeSensitivitiesFunction
  */
-public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class);
+@Deprecated
+public class SwaptionBlackYieldCurveNodeSensitivitiesFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private SwaptionSecurityConverter _visitor;
@@ -123,7 +121,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(),
+    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     if (curveCalculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {

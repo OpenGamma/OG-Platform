@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -16,12 +16,14 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * @deprecated Use the version of this function that does not refer to funding and forward curves
+ * @see SwaptionBlackPresentValueFunction
  */
-public class SwaptionBlackPresentValueFunction extends SwaptionBlackFunction {
+@Deprecated
+public class SwaptionBlackPresentValueFunctionDeprecated extends SwaptionBlackFunctionDeprecated {
   private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();
 
-  public SwaptionBlackPresentValueFunction() {
+  public SwaptionBlackPresentValueFunctionDeprecated() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
 

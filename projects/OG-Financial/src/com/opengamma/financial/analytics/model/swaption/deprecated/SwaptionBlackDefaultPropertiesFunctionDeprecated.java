@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.black;
+package com.opengamma.financial.analytics.model.swaption.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -14,22 +14,25 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Use the version of this function that does not refer to funding and forward curves
+ * @see SwaptionBlackDefaultPropertiesFunction
  */
-public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+@Deprecated
+public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
   private static final String[] s_valueRequirements = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.VALUE_VEGA,
-      ValueRequirementNames.PV01,
-      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-      ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-      ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
+    ValueRequirementNames.VALUE_THETA
   };
   private final String _forwardCurveName;
   private final String _fundingCurveName;
@@ -37,7 +40,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
   private final String _curveCalculationMethod;
   private final String[] _applicableCurrencies;
 
-  public SwaptionBlackDefaultPropertiesFunction(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
+  public SwaptionBlackDefaultPropertiesFunctionDeprecated(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
       final String curveCalculationMethod, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -92,5 +95,14 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
       return Collections.singleton(_curveCalculationMethod);
     }
     return null;
+  }
+
+  @Override
+  public PriorityClass getPriority() {
+    return PriorityClass.NORMAL;
+  }
+
+  public String getMutualExclusionGroups() {
+    return OpenGammaFunctionExclusions.SWAPTION_BLACK_DEFAULTS;
   }
 }
