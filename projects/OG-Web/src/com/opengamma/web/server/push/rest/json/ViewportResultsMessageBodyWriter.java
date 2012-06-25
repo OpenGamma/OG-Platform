@@ -17,6 +17,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import org.json.JSONArray;
+
 import com.opengamma.web.server.push.analytics.ViewportResults;
 
 /**
@@ -24,7 +26,7 @@ import com.opengamma.web.server.push.analytics.ViewportResults;
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class AnalyticsResultsMessageBodyWriter implements MessageBodyWriter<ViewportResults> {
+public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<ViewportResults> {
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -48,6 +50,6 @@ public class AnalyticsResultsMessageBodyWriter implements MessageBodyWriter<View
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    // TODO implement writeTo()
+    entityStream.write(new JSONArray(results.getResults()).toString().getBytes());
   }
 }

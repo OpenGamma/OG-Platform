@@ -46,7 +46,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
-import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
 import com.opengamma.web.server.push.MasterChangeManager;
@@ -59,15 +58,13 @@ import com.opengamma.web.server.push.reports.ReportGenerator;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.ReportMessageBodyWriter;
 import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
-import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 import com.opengamma.web.server.push.rest.ViewportsResource;
 import com.opengamma.web.server.push.rest.ViewsResource;
 import com.opengamma.web.server.push.rest.json.AnalyticsGridStructureMessageBodyWriter;
-import com.opengamma.web.server.push.rest.json.AnalyticsResultsMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.DependencyGraphRequestMessageBodyReader;
 import com.opengamma.web.server.push.rest.json.ViewRequestMessageBodyReader;
+import com.opengamma.web.server.push.rest.json.ViewportResultsMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.ViewportSpecificationMessageBodyReader;
 
 /**
@@ -198,7 +195,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new ViewportSpecificationMessageBodyReader());
     repo.getRestComponents().publishHelper(new DependencyGraphRequestMessageBodyReader());
     repo.getRestComponents().publishHelper(new AnalyticsGridStructureMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new AnalyticsResultsMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {
