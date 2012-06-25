@@ -79,7 +79,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     configs.add(new StaticFunctionConfiguration(MultiYieldCurvePresentValueMethodFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(MultiYieldCurveParRateMethodFunction.class.getName()));
-    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF", "CAD", "GBP"));
+    configs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF", "CAD", "GBP", "AUD"));
     configs.add(functionConfiguration(FXImpliedYieldCurveFunctionNew.class));
     configs.add(functionConfiguration(FXImpliedYieldCurveDefaultsNew.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false",
         "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "MYR"));

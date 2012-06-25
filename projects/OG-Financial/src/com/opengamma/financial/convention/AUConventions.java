@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -196,6 +197,12 @@ public class AUConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true, overnightPublicationLag);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
+    
+
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_AUD_P3M")), IndexType.Libor + "_USD_P3M", act365, modified,
+        null, 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_AUD_P6M")), IndexType.Libor + "_USD_P6M", act365, modified,
+        null, 2, false, au);
   }
 
 }
