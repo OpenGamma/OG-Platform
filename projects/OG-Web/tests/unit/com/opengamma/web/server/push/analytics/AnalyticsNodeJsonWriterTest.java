@@ -6,9 +6,12 @@
 package com.opengamma.web.server.push.analytics;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -19,13 +22,13 @@ import com.google.common.collect.ImmutableList;
 public class AnalyticsNodeJsonWriterTest {
 
   @Test
-  public void emptyPortfolio() {
+  public void emptyPortfolio() throws JSONException {
     String json = AnalyticsNodeJsonWriter.getJson(AnalyticsNode.emptyRoot());
-    assertEquals("[0,0,[]]", json);
+    assertTrue(JsonTestUtils.equal(new JSONArray("[0,0,[]]"), new JSONArray(json)));
   }
 
   @Test
-  public void flatPortfolio() {
+  public void flatPortfolio() throws JSONException {
     /*
     0 root
     1  |_pos
@@ -34,11 +37,11 @@ public class AnalyticsNodeJsonWriterTest {
     */
     AnalyticsNode root = new AnalyticsNode(0, 3, Collections.<AnalyticsNode>emptyList());
     String json = AnalyticsNodeJsonWriter.getJson(root);
-    assertEquals("[0,3,[]]", json);
+    assertTrue(JsonTestUtils.equal(new JSONArray("[0,3,[]]"), new JSONArray(json)));
   }
 
   @Test
-  public void portfolioWithSubNodes() {
+  public void portfolioWithSubNodes() throws JSONException {
     /*
     0 root
     1  |_child1
@@ -51,11 +54,11 @@ public class AnalyticsNodeJsonWriterTest {
     AnalyticsNode child2 = new AnalyticsNode(3, 4, Collections.<AnalyticsNode>emptyList());
     AnalyticsNode root = new AnalyticsNode(0, 5, ImmutableList.of(child1, child2));
     String json = AnalyticsNodeJsonWriter.getJson(root);
-    assertEquals("[0,5,[[1,2,[]],[3,4,[]]]]", json);
+    assertTrue(JsonTestUtils.equal(new JSONArray("[0,5,[[1,2,[]],[3,4,[]]]]"), new JSONArray(json)));
   }
 
   @Test
-  public void nestedPortfolio() {
+  public void nestedPortfolio() throws JSONException {
     /*
     0 root
     1  |_child1
@@ -67,6 +70,6 @@ public class AnalyticsNodeJsonWriterTest {
     AnalyticsNode child1 = new AnalyticsNode(1, 4, ImmutableList.of(child2));
     AnalyticsNode root = new AnalyticsNode(0, 4, ImmutableList.of(child1));
     String json = AnalyticsNodeJsonWriter.getJson(root);
-    assertEquals("[0,4,[[1,4,[[2,4,[]]]]]]", json);
+    assertTrue(JsonTestUtils.equal(new JSONArray("[0,4,[[1,4,[[2,4,[]]]]]]"), new JSONArray(json)));
   }
 }

@@ -5,9 +5,10 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import org.testng.AssertJUnit;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -18,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 public class AnalyticsColumnsJsonWriterTest {
 
   @Test
-  public void getJson() {
+  public void getJson() throws JSONException {
     AnalyticsColumn col1 = new AnalyticsColumn("col1", "col1 desc");
     AnalyticsColumn col2 = new AnalyticsColumn("col2", "col2 desc");
     AnalyticsColumn col3 = new AnalyticsColumn("col3", "col3 desc");
@@ -29,11 +30,11 @@ public class AnalyticsColumnsJsonWriterTest {
     String json = AnalyticsColumnsJsonWriter.getJson(groups);
     String expectedJson =
         "[{\"name\":\"group1\",\"columns\":[" +
-            "{\"description\":\"col1 desc\",\"header\":\"col1\"}," +
-            "{\"description\":\"col2 desc\",\"header\":\"col2\"}]}," +
+            "{\"header\":\"col1\",\"description\":\"col1 desc\"}," +
+            "{\"header\":\"col2\",\"description\":\"col2 desc\"}]}," +
         "{\"name\":\"group2\",\"columns\":[" +
-            "{\"description\":\"col3 desc\",\"header\":\"col3\"}," +
-            "{\"description\":\"col4 desc\",\"header\":\"col4\"}]}]";
-    assertEquals(expectedJson, json);
+            "{\"header\":\"col3\",\"description\":\"col3 desc\"}," +
+            "{\"header\":\"col4\",\"description\":\"col4 desc\"}]}]";
+    assertTrue(JsonTestUtils.equal(new JSONArray(expectedJson), new JSONArray(json)));
   }
 }
