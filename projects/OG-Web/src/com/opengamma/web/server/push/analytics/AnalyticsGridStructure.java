@@ -6,7 +6,9 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.PortfolioNode;
@@ -51,9 +53,10 @@ public class AnalyticsGridStructure {
   }
 
   public static AnalyticsGridStructure primitives(CompiledViewDefinition compiledViewDef) {
-    return new AnalyticsGridStructure(AnalyticsNode.primitivesRoot(compiledViewDef),
+    List<Row> rows = primitivesRowsForViewDefinition(compiledViewDef);
+    return new AnalyticsGridStructure(AnalyticsNode.primitivesRoot(rows.size()),
                                       AnalyticsColumns.primitives(compiledViewDef),
-                                      primitivesRowsForViewDefinition(compiledViewDef));
+                                      rows);
   }
 
   public static AnalyticsGridStructure depdencyGraph(CompiledViewDefinition compiledViewDef) {
@@ -83,15 +86,19 @@ public class AnalyticsGridStructure {
   }
 
   private static List<Row> primitivesRowsForViewDefinition(CompiledViewDefinition compiledViewDef) {
-    List<Row> rows = Lists.newArrayList();
+    Set<ComputationTargetSpecification> specs = new LinkedHashSet<ComputationTargetSpecification>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
       for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
         ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
         if (targetSpec.getType() == ComputationTargetType.PRIMITIVE) {
-          // TODO is the row name right?
-          rows.add(new Row(targetSpec, valueSpec.getTargetSpecification().getIdentifier().toString()));
+          specs.add(targetSpec);
         }
       }
+    }
+    // TODO is the row name right?
+    List<Row> rows = Lists.newArrayList();
+    for (ComputationTargetSpecification spec : specs) {
+      rows.add(new Row(spec, spec.getIdentifier().toString()));
     }
     return rows;
   }

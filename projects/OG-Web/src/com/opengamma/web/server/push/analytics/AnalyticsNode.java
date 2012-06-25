@@ -44,9 +44,8 @@ public class AnalyticsNode {
     return new Builder(root).getRoot();
   }
 
-  public static AnalyticsNode primitivesRoot(CompiledViewDefinition compiledViewDef) {
-    // TODO implement AnalyticsNode.primitivesRoot()
-    return emptyRoot();
+  public static AnalyticsNode primitivesRoot(int primitivesTargetCount) {
+    return new AnalyticsNode(0, primitivesTargetCount - 1, Collections.<AnalyticsNode>emptyList());
   }
 
   /**
