@@ -17,6 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -184,13 +185,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
       Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
 
       if (fixedRate == null) {
-        // TODO review this - what happens if a fixing date falls on a holiday?
-        final LocalDate adjustedDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodDate[fixedPeriod].toLocalDate(), 0, _index.getCalendar());
-        fixedRate = indexFixingDateSeries.getValue(adjustedDate);
-        if (fixedRate == null) {
-          fixedRate = 0.002;
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
-        }
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       }
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;

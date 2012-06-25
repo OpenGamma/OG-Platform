@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -219,8 +220,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     Validate.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()),
-        "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date " + getFixingDate());
+    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date "
+        + getFixingDate());
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
@@ -262,8 +263,7 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(getFixingDate().toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
       Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate); // TODO: remove time from fixing date.
       if (fixedRate == null) {
-        fixedRate = 0.002;
-        //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }

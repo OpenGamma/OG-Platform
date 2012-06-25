@@ -468,10 +468,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
     final Forex forexP = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeP));
     final ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
-    final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
+    final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, !IS_LONG);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsP = METHOD_VANILLA_BLACK.presentValueCurveSensitivity(vanillaP, SMILE_BUNDLE);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsM = METHOD_VANILLA_BLACK.presentValueCurveSensitivity(vanillaM, SMILE_BUNDLE);
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsExpected = pvcsM.plus(pvcsP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsExpected = pvcsM.plus(pvcsP).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyInterestRateCurveSensitivity pvcsComputed = METHOD_DIGITAL_SPREAD.presentValueCurveSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
     assertTrue("Forex Digital option: call spread method - present value", MultipleCurrencyInterestRateCurveSensitivity.compare(pvcsExpected, pvcsComputed, TOLERANCE_DELTA));
   }
