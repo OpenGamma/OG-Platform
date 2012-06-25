@@ -95,6 +95,7 @@
     position: relative;
     top: -4px;
     text-transform: uppercase;
+    vertical-align: bottom;
 }
 
 .OG-analytics-form .og-option-title ul {
