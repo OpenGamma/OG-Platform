@@ -15,6 +15,9 @@ import java.util.SortedMap;
 
 import javax.time.calendar.Period;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
@@ -54,6 +57,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class);
   private static final double ERROR = 0.001;
   private static final BitSet FIXED = new BitSet();
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
@@ -178,6 +182,10 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if (target.getUniqueId() == null) {
+      s_logger.error("Had a target with null unique id: {}", target);
       return false;
     }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());

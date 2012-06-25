@@ -47,7 +47,8 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionATMVolatilitySurfaceDataFunction.class);
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     String surfaceQuoteType = null;
@@ -68,8 +69,9 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
       throw new OpenGammaRuntimeException("Could not get surface quote units");
     }
     final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits)
+        .get();
     final Object volatilityDataObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
     if (volatilityDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface data");
@@ -90,6 +92,10 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if (target.getUniqueId() == null) {
+      s_logger.error("Had a target with a null unique id: {}", target);
       return false;
     }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
@@ -124,12 +130,14 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
       return null;
     }
     if (!surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
-      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceAndCubePropertyNames.VOLATILITY_QUOTE, surfaceQuoteUnits);
+      s_logger.error("Cannot use this function for surfaces with quote types other than {}, asked for {}", SurfaceAndCubePropertyNames.VOLATILITY_QUOTE,
+          surfaceQuoteUnits);
       return null;
     }
     final ValueProperties surfaceProperties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType()).with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
     return Collections.singleton(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
   }
 
@@ -139,7 +147,7 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
     final DoubleArrayList yList = new DoubleArrayList();
     for (final Tenor x : volatilities.getUniqueXValues()) {
       final double xTime = getTime(x);
-      List<ObjectsPair<Tenor, Double>> yValuesForX = volatilities.getYValuesForX(x);
+      final List<ObjectsPair<Tenor, Double>> yValuesForX = volatilities.getYValuesForX(x);
       for (final ObjectsPair<Tenor, Double> pair : yValuesForX) {
         final double yTime = getTime(pair.getFirst());
         final Double volatility = pair.getSecond();
@@ -150,8 +158,8 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
         }
       }
     }
-    return new VolatilitySurfaceData<Double, Double>(volatilities.getDefinitionName(), volatilities.getSpecificationName(), volatilities.getTarget(), xList.toArray(new Double[0]),
-        yList.toArray(new Double[0]), volatilityValues);
+    return new VolatilitySurfaceData<Double, Double>(volatilities.getDefinitionName(), volatilities.getSpecificationName(), volatilities.getTarget(),
+        xList.toArray(new Double[0]), yList.toArray(new Double[0]), volatilityValues);
   }
 
   //TODO not the best way to do this

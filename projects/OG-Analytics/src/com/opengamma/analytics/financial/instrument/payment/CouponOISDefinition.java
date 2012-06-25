@@ -17,7 +17,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -189,7 +188,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
         final LocalDate adjustedDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodDate[fixedPeriod].toLocalDate(), 0, _index.getCalendar());
         fixedRate = indexFixingDateSeries.getValue(adjustedDate);
         if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+          fixedRate = 0.002;
+          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
         }
       }
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;

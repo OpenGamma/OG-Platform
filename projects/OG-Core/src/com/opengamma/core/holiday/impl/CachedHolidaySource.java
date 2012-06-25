@@ -36,7 +36,7 @@ public class CachedHolidaySource implements HolidaySource {
   private final HolidaySource _underlying;
   private final ConcurrentMap<UniqueId, Object> _getHoliday1 = new ConcurrentHashMap<UniqueId, Object>();
   private final Map2<ObjectId, VersionCorrection, Object> _getHoliday2 = new HashMap2<ObjectId, VersionCorrection, Object>();
-  private final Map2<LocalDate, Currency, Object> _isHoliday1 = new HashMap2<LocalDate, Currency, Object>();
+  private final ConcurrentMap<Currency, ConcurrentMap<LocalDate, Object>> _isHoliday1 = new ConcurrentHashMap<Currency, ConcurrentMap<LocalDate, Object>>();
   private final Map3<LocalDate, HolidayType, ExternalIdBundle, Object> _isHoliday2 = new HashMap3<LocalDate, HolidayType, ExternalIdBundle, Object>();
   private final Map3<LocalDate, HolidayType, ExternalId, Object> _isHoliday3 = new HashMap3<LocalDate, HolidayType, ExternalId, Object>();
 
@@ -108,16 +108,24 @@ public class CachedHolidaySource implements HolidaySource {
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-    Object result = _isHoliday1.get(dateToCheck, currency);
+    ConcurrentMap<LocalDate, Object> dates = _isHoliday1.get(currency);
+    if (dates == null) {
+      dates = new ConcurrentHashMap<LocalDate, Object>();
+      final ConcurrentMap<LocalDate, Object> existing = _isHoliday1.putIfAbsent(currency, dates);
+      if (existing != null) {
+        dates = existing;
+      }
+    }
+    Object result = dates.get(dateToCheck);
     if (result != null) {
       return (Boolean) getOrThrow(result);
     }
     try {
       final boolean isHoliday = getUnderlying().isHoliday(dateToCheck, currency);
-      _isHoliday1.putIfAbsent(dateToCheck, currency, isHoliday);
+      dates.putIfAbsent(dateToCheck, isHoliday);
       return isHoliday;
     } catch (RuntimeException ex) {
-      _isHoliday1.putIfAbsent(dateToCheck, currency, ex);
+      dates.putIfAbsent(dateToCheck, ex);
       throw ex;
     }
   }

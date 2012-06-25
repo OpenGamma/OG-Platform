@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -136,5 +137,15 @@ public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
       return Collections.singleton(_rightExtrapolatorName);
     }
     return null;
+  }
+
+  @Override
+  public PriorityClass getPriority() {
+    return PriorityClass.ABOVE_NORMAL;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_DEFAULTS;
   }
 }

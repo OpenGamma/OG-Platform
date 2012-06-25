@@ -34,11 +34,12 @@ public class FXUtils {
   static {
     BASE_ORDER.put(Currency.EUR, 1);
     BASE_ORDER.put(Currency.GBP, 2);
-    BASE_ORDER.put(Currency.AUD, 3);
+    BASE_ORDER.put(Currency.AUD, 4);
     BASE_ORDER.put(Currency.NZD, 4);
     BASE_ORDER.put(Currency.USD, 5);
     BASE_ORDER.put(Currency.CHF, 6);
     BASE_ORDER.put(Currency.of("BRL"), 7);
+    BASE_ORDER.put(Currency.CAD, 8);
   }
 
   /**

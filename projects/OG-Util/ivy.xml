@@ -17,14 +17,14 @@
     <dependency org="org.joda" name="joda-convert" rev="1.2"/>
     <dependency org="org.testng" name="testng" rev="6.3.1"/>
     <dependency org="org.slf4j" name="slf4j" rev="1.5.11" conf="*->core,jcl-migration,log4j-migration"/>
-    <dependency org="ch.qos" name="logback" rev="[0.9.17,1.0[" conf="*->classic"/>
+    <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.17"/>
     <dependency org="com.jolbox" name="bonecp" rev="0.7.1"/>
     <dependency org="com.sun.jersey" name="jersey" rev="1.12"/>
     <dependency org="com.sun.jersey.contribs" name="jersey-spring" rev="1.12"/>
     <dependency org="com.sun.jersey.contribs" name="jersey-multipart" rev="1.12"/>
     <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->context-support,jms,web,orm,test"/>
-    <dependency org="org.springframework" name="spring-amqp" rev="1.0.0.M1"/>
-    <dependency org="com.rabbitmq" name="java-client" rev="2.1.0"/>
+    <dependency org="org.springframework" name="spring-amqp" rev="1.1.1.RELEASE"/>
+    <dependency org="com.rabbitmq" name="amqp-client" rev="2.8.2"/>
     <dependency org="org.freemarker" name="freemarker" rev="2.3.19"/>
     <dependency org="javax.servlet" name="servletapi" rev="2.5"/>
     <dependency org="javax.servlet" name="jstl" rev="1.2"/>
@@ -42,7 +42,7 @@
     <dependency org="org.mockito" name="mockito" rev="1.9"/>
     <dependency org="it.unimi.dsi" name="fastutil" rev="6.4.2"/>
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.7.3"/>
-    <dependency org="org.scannotation" name="scannotation" rev="[1.0.2,1.1["/>
+    <dependency org="org.scannotation" name="scannotation" rev="1.0.2"/>
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
     <exclude org="org.junit"/>
   </dependencies>

@@ -189,7 +189,7 @@ public abstract class BackwardPDEDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.BACKWARD_PDE_DEFAULTS;
+    return OpenGammaFunctionExclusions.PDE_DEFAULTS;
   }
 
 }

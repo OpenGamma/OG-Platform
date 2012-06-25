@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.convention;
 
+import javax.time.calendar.Period;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -14,9 +18,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import org.apache.commons.lang.Validate;
-
-import javax.time.calendar.Period;
 
 /**
  * 
@@ -36,7 +37,7 @@ public class INConventions {
 
     final Integer overnightPublicationLag = 0;
 
-    ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     // IR FUTURES
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, Period.ofMonths(3),
         0, true, in);
@@ -51,6 +52,10 @@ public class INConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR OVERNIGHT CASH RATE"), in, true, overnightPublicationLag);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_SWAPTION")), "INR_SWAPTION", false);
+
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NSERO Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
+        "INR OVERNIGHT CASH RATE")), "INR OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, in, 0);
+
   }
 
 }

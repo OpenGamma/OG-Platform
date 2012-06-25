@@ -5,10 +5,13 @@
  */
 package com.opengamma.web.server.push.rest.json;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.SortedSet;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
@@ -17,6 +20,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -38,8 +48,22 @@ public class ViewportSpecificationMessageBodyReader implements MessageBodyReader
                               MediaType mediaType,
                               MultivaluedMap<String, String> httpHeaders,
                               InputStream entityStream) throws IOException, WebApplicationException {
-    //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
+    List<Integer> rows = Lists.newArrayList();
+    SortedSet<Integer> columns = Sets.newTreeSet();
+    try {
+      JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
+      JSONArray rowArray = jsonObject.getJSONArray("rows");
+      for (int i = 0; i < rowArray.length(); i++) {
+        rows.add(rowArray.getInt(i));
+      }
+      JSONArray columnArray = jsonObject.getJSONArray("columns");
+      for (int i = 0; i < columnArray.length(); i++) {
+        columns.add(columnArray.getInt(i));
+      }
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to decode viewport specification", e);
+    }
     // TODO JSON writer for ViewportSpecification that lives in the same package
-    return ViewportSpecification.empty();
+    return new ViewportSpecification(rows, columns);
   }
 }

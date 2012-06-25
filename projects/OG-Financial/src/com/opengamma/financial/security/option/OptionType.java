@@ -17,6 +17,19 @@ public enum OptionType {
   /**
    * The option is a call.
    */
-  CALL,
+  CALL;
+  
+  public static OptionType parse(String text) {
+    if (text == null) {
+      return null;
+    }
+    if ("put".equalsIgnoreCase(text)) {
+      return PUT;
+    }
+    if ("call".equalsIgnoreCase(text)) {
+      return CALL;
+    }
+    return null;
+  }
 
 }

@@ -47,6 +47,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -58,7 +59,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
-  private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
+  private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
   @Override
   public void init(final FunctionCompilationContext context) {

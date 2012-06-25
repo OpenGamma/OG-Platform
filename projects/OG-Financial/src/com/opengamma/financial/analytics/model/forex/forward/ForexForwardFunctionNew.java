@@ -93,11 +93,15 @@ public abstract class ForexForwardFunctionNew extends AbstractFunction.NonCompil
       curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
       allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
     }
-    final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
-    final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
-    final ValueProperties.Builder properties = getResultProperties(payCurveName, receiveCurveName, payCurveConfig, receiveCurveConfig, target);
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
-    return getResult(forex, yieldCurves, spec);
+    try {
+      final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
+      final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
+      final ValueProperties.Builder properties = getResultProperties(payCurveName, receiveCurveName, payCurveConfig, receiveCurveConfig, target);
+      final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
+      return getResult(forex, yieldCurves, spec);
+    } catch (final IllegalArgumentException e) {
+      throw new OpenGammaRuntimeException("Exception for security " + security + "; reason: " + e.getMessage());
+    }
   }
 
   protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec);

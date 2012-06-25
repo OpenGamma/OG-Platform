@@ -27,7 +27,9 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -110,6 +112,15 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     assertEquals(base.getCorrectionFromInstant(), old.getCorrectionFromInstant());
     assertEquals(base.getCorrectionToInstant(), old.getCorrectionToInstant());
     assertEquals(base.getPosition(), old.getPosition());
+    
+    PositionDocument old2 = _posMaster.get(ObjectId.of("DbPos", "121"), VersionCorrection.of(_version2Instant, _version2Instant));
+    assertEquals(base.getUniqueId(), old2.getUniqueId());
+    
+    PositionDocument old3 = _posMaster.get(ObjectId.of("DbPos", "121"), VersionCorrection.of(_version2Instant, now));
+    assertEquals(base.getUniqueId(), old3.getUniqueId());
+    
+//    PositionDocument old4 = _posMaster.get(ObjectId.of("DbPos", "121"), VersionCorrection.of(now, _version2Instant));
+//    assertEquals(base.getUniqueId(), old4.getUniqueId());
     
     PositionHistoryRequest search = new PositionHistoryRequest(base.getUniqueId(), null, now);
     PositionHistoryResult searchResult = _posMaster.history(search);

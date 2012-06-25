@@ -72,12 +72,12 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
     final Function<Double, Double> zero = new MyFunction(0.0);
     final NormalLinearVaRCalculator<Double> normal = new NormalLinearVaRCalculator<Double>(MEAN, STD);
     final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, zero, zero);
-    assertEquals(normal.evaluate(PARAMETERS, 0.), f.evaluate(PARAMETERS, 0.), 1e-9);
+    assertEquals(normal.evaluate(PARAMETERS, 0.).getVaRValue(), f.evaluate(PARAMETERS, 0.).getVaRValue(), 1e-9);
   }
 
   @Test
   public void test() {
-    assertEquals(F.evaluate(PARAMETERS, 0.), 0.1376, 1e-4);
+    assertEquals(F.evaluate(PARAMETERS, 0.).getVaRValue(), 0.1376, 1e-4);
   }
 
   @Test

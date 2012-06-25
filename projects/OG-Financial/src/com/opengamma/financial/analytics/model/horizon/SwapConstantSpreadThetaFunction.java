@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -55,7 +56,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
-  private FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> _visitor;
+  private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
 
   @Override
   public void init(final FunctionCompilationContext context) {

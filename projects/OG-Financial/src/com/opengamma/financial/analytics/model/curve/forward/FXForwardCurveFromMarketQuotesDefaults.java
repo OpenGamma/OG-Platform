@@ -41,6 +41,9 @@ public class FXForwardCurveFromMarketQuotesDefaults extends DefaultPropertyFunct
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 

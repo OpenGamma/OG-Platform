@@ -56,12 +56,14 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     final Double fairValue = (Double) fairValueObj;
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorNames);
     final LocalDateDoubleTimeSeries returnSeries = (LocalDateDoubleTimeSeries) returnCalculator.evaluate((LocalDateDoubleTimeSeries) priceSeriesObj);
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, fairValueCV.getSpecification().getProperty(ValuePropertyNames.CURRENCY))
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
-        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorNames.iterator().next()).get();
+        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorNames.iterator().next())
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId());
     //TODO how do we get dividend data for an equity?
     final ComputedValue result = new ComputedValue(valueSpecification, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue()));
@@ -129,12 +131,14 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     if (currency == null) {
       return null;
     }    
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     return Sets.newHashSet(new ValueSpecification(
         new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
   }
@@ -142,12 +146,14 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
+      // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
       final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
       ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties);
       return Sets.newHashSet(new ValueSpecification(valueReq, getUniqueId()));
     }

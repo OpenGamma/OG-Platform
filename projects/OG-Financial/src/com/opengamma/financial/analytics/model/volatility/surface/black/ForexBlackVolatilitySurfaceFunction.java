@@ -35,6 +35,9 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   @Override
   protected boolean isCorrectIdType(final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
@@ -53,7 +56,7 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
     return ForexSurfaceUtils.getDataFromStrangleRiskReversalQuote(forwardCurve, fxVolatilitySurface);
   }
-  
+
   @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);

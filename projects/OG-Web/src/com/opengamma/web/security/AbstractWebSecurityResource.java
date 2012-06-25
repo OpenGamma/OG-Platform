@@ -22,45 +22,19 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.AgricultureFutureSecurity;
-import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.EnergyFutureSecurity;
-import com.opengamma.financial.security.future.EquityFutureSecurity;
-import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
-import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
-import com.opengamma.financial.security.future.IndexFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.future.MetalFutureSecurity;
-import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
-import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
-import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
-import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
-import com.opengamma.financial.security.swap.SwapLegVisitor;
-import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.future.*;
+import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.swap.*;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.RawSecurity;
-import com.opengamma.master.security.SecurityLoader;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.*;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
@@ -91,7 +65,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     ArgumentChecker.notNull(htsSource, "htsSource");
     _data = new WebSecuritiesData();
     data().setSecurityMaster(securityMaster);
-    data().setSecurityLoader(securityLoader);    
+    data().setSecurityLoader(securityLoader);
     data().setHistoricalTimeSeriesSource(htsSource);
   }
 
@@ -116,6 +90,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Creates the output root data.
    * @return the output root data, not null
@@ -128,6 +103,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the backing bean.
    * @return the beacking bean, not null
@@ -208,7 +184,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       } else {
         s_logger.error("Couldn't find security");
       }
-      
+
     }
     if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
       RawSecurity rawSecurity = (RawSecurity) security;
@@ -219,7 +195,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       out.put("factorExposuresList", factorExposuresList);
     }
   }
-  
+
   private List<FactorExposure> convertToFactorExposure(List<FactorExposureData> factorExposureDataList) {
     List<FactorExposure> results = new ArrayList<FactorExposure>();
     for (FactorExposureData exposure : factorExposureDataList) {
@@ -227,18 +203,18 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       HistoricalTimeSeries convexityHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("CONVEXITY", exposure.getExposureExternalId().toBundle(), null);
       HistoricalTimeSeries priceHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("PX_LAST", exposure.getFactorExternalId().toBundle(), null);
       results.add(new FactorExposure(exposure.getFactorType().getFactorType(),
-                                     exposure.getFactorName(),
-                                     exposure.getNode(),
-                                     priceHTS != null ? priceHTS.getUniqueId() : null,
-                                     priceHTS != null ? priceHTS.getTimeSeries().getLatestValue() : null,
-                                     exposureHTS != null ? exposureHTS.getUniqueId() : null,
-                                     exposureHTS != null ? exposureHTS.getTimeSeries().getLatestValue() : null,
-                                     convexityHTS != null ? convexityHTS.getUniqueId() : null,
-                                     convexityHTS != null ? convexityHTS.getTimeSeries().getLatestValue() : null));
+        exposure.getFactorName(),
+        exposure.getNode(),
+        priceHTS != null ? priceHTS.getUniqueId() : null,
+        priceHTS != null ? priceHTS.getTimeSeries().getLatestValue() : null,
+        exposureHTS != null ? exposureHTS.getUniqueId() : null,
+        exposureHTS != null ? exposureHTS.getTimeSeries().getLatestValue() : null,
+        convexityHTS != null ? convexityHTS.getUniqueId() : null,
+        convexityHTS != null ? convexityHTS.getTimeSeries().getLatestValue() : null));
     }
     return results;
   }
-  
+
   /**
    * Container for a row of a displayed factor.
    */
@@ -252,9 +228,9 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     private final Double _lastExposure;
     private final UniqueId _convexityTsId;
     private final Double _lastConvexity;
-    
-    public FactorExposure(String factorType, String factorName, String node, 
-                          UniqueId priceTsId, Double lastPrice, 
+
+    public FactorExposure(String factorType, String factorName, String node,
+                          UniqueId priceTsId, Double lastPrice,
                           UniqueId exposureTsId, Double lastExposure,
                           UniqueId convexityTsId, Double lastConvexity) {
       _factorType = factorType;
@@ -267,44 +243,44 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       _convexityTsId = convexityTsId;
       _lastConvexity = lastConvexity;
     }
-    
+
     public String getFactorType() {
       return _factorType;
     }
-    
+
     public String getFactorName() {
       return _factorName;
     }
-    
+
     public String getNode() {
       return _node;
     }
-    
+
     public UniqueId getPriceTsId() {
       return _priceTsId;
     }
-    
+
     public Double getLastPrice() {
       return _lastPrice;
     }
-    
+
     public UniqueId getExposureTsId() {
       return _exposureTsId;
     }
-    
+
     public Double getLastExposure() {
       return _lastExposure;
     }
-    
+
     public UniqueId getConvexityTsId() {
       return _convexityTsId;
     }
-    
+
     public Double getLastConvexity() {
       return _lastConvexity;
     }
   }
-  
+
   private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {
     Security underlyingSec = getSecurity(externalId);
     if (underlyingSec != null) {
@@ -335,19 +311,10 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     }
     return result;
   }
-  
+
   private Security getUnderlyingFutureSecurity(FutureSecurity future) {
-    return future.accept(new FutureSecurityVisitor<Security>() {
+    return future.accept(new FinancialSecurityVisitorSameValueAdapter<Security>(null) {
 
-      @Override
-      public Security visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
-        return null;
-      }
-
-      @Override
-      public Security visitBondFutureSecurity(BondFutureSecurity security) {
-        return null;
-      }
 
       @Override
       public Security visitEnergyFutureSecurity(EnergyFutureSecurity security) {
@@ -362,11 +329,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       @Override
       public Security visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
         return getSecurity(security.getUnderlyingId());
-      }
-
-      @Override
-      public Security visitFXFutureSecurity(FXFutureSecurity security) {
-        return null;
       }
 
       @Override
@@ -388,14 +350,14 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       public Security visitStockFutureSecurity(StockFutureSecurity security) {
         return getSecurity(security.getUnderlyingId());
       }
-      
+
     });
   }
 
   /**
    * FutureSecurityTypeVisitor
    */
-  private static class FutureSecurityTypeVisitor implements FutureSecurityVisitor<String> {
+  private static class FutureSecurityTypeVisitor extends FinancialSecurityVisitorAdapter<String> {
 
     @Override
     public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
@@ -448,7 +410,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     }
 
   }
-  
+
   /**
    * SwapLegClassifierVisitor
    */
@@ -483,5 +445,5 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       return "FloatingVarianceLeg";
     }
   }
-  
+
 }

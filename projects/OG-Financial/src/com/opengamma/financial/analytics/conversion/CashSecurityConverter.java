@@ -11,14 +11,14 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.cash.CashSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class CashSecurityConverter implements CashSecurityVisitor<InstrumentDefinition<?>> {
+public class CashSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {

@@ -56,7 +56,7 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
+    return isCorrectIdType(target);
   }
 
   @Override

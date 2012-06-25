@@ -5,22 +5,17 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquitySecurityVisitor;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -36,67 +31,68 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
    * Enumerated type representing how specific the GICS code should be interpreted.
    */
   public enum Level {
-    
+
     /**
      * Sector
      */
     SECTOR("Sector"),
-    
+
     /**
      * Industry Group
      */
     INDUSTRY_GROUP("Industry Group"),
-    
+
     /**
      * Industry
      */
     INDUSTRY("Industry"),
-    
+
     /**
      * Sub-industry
      */
     SUB_INDUSTRY("Sub-industry");
-    
+
     private final String _displayName;
-    
+
     private Level(String displayName) {
       _displayName = displayName;
     }
-    
+
     public String getDisplayName() {
       return _displayName;
     }
-    
+
     public int getNumber() {
       return ordinal() + 1;
     }
-    
+
   }
 
   private Level _level;
   private SecuritySource _secSource;
-  private boolean _includeEmptyCategories;;
-  
+  private boolean _includeEmptyCategories;
+  ;
+
   public GICSAggregationFunction(SecuritySource secSource, Level level) {
     this(secSource, level, false);
   }
-  
+
   public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {
     this(secSource, level, useAttributes, true);
   }
-  
+
   public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes, boolean includeEmptyCategories) {
     _secSource = secSource;
     _level = level;
     _useAttributes = useAttributes;
     _includeEmptyCategories = includeEmptyCategories;
   }
-  
+
   public GICSAggregationFunction(SecuritySource secSource, String level) {
     this(secSource, Enum.valueOf(Level.class, level));
   }
-  
-  private EquitySecurityVisitor<String> _equitySecurityVisitor = new EquitySecurityVisitor<String>() {
+
+  private FinancialSecurityVisitor<String> _equitySecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquitySecurity(EquitySecurity security) {
       if (security.getGicsCode() != null) {
@@ -114,8 +110,8 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       return UNKNOWN;
     }
   };
-  
-  private EquityOptionSecurityVisitor<String> _equityOptionSecurityVisitor = new EquityOptionSecurityVisitor<String>() {
+
+  private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
       EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
@@ -132,9 +128,9 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
         }
       }
       return UNKNOWN;
-    }    
+    }
   };
-    
+
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -145,10 +141,10 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
         return UNKNOWN;
       }
     } else {
-      FinancialSecurityVisitorAdapter<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
-                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                              .create();
+      FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+        .equitySecurityVisitor(_equitySecurityVisitor)
+        .equityOptionVisitor(_equityOptionSecurityVisitor)
+        .create();
       FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
       String classification = security.accept(visitorAdapter);
       return classification == null ? UNKNOWN : classification;

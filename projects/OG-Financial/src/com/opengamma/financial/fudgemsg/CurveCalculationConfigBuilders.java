@@ -51,11 +51,11 @@ import com.opengamma.id.UniqueIdentifiable;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final MultiCurveCalculationConfig object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(CONFIG_NAME_FIELD, object.getCalculationConfigName());
+      message.add(CALCULATION_METHOD_FIELD, object.getCalculationMethod());
+      final UniqueIdentifiable uniqueIdentifiable = object.getUniqueId();
+      message.add(ID_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(uniqueIdentifiable), uniqueIdentifiable.getClass()));
       for (int i = 0; i < object.getYieldCurveNames().length; i++) {
         message.add(YIELD_CURVE_NAMES_FIELD, object.getYieldCurveNames()[i]);
-        final UniqueIdentifiable uniqueIdentifiable = object.getUniqueIds()[i];
-        message.add(ID_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(uniqueIdentifiable), uniqueIdentifiable.getClass()));
-        message.add(CALCULATION_METHOD_FIELD, object.getCalculationMethods()[i]);
       }
       final LinkedHashMap<String, CurveInstrumentConfig> instrumentExposures = object.getCurveExposuresForInstruments();
       if (instrumentExposures != null) {
@@ -80,16 +80,12 @@ import com.opengamma.id.UniqueIdentifiable;
     @Override
     public MultiCurveCalculationConfig buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String calculationConfigName = message.getString(CONFIG_NAME_FIELD);
+      final String calculationMethod = message.getString(CALCULATION_METHOD_FIELD);
       final List<FudgeField> yieldCurveNamesFields = message.getAllByName(YIELD_CURVE_NAMES_FIELD);
-      final List<FudgeField> idFields = message.getAllByName(ID_FIELD);
-      final List<FudgeField> calculationMethodFields = message.getAllByName(CALCULATION_METHOD_FIELD);
+      final UniqueIdentifiable uniqueId = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(ID_FIELD));
       final List<String> yieldCurveNames = new ArrayList<String>();
-      final List<UniqueIdentifiable> uniqueIds = new ArrayList<UniqueIdentifiable>();
-      final List<String> calculationMethods = new ArrayList<String>();
       for (int i = 0; i < yieldCurveNamesFields.size(); i++) {
         yieldCurveNames.add(deserializer.fieldValueToObject(String.class, yieldCurveNamesFields.get(i)));
-        uniqueIds.add(deserializer.fieldValueToObject(UniqueIdentifiable.class, idFields.get(i)));
-        calculationMethods.add(deserializer.fieldValueToObject(String.class, calculationMethodFields.get(i)));
       }
       final List<FudgeField> instrumentExposuresCurveNameField = message.getAllByName(INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD);
       final List<FudgeField> instrumentExposuresForCurve = message.getAllByName(INSTRUMENT_EXPOSURES_FOR_CURVE_FIELD);
@@ -123,11 +119,11 @@ import com.opengamma.id.UniqueIdentifiable;
           exogenousConfig.put(configName, curveNames);
         }
         return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
-            uniqueIds.toArray(EMPTY_UNIQUE_ID_ARRAY), calculationMethods.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveInstrumentExposures,
+            uniqueId, calculationMethod, curveInstrumentExposures,
             exogenousConfig);
       }
       return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
-          uniqueIds.toArray(EMPTY_UNIQUE_ID_ARRAY), calculationMethods.toArray(ArrayUtils.EMPTY_STRING_ARRAY), curveInstrumentExposures);
+          uniqueId, calculationMethod, curveInstrumentExposures);
     }
 
   }

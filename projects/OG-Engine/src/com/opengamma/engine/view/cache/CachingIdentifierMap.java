@@ -40,7 +40,7 @@ public class CachingIdentifierMap implements IdentifierMap {
 
   // NOTE andrew 2010-09-06 -- Don't use the Google map with weakKeys; it will do comparison by identity which isn't right!
   private final Map<ValueSpecification, Key> _specificationToIdentifier = Collections.synchronizedMap(new WeakHashMap<ValueSpecification, Key>());
-  private final ConcurrentMap<Key, ValueSpecification> _identifierToSpecification = new MapMaker().weakValues().makeMap();
+  private final ConcurrentMap<Key, ValueSpecification> _identifierToSpecification = new MapMaker().softValues().makeMap();
 
   private static final class Key {
 

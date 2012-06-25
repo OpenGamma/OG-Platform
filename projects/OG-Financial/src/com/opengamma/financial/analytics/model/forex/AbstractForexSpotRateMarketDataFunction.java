@@ -26,12 +26,12 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class AbstractForexSpotRateMarketDataFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private ComputationTargetType _targetType = ComputationTargetType.PRIMITIVE;
+  private final ComputationTargetType _targetType = ComputationTargetType.PRIMITIVE;
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    ComputedValue inputValue = Iterables.getOnlyElement(inputs.getAllValues());
-    ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get());
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final ComputedValue inputValue = Iterables.getOnlyElement(inputs.getAllValues());
+    final ValueSpecification outputSpec = new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get());
     return ImmutableSet.of(new ComputedValue(outputSpec, inputValue.getValue()));
   }
 
@@ -41,12 +41,15 @@ public abstract class AbstractForexSpotRateMarketDataFunction extends AbstractFu
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return target.getType() == _targetType && target.getUniqueId().getScheme().equals(UnorderedCurrencyPair.OBJECT_SCHEME);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.SPOT_RATE, target.toSpecification(), createValueProperties().get()));
   }
 

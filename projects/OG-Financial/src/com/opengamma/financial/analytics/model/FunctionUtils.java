@@ -19,15 +19,35 @@ public class FunctionUtils {
       array = (double[][]) jacobianObject;
     } else if (jacobianObject instanceof List<?>) {
       @SuppressWarnings("unchecked")
-      final List<double[]> parRateJacobianList = (List<double[]>) jacobianObject;
-      final int rows = parRateJacobianList.size();
+      final List<double[]> jacobianList = (List<double[]>) jacobianObject;
+      final int rows = jacobianList.size();
       array = new double[rows][];
       int i = 0;
-      for (final double[] d : parRateJacobianList) {
+      for (final double[] d : jacobianList) {
         array[i++] = d;
       }
     } else {
       throw new ClassCastException("Jacobian object " + jacobianObject + " not List<double[]> or double[][]");
+    }
+    return array;
+  }
+
+  public static double[] decodeCouponSensitivities(final Object couponSensitivitiesObject) {
+    final double[] array;
+    // Fudge encodings of double[] and List<Double> are identical, so receiving either is valid.
+    if (couponSensitivitiesObject instanceof double[]) {
+      array = (double[]) couponSensitivitiesObject;
+    } else if (couponSensitivitiesObject instanceof List<?>) {
+      @SuppressWarnings("unchecked")
+      final List<Double> couponSensitivitiesList = (List<Double>) couponSensitivitiesObject;
+      final int rows = couponSensitivitiesList.size();
+      array = new double[rows];
+      int i = 0;
+      for (final Double d : couponSensitivitiesList) {
+        array[i++] = d;
+      }
+    } else {
+      throw new ClassCastException("Coupon sensitivities object " + couponSensitivitiesObject + " not List<Double> or double[]");
     }
     return array;
   }

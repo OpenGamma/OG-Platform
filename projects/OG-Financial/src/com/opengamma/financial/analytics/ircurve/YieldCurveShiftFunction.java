@@ -53,6 +53,10 @@ public class YieldCurveShiftFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null; {}", target);
+      return false;
+    }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 

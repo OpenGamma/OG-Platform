@@ -7,8 +7,7 @@ package com.opengamma.analytics.financial.var;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -17,14 +16,15 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class EmpiricalDistributionVaRCalculator implements VaRCalculator<EmpiricalDistributionVaRParameters, DoubleTimeSeries<?>> {
 
   @Override
-  public Double evaluate(final EmpiricalDistributionVaRParameters parameters, final DoubleTimeSeries<?>... returns) {
-    Validate.notNull(parameters, "parameters");
-    Validate.notNull(returns, "time series");
-    Validate.notNull(returns, "returns");
-    Validate.isTrue(returns.length > 0);
+  public VaRCalculationResult evaluate(final EmpiricalDistributionVaRParameters parameters, final DoubleTimeSeries<?>... returns) {
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(returns, "time series");
+    ArgumentChecker.notNull(returns, "returns");
+    ArgumentChecker.isTrue(returns.length > 0, "No return series data");
     final double[] data = returns[0].valuesArrayFast();
     Arrays.sort(data);
-    return -parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
+    final double result = -parameters.getMult() * parameters.getPercentileCalculator().evaluate(data);
+    return new VaRCalculationResult(result, null);
   }
 
 }

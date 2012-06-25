@@ -15,22 +15,22 @@ import org.testng.annotations.Test;
  */
 @Test
 public class VersionUtilsTest {
-  
+
   public void validPropertyFile() {
     assertEquals("FIN-507", VersionUtils.getVersion("VersionUtilTest-1"));
   }
-  
+
   public void invalidPropertyFile() {
     checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-2"));
   }
-  
+
   public void noPropertyFile() {
     checkLocalVersionOk(VersionUtils.getVersion("VersionUtilTest-3"));
   }
-  
+
   private void checkLocalVersionOk(String version) {
     assertTrue(version.startsWith("local-"));
-    
+
     long currentTimeMillis = Long.parseLong(version.substring("local-".length()));
     assertTrue(currentTimeMillis >= 0);
     assertTrue(currentTimeMillis <= System.currentTimeMillis());

@@ -402,7 +402,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     final String functionUniqueId = jobItem.getFunctionUniqueIdentifier();
     Future<ComputationTarget> targetFuture = null;
     ComputationTarget target = null;
-    if (isUseAsynchronousTargetResolve() && !LazyComputationTargetResolver.isLazilyResolvable(jobItem.getComputationTargetSpecification())) {
+    if (isUseAsynchronousTargetResolve()) {
       targetFuture = getExecutorService().submit(new Callable<ComputationTarget>() {
         @Override
         public ComputationTarget call() {

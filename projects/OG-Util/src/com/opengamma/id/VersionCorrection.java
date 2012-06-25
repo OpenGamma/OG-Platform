@@ -17,7 +17,6 @@ import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * An immutable version-correction combination.

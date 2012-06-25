@@ -122,7 +122,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
           final ValueProperties properties = ValueProperties.builder()
               .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, entry.getKey())
               .with(ValuePropertyNames.CURVE, exogenousCurveName)
-              .with(PROPERTY_DECOMPOSITION, "SV_COLT")
+              .with(PROPERTY_DECOMPOSITION, decomposition)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, "0.0001")
               .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, "1000")
               .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, "0.0001")

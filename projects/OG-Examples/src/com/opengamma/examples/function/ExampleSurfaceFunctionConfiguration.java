@@ -29,7 +29,7 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySu
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
-import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawIRFutureOptionVolatilitySurfaceDataFunction;
@@ -70,7 +70,7 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ExampleEquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "SECONDARY"});
-    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
+    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
     configs.add(new StaticFunctionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class.getName()));
@@ -82,7 +82,7 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
   }
   
   private void addConfigFor(List<FunctionConfiguration> configurations, String className, String[] params) {
-    if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunction.class.getName())) {
+    if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName())) {
       if (params.length != 8) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());

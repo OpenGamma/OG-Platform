@@ -19,6 +19,9 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -53,6 +56,7 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromMarketQuotesFunction.class);
   /** Name of the calculation method */
   public static final String FX_FORWARD_QUOTES = "FXForwardQuotes";
 
@@ -109,6 +113,10 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
           return false;
         }
         return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());

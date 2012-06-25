@@ -28,11 +28,11 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.EquityFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.EquityOptionVolatilitySurfaceDataFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
-import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.InterpolatedVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawEquityOptionVolatilitySurfaceDataFunction;
@@ -78,9 +78,9 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, RawSwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawEquityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
-    addConfigFor(configs, EquityFutureOptionVolatilitySurfaceDataFunction.class.getName());
-    addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
-    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
+    addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunctionDeprecated.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
+    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
     addConfigFor(configs, ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexCallDeltaVolatilitySurfaceFunction.class.getName());
@@ -96,7 +96,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
   }
   
   private void addConfigFor(List<FunctionConfiguration> configurations, String className, String[] params) {
-    if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunction.class.getName())) {
+    if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName())) {
       if (params.length != 8) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());
@@ -104,7 +104,7 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
       }
       configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
       return;   
-    } else if (className.equals(EquityOptionVolatilitySurfaceDataFunction.class.getName())) {
+    } else if (className.equals(EquityOptionVolatilitySurfaceDataFunctionDeprecated.class.getName())) {
       if (params.length != 3) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());

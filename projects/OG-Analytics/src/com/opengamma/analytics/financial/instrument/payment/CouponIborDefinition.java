@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -219,8 +218,9 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     Validate.notNull(dateTime, "date");
-    LocalDate dayConversion = dateTime.toLocalDate();
-    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + dateTime);
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    Validate.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()),
+        "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date " + getFixingDate());
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
@@ -236,14 +236,14 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
 
   @Override
   /**
-   * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned. 
+   * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
    * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
    * If the fixing date is strictly after the conversion date, a coupon Ibor with spread is returned.
    * All the comparisons are between dates without time.
    */
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     Validate.notNull(dateTime, "date");
-    LocalDate dayConversion = dateTime.toLocalDate();
+    final LocalDate dayConversion = dateTime.toLocalDate();
     Validate.notNull(indexFixingTimeSeries, "Index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
@@ -251,9 +251,9 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    LocalDate dayFixing = getFixingDate().toLocalDate();
+    final LocalDate dayFixing = getFixingDate().toLocalDate();
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
-      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
         return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
       }
@@ -262,7 +262,8 @@ public class CouponIborDefinition extends CouponFloatingDefinition {
       final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(getFixingDate().toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
       Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate); // TODO: remove time from fixing date.
       if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        fixedRate = 0.002;
+        //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
     }

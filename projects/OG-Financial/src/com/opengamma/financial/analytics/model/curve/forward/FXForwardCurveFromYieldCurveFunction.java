@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
@@ -33,6 +36,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * 
  */
 public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromYieldCurveFunction.class);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -94,6 +98,10 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null, {}", target);
       return false;
     }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());

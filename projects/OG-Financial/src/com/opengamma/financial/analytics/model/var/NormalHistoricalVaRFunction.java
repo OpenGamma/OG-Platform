@@ -5,8 +5,12 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -14,6 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.analytics.financial.var.NormalVaRParameters;
+import com.opengamma.analytics.financial.var.VaRCalculationResult;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -33,6 +38,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(NormalHistoricalVaRFunction.class);
   /** The property for the VaR distribution type */
   public static final String PROPERTY_VAR_DISTRIBUTION = "VaRDistributionType";
   /** The name for the normal historical VaR calculation method */
@@ -49,17 +55,43 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     if (pnlSeries.isEmpty()) {
       throw new OpenGammaRuntimeException("P&L series for " + target + " was empty");
     }
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Set<String> scheduleCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
-    final Set<String> meanCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.MEAN_CALCULATOR);
-    final Set<String> stdDevCalculatorNames = desiredValue.getConstraints().getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
-    final Set<String> confidenceLevelNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CONFIDENCE_LEVEL);
-    final Set<String> horizonNames = desiredValue.getConstraints().getValues(ValuePropertyNames.HORIZON);
+    // TODO kirk 2012-06-22 -- See TODO below in getResults().
+    // We assume the constraints are all going to be the same for the results.
+    // Being more restrictive would change this logic and probably not be desirable
+    // but someone other than me should confirm.
+    ValueProperties constraints = null;
+    ValueRequirement sampleRequirement = null;
+    boolean computeVar = false;
+    boolean computeStddev = false;
+    for (final ValueRequirement desiredValue : desiredValues) {
+      constraints = (constraints == null) ? desiredValue.getConstraints() : constraints;
+      sampleRequirement = (sampleRequirement == null) ? desiredValue : sampleRequirement;
+      if (ValueRequirementNames.HISTORICAL_VAR.equals(desiredValue.getValueName())) {
+        computeVar = true;
+      }
+      if (ValueRequirementNames.HISTORICAL_VAR_STDDEV.equals(desiredValue.getValueName())) {
+        computeStddev = true;
+      }
+    }
+    final Set<String> scheduleCalculatorNames = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    final Set<String> meanCalculatorNames = constraints.getValues(ValuePropertyNames.MEAN_CALCULATOR);
+    final Set<String> stdDevCalculatorNames = constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
+    final Set<String> confidenceLevelNames = constraints.getValues(ValuePropertyNames.CONFIDENCE_LEVEL);
+    final Set<String> horizonNames = constraints.getValues(ValuePropertyNames.HORIZON);
     final NormalVaRParameters parameters = getParameters(scheduleCalculatorNames, horizonNames, confidenceLevelNames);
     final NormalLinearVaRCalculator<DoubleTimeSeries<?>> varCalculator = getVaRCalculator(meanCalculatorNames, stdDevCalculatorNames);
-    final double var = varCalculator.evaluate(parameters, pnlSeries);
-    final ValueProperties resultProperties = getResultProperties(currency, desiredValues.iterator().next());
-    return Sets.newHashSet(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
+    final VaRCalculationResult calcResult = varCalculator.evaluate(parameters, pnlSeries);
+    final double var = calcResult.getVaRValue();
+    final double stddev = calcResult.getStdDev();
+    final ValueProperties resultProperties = getResultProperties(currency, sampleRequirement);
+    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    if (computeVar) {
+      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), resultProperties), var));
+    }
+    if (computeStddev) {
+      results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), resultProperties), stddev));
+    }
+    return results;
   }
 
   private String getCurrency(final FunctionInputs inputs) {
@@ -86,7 +118,13 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         .withAny(ValuePropertyNames.HORIZON)
         .withAny(ValuePropertyNames.AGGREGATION)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR).get();
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
+    final ValueSpecification hVaRSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
+    // TODO kirk 2012-06-22 -- These are certainly not the optimal properties. Rather,
+    // things like CONFIDENCE_LEVEL actually depend on the stddev, so this doesn't make
+    // 100% of sense. However, in an effort to make this the simplest addition possible
+    // I'm just reusing the identical properties.
+    final ValueSpecification stddevSpec = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
+    return Sets.newHashSet(hVaRSpec, stddevSpec);
   }
 
   @Override
@@ -127,7 +165,9 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
       }
     }
-    return Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    final Set<ValueRequirement> requirements = Sets.newHashSet(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties.get()));
+    s_logger.debug("For {} on {} requirements are {}", new Object[] {desiredValue, target, requirements});
+    return requirements;
   }
 
   @Override
@@ -138,7 +178,10 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
       return null;
     }
     final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION));
-    return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties));
+    // see note above in other getResults().
+    final ValueSpecification varSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
+    final ValueSpecification stddevSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
+    return Sets.newHashSet(varSpecification, stddevSpecification);
   }
 
   private ValueProperties getResultProperties(final String currency, final String aggregationStyle) {

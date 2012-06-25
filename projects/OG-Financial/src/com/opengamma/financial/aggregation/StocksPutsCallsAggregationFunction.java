@@ -16,6 +16,7 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -69,38 +70,15 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
       }
     } else {
       position.getSecurityLink().resolve(_secSource);
-      final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitor<String>() {
-
-        @Override
-        public String visitBondSecurity(final BondSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitCashSecurity(final CashSecurity security) {
-          return NA;
-        }
-
+      final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitorSameValueAdapter<String>(NA){
+        
+      
         @Override
         public String visitEquitySecurity(final EquitySecurity security) {
           return STOCKS;
         }
 
-        @Override
-        public String visitFRASecurity(final FRASecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitFutureSecurity(final FutureSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitSwapSecurity(final SwapSecurity security) {
-          return NA;
-        }
-
+      
         @Override
         public String visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
@@ -127,11 +105,6 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         }
 
         @Override
-        public String visitSwaptionSecurity(final SwaptionSecurity security) {
-          return NA;
-        }
-
-        @Override
         public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getOptionType() == OptionType.CALL ? CALLS : PUTS;
         }
@@ -150,31 +123,6 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         @Override
         public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
-        }
-
-        @Override
-        public String visitFXForwardSecurity(final FXForwardSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitCapFloorSecurity(final CapFloorSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-          return NA;
-        }
-
-        @Override
-        public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-          return NA;
         }
 
         @Override

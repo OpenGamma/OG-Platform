@@ -26,19 +26,26 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  
+  private final PriorityClass _priority;
+
   public ValueGreekSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator) {
+    this(samplingPeriod, scheduleCalculator, samplingCalculator, returnCalculator, PriorityClass.NORMAL.name());
+  }
+
+  public ValueGreekSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator,
+      final String priority) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
-    ArgumentChecker.notNull(samplingCalculator, "sampling calculator");    
+    ArgumentChecker.notNull(samplingCalculator, "sampling calculator");
     ArgumentChecker.notNull(returnCalculator, "return calculator");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _returnCalculator = returnCalculator;
+    _priority = PriorityClass.valueOf(priority);
   }
-  
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
@@ -46,9 +53,9 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RETURN_CALCULATOR);
   }
-  
+
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, 
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
@@ -64,10 +71,14 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
     }
     return null;
   }
-  
+
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
+  }
 }

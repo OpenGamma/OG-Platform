@@ -9,6 +9,9 @@ import javax.time.InstantProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
@@ -22,13 +25,17 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * 
  */
 public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(RawFXVolatilitySurfaceDataFunction.class);
   public RawFXVolatilitySurfaceDataFunction() {
     super(InstrumentTypeProperties.FOREX);
   }
 
   @Override
   public boolean isCorrectIdType(final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null {}", target);
+      return false;
+    }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 

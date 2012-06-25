@@ -238,18 +238,38 @@ public class FixedIncomeConverterDataProvider {
         includeCurrentDatesFixing, dataSource);
     if (payLegTS != null) {
       if (receiveLegTS != null) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+        try {
+          return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+        } catch (final OpenGammaRuntimeException e) {
+          final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+          throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+        }
       }
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
         return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
+      try {
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
+      } catch (final OpenGammaRuntimeException e) {
+        final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+        throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+      }
     }
     if (receiveLegTS != null) {
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+        try {
+          return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+        } catch (final OpenGammaRuntimeException e) {
+          final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+          throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+        }
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
+      try {
+        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
+      } catch (final OpenGammaRuntimeException e) {
+        final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+        throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+      }
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }

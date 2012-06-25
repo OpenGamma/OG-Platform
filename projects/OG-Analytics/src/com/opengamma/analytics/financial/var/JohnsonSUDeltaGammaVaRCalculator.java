@@ -54,7 +54,7 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<Normal
   }
 
   @Override
-  public Double evaluate(final NormalVaRParameters parameters, final T... data) {
+  public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
     Validate.notNull(parameters, "parameters");
     Validate.notNull(data, "data");
     // TODO if skewness is positive then need to fit to -x and take from upper tail of distribution
@@ -68,7 +68,7 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<Normal
     final double mu = _meanCalculator.evaluate(data) * mult * mult;
     final double sigma = _stdCalculator.evaluate(data) * mult;
     if (t == 0 && k == 0) {
-      return z * sigma - mu;
+      return new VaRCalculationResult(z * sigma - mu, null);
     }
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
     final double wLower = Math.max(getW0(t), getW1(k + 3));
@@ -90,7 +90,7 @@ public class JohnsonSUDeltaGammaVaRCalculator<T> implements VaRCalculator<Normal
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
+    return new VaRCalculationResult(-lambda * Math.sinh((-z - gamma) / delta) - ksi, null);
   }
 
   private double getW0(final double t) {

@@ -207,7 +207,7 @@ public abstract class ForwardPDEDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FORWARD_PDE_DEFAULTS;
+    return OpenGammaFunctionExclusions.PDE_DEFAULTS;
   }
 
 }

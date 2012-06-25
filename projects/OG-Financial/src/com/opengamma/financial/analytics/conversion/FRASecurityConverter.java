@@ -19,14 +19,14 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.fra.FRASecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefinition<?>> {
+public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final ConventionBundleSource _conventionSource;

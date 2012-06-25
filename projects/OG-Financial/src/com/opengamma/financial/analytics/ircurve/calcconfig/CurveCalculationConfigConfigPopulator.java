@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -32,8 +31,7 @@ public class CurveCalculationConfigConfigPopulator {
     final String usdFundingCurveName = "Funding";
     final String usdForward3MCurveName = "Forward3M";
     final MultiCurveCalculationConfig defaultUSDConfig = new MultiCurveCalculationConfig("Default", new String[] {usdFundingCurveName, usdForward3MCurveName },
-        new UniqueIdentifiable[] {Currency.USD, Currency.USD }, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING,
-        getUSDCurveInstrumentConfig(usdFundingCurveName, usdForward3MCurveName));
+        Currency.USD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING, getUSDCurveInstrumentConfig(usdFundingCurveName, usdForward3MCurveName));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultUSDConfig));
   }
 

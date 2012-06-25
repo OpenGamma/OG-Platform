@@ -22,7 +22,7 @@ import com.opengamma.id.UniqueId;
  * <pre>
  * message ComputationTargetSpecification {
  *   required ComputationTargetType computationTargetType; // the target type
- *   required UniqueId computationTargetId;                // the target identifier
+ *   required UniqueId computationTargetIdendifier;        // the target identifier
  * }
  * </pre>
  */
@@ -35,7 +35,7 @@ public class ComputationTargetSpecificationFudgeBuilder implements FudgeBuilder<
   /**
    * Fudge field name.
    */
-  private static final String IDENTIFIER_FIELD_NAME = "computationTargetId";
+  private static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
   protected static void buildMessageImpl(final MutableFudgeMsg msg, final ComputationTargetSpecification object) {
     msg.add(TYPE_FIELD_NAME, object.getType().name());

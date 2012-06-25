@@ -10,39 +10,23 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
-import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
+import com.opengamma.analytics.financial.forex.definition.*;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
-import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.*;
-import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 //TODO use the visitor adapter
-public class ForexSecurityConverter implements FinancialSecurityVisitor<InstrumentDefinition<?>> {
+public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   @Override
   public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
@@ -188,103 +172,4 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     }
   }
 
-  @Override
-  public InstrumentDefinition<?> visitBondSecurity(final BondSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitCashSecurity(final CashSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquitySecurity(final EquitySecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitFRASecurity(final FRASecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitFutureSecurity(final FutureSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquityOptionSecurity(final EquityOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitSwaptionSecurity(final SwaptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
-    return null; 
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitCapFloorSecurity(final CapFloorSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-    return null;
-  }
 }

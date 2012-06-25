@@ -83,7 +83,9 @@ public class ReportingInputStream extends FilterInputStream {
     beginRead();
     try {
       final int bytes = in.read(b, off, len);
-      _readBytes += bytes;
+      if (bytes > 0) {
+        _readBytes += bytes;
+      }
       return bytes;
     } finally {
       endRead();

@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -94,5 +95,15 @@ public class ForexForwardDefaultsNew extends DefaultPropertyFunction {
       return Collections.singleton(_receiveCurveConfig);
     }
     return null;
+  }
+  
+  @Override
+  public PriorityClass getPriority() {
+    return PriorityClass.ABOVE_NORMAL;
+  }
+  
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.FX_FORWARD_DEFAULTS;
   }
 }

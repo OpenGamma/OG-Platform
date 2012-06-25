@@ -22,14 +22,15 @@ public final class LogUtils {
    */
   private LogUtils() {
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Configures logging from a logback resource.
    * 
    * @param logbackResource  the logback resource, not null
    * @return true if logging was configured successfully, false otherwise
    */
-  public static final boolean configureLogger(String logbackResource) {
+  public static boolean configureLogger(String logbackResource) {
     try {
       ArgumentChecker.notNull(logbackResource, "logbackResource");
       LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -47,5 +48,5 @@ public final class LogUtils {
       return false;
     }
   }
-  
+
 }

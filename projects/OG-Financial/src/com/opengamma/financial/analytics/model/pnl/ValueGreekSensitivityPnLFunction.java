@@ -126,12 +126,14 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     }
     dataBundleArray[0] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
     final DoubleTimeSeries<?> result = PNL_CALCULATOR.evaluate(dataBundleArray);
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next())
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
         .get();
     final ValueRequirement resultRequirements = new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties);
     final ValueSpecification resultSpecification = new ValueSpecification(resultRequirements, getUniqueId());
@@ -177,12 +179,14 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       return null;
     }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
     return results;
   }
@@ -204,12 +208,14 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         currency = newCurrency;
       }
     }
+    // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
     return results;

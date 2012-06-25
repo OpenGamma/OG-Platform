@@ -157,6 +157,10 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
+          return false;
+        }
         return target.getType() == ComputationTargetType.PRIMITIVE && Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 

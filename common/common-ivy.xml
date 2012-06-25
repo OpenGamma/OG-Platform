@@ -66,4 +66,16 @@
 			</manifest>
 		</jar>
 	</target>
+
+	<target name="ivy2pom" depends="taskdef-ivy">
+		<ivy:makepom ivyfile="ivy.xml" pomfile="pom.xml">
+		   <mapping conf="default" scope="compile" />
+		   <mapping conf="runtime" scope="runtime "/>
+		</ivy:makepom>
+	</target>
+
+	<target name="pom2ivy" depends="taskdef-ivy">
+    <ivy:convertpom pomFile="pom.xml" ivyFile="ivy.xml" />
+	</target>
+
 </project>

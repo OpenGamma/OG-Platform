@@ -15,6 +15,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
@@ -60,7 +61,11 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public void preOrderOperation(final Position position) {
-    final String securityType = position.getSecurity().getSecurityType();
+    final Security security = position.getSecurity();
+    if (security == null) {
+      return;
+    }
+    final String securityType = security.getSecurityType();
     Set<Pair<String, ValueProperties>> requiredOutputs;
     if ((_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE)
         || (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE)) {

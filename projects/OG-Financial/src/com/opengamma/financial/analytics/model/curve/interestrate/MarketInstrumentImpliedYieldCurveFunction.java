@@ -398,7 +398,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
-      derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
+      try {
+        derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
+      } catch (OpenGammaRuntimeException ogre) {
+        s_logger.error("Error thrown by convertor for security {}, definition {}, time {}, curveNames {}, dataSource {}", new Object[] {financialSecurity, definition, now, curveNames, dataSource });
+        throw ogre;
+      }
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }

@@ -29,12 +29,12 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The underlying identifier.
+   * Quantity of unit.
    */
   @PropertyDefinition
   private Double _unitNumber;
   /**
-   * The underlying identifier.
+   * Name of the unit.
    */
   @PropertyDefinition
   private String _unitName;
@@ -118,7 +118,7 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying identifier.
+   * Gets quantity of unit.
    * @return the value of the property
    */
   public Double getUnitNumber() {
@@ -126,7 +126,7 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   }
 
   /**
-   * Sets the underlying identifier.
+   * Sets quantity of unit.
    * @param unitNumber  the new value of the property
    */
   public void setUnitNumber(Double unitNumber) {
@@ -143,7 +143,7 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying identifier.
+   * Gets name of the unit.
    * @return the value of the property
    */
   public String getUnitName() {
@@ -151,7 +151,7 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   }
 
   /**
-   * Sets the underlying identifier.
+   * Sets name of the unit.
    * @param unitName  the new value of the property
    */
   public void setUnitName(String unitName) {

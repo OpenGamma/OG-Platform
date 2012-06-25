@@ -5,15 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -30,6 +21,15 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.ArgumentChecker;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interpolate a smile, i.e. fit every data point (market volatility/price), by fitting a smile model (e.g. SABR) through consecutive sets of 3 strikes, so for
@@ -106,7 +106,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     }
     if (n == 3) {
       if (gBest.getChiSq() / n > 1.0) {
-        s_logger.warn("chi^2 on fit to ", +n + " points is " + gBest.getChiSq());
+        s_logger.debug("chi^2 on fit to ", +n + " points is " + gBest.getChiSq());
       }
       modelParameters.add(toSmileModelData(gBest.getModelParameters()));
     } else {
@@ -132,7 +132,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
         }
 
         if (best.getChiSq() > 3.0) {
-          s_logger.warn("chi^2 on 3-point fit #" + i + " is " + best.getChiSq());
+          s_logger.debug("chi^2 on 3-point fit #" + i + " is " + best.getChiSq());
         }
         modelParameters.add(toSmileModelData(best.getModelParameters()));
       }
@@ -171,7 +171,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     tStrikes = Arrays.copyOfRange(strikes, index, index + 3);
     tVols = Arrays.copyOfRange(impliedVols, index, index + 3);
     tErrors = Arrays.copyOfRange(errors, index, index + 3);
-    final double[][] res = new double[][] {tStrikes, tVols, tErrors };
+    final double[][] res = new double[][] {tStrikes, tVols, tErrors};
     return res;
   }
 
@@ -193,7 +193,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     final double[] lErrors = new double[n];
     Arrays.fill(lErrors, LARGE_ERROR);
     System.arraycopy(errors, index, lErrors, index, 3); //copy the original errors for the points we really want to fit
-    final double[][] res = new double[][] {strikes, impliedVols, lErrors };
+    final double[][] res = new double[][] {strikes, impliedVols, lErrors};
     return res;
   }
 

@@ -144,8 +144,6 @@
     <property name="name" value="main" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="namedMarketDataSpecificationRepository" ref="bbgNamedMarketDataSpecificationRepository" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />

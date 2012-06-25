@@ -14,17 +14,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.fixedincome.YieldCurveLabelGenerator;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -92,6 +103,27 @@ public class YieldCurveNodeSensitivitiesHelper {
       labels[i] = s_formatter.format(pair.first);
       labelledMatrix = labelledMatrix.add(pair.first, s_formatter.format(pair.first), pair.second, 1e-16);
     }
+    return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
+  }
+
+  public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final DoubleMatrix1D sensitivities, final Currency domesticCurrency, final Currency foreignCurrency,
+      final String[] curveNames, final YieldCurveBundle curves, final ConfigSource configSource, final LocalDate localNow, final ValueSpecification resultSpec) {
+    final String currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency).toString();
+    final FXForwardCurveSpecification fxForwardCurveSpecification = new ConfigDBFXForwardCurveSpecificationSource(configSource).getSpecification(curveNames[0], currencyPair);
+    final FXForwardCurveDefinition fxForwardCurveDefinition = new ConfigDBFXForwardCurveDefinitionSource(configSource).getDefinition(curveNames[0], currencyPair);
+    final FXForwardCurveInstrumentProvider curveInstrumentProvider = fxForwardCurveSpecification.getCurveInstrumentProvider();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final int length = tenors.length;
+    final Double[] keys = new Double[length];
+    final Object[] labels = new Object[length];
+    final double[] values = new double[length];
+    final Double[] xData = curves.getCurve(curveNames[0]).getCurve().getXData();
+    for (int i = 0; i < length; i++) {
+      keys[i] = xData[i];
+      labels[i] = curveInstrumentProvider.getInstrument(localNow, tenors[i]);
+      values[i] = sensitivities.getEntry(i);
+    }
+    final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
 

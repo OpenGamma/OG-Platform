@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * A time-series, which represents the changes in a value over time.
@@ -86,7 +85,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * Gets the latest date-time for which there is a data point.
    * 
    * @return the latest date-time, not null
-   * @throws NoSuchElementException if empty
+   * @throws java.util.NoSuchElementException if empty
    */
   T getLatestTime();
 
@@ -94,7 +93,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * Gets the value at the latest date-time in the series.
    * 
    * @return the value at the latest date-time, not null
-   * @throws NoSuchElementException if empty
+   * @throws java.util.NoSuchElementException if empty
    */
   V getLatestValue();
 
@@ -102,7 +101,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * Gets the earliest date-time for which there is a data point.
    * 
    * @return the earliest date-time, not null
-   * @throws NoSuchElementException if empty
+   * @throws java.util.NoSuchElementException if empty
    */
   T getEarliestTime();
 
@@ -110,7 +109,7 @@ public interface TimeSeries<T, V> extends Iterable<Map.Entry<T, V>>, Serializabl
    * Gets the value at the earliest date-time in the series.
    * 
    * @return the value at the earliest date-time, not null
-   * @throws NoSuchElementException if empty
+   * @throws java.util.NoSuchElementException if empty
    */
   V getEarliestValue();
 

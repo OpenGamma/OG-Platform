@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -236,7 +237,10 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     LocalDate date = dateTime.toLocalDate();
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     LocalDate transactionDateLocal = _transactionDate.toLocalDate();
-    Validate.isTrue(!date.isAfter(getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
+    LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
+    if (date.isAfter(lastMarginDateLocal)) {
+      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
+    }
     double referencePrice;
     if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;

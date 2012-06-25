@@ -9,7 +9,6 @@ import java.util.EnumSet;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -28,18 +27,18 @@ public class ViewRequest {
 
   private final UniqueId _viewDefinitionId;
   private final String _aggregatorName;
-  private final MarketDataType _marketDataType;
+  private final MarketData _marketData;
 
-  public ViewRequest(UniqueId viewDefinitionId, MarketDataType marketDataType) {
-    this(viewDefinitionId, null, marketDataType);
+  public ViewRequest(UniqueId viewDefinitionId, MarketData marketData) {
+    this(viewDefinitionId, null, marketData);
   }
 
-  public ViewRequest(UniqueId viewDefinitionId, String aggregatorName, MarketDataType marketDataType) {
+  public ViewRequest(UniqueId viewDefinitionId, String aggregatorName, MarketData marketData) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
-    ArgumentChecker.notNull(marketDataType, "marketDataType");
+    ArgumentChecker.notNull(marketData, "marketDataType");
     _viewDefinitionId = viewDefinitionId;
     _aggregatorName = aggregatorName;
-    _marketDataType = marketDataType;
+    _marketData = marketData;
   }
 
   public UniqueId getViewDefinitionId() {
@@ -50,8 +49,8 @@ public class ViewRequest {
     return _aggregatorName;
   }
 
-  public MarketDataType getMarketDataType() {
-    return _marketDataType;
+  public MarketData getMarketData() {
+    return _marketData;
   }
 
   @Override
@@ -59,22 +58,22 @@ public class ViewRequest {
     return "ViewRequest [" +
         "_viewDefinitionId=" + _viewDefinitionId +
         ", _aggregatorName='" + _aggregatorName + '\'' +
-        ", _marketDataType=" + _marketDataType +
+        ", _marketDataType=" + _marketData +
         "]";
   }
 
-  /* package */ interface MarketDataType {
+  /* package */ public interface MarketData {
 
     ViewExecutionOptions createExecutionOptions(MarketDataSnapshotMaster snapshotMaster,
                                                 NamedMarketDataSpecificationRepository namedMarketDataSpecRepo);
   }
 
-  public static class Snapshot implements MarketDataType {
+  public static class Snapshot implements MarketData {
 
     private final UniqueId _snapshotId;
     private final VersionCorrection _versionCorrection;
 
-    Snapshot(UniqueId snapshotId, VersionCorrection versionCorrection) {
+    public Snapshot(UniqueId snapshotId, VersionCorrection versionCorrection) {
       ArgumentChecker.notNull(snapshotId, "snapshotId");
       ArgumentChecker.notNull(versionCorrection, "versionCorrection");
       _snapshotId = snapshotId;
@@ -105,7 +104,7 @@ public class ViewRequest {
         }
         actualVersionCorrection = _versionCorrection;
       }
-      MarketDataSpecification marketDataSpec = MarketData.user(actualSnapshotId);
+      MarketDataSpecification marketDataSpec = com.opengamma.engine.marketdata.spec.MarketData.user(actualSnapshotId);
       EnumSet<ViewExecutionFlags> flags = ExecutionFlags.none().triggerOnMarketData().get();
       return ExecutionOptions.infinite(marketDataSpec, flags, actualVersionCorrection);
     }
@@ -119,16 +118,13 @@ public class ViewRequest {
     }
   }
 
-  public static class Live implements MarketDataType {
+  public static class Live implements MarketData {
 
     private final String _dataProvider;
-    private final VersionCorrection _versionCorrection;
 
-    public Live(String dataProvider, VersionCorrection versionCorrection) {
+    public Live(String dataProvider) {
       ArgumentChecker.notNull(dataProvider, "dataProvider");
-      ArgumentChecker.notNull(versionCorrection, "versionCorrection");
       _dataProvider = dataProvider;
-      _versionCorrection = versionCorrection;
     }
 
     @Override
@@ -136,15 +132,12 @@ public class ViewRequest {
                                                        NamedMarketDataSpecificationRepository namedMarketDataSpecRepo) {
       MarketDataSpecification marketDataSpec = namedMarketDataSpecRepo.getSpecification(_dataProvider);
       EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().get();
-      return ExecutionOptions.infinite(marketDataSpec, flags, _versionCorrection);
+      return ExecutionOptions.infinite(marketDataSpec, flags, VersionCorrection.LATEST);
     }
 
     @Override
     public String toString() {
-      return "ViewRequest.Live [" +
-          "_dataProvider='" + _dataProvider + '\'' +
-          ", _versionCorrection=" + _versionCorrection +
-          "]";
+      return "ViewRequest.Live [_dataProvider='" + _dataProvider + '\'' + "]";
     }
   }
 }
