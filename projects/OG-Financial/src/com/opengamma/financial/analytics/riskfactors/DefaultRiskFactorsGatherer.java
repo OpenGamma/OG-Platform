@@ -266,8 +266,8 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
         .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
       .add(getVegaMatrix(ValueProperties
         .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-        .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+        .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
