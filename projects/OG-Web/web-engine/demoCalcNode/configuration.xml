@@ -42,10 +42,15 @@
   <!-- Security Source -->
   <bean id="securitySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.security.RemoteFinancialSecuritySource">
+      <!-- TODO: test if this is quicker or not for target resolution than the direct remote -->
+      <bean class="com.opengamma.financial.security.CoalescingFinancialSecuritySource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
-            <property name="uri" value="${opengamma.engine.configuration.url}/securitySource" />
+          <bean class="com.opengamma.financial.security.RemoteFinancialSecuritySource">
+            <constructor-arg>
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+                <property name="uri" value="${opengamma.engine.configuration.url}/securitySource" />
+              </bean>
+            </constructor-arg>
           </bean>
         </constructor-arg>
       </bean>
