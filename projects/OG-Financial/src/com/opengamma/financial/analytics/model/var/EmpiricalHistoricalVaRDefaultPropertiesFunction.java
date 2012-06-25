@@ -14,6 +14,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,20 +28,23 @@ public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends De
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
+  private final PriorityClass _priority;
 
   public EmpiricalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
-      final String confidenceLevel, final String horizon, final ComputationTargetType target) {
+      final String confidenceLevel, final String horizon, final String priority, final ComputationTargetType target) {
     super(target, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
     ArgumentChecker.notNull(confidenceLevel, "confidence level name");
     ArgumentChecker.notNull(horizon, "horizon name");
+    ArgumentChecker.notNull(priority, "priority");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _confidenceLevel = confidenceLevel;
     _horizon = horizon;
+    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
@@ -75,4 +79,13 @@ public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends De
     return null;
   }
 
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.NORMAL_HISTORICAL_VAR;
+  }
 }

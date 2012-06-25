@@ -14,9 +14,9 @@ import com.opengamma.engine.function.FunctionCompilationContext;
  */
 public class EmpiricalPortfolioHistoricalVaRDefaultPropertiesFunction extends EmpiricalHistoricalVaRDefaultPropertiesFunction {
 
-  public EmpiricalPortfolioHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, 
-      final String confidenceLevel, final String horizon) {
-    super(samplingPeriod, scheduleCalculator, samplingCalculator, confidenceLevel, horizon,
+  public EmpiricalPortfolioHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
+      final String confidenceLevel, final String horizon, final String priority) {
+    super(samplingPeriod, scheduleCalculator, samplingCalculator, confidenceLevel, horizon, priority,
         ComputationTargetType.PORTFOLIO_NODE);
   }
 

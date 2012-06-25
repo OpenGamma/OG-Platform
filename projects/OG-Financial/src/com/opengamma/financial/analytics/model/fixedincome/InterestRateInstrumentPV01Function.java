@@ -34,7 +34,7 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCu
       final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
       final ValueSpecification resultSpec) {
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, curves);
-    if (!pv01.containsKey(curveName)) {
+    if (!pv01.containsKey(curveName) || pv01.get(curveName) == null) {
       throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + curveName + "; should never happen");
     }
     return Collections.singleton(new ComputedValue(resultSpec, pv01.get(curveName)));
