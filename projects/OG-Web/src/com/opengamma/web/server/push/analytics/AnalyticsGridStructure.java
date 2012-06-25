@@ -49,11 +49,11 @@ public class AnalyticsGridStructure {
   public static AnalyticsGridStructure portoflio(CompiledViewDefinition compiledViewDef) {
     return new AnalyticsGridStructure(AnalyticsNode.portoflioRoot(compiledViewDef),
                                       AnalyticsColumns.portfolio(compiledViewDef),
-                                      portfolioRowsForViewDefinition(compiledViewDef));
+                                      portfolioRows(compiledViewDef));
   }
 
   public static AnalyticsGridStructure primitives(CompiledViewDefinition compiledViewDef) {
-    List<Row> rows = primitivesRowsForViewDefinition(compiledViewDef);
+    List<Row> rows = primitivesRows(compiledViewDef);
     return new AnalyticsGridStructure(AnalyticsNode.primitivesRoot(rows.size()),
                                       AnalyticsColumns.primitives(compiledViewDef),
                                       rows);
@@ -65,7 +65,7 @@ public class AnalyticsGridStructure {
                                       /*rowsForViewDefinition(compiledViewDef)*/null/* TODO what here? */);
   }
 
-  private static List<Row> portfolioRowsForViewDefinition(CompiledViewDefinition viewDef) {
+  private static List<Row> portfolioRows(CompiledViewDefinition viewDef) {
     PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
       @Override
       public Row apply(PortfolioNode node) {
@@ -85,7 +85,7 @@ public class AnalyticsGridStructure {
     return PortfolioMapper.map(viewDef.getPortfolio().getRootNode(), targetFn);
   }
 
-  private static List<Row> primitivesRowsForViewDefinition(CompiledViewDefinition compiledViewDef) {
+  private static List<Row> primitivesRows(CompiledViewDefinition compiledViewDef) {
     Set<ComputationTargetSpecification> specs = new LinkedHashSet<ComputationTargetSpecification>();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
       for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
