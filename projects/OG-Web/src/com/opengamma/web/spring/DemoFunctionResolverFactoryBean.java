@@ -41,6 +41,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
       @Override
       public int getPriority(final CompiledFunctionDefinition function) {
         if (function instanceof CurrencyConversionFunction || function instanceof PnlSeriesCurrencyConversionFunction) {
+          //TODO set up priorities for the deprecated version of the fixed income P&L function (FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated)
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultPropertyFunction) {
@@ -71,7 +72,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
           return -1;
         }
         if (function instanceof CurrencyMatrixSourcingFunction) {
-          CurrencyMatrixSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSourcingFunction) function;
+          final CurrencyMatrixSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSourcingFunction) function;
           return currencyMatrixSourcingFunction.getPriority();
         }
         return 0;

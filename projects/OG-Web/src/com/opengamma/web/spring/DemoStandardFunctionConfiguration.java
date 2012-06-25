@@ -286,12 +286,14 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShi
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
+import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeDefaultCurrencyFunction;
 import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
 import com.opengamma.financial.currency.PositionDefaultCurrencyFunction;
 import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
+import com.opengamma.financial.currency.YCNSPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.financial.property.PortfolioNodeCalcConfigDefaultPropertyFunction;
@@ -385,6 +387,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(YCNSPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(YCNSPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     // functionConfigs.add(functionConfiguration(CurrencyInversionFunction.class));
     // functionConfigs.add(functionConfiguration(CurrencyCrossRateFunction.class, "USD"));
     // functionConfigs.add(functionConfiguration(BloombergCurrencyRateFunction.class));
