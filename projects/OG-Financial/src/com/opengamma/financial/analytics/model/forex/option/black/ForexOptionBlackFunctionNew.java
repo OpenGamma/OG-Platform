@@ -41,9 +41,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -130,7 +128,11 @@ public abstract class ForexOptionBlackFunctionNew extends AbstractFunction.NonCo
         leftExtrapolatorName, rightExtrapolatorName, target);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(fxMatrix, curveCurrency, yieldCurves, smiles, Pair.of(ccy1, ccy2));
-    return getResult(fxOption, smileBundle, spec);
+    try {
+      return getResult(fxOption, smileBundle, spec);
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException("Could not get " + _valueRequirementName + " for " + security, e);
+    }
   }
 
   @Override
@@ -145,9 +147,9 @@ public abstract class ForexOptionBlackFunctionNew extends AbstractFunction.NonCo
     }
     return target.getSecurity() instanceof FXOptionSecurity
         || target.getSecurity() instanceof FXBarrierOptionSecurity
-//        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        //        || target.getSecurity() instanceof FXDigitalOptionSecurity
         || target.getSecurity() instanceof NonDeliverableFXOptionSecurity;
-//        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
+    //        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity;
   }
 
   @Override

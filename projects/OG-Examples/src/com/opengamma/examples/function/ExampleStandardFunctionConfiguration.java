@@ -147,10 +147,10 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalV
 import com.opengamma.financial.analytics.model.forex.option.localvol.ForexLocalVolatilityForwardPDEPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01Function;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
+import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01FunctionDeprecated;
+import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunctionDeprecated;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
@@ -762,10 +762,10 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFuturePV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, SECONDARY, SECONDARY, "PresentValue", USD, "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(InterestRateFuturePV01FunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, SECONDARY, SECONDARY, "PresentValue", USD, "EUR"));
   }
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {

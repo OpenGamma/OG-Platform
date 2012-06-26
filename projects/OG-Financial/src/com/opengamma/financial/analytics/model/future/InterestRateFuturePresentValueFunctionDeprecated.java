@@ -12,18 +12,16 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Present value function for interest rate futures.
+ * @deprecated Use the version of the function that does not have funding and forward curve properties
+ * @see InterestRateFuturePresentValueFunction
  */
-public class InterestRateFuturePresentValueFunction extends InterestRateFutureFunction {
+@Deprecated
+public class InterestRateFuturePresentValueFunctionDeprecated extends InterestRateFutureFunctionDeprecated {
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
-
-  public InterestRateFuturePresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
-  }
 
   @Override
   protected Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final YieldCurveBundle data, final ValueSpecification spec) {

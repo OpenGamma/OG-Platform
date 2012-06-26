@@ -60,6 +60,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -141,6 +142,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       return false;
     }
     final Security security = target.getPosition().getSecurity();
+    if (security instanceof InterestRateFutureSecurity) {
+      return false;
+    }
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
@@ -325,7 +329,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return pnlSeries;
   }
 
-  private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target) {
+  protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target) {
     final UniqueId uniqueId = target.getPosition().getSecurity().getUniqueId();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currencyString)
