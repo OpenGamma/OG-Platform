@@ -18,17 +18,20 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Provides the reference margin price,
  * for futures, options and other exchange traded securities that are margined
+ * @deprecated Use the version of the function that does not refer to funding or forward curves
+ * @see MarginPriceFunction
  */
-public class MarginPriceFunction extends InterestRateFutureOptionBlackFunction {
+@Deprecated
+public class MarginPriceFunctionDeprecated extends InterestRateFutureOptionBlackFunctionDeprecated {
 
   private static MarginPriceVisitor s_priceVisitor = MarginPriceVisitor.getInstance();
 
-  public MarginPriceFunction() {
+  public MarginPriceFunctionDeprecated() {
     super(ValueRequirementNames.DAILY_PRICE);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle data, ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
     final Double price = irFutureOption.accept(s_priceVisitor, data);
     return Collections.singleton(new ComputedValue(spec, price));
   }

@@ -18,15 +18,18 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Function computes the gamma, second order derivative of position price with respect to the futures rate,
  * for InterestRateFutureOptions in the Black world.
+ * @deprecated Use the version of the function that does not refer to funding and forward curves
+ * @see InterestRateFutureOptionBlackGammaFunction
  */
-public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutureOptionBlackCurveSpecificFunction {
+@Deprecated
+public class InterestRateFutureOptionBlackGammaFunctionDeprecated extends InterestRateFutureOptionBlackCurveSpecificFunctionDeprecated {
 
   /**
    * The calculator to compute the gamma value.
    */
   private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
 
-  public InterestRateFutureOptionBlackGammaFunction() {
+  public InterestRateFutureOptionBlackGammaFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 

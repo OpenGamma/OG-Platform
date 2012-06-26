@@ -27,6 +27,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String EMPIRICAL_HISTORICAL_VAR = "EMPIRICAL_HISTORICAL_VAR";
   public static final String SWAPTION_BLACK_DEFAULTS = "SWAPTION_BLACK_DEFAULTS";
   public static final String INTEREST_RATE_FUTURE = "INTEREST_RATE_FUTURE";
+  public static final String IR_FUTURE_OPTION_BLACK = "IR_FUTURE_OPTION_BLACK";
   //CSON
 
 }

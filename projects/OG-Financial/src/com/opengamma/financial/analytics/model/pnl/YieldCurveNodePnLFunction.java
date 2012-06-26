@@ -61,6 +61,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -102,7 +103,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     for (final String yieldCurveName : yieldCurveNames) {
-      final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target);
+      final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target, constraints);
       final Object ycnsObject = inputs.getValue(ycnsRequirement);
       if (ycnsObject == null) {
         throw new OpenGammaRuntimeException("Could not get yield curve node sensitivities; " + ycnsRequirement);
@@ -142,7 +143,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       return false;
     }
     final Security security = target.getPosition().getSecurity();
-    if (security instanceof InterestRateFutureSecurity) {
+    if (security instanceof InterestRateFutureSecurity || security instanceof IRFutureOptionSecurity) {
       return false;
     }
     if (!(security instanceof FinancialSecurity)) {
@@ -195,7 +196,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target));
+      final ValueRequirement ycns = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, target, constraints);
+      if (ycns == null) {
+        return null;
+      }
+      requirements.add(ycns);
       if (!curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
         requirements.add(getCurveSpecRequirement(currency, yieldCurveName));
       }
@@ -242,7 +247,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return ComputationTargetType.POSITION;
   }
 
-  private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {
+  protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG))
@@ -329,7 +334,8 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return pnlSeries;
   }
 
-  protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target) {
+  protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target,
+      final ValueProperties desiredValueProperties) {
     final UniqueId uniqueId = target.getPosition().getSecurity().getUniqueId();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currencyString)

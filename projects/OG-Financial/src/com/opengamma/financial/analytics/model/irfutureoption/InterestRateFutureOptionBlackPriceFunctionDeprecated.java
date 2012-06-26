@@ -17,13 +17,15 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Displays the Black price of the Security underlying the trade or position
- * 
+ * @deprecated Use the version of the function that does not refer to funding or forward curves
+ * @see InterestRateFutureOptionBlackPriceFunction
  */
-public class InterestRateFutureOptionBlackPriceFunction extends InterestRateFutureOptionBlackFunction {
+@Deprecated
+public class InterestRateFutureOptionBlackPriceFunctionDeprecated extends InterestRateFutureOptionBlackFunctionDeprecated {
 
   private static final BlackPriceCalculator CALCULATOR = BlackPriceCalculator.getInstance();
 
-  public InterestRateFutureOptionBlackPriceFunction() {
+  public InterestRateFutureOptionBlackPriceFunctionDeprecated() {
     super(ValueRequirementNames.SECURITY_MODEL_PRICE);
   }
 

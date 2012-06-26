@@ -17,13 +17,15 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Interpolates, for InterestRateFutureOptions using Black model, and returns the implied volatility required.
- * 
+ * @deprecated Use the version of the function that does not refer to funding or forward curves
+ * @see InterestRateFutureOptionBlackImpliedVolatilityFunction
  */
-public class InterestRateFutureOptionBlackImpliedVolatilityFunction extends InterestRateFutureOptionBlackFunction {
+@Deprecated
+public class InterestRateFutureOptionBlackImpliedVolatilityFunctionDeprecated extends InterestRateFutureOptionBlackFunctionDeprecated {
 
   private static final ImpliedVolatilityBlackCalculator CALCULATOR = ImpliedVolatilityBlackCalculator.getInstance();
 
-  public InterestRateFutureOptionBlackImpliedVolatilityFunction() {
+  public InterestRateFutureOptionBlackImpliedVolatilityFunctionDeprecated() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
 

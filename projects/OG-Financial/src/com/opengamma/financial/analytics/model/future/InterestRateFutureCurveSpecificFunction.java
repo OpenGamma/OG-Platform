@@ -130,14 +130,10 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    if (curveName == null) {
-      throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the desired value " + _valueRequirement);
-    }
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> curves = constraints.getValues(ValuePropertyNames.CURVE);
     if (curves == null || curves.size() != 1) {
-      s_logger.error("Must specify a curve name");
+      s_logger.error("Must specify a curve against which to calculate the desired value " + _valueRequirement);
       return null;
     }
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -164,7 +160,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    requirements.add(getCurveSpecRequirement(target, curveName));
+    requirements.add(getCurveSpecRequirement(target, curve));
     return requirements;
   }
 

@@ -29,7 +29,8 @@ public class InterestRateFutureYieldCurveNodePnLFunction extends YieldCurveNodeP
   }
 
   @Override
-  protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target) {
+  protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target,
+      final ValueProperties desiredValueProperties) {
     final UniqueId uniqueId = target.getPosition().getTrades().iterator().next().getUniqueId();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currencyString)
