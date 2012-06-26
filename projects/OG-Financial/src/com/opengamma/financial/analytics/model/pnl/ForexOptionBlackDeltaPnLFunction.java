@@ -221,6 +221,9 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
       throw new OpenGammaRuntimeException("Instrument was not a FX vanilla option or FX digital; should never happen");
     }
     final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
+    if (dbTimeSeries == null) {
+      throw new OpenGammaRuntimeException("Could not get time series for id bundle " + id);
+    }
     DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);
