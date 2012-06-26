@@ -17,13 +17,13 @@ $.register_module({
             var $wrapper, $input, $button,
                 list = data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
                 open = function () {
-                    $wrapper.blurkill(function () {$input.autocomplete('close');});
                     // open using the current input value or an empty string
                     $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
                 };
             placeholder = placeholder || '';
             autocomplete_obj = {
                 minLength: 0, delay: 0,
+                open: function() {$(this).autocomplete('widget').blurkill(function () {$input.autocomplete('close')});},
                 source: function (req, res) {
                     var escaped = $.ui.autocomplete.escapeRegex(req.term),
                         matcher = new RegExp(escaped, 'i'),
