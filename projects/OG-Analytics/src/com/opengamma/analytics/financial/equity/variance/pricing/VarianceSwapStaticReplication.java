@@ -5,10 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -29,6 +26,9 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -79,13 +79,13 @@ public class VarianceSwapStaticReplication {
     _integrator = integrator;
   }
 
-  public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+  public double presentValue(final VarianceSwap deriv, final EquityOptionDataBundle market) {
     return presentValue(deriv, market, null);
   }
 
-  public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
+  public double presentValue(final VarianceSwap deriv, final EquityOptionDataBundle market, final DoublesPair cutoff) {
     Validate.notNull(deriv, "VarianceSwap deriv");
-    Validate.notNull(market, "VarianceSwapDataBundle market");
+    Validate.notNull(market, "EquityOptionDataBundle market");
 
     if (deriv.getTimeToSettlement() < 0) {
       return 0.0; // All payments have been settled
@@ -119,10 +119,10 @@ public class VarianceSwapStaticReplication {
    * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param deriv VarianceSwap derivative to be priced
-   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+  public double impliedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market) {
     return impliedVariance(deriv, market, null);
   }
 
@@ -131,11 +131,11 @@ public class VarianceSwapStaticReplication {
    * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param deriv VarianceSwap derivative to be priced
-   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
+  public double impliedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market, final DoublesPair cutoff) {
 
     validateData(deriv, market);
 
@@ -158,9 +158,9 @@ public class VarianceSwapStaticReplication {
     return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
-  private void validateData(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+  private void validateData(final VarianceSwap deriv, final EquityOptionDataBundle market) {
     Validate.notNull(deriv, "VarianceSwap deriv");
-    Validate.notNull(market, "VarianceSwapDataBundle market");
+    Validate.notNull(market, "EquityOptionDataBundle market");
 
     final double timeToLastObs = deriv.getTimeToObsEnd();
     final double timeToFirstObs = deriv.getTimeToObsStart();
@@ -174,10 +174,10 @@ public class VarianceSwapStaticReplication {
    * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param expiry Time from spot until last observation
-   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market) {
+  protected double impliedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market) {
     return impliedVarianceFromSpot(expiry, market, null);
   }
 
@@ -186,11 +186,11 @@ public class VarianceSwapStaticReplication {
    * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param expiry Time from spot until last observation
-   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
+  protected double impliedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market, final DoublesPair cutoff) {
     // 1. Unpack Market data
     final double fwd = market.getForwardCurve().getForward(expiry);
     final BlackVolatilitySurface<?> volSurf = market.getVolatilitySurface();
@@ -244,10 +244,10 @@ public class VarianceSwapStaticReplication {
    * This is an estimate of annual Lognormal (Black) volatility
    * 
    * @param deriv VarianceSwap derivative to be priced
-   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVolatility(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+  public double impliedVolatility(final VarianceSwap deriv, final EquityOptionDataBundle market) {
     final double sigmaSquared = impliedVariance(deriv, market);
     return Math.sqrt(sigmaSquared);
   }

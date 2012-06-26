@@ -5,14 +5,15 @@
  */
 package com.opengamma.analytics.financial.equity.future;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.AbstractEquityDerivativeVisitor;
 import com.opengamma.analytics.financial.equity.EquityDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFutureMarkToMarket;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Present value calculator for futures on Equity underlying assets
@@ -72,6 +73,16 @@ public final class EquityFuturesPresentValueCalculator extends AbstractEquityDer
   @Override
   public Double visitVarianceSwap(VarianceSwap derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitVarianceSwap(). Try VarianceSwapPresentValueCalculator");
+  }
+
+  @Override
+  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption, EquityFutureDataBundle data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexOption(). Try EquityIndexOptionPresentValueCalculator");
+  }
+
+  @Override
+  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexOption(). It also requires an DataBundle.");
   }
 
 }

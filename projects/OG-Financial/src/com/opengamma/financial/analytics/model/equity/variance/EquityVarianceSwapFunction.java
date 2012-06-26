@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -124,13 +124,13 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     final double discountFactor = discountCurve.getDiscountFactor(expiry);
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
     final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, forwardCurve);
+    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, discountCurve, forwardCurve);
     
     // 3. Compute and return the value (ComputedValue)
     return computeValues(target, inputs, deriv, market);
   }
 
-  protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
+  protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final EquityOptionDataBundle market);
 
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final ValueProperties properties = getValueProperties(target);

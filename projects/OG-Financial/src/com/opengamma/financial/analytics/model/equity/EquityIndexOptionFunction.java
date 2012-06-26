@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -57,7 +57,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  *
  */
-public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _valueRequirementName;
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
@@ -80,20 +80,10 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
-    final EquityIndexOption option = (EquityIndexOption) defn.toDerivative(now); // TODO Review why a cast is needed?
+    final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
 
     // 2. Build up the market data bundle
-    // a. The Vol Surface
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(security, volSurfaceName));
-    if (volSurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
-    }
-    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    //TODO no choice of other surfaces
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface());
-
     // b. The Funding Curve
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
@@ -101,6 +91,19 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingObject;
+
+    // a. The Vol Surface
+
+    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(security, volSurfaceName));
+    if (volSurfaceObject == null) {
+      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
+    }
+    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
+    //TODO no choice of other surfaces
+    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
+
+
 
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);
@@ -113,20 +116,19 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
     }
     final double spot = (Double) spotObject;
 
-    final ForwardCurve forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve()); //TODO change this
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, fundingCurve, forwardCurve);
+    final ForwardCurve forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve());
+    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
 
     // 3. The Calculation - what we came here to do
-    final double pv = 19770209.;
+    final Object results = computeValues(derivative, market);
 
     // 4. Create Result's Specification that matches the properties promised and Return
     ValueProperties resultProps = getValueProperties(fundingCurveName, volSurfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), resultProps);
-    return Collections.singleton(new ComputedValue(spec, pv));
-
+    return Collections.singleton(new ComputedValue(spec, results));
   }
 
-  // protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final IndexOption derivative, final VarianceSwapDataBundle market);
+  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -168,11 +170,15 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
   }
 
   @Override
+  /**
+   * Get Set of ValueRequirements
+   * If null, engine will attempt to find a default, and call function again
+   */
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
     final ValueProperties constraints = desiredValue.getConstraints();
 
-    // Get Volatility Surface Requirement - if null, engine will attempt to find a default, and call function again
+    // Get Volatility Surface Requirement -
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
@@ -180,9 +186,18 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
     }
     final String volSurfaceName = surfaceNames.iterator().next();
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName);
-
-
-    return Sets.newHashSet(volReq); // getDiscountCurveRequirement(security), getSpotRequirement(security),
+    // Get Funding Curve Requirement
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      return null;
+    }
+    final String fundingCurveName = fundingCurves.iterator().next();
+    final ValueRequirement fundingReq = getDiscountCurveRequirement(security, fundingCurveName);
+    // Spot Index Requirement
+    final ValueRequirement spotReq = getSpotRequirement(security);
+    // Return the set
+    return Sets.newHashSet(fundingReq, volReq, spotReq);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final EquityIndexOptionSecurity security, final String surfaceName) {
@@ -190,8 +205,10 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .get();
     final ExternalId id = security.getUnderlyingId();
-    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
-      UniqueId.of(id.getScheme().getName(), id.getValue());
+//    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
+//      UniqueId.of(id.getScheme().getName(), id.getValue());
+    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index");
+
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
@@ -202,7 +219,7 @@ public class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvok
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
   private ValueRequirement getDiscountCurveRequirement(final EquityIndexOptionSecurity security, final String fundingCurveName) {
-    final ValueProperties properties = ValueProperties.builder().with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);

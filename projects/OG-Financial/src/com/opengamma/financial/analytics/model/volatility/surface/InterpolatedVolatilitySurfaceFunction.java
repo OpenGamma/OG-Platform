@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface;
@@ -41,7 +41,7 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedVolatilitySurfaceFunction.class);

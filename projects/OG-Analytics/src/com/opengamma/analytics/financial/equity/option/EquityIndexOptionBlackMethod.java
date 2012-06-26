@@ -5,8 +5,12 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Pricing method for vanilla Equity Index Option transactions with Black function.
@@ -32,8 +36,16 @@ public final class EquityIndexOptionBlackMethod {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
   public Double presentValue(final EquityIndexOption option, final YieldCurveBundle mktData) {
+    Validate.notNull(option, "The derivative, EquityIndexOption, was null.");
+    Validate.notNull(mktData, "DataBundle was null. Expecting an EquityOptionDataBundle");
+    throw new OpenGammaRuntimeException("EquityIndexOptionBlackMethod requires a data bundle of type EquityOptionDataBundle. Found a YieldCurveBundle.");
+  }
+
+  public Double presentValue(EquityIndexOption derivative, EquityOptionDataBundle market) {
     return null;
   }
+
+  // !!!!!!! SEE InterestRateFutureOptionMarginSecurityBlackSurfaceMethod
 
   /** What else?
    * Delta wrt Spot
