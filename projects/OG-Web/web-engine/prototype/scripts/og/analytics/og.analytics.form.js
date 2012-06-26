@@ -120,9 +120,9 @@ $.register_module({
                      */
                     .on('open', function (event, elm) {
                         if (!aggregation_menu || !datasources_menu) return;
-                        if ($(elm).closest('.og-view').length) {datasources_menu.close(), aggregation_menu.close();}
-                        if ($(elm).closest('.og-aggregation').length) {datasources_menu.close();}
-                        if ($(elm).closest('.og-datasources').length) {aggregation_menu.close();}
+                        if ($(elm).closest('.og-view').length) datasources_menu.close(), aggregation_menu.close();
+                        if ($(elm).closest('.og-aggregation').length) datasources_menu.close();
+                        if ($(elm).closest('.og-datasources').length) aggregation_menu.close();
                     })
                     .on('click', '.og-menu-aggregation button', function () {
                         var val = $(this).text();
@@ -136,7 +136,6 @@ $.register_module({
                     });
                 var auto_combo_menu = new og.common.util.ui.AutoCombo(
                         '.OG-analytics-form .og-view', 'search...', response.view)
-                    .select()
                     .on('input autocompletechange autocompleteselect', function (event, ui) {
                         var $load = $(selector + ' .og-load');
                         if ((ui && ui.item.value || $(this).val()) !== '') {
