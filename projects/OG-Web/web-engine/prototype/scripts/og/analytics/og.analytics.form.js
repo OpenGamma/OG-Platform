@@ -44,7 +44,7 @@ $.register_module({
                     status.status = 'paused';
                 };
                 status.play = function () {
-                    //if (!init) init = !!$(selector + ' button').removeClass('og-disabled');
+                    if (!init) init = !!$(selector + ' button').removeClass('og-disabled');
                     $(selector + ' em').html('live').removeClass('paused').addClass('live');
                     $(selector + ' button').removeClass('og-icon-pause').addClass('og-icon-play');
                     status.message('starting...');
@@ -118,17 +118,10 @@ $.register_module({
                      * The "open" event fires everytime a menu item is opened
                      */
                     .on('open', function (event, elm) {
-                        if (!aggregation_menu.state || !datasources_menu.state) return;
+                        if (!aggregation_menu || !datasources_menu) return;
                         if ($(elm).closest('.og-view').length) {datasources_menu.close(), aggregation_menu.close();}
                         if ($(elm).closest('.og-aggregation').length) {datasources_menu.close();}
                         if ($(elm).closest('.og-datasources').length) {aggregation_menu.close();}
-                        $(document).on('click.analytics.form', function (event) {
-                            // if not self click, close
-                            if (!$(event.target).closest('.OG-analytics-form-menu').length) {
-                                aggregation_menu.close(); datasources_menu.close();
-                                $(document).off('click.analytics.form');
-                            }
-                        });
                     })
                     .on('click', '.og-menu-aggregation button', function () {
                         var val = $(this).text();
@@ -141,16 +134,24 @@ $.register_module({
                         if (val === 'Cancel') datasources_menu.close(), auto_combo_menu.select();
                     });
                 var auto_combo_menu = new og.common.util.ui.AutoCombo(
-                    '.OG-analytics-form .og-view', 'search...', response.view
-                );
+                        '.OG-analytics-form .og-view', 'search...', response.view)
+                    .select()
+                    .on('input autocompletechange autocompleteselect', function (event, ui) {
+                        var $load = $(selector + ' .og-load');
+                        if ((ui && ui.item.value || $(this).val()) !== '') {
+                            $load.removeClass('og-disabled').on('click', function () {
+                                status.play();
+                            });
+                        }
+                        else $load.addClass('og-disabled').off('click');
+                    });
                 var aggregation_menu = new FormCombo(
                     selector + ' .og-aggregation', 'og.analytics.form_aggregation_tash', response.aggregation
                 );
                 var datasources_menu = new FormCombo(
                     selector + ' .og-datasources', 'og.analytics.form_datasources_tash', response.datasources
                 );
-                new Status(selector + ' .og-status'); // .play()
-                auto_combo_menu.select();
+                var status = new Status(selector + ' .og-status');
                 og.views.common.layout.main.allowOverflow('north');
             });
         }
