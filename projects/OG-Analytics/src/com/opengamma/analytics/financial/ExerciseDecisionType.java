@@ -18,4 +18,8 @@ public enum ExerciseDecisionType {
    */
   AMERICAN;
 
+  public static ExerciseDecisionType from(final String name) {
+    final String capsName = name.toUpperCase();
+    return ExerciseDecisionType.valueOf(capsName);
+  }
 }
