@@ -233,6 +233,12 @@ $.register_module({
                             name: 'Timeseries ' + id
                         }
                     };
+                    options.surface = function (id) {
+                        return {
+                            gadget: 'og.common.gadgets.surface',
+                            name: 'Surface ' + id
+                        }
+                    };
                     options.grid = function (id) {
                         return {gadget: 'og.analytics.Grid', name: 'grid ' + id, options: {}}
                     };

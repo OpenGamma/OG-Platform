@@ -262,6 +262,7 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
   </bundle>
