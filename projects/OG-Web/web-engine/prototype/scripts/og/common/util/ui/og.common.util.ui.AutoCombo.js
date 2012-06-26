@@ -51,7 +51,7 @@ $.register_module({
                 return $input.autocomplete('widget').is(':visible') ? $input.autocomplete('close').select() : open();
             });
             $([$wrapper, $button]).prependTo(selector);
-            this.select = function () {$input.select();};
+            return $input;
         }
     }
 });
