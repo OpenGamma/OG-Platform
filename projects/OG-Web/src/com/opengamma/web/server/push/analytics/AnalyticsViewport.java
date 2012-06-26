@@ -46,7 +46,7 @@ import com.opengamma.util.ArgumentChecker;
     updateResults(latestResults, history);
   }
 
-  // TODO this is specific to the portfolio grid, need separate subclasses
+  // TODO this is specific to the main grids, need separate subclasses for depgraphs?
   /* package */ void updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     /*
     get the target for each row in the viewport from the grid structure

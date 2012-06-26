@@ -11,6 +11,8 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -32,6 +34,16 @@ public final class UnderlyingIdentifierCollector {
   public UnderlyingIdentifierCollector() {
     FinancialSecurityVisitor<Void> underlyingIdentifierCollector = new FinancialSecurityVisitorAdapter<Void>() {
 
+      @Override
+      public Void visitEquitySecurity(EquitySecurity security) {
+        return null;
+      }
+      
+      @Override
+      public Void visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+        return null;
+      }
+      
       @Override
       public Void visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
         return null;

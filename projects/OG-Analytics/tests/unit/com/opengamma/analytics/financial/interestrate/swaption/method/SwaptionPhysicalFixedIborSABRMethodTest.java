@@ -417,7 +417,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    final int nbTest = 1000;
+    final int nbTest = 10000;
     final double[] pv = new double[nbTest];
     final PresentValueSABRSensitivityDataBundle[] pvss = new PresentValueSABRSensitivityDataBundle[nbTest];
 

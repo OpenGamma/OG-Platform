@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -44,6 +45,7 @@ public class AnalyticsColumns {
 
   private AnalyticsColumns(List<AnalyticsColumnGroup> columnGroups,
                            Map<RequirementBasedColumnKey, Integer> indexByRequirement,
+                           // TODO is this needed for primitives? depgraphs? do I need a portfolio-specific subclass?
                            Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
     List<AnalyticsColumn> colList = new ArrayList<AnalyticsColumn>();
     _columnGroups = columnGroups;
@@ -66,12 +68,12 @@ public class AnalyticsColumns {
                                 Collections.<String, Map<ValueSpecification,Set<ValueRequirement>>>emptyMap());
   }
 
-  /**
-   * @return
-   */
+  // TODO combine with primitives()
   /* package */ static AnalyticsColumns portfolio(CompiledViewDefinition compiledViewDef) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
+    // map of column index keyed by column key
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
+    // column group for the label column
     AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "")));
     List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
     Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
@@ -79,8 +81,10 @@ public class AnalyticsColumns {
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
+      // store the mappings from outputs to requirements for each calc config
       specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
+
       for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
         String valueName = portfolioOutput.getFirst();
         ValueProperties constraints = portfolioOutput.getSecond();
@@ -98,12 +102,38 @@ public class AnalyticsColumns {
     return new AnalyticsColumns(columnGroups, indexMap, specsToReqs);
   }
 
-  /**
-   * @return
-   */
-  /* package */ static AnalyticsColumns primitives(CompiledViewDefinition compiledViewDef) {
-    // TODO implement
-    return AnalyticsColumns.empty();
+  // TODO combine with portfolio()
+/* package */ static AnalyticsColumns primitives(CompiledViewDefinition compiledViewDef) {
+    ViewDefinition viewDef = compiledViewDef.getViewDefinition();
+    // map of column index keyed by column key
+    Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
+    // column group for the label column
+    AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "")));
+    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
+    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
+    int colIndex = 1; // col 0 is the node name
+    for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
+      String configName = calcConfig.getName();
+      CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
+      // store the mappings from outputs to requirements for each calc config
+      specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
+      List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
+
+      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
+        if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+          String valueName = specificRequirement.getValueName();
+          ValueProperties constraints = specificRequirement.getConstraints();
+          RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(configName, valueName, constraints);
+          if (!indexMap.containsKey(columnKey)) {
+            indexMap.put(columnKey, colIndex);
+            colIndex++;
+            configColumns.add(AnalyticsColumn.forKey(columnKey));
+          }
+        }
+      }
+      columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
+    }
+    return new AnalyticsColumns(columnGroups, indexMap, specsToReqs);
   }
 
   /**

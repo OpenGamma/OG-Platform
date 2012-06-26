@@ -99,9 +99,9 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     Validate.notNull(other, "Sensitivity");
     final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     map.putAll(_sensitivity);
-    final MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
+    MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
     for (final Currency loopccy : other._sensitivity.keySet()) {
-      result.plus(loopccy, other.getSensitivity(loopccy));
+      result = result.plus(loopccy, other.getSensitivity(loopccy));
     }
     return result;
   }

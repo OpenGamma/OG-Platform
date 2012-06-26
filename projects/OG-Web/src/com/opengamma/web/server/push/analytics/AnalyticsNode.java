@@ -38,10 +38,14 @@ public class AnalyticsNode {
     return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
   }
 
-  public static AnalyticsNode create(CompiledViewDefinition compiledViewDef) {
+  public static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
     Portfolio portfolio = compiledViewDef.getPortfolio();
     PortfolioNode root = portfolio.getRootNode();
     return new Builder(root).getRoot();
+  }
+
+  public static AnalyticsNode primitivesRoot(int primitivesTargetCount) {
+    return new AnalyticsNode(0, primitivesTargetCount - 1, Collections.<AnalyticsNode>emptyList());
   }
 
   /**

@@ -19,9 +19,9 @@ import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 /**
  * 
  */
-public class FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
+public class YCNSPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
-  public FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
+  public YCNSPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
   }
 
@@ -29,10 +29,11 @@ public class FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction extends Pn
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
+        .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
+        .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
