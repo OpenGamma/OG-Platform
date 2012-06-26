@@ -158,13 +158,13 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
-      return null;
-    }
     final Set<String> curves = constraints.getValues(ValuePropertyNames.CURVE);
     if (curves == null || curves.size() != 1) {
       s_logger.error("Must specify a curve name");
+      return null;
+    }
+    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();

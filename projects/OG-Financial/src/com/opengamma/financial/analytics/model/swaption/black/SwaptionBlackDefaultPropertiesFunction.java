@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.swaption.deprecated;
+package com.opengamma.financial.analytics.model.swaption.black;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,44 +15,32 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated Use the version of this function that does not refer to funding and forward curves
- * @see SwaptionBlackDefaultPropertiesFunction
+ * 
  */
-@Deprecated
-public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
+public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-    ValueRequirementNames.VALUE_THETA
   };
-  private final String _forwardCurveName;
-  private final String _fundingCurveName;
+  private final String _curveCalculationConfig;
   private final String _surfaceName;
-  private final String _curveCalculationMethod;
   private final String[] _applicableCurrencies;
 
-  public SwaptionBlackDefaultPropertiesFunctionDeprecated(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
-      final String curveCalculationMethod, final String... applicableCurrencies) {
+  public SwaptionBlackDefaultPropertiesFunction(final String curveCalculationConfig, final String surfaceName, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
-    ArgumentChecker.notNull(fundingCurveName, "funding curve name");
+    ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config name");
     ArgumentChecker.notNull(surfaceName, "surface name");
-    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
-    _forwardCurveName = forwardCurveName;
-    _fundingCurveName = fundingCurveName;
+    _curveCalculationConfig = curveCalculationConfig;
     _surfaceName = surfaceName;
-    _curveCalculationMethod = curveCalculationMethod;
     _applicableCurrencies = applicableCurrencies;
   }
 
@@ -74,8 +62,7 @@ public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPro
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : s_valueRequirements) {
-      defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-      defaults.addValuePropertyName(valueRequirement, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
@@ -83,24 +70,18 @@ public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPro
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
-    }
-    if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
-      return Collections.singleton(_fundingCurveName);
+    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
+      return Collections.singleton(_curveCalculationConfig);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
-    }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }
 
   @Override
   public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
+    return PriorityClass.ABOVE_NORMAL;
   }
 
   @Override

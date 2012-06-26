@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
-public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
+public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PAR_RATE,
@@ -39,11 +39,11 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   private final PriorityClass _priority;
   private final String _applicableCurrencyName;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationConfig, final String priority, final String applicableCurrencyName) {
+  public InterestRateInstrumentDefaultPropertiesFunction(final String curveCalculationConfig, final String priority, final String applicableCurrencyName) {
     this(curveCalculationConfig, priority, null, applicableCurrencyName);
   }
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationConfig, final String priority, final String excludedSecurityName,
+  public InterestRateInstrumentDefaultPropertiesFunction(final String curveCalculationConfig, final String priority, final String excludedSecurityName,
       final String applicableCurrencyName) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
