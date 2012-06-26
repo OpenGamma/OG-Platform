@@ -17,6 +17,7 @@ $.register_module({
             var $wrapper, $input, $button,
                 list = data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
                 open = function () {
+                    $wrapper.blurkill(function () {$input.autocomplete('close');});
                     // open using the current input value or an empty string
                     $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
                 };

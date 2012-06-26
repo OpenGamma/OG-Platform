@@ -18,7 +18,8 @@ $.register_module({
                     menu.state = 'closed';
                     menu.focus = function () {return $popdiv.find('select').first().focus() && menu};
                     menu.open = function () {
-                        $popdiv = $(selector + ' .OG-analytics-form-menu').show().trigger('open', $title);
+                        $popdiv = $(selector + ' .OG-analytics-form-menu').show()
+                            .blurkill(menu.close).trigger('open', $title);
                         $title.addClass('og-active');
                         menu.state = 'open';
                         return menu;

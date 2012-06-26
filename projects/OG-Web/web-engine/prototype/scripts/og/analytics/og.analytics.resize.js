@@ -57,16 +57,7 @@ $.register_module({
                             // extract preset number from class and load
                             load_preset(+$(this).find('> span').attr('class').replace(/^(?:.*)([1-3])$/, '$1'));
                             $menu.remove(); // it should already be gone, but just in case you are IE8
-                        }).appendTo('body');
-                    $(document).on('mouseup.og_analytics_resize', function () {
-                        $(document).off('mouseup.og_analytics_resize');
-                        setTimeout(function () {
-                            $(document).on('mousedown.og_analytics_resize', function () {
-                                $menu.remove();
-                                $(document).off('mousedown.og_analytics_resize');
-                            });
-                        }, 50);
-                    });
+                        }).appendTo('body').blurkill();
                 });
                 return false;
             };
