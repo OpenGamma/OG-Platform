@@ -32,13 +32,13 @@ public class FXUtils {
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.#####");
   private static final Map<Currency, Integer> BASE_ORDER = new HashMap<Currency, Integer>();
   static {
+    //TODO get rid of all of this and use CurrencyPairs
     BASE_ORDER.put(Currency.EUR, 1);
     BASE_ORDER.put(Currency.GBP, 2);
     BASE_ORDER.put(Currency.AUD, 4);
     BASE_ORDER.put(Currency.NZD, 4);
     BASE_ORDER.put(Currency.USD, 5);
     BASE_ORDER.put(Currency.CHF, 6);
-    BASE_ORDER.put(Currency.of("BRL"), 7);
     BASE_ORDER.put(Currency.CAD, 8);
   }
 
