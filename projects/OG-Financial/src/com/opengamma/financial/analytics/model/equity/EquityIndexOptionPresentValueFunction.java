@@ -22,7 +22,7 @@ public class EquityIndexOptionPresentValueFunction extends EquityIndexOptionFunc
 
   @Override
   protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
-    final double pv = 999.0; // s_calculator.visitEquityIndexOption(derivative, market);
+    final double pv = s_calculator.visitEquityIndexOption(derivative, market);
     return pv;
   }
 

@@ -77,7 +77,7 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
-import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
@@ -730,9 +730,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, "FUNDING", "TEST",
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
     functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
-    // This is temporary. Change when the base function becomes abstract, change again when defaults are set up :)
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexOptionFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE))); // See addBlackCalculators
-    // functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaultPropertiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
+
+    functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class)); // TODO s/addBlackCalculators and s/InterestRateFutureOptionBlackDefaultPropertiesFunction for ideas on how to flesh this out
+
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {

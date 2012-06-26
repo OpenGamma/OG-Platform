@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.equity.option;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 
 import org.apache.commons.lang.Validate;
 
@@ -16,6 +16,14 @@ import org.apache.commons.lang.Validate;
  * Pricing method for vanilla Equity Index Option transactions with Black function.
  */
 public final class EquityIndexOptionBlackMethod {
+
+  /** TODO What else?
+   * Delta wrt Fwd
+   * Delta wrt Strike (DualDelta)
+   * Gamma (spot, fwd, strike)
+   * Vega (wrt impliedVol surface)
+   * Rates Delta (again, single rate, and curve)
+   */
 
   private static final EquityIndexOptionBlackMethod INSTANCE = new EquityIndexOptionBlackMethod();
 
@@ -29,35 +37,100 @@ public final class EquityIndexOptionBlackMethod {
   private EquityIndexOptionBlackMethod() {
   }
 
-  /**
-   * The Black function used in the pricing. Works on EuropeanVanillaOption.
-   * TODO !!! Use this? Or BlackFormulaRepository
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The <b>forward</b> price of an option using the Black formula. PV / ZeroBond(timeToSettlement) 
    */
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
+  public double forwardPrice(EquityIndexOption derivative, EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double fwdPrice = BlackFormulaRepository.price(forward, strike, expiry, blackVol, derivative.isCall());
+    return fwdPrice;
+  }
 
-  public Double presentValue(final EquityIndexOption option, final YieldCurveBundle mktData) {
-    Validate.notNull(option, "The derivative, EquityIndexOption, was null.");
-    Validate.notNull(mktData, "DataBundle was null. Expecting an EquityOptionDataBundle");
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return Current DiscountBond or ZeroBond price for payment at the settlement date 
+   */
+  public double discountToSettlement(EquityIndexOption derivative, EquityOptionDataBundle marketData) {
+    final double df = marketData.getDiscountCurve().getDiscountFactor(derivative.getTimeToSettlement());
+    return df;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The present value of the option 
+   */
+  public double presentValue(EquityIndexOption derivative, EquityOptionDataBundle marketData) {
+    final double fwdPrice = forwardPrice(derivative, marketData);
+    final double df = discountToSettlement(derivative, marketData);
+    return df * fwdPrice;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An YieldCurveBundle, which won't work
+   * @return OpenGammaRuntimeException
+   */
+  public double presentValue(final EquityIndexOption derivative, final YieldCurveBundle marketData) {
+    Validate.notNull(derivative, "The derivative, EquityIndexOption, was null.");
+    Validate.notNull(marketData, "DataBundle was null. Expecting an EquityOptionDataBundle");
     throw new OpenGammaRuntimeException("EquityIndexOptionBlackMethod requires a data bundle of type EquityOptionDataBundle. Found a YieldCurveBundle.");
   }
 
-  public Double presentValue(EquityIndexOption derivative, EquityOptionDataBundle market) {
-    return null;
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The simple delta wrt the underlying, d(PV)/d(spotIndex) 
+   */
+  public double delta(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final boolean isCall = derivative.isCall();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double delta = BlackFormulaRepository.simpleDelta(forward, strike, expiry, blackVol, isCall);
+    return delta;
   }
 
-  // !!!!!!! SEE InterestRateFutureOptionMarginSecurityBlackSurfaceMethod
-
-  /** What else?
-   * Delta wrt Spot
-   * Delta wrt Fwd
-   * Delta wrt Strike (DualDelta)
-   * Gamma (spot, fwd)
-   * ImpliedVol
-   * Vega (wrt single impliedVol)
-   * Vega (wrt impliedVol surface)
-   * Rates Delta (again, single rate, and curve)
-   * 
-   * 
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The simple vega, d(PV)/d(blackVol) 
    */
+  public double vega(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double fwdVega = BlackFormulaRepository.vega(forward, strike, expiry, blackVol);
+    final double df = discountToSettlement(derivative, marketData);
+    return df * fwdVega;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The lognormal Black Volatility 
+   */
+  public double impliedVol(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    return blackVol;
+  }
 
 }
