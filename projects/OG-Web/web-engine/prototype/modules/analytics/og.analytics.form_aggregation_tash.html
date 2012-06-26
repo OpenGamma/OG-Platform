@@ -13,7 +13,6 @@
     {{#each row}}
     <tr>
       <td><span>{{this.num}}</span></td>
-      <td><label for="agg{{this.num}}">{{this.label}}</label></td>
       <td>
         <select id="agg{{this.num}}">
           <option>select aggregation type...</option>
@@ -32,9 +31,8 @@
     {{/each}}
     <tr>
       <td></td>
-      <td></td>
       <td><a href="#" class="OG-link-add">add</a></td>
-      <td colspan="2">
+      <td>
         <button>OK</button>
         <button>Cancel</button>
       </td>
