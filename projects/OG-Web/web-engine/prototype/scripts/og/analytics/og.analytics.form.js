@@ -138,7 +138,7 @@ $.register_module({
                         '.OG-analytics-form .og-view', 'search...', response.view)
                     .on('input autocompletechange autocompleteselect', function (event, ui) {
                         var $load = $(selector + ' .og-load');
-                        if ((ui && ui.item.value || $(this).val()) !== '') {
+                        if ((ui && ui.item && ui.item.value || $(this).val()) !== '') {
                             $load.removeClass('og-disabled').on('click', function () {
                                 status.play();
                             });
