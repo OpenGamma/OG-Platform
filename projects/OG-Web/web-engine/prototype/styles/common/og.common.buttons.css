@@ -23,6 +23,12 @@
         background: linear-gradient(top, #f3f3f3 0%,#f3f3f3 50%,#ebebeb 52%,#f3f3f3 100%)!important; /* W3C */
     }
 
+    button.og-disabled {
+        color: #bbb;
+        text-shadow: 0 1px 0 #fff;
+        cursor: default;
+    }
+
 /* Inline with form elements */
 
     button.og-inline-form {
