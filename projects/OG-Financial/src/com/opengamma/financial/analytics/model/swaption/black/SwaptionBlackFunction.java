@@ -21,7 +21,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -49,7 +48,8 @@ import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunctionNew;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -98,7 +98,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
-    final YieldCurveBundle curves = getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -170,7 +170,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currency).get();
@@ -178,14 +178,13 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
     return properties;
 
   }
-
 
   protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -210,42 +209,6 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
     }
     return requirements;
-  }
-
-  //TODO won't work if curves have different currencies
-  protected static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    if (curveConfig.getExogenousConfigData() != null) {
-      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
-        final String exogenousConfigName = entry.getKey();
-        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable exogenousId = exogenousConfig.getUniqueId();
-        final String exogenousCalculationMethod = exogenousConfig.getCalculationMethod();
-        for (final String curveName : entry.getValue()) {
-          final ValueRequirement curveRequirement = getCurveRequirement(exogenousId, curveName, exogenousConfigName, exogenousCalculationMethod);
-          final Object curveObject = inputs.getValue(curveRequirement);
-          if (curveObject == null) {
-            throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
-          }
-          final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-          curves.setCurve(curveName, curve);
-        }
-        curves.addAll(getYieldCurves(inputs, exogenousConfig, configSource));
-      }
-    }
-    final String[] curveNames = curveConfig.getYieldCurveNames();
-    final UniqueIdentifiable id = curveConfig.getUniqueId();
-    for (final String curveName : curveNames) {
-      final ValueRequirement curveRequirement = getCurveRequirement(id, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
-      final Object curveObject = inputs.getValue(curveRequirement);
-      if (curveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
-      }
-      final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-      curves.setCurve(curveName, curve);
-    }
-    return curves;
   }
 
   protected static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
