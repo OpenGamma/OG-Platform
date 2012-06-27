@@ -52,7 +52,6 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     FIELD_OPT_UNDL_CRNCY,
     FIELD_OPT_EXPIRE_DT,
     FIELD_ID_BBG_UNIQUE,
-    FIELD_OPT_TICK_VAL,
     FIELD_FUT_VAL_PT,
     FIELD_UNDL_ID_BB_UNIQUE);
 
@@ -83,7 +82,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     String exchangeCode = fieldData.getString(FIELD_EXCH_CODE);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX); // Bloomberg data in percent.
-    double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
+    double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
     String putOrCall = fieldData.getString(FIELD_OPT_PUT_CALL);
     String underlingTicker = fieldData.getString(FIELD_OPT_UNDERLYING_SECURITY_DES);
     String currency = fieldData.getString(FIELD_OPT_UNDL_CRNCY);
