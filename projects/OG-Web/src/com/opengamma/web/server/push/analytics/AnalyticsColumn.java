@@ -91,4 +91,11 @@ public class AnalyticsColumn {
     return sb.toString();
   }
 
+  @Override
+  public String toString() {
+    return "AnalyticsColumn [" +
+        "_header='" + _header + '\'' +
+        ", _description='" + _description + '\'' +
+        "]";
+  }
 }

@@ -25,9 +25,9 @@ import com.opengamma.util.ArgumentChecker;
 /* package */ class AnalyticsViewport {
 
   private final AnalyticsGridStructure _gridStructure;
-  private final ViewportSpecification _viewportSpec;
   private final String _dataId;
 
+  private ViewportSpecification _viewportSpec;
   private ViewportResults _latestResults;
 
   /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
@@ -41,9 +41,8 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(history, "history");
     ArgumentChecker.notNull(dataId, "dataId");
     _gridStructure = gridStructure;
-    _viewportSpec = viewportSpec;
     _dataId = dataId;
-    updateResults(latestResults, history);
+    update(viewportSpec, latestResults, history);
   }
 
   // TODO this is specific to the main grids, need separate subclasses for depgraphs?
@@ -59,10 +58,6 @@ import com.opengamma.util.ArgumentChecker;
     for (Integer rowIndex : _viewportSpec.getRows()) {
       AnalyticsGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
-      String rowName = row.getName();
-      List<Object> rowResults = new ArrayList<Object>(_viewportSpec.getColumns().size() + 1);
-      // row label always goes in the first column
-      rowResults.add(rowName);
       Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
       if (targetResult != null) {
@@ -80,7 +75,16 @@ import com.opengamma.util.ArgumentChecker;
           }
         }
       }
-      rowResults.addAll(rowResultsMap.values());
+      String rowName = row.getName();
+      List<Object> rowResults = new ArrayList<Object>(_viewportSpec.getColumns().size() + 1);
+      // row label always goes in the first column
+      rowResults.add(rowName);
+      for (int colIndex = 1; colIndex < _gridStructure.getColumns().getColumnCount(); colIndex++) {
+        if (_viewportSpec.getColumns().contains(colIndex)) {
+          // this intentionally inserts null into the results if there is no value for a given column
+          rowResults.add(rowResultsMap.get(colIndex));
+        }
+      }
       allResults.add(rowResults);
     }
     _latestResults = new ViewportResults(allResults);
@@ -91,8 +95,15 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
-    // TODO implement AnalyticsViewport.update()
-    throw new UnsupportedOperationException("update not implemented");
+    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
+    ArgumentChecker.notNull(results, "results");
+    ArgumentChecker.notNull(history, "history");
+    if (!viewportSpec.isValidFor(_gridStructure)) {
+      throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
+                                             viewportSpec + ", grid: " + _gridStructure);
+    }
+    _viewportSpec = viewportSpec;
+    updateResults(results, history);
   }
 
   public String getDataId() {

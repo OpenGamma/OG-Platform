@@ -32,4 +32,8 @@ public class AnalyticsColumnGroup {
   /* package */ List<AnalyticsColumn> getColumns() {
     return _columns;
   }
+
+  @Override
+  public String toString() { return "AnalyticsColumnGroup [_name='" + _name + '\'' + ", _columns=" + _columns + "]";
+  }
 }

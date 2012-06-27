@@ -89,7 +89,7 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
-    getGrid(gridType).updateViewport(viewportId, viewportSpec, null);
+    getGrid(gridType).updateViewport(viewportId, viewportSpec, _history);
   }
 
   @Override
