@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
+import com.opengamma.masterdb.portfolio.DataDbPortfolioMasterResource;
 import com.opengamma.masterdb.portfolio.DbPortfolioMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -100,7 +100,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractComponentFactory 
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataPortfolioMasterResource(master));
+      repo.getRestComponents().publish(info, new DataDbPortfolioMasterResource(master));
     }
   }
 
