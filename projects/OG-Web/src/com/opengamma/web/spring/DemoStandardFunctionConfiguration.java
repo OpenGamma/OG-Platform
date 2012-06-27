@@ -115,6 +115,12 @@ import com.opengamma.financial.analytics.model.equity.variance.EquityForwardFrom
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapVegaFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapYieldCurveNodeSensitivityFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPV01FunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated;
@@ -470,6 +476,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
+    addFixedIncomeInstrumentCalculators(functionConfigs);
     addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
@@ -1194,6 +1201,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunctionDeprecated.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
+  }
+  
+  private static void addFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
   }
 
   private static void addDeprecatedFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {

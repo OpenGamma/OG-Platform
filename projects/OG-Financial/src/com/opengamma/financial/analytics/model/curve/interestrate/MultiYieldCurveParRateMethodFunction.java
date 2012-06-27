@@ -32,9 +32,14 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderIRSJacobian;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadRateCalculator;
+import com.opengamma.analytics.financial.interestrate.ParSpreadRateCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -81,8 +86,9 @@ import com.opengamma.id.ExternalId;
  * 
  */
 public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunction {
-  private static final ParRateCalculator PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
-  private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
+  
+  private static final ParSpreadRateCalculator PAR_SPREAD_RATE_CALCULATOR = ParSpreadRateCalculator.getInstance();
+  private static final ParSpreadRateCurveSensitivityCalculator PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR = ParSpreadRateCurveSensitivityCalculator.getInstance();
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
   private static final String LEFT_EXTRAPOLATOR_NAME = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
   private static final String RIGHT_EXTRAPOLATOR_NAME = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
@@ -113,13 +119,14 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final String useFiniteDifferenceName = desiredValue.getConstraint(PROPERTY_USE_FINITE_DIFFERENCE);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
-    final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
     for (final String curveName : curveNames) {
       int nInstruments = 0;
@@ -138,16 +145,16 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
             final InstrumentDefinition<?> unitNotional = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+            // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, dataSource);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);
-            marketValues.add(1 - marketValue);
           } else {
             derivatives.add(derivative);
-            nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
             initialRatesGuess.add(marketValue);
-            marketValues.add(marketValue);
           }
+          nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
+          marketValues.add(0.0);
           nInstruments++;
         }
       }
@@ -162,10 +169,10 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), null, curveNodes, interpolators, useFiniteDifference);
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference);
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_SPREAD_RATE_CALCULATOR);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
     final ValueProperties properties = getProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
@@ -263,4 +270,5 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         .with(PROPERTY_DECOMPOSITION, decomposition)
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
+  
 }

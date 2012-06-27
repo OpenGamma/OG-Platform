@@ -99,7 +99,7 @@ public final class ParSpreadRateCurveSensitivityCalculator extends AbstractInstr
 
   @Override
   public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves);
+    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves).multiply(-1.0);
   }
 
 }

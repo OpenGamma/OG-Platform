@@ -154,15 +154,16 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
             final InstrumentDefinition<?> unitNotional = ((InterestRateFutureDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
+            // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, dataSource);
             derivatives.add(unitNotionalDerivative);
             initialRatesGuess.add(1 - marketValue);
           } else {
             derivatives.add(derivative);
-            nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
             initialRatesGuess.add(marketValue);
           }
-          marketValues.add(0.);
+          nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
+          marketValues.add(0.0);
           nInstruments++;
         }
       }
@@ -171,23 +172,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       interpolators.put(curveName,
           CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.getInterpolatorName(spec.getInterpolator()), LEFT_EXTRAPOLATOR_NAME, RIGHT_EXTRAPOLATOR_NAME));
     }
-    YieldCurveBundle knownCurves = null;
-    if (curveCalculationConfig.getExogenousConfigData() != null) {
-      knownCurves = new YieldCurveBundle();
-      final LinkedHashMap<String, String[]> exogenousCurveNames = curveCalculationConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurveNames.entrySet()) {
-        for (final String exogenousCurveName : entry.getValue()) {
-          final ValueProperties properties = ValueProperties.builder()
-              .with(ValuePropertyNames.CURVE, exogenousCurveName).get();
-          final Object exogenousCurveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, targetSpec, properties));
-          if (exogenousCurveObject == null) {
-            throw new OpenGammaRuntimeException("Could not get exogenous curve named " + exogenousCurveName);
-          }
-          final YieldAndDiscountCurve exogenousCurve = (YieldAndDiscountCurve) exogenousCurveObject;
-          knownCurves.setCurve(exogenousCurveName, exogenousCurve);
-        }
-      }
-    }
+    final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
     final int iterations = Integer.parseInt(iterationsName);

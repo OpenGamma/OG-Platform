@@ -114,9 +114,8 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
-    final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, dataSource, curveNames, definition, _definitionConverter);
+    final YieldCurveBundle bundle = InterestRateInstrumentFunction.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName);
     final ValueSpecification resultSpec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
     return getResults(derivative, curveName, bundle, curveCalculationConfigName, curveCalculationMethod, inputs, target, resultSpec);

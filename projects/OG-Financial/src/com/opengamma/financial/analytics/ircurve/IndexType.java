@@ -15,6 +15,6 @@ public enum IndexType {
   Tibor,
   /** Euribor */
   Euribor,
-  /** BBSW */
-   BBSW
+  /** BBSW (AUD) */
+  BBSW
 }
