@@ -14,8 +14,7 @@ $.register_module({
          * selector (String) and data (Array) are required, placeholder (String) is optional
          */
         return function (selector, placeholder, data) {
-            var $wrapper, $input, $button,
-                list = data.map(function (val) {return val.replace(/^.*\|(.*)\|.*$/, '$1');}), autocomplete_obj,
+            var $wrapper, $input, $button, autocomplete_obj,
                 open = function () {
                     // open using the current input value or an empty string
                     $input.autocomplete('search', ($input.val() !== placeholder) ? ($input.val() || '') : '').select();
@@ -33,8 +32,8 @@ $.register_module({
                                 '<strong>$1</strong>'
                             );
                         };
-                    res(list.reduce(function (acc, val) {
-                        if (val && (!req.term || matcher.test(val))) acc.push({label: htmlize(val), value: val});
+                    res(data.reduce(function (acc, val) {
+                        if (!req.term || matcher.test(val.name)) acc.push({label: htmlize(val.name), value: val.id});
                         return acc;
                     }, []));
                 }

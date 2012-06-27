@@ -60,10 +60,10 @@ $.register_module({
             };
             $.when(
                 og.api.text({module: 'og.analytics.form_tash'}),
-                og.api.rest.configs.get({handler: function (r) {return r}})
+                og.api.rest.viewdefinitions.get({})
             ).then(function (template, search) {
                 var response = { // dummy response
-                    view: search.data.data,
+                    view: search.data,
                     aggregation: {
                         aggregators: ['Long / Short', 'Asset Class'],
                         row: [
