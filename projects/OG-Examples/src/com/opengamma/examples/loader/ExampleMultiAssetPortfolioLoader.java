@@ -10,9 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+
+import org.apache.poi.hssf.record.formula.functions.Now;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
@@ -568,12 +571,13 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private Collection<FinancialSecurity> getSwaptions() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    final int year = LocalDate.now().getYear();
     
     final EuropeanExerciseType europeanExerciseType = new EuropeanExerciseType();
     final SwapSecurity swap1 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2022, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 11, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -593,16 +597,16 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap1.setName("Swap: pay 3m Libor vs 4% fixed, start=1/6/2012, maturity=1/6/2022, notional=USD 10MM");
     storeFinancialSecurity(swap1);
     final SwaptionSecurity swaption1 = new SwaptionSecurity(false, swap1.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
-        true, new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC)), 
+        true, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption1.setName("Vanilla swaption, 1Y x 10Y, USD 10,000,000 @ 4%");
     securities.add(swaption1);
     
     final SwapSecurity swap2 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2015, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 4, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -622,16 +626,16 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap2.setName("Swap: pay 3m Libor vs 1% fixed, start=1/6/2013, maturity=1/6/2015, notional=USD 3MM");
     storeFinancialSecurity(swap2);
     final SwaptionSecurity swaption2 = new SwaptionSecurity(false, swap2.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
-        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption2.setName("Vanilla swaption, 2Y x 2Y, USD 3,000,000 @ 1%");
     securities.add(swaption2);
 
     final SwapSecurity swap3 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2031, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 20, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -651,7 +655,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap3.setName("Swap: pay 3m Libor vs 3.5% fixed, start=1/6/2016, maturity=1/6/2031, notional=USD 6MM");
     storeFinancialSecurity(swap3);
     final SwaptionSecurity swaption3 = new SwaptionSecurity(false, swap3.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
-        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption3.setName("Vanilla swaption, 5Y x 15Y, USD 6,000,000 @ 3.5%");
