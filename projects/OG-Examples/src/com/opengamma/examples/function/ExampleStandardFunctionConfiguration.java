@@ -114,12 +114,12 @@ import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRa
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexForwardDefaultPropertiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexOptionBlackDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.forex.forward.old.ForexForwardCurrencyExposureFunction;
-import com.opengamma.financial.analytics.model.forex.forward.old.ForexForwardPresentValueCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.forex.forward.old.ForexForwardPresentValueFunction;
-import com.opengamma.financial.analytics.model.forex.forward.old.ForexForwardYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.forward.deprecated.ForexForwardCurrencyExposureFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.forward.deprecated.ForexForwardPresentValueCurveSensitivityFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.forward.deprecated.ForexForwardPresentValueFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.forward.deprecated.ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackPresentValueFunction;
@@ -723,41 +723,41 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ForexForwardPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardPresentValueFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunctionDeprecated.class));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "EUR", "USD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "USD", "GBP"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "GBP", "USD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "USD", "JPY"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "JPY", "USD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "USD", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "CHF", "USD"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "EUR", "GBP"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "GBP", "EUR"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "EUR", "JPY"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "JPY", "EUR"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "EUR", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "GBP", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPropertiesFunctionDeprecated.class, "SECONDARY", "SECONDARY", "PresentValue", "SECONDARY", "SECONDARY",
         "PresentValue", "CHF", "JPY"));
   }
 
