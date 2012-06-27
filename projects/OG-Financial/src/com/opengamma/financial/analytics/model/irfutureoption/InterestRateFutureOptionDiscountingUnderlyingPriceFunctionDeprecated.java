@@ -16,22 +16,24 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * @deprecated Use the version of the function that does not refer to funding or forward curves
+ * @see InterestRateFutureOptionDiscountingUnderlyingPriceFunction
  */
-public class InterestRateFutureOptionDiscountingUnderlyingPriceFunction extends InterestRateFutureOptionBlackFunction {
+@Deprecated
+public class InterestRateFutureOptionDiscountingUnderlyingPriceFunctionDeprecated extends InterestRateFutureOptionBlackFunctionDeprecated {
 
   private static final DiscountingUnderlyingFuturePriceCalculator CALCULATOR = DiscountingUnderlyingFuturePriceCalculator.getInstance();
-  
+
   /**
    * @param valueRequirementName
    */
-  public InterestRateFutureOptionDiscountingUnderlyingPriceFunction() {
+  public InterestRateFutureOptionDiscountingUnderlyingPriceFunctionDeprecated() {
     super(ValueRequirementNames.UNDERLYING_MODEL_PRICE);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle data, ValueSpecification spec) {
-    final Double price = irFutureOption.accept(CALCULATOR, data);   
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+    final Double price = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, price));
   }
 

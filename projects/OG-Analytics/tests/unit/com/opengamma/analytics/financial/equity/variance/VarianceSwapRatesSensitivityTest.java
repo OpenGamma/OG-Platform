@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -82,7 +82,7 @@ public class VarianceSwapRatesSensitivityTest {
 
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
     final BlackVolatilitySurfaceDelta DELTA_VOL_SURFACE = new BlackVolatilitySurfaceDelta(DELTA_SURFACE, FORWARD_CURVE);
-    final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
+    final EquityOptionDataBundle DELTA_MARKET = new EquityOptionDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
     final double relShift = 0.1;
 
@@ -188,7 +188,7 @@ public class VarianceSwapRatesSensitivityTest {
 
     final InterpolatedDoublesSurface DELTA_SURFACE = new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAs, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
     final BlackVolatilitySurfaceDelta DELTA_VOL_SURFACE = new BlackVolatilitySurfaceDelta(DELTA_SURFACE, FORWARD_CURVE);
-    final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
+    final EquityOptionDataBundle DELTA_MARKET = new EquityOptionDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
     // Compute the surface
     final NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
@@ -248,7 +248,7 @@ public class VarianceSwapRatesSensitivityTest {
   private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04 };
   private static final YieldCurve FUNDING = new YieldCurve(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
 
-  private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
+  private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
   // The derivative
   final double varStrike = 0.05;

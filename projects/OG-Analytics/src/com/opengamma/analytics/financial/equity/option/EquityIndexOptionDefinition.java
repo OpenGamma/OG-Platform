@@ -9,11 +9,14 @@ import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.EquityDerivative;
 import com.opengamma.analytics.financial.equity.EquityInstrumentDefinition;
 import com.opengamma.analytics.financial.equity.EquityInstrumentDefinitionVisitor;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Calendar aware version of an EquityIndexOption
@@ -68,12 +71,20 @@ public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<E
    * @return EquityIndexOption derivative as of valDT
    */
   EquityIndexOption toDerivative(final ZonedDateTime valDT) {
-    return null;
+    Validate.notNull(valDT, "valuationDate was null");
+    final double timeToSettlement = TimeCalculator.getTimeBetween(valDT, _settlementDate);
+    final double timeToExpiry = TimeCalculator.getTimeBetween(valDT, _expiryDT);
+    return new EquityIndexOption(timeToExpiry, timeToSettlement, _strike, _isCall, _currency, _pointValue);
   }
 
   @Override
+  /**
+   * Creates Analytics version of Option, as of exact dateTime, ready for pricing
+   * @param valueDate Date at which valuation will occur
+   * @return EquityIndexOption derivative as of date
+   */
   public EquityDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    return null;
+    return toDerivative(date);
   }
 
   @Override

@@ -22,7 +22,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
-public class InterestRateFutureOptionDefaultValuesFunction extends DefaultPropertyFunction {
+public class InterestRateFutureOptionDefaultValuesFunctionDeprecated extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
@@ -36,7 +36,7 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
   private final String _surfaceName;
   private final String _curveCalculationMethod;
 
-  public InterestRateFutureOptionDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String surfaceName, final String curveCalculationMethod,
+  public InterestRateFutureOptionDefaultValuesFunctionDeprecated(final String forwardCurve, final String fundingCurve, final String surfaceName, final String curveCalculationMethod,
       final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
     _forwardCurve = forwardCurve;

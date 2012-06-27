@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -26,7 +24,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentSensitivityCalcu
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
@@ -48,6 +45,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
@@ -94,8 +92,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final InstrumentDerivative derivative = getConverter().convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
-    final YieldCurveBundle curves = getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final YieldCurveBundle fixedCurves = getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle fixedCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName);
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
@@ -141,6 +139,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     }
     final Set<String> curves = constraints.getValues(ValuePropertyNames.CURVE);
     if (curves == null || curves.size() != 1) {
+      s_logger.error("Must specify a single curve name; have {}", curves);
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
@@ -163,7 +162,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     }
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.addAll(InterestRateInstrumentFunction.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curve));
     }
@@ -198,38 +197,5 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
   protected Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves, final String curveCalculationConfigName,
       final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target, final ValueSpecification resultSpec) {
     throw new NotImplementedException();
-  }
-
-  //TODO won't work if curves have different currencies
-  private static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig,
-      final ConfigDBCurveCalculationConfigSource configSource) {
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    final String[] curveNames = curveConfig.getYieldCurveNames();
-    final UniqueIdentifiable id = curveConfig.getUniqueId();
-    for (final String curveName : curveNames) {
-      final ValueRequirement curveRequirement = InterestRateInstrumentFunction.getCurveRequirement(id, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
-      final Object curveObject = inputs.getValue(curveRequirement);
-      if (curveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
-      }
-      final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-      curves.setCurve(curveName, curve);
-    }
-    return curves;
-  }
-
-  //TODO won't work if curves have different currencies
-  protected static YieldCurveBundle getFixedCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig,
-      final ConfigDBCurveCalculationConfigSource configSource) {
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    if (curveConfig.getExogenousConfigData() != null) {
-      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
-        final MultiCurveCalculationConfig config = configSource.getConfig(entry.getKey());
-        curves.addAll(getYieldCurves(inputs, config, configSource));
-      }
-      return curves;
-    }
-    return null;
   }
 }

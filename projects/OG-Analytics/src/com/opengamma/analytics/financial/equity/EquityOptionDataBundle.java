@@ -3,18 +3,18 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.variance;
-
-import org.apache.commons.lang.Validate;
+package com.opengamma.analytics.financial.equity;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 
+import org.apache.commons.lang.Validate;
+
 /**
- * Market data required to price a Variance Swap
+ * Market data required to price a Equity Options and Variance Swaps
  */
-public class VarianceSwapDataBundle {
+public class EquityOptionDataBundle {
 
   private final YieldAndDiscountCurve _discountCurve;
   private final ForwardCurve _forwardCurve;
@@ -25,7 +25,7 @@ public class VarianceSwapDataBundle {
    * @param discCrv YieldAndDiscountCurve used to discount payments and in this case, also to compute the forward value of the underlying
    * @param forwardCurve the forward curve
    */
-  public VarianceSwapDataBundle(final BlackVolatilitySurface<?> volSurf, final YieldAndDiscountCurve discCrv, final ForwardCurve forwardCurve) {
+  public EquityOptionDataBundle(final BlackVolatilitySurface<?> volSurf, final YieldAndDiscountCurve discCrv, final ForwardCurve forwardCurve) {
     Validate.notNull(discCrv, "discountCurve");
     Validate.notNull(volSurf, "volatilitySurface");
     Validate.notNull(forwardCurve, "forwardCurve");
@@ -79,7 +79,7 @@ public class VarianceSwapDataBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    VarianceSwapDataBundle other = (VarianceSwapDataBundle) obj;
+    EquityOptionDataBundle other = (EquityOptionDataBundle) obj;
     if (_discountCurve == null) {
       if (other._discountCurve != null) {
         return false;

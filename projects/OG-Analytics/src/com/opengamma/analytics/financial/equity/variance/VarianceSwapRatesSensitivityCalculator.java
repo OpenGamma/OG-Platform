@@ -5,13 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Lists;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
@@ -25,6 +20,12 @@ import com.opengamma.analytics.math.surface.InterpolatedSurfaceAdditiveShiftFunc
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * This Calculator provides price sensitivities for the VarianceSwap derivative to changes in
@@ -50,23 +51,23 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * This calculates the sensitivity of the present value (PV) to a unit move in the forward.
    * The volatility surface remains unchanged.
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @param relShift Relative size of shift made in centered-finite difference approximation.
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  @SuppressWarnings({ })
-  public Double calcForwardSensitivity(final VarianceSwap swap, final VarianceSwapDataBundle market, final double relShift) {
+  @SuppressWarnings({})
+  public Double calcForwardSensitivity(final VarianceSwap swap, final EquityOptionDataBundle market, final double relShift) {
     Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null VarianceSwapDataBundle");
+    Validate.notNull(market, "null EquityOptionDataBundle");
 
     final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
     // Shift UP
-    VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(relShift));
+    EquityOptionDataBundle bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(relShift));
     final double pvUp = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // Shift Down
-    bumpedMarket = new VarianceSwapDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(-relShift));
+    bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(-relShift));
     final double pvDown = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     final double t = swap.getTimeToSettlement();
@@ -79,10 +80,10 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * This calculates the sensitivity of the present value (PV) to a unit move in the forward,
    * under a default shift of 1% of the forward <p>
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcForwardSensitivity(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public Double calcForwardSensitivity(final VarianceSwap swap, final EquityOptionDataBundle market) {
     final double relativeShift = 0.01;
     return calcForwardSensitivity(swap, market, relativeShift);
   }
@@ -96,12 +97,12 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * The form of our discounting rates is such that Z(t,T) = exp[- R(t,T) * (T-t)], hence  dZ/dR = -(T-t)*Z(t,T) and d(PV)/dR = PV * dZ/dR
    * The forward's dependence on the discounting rate is similar to the zero coupon bonds, but of opposite sign, dF/dR = (T-t)*F(t,T)
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @param shift Relative size of shift made in centered-finite difference approximation.
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
-  @SuppressWarnings({ })
-  public Double calcDiscountRateSensitivity(final VarianceSwap swap, final VarianceSwapDataBundle market, final double shift) {
+  @SuppressWarnings({})
+  public Double calcDiscountRateSensitivity(final VarianceSwap swap, final EquityOptionDataBundle market, final double shift) {
     Validate.notNull(market);
     Validate.notNull(swap);
     // Sensitivity from the discounting
@@ -127,10 +128,10 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * The form of our discounting rates is such that Z(t,T) = exp[- R(t,T) * (T-t)], hence  dZ/dR = (t-T)*Z(t,T) and d(PV)/dR = PV * dZ/dR
    * The forward's dependence on the discounting rate is similar to the zero coupon bonds, but of opposite sign, dF/dR = (T-t)*F(t,T)
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
-  public Double calcDiscountRateSensitivity(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public Double calcDiscountRateSensitivity(final VarianceSwap swap, final EquityOptionDataBundle market) {
     final double relativeShift = 0.01;
     return calcDiscountRateSensitivity(swap, market, relativeShift);
   }
@@ -139,10 +140,10 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * Calculates the sensitivity of the present value (PV) to a basis point (bp) move in the funding rates across all maturities. <p>
    * Also know as PVBP and DV01.
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A Double in the currency, swap.getCurrency()
    */
-  public Double calcPV01(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public Double calcPV01(final VarianceSwap swap, final EquityOptionDataBundle market) {
     return calcDiscountRateSensitivity(swap, market) / 10000;
   }
 
@@ -151,12 +152,12 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * The return format is a DoubleMatrix1D (i.e. a vector) with length equal to the total number of knots in the curve <p>
    * The change of a curve due to the movement of a single knot is interpolator-dependent, so an instrument can have sensitivity to knots at times beyond its maturity
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
-  public DoubleMatrix1D calcDeltaBucketed(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public DoubleMatrix1D calcDeltaBucketed(final VarianceSwap swap, final EquityOptionDataBundle market) {
     Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null VarianceSwapDataBundle");
+    Validate.notNull(market, "null EquityOptionDataBundle");
 
     // We know that the VarianceSwap only has true sensitivity to one maturity on one curve.
     // A function written for interestRate sensitivities spreads this sensitivity across yield nodes
@@ -182,10 +183,10 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatities at the knot points of the surface. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  public Double calcBlackVegaParallel(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public Double calcBlackVegaParallel(final VarianceSwap swap, final EquityOptionDataBundle market) {
     final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
     return calcBlackVegaParallel(swap, market, shift);
   }
@@ -194,24 +195,24 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatities at the knot points of the surface. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
-  @SuppressWarnings({ })
-  public Double calcBlackVegaParallel(final VarianceSwap swap, final VarianceSwapDataBundle market, final double shift) {
+  @SuppressWarnings({})
+  public Double calcBlackVegaParallel(final VarianceSwap swap, final EquityOptionDataBundle market, final double shift) {
     Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null VarianceSwapDataBundle");
+    Validate.notNull(market, "null EquityOptionDataBundle");
 
     final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
     // Parallel shift UP
     final BlackVolatilitySurface<?> upSurface = market.getVolatilitySurface().withShift(shift, true);
-    final double pvUp = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final double pvUp = pricer.visitVarianceSwap(swap, new EquityOptionDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Parallel shift DOWN
     final BlackVolatilitySurface<?> downSurface = market.getVolatilitySurface().withShift(-shift, true);
-    final double pvDown = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final double pvDown = pricer.visitVarianceSwap(swap, new EquityOptionDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Centered-difference result
     return (pvUp - pvDown) / (2.0 * shift);
@@ -222,10 +223,10 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * The return format is a DoubleMatrix2D with rows equal to the total number of maturities and columns equal to the number of strikes. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currencys amount per unit amount change in the black volatility of each node
    */
-  public NodalDoublesSurface calcBlackVegaForEntireSurface(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public NodalDoublesSurface calcBlackVegaForEntireSurface(final VarianceSwap swap, final EquityOptionDataBundle market) {
     final double shift = 0.001; // Shift each vol point by what? +/- 0.1%
     return calcBlackVegaForEntireSurface(swap, market, shift);
   }
@@ -235,13 +236,13 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * The return format is a DoubleMatrix2D with rows equal to the total number of maturities and columns equal to the number of strikes. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currency amount per unit amount change in the black volatility of each node
    */
-  public NodalDoublesSurface calcBlackVegaForEntireSurface(final VarianceSwap swap, final VarianceSwapDataBundle market, final double shift) {
+  public NodalDoublesSurface calcBlackVegaForEntireSurface(final VarianceSwap swap, final EquityOptionDataBundle market, final double shift) {
     Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null VarianceSwapDataBundle");
+    Validate.notNull(market, "null EquityOptionDataBundle");
 
     // Unpack market data
     final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
@@ -268,13 +269,13 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity.<p>
    * Important!!! If the <i>(x, y)</i> value(s) of the shift(s) are not in the nodal points of the original surface, they are added (with shift) to the nodal points of the new surface.
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @param maturity a double in same unit as VolatilitySurface
    * @param strike a double in same unit as VolatilitySurface
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return Currency amount per unit amount change in the black volatility at the point provided
    */
-  public double calcBlackVegaForSinglePoint(final VarianceSwap swap, final VarianceSwapDataBundle market, final double maturity, final double strike, final double shift) {
+  public double calcBlackVegaForSinglePoint(final VarianceSwap swap, final EquityOptionDataBundle market, final double maturity, final double strike, final double shift) {
 
     final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
@@ -287,12 +288,12 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // shift UP
     final InterpolatedDoublesSurface bumpedVolUp = volShifter.evaluate(blackSurf, maturity, strike, shift);
-    VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(market.getVolatilitySurface().withSurface(bumpedVolUp), market.getDiscountCurve(), market.getForwardCurve());
+    EquityOptionDataBundle bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface().withSurface(bumpedVolUp), market.getDiscountCurve(), market.getForwardCurve());
     final double pvUp = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // shift DOWN
     final InterpolatedDoublesSurface bumpedVolDown = volShifter.evaluate(blackSurf, maturity, strike, -shift);
-    bumpedMarket = new VarianceSwapDataBundle(market.getVolatilitySurface().withSurface(bumpedVolDown), market.getDiscountCurve(), market.getForwardCurve());
+    bumpedMarket = new EquityOptionDataBundle(market.getVolatilitySurface().withSurface(bumpedVolDown), market.getDiscountCurve(), market.getForwardCurve());
     final double pvDown = pricer.visitVarianceSwap(swap, bumpedMarket);
 
     // Centered-difference result
@@ -307,12 +308,12 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * <p>
    *
    * @param swap the VarianceSwap
-   * @param market the VarianceSwapDataBundle
+   * @param market the EquityOptionDataBundle
    * @return A Double representing the number of spot-starting VarianceSwaps required to hedge the variance exposure
    */
-  public Double calcSensitivityToFairVariance(final VarianceSwap swap, final VarianceSwapDataBundle market) {
+  public Double calcSensitivityToFairVariance(final VarianceSwap swap, final EquityOptionDataBundle market) {
     Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null VarianceSwapDataBundle");
+    Validate.notNull(market, "null EquityOptionDataBundle");
 
     final int nObsExpected = swap.getObsExpected();
     final int nObsSoFar = swap.getObservations().length;

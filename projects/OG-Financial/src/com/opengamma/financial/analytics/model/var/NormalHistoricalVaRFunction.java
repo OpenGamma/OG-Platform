@@ -142,6 +142,14 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     if (samplingFunctionName == null || samplingFunctionName.size() != 1) {
       return null;
     }
+    final Set<String> meanCalculatorName = constraints.getValues(ValuePropertyNames.MEAN_CALCULATOR);
+    if (meanCalculatorName == null || meanCalculatorName.size() != 1) {
+      return null;
+    }
+    final Set<String> stdDevCalculatorName = constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
+    if (stdDevCalculatorName == null || stdDevCalculatorName.size() != 1) {
+      return null;
+    }
     final Set<String> aggregationStyle = constraints.getValues(ValuePropertyNames.AGGREGATION);
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())

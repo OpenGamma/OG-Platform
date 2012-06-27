@@ -47,7 +47,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecu
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackFunctionDeprecated;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -87,7 +87,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String surfaceNameWithPrefix = surfaceName + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceNameWithPrefix = surfaceName + "_" + InterestRateFutureOptionBlackFunctionDeprecated.getFutureOptionPrefix(target);
 
     final Object forwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     if (forwardCurveObject == null) {
@@ -165,7 +165,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
-    final String surfaceName = surfaceNames.iterator().next() + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceName = surfaceNames.iterator().next() + "_" + InterestRateFutureOptionBlackFunctionDeprecated.getFutureOptionPrefix(target);
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));

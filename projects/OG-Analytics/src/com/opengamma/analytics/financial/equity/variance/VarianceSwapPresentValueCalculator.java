@@ -5,19 +5,21 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.AbstractEquityDerivativeVisitor;
 import com.opengamma.analytics.financial.equity.EquityDerivative;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
  */
-public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivativeVisitor<VarianceSwapDataBundle, Double> {
+public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivativeVisitor<EquityOptionDataBundle, Double> {
 
   private static final VarianceSwapPresentValueCalculator s_instance = new VarianceSwapPresentValueCalculator();
   private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication();
@@ -30,7 +32,7 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
   }
 
   @Override
-  public Double visitVarianceSwap(final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  public Double visitVarianceSwap(final VarianceSwap derivative, final EquityOptionDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return PRICER.presentValue(derivative, market);
@@ -38,7 +40,7 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
 
   @Override
   public Double visitVarianceSwap(final VarianceSwap derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support a VarianceSwap without a VarianceSwapDataBundle");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support a VarianceSwap without a EquityOptionDataBundle");
   }
 
   @Override
@@ -57,6 +59,16 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
   @Override
   public Double visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexDividendFuture(). Try EquityFuturesPresentValueCalculator");
+  }
+
+  @Override
+  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption, EquityOptionDataBundle data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexOption(). Try EquityIndexOptionPresentValueCalculator");
+  }
+
+  @Override
+  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitEquityIndexOption(). Try EquityIndexOptionPresentValueCalculator");
   }
 
 }

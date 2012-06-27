@@ -16,18 +16,19 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Displays the Black price of the Security underlying the trade or position 
+ * Displays the Black price of the Security underlying the trade or position
+ * 
  */
 public class InterestRateFutureOptionBlackPriceFunction extends InterestRateFutureOptionBlackFunction {
 
   private static final BlackPriceCalculator CALCULATOR = BlackPriceCalculator.getInstance();
-  
+
   public InterestRateFutureOptionBlackPriceFunction() {
     super(ValueRequirementNames.SECURITY_MODEL_PRICE);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle data, ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
     final Double price = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, price));
   }

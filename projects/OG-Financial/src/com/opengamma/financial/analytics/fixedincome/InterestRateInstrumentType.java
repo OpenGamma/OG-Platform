@@ -16,7 +16,6 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
@@ -70,24 +69,24 @@ public enum InterestRateInstrumentType {
     }
   }
 
-  private static class TypeIdentifier extends FinancialSecurityVisitorSameValueAdapter<InterestRateInstrumentType> {
+  private static final class TypeIdentifier extends FinancialSecurityVisitorSameValueAdapter<InterestRateInstrumentType> {
 
     private TypeIdentifier() {
       super(null);
     }
 
     @Override
-    public InterestRateInstrumentType visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+    public InterestRateInstrumentType visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
       return COUPON_BOND;
     }
 
     @Override
-    public InterestRateInstrumentType visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+    public InterestRateInstrumentType visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
       return COUPON_BOND;
     }
 
     @Override
-    public InterestRateInstrumentType visitCorporateBondSecurity(CorporateBondSecurity security) {
+    public InterestRateInstrumentType visitCorporateBondSecurity(final CorporateBondSecurity security) {
       return COUPON_BOND;
     }
 
@@ -102,12 +101,12 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitBondFutureSecurity(BondFutureSecurity security) {
+    public InterestRateInstrumentType visitBondFutureSecurity(final BondFutureSecurity security) {
       return BOND_FUTURE;
     }
 
     @Override
-    public InterestRateInstrumentType visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+    public InterestRateInstrumentType visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
       return IR_FUTURE;
     }
 

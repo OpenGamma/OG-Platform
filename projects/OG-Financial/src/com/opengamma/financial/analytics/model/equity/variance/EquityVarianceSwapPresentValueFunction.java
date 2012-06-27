@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity.variance;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.engine.ComputationTarget;
@@ -29,7 +29,7 @@ public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFu
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  protected Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final EquityOptionDataBundle market) {
     return Collections.singleton(new ComputedValue(getValueSpecification(target), PRICER.presentValue(derivative, market)));
   }
 

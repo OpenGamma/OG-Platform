@@ -48,7 +48,7 @@ public class EquityIndexOptionConverter {
     final ZonedDateTime expiryDT = security.getExpiry().getExpiry();
     final Currency ccy = security.getCurrency();
     final double unitNotional = security.getPointValue();
-    ExerciseDecisionType exerciseType =  ExerciseDecisionType.valueOf(security.getExerciseType().getName());
+    ExerciseDecisionType exerciseType =  ExerciseDecisionType.from(security.getExerciseType().getName());
     if (exerciseType == null) {
       exerciseType = ExerciseDecisionType.EUROPEAN; // TODO Review. MAYBE BETTER TO USE BOOLEAN?!?
     }

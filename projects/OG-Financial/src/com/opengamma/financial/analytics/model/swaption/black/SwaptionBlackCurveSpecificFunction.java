@@ -47,6 +47,7 @@ import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -109,7 +110,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final InstrumentDerivative swaption = definition.toDerivative(now, curveNames); //TODO
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName, curveName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    final YieldCurveBundle curves = SwaptionBlackFunction.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
@@ -179,6 +180,10 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final String curveName,
       final ValueSpecification spec, final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs,
       final ComputationTarget target);
+
+  protected SwaptionSecurityConverter getVisitor() {
+    return _visitor;
+  }
 
   protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()

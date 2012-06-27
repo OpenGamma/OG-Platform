@@ -6,9 +6,6 @@
 package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -21,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -37,7 +33,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -52,6 +47,7 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -59,7 +55,6 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -112,7 +107,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final YieldCurveBundle bundle = getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
@@ -176,7 +171,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
     }
-    return getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    return YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {
@@ -210,76 +205,6 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   protected ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfigName, final String currency) {
     return new ValueSpecification(getValueRequirementName(), target.toSpecification(), getResultProperties(currency, curveCalculationConfigName).get());
-  }
-
-  protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (curveConfig.getExogenousConfigData() != null) {
-      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
-        final String exogenousConfigName = entry.getKey();
-        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable id = exogenousConfig.getUniqueId();
-        final String curveCalculationMethod = exogenousConfig.getCalculationMethod();
-        for (final String exogenousCurveName : entry.getValue()) {
-          requirements.add(getCurveRequirement(id, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
-        }
-        requirements.addAll(getCurveRequirements(exogenousConfig, configSource));
-      }
-    }
-    final String[] yieldCurveNames = curveConfig.getYieldCurveNames();
-    final String curveCalculationConfigName = curveConfig.getCalculationConfigName();
-    final String curveCalculationMethod = curveConfig.getCalculationMethod();
-    final UniqueIdentifiable uniqueId = curveConfig.getUniqueId();
-    for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
-    }
-    return requirements;
-  }
-
-  protected static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
-      final String curveCalculationMethod) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, yieldCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, id.getUniqueId(), properties);
-  }
-
-  //TODO won't work if curves have different currencies
-  protected static YieldCurveBundle getYieldCurves(final FunctionInputs inputs, final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    if (curveConfig.getExogenousConfigData() != null) {
-      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
-        final String exogenousConfigName = entry.getKey();
-        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable exogenousId = exogenousConfig.getUniqueId();
-        final String exogenousCalculationMethod = exogenousConfig.getCalculationMethod();
-        for (final String curveName : entry.getValue()) {
-          final ValueRequirement curveRequirement = getCurveRequirement(exogenousId, curveName, exogenousConfigName, exogenousCalculationMethod);
-          final Object curveObject = inputs.getValue(curveRequirement);
-          if (curveObject == null) {
-            throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
-          }
-          final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-          curves.setCurve(curveName, curve);
-        }
-        curves.addAll(getYieldCurves(inputs, exogenousConfig, configSource));
-      }
-    }
-    final String[] curveNames = curveConfig.getYieldCurveNames();
-    final UniqueIdentifiable id = curveConfig.getUniqueId();
-    for (final String curveName : curveNames) {
-      final ValueRequirement curveRequirement = getCurveRequirement(id, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
-      final Object curveObject = inputs.getValue(curveRequirement);
-      if (curveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
-      }
-      final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-      curves.setCurve(curveName, curve);
-    }
-    return curves;
   }
 
 }
