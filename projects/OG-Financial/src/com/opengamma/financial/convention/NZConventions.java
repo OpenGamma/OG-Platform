@@ -35,7 +35,7 @@ public class NZConventions {
     final ExternalId nz = ExternalSchemes.financialRegionId("NZ");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    
+
     utils.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NZ00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR O/N")), "NZD LIBOR O/N", act365,
         following, Period.ofDays(1), 0, false, nz);
@@ -156,19 +156,19 @@ public class NZConventions {
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NDDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD DEPOSIT 5y")), "NZD DEPOSIT 5y", act365,
         following, Period.ofYears(5), 2, false, nz);
     utils.addConventionBundle(
-        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NZOCRS Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE")), 
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NZOCRS Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE")),
         "RBNZ CASH DAILY RATE", act365, following, Period.ofDays(1), 0, false, nz, 0); // review publication lag when doing OIS.
 
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 1, nz, act365,
-        modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_3M_SWAP")), "NZD_3M_SWAP", act365, modified, semiAnnual, 1, nz,
-        act365, modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 2, nz, act365,
+        modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_3M_SWAP")), "NZD_3M_SWAP", act365, modified, semiAnnual, 2, nz,
+        act365, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
     // Overnight Index Swap Convention have additional flag, publicationLag
     final Integer publicationLag = 0;
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_OIS_SWAP")), "NZD_OIS_SWAP", act365, modified, annual, 0, nz,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz, true, publicationLag);
 
-    //Identifiers for external data 
+    //Identifiers for external data
     utils.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZDCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "NZDCASHP1D")),
         "NZDCASHP1D", act365, following, Period.ofDays(1), 0, false, nz);
