@@ -12,6 +12,7 @@ import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
+import com.opengamma.masterdb.security.hibernate.forward.CommodityForwardSecurityBean;
 import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBean;
 import com.opengamma.masterdb.security.hibernate.future.*;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBean;
@@ -50,6 +51,8 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       EquityVarianceSwapSecurityBean.class,
       
       FRASecurityBean.class,
+      
+      CommodityForwardSecurityBean.class,
       
       FutureSecurityBean.class,      
       FutureBundleBean.class,

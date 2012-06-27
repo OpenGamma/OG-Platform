@@ -22,6 +22,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -257,6 +260,21 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
+          return null;  //TODO implement me !
+        }
+
+        @Override
+        public String visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return null;  //TODO implement me !
+        }
+
+        @Override
+        public String visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return null;  //TODO implement me !
+        }
+
+        @Override
+        public String visitMetalForwardSecurity(MetalForwardSecurity security) {
           return null;  //TODO implement me !
         }
       };

@@ -23,6 +23,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -48,6 +51,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String EQUITIES = "Equities";
   /* package */static final String FRAS = "FRAs";
   /* package */static final String FUTURES = "Futures";
+  /* package */static final String FORWARDS = "Forwards";
   /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
   /* package */static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
@@ -281,6 +285,21 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return FUTURES;
+        }
+
+        @Override
+        public String visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return FORWARDS;
+        }
+
+        @Override
+        public String visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return FORWARDS;
+        }
+
+        @Override
+        public String visitMetalForwardSecurity(MetalForwardSecurity security) {
+          return FORWARDS;
         }
       });
     } else {

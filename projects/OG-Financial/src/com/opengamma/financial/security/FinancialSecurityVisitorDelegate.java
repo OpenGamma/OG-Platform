@@ -16,6 +16,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -227,5 +230,18 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
     return _delegate.visitStockFutureSecurity(security);
   }
 
+  @Override
+  public T visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+    return _delegate.visitAgricultureForwardSecurity(security);
+  }
 
+  @Override
+  public T visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+    return _delegate.visitEnergyForwardSecurity(security);
+  }
+
+  @Override
+  public T visitMetalForwardSecurity(MetalForwardSecurity security) {
+    return _delegate.visitMetalForwardSecurity(security);
+  }
 }

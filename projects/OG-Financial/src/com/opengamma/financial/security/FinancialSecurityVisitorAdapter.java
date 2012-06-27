@@ -16,6 +16,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -176,6 +179,21 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitMetalForwardSecurity(MetalForwardSecurity security) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
   }
 
@@ -579,6 +597,37 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> agricultureForwardSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return visitor.visitAgricultureForwardSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> energyForwardSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return visitor.visitEnergyForwardSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> metalForwardSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitMetalForwardSecurity(MetalForwardSecurity security) {
+          return visitor.visitMetalForwardSecurity(security);
+        }
+      };
+      return this;
+    }
+
+
     // simple values
 
     public Builder<T> municipalBondSecurityVisitor(final T value) {
@@ -958,6 +1007,36 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
         public T visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> agricultureForwardSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> energyForwardSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> metalForwardSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitMetalForwardSecurity(MetalForwardSecurity security) {
           return value;
         }
       };

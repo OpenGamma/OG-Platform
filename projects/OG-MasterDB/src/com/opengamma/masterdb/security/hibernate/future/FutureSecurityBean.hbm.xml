@@ -30,7 +30,7 @@
 
     <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
 
-    <many-to-one name="unitName" column="unitname_id" class="UnitBean"/>
+    <many-to-one name="unitName" column="unitname_id" class="com.opengamma.masterdb.security.hibernate.UnitBean"/>
     <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
       <property name="scheme" column="underlying_scheme" type="string"/>
       <property name="identifier" column="underlying_identifier" type="string"/>

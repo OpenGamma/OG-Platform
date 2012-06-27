@@ -16,6 +16,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -29,7 +32,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  *
  * @param <T> Return type for visitor.
  */
-public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T> {
+public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, CommodityForwardSecurityVisitor<T> {
 
   // FUTURES ----------------------------------------------------------------------------
 
