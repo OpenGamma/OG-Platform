@@ -28,6 +28,10 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.target.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -84,6 +88,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private boolean _writeBehindSharedCache;
   private boolean _writeBehindPrivateCache;
   private boolean _asynchronousTargetResolve;
+  private FunctionBlacklistQuery _blacklistQuery = new DummyFunctionBlacklistQuery();
+  private FunctionBlacklistMaintainer _blacklistUpdate = new DummyFunctionBlacklistMaintainer();
 
   public SimpleCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
       FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
@@ -178,6 +184,40 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   public FunctionInvocationStatisticsGatherer getFunctionInvocationStatistics() {
     return _functionInvocationStatistics;
+  }
+
+  /**
+   * Sets a function blacklist to use for checking each job invocation. The blacklist(s) used may suppress particular functions on this node, the logical group of nodes or at all nodes.
+   * 
+   * @param query the blacklist to query against, not null
+   */
+  public void setFunctionBlacklistQuery(final FunctionBlacklistQuery query) {
+    ArgumentChecker.notNull(query, "query");
+    _blacklistQuery = query;
+  }
+
+  /**
+   * Returns the function blacklist used for checking each job invocation.
+   * 
+   * @return the blacklist queried, not null
+   */
+  public FunctionBlacklistQuery getFunctionBlacklistQuery() {
+    return _blacklistQuery;
+  }
+
+  /**
+   * Sets a maintenance policy for updating one or more blacklist(s) when a job item throws an exception. The application of a policy at this point will depend on the nature of the function library.
+   * Issuing updates from the function's {@link FunctionInvoker} can allow more specific control over how a function failure should be reported.
+   * 
+   * @param update the maintainer to notify of a job item that threw an exception
+   */
+  public void setFunctionBlacklistUpdate(final FunctionBlacklistMaintainer update) {
+    ArgumentChecker.notNull(update, "update");
+    _blacklistUpdate = update;
+  }
+
+  public FunctionBlacklistMaintainer getFunctionBlacklistUpdate() {
+    return _blacklistUpdate;
   }
 
   @Override
@@ -288,6 +328,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
 
   private CalculationJobResultItem invocationFailure(final Throwable t, final CalculationJobItem jobItem) {
     s_logger.error("Caught exception", t);
+    getFunctionBlacklistUpdate().failedJobItem(jobItem);
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
     postEvaluationErrors(outputs);
     return CalculationJobResultItem.failure(t);
@@ -301,33 +342,37 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       final CalculationJobItem jobItem = jobItemItr.next();
       // TODO: start resolving the next target while this item executes -- can we "poll" an iterator?
       CalculationJobResultItem resultItem;
-      try {
-        resultItem = invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
-      } catch (AsynchronousExecution e) {
-        final AsynchronousHandleOperation<List<CalculationJobResultItem>> async = new AsynchronousHandleOperation<List<CalculationJobResultItem>>();
-        e.setResultListener(new ResultListener<CalculationJobResultItem>() {
-          @Override
-          public void operationComplete(final AsynchronousResult<CalculationJobResultItem> result) {
-            CalculationJobResultItem resultItem;
-            try {
-              resultItem = result.getResult();
-            } catch (Throwable t) {
-              resultItem = invocationFailure(t, jobItem);
-            }
-            resultItems.add(resultItem);
-            async.getCallback().setResult(new AsynchronousHandle<List<CalculationJobResultItem>>() {
-              @Override
-              public List<CalculationJobResultItem> get() throws AsynchronousHandleExecution {
-                return executeJobItems(jobItemItr, resultItems);
+      if (getFunctionBlacklistQuery().isBlacklisted(jobItem)) {
+        resultItem = CalculationJobResultItem.suppressed();
+      } else {
+        try {
+          resultItem = invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
+        } catch (AsynchronousExecution e) {
+          final AsynchronousHandleOperation<List<CalculationJobResultItem>> async = new AsynchronousHandleOperation<List<CalculationJobResultItem>>();
+          e.setResultListener(new ResultListener<CalculationJobResultItem>() {
+            @Override
+            public void operationComplete(final AsynchronousResult<CalculationJobResultItem> result) {
+              CalculationJobResultItem resultItem;
+              try {
+                resultItem = result.getResult();
+              } catch (Throwable t) {
+                resultItem = invocationFailure(t, jobItem);
               }
-            });
-          }
-        });
-        async.getResultHandle();
-        // Discard the handle -- it contains the same state that this loop already has
-        continue;
-      } catch (Throwable t) {
-        resultItem = invocationFailure(t, jobItem);
+              resultItems.add(resultItem);
+              async.getCallback().setResult(new AsynchronousHandle<List<CalculationJobResultItem>>() {
+                @Override
+                public List<CalculationJobResultItem> get() throws AsynchronousHandleExecution {
+                  return executeJobItems(jobItemItr, resultItems);
+                }
+              });
+            }
+          });
+          async.getResultHandle();
+          // Discard the handle -- it contains the same state that this loop already has
+          continue;
+        } catch (Throwable t) {
+          resultItem = invocationFailure(t, jobItem);
+        }
       }
       resultItems.add(resultItem);
     }
