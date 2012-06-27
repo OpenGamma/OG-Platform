@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward;
+package com.opengamma.financial.analytics.model.forex.defaultproperties;
 
 import java.util.Collections;
 import java.util.Set;
@@ -14,44 +14,51 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.forex.forward.deprecated.ForexForwardFunctionDeprecated;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexForwardDefaultPropertiesFunction
  */
-public class ForexForwardDefaultsNew extends DefaultPropertyFunction {
+@Deprecated
+public class ForexForwardDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final String _payCurveName;
+  private final String _payForwardCurveName;
+  private final String _payCurveCalculationMethod;
   private final String _receiveCurveName;
-  private final String _payCurveConfig;
-  private final String _receiveCurveConfig;
+  private final String _receiveForwardCurveName;
+  private final String _receiveCurveCalculationMethod;
   private final String _payCurrency;
   private final String _receiveCurrency;
 
-  public ForexForwardDefaultsNew(final String payCurveName, final String receiveCurveName, final String payCurveConfig, final String receiveCurveConfig,
-      final String payCurrency, final String receiveCurrency) {
+  public ForexForwardDefaultPropertiesFunctionDeprecated(final String payCurveName, final String payForwardCurveName, final String payCurveCalculationMethod, final String receiveCurveName,
+      final String receiveForwardCurveName, final String receiveCurveCalculationMethod, final String payCurrency, final String receiveCurrency) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(payCurveName, "pay curve name");
+    ArgumentChecker.notNull(payForwardCurveName, "pay forward curve name");
+    ArgumentChecker.notNull(payCurveCalculationMethod, "pay curve calculation method");
     ArgumentChecker.notNull(receiveCurveName, "receive curve name");
-    ArgumentChecker.notNull(payCurveConfig, "pay curve config");
-    ArgumentChecker.notNull(receiveCurveConfig, "receive curve config");
+    ArgumentChecker.notNull(receiveForwardCurveName, "receive forward curve name");
+    ArgumentChecker.notNull(receiveCurveCalculationMethod, "receive curve calculation method");
     ArgumentChecker.notNull(payCurrency, "pay currency");
     ArgumentChecker.notNull(receiveCurrency, "receive currency");
     _payCurveName = payCurveName;
+    _payForwardCurveName = payForwardCurveName;
+    _payCurveCalculationMethod = payCurveCalculationMethod;
     _receiveCurveName = receiveCurveName;
-    _payCurveConfig = payCurveConfig;
-    _receiveCurveConfig = receiveCurveConfig;
+    _receiveForwardCurveName = receiveForwardCurveName;
+    _receiveCurveCalculationMethod = receiveCurveCalculationMethod;
     _payCurrency = payCurrency;
     _receiveCurrency = receiveCurrency;
   }
@@ -74,9 +81,11 @@ public class ForexForwardDefaultsNew extends DefaultPropertyFunction {
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -85,25 +94,21 @@ public class ForexForwardDefaultsNew extends DefaultPropertyFunction {
     if (ValuePropertyNames.PAY_CURVE.equals(propertyName)) {
       return Collections.singleton(_payCurveName);
     }
+    if (ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE.equals(propertyName)) {
+      return Collections.singleton(_payForwardCurveName);
+    }
+    if (ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_payCurveCalculationMethod);
+    }
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(_receiveCurveName);
     }
-    if (ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_payCurveConfig);
+    if (ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE.equals(propertyName)) {
+      return Collections.singleton(_receiveForwardCurveName);
     }
-    if (ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_receiveCurveConfig);
+    if (ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_receiveCurveCalculationMethod);
     }
     return null;
-  }
-  
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.ABOVE_NORMAL;
-  }
-  
-  @Override
-  public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_FORWARD_DEFAULTS;
   }
 }

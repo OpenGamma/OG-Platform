@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward;
+package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,14 +15,17 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardPresentValueCurveSensitivityFunction;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexForwardPresentValueCurveSensitivityFunction
  */
-public class ForexForwardPresentValueCurveSensitivityFunctionNew extends ForexForwardMultiValuedFunctionNew {
+@Deprecated
+public class ForexForwardPresentValueCurveSensitivityFunctionDeprecated extends ForexForwardMultiValuedFunctionDeprecated {
   private static final PresentValueCurveSensitivityForexCalculator CALCULATOR = PresentValueCurveSensitivityForexCalculator.getInstance();
 
-  public ForexForwardPresentValueCurveSensitivityFunctionNew() {
+  public ForexForwardPresentValueCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 

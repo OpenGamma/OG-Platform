@@ -43,7 +43,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public abstract class ForexForwardFunctionNew extends AbstractFunction.NonCompiledInvoker {
+public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property name for the pay curve calculation configuration */
   public static final String PAY_CURVE_CALC_CONFIG = "PayCurveCalculationConfig";
   /** Property name for the receive curve calculation configuration */
@@ -51,7 +51,7 @@ public abstract class ForexForwardFunctionNew extends AbstractFunction.NonCompil
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexForwardFunctionNew(final String valueRequirementName) {
+  public ForexForwardFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

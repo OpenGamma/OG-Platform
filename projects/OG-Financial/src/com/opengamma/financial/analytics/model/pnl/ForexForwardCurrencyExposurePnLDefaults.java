@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunctionNew;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -76,8 +76,8 @@ public class ForexForwardCurrencyExposurePnLDefaults extends DefaultPropertyFunc
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.PAY_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RECEIVE_CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ForexForwardFunction.PAY_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
@@ -91,10 +91,10 @@ public class ForexForwardCurrencyExposurePnLDefaults extends DefaultPropertyFunc
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(_receiveCurveName);
     }
-    if (ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ForexForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(_payCurveConfig);
     }
-    if (ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(_receiveCurveConfig);
     }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {

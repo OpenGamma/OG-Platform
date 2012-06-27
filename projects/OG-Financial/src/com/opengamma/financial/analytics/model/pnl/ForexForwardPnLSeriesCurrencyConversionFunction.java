@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunctionNew;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 
@@ -37,9 +37,9 @@ public class ForexForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCu
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG)
+        .withAny(ForexForwardFunction.PAY_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)

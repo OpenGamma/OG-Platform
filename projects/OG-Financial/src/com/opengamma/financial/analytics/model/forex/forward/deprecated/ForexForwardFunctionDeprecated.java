@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward.old;
+package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -43,9 +44,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexForwardFunction
  */
-public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledInvoker {
+@Deprecated
+public abstract class ForexForwardFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   /** The advisory forward pay curve property */
   public static final String PROPERTY_PAY_FORWARD_CURVE = "PayForwardCurve";
   /** The pay curve calculation method property */
@@ -57,7 +60,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexForwardFunction(final String valueRequirementName) {
+  public ForexForwardFunctionDeprecated(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }
