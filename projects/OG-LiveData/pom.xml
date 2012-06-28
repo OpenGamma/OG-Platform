@@ -11,37 +11,34 @@
     <version>1.1-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
-  <artifactId>og-analytics</artifactId>
+  <artifactId>og-livedata</artifactId>
   <packaging>jar</packaging>
-  <name>OG-Analytics</name>
-  <description>OpenGamma platform analytics</description>
+  <name>OG-LiveData</name>
+  <description>OpenGamma platform live data API</description>
 
   <scm>
-    <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Analytics</url>
+    <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-LiveData</url>
   </scm>
 
   <dependencies>
     <dependency>
       <groupId>com.opengamma</groupId>
-      <artifactId>og-util</artifactId>
+      <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math</artifactId>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-security</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>colt</groupId>
-      <artifactId>colt</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sourceforge.jtransforms</groupId>
-      <artifactId>jtransforms</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

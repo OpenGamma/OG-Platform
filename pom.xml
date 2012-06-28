@@ -18,8 +18,10 @@
     <module>projects/OG-Analytics</module>
     <module>projects/OG-Core</module>
     <module>projects/OG-Master</module>
+    <module>projects/OG-LiveData</module>
   </modules>
 
+  <!-- ==================================================================== -->
   <issueManagement>
     <system>Jira</system>
     <url>http://jira.opengamma.com/browse/PLAT</url>
@@ -49,6 +51,8 @@
     <url>http://www.opengamma.com</url>
   </organization>
 
+  <!-- ==================================================================== -->
+  <!-- standard build setup -->
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>tests/unit</testSourceDirectory>
@@ -78,6 +82,19 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
         <version>2.4.1</version>
+        <configuration>
+          <!-- delete contents of target, but not target itself -->
+          <!-- so Eclipse derived setting is not lost on a clean -->
+          <excludeDefaultDirectories>true</excludeDefaultDirectories>
+          <filesets>
+            <fileset>
+            <directory>target</directory>
+            <includes>
+              <include>**/*</include>
+            </includes>
+          </fileset>
+        </filesets>
+      </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -106,6 +123,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.3.1</version>
         <configuration>
+          <!-- add standard entries to jar manifest -->
           <archive>
             <manifest>
               <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -126,6 +144,7 @@
           <encoding>UTF-8</encoding>
         </configuration>
         <executions>
+          <!-- generate javadoc jar file when packaging -->
           <execution>
             <id>attach-javadocs</id>
             <phase>package</phase>
@@ -140,6 +159,7 @@
         <artifactId>maven-source-plugin</artifactId>
         <version>2.1.2</version>
         <executions>
+          <!-- generate source jar file when packaging -->
           <execution>
             <id>attach-sources</id>
             <phase>package</phase>
@@ -169,6 +189,7 @@
         <artifactId>maven-repository-plugin</artifactId>
         <version>2.3.1</version>
       </plugin>
+      <!-- use enforcer to apply build rules -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -181,6 +202,7 @@
             </goals>
             <configuration>
               <rules>
+                <!-- no commons-logging, junit only in test/provided -->
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-logging:*</exclude>
@@ -188,11 +210,14 @@
                   </excludes>
                   <includes>
                     <include>junit:*:*:*:test</include>
+                    <include>junit:*:*:*:provided</include>
                   </includes>
                 </bannedDependencies>
+                <!-- ensure dependencies resolve to latest version -->
                 <requireUpperBoundDeps/>
+                <!-- need Java 6 or greater -->
                 <requireJavaVersion>
-                  <version>1.6</version>
+                  <version>[1.6,)</version>
                 </requireJavaVersion>
               </rules>
               <fail>true</fail>
@@ -203,6 +228,8 @@
     </plugins>
   </build>
 
+  <!-- ==================================================================== -->
+  <!-- define versions here, so sub-projects do not have to -->
   <dependencyManagement>
     <dependencies>
       <!-- Apache/Joda/Guava/Fudge low-level libraries -->
@@ -220,6 +247,11 @@
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>3.2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.6</version>
       </dependency>
       <dependency>
         <groupId>commons-cli</groupId>
@@ -656,6 +688,23 @@
     </dependencies>
   </dependencyManagement>
 
+  <!-- ==================================================================== -->
+  <!-- all modules get these dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- ==================================================================== -->
+  <!-- standard set of reports -->
   <reporting>
     <plugins>
       <plugin>
@@ -718,8 +767,10 @@
     </plugins>
   </reporting>
 
+  <!-- ==================================================================== -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <og.spring.version>3.0.4.RELEASE</og.spring.version>
+    <og.spring.version>3.0.7.RELEASE</og.spring.version>
   </properties>
+
 </project>
