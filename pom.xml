@@ -23,6 +23,7 @@
     <module>projects/OG-Financial</module>
     <module>projects/OG-MasterDB</module>
     <module>projects/OG-Web</module>
+    <module>projects/OG-Component</module>
   </modules>
 
   <!-- ==================================================================== -->
