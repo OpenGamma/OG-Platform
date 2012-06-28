@@ -22,6 +22,7 @@
     <module>projects/OG-Engine</module>
     <module>projects/OG-Financial</module>
     <module>projects/OG-MasterDB</module>
+    <module>projects/OG-Web</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -565,6 +566,26 @@
         <groupId>com.yahoo.platform.yui</groupId>
         <artifactId>yuicompressor</artifactId>
         <version>2.4.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.cometd.java</groupId>
+        <artifactId>cometd-java-server</artifactId>
+        <version>1.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.cometd.java</groupId>
+        <artifactId>cometd-java-client</artifactId>
+        <version>1.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-start</artifactId>
+        <version>7.0.1.v20091125</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
+        <version>7.0.1.v20091125</version>
       </dependency>
 
       <!-- JMS -->
