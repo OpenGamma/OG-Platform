@@ -15,8 +15,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.collections.Lists;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.position.Position;
