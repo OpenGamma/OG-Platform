@@ -185,6 +185,11 @@ public class FetchTimeSeriesFunctionTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   private SessionContext createSessionContext(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {

@@ -50,6 +50,11 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The cache name.
    */
   private static final String DATA_CACHE_NAME = "HistoricalTimeSeriesDataCache";
+  
+  /**
+   * Id bundle cache name.
+   */
+  private static final String ID_BUNDLE_CACHE_NAME = "HistoricalTimeSeriesIdBundleCache";
 
   private static class MissHTS implements HistoricalTimeSeries, Serializable {
 
@@ -87,6 +92,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    * The cache.
    */
   private final Cache _dataCache;
+  /**
+   * The identifier bundle cache
+   */
+  private final Cache _identifierBundleCache;
 
   /**
    * The clock.
@@ -120,6 +129,9 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
         eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
     _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, ID_BUNDLE_CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath,
+        eternal, timeToLiveSeconds, timeToIdleSeconds, diskPersistent, diskExpiryThreadIntervalSeconds, registeredEventListeners);
+    _identifierBundleCache = EHCacheUtils.getCacheFromManager(cacheManager, ID_BUNDLE_CACHE_NAME);
     
   } 
 
@@ -135,6 +147,8 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     _underlying = underlying;
     EHCacheUtils.addCache(cacheManager, DATA_CACHE_NAME);
     _dataCache = EHCacheUtils.getCacheFromManager(cacheManager, DATA_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, ID_BUNDLE_CACHE_NAME);
+    _identifierBundleCache = EHCacheUtils.getCacheFromManager(cacheManager, ID_BUNDLE_CACHE_NAME);
   }
 
   //-------------------------------------------------------------------------
@@ -154,6 +168,15 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
    */
   public CacheManager getDataCacheManager() {
     return _dataCache.getCacheManager();
+  }
+  
+  /**
+   * Gets the id cache manager.
+   * 
+   * @return the id cache manager, not null
+   */
+  public CacheManager getIdentifierBundleCacheManager() {
+    return _identifierBundleCache.getCacheManager();
   }
 
   /**
@@ -699,11 +722,25 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
+  
+  
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
+  @Override
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    Element idBundleCacheElement = _identifierBundleCache.get(uniqueId);
+    if (idBundleCacheElement == null) {
+      ExternalIdBundle idBundle = _underlying.getExternalIdBundle(uniqueId);
+      _identifierBundleCache.put(new Element(uniqueId, idBundle));
+      return idBundle;
+    } else {
+      return (ExternalIdBundle) idBundleCacheElement.getValue();
+    }
   }
 
 }

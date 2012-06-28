@@ -444,6 +444,11 @@ public class BloombergHistoricalLoaderTest extends DbTest {
       return tsMap;
     }
 
+    @Override
+    public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   private List<Pair<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeries>> addAndTestTimeSeries() {
@@ -490,7 +495,7 @@ public class BloombergHistoricalLoaderTest extends DbTest {
     }
     return result;
   }
-
+  
   private LocalDateDoubleTimeSeries makeRandomTimeSeries(LocalDate start, LocalDate end) {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     LocalDate current = start;
