@@ -441,6 +441,10 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
@@ -541,6 +545,7 @@
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-core</artifactId>
         <version>5.3.0</version>
+        <optional>true</optional>
         <exclusions>
           <exclusion>
             <groupId>org.apache.activemq</groupId>
@@ -554,14 +559,27 @@
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+          </exclusion>
         </exclusions>
-        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-pool</artifactId>
         <version>5.3.0</version>
         <optional>true</optional>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Database -->
