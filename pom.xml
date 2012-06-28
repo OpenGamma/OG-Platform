@@ -20,6 +20,7 @@
     <module>projects/OG-Master</module>
     <module>projects/OG-LiveData</module>
     <module>projects/OG-Engine</module>
+    <module>projects/OG-Financial</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -363,14 +364,29 @@
         <version>1.7.1</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>3.7</version>
+      </dependency>
+      <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
         <version>1.7.2</version>
       </dependency>
       <dependency>
+        <groupId>de.odysseus.juel</groupId>
+        <artifactId>juel</artifactId>
+        <version>2.1.3</version>
+      </dependency>
+      <dependency>
         <groupId>javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>3.9.0.GA</version>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr</artifactId>
+        <version>3.3</version>
       </dependency>
 
       <!-- Logging -->
