@@ -13,13 +13,15 @@ import javax.ws.rs.core.UriBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
+import com.opengamma.util.jms.JmsConnector;
+
 /**
  * Provides remote access to a {@link ManageableFunctionBlacklistProvider}.
  */
 public class RemoteManageableFunctionBlacklistProvider extends RemoteFunctionBlacklistProvider implements ManageableFunctionBlacklistProvider {
 
-  public RemoteManageableFunctionBlacklistProvider(final URI baseUri, final ExecutorService backgroundTasks) {
-    super(baseUri, backgroundTasks);
+  public RemoteManageableFunctionBlacklistProvider(final URI baseUri, final ExecutorService backgroundTasks, final JmsConnector jmsConnector) {
+    super(baseUri, backgroundTasks, jmsConnector);
   }
 
   @Override

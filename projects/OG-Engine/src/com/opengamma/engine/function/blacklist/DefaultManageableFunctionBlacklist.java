@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.function.blacklist;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -12,9 +14,11 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class DefaultManageableFunctionBlacklist extends AbstractManageableFunctionBlacklist {
 
-  private static final long DEFAULT_TTL = 60 * 60 * 6; // Blacklist for 6-hours
+  private static final int DEFAULT_TTL = 60 * 60 * 6; // Blacklist for 6-hours
 
   private final FunctionBlacklistRuleSet _rules;
+  private List<FunctionBlacklistRule> _added;
+  private List<FunctionBlacklistRule> _removed;
 
   public DefaultManageableFunctionBlacklist(final String name, final ScheduledExecutorService scheduler) {
     this(name, scheduler, DEFAULT_TTL);
@@ -27,23 +31,82 @@ public class DefaultManageableFunctionBlacklist extends AbstractManageableFuncti
    * @param scheduler the scheduler to use for blacklist housekeeping
    * @param defaultTTL the default time to live
    */
-  public DefaultManageableFunctionBlacklist(final String name, final ScheduledExecutorService scheduler, final long defaultTTL) {
+  public DefaultManageableFunctionBlacklist(final String name, final ScheduledExecutorService scheduler, final int defaultTTL) {
     super(name, scheduler, defaultTTL);
     _rules = new FunctionBlacklistRuleSet(scheduler, defaultTTL) {
 
       @Override
       protected void onAdd(final FunctionBlacklistRule rule) {
-        // Notify any listeners
-        DefaultManageableFunctionBlacklist.this.notifyAddRule(rule);
+        final boolean direct = beginUpdate();
+        try {
+          if (direct) {
+            // Notify any listeners
+            DefaultManageableFunctionBlacklist.this.notifyAddRule(rule);
+          } else {
+            // Listeners will be notified as a bulk operation when the re-entry ends
+            synchronized (DefaultManageableFunctionBlacklist.this) {
+              if (_added == null) {
+                _added = new LinkedList<FunctionBlacklistRule>();
+              }
+              _added.add(rule);
+            }
+          }
+        } finally {
+          endUpdate();
+        }
       }
 
       @Override
       protected void onRemove(final FunctionBlacklistRule rule) {
-        // Notify any listeners
-        DefaultManageableFunctionBlacklist.this.notifyRemoveRule(rule);
+        final boolean direct = beginUpdate();
+        try {
+          if (direct) {
+            // Notify any listeners
+            DefaultManageableFunctionBlacklist.this.notifyRemoveRule(rule);
+          } else {
+            // Listeners will be notified as a bulk operation when the re-entry ends
+            synchronized (DefaultManageableFunctionBlacklist.this) {
+              if (_removed == null) {
+                _removed = new LinkedList<FunctionBlacklistRule>();
+              }
+              _removed.add(rule);
+            }
+          }
+        } finally {
+          endUpdate();
+        }
       }
 
     };
+  }
+
+  @Override
+  protected boolean endUpdate() {
+    if (!super.endUpdate()) {
+      return false;
+    }
+    final List<FunctionBlacklistRule> added, removed;
+    synchronized (this) {
+      added = _added;
+      _added = null;
+      removed = _removed;
+      _removed = null;
+    }
+    if (added != null) {
+      if (added.size() > 1) {
+        notifyAddRules(added);
+      } else {
+        notifyAddRule(added.get(0));
+      }
+    }
+    if (removed != null) {
+      if (removed.size() > 1) {
+        notifyRemoveRules(removed);
+      } else {
+        notifyRemoveRule(removed.get(0));
+      }
+    }
+    return true;
   }
 
   @Override
@@ -52,7 +115,7 @@ public class DefaultManageableFunctionBlacklist extends AbstractManageableFuncti
   }
 
   @Override
-  public void addBlacklistRule(final FunctionBlacklistRule rule, final long timeToLive) {
+  public void addBlacklistRule(final FunctionBlacklistRule rule, final int timeToLive) {
     getRules().add(rule, timeToLive);
   }
 

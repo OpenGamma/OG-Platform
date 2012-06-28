@@ -16,40 +16,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Default implementation of a {@link FunctionBlacklistPolicy}.
  */
-public class DefaultFunctionBlacklistPolicy implements FunctionBlacklistPolicy {
+public class DefaultFunctionBlacklistPolicy extends AbstractFunctionBlacklistPolicy {
 
-  private final String _name;
-  private final UniqueId _uniqueId;
-  private final long _defaultEntryActivationPeriod;
   private final Set<Entry> _entries;
 
-  public DefaultFunctionBlacklistPolicy(final UniqueId uniqueId, final long defaultEntryActivationPeriod, final Collection<Entry> entries) {
+  public DefaultFunctionBlacklistPolicy(final UniqueId uniqueId, final int defaultEntryActivationPeriod, final Collection<Entry> entries) {
     this(uniqueId, uniqueId.getValue(), defaultEntryActivationPeriod, entries);
   }
 
-  public DefaultFunctionBlacklistPolicy(final UniqueId uniqueId, final String name, final long defaultEntryActivationPeriod, final Collection<Entry> entries) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(name, "name");
+  public DefaultFunctionBlacklistPolicy(final UniqueId uniqueId, final String name, final int defaultEntryActivationPeriod, final Collection<Entry> entries) {
+    super(uniqueId, name, defaultEntryActivationPeriod);
     ArgumentChecker.notNull(entries, "entries");
-    _uniqueId = uniqueId;
-    _name = name;
-    _defaultEntryActivationPeriod = defaultEntryActivationPeriod;
     _entries = Collections.unmodifiableSet(new HashSet<Entry>(entries));
-  }
-
-  @Override
-  public UniqueId getUniqueId() {
-    return _uniqueId;
-  }
-
-  @Override
-  public String getName() {
-    return _name;
-  }
-
-  @Override
-  public long getDefaultEntryActivationPeriod() {
-    return _defaultEntryActivationPeriod;
   }
 
   @Override

@@ -53,7 +53,7 @@ import com.opengamma.util.tuple.Pair;
     while (underlying != null) {
       _previousModification = underlying.getFirst();
       replaceRules(underlying.getSecond());
-      getUnderlyingRules(_previousModification);
+      underlying = getUnderlyingRules(_previousModification);
     }
   }
 

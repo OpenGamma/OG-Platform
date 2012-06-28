@@ -26,7 +26,7 @@ public interface ManageableFunctionBlacklist extends FunctionBlacklist {
    * @param rule the rule to add, not null
    * @param timeToLive the time to live in seconds
    */
-  void addBlacklistRule(FunctionBlacklistRule rule, long timeToLive);
+  void addBlacklistRule(FunctionBlacklistRule rule, int timeToLive);
 
   /**
    * Adds one or more rules to the blacklist with a default time to live. If there are already matching rules their time to live must be replaced with the new value.
@@ -41,7 +41,7 @@ public interface ManageableFunctionBlacklist extends FunctionBlacklist {
    * @param rules the rules to add, not null
    * @param timeToLive the time to live in seconds
    */
-  void addBlacklistRules(Collection<FunctionBlacklistRule> rules, long timeToLive);
+  void addBlacklistRules(Collection<FunctionBlacklistRule> rules, int timeToLive);
 
   /**
    * Removes a rule from the blacklist.

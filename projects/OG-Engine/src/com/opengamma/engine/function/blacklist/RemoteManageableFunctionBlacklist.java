@@ -36,7 +36,7 @@ public class RemoteManageableFunctionBlacklist extends RemoteFunctionBlacklist i
   }
 
   @Override
-  public void addBlacklistRule(final FunctionBlacklistRule rule, final long timeToLive) {
+  public void addBlacklistRule(final FunctionBlacklistRule rule, final int timeToLive) {
     final FudgeSerializer fsc = new FudgeSerializer(getProvider().getFudgeContext());
     final MutableFudgeMsg msg = fsc.newMessage();
     msg.add(DataManageableFunctionBlacklistResource.TTL_FIELD, null, FudgeWireType.LONG, timeToLive);
@@ -55,7 +55,7 @@ public class RemoteManageableFunctionBlacklist extends RemoteFunctionBlacklist i
   }
 
   @Override
-  public void addBlacklistRules(final Collection<FunctionBlacklistRule> rules, final long timeToLive) {
+  public void addBlacklistRules(final Collection<FunctionBlacklistRule> rules, final int timeToLive) {
     final FudgeSerializer fsc = new FudgeSerializer(getProvider().getFudgeContext());
     final MutableFudgeMsg msg = fsc.newMessage();
     msg.add(DataManageableFunctionBlacklistResource.TTL_FIELD, null, FudgeWireType.LONG, timeToLive);

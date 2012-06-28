@@ -96,7 +96,7 @@ public class DefaultManageableFunctionBlacklistTest {
   public void testExpiry() throws Exception {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     try {
-      final long timeout = Timeout.standardTimeoutSeconds();
+      final int timeout = (int) Timeout.standardTimeoutSeconds();
       final DefaultManageableFunctionBlacklist bl = new DefaultManageableFunctionBlacklist("TEST", executor, timeout);
       bl.addBlacklistRule(new FunctionBlacklistRule(_function));
       final DefaultFunctionBlacklistQuery qry = new DefaultFunctionBlacklistQuery(bl);

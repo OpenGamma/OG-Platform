@@ -59,14 +59,14 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
     private static final int OUTPUTS = 0x10;
 
     private final int _what;
-    private final Long _ttl;
+    private final Integer _ttl;
 
     private Entry() {
       _what = 0;
       _ttl = null;
     }
 
-    private Entry(final int what, final Long ttl) {
+    private Entry(final int what, final Integer ttl) {
       _what = what;
       _ttl = ttl;
     }
@@ -224,7 +224,7 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
      * @param timeToLive the activation period, null to use the policy default
      * @return the new entry
      */
-    public Entry activationPeriod(final Long timeToLive) {
+    public Entry activationPeriod(final Integer timeToLive) {
       return new Entry(_what, timeToLive);
     }
 
@@ -242,7 +242,7 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
      * 
      * @return the time to live, in seconds, or null to use the policy default
      */
-    public Long getActivationPeriod() {
+    public Integer getActivationPeriod() {
       return _ttl;
     }
 
@@ -252,12 +252,40 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
      * @param policy the policy to use for the default activation period
      * @return the activation period, in seconds, when this entry is used as part of the given policy.
      */
-    public long getActivationPeriod(final FunctionBlacklistPolicy policy) {
+    public int getActivationPeriod(final FunctionBlacklistPolicy policy) {
       if (isDefaultActivationPeriod()) {
         return policy.getDefaultEntryActivationPeriod();
       } else {
         return getActivationPeriod();
       }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (!(o instanceof Entry)) {
+        return false;
+      }
+      final Entry e = (Entry) o;
+      if (e._what != _what) {
+        return false;
+      }
+      if (_ttl != null) {
+        return _ttl.equals(e._ttl);
+      } else {
+        return e._ttl == null;
+      }
+    }
+
+    @Override
+    public int hashCode() {
+      int hc = _what * 31 * 31 * 31;
+      if (_ttl != null) {
+        hc += _ttl;
+      }
+      return hc;
     }
 
   }
@@ -274,7 +302,7 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
    * 
    * @return the default activation period, in seconds
    */
-  long getDefaultEntryActivationPeriod();
+  int getDefaultEntryActivationPeriod();
 
   /**
    * Returns the entries in the policy.
@@ -282,5 +310,21 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
    * @return the entries defined in the policy
    */
   Set<Entry> getEntries();
+
+  /**
+   * Tests equality of two policies. Two policies are equal if they contain the same entries, have the same name, and same activation period. An implementation is available in
+   * AbstractFunctionBlacklistPolicy.
+   * 
+   * @param o other object to test
+   * @return true if the policies are equal, false otherwise
+   */
+  boolean equals(Object o);
+
+  /**
+   * Produces a hash code of the policy. The hashcode must be based on the name, activation period and entries. An implementation is available in AbstractFunctionBlacklistPolicy.
+   * 
+   * @return the hash code
+   */
+  int hashCode();
 
 }

@@ -13,21 +13,10 @@ import com.opengamma.id.UniqueId;
 /**
  * Implementation of an empty {@link FunctionBlacklistPolicy}.
  */
-public class EmptyFunctionBlacklistPolicy implements FunctionBlacklistPolicy {
+public class EmptyFunctionBlacklistPolicy extends AbstractFunctionBlacklistPolicy {
 
-  @Override
-  public UniqueId getUniqueId() {
-    return null;
-  }
-
-  @Override
-  public String getName() {
-    return "EMPTY";
-  }
-
-  @Override
-  public long getDefaultEntryActivationPeriod() {
-    return 0;
+  public EmptyFunctionBlacklistPolicy() {
+    super(UniqueId.of("com.opengamma.engine.function.blacklist", "EMPTY"));
   }
 
   @Override

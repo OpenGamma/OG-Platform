@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -16,6 +17,9 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+
+import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Publishes a {@link ManageableFunctionBlacklist} to remote clients
@@ -31,8 +35,8 @@ public class DataManageableFunctionBlacklistResource extends DataFunctionBlackli
    */
   public static final String TTL_FIELD = "ttl";
 
-  public DataManageableFunctionBlacklistResource(final ManageableFunctionBlacklist underlying, final FudgeContext fudgeContext) {
-    super(underlying, fudgeContext);
+  public DataManageableFunctionBlacklistResource(final ManageableFunctionBlacklist underlying, final FudgeContext fudgeContext, final JmsConnector jmsConnector) {
+    super(underlying, fudgeContext, jmsConnector);
   }
 
   @Override
@@ -42,9 +46,10 @@ public class DataManageableFunctionBlacklistResource extends DataFunctionBlackli
 
   @POST
   @Path("add")
+  @Consumes(FudgeRest.MEDIA)
   public void add(final FudgeMsg request) {
     final FudgeDeserializer fdc = new FudgeDeserializer(getFudgeContext());
-    final Long ttl = request.getLong(TTL_FIELD);
+    final Integer ttl = request.getInt(TTL_FIELD);
     final List<FudgeField> fields = request.getAllByName(RULE_FIELD);
     if (fields.size() > 1) {
       final Collection<FunctionBlacklistRule> rules = new ArrayList<FunctionBlacklistRule>(fields.size());
@@ -68,6 +73,7 @@ public class DataManageableFunctionBlacklistResource extends DataFunctionBlackli
 
   @POST
   @Path("remove")
+  @Consumes(FudgeRest.MEDIA)
   public void remove(final FudgeMsg request) {
     final FudgeDeserializer fdc = new FudgeDeserializer(getFudgeContext());
     final List<FudgeField> fields = request.getAllByName(RULE_FIELD);

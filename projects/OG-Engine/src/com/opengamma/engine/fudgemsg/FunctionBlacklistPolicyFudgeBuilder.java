@@ -86,7 +86,7 @@ public class FunctionBlacklistPolicyFudgeBuilder implements FudgeBuilder<Functio
 
     public static Entry buildObjectImpl(final FudgeMsg msg) {
       Entry e = Entry.WILDCARD;
-      final Long ttl = msg.getLong("ttl");
+      final Integer ttl = msg.getInt("ttl");
       if (ttl != null) {
         e = e.activationPeriod(ttl);
       }
@@ -115,7 +115,9 @@ public class FunctionBlacklistPolicyFudgeBuilder implements FudgeBuilder<Functio
 
   }
 
-  public static void buildMessageImpl(final MutableFudgeMsg msg, final FunctionBlacklistPolicy object) {
+  @Override
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FunctionBlacklistPolicy object) {
+    final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("uniqueId", null, UniqueIdFudgeSecondaryType.INSTANCE, object.getUniqueId());
     msg.add("name", null, FudgeWireType.STRING, object.getName());
     msg.add("ttl", null, FudgeWireType.LONG, object.getDefaultEntryActivationPeriod());
@@ -123,30 +125,20 @@ public class FunctionBlacklistPolicyFudgeBuilder implements FudgeBuilder<Functio
       final MutableFudgeMsg entryMsg = msg.addSubMessage("entry", null);
       EntryFudgeBuilder.buildMessageImpl(entryMsg, entry);
     }
-  }
-
-  @Override
-  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FunctionBlacklistPolicy object) {
-    final MutableFudgeMsg msg = serializer.newMessage();
-    buildMessageImpl(msg, object);
     return msg;
   }
 
-  public static FunctionBlacklistPolicy buildObjectImpl(final FudgeMsg msg) {
+  @Override
+  public FunctionBlacklistPolicy buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final UniqueId uniqueId = msg.getValue(UniqueId.class, "uniqueId");
     final String name = msg.getString("name");
-    final long ttl = msg.getLong("ttl");
+    final int ttl = msg.getInt("ttl");
     final List<FudgeField> entryFields = msg.getAllByName("entry");
     final List<Entry> entries = new ArrayList<Entry>(entryFields.size());
     for (FudgeField entryField : entryFields) {
       entries.add(EntryFudgeBuilder.buildObjectImpl((FudgeMsg) entryField.getValue()));
     }
     return new DefaultFunctionBlacklistPolicy(uniqueId, name, ttl, entries);
-  }
-
-  @Override
-  public FunctionBlacklistPolicy buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    return buildObjectImpl(msg);
   }
 
 }

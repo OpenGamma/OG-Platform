@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function.blacklist;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,7 +87,7 @@ public final class FunctionBlacklistRule {
     _target = target;
   }
 
-  public void setInputs(final Set<ValueSpecification> inputs) {
+  public void setInputs(final Collection<ValueSpecification> inputs) {
     if (inputs != null) {
       _inputs = Collections.unmodifiableSet(new HashSet<ValueSpecification>(inputs));
     } else {
@@ -106,7 +107,7 @@ public final class FunctionBlacklistRule {
     return _inputsExactMatch;
   }
 
-  public void setOutputs(final Set<ValueSpecification> outputs) {
+  public void setOutputs(final Collection<ValueSpecification> outputs) {
     if (outputs != null) {
       _outputs = Collections.unmodifiableSet(new HashSet<ValueSpecification>(outputs));
     } else {
