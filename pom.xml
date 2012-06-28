@@ -19,6 +19,7 @@
     <module>projects/OG-Core</module>
     <module>projects/OG-Master</module>
     <module>projects/OG-LiveData</module>
+    <module>projects/OG-Engine</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -664,6 +665,12 @@
         <artifactId>mongo-java-driver</artifactId>
         <version>2.7.3</version>
         <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.sleepycat</groupId>
+        <artifactId>je</artifactId>
+        <version>4.0.92</version>
+        <!--version>4.1.21</version--><!-- needs Oracle repo - http://download.oracle.com/maven -->
       </dependency>
 
       <!-- Testing -->
