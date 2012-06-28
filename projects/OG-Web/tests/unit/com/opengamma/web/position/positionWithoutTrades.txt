@@ -12,5 +12,6 @@
             "scheme": "BLOOMBERG_TICKER",
             "value": "AAPL US Equity"
         }
-    ]
+    ],
+    "attributes": { }
 }

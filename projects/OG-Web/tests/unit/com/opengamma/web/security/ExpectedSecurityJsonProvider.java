@@ -121,7 +121,8 @@ import com.opengamma.util.time.Expiry;
         Map<String, Object> templateData = Maps.newHashMap();
         addDefaultFields(security, templateData);
         addExpiry(templateData, security.getExpiry());
-
+        templateData.put("firstDeliveryDate", security.getFirstDeliveryDate().toString());
+        templateData.put("lastDeliveryDate", security.getLastDeliveryDate().toString());
         if (StringUtils.isNotBlank(security.getTradingExchange())) {
           templateData.put("tradingExchange", security.getTradingExchange());
         }
