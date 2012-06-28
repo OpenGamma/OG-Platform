@@ -26,6 +26,8 @@
     <module>projects/OG-Component</module>
     <module>projects/OG-Examples</module>
     <module>projects/OG-Bloomberg</module>
+    <module>projects/OG-Integration</module>
+    <module>projects/OG-BloombergExample</module>
   </modules>
 
   <!-- ==================================================================== -->
