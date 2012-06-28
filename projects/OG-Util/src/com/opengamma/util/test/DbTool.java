@@ -42,6 +42,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.SkipException;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
@@ -674,10 +675,10 @@ public class DbTool extends Task {
     int highestVersion = Collections.max(dbScripts.keySet());
     int lowestVersion = Collections.min(dbScripts.keySet());
     int targetVersion = getTargetVersion() == null ? 0 : getTargetVersion();
-    int createVersion = getCreateVersion() == null ? targetVersion : getCreateVersion(); 
-    if((highestVersion-lowestVersion) < targetVersion || (highestVersion-lowestVersion) < createVersion){
-      System.out.println("to low");
-    }else{
+    int createVersion = getCreateVersion() == null ? targetVersion : getCreateVersion();
+    if ((highestVersion - lowestVersion) < targetVersion || (highestVersion - lowestVersion) < createVersion) {
+      s_logger.info("Skipping schema creation because I can't go " + createVersion + " back where I have only " + (highestVersion - lowestVersion) + " versions.");
+    } else {
       createTables(database, dbScripts, highestVersion, targetVersion, createVersion, catalog, schema, callback);
     }
   }

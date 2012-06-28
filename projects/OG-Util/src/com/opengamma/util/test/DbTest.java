@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.test;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,23 +18,15 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterSuite;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
+import org.testng.annotations.*;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ZipUtils;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.db.DbConnectorFactoryBean;
-import com.opengamma.util.db.DbDialect;
-import com.opengamma.util.db.HSQLDbDialect;
-import com.opengamma.util.db.PostgresDbDialect;
-import com.opengamma.util.db.SqlServer2008DbDialect;
+import com.opengamma.util.db.*;
 import com.opengamma.util.test.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Base DB test.
@@ -42,9 +36,10 @@ public abstract class DbTest implements TableCreationCallback {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTest.class);
 
-  private static Map<String,String> s_databaseTypeVersion = new HashMap<String,String> ();
+  private static Map<String, String> s_databaseTypeVersion = new HashMap<String, String>();
   private static final Map<String, DbDialect> s_dbDialects = new HashMap<String, DbDialect>();
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
+
   static {
     DateUtils.initTimeZone();
     addDbDialect("hsqldb", new HSQLDbDialect());
@@ -78,6 +73,8 @@ public abstract class DbTest implements TableCreationCallback {
     }
   }
 
+  private boolean skip = false;
+
   /**
    * Initialise the database to the required version. This tracks the last initialised version
    * in a static map to avoid duplicate DB operations on bigger test classes. This might not be
@@ -109,7 +106,7 @@ public abstract class DbTest implements TableCreationCallback {
 
   private static void unzipSQLScripts() throws IOException {
     File zipScriptPath = new File(DbTool.getWorkingDirectory(), getZipPath());
-    for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false)) {
+    for (File file : (Collection<File>) FileUtils.listFiles(zipScriptPath, new String[]{"zip"}, false)) {
       ZipUtils.unzipArchive(file, SCRIPT_INSTALL_DIR);
     }
   }
@@ -144,8 +141,8 @@ public abstract class DbTest implements TableCreationCallback {
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String dbType : databaseTypes) {
       for (int i = previousVersionCount; i >= 0; i--) {
-        returnValue.add(new Object[] {dbType, ""+i});  
-      }      
+        returnValue.add(new Object[]{dbType, "" + i});
+      }
     }
     return returnValue;
   }
@@ -161,7 +158,7 @@ public abstract class DbTest implements TableCreationCallback {
       }
       final String[] versions = dbTool.getDatabaseCreatableVersions();
       for (int i = 0; i < versions.length; i++) {
-        returnValue.add(new Object[] {db, versions[i] });
+        returnValue.add(new Object[]{db, versions[i]});
         if (i >= previousVersionCount) {
           break;
         }
@@ -179,35 +176,65 @@ public abstract class DbTest implements TableCreationCallback {
     boolean result = false;
     if (zipScriptPath.exists()) {
       @SuppressWarnings("rawtypes")
-      Collection zipfiles = FileUtils.listFiles(zipScriptPath, new String[] {"zip" }, false);
+      Collection zipfiles = FileUtils.listFiles(zipScriptPath, new String[]{"zip"}, false);
       result = !zipfiles.isEmpty();
     }
     return result;
   }
 
-  //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------  
+  private static boolean checkScripts(String databaseType, int versionsBack) {
+    DbTool dbtool = TestProperties.getDbTool(databaseType);
+    dbtool.setJdbcUrl(dbtool.getTestDatabaseUrl());
+    if (isScriptPublished()) {
+      dbtool.addDbScriptDirectory(SCRIPT_INSTALL_DIR.getAbsolutePath());
+    } else {
+      dbtool.addDbScriptDirectory(DbTool.getWorkingDirectory());
+    }
+   
+    int minVersionDifference = Integer.MAX_VALUE;
+    for (Map<Integer, Pair<File, File>> versions : dbtool.getScriptDirs().values()) {
+      int min = Integer.MAX_VALUE;
+      int max = Integer.MIN_VALUE;
+      for (Integer v : versions.keySet()) {
+        min = v < min ? v : min;
+        max = v > max ? v : max;
+      }
+      minVersionDifference = minVersionDifference > (max - min) ? (max - min) : minVersionDifference;
+    }
+    return minVersionDifference >= versionsBack;
+  }
+
+  private static Object[][] checkScripts(Collection<Object[]> parameters) {
+    Collection<Object[]> filteredParameters = newArrayList();
+    for (Object[] parameter : parameters) {
+      String databaseType = (String) parameter[0];
+      int versionsBack = Integer.parseInt((String) parameter[1]);
+      if (checkScripts(databaseType, versionsBack)) {
+        filteredParameters.add(parameter);
+      }
+    }
+    Object[][] array = new Object[filteredParameters.size()][];
+    filteredParameters.toArray(array);
+    return array;
+  }
+
   @DataProvider(name = "localDatabase")
   public static Object[][] data_localDatabase() {
     Collection<Object[]> parameters = getParameters("hsqldb", 0);
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+    return checkScripts(parameters);
   }
 
   @DataProvider(name = "databases")
   public static Object[][] data_databases() {
-    Collection<Object[]> parameters = getParameters();
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+    Collection<Object[]> parameters = getParameters(3);
+    return checkScripts(parameters);
   }
 
   @DataProvider(name = "databasesMoreVersions")
   public static Object[][] data_databasesMoreVersions() {
     Collection<Object[]> parameters = getParameters(3);
-    Object[][] array = new Object[parameters.size()][];
-    parameters.toArray(array);
-    return array;
+    return checkScripts(parameters);
   }
 
   protected static int getPreviousVersionCount() {
@@ -253,7 +280,7 @@ public abstract class DbTest implements TableCreationCallback {
 
   /**
    * Adds a dialect to the map of known.
-   * 
+   *
    * @param dbType  the database type, not null
    * @param dialect  the dialect, not null
    */
