@@ -21,6 +21,7 @@
     <module>projects/OG-LiveData</module>
     <module>projects/OG-Engine</module>
     <module>projects/OG-Financial</module>
+    <module>projects/OG-MasterDB</module>
   </modules>
 
   <!-- ==================================================================== -->
