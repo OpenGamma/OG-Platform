@@ -24,6 +24,7 @@
     <module>projects/OG-MasterDB</module>
     <module>projects/OG-Web</module>
     <module>projects/OG-Component</module>
+    <module>projects/OG-Examples</module>
   </modules>
 
   <!-- ==================================================================== -->
