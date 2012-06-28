@@ -193,8 +193,8 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
       final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
       return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     } catch (final Exception ogre) {
-      s_logger.error("Error thrown by analytics on security {} with funding curve name {}, forward curve name {}.  Rethrowing.", new Object[] {security.toString(),
-          fundingCurveName, forwardCurveName});
+      s_logger.error("Error thrown by analytics on security {} with funding curve name {}, forward curve name {}.  Rethrowing.",
+          new Object[] {security.toString(), fundingCurveName, forwardCurveName});
       throw new OpenGammaRuntimeException("Error thrown by analytics", ogre);
     }
   }
