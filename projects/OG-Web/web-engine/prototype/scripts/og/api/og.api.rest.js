@@ -211,6 +211,12 @@ $.register_module({
                 if (!xhr) return; else delete outstanding_requests[promise.id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
             },
+            aggregators: { // all requests that begin with /aggregators
+                root: 'aggregators',
+                get: default_get.partial([], null),
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
             clean: function () {
                 var id, current = routes.current(), request;
                 for (id in outstanding_requests) { // clean up outstanding requests
@@ -324,13 +330,13 @@ $.register_module({
                                 label: 'search request cannot have id, node, or version',
                                 fields: ['id', 'node', 'version']
                             },
-                            {condition: true, label: 'meta data unavailable for /' + root, fields: ['meta']}
+                            {label: 'meta data unavailable for /' + root, fields: ['meta']}
                         ]
                     });
                     if (search) data = paginate(config);
                     if (name_search) data.name = name;
-                    if (id_search) data.portfolioId = ids;
-                    if (node_search) data.nodeId = nodes;
+                    if (id_search) data['portfolioId'] = ids;
+                    if (node_search) data['nodeId'] = nodes;
                     version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
                     if (id) method = method.concat(version);
                     if (node) method.push('nodes', node);
@@ -505,7 +511,7 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta, meta_request = config.meta;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
-                        required: [{condition: true, all_of: ['meta']}]
+                        required: [{all_of: ['meta']}]
                     });
                     data = paginate(config);
                     if (meta_request) method.push('metaData');
@@ -518,6 +524,33 @@ $.register_module({
                 root: 'viewdefinitions',
                 get: default_get.partial([], null),
                 put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
+            views: { // all requests that begin with /views
+                root: 'views',
+                get: not_available.partial('get'),
+                put: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root], data = {}, meta,
+                        fields = ['viewdefinition', 'aggregator', 'live', 'provider', 'snapshot', 'version'],
+                        api_fields = [
+                            'viewDefinitionId', 'aggregator', 'marketDataType',
+                            'provider', 'snapshotId', 'versionDateTime'
+                        ];
+                    meta = check({
+                        bundle: {method: root + '#put', config: config},
+                        required: [
+                            {all_of: ['viewdefinition']},
+                            {condition: config.live, all_of: ['provider']},
+                            {condition: !config.live, all_of: ['snapshot', 'version']}
+                        ]
+                    });
+                    meta.type = 'POST';
+                    fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    data['aggregator'] = data['aggregator'] || null;
+                    data['marketDataType'] = data['marketDataType'] ? 'live' : 'snapshot';
+                    return request(method, {data: data, meta: meta});
+                },
                 del: not_available.partial('del')
             }
         };

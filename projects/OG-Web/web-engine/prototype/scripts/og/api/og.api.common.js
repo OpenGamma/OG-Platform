@@ -30,7 +30,8 @@ $.register_module({
                     check_empties = function (bundle, params) { // if condition then fields can't exist, optional label
                         var config = bundle.config, method = bundle.method, self = 'check_empties';
                         ($.isArray(params) ? params : [params]).forEach(function (obj) {
-                            var condition = obj.condition, fields = obj.fields, label = obj.label || 'unknown reason';
+                            var condition = 'condition' in obj ? obj.condition : true,
+                                fields = obj.fields, label = obj.label || 'unknown reason';
                             if (!condition) return; // if condition isn't true, don't bother with anything else
                             if (!$.isArray(fields)) throw new TypeError(self + ': obj.fields must be an array');
                             fields.forEach(function (field) {
