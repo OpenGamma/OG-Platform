@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,12 +18,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated See the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackPresentValueCurveSensitivityFunction
  */
-public class ForexOptionBlackPresentValueCurveSensitivityFunction extends ForexOptionBlackSingleValuedFunction {
+@Deprecated
+public class ForexOptionBlackPresentValueCurveSensitivityFunctionDeprecated extends ForexOptionBlackSingleValuedFunctionDeprecated {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackPresentValueCurveSensitivityFunction() {
+  public ForexOptionBlackPresentValueCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,15 +18,18 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the Gamma of Forex options in the Black model.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackGammaFunction
  */
-public class ForexOptionBlackGammaFunction extends ForexOptionBlackSingleValuedFunction {
+@Deprecated
+public class ForexOptionBlackGammaFunctionDeprecated extends ForexOptionBlackSingleValuedFunctionDeprecated {
 
   /**
    * The calculator to compute the gamma value.
    */
   private static final GammaValueBlackForexCalculator CALCULATOR = GammaValueBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackGammaFunction() {
+  public ForexOptionBlackGammaFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 

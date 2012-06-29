@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,16 +18,19 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * The function calculating the total Black volatility sensitivity. 
+ * The function calculating the total Black volatility sensitivity.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackVegaFunction
  */
-public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFunction {
+@Deprecated
+public class ForexOptionBlackVegaFunctionDeprecated extends ForexOptionBlackSingleValuedFunctionDeprecated {
 
   /**
    * The relevant calculator.
    */
   private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackVegaFunction() {
+  public ForexOptionBlackVegaFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
 

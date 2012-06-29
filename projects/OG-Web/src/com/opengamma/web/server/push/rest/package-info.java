@@ -112,19 +112,11 @@
  * request to:</p>
  * <pre>
  *   /jax/views?clientId=...</pre>
- * <p>The request must contain JSON which defines the view:</p>
- * <pre>
- *   {"viewDefinitionId": ...
- *    "aggregator": ...
- *    "marketDataType": ...
- *    "provider": ...
- *    "snapshotId": ...
- *    "versionDateTime": ...}
- * </pre>
+ * <p>The request must contain the follow parameters to define the view:</p>
  * <ul>
  *   <li>{@code viewDefinitionId}: Unique ID of the view definition.</li>
- *   <li>{@code aggregator}: name of the aggregator used to aggregate the portfolio, {@code null} for no aggregation.</li>
- *   <li>{@code marketDataType}: {@code "live"} or {@code "snapshot"}.</li>
+ *   <li>{@code aggregators}: names of the aggregators used to aggregate the portfolio, omit for no aggregation.</li>
+ *   <li>{@code live}: {@code true} or {@code false} - whether to use live market data or a snapshot.</li>
  *   <li>{@code provider}: name of the market data provider.  Only required for live data. <em>TODO use the value "Live market data (Bloomberg, Activ)" for testing</em>.</li>
  *   <li>{@code snapshotId}: ID of the market data snapshot.  Only required if using a market data snapshot.</li>
  *   <li>{@code versionDateTime}: time of the snapshot.  Only required if using a market data snapshot.</li>
@@ -138,8 +130,8 @@
  * <h3>Grid Structure</h3>
  * <p>To retrieve the row and column structure for each grid the client should make a {@code GET} request to:</p>
  * <pre>
- *   /jax/view/{viewId}/portfolio/grid
- *   /jax/view/{viewId}/primitives/grid
+ *   /jax/views/{viewId}/portfolio/grid
+ *   /jax/views/{viewId}/primitives/grid
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid
  * </pre>
@@ -149,13 +141,13 @@
  * <p>After creating a view the client must create a viewport in order to receive data. This is done by making a
  * {@code POST} request to:</p>
  * <pre>
- *   /jax/view/{viewId}/portfolio/viewports
- *   /jax/view/{viewId}/primitives/viewports
+ *   /jax/views/{viewId}/portfolio/viewports
+ *   /jax/views/{viewId}/primitives/viewports
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports
  * </pre>
- * <p>The request must contain JSON that defines the viewport:</p>
- * <pre>{"rows": ["1", "2", ...], "columns": ["3", "4", ...]}</pre>
+ * <p>The request must contain parameters called {@code rows} and {@code columns} with a list of the row and
+ * column indices that define the viewport.</p>
  * <p>The response header will contain the location of the new viewport. To close the viewport the client should make
  * a {@code DELETE} request to the view's location.</p>
  *

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,9 +52,11 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackFunction
  */
-public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+@Deprecated
+public abstract class ForexOptionBlackFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String BLACK_METHOD = "BlackMethod";
   /** The put curve property */
@@ -72,7 +74,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexOptionBlackFunction(final String valueRequirementName) {
+  public ForexOptionBlackFunctionDeprecated(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

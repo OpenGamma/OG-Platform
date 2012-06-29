@@ -135,6 +135,16 @@
     <property name="format" value="\{\@code null\}"/>
     <property name="message" value="Use null instead of @code null"/>
   </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import org.testng.collections."/>
+    <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
+    <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="import com.beust.jcommander.internal."/>
+    <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
+    <property name="severity" value="error"/>
+  </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>
     <property name="onCommentFormat" value="CSON"/>

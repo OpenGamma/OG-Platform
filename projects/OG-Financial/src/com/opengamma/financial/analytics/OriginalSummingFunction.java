@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
@@ -92,10 +92,10 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.EXCESS_RETURN_CALCULATOR,
         BondFunction.PROPERTY_CREDIT_CURVE,
         BondFunction.PROPERTY_RISK_FREE_CURVE,
-        ForexOptionBlackFunction.PROPERTY_CALL_CURVE,
-        ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE,
-        ForexOptionBlackFunction.PROPERTY_PUT_CURVE,
-        ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE);
+        ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE,
+        ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE,
+        ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE,
+        ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE);
   }
 
   protected String getAggregationStyle() {

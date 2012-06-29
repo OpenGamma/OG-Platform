@@ -3,14 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblackold;
-
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_CALL_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_PUT_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.forex.option.blackold.ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -23,38 +16,39 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackSingleValuedFunction
  */
-public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction extends ForexDigitalOptionCallSpreadBlackFunction {
+@Deprecated
+public abstract class ForexOptionBlackSingleValuedFunctionDeprecated extends ForexOptionBlackFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackSingleValuedFunction(final String valueRequirementName) {
+  public ForexOptionBlackSingleValuedFunctionDeprecated(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
         .withAny(PROPERTY_PUT_CURVE)
         .withAny(PROPERTY_PUT_FORWARD_CURVE)
         .withAny(PROPERTY_PUT_CURVE_CALCULATION_METHOD)
         .withAny(PROPERTY_CALL_CURVE)
         .withAny(PROPERTY_CALL_FORWARD_CURVE)
         .withAny(PROPERTY_CALL_CURVE_CALCULATION_METHOD)
-        .withAny(PROPERTY_CALL_SPREAD_VALUE)
+        .withAny(ValuePropertyNames.SURFACE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
-      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String spread,
-      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final ComputationTarget target) {
+      final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
+      final String rightExtrapolatorName, final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
         .with(PROPERTY_PUT_CURVE, putCurveName)
         .with(PROPERTY_PUT_FORWARD_CURVE, putForwardCurveName)
         .with(PROPERTY_PUT_CURVE_CALCULATION_METHOD, putCurveCalculationMethod)
@@ -62,7 +56,6 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .with(PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
         .with(PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(PROPERTY_CALL_SPREAD_VALUE, spread)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)

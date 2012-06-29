@@ -77,21 +77,21 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final String payCurveConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
     final String receiveCurveConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
-    final String fullPutCurveName = payCurveName + "_" + payCurrency.getCode();
-    final String fullCallCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
+    final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
+    final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
     final YieldAndDiscountCurve payFundingCurve = getCurve(inputs, payCurrency, payCurveName, payCurveConfig);
     final YieldAndDiscountCurve receiveFundingCurve = getCurve(inputs, receiveCurrency, receiveCurveName, receiveCurveConfig);
     final YieldAndDiscountCurve[] curves;
     final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
-    curveCurrency.put(fullPutCurveName, payCurrency);
-    curveCurrency.put(fullCallCurveName, receiveCurrency);
+    curveCurrency.put(fullPayCurveName, payCurrency);
+    curveCurrency.put(fullReceiveCurveName, receiveCurrency);
     final String[] allCurveNames;
     if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) { // To get Base/quote in market standard order.
       curves = new YieldAndDiscountCurve[] {payFundingCurve, receiveFundingCurve};
-      allCurveNames = new String[] {fullPutCurveName, fullCallCurveName};
+      allCurveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
     } else {
       curves = new YieldAndDiscountCurve[] {receiveFundingCurve, payFundingCurve};
-      allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
+      allCurveNames = new String[] {fullReceiveCurveName, fullPayCurveName};
     }
     try {
       final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
