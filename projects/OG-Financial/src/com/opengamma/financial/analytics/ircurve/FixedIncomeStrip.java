@@ -322,25 +322,25 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     } else if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
       result = getPeriodsPerYear() - other.getPeriodsPerYear();
     } else if (getInstrumentType() == StripInstrumentType.SWAP || getInstrumentType() == StripInstrumentType.OIS_SWAP && getIndexType() != null) {
-      result = getResetTenor().compareTo(other.getResetTenor());
+      result = ObjectUtils.compare(getResetTenor(), other.getResetTenor());
       if (result != 0) {
         return result;
       }
-      return getIndexType().compareTo(other.getIndexType());
+      return ObjectUtils.compare(getIndexType(), other.getIndexType());
     } else if (getInstrumentType() == StripInstrumentType.BASIS_SWAP) {
       result = getPayTenor().compareTo(other.getPayTenor());
       if (result != 0) {
         return result;
       }
-      result = getReceiveTenor().compareTo(other.getReceiveTenor());
+      result = ObjectUtils.compare(getReceiveTenor(), other.getReceiveTenor());
       if (result != 0) {
         return result;
       }
-      result = getPayIndexType().ordinal() - other.getPayIndexType().ordinal();
+      result = ObjectUtils.compare(getPayIndexType(), other.getPayIndexType());
       if (result != 0) {
         return result;
       }
-      result = getReceiveIndexType().ordinal() - other.getReceiveIndexType().ordinal();
+      result = ObjectUtils.compare(getReceiveIndexType(), other.getReceiveIndexType());
     }
     return result;
   }
@@ -356,6 +356,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
           ObjectUtils.equals(_conventionName, other._conventionName) &&
           _instrumentType == other._instrumentType;
       if (getInstrumentType() == StripInstrumentType.FUTURE) {
+        System.err.println(result && _nthFutureFromTenor == other._nthFutureFromTenor);
         return result && _nthFutureFromTenor == other._nthFutureFromTenor;
       }
       if (getInstrumentType() == StripInstrumentType.PERIODIC_ZERO_DEPOSIT) {
