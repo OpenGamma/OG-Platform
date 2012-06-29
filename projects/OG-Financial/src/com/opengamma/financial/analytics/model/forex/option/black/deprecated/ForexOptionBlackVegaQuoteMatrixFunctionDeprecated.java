@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -21,12 +21,14 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackVegaQuoteMatrixFunction
  */
-public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSingleValuedFunction {
+@Deprecated
+public class ForexOptionBlackVegaQuoteMatrixFunctionDeprecated extends ForexOptionBlackSingleValuedFunctionDeprecated {
   private static final PresentValueBlackVolatilityQuoteSensitivityForexCalculator CALCULATOR = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance();
 
-  public ForexOptionBlackVegaQuoteMatrixFunction() {
+  public ForexOptionBlackVegaQuoteMatrixFunctionDeprecated() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -17,15 +17,18 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Function to compute the implied volatility for Forex options in the Black model.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackImpliedVolatilityFunction
  */
-public class ForexOptionBlackImpliedVolatilityFunction extends ForexOptionBlackMultiValuedFunction {
+@Deprecated
+public class ForexOptionBlackImpliedVolatilityFunctionDeprecated extends ForexOptionBlackMultiValuedFunctionDeprecated {
 
   /**
    * The related calculator.
    */
   private static final ImpliedVolatilityBlackForexCalculator CALCULATOR = ImpliedVolatilityBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackImpliedVolatilityFunction() {
+  public ForexOptionBlackImpliedVolatilityFunctionDeprecated() {
     super(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
   }
 

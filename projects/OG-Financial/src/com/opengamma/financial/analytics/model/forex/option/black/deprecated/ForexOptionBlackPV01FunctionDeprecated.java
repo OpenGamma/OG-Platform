@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,10 +46,12 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackPV01Function
  */
-public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackPV01Function.class);
+@Deprecated
+public class ForexOptionBlackPV01FunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackPV01FunctionDeprecated.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
   private static final ForexSecurityConverter CONVERTER = new ForexSecurityConverter();
 
@@ -72,12 +74,12 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_PUT_CURVE);
-    final String putForwardCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE);
-    final String putCurveCalculationMethod = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
-    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_CALL_CURVE);
-    final String callForwardCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE);
-    final String callCurveCalculationMethod = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE);
+    final String putForwardCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE);
+    final String putCurveCalculationMethod = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
+    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE);
+    final String callForwardCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE);
+    final String callCurveCalculationMethod = desiredValue.getConstraint(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String forwardCurveName;
@@ -135,11 +137,11 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
       s_logger.error("Did not specify a currency for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunction.PROPERTY_PUT_CURVE);
+    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunction.PROPERTY_CALL_CURVE);
+    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE);
     if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
@@ -160,19 +162,19 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final Set<String> putForwardCurveNames = constraints.getValues(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE);
+    final Set<String> putForwardCurveNames = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE);
     if (putForwardCurveNames == null || putForwardCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callForwardCurveNames = constraints.getValues(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE);
+    final Set<String> callForwardCurveNames = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE);
     if (callForwardCurveNames == null || callForwardCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> putCurveCalculationMethods = constraints.getValues(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
+    final Set<String> putCurveCalculationMethods = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
     if (putCurveCalculationMethods == null || putCurveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> callCurveCalculationMethods = constraints.getValues(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+    final Set<String> callCurveCalculationMethods = constraints.getValues(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
     if (callCurveCalculationMethods == null || callCurveCalculationMethods.size() != 1) {
       return null;
     }
@@ -220,13 +222,13 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE).get();
   }
 
@@ -235,13 +237,13 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE)
-        .withAny(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE)
+        .withAny(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE).get();
   }
 
@@ -252,28 +254,28 @@ public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledIn
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy)
         .with(ValuePropertyNames.CURRENCY, ccy)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, putForwardCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD, putCurveCalculationMethod)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, putCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, putForwardCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD, putCurveCalculationMethod)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, callCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
   }
 
   private ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
       final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, putForwardCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE_CALCULATION_METHOD, putCurveCalculationMethod)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
-        .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, putCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, putForwardCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD, putCurveCalculationMethod)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, callCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, callForwardCurveName)
+        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD, callCurveCalculationMethod)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, ForexOptionBlackSingleValuedFunction.getResultCurrency(target)).get();
+        .with(ValuePropertyNames.CURRENCY, ForexOptionBlackSingleValuedFunctionDeprecated.getResultCurrency(target)).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
 

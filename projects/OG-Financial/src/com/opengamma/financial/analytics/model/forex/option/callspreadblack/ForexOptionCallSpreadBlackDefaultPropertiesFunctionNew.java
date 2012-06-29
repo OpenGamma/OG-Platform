@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunctionNew;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblackold.ForexDigitalOptionCallSpreadBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated.ForexDigitalOptionCallSpreadBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;

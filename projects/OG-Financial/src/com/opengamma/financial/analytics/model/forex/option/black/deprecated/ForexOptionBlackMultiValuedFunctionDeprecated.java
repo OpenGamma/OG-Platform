@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.blackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -11,11 +11,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackMultiValuedFunction
  */
-public abstract class ForexOptionBlackMultiValuedFunction extends ForexOptionBlackFunction {
+@Deprecated
+public abstract class ForexOptionBlackMultiValuedFunctionDeprecated extends ForexOptionBlackFunctionDeprecated {
 
-  public ForexOptionBlackMultiValuedFunction(final String valueRequirementName) {
+  public ForexOptionBlackMultiValuedFunctionDeprecated(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

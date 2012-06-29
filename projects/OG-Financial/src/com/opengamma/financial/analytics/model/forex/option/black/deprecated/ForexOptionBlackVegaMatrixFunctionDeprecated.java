@@ -1,15 +1,15 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblackold;
+package com.opengamma.financial.analytics.model.forex.option.black.deprecated;
 
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -19,20 +19,21 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- * The function calculating the Black volatility sensitivity to the matrix with volatility data.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackVegaMatrixFunction
  */
-public class ForexDigitalOptionCallSpreadBlackVegaMatrixFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
-
+@Deprecated
+public class ForexOptionBlackVegaMatrixFunctionDeprecated extends ForexOptionBlackSingleValuedFunctionDeprecated {
+  private static final PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexDigitalOptionCallSpreadBlackVegaMatrixFunction() {
+  public ForexOptionBlackVegaMatrixFunctionDeprecated() {
     super(ValueRequirementNames.VEGA_MATRIX);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator(spread);
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = calculator.visit(fxDigital, data);
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();
