@@ -72,7 +72,7 @@ public class ViewportSpecification {
     }
     if (!_columns.isEmpty()) {
       int maxCol = _columns.last();
-      if (maxCol >= grid.getColumns().getColumnCount()) {
+      if (maxCol >= grid.getColumnCount()) {
         return false;
       }
     }

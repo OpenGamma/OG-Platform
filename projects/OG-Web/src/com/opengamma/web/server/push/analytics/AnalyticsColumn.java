@@ -13,8 +13,6 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
  * Specifies the header label of a column and the type of data it displays.
- * @param <T> The type of data the column displays. TODO is this actually useful?
- * TODO what about position column that isn't associated with a requirement
  */
 public class AnalyticsColumn {
 
@@ -93,9 +91,6 @@ public class AnalyticsColumn {
 
   @Override
   public String toString() {
-    return "AnalyticsColumn [" +
-        "_header='" + _header + '\'' +
-        ", _description='" + _description + '\'' +
-        "]";
+    return "AnalyticsColumn [_header='" + _header + '\'' + ", _description='" + _description + '\'' + "]";
   }
 }

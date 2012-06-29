@@ -32,29 +32,24 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
  * header, the type of data that it displays and how it is formatted. A column group specifies a number of
  * associated columns that are displayed and controlled as a unit.
  */
-public class AnalyticsColumns {
+public class AnalyticsResultsMapper {
 
   private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
 
   private final List<AnalyticsColumnGroup> _columnGroups;
-  private final List<AnalyticsColumn> _columns;
+
+  // TODO this is specific to the main grids
+  // TODO can the columns be built from these - so the column mapper is built first and the columns derived?
   private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
   // TODO should this be a field of the grid structure rather than the columns?
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
 
-  private AnalyticsColumns(List<AnalyticsColumnGroup> columnGroups,
-                           Map<RequirementBasedColumnKey, Integer> indexByRequirement,
-                           // TODO is this needed for primitives? depgraphs? do I need a portfolio-specific subclass?
-                           Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
-    List<AnalyticsColumn> colList = new ArrayList<AnalyticsColumn>();
+  private AnalyticsResultsMapper(List<AnalyticsColumnGroup> columnGroups,
+                                 Map<RequirementBasedColumnKey, Integer> indexByRequirement,
+                                 // TODO is this needed for primitives? depgraphs? do I need a portfolio-specific subclass?
+                                 Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
     _columnGroups = columnGroups;
-    for (AnalyticsColumnGroup group : columnGroups) {
-      for (AnalyticsColumn column : group.getColumns()) {
-        colList.add(column);
-      }
-    }
-    _columns = Collections.unmodifiableList(colList);
     _indexByRequirement = new HashMap<RequirementBasedColumnKey, Integer>(indexByRequirement);
     _specsToReqs = specsToReqs;
   }
@@ -62,14 +57,14 @@ public class AnalyticsColumns {
   /**
    * @return An empty set of columns.
    */
-  /* package */ static AnalyticsColumns empty() {
-    return new AnalyticsColumns(Collections.<AnalyticsColumnGroup>emptyList(),
+  /* package */ static AnalyticsResultsMapper empty() {
+    return new AnalyticsResultsMapper(Collections.<AnalyticsColumnGroup>emptyList(),
                                 Collections.<RequirementBasedColumnKey, Integer>emptyMap(),
                                 Collections.<String, Map<ValueSpecification,Set<ValueRequirement>>>emptyMap());
   }
 
   // TODO combine with primitives()
-  /* package */ static AnalyticsColumns portfolio(CompiledViewDefinition compiledViewDef) {
+  /* package */ static AnalyticsResultsMapper portfolio(CompiledViewDefinition compiledViewDef) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     // map of column index keyed by column key
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
@@ -99,11 +94,11 @@ public class AnalyticsColumns {
     }
     // TODO what about unsatisfied columns?
     // TODO fixed column group for the position name? what about the position column
-    return new AnalyticsColumns(columnGroups, indexMap, specsToReqs);
+    return new AnalyticsResultsMapper(columnGroups, indexMap, specsToReqs);
   }
 
   // TODO combine with portfolio()
-/* package */ static AnalyticsColumns primitives(CompiledViewDefinition compiledViewDef) {
+/* package */ static AnalyticsResultsMapper primitives(CompiledViewDefinition compiledViewDef) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     // map of column index keyed by column key
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
@@ -133,17 +128,18 @@ public class AnalyticsColumns {
       }
       columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
     }
-    return new AnalyticsColumns(columnGroups, indexMap, specsToReqs);
+    return new AnalyticsResultsMapper(columnGroups, indexMap, specsToReqs);
   }
 
   /**
    * @return
    */
-  /* package */ static AnalyticsColumns dependencyGraph() {
-    // TODO implement
-    return AnalyticsColumns.empty();
+  /* package */ static AnalyticsResultsMapper dependencyGraph() {
+    // TODO implement - this can be hard-coded
+    return AnalyticsResultsMapper.empty();
   }
 
+  // TODO are any of these needed for dependency graphs?
   /* package */ int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
     RequirementBasedColumnKey key =
         new RequirementBasedColumnKey(calcConfigName, requirement.getValueName(), requirement.getConstraints());
@@ -162,24 +158,16 @@ public class AnalyticsColumns {
     return reqs;
   }
 
-  /* package */ AnalyticsColumn getColumn(int index) {
-    return _columns.get(index);
-  }
-
   public List<AnalyticsColumnGroup> getColumnGroups() {
     return _columnGroups;
   }
 
-  public int getColumnCount() {
-    return _columns.size();
-  }
-
   @Override
   public String toString() {
-    return "AnalyticsColumns [" +
+    return "AnalyticsResultsMapper [" +
         "_columnGroups=" + _columnGroups +
-        ", _columns=" + _columns +
         ", _indexByRequirement=" + _indexByRequirement +
-        ", _specsToReqs=" + _specsToReqs + "]";
+        ", _specsToReqs=" + _specsToReqs +
+        "]";
   }
 }

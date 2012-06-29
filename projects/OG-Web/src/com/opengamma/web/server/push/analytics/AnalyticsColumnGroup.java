@@ -33,6 +33,10 @@ public class AnalyticsColumnGroup {
     return _columns;
   }
 
+  /* package */ int getColumnCount() {
+    return _columns.size();
+  }
+
   @Override
   public String toString() { return "AnalyticsColumnGroup [_name='" + _name + '\'' + ", _columns=" + _columns + "]";
   }
