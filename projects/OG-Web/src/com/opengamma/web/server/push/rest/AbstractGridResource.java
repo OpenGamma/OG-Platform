@@ -6,9 +6,12 @@
 package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -59,8 +62,10 @@ public abstract class AbstractGridResource {
 
   @POST
   @Path("viewports")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response createViewport(@Context UriInfo uriInfo, ViewportSpecification viewportSpecification) {
+  public Response createViewport(@Context UriInfo uriInfo,
+                                 @FormParam("rows") List<Integer> rows,
+                                 @FormParam("columns") List<Integer> columns) {
+    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns);
     String viewportId = Long.toString(s_nextId.getAndIncrement());
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();

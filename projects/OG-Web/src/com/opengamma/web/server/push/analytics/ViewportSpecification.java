@@ -24,9 +24,10 @@ public class ViewportSpecification {
   private final List<Integer> _rows;
   private final SortedSet<Integer> _columns;
 
-  public ViewportSpecification(List<Integer> rows, SortedSet<Integer> columns) {
+  public ViewportSpecification(List<Integer> rows, List<Integer> columns) {
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
+    SortedSet<Integer> sortedColumns = new TreeSet<Integer>(columns);
     List<Integer> sortedRows = new ArrayList<Integer>(rows);
     Collections.sort(sortedRows);
     if (!sortedRows.isEmpty()) {
@@ -35,17 +36,17 @@ public class ViewportSpecification {
         throw new IllegalArgumentException("All row indices must be non-negative: " + rows);
       }
     }
-    if (!columns.isEmpty()) {
-      if (columns.first() < 0) {
-        throw new IllegalArgumentException("All column indices must be non-negative: " + columns);
+    if (!sortedColumns.isEmpty()) {
+      if (sortedColumns.first() < 0) {
+        throw new IllegalArgumentException("All column indices must be non-negative: " + sortedColumns);
       }
     }
     _rows = ImmutableList.copyOf(sortedRows);
-    _columns = ImmutableSortedSet.copyOf(columns);
+    _columns = ImmutableSortedSet.copyOf(sortedColumns);
   }
 
   public static ViewportSpecification empty() {
-    return new ViewportSpecification(Collections.<Integer>emptyList(), new TreeSet<Integer>());
+    return new ViewportSpecification(Collections.<Integer>emptyList(), Collections.<Integer>emptyList());
   }
 
   public List<Integer> getRows() {
