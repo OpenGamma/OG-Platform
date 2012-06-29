@@ -28,7 +28,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.opengamma.blpapi</groupId>
+      <groupId>com.opengamma.external.blpapi</groupId>
       <artifactId>blpapi</artifactId>
       <version>3.4.8.1</version>
     </dependency>
