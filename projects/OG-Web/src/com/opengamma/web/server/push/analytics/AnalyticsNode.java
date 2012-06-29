@@ -70,6 +70,11 @@ public class AnalyticsNode {
     return children;
   }
 
+  @Override
+  public String toString() {
+    return "AnalyticsNode [_startRow=" + _startRow + ", _endRow=" + _endRow + ", children=" + children + "]";
+  }
+
   /* package */ static class Builder {
 
     private final AnalyticsNode _root;

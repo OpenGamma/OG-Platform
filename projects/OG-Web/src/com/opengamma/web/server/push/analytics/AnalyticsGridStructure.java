@@ -119,6 +119,11 @@ public class AnalyticsGridStructure {
     return _columns.getColumnIndexForRequirement(calcConfigName, requirement);
   }
 
+  @Override
+  public String toString() {
+    return "AnalyticsGridStructure [_root=" + _root + ", _columns=" + _columns + ", _rows=" + _rows + "]";
+  }
+
   public static class Row {
 
     private final ComputationTargetSpecification _target;

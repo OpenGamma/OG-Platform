@@ -169,4 +169,17 @@ public class AnalyticsColumns {
   public List<AnalyticsColumnGroup> getColumnGroups() {
     return _columnGroups;
   }
+
+  public int getColumnCount() {
+    return _columns.size();
+  }
+
+  @Override
+  public String toString() {
+    return "AnalyticsColumns [" +
+        "_columnGroups=" + _columnGroups +
+        ", _columns=" + _columns +
+        ", _indexByRequirement=" + _indexByRequirement +
+        ", _specsToReqs=" + _specsToReqs + "]";
+  }
 }

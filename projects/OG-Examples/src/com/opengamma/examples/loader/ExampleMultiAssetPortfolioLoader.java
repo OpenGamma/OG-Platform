@@ -15,8 +15,6 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.poi.hssf.record.formula.functions.Now;
-
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

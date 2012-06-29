@@ -5,10 +5,14 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.List;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.calc.EngineResourceReference;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
@@ -59,6 +63,20 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    /*if (_viewClient.isViewCycleAccessSupported()) {
+      EngineResourceReference<? extends ViewCycle> cycleReference = null;
+      try {
+        cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+        _view.updateResults(fullResult, cycleReference.get());
+      } finally {
+        if (cycleReference != null) {
+          cycleReference.release();
+        }
+      }
+    } else {
+      _view.updateResults(fullResult);
+    }
+    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());*/
     _view.updateResults(fullResult);
   }
 
@@ -99,7 +117,13 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
       ArgumentChecker.notNull(viewRequest, "viewRequest");
       _aggregatedViewDefManager = aggregatedViewDefManager;
       _baseViewDefId = viewRequest.getViewDefinitionId();
-      _aggregatorName = viewRequest.getAggregatorName();
+      List<String> aggregators = viewRequest.getAggregators();
+      if (!aggregators.isEmpty()) {
+        // TODO support multiple aggregtors
+        _aggregatorName = aggregators.get(0);
+      } else {
+        _aggregatorName = null;
+      }
       try {
         _id = _aggregatedViewDefManager.getViewDefinitionId(_baseViewDefId, _aggregatorName);
       } catch (Exception e) {

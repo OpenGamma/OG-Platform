@@ -6,7 +6,9 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.EnumSet;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -26,18 +28,14 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewRequest {
 
   private final UniqueId _viewDefinitionId;
-  private final String _aggregatorName;
   private final MarketData _marketData;
+  private final List<String> _aggregators;
 
-  public ViewRequest(UniqueId viewDefinitionId, MarketData marketData) {
-    this(viewDefinitionId, null, marketData);
-  }
-
-  public ViewRequest(UniqueId viewDefinitionId, String aggregatorName, MarketData marketData) {
+  public ViewRequest(UniqueId viewDefinitionId, List<String> aggregators, MarketData marketData) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(marketData, "marketDataType");
     _viewDefinitionId = viewDefinitionId;
-    _aggregatorName = aggregatorName;
+    _aggregators = ImmutableList.copyOf(aggregators);
     _marketData = marketData;
   }
 
@@ -45,8 +43,8 @@ public class ViewRequest {
     return _viewDefinitionId;
   }
 
-  public String getAggregatorName() {
-    return _aggregatorName;
+  public List<String> getAggregators() {
+    return _aggregators;
   }
 
   public MarketData getMarketData() {
@@ -57,8 +55,8 @@ public class ViewRequest {
   public String toString() {
     return "ViewRequest [" +
         "_viewDefinitionId=" + _viewDefinitionId +
-        ", _aggregatorName='" + _aggregatorName + '\'' +
-        ", _marketDataType=" + _marketData +
+        ", _marketData=" + _marketData +
+        ", _aggregators=" + _aggregators +
         "]";
   }
 
