@@ -127,7 +127,7 @@ public class JobDispatcher implements JobInvokerRegister {
     private final long _jobCreationTime;
     private final CapabilityRequirements _capabilityRequirements;
     private final AtomicReference<Timeout> _timeout = new AtomicReference<Timeout>();
-    private Set<JobInvoker> _excludeJobInvoker;
+    private Set<String> _excludeJobInvoker;
     private int _rescheduled;
 
     private DispatchJob(final CalculationJob job, final JobResultReceiver resultReceiver) {
@@ -182,7 +182,7 @@ public class JobDispatcher implements JobInvokerRegister {
       if (_completed.getAndSet(true) == false) {
         cancelTimeout(null);
         // TODO: [PLAT-2211] check if the job is watched and partition again to isolate the failing job item
-        if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
+        if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker.getInvokerId())) {
           _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
           // TODO: [PLAT-2211] the job is now a watched job and should be partitioned to isolate the failing job item
@@ -195,9 +195,9 @@ public class JobDispatcher implements JobInvokerRegister {
           } else {
             s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
             if (_excludeJobInvoker == null) {
-              _excludeJobInvoker = new HashSet<JobInvoker>();
+              _excludeJobInvoker = new HashSet<String>();
             }
-            _excludeJobInvoker.add(jobInvoker);
+            _excludeJobInvoker.add(jobInvoker.getInvokerId());
             _completed.set(false);
             dispatchJobImpl(this);
           }
@@ -313,11 +313,7 @@ public class JobDispatcher implements JobInvokerRegister {
     }
 
     private boolean canRunOn(final JobInvoker jobInvoker) {
-      if (_excludeJobInvoker != null) {
-        if (_excludeJobInvoker.contains(jobInvoker)) {
-          return false;
-        }
-      }
+      // TODO: aiwg -- not happy with this approach for capabilities
       return getRequirements().satisfiedBy(jobInvoker.getCapabilities());
     }
 
