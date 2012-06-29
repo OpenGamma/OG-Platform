@@ -9,6 +9,8 @@ import javax.time.Instant;
 import javax.time.calendar.Clock;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 import com.opengamma.util.PublicAPI;
 
@@ -46,11 +48,16 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    * The name under which an instance of {@link PortfolioStructure} should be bound.
    */
   public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+  /**
+   * The name under which the graph execution blacklist should be bound.
+   */
+  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
 
   /**
    * Creates an empty function execution context.
    */
   public FunctionExecutionContext() {
+    setGraphExecutionBlacklist(new DummyFunctionBlacklistQuery());
   }
 
   /**
@@ -171,7 +178,24 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
     put(PORTFOLIO_STRUCTURE_NAME, portfolioStructure);
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Returns the function blacklist to use when executing a graph.
+   * 
+   * @return the execution blacklist, not null
+   */
+  public FunctionBlacklistQuery getGraphExecutionBlacklist() {
+    return (FunctionBlacklistQuery) get(GRAPH_EXECUTION_BLACKLIST);
+  }
+
+  /**
+   * Sets the function blacklist to use when executing a graph.
+   * 
+   * @param blacklist the execution blacklist, not null
+   */
+  public void setGraphExecutionBlacklist(final FunctionBlacklistQuery blacklist) {
+    put(GRAPH_EXECUTION_BLACKLIST, blacklist);
+  }
+
   /**
    * Gets the source of securities cast to a specific type.
    * 

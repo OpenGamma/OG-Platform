@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeContext;
@@ -49,6 +51,7 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
   private final IdentifierMap _identifierMap;
   private final FunctionInvocationStatisticsSender _statistics;
   private boolean _started;
+  private String _hostId;
   private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
 
     @Override
@@ -117,6 +120,11 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
     statistics.setExecutorService(getExecutorService());
     statistics.setFudgeMessageSender(connection.getFudgeMessageSender());
     connection.setFudgeMessageReceiver(this);
+    try {
+      setHostId(Inet4Address.getLocalHost().getHostName());
+    } catch (UnknownHostException e) {
+      setHostId("ANONYMOUS");
+    }
   }
 
   public RemoteNodeClient(final FudgeConnection connection, final CompiledFunctionService functionCompilationService, final IdentifierMap identifierMap,
@@ -129,6 +137,14 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
       final FunctionInvocationStatisticsSender statistics, final Collection<SimpleCalculationNode> nodes) {
     this(connection, functionCompilationService, identifierMap, statistics);
     setNodes(nodes);
+  }
+
+  public void setHostId(final String hostId) {
+    _hostId = hostId;
+  }
+
+  public String getHostId() {
+    return _hostId;
   }
 
   @Override
@@ -163,7 +179,7 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
   }
 
   protected void sendCapabilities() {
-    final Ready ready = new Ready(getNodes().size());
+    final Ready ready = new Ready(getNodes().size(), getHostId());
     // TODO any other capabilities to add
     sendMessage(ready);
   }

@@ -49,6 +49,11 @@ public abstract class AbstractFunctionBlacklistPolicy implements FunctionBlackli
     return _ttl;
   }
 
+  @Override
+  public boolean isEmpty() {
+    return getEntries().isEmpty();
+  }
+
   /**
    * Tests if two policies are equal based on their names, the entries and the default activation period.
    * 

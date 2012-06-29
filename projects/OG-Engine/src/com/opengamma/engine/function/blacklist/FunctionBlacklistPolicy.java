@@ -47,10 +47,17 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
     public static final Entry PARTIAL_NODE = PARAMETERIZED_FUNCTION.matchTarget();
 
     /**
-     * An entry that produces rules which match a node in a dependency graph based on the exact shape of the graph. This can be used, for example, to suppress any execution of a function that is only
-     * flawed when operating on certain targets and asked to produce certain outputs from certain inputs.
+     * An entry that produces while which match a node in a dependency graph based on the computation target, parameterized function and inputs. This can be used, for example, in preference of
+     * {@link #EXACT_NODE} to produce rules which will match during graph construction (as well as execution).
      */
-    public static final Entry EXACT_NODE = PARTIAL_NODE.matchInputs().matchOutputs();
+    public static final Entry BUILD_NODE = PARTIAL_NODE.matchInputs();
+
+    /**
+     * An entry that produces rules which match a node in a dependency graph based on the exact shape of the graph. This can be used, for example, to suppress any execution of a function that is only
+     * flawed when operating on certain targets and asked to produce certain outputs from certain inputs. This is best used for execution blacklists - graph construction may not have the full set of
+     * output specifications at the point at which the blacklist is checked.
+     */
+    public static final Entry EXECUTION_NODE = BUILD_NODE.matchInputs().matchOutputs();
 
     private static final int FUNCTION_IDENTIFIER = 0x01;
     private static final int FUNCTION_PARAMETERS = 0x02;
@@ -310,6 +317,13 @@ public interface FunctionBlacklistPolicy extends UniqueIdentifiable {
    * @return the entries defined in the policy
    */
   Set<Entry> getEntries();
+
+  /**
+   * Tests if the policy contains no entries.
+   * 
+   * @return true if the policy has no entries, false otherwise
+   */
+  boolean isEmpty();
 
   /**
    * Tests equality of two policies. Two policies are equal if they contain the same entries, have the same name, and same activation period. An implementation is available in

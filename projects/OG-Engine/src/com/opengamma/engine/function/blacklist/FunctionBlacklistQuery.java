@@ -8,6 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,6 +23,13 @@ import com.opengamma.engine.view.calcnode.CalculationJobItem;
  * (calculation nodes will use the components, graph builders will use the composite). An implementation will typically write one in terms of the other.
  */
 public interface FunctionBlacklistQuery {
+
+  /**
+   * Tests if the function blacklist is empty and will never match anything. This is to allow code to bypass a large number of checks if each will return false.
+   * 
+   * @return true if the blacklist will match no items, false otherwise
+   */
+  boolean isEmpty();
 
   /**
    * Tests if a function is blacklisted in its entirety. The underlying blacklist may relate to the function parameters and/or the compiled function definition.
@@ -91,6 +99,15 @@ public interface FunctionBlacklistQuery {
    * @return true if the combination is blacklisted, false otherwise
    */
   boolean isBlacklisted(ParameterizedFunction function, ComputationTargetSpecification target, Set<ValueSpecification> inputs, Set<ValueSpecification> outputs);
+
+  /**
+   * Tests if a dependency graph node should not be used. The underlying blacklist may relate to the individual function, target, inputs, outputs or combinations of all. If used at a calculation node,
+   * the implementation may have access to the value cache and base a decision on the {@link ComputedValue}s corresponding to the inputs.
+   * 
+   * @param node the dependency graph node to test
+   * @return true if the node is blacklisted, false otherwise
+   */
+  boolean isBlacklisted(DependencyNode node);
 
   /**
    * Tests if a job item should not be executed. The underlying blacklist may relate to the individual function, target, inputs, outputs or combinations of all. If used at a calculation node, the

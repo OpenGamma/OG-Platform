@@ -15,14 +15,14 @@ import com.opengamma.util.ArgumentChecker;
  * An in-memory function blacklist implementation. Any time a named blacklist is requested an empty one will be constructed if this has not already been done so.
  */
 public class InMemoryFunctionBlacklistProvider implements ManageableFunctionBlacklistProvider {
-
+  
   private final ConcurrentMap<String, ManageableFunctionBlacklist> _blacklists = new ConcurrentHashMap<String, ManageableFunctionBlacklist>();
   private final ScheduledExecutorService _executor;
 
   /**
    * Creates a new blacklist implementation.
    * 
-   * @param executor the executor to use for rule expiry, not null
+   * @param executor the executor service to use for housekeeping, not null
    */
   public InMemoryFunctionBlacklistProvider(final ScheduledExecutorService executor) {
     ArgumentChecker.notNull(executor, "executor");

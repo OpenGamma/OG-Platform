@@ -102,7 +102,7 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     _missingOutputIdentifiers = missingOutputIdentifiers;
   }
 
-  public boolean failed() {
+  public boolean isFailed() {
     return _exceptionClass != null;
   }
 

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
@@ -30,6 +31,16 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
 
   private Collection<FunctionBlacklistQuery> getUnderlying() {
     return _underlying;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    for (FunctionBlacklistQuery underlying : getUnderlying()) {
+      if (!underlying.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -97,6 +108,16 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Set<ValueSpecification> inputs, final Set<ValueSpecification> outputs) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function, target, inputs, outputs)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isBlacklisted(final DependencyNode node) {
+    for (FunctionBlacklistQuery underlying : getUnderlying()) {
+      if (underlying.isBlacklisted(node)) {
         return true;
       }
     }

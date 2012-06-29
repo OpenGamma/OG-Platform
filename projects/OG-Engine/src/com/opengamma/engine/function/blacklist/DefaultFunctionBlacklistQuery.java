@@ -660,6 +660,16 @@ public class DefaultFunctionBlacklistQuery extends AbstractFunctionBlacklistQuer
   }
 
   @Override
+  public boolean isEmpty() {
+    _lock.readLock().lock();
+    try {
+      return _root == null;
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
   public boolean isBlacklisted(final String functionIdentifier, final FunctionParameters functionParameters) {
     _lock.readLock().lock();
     try {
@@ -764,7 +774,7 @@ public class DefaultFunctionBlacklistQuery extends AbstractFunctionBlacklistQuer
   }
 
   /**
-   * Adds a rule to the collection used. The content of the rule is copied - no reference to the rule is retained.
+   * Adds a rule to the collection used. The content of the rule is copied - no reference to the rule is retained. The caller must hold the write lock.
    * 
    * @param rule the rule to add, not null
    */
@@ -782,12 +792,14 @@ public class DefaultFunctionBlacklistQuery extends AbstractFunctionBlacklistQuer
   // to get a "FALSE" as quickly and cheaply as possible as that is the typical case.
 
   /**
-   * Removes a rule from the collection used. The rule must exist in the collection.
+   * Removes a rule from the collection used. The rule must exist in the collection. The caller must hold the write lock.
    * 
    * @param rule the rule to remove, not null
    */
   private void removeRuleImpl(final FunctionBlacklistRule rule) {
-    _root.remove(rule);
+    if (!_root.remove(rule)) {
+      _root = null;
+    }
   }
 
 }

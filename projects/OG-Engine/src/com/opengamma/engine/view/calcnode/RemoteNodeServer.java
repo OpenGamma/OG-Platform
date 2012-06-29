@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Init;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -34,6 +38,36 @@ import com.opengamma.transport.FudgeConnectionReceiver;
 public class RemoteNodeServer implements FudgeConnectionReceiver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteNodeServer.class);
+  
+  /**
+   * Callback interface for supplying a blacklist maintainer to each host invoker.
+   */
+  public interface FunctionBlacklistMaintainerProvider {
+
+    /**
+     * Returns the maintenance interface.
+     * 
+     * @param hostId the host handshake identifier
+     * @return the interface, or null for none
+     */
+    FunctionBlacklistMaintainer getUpdate(String hostId);
+    
+  }
+  
+  /**
+   * Callback interface for supplying a blacklist query to each host invoker.
+   */
+  public interface FunctionBlacklistQueryProvider {
+
+    /**
+     * Returns the query interface.
+     * 
+     * @param hostId the host handshake identifier
+     * @return the interface, or null for none
+     */
+    FunctionBlacklistQuery getQuery(String hostId);
+    
+  }
 
   private final JobInvokerRegister _jobInvokerRegister;
   private final IdentifierMap _identifierMap;
@@ -41,6 +75,8 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   private final FunctionCosts _functionCosts;
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<Capability> _capabilitiesToAdd;
+  private FunctionBlacklistMaintainerProvider _blacklistUpdate;
+  private FunctionBlacklistQueryProvider _blacklistQuery;
 
   public RemoteNodeServer(final JobInvokerRegister jobInvokerRegister, final IdentifierMap identifierMap,
       final FunctionCosts functionCosts, final FunctionCompilationContext functionCompilationContext) {
@@ -62,6 +98,64 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
     for (Map.Entry<String, Double> parameter : parameters.entrySet()) {
       _capabilitiesToAdd.add(Capability.parameterInstanceOf(parameter.getKey(), parameter.getValue()));
     }
+  }
+
+  /**
+   * Returns the mechanism for updating a node-specific blacklist with job failures.
+   * 
+   * @return the update mechanism, null for none
+   */
+  public FunctionBlacklistMaintainerProvider getBlacklistUpdate() {
+    return _blacklistUpdate;
+  }
+
+  /**
+   * Sets a mechanism for updating a node-specific blacklist with job failures.
+   * 
+   * @param provider the update mechanism, null for none
+   */
+  public void setBlacklistUpdate(final FunctionBlacklistMaintainerProvider provider) {
+    _blacklistUpdate = provider;
+  }
+
+  protected FunctionBlacklistMaintainer getBlacklistUpdate(final String nodeId) {
+    final FunctionBlacklistMaintainerProvider provider = getBlacklistUpdate();
+    if (provider != null) {
+      final FunctionBlacklistMaintainer maintainer = provider.getUpdate(nodeId);
+      if (maintainer != null) {
+        return maintainer;
+      }
+    }
+    return new DummyFunctionBlacklistMaintainer();
+  }
+
+  /**
+   * Returns the mechanism for querying a node-specific blacklist for job item suppression.
+   * 
+   * @return the query mechanism, null for none
+   */
+  public FunctionBlacklistQueryProvider getBlacklistQuery() {
+    return _blacklistQuery;
+  }
+
+  /**
+   * Sets the mechanism for querying a node-specific blacklist for job item suppression.
+   * 
+   * @param provider the query mechanism, null for none
+   */
+  public void setBlacklistQuery(final FunctionBlacklistQueryProvider provider) {
+    _blacklistQuery = provider;
+  }
+
+  protected FunctionBlacklistQuery getBlacklistQuery(final String nodeId) {
+    final FunctionBlacklistQueryProvider provider = getBlacklistQuery();
+    if (provider != null) {
+      final FunctionBlacklistQuery query = provider.getQuery(nodeId);
+      if (query != null) {
+        return query;
+      }
+    }
+    return new DummyFunctionBlacklistQuery();
   }
 
   protected JobInvokerRegister getJobInvokerRegister() {
@@ -97,8 +191,9 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
 
       @Override
       protected void visitReadyMessage(final Ready message) {
-        s_logger.info("Remote node connected - {}", connection);
-        final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), message, connection, getIdentifierMap(), getFunctionCosts());
+        s_logger.info("Remote node {} connected - {}", message.getHostId(), connection);
+        final RemoteNodeJobInvoker invoker = new RemoteNodeJobInvoker(getExecutorService(), message, connection, getIdentifierMap(), getFunctionCosts(), getBlacklistQuery(message.getHostId()),
+            getBlacklistUpdate(message.getHostId()));
         if (_capabilitiesToAdd != null) {
           invoker.addCapabilities(_capabilitiesToAdd);
         }

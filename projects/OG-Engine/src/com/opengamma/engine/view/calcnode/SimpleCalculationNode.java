@@ -32,6 +32,7 @@ import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistedException;
 import com.opengamma.engine.target.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -90,6 +91,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private boolean _asynchronousTargetResolve;
   private FunctionBlacklistQuery _blacklistQuery = new DummyFunctionBlacklistQuery();
   private FunctionBlacklistMaintainer _blacklistUpdate = new DummyFunctionBlacklistMaintainer();
+  private MaximumJobItemExecutionWatchdog _maxJobItemExecution = new MaximumJobItemExecutionWatchdog();
 
   public SimpleCalculationNode(ViewComputationCacheSource cacheSource, CompiledFunctionService functionCompilationService,
       FunctionExecutionContext functionExecutionContext, ComputationTargetResolver targetResolver, ViewProcessorQuerySender calcNodeQuerySender, String nodeId,
@@ -220,6 +222,15 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return _blacklistUpdate;
   }
 
+  public void setMaxJobItemExecution(final MaximumJobItemExecutionWatchdog maxJobItemExecution) {
+    ArgumentChecker.notNull(maxJobItemExecution, "maxJobItemExecution");
+    _maxJobItemExecution = maxJobItemExecution;
+  }
+
+  public MaximumJobItemExecutionWatchdog getMaxJobItemExecution() {
+    return _maxJobItemExecution;
+  }
+
   @Override
   public String getNodeId() {
     return _nodeId;
@@ -318,19 +329,25 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return executeJobResult(resultItems);
   }
 
-  private void postEvaluationErrors(final Set<ValueSpecification> outputs) {
+  private void postEvaluationErrors(final Set<ValueSpecification> outputs, final NotCalculatedSentinel type) {
     final Collection<ComputedValue> results = new ArrayList<ComputedValue>(outputs.size());
     for (ValueSpecification output : outputs) {
-      results.add(new ComputedValue(output, NotCalculatedSentinel.EVALUATION_ERROR));
+      results.add(new ComputedValue(output, type));
     }
     getCache().putValues(results, getJob().getCacheSelectHint());
+  }
+
+  private CalculationJobResultItem invocationBlacklisted(final CalculationJobItem jobItem) {
+    final Set<ValueSpecification> outputs = jobItem.getOutputs();
+    postEvaluationErrors(outputs, NotCalculatedSentinel.SUPPRESSED);
+    return CalculationJobResultItem.suppressed();
   }
 
   private CalculationJobResultItem invocationFailure(final Throwable t, final CalculationJobItem jobItem) {
     s_logger.error("Caught exception", t);
     getFunctionBlacklistUpdate().failedJobItem(jobItem);
     final Set<ValueSpecification> outputs = jobItem.getOutputs();
-    postEvaluationErrors(outputs);
+    postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
     return CalculationJobResultItem.failure(t);
   }
 
@@ -343,8 +360,9 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       // TODO: start resolving the next target while this item executes -- can we "poll" an iterator?
       CalculationJobResultItem resultItem;
       if (getFunctionBlacklistQuery().isBlacklisted(jobItem)) {
-        resultItem = CalculationJobResultItem.suppressed();
+        resultItem = invocationBlacklisted(jobItem);
       } else {
+        getMaxJobItemExecution().jobExecutionStarted(jobItem);
         try {
           resultItem = invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration()));
         } catch (AsynchronousExecution e) {
@@ -372,6 +390,8 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
           continue;
         } catch (Throwable t) {
           resultItem = invocationFailure(t, jobItem);
+        } finally {
+          getMaxJobItemExecution().jobExecutionStopped();
         }
       }
       resultItems.add(resultItem);
@@ -416,7 +436,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
   private CalculationJobResultItem invokeResult(FunctionInvoker invoker, DeferredInvocationStatistics statistics, Set<ValueSpecification> missing, Set<ValueSpecification> outputs,
       Collection<ComputedValue> results, CalculationJobResultItem itemResult) {
     if (results == null) {
-      postEvaluationErrors(outputs);
+      postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
       return itemResult.withFailure(ERROR_INVOKING, "No results returned by invoker " + invoker);
     }
     statistics.endInvocation();
@@ -531,16 +551,20 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
           try {
             async.getCallback().setResult(invokeResult(invoker, statistics, missing, outputs, result.getResult(), itemResult));
+          } catch (FunctionBlacklistedException e) {
+            async.getCallback().setResult(invocationBlacklisted(jobItem));
           } catch (RuntimeException e) {
             async.getCallback().setException(e);
           }
         }
       });
       return async.getResult();
+    } catch (FunctionBlacklistedException e) {
+      return invocationBlacklisted(jobItem);
     } catch (Throwable t) {
       s_logger.error("Invocation error: {}", t.getMessage());
       s_logger.warn("Caught exception", t);
-      postEvaluationErrors(outputs);
+      postEvaluationErrors(outputs, NotCalculatedSentinel.EVALUATION_ERROR);
       return itemResult.withFailure(t);
     }
   }

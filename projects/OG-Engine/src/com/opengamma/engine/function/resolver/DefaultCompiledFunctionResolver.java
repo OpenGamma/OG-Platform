@@ -31,6 +31,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -52,10 +53,12 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    * The rules by target type, where the inner map is sorted high to low.
    */
   private final Map<ComputationTargetType, SortedMap<Integer, Collection<ResolutionRule>>> _type2Priority2Rules = Maps.newHashMap();
+
   /**
    * The compilation context.
    */
   private final FunctionCompilationContext _functionCompilationContext;
+
   /**
    * Cache of targets. The values are weak so that when the function iterators drop out of scope as the requirements on the target are resolved the entry can be dropped.
    */
@@ -141,6 +144,15 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    */
   protected ComputationTargetResolver getTargetResolver() {
     return getFunctionCompilationContext().getComputationTargetResolver();
+  }
+
+  /**
+   * Returns the graph building blacklist. The iterator will never return elements that are matched by the blacklist rules.
+   * 
+   * @return the current graph building blacklist, not null
+   */
+  protected FunctionBlacklistQuery getBlacklist() {
+    return getFunctionCompilationContext().getGraphBuildingBlacklist();
   }
 
   /**
@@ -234,23 +246,27 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         cached = existing;
       }
     }
-    return new It(target, targetSpecification, getTargetResolver(), requirement, cached);
+    return new It(target, targetSpecification, getTargetResolver(), getBlacklist(), requirement, cached);
   }
 
   /**
    * Iterator of functions and specifications from a dependency node.
    */
   private static final class It implements Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> {
+
     private final ComputationTargetResolver _resolver;
+    private final FunctionBlacklistQuery _blacklist;
     private final ComputationTargetSpecification _target;
     private final ValueRequirement _requirement;
     private final Pair<ResolutionRule[], Collection<ValueSpecification>[]> _values;
     private int _itr;
     private Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _next;
 
-    private It(final ComputationTarget target, final ComputationTargetSpecification targetSpecification, final ComputationTargetResolver resolver, final ValueRequirement requirement,
+    private It(final ComputationTarget target, final ComputationTargetSpecification targetSpecification, final ComputationTargetResolver resolver, final FunctionBlacklistQuery blacklist,
+        final ValueRequirement requirement,
         final Pair<ResolutionRule[], Collection<ValueSpecification>[]> values) {
       _resolver = resolver;
+      _blacklist = blacklist;
       _target = targetSpecification;
       _requirement = requirement;
       _values = values;
@@ -262,11 +278,13 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       final Collection<ValueSpecification>[] resultSets = _values.getSecond();
       while (_itr < rules.length) {
         final ResolutionRule rule = rules[_itr];
-        final Collection<ValueSpecification> resultSet = resultSets[_itr++];
-        final ValueSpecification result = rule.getResult(_requirement, target, resultSet);
-        if (result != null) {
-          _next = Triple.of(rule.getParameterizedFunction(), result, resultSet);
-          return;
+        if (!_blacklist.isBlacklisted(rule.getParameterizedFunction(), _target)) {
+          final Collection<ValueSpecification> resultSet = resultSets[_itr++];
+          final ValueSpecification result = rule.getResult(_requirement, target, resultSet);
+          if (result != null) {
+            _next = Triple.of(rule.getParameterizedFunction(), result, resultSet);
+            return;
+          }
         }
       }
       _next = null;

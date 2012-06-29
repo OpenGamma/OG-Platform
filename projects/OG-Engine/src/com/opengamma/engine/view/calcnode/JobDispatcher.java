@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.stats.DiscardingNodeStatisticsGatherer;
 import com.opengamma.util.ArgumentChecker;
@@ -39,7 +41,7 @@ import com.opengamma.util.async.Cancelable;
 public class JobDispatcher implements JobInvokerRegister {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JobDispatcher.class);
-  /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 3;
+  /* package */static final int DEFAULT_MAX_JOB_ATTEMPTS = 2;
   /* package */static final long DEFAULT_MAX_JOB_EXECUTION_QUERY_TIMEOUT = 5000;
   /* package */static final String DEFAULT_JOB_FAILURE_NODE_ID = "NOT EXECUTED";
 
@@ -179,14 +181,17 @@ public class JobDispatcher implements JobInvokerRegister {
       s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
       if (_completed.getAndSet(true) == false) {
         cancelTimeout(null);
+        // TODO: [PLAT-2211] check if the job is watched and partition again to isolate the failing job item
         if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker)) {
           _completed.set(false);
           jobAbort(exception, "duplicate invoker failure from node " + computeNodeId);
+          // TODO: [PLAT-2211] the job is now a watched job and should be partitioned to isolate the failing job item
         } else {
           _rescheduled++;
           if (_rescheduled >= getMaxJobAttempts()) {
             _completed.set(false);
             jobAbort(exception, "internal node error");
+            // TODO: [PLAT-2211] the job is now a watched job and should be partitioned to isolate the failing job item
           } else {
             s_logger.info("Retrying job {} (attempt {})", getJob().getSpecification().getJobId(), _rescheduled);
             if (_excludeJobInvoker == null) {
@@ -347,6 +352,9 @@ public class JobDispatcher implements JobInvokerRegister {
   private final Queue<JobInvoker> _invokers = new ConcurrentLinkedQueue<JobInvoker>();
   private final Map<JobInvoker, Collection<Capability>> _capabilityCache = new ConcurrentHashMap<JobInvoker, Collection<Capability>>();
 
+  /**
+   * Maximum number of times a job will be submitted in its entirety to remote nodes before it gets partitioned to isolate an individual failure.
+   */
   private int _maxJobAttempts = DEFAULT_MAX_JOB_ATTEMPTS;
   private String _jobFailureNodeId = DEFAULT_JOB_FAILURE_NODE_ID;
   private CapabilityRequirementsProvider _capabilityRequirementsProvider = new StaticCapabilityRequirementsProvider();
@@ -360,6 +368,7 @@ public class JobDispatcher implements JobInvokerRegister {
   private long _maxJobExecutionTimeQuery = DEFAULT_MAX_JOB_EXECUTION_QUERY_TIMEOUT;
   private ScheduledThreadPoolExecutor _jobTimeoutExecutor;
   private CalculationNodeStatisticsGatherer _statisticsGatherer = new DiscardingNodeStatisticsGatherer();
+  private FunctionBlacklistMaintainer _blacklistUpdate = new DummyFunctionBlacklistMaintainer();
 
   public JobDispatcher() {
   }
@@ -392,6 +401,15 @@ public class JobDispatcher implements JobInvokerRegister {
 
   public long getMaxJobExecutionTime() {
     return _maxJobExecutionTime;
+  }
+
+  public FunctionBlacklistMaintainer getFunctionBlacklistMaintainer() {
+    return _blacklistUpdate;
+  }
+
+  public void setFunctionBlacklistMaintainer(final FunctionBlacklistMaintainer blacklistUpdate) {
+    ArgumentChecker.notNull(blacklistUpdate, "blacklistUpdate");
+    _blacklistUpdate = blacklistUpdate;
   }
 
   protected ScheduledThreadPoolExecutor getJobTimeoutExecutor() {

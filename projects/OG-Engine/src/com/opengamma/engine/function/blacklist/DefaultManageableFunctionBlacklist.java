@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class DefaultManageableFunctionBlacklist extends AbstractManageableFunctionBlacklist {
 
-  private static final int DEFAULT_TTL = 60 * 60 * 6; // Blacklist for 6-hours
+  private static final int DEFAULT_TTL = 3600; // Blacklist for 1-hour
 
   private final FunctionBlacklistRuleSet _rules;
   private List<FunctionBlacklistRule> _added;

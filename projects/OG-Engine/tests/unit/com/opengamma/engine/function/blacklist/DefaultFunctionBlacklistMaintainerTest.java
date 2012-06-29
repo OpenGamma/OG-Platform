@@ -61,7 +61,7 @@ public class DefaultFunctionBlacklistMaintainerTest {
       entries.add(FunctionBlacklistPolicy.Entry.FUNCTION.activationPeriod(10));
       entries.add(FunctionBlacklistPolicy.Entry.PARAMETERIZED_FUNCTION.activationPeriod(30));
       entries.add(FunctionBlacklistPolicy.Entry.PARTIAL_NODE.activationPeriod(60));
-      entries.add(FunctionBlacklistPolicy.Entry.EXACT_NODE);
+      entries.add(FunctionBlacklistPolicy.Entry.EXECUTION_NODE);
       final FunctionBlacklistPolicy policy = new DefaultFunctionBlacklistPolicy(UniqueId.of("Test", "Test"), 120, entries);
       final Map<FunctionBlacklistRule, Integer> rules = new HashMap<FunctionBlacklistRule, Integer>();
       final ManageableFunctionBlacklist update = new AbstractManageableFunctionBlacklist("Test", executor, 0) {

@@ -14,7 +14,12 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Implementation of a {@link FunctionBlacklistQuery} interface that blacklists no functions.
  */
-public class DummyFunctionBlacklistQuery extends AbstractFunctionBlacklistQuery {
+public final class DummyFunctionBlacklistQuery extends AbstractFunctionBlacklistQuery {
+
+  @Override
+  public boolean isEmpty() {
+    return true;
+  }
 
   @Override
   public boolean isBlacklisted(final String functionIdentifier, final FunctionParameters functionParameters) {

@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
@@ -57,6 +59,8 @@ import com.opengamma.transport.FudgeMessageSender;
   private final AtomicReference<JobInvokerRegister> _dispatchCallback = new AtomicReference<JobInvokerRegister>();
   private final IdentifierMap _identifierMap;
   private final FunctionCosts _functionCosts;
+  private final FunctionBlacklistQuery _blacklistQuery;
+  private final FunctionBlacklistMaintainer _blacklistUpdate;
   private volatile String _invokerId;
   private final RemoteCalcNodeMessageVisitor _messageVisitor = new RemoteCalcNodeMessageVisitor() {
 
@@ -151,12 +155,15 @@ import com.opengamma.transport.FudgeMessageSender;
 
   public RemoteNodeJobInvoker(
       final ExecutorService executorService, final Ready initialMessage, final FudgeConnection fudgeConnection,
-      final IdentifierMap identifierMap, final FunctionCosts functionCosts) {
+      final IdentifierMap identifierMap, final FunctionCosts functionCosts, final FunctionBlacklistQuery blacklistQuery,
+      final FunctionBlacklistMaintainer blacklistUpdate) {
     _executorService = executorService;
     _fudgeMessageSender = fudgeConnection.getFudgeMessageSender();
     _identifierMap = identifierMap;
-    _invokerId = fudgeConnection.toString();
+    _invokerId = initialMessage.getHostId();
     _functionCosts = functionCosts;
+    _blacklistQuery = blacklistQuery;
+    _blacklistUpdate = blacklistUpdate;
     fudgeConnection.setFudgeMessageReceiver(this);
     fudgeConnection.setConnectionStateListener(this);
     initialMessage.accept(_messageVisitor);
@@ -196,6 +203,14 @@ import com.opengamma.transport.FudgeMessageSender;
     return _functionCosts;
   }
 
+  private FunctionBlacklistQuery getBlacklistQuery() {
+    return _blacklistQuery;
+  }
+
+  private FunctionBlacklistMaintainer getBlacklistUpdate() {
+    return _blacklistUpdate;
+  }
+
   protected void sendMessage(final RemoteCalcNodeMessage message) {
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeMessageSender().getFudgeContext());
     getFudgeMessageSender().send(FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(message), message.getClass(), RemoteCalcNodeMessage.class));
@@ -209,6 +224,10 @@ import com.opengamma.transport.FudgeMessageSender;
       return false;
     }
     s_logger.info("Dispatching job {}", rootJob.getSpecification());
+    if (!getBlacklistQuery().isEmpty()) {
+      // TODO: apply the blacklist to the job, restructuring it if necessary
+      s_logger.error("[PLAT-2211] Not implemented -- application of blacklist at RemoteNodeJobInvoker");
+    }
     // Don't block the dispatcher with outgoing serialization and I/O
     getExecutorService().execute(new Runnable() {
 
@@ -306,6 +325,7 @@ import com.opengamma.transport.FudgeMessageSender;
         callback.jobFailed(this, "node on " + invokerId, cause);
       }
     }
+    // TODO: [PLAT-2211] check for the "watched" case and notify the blacklist maintainer of the failed item
   }
 
   @Override
