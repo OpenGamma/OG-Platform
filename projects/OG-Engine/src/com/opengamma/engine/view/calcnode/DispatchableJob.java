@@ -6,12 +6,7 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,67 +27,56 @@ import com.opengamma.util.async.Cancelable;
  * shared cache for values. The first will then be resubmitted with a job result receiver that will submit the second part of the job on first part completion. When the second part of the job
  * completed the original callback will be notified.
  */
-/* package */final class DispatchableJob implements JobInvocationReceiver, Cancelable {
+/* package */abstract class DispatchableJob implements JobInvocationReceiver, Cancelable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DispatchableJob.class);
 
   private final JobDispatcher _dispatcher;
-  private final CalculationJob _rootJob;
-  private final ConcurrentMap<CalculationJobSpecification, JobResultReceiver> _resultReceivers;
+  private final CalculationJob _job;
   private final AtomicBoolean _completed = new AtomicBoolean(false);
   private final long _jobCreationTime;
   private final CapabilityRequirements _capabilityRequirements;
   private final AtomicReference<DispatchableJobTimeout> _timeout = new AtomicReference<DispatchableJobTimeout>();
-  private Set<String> _excludeJobInvoker;
-  private int _rescheduled;
 
-  private static List<CalculationJob> getAllJobs(CalculationJob job, List<CalculationJob> jobs) {
-    if (jobs == null) {
-      jobs = new LinkedList<CalculationJob>();
-    }
-    jobs.add(job);
-    if (job.getTail() != null) {
-      for (CalculationJob tail : job.getTail()) {
-        getAllJobs(tail, jobs);
-      }
-    }
-    return jobs;
-  }
-
-  public DispatchableJob(final JobDispatcher dispatcher, final CalculationJob job, final JobResultReceiver resultReceiver) {
+  /**
+   * Creates a new dispatchable job for submission to the invokers.
+   * 
+   * @param dispatcher the parent dispatcher that manages the invokers
+   * @param job the root job to send
+   */
+  protected DispatchableJob(final JobDispatcher dispatcher, final CalculationJob job) {
     _dispatcher = dispatcher;
-    _rootJob = job;
-    _resultReceivers = new ConcurrentHashMap<CalculationJobSpecification, JobResultReceiver>();
-    final List<CalculationJob> jobs = getAllJobs(job, null);
-    for (CalculationJob jobref : jobs) {
-      _resultReceivers.put(jobref.getSpecification(), resultReceiver);
-    }
+    _job = job;
     _jobCreationTime = System.nanoTime();
-    _capabilityRequirements = dispatcher.getCapabilityRequirementsProvider().getCapabilityRequirements(jobs);
+    _capabilityRequirements = dispatcher.getCapabilityRequirementsProvider().getCapabilityRequirements(job);
   }
 
-  private long getDurationNanos() {
+  protected long getDurationNanos() {
     return System.nanoTime() - getJobCreationTime();
   }
 
-  private CalculationJob getJob() {
-    return _rootJob;
+  protected CalculationJob getJob() {
+    return _job;
   }
 
   public JobDispatcher getDispatcher() {
     return _dispatcher;
   }
 
+  protected abstract JobResultReceiver getResultReceiver(CalculationJobResult result);
+
+  protected abstract boolean isLastResult();
+
   @Override
   public void jobCompleted(final CalculationJobResult result) {
-    final JobResultReceiver resultReceiver = _resultReceivers.remove(result.getSpecification());
+    final JobResultReceiver resultReceiver = getResultReceiver(result);
     if (resultReceiver == null) {
       s_logger.warn("Job {} completed on node {} but is not currently pending", result.getSpecification().getJobId(), result.getComputeNodeId());
       // Note the above warning can happen if we've been retried
       extendTimeout(getDispatcher().getMaxJobExecutionTime(), true);
       return;
     }
-    if (_resultReceivers.isEmpty()) {
+    if (isLastResult()) {
       // This is the last one to complete. Note that if the last few jobs complete concurrently, both may execute this code.
       _completed.set(true);
       cancelTimeout(DispatchableJobTimeout.FINISHED);
@@ -110,31 +94,21 @@ import com.opengamma.util.async.Cancelable;
     }
   }
 
+  protected abstract boolean isAbort(JobInvoker jobInvoker);
+
+  protected abstract void retry();
+
   @Override
   public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
     s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
     if (_completed.getAndSet(true) == false) {
       cancelTimeout(null);
-      // TODO: [PLAT-2211] check if the job is watched and partition again to isolate the failing job item
-      if ((_excludeJobInvoker != null) && _excludeJobInvoker.contains(jobInvoker.getInvokerId())) {
-        _completed.set(false);
-        abort(exception, "duplicate invoker failure from node " + computeNodeId);
-        // TODO: [PLAT-2211] the job is now a watched job and should be partitioned to isolate the failing job item
+      boolean abort = isAbort(jobInvoker);
+      _completed.set(false);
+      if (abort) {
+        abort(exception, "internal node error");
       } else {
-        _rescheduled++;
-        if (_rescheduled >= getDispatcher().getMaxJobAttempts()) {
-          _completed.set(false);
-          abort(exception, "internal node error");
-          // TODO: [PLAT-2211] the job is now a watched job and should be partitioned to isolate the failing job item
-        } else {
-          s_logger.info("Retrying job {} (attempt {})", this, _rescheduled);
-          if (_excludeJobInvoker == null) {
-            _excludeJobInvoker = new HashSet<String>();
-          }
-          _excludeJobInvoker.add(jobInvoker.getInvokerId());
-          _completed.set(false);
-          getDispatcher().dispatchJobImpl(this);
-        }
+        retry();
       }
       if (getDispatcher().getStatisticsGatherer() != null) {
         getDispatcher().getStatisticsGatherer().jobFailed(computeNodeId, getDurationNanos());
@@ -144,26 +118,17 @@ import com.opengamma.util.async.Cancelable;
     }
   }
 
-  private void failTree(final CalculationJob job, final CalculationJobResultItem failure) {
-    final JobResultReceiver resultReceiver = _resultReceivers.remove(job.getSpecification());
-    if (resultReceiver != null) {
-      final int size = job.getJobItems().size();
-      final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(size);
-      for (int i = 0; i < size; i++) {
-        failureItems.add(failure);
-      }
-      final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getDispatcher().getJobFailureNodeId());
-      resultReceiver.resultReceived(jobResult);
-    } else {
-      s_logger.warn("Job {} already completed at propogation of failure", job.getSpecification().getJobId());
-      // This can happen if the root job timed out but things had started to complete
+  protected void notifyFailure(final CalculationJob job, final CalculationJobResultItem failure, final JobResultReceiver resultReceiver) {
+    final int size = job.getJobItems().size();
+    final List<CalculationJobResultItem> failureItems = new ArrayList<CalculationJobResultItem>(size);
+    for (int i = 0; i < size; i++) {
+      failureItems.add(failure);
     }
-    if (job.getTail() != null) {
-      for (CalculationJob tail : job.getTail()) {
-        failTree(tail, failure);
-      }
-    }
+    final CalculationJobResult jobResult = new CalculationJobResult(job.getSpecification(), getDurationNanos(), failureItems, getDispatcher().getJobFailureNodeId());
+    resultReceiver.resultReceived(jobResult);
   }
+
+  protected abstract void fail(final CalculationJob job, final CalculationJobResultItem failure);
 
   public void abort(Exception exception, final String alternativeError) {
     s_logger.error("Aborted job {}", this);
@@ -174,17 +139,19 @@ import com.opengamma.util.async.Cancelable;
         exception = new OpenGammaRuntimeException(alternativeError);
         exception.fillInStackTrace();
       }
-      failTree(getJob(), CalculationJobResultItem.failure(exception));
+      fail(getJob(), CalculationJobResultItem.failure(exception));
     } else {
       s_logger.warn("Job {} aborted but we've already completed or aborted from another node", this);
     }
   }
 
+  protected abstract boolean isAlive(final JobInvoker jobInvoker);
+
   public void timeout(final long timeAccrued, final JobInvoker jobInvoker) {
     s_logger.debug("Timeout on {}, {}ms accrued", jobInvoker.getInvokerId(), timeAccrued);
     final long remaining = getDispatcher().getMaxJobExecutionTime() - timeAccrued;
     if (remaining > 0) {
-      if (jobInvoker.isAlive(_resultReceivers.keySet())) {
+      if (isAlive(jobInvoker)) {
         s_logger.debug("Invoker {} reports job {} still alive", jobInvoker.getInvokerId(), this);
         extendTimeout(remaining, false);
         return;
@@ -251,6 +218,8 @@ import com.opengamma.util.async.Cancelable;
     return getRequirements().satisfiedBy(jobInvoker.getCapabilities());
   }
 
+  protected abstract void cancel(final JobInvoker jobInvoker);
+
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
     s_logger.info("Cancelling job {}", this);
@@ -270,7 +239,7 @@ import com.opengamma.util.async.Cancelable;
     if (timeout != null) {
       final JobInvoker invoker = timeout.getInvoker();
       if (invoker != null) {
-        invoker.cancel(_resultReceivers.keySet());
+        cancel(invoker);
       }
     }
     return true;
@@ -278,11 +247,6 @@ import com.opengamma.util.async.Cancelable;
 
   public boolean isCompleted() {
     return _completed.get();
-  }
-
-  @Override
-  public String toString() {
-    return "J" + getJob().getSpecification().getJobId() + "(" + _rescheduled + ")";
   }
 
   public boolean runOn(final JobInvoker jobInvoker) {

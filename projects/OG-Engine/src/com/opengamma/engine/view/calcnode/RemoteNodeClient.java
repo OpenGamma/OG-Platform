@@ -62,7 +62,7 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
     @Override
     protected void visitCancelMessage(final Cancel message) {
       for (CalculationJobSpecification job : message.getJob()) {
-        cancelJob(job);
+        cancel(job);
       }
     }
 
@@ -97,7 +97,7 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
     @Override
     protected void visitIsAliveMessage(final IsAlive message) {
       for (CalculationJobSpecification job : message.getJob()) {
-        if (!isJobAlive(job)) {
+        if (!isAlive(job)) {
           sendMessage(new Failure(job, "isAlive returned false", ""));
         }
       }

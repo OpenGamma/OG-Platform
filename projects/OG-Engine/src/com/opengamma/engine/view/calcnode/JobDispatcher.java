@@ -62,7 +62,7 @@ public class JobDispatcher implements JobInvokerRegister {
   }
 
   public JobDispatcher(final JobInvoker invoker) {
-    registerJobInvoker(invoker);
+    //registerJobInvoker(invoker);
   }
 
   public JobDispatcher(final Collection<JobInvoker> invokers) {
@@ -267,7 +267,7 @@ public class JobDispatcher implements JobInvokerRegister {
     ArgumentChecker.notNull(job, "job");
     ArgumentChecker.notNull(resultReceiver, "resultReceiver");
     s_logger.info("Dispatching job {}", job.getSpecification().getJobId());
-    final DispatchableJob dispatchJob = new DispatchableJob(this, job, resultReceiver);
+    final DispatchableJob dispatchJob = new StandardJob(this, job, resultReceiver);
     dispatchJobImpl(dispatchJob);
     return dispatchJob;
   }

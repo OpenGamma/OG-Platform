@@ -687,7 +687,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
     s_logger.debug("Failure map size = {}, execution map size = {}", _failures.size(), _executions.size());
   }
 
-  protected void cancelJob(final CalculationJobSpecification jobSpec) {
+  public void cancel(final CalculationJobSpecification jobSpec) {
     final JobExecution jobExec = getExecution(jobSpec.getJobId());
     if (jobExec == null) {
       s_logger.warn("Request to cancel job {} but already failed or completed", jobSpec.getJobId());
@@ -713,7 +713,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
     }
   }
 
-  protected boolean isJobAlive(final CalculationJobSpecification jobSpec) {
+  public boolean isAlive(final CalculationJobSpecification jobSpec) {
     final JobExecution jobExec = getExecution(jobSpec.getJobId());
     if (jobExec == null) {
       // Completed or failed, not alive at any rate!

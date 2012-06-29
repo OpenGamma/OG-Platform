@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -270,6 +271,12 @@ import com.opengamma.transport.FudgeMessageSender;
     sendMessage(new Cancel(jobs));
   }
 
+  @Override
+  public void cancel(final CalculationJobSpecification job) {
+    s_logger.info("Cancelling {} at {}", job, getInvokerId());
+    sendMessage(new Cancel(Collections.singleton(job)));
+  }
+
   /**
    * Returns true with the remote client generating failure messages if anything is not alive. 
    */
@@ -277,6 +284,13 @@ import com.opengamma.transport.FudgeMessageSender;
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
     s_logger.info("Querying {} jobs at {}", jobs.size(), getInvokerId());
     sendMessage(new IsAlive(jobs));
+    return true;
+  }
+
+  @Override
+  public boolean isAlive(final CalculationJobSpecification job) {
+    s_logger.info("Querying {} at {}", job.getJobId(), getInvokerId());
+    sendMessage(new IsAlive(Collections.singleton(job)));
     return true;
   }
 
