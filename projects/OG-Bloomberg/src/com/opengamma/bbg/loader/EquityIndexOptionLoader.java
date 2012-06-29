@@ -14,6 +14,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_EXPIRE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_PUT_CALL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_STRIKE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
@@ -69,6 +70,7 @@ public class EquityIndexOptionLoader extends SecurityLoader {
       FIELD_OPT_EXPIRE_DT,
       FIELD_ID_BBG_UNIQUE,
       FIELD_OPT_TICK_VAL,
+      FIELD_OPT_VAL_PT,
       FIELD_UNDL_ID_BB_UNIQUE));
   
   /**
@@ -91,7 +93,7 @@ public class EquityIndexOptionLoader extends SecurityLoader {
     String exchange = fieldData.getString(FIELD_EXCH_CODE);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX);
-    double pointValue = fieldData.getDouble(FIELD_OPT_TICK_VAL);
+    double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
     String putOrCall = fieldData.getString(FIELD_OPT_PUT_CALL);
     String underlingTicker = fieldData.getString(FIELD_OPT_UNDERLYING_SECURITY_DES);
     String currency = fieldData.getString(FIELD_OPT_UNDL_CRNCY);

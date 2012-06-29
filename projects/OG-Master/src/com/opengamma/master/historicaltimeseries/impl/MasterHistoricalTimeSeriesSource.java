@@ -30,6 +30,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
@@ -464,6 +465,17 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public String toString() {
     return "MasterHistoricalTimeSeriesSource[" + getMaster() + "]";
+  }
+
+  @Override
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    HistoricalTimeSeriesInfoDocument historicalTimeSeriesInfoDocument = getMaster().get(uniqueId);
+    if (historicalTimeSeriesInfoDocument != null && historicalTimeSeriesInfoDocument.getInfo() != null && historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle() != null) {
+      return historicalTimeSeriesInfoDocument.getInfo().getExternalIdBundle().toBundle();  
+    } else {
+      s_logger.warn("Cannot find time series info document, or info field is null, or id bundle is null, returning null");
+      return null;
+    }
   }
 
 }

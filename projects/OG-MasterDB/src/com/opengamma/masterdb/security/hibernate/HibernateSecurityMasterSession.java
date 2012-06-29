@@ -25,7 +25,6 @@ import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
-import com.opengamma.masterdb.security.hibernate.future.UnitBean;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

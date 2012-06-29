@@ -66,6 +66,29 @@ public final class EquityIndexOptionBlackMethod {
   /** 
    * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The <b>forward</b> value of the index, ie the fair strike of a forward agreement paying the index value at maturity 
+   */
+  public double forwardIndexValue(EquityIndexOption derivative, EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    return forward;
+  }
+
+  /** 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The <b>spot</b> value of the index, ie the current market value 
+   */
+  public double spotIndexValue(EquityOptionDataBundle marketData) {
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double spot = marketData.getForwardCurve().getSpot();
+    return spot;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The present value of the option 
    */
   public double presentValue(EquityIndexOption derivative, EquityOptionDataBundle marketData) {
@@ -88,9 +111,9 @@ public final class EquityIndexOptionBlackMethod {
   /** 
    * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
-   * @return The simple delta wrt the underlying, d(PV)/d(spotIndex) 
+   * @return The forward delta wrt the forward underlying, ie the sensitivity of the undiscounted price to the forward value of the underlying, d(PV/Z)/d(fwdUnderlying)
    */
-  public double delta(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+  public double forwardDelta(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
     Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
     Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
@@ -98,8 +121,32 @@ public final class EquityIndexOptionBlackMethod {
     final boolean isCall = derivative.isCall();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double delta = BlackFormulaRepository.simpleDelta(forward, strike, expiry, blackVol, isCall);
-    return delta;
+    final double undiscountDelta = BlackFormulaRepository.delta(forward, strike, expiry, blackVol, isCall);
+    return undiscountDelta;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The sensitivity of the present value wrt the forward value of the underlying, d(PV)/d(fwdUnderlying) 
+   */
+  public double deltaWrtForward(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double forwardDelta = forwardDelta(derivative, marketData);
+    final double zeroBond = discountToSettlement(derivative, marketData);
+    return forwardDelta * zeroBond;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot delta wrt the underlying, d(PV)/d(spotUnderlying) 
+   */
+  public double deltaWrtSpot(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double deltaWrtForward = deltaWrtForward(derivative, marketData);
+    final double forwardUnderlying = forwardIndexValue(derivative, marketData);
+    final double spotUnderlying = marketData.getForwardCurve().getSpot();
+    final double dForwardDSpot = forwardUnderlying / spotUnderlying;
+    return deltaWrtForward * dForwardDSpot;
   }
 
   /** 

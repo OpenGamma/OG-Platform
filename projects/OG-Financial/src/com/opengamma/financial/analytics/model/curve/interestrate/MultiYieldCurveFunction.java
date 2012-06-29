@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -46,6 +48,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
+  
   private static final Logger s_logger = LoggerFactory.getLogger(MultiYieldCurveFunction.class);
 
   @Override
@@ -188,4 +191,27 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
     final InterpolatedYieldCurveSpecificationWithSecurities spec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
     return spec;
   }
+  
+  protected YieldCurveBundle getKnownCurves(final MultiCurveCalculationConfig curveCalculationConfig, final ComputationTargetSpecification targetSpec,
+      final FunctionInputs inputs) {
+    YieldCurveBundle knownCurves = null;
+    if (curveCalculationConfig.getExogenousConfigData() != null) {
+      knownCurves = new YieldCurveBundle();
+      final LinkedHashMap<String, String[]> exogenousCurveNames = curveCalculationConfig.getExogenousConfigData();
+      for (final Map.Entry<String, String[]> entry : exogenousCurveNames.entrySet()) {
+        for (final String exogenousCurveName : entry.getValue()) {
+          final ValueProperties properties = ValueProperties.builder()
+              .with(ValuePropertyNames.CURVE, exogenousCurveName).get();
+          final Object exogenousCurveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, targetSpec, properties));
+          if (exogenousCurveObject == null) {
+            throw new OpenGammaRuntimeException("Could not get exogenous curve named " + exogenousCurveName);
+          }
+          final YieldAndDiscountCurve exogenousCurve = (YieldAndDiscountCurve) exogenousCurveObject;
+          knownCurves.setCurve(exogenousCurveName, exogenousCurve);
+        }
+      }
+    }
+    return knownCurves;
+  }
+  
 }

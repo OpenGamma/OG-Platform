@@ -267,7 +267,7 @@ public class FixedIncomeConverterDataProvider {
       try {
         return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
       } catch (final OpenGammaRuntimeException e) {
-        final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+        final ExternalId id = ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId();
         throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
       }
     }
@@ -279,8 +279,9 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
-      if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate) || now.equals(swapEffectiveDate)) {
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
+      // Implementation note: To catch first fixing. SwapSecurity does not have this date.
+      if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate)) { // TODO: review if this is the correct condition
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
       final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), includeEndDate);

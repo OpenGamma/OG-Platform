@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward.old;
+package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 
 import java.util.Collections;
 import java.util.Set;
@@ -14,15 +14,18 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardCurrencyExposureFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexForwardCurrencyExposureFunction
  */
-public class ForexForwardCurrencyExposureFunction extends ForexForwardMultiValuedFunction {
+@Deprecated
+public class ForexForwardCurrencyExposureFunctionDeprecated extends ForexForwardMultiValuedFunctionDeprecated {
   private static final CurrencyExposureForexCalculator CALCULATOR = CurrencyExposureForexCalculator.getInstance();
 
-  public ForexForwardCurrencyExposureFunction() {
+  public ForexForwardCurrencyExposureFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
 

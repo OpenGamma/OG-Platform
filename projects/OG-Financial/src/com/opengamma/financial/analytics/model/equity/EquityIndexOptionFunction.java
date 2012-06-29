@@ -197,7 +197,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // Spot Index Requirement
     final ValueRequirement spotReq = getSpotRequirement(security);
     // Return the set
-    return Sets.newHashSet(fundingReq, volReq, spotReq);
+    return Sets.newHashSet(volReq, fundingReq, spotReq);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final EquityIndexOptionSecurity security, final String surfaceName) {
@@ -207,7 +207,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final ExternalId id = security.getUnderlyingId();
 //    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
 //      UniqueId.of(id.getScheme().getName(), id.getValue());
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index");
+    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"); // !!! FIXME THIS IS HARDCODED BECAUSE THE SECURITY HOLDS A BUID, WHILE THE SURFACE TARGET ID IS THE TICKER !!!
 
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }

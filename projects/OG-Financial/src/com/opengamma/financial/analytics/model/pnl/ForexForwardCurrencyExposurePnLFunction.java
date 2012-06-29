@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunctionNew;
+import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -64,8 +64,8 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveConfig = desiredValue.getConstraint(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveConfig = desiredValue.getConstraint(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG);
+    final String payCurveConfig = desiredValue.getConstraint(ForexForwardFunction.PAY_CURVE_CALC_CONFIG);
+    final String receiveCurveConfig = desiredValue.getConstraint(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
     final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
     final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
@@ -85,9 +85,9 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG, payCurveConfig)
+        .with(ForexForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveConfig)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG, receiveCurveConfig)
+        .with(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveConfig)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculator)
@@ -118,9 +118,9 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG)
+        .withAny(ForexForwardFunction.PAY_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
@@ -137,7 +137,7 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     if (payCurveNames == null || payCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveCalculationConfigs = constraints.getValues(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG);
+    final Set<String> payCurveCalculationConfigs = constraints.getValues(ForexForwardFunction.PAY_CURVE_CALC_CONFIG);
     if (payCurveCalculationConfigs == null || payCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -145,7 +145,7 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG);
+    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
     if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -155,9 +155,9 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     final String receiveCurveCalculationConfig = receiveCurveCalculationConfigs.iterator().next();
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ForexForwardFunctionNew.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
+        .with(ForexForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(ForexForwardFunctionNew.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig).get();
+        .with(ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig).get();
     final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), properties);
     return Collections.singleton(requirement);
   }

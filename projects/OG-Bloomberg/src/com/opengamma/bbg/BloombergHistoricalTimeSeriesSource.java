@@ -533,4 +533,9 @@ public class BloombergHistoricalTimeSeriesSource extends AbstractBloombergStatic
     return result;
   }
 
+  @Override
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    throw new UnsupportedOperationException("Unable to retrieve historical time-series from Bloomberg using config");
+  }
+
 }

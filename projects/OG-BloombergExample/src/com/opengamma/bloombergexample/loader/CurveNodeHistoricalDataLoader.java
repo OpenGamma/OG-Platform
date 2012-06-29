@@ -20,8 +20,8 @@ import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.collections.Lists;
 
+import com.google.common.collect.Lists;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;

@@ -20,10 +20,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardPresentValueFunctionNew extends ForexForwardMultiValuedFunctionNew {
+public class ForexForwardPresentValueFunction extends ForexForwardMultiValuedFunction {
   private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
 
-  public ForexForwardPresentValueFunctionNew() {
+  public ForexForwardPresentValueFunction() {
     super(ValueRequirementNames.FX_PRESENT_VALUE);
   }
 

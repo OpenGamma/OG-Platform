@@ -28,6 +28,9 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -456,6 +459,21 @@ public class FinancialSecurityUtils {
         public Currency visitStockFutureSecurity(StockFutureSecurity security) {
           return security.getCurrency();
         }
+
+        @Override
+        public Currency visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitMetalForwardSecurity(MetalForwardSecurity security) {
+          return security.getCurrency();
+        }
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -713,6 +731,21 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitStockFutureSecurity(StockFutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitMetalForwardSecurity(MetalForwardSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
       });

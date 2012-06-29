@@ -12,9 +12,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 /**
  * 
  */
-public abstract class ForexForwardMultiValuedFunctionNew extends ForexForwardFunctionNew {
+public abstract class ForexForwardMultiValuedFunction extends ForexForwardFunction {
 
-  public ForexForwardMultiValuedFunctionNew(final String valueRequirementName) {
+  public ForexForwardMultiValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

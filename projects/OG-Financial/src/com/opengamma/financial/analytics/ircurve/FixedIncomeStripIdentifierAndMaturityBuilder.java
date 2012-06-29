@@ -367,11 +367,12 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final Frequency receiveFrequency = PeriodFrequency.of(fixedIncomeStrip.getReceiveTenor().getPeriod());
     final BusinessDayConvention receiveBusinessDayConvention = receiveConvention.getBusinessDayConvention();
     final FloatingRateType receiveFloatingRateType = getFloatingTypeFromIndexType(fixedIncomeStrip.getReceiveIndexType());
-    final FloatingInterestRateLeg payLeg = new FloatingInterestRateLeg(payDayCount, payFrequency, payRegionIdentifier, payBusinessDayConvention, notional, false, payFloatingReferenceRateId,
-        payFloatingRateType);
-    final double spread = marketValues.get(swapIdentifier);
-    final FloatingSpreadIRLeg receiveLeg = new FloatingSpreadIRLeg(receiveDayCount, receiveFrequency, receiveRegionIdentifier, receiveBusinessDayConvention, notional, false,
-        receiveFloatingReferenceRateId, receiveFloatingRateType, spread);
+    final double spread = marketValues.get(swapIdentifier); 
+    // Implementation note: By convention the spread is on the first leg (shorter tenor)
+    final FloatingSpreadIRLeg payLeg = new FloatingSpreadIRLeg(payDayCount, payFrequency, payRegionIdentifier, payBusinessDayConvention, notional, false, payFloatingReferenceRateId,
+        payFloatingRateType, spread);
+    final FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(receiveDayCount, receiveFrequency, receiveRegionIdentifier, receiveBusinessDayConvention, notional, false,
+        receiveFloatingReferenceRateId, receiveFloatingRateType);
     //TODO don't use pay spot date and maturity date automatically
     final SwapSecurity swap = new SwapSecurity(curveDate, paySpotDate, payMaturityDate, counterparty, payLeg, receiveLeg);
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
@@ -400,8 +401,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
             spec.getCurrency(), 1), false, payLegFloatRateBloombergTicker, FloatingRateType.IBOR), new FloatingSpreadIRLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
-        convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-        new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
+              convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+              new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -478,6 +479,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       case Libor:
         return FloatingRateType.IBOR;
       case Euribor:
+        return FloatingRateType.IBOR;
+      case BBSW:
         return FloatingRateType.IBOR;
     }
     throw new OpenGammaRuntimeException("Cannot handle index type " + indexType);

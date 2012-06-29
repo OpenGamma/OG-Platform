@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>og-parent</artifactId>
+    <version>1.1-SNAPSHOT</version>
+    <relativePath>../..</relativePath>
+  </parent>
+  <artifactId>og-analytics</artifactId>
+  <packaging>jar</packaging>
+  <name>OG-Analytics</name>
+  <description>OpenGamma platform analytics</description>
+
+  <scm>
+    <url>https://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Analytics</url>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>colt</groupId>
+      <artifactId>colt</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.jtransforms</groupId>
+      <artifactId>jtransforms</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

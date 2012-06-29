@@ -64,6 +64,7 @@ public final class BloombergConstants {
    * OPTION TICK VALUE FIELD
    */
   public static final String FIELD_OPT_TICK_VAL = "OPT_TICK_VAL";
+  public static final String FIELD_OPT_VAL_PT = "OPT_VAL_PT";
 
   public static final String FIELD_NAME = "NAME";
   public static final String FIELD_TICKER = "TICKER";

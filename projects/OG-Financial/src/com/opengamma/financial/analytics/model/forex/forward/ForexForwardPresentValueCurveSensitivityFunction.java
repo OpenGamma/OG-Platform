@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward.old;
+package com.opengamma.financial.analytics.model.forex.forward;
 
 import java.util.Collections;
 import java.util.Set;

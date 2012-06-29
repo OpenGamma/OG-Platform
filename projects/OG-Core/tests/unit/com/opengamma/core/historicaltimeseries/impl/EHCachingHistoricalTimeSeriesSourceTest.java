@@ -20,6 +20,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -62,5 +65,24 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     // underlying source should only have been called once if cache worked as expected
     verify(_underlyingSource, times(1)).getHistoricalTimeSeries(UID);
   }
+  
+  public void getExternalIdBundle_UniqueId() {
+    ExternalId djxTicker = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "DJX Index");
+    ExternalId djxBUID = ExternalId.of(ExternalSchemes.BLOOMBERG_BUID, "EI09JDX");
+    ExternalIdBundle idBundle = ExternalIdBundle.of(djxTicker, djxBUID);
+    
+    when(_underlyingSource.getExternalIdBundle(UID)).thenReturn(idBundle);
+    
+    // Fetching same series twice should return same result
+    ExternalIdBundle bundle1 = _cachingSource.getExternalIdBundle(UID);
+    ExternalIdBundle bundle2 = _cachingSource.getExternalIdBundle(UID);
+    assertEquals(idBundle, bundle1);
+    assertEquals(idBundle, bundle2);
+    assertEquals(bundle1, bundle2);
+    
+    // underlying source should only have been called once if cache worked as expected
+    verify(_underlyingSource, times(1)).getExternalIdBundle(UID);
+  }
+
 
 }

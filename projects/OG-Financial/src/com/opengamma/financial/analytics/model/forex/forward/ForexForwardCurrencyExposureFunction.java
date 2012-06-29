@@ -19,10 +19,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardCurrencyExposureFunctionNew extends ForexForwardMultiValuedFunctionNew {
+public class ForexForwardCurrencyExposureFunction extends ForexForwardMultiValuedFunction {
   private static final CurrencyExposureForexCalculator CALCULATOR = CurrencyExposureForexCalculator.getInstance();
 
-  public ForexForwardCurrencyExposureFunctionNew() {
+  public ForexForwardCurrencyExposureFunction() {
     super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
 

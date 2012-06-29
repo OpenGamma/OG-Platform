@@ -66,6 +66,10 @@ public final class ValueRequirementNames {
    */
   public static final String MARK = "Mark";
   /**
+   * Spot - General name for current value of underlying asset / index
+   */
+  public static final String SPOT = "Spot";
+  /**
    * The spot rate for currency pair
    */
   public static final String SPOT_RATE = "SpotRate";

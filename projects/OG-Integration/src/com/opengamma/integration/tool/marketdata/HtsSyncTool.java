@@ -5,8 +5,6 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +13,8 @@ import java.util.Set;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.internal.annotations.Sets;
 
+import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractDualComponentTool;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 
@@ -27,10 +23,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
  */
 public class HtsSyncTool extends AbstractDualComponentTool {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(HtsSyncTool.class);
-
-  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
    * No arguments are needed.

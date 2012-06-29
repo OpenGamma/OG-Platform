@@ -59,13 +59,13 @@ import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.RemoteSecurityMaster;
+import com.opengamma.masterdb.portfolio.RemoteDbPortfolioMaster;
+import com.opengamma.masterdb.position.RemoteDbPositionMaster;
+import com.opengamma.masterdb.security.RemoteDbSecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -206,7 +206,7 @@ public class RemoteComponentFactory {
    */
   public PortfolioMaster getPortfolioMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(PortfolioMaster.class, name).getUri();
-    return new RemotePortfolioMaster(uri);
+    return new RemoteDbPortfolioMaster(uri);
   }
 
   /**
@@ -215,7 +215,7 @@ public class RemoteComponentFactory {
    */
   public PortfolioMaster getPortfolioMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, PortfolioMaster.class).getUri();
-    return new RemotePortfolioMaster(uri);
+    return new RemoteDbPortfolioMaster(uri);
   }
   
   /**
@@ -224,7 +224,7 @@ public class RemoteComponentFactory {
   public Map<String, PortfolioMaster> getPortfolioMasters() {
     Map<String, PortfolioMaster> result = new LinkedHashMap<String, PortfolioMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(PortfolioMaster.class)) {
-      result.put(info.getClassifier(), new RemotePortfolioMaster(info.getUri()));
+      result.put(info.getClassifier(), new RemoteDbPortfolioMaster(info.getUri()));
     }
     return result;    
   }
@@ -236,7 +236,7 @@ public class RemoteComponentFactory {
    */
   public PositionMaster getPositionMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(PositionMaster.class, name).getUri();
-    return new RemotePositionMaster(uri);
+    return new RemoteDbPositionMaster(uri);
   }
   
   /**
@@ -245,7 +245,7 @@ public class RemoteComponentFactory {
    */
   public PositionMaster getPositionMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, PositionMaster.class).getUri();
-    return new RemotePositionMaster(uri);
+    return new RemoteDbPositionMaster(uri);
   }
   
   /**
@@ -254,7 +254,7 @@ public class RemoteComponentFactory {
   public Map<String, PositionMaster> getPositionMasters() {
     Map<String, PositionMaster> result = new LinkedHashMap<String, PositionMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(PositionMaster.class)) {
-      result.put(info.getClassifier(), new RemotePositionMaster(info.getUri()));
+      result.put(info.getClassifier(), new RemoteDbPositionMaster(info.getUri()));
     }
     return result;
   }
@@ -324,7 +324,7 @@ public class RemoteComponentFactory {
    */
   public SecurityMaster getSecurityMaster(final String name) {
     URI uri = getComponentServer().getComponentInfo(SecurityMaster.class, name).getUri();
-    return new RemoteSecurityMaster(uri);
+    return new RemoteDbSecurityMaster(uri);
   }
   
   /**
@@ -333,7 +333,7 @@ public class RemoteComponentFactory {
    */
   public SecurityMaster getSecurityMaster(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, SecurityMaster.class).getUri();
-    return new RemoteSecurityMaster(uri);
+    return new RemoteDbSecurityMaster(uri);
   }
   /**
    * @return a map of classifier names to requested interface type
@@ -341,7 +341,7 @@ public class RemoteComponentFactory {
   public Map<String, SecurityMaster> getSecurityMasters() {
     Map<String, SecurityMaster> result = new LinkedHashMap<String, SecurityMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityMaster.class)) {
-      result.put(info.getClassifier(), new RemoteSecurityMaster(info.getUri()));
+      result.put(info.getClassifier(), new RemoteDbSecurityMaster(info.getUri()));
     }
     return result;
   }

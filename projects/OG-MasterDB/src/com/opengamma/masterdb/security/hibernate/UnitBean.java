@@ -3,20 +3,18 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.security.hibernate.future;
-
-import com.opengamma.masterdb.security.hibernate.EnumBean;
+package com.opengamma.masterdb.security.hibernate;
 
 /**
  * Hibernate bean for storage.
  */
 public class UnitBean extends EnumBean {
-  
+
   protected UnitBean() {
   }
 
   public UnitBean(String unitName) {
     super(unitName);
   }
-  
+
 }

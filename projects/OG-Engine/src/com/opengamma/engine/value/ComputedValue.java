@@ -67,7 +67,7 @@ public class ComputedValue implements Serializable {
    */
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.notNull(specification, "value specification");
-    ArgumentChecker.notNull(value, "actual value");
+    // ArgumentChecker.notNull(value, "actual value");
     if (value instanceof ComputedValue) {
       throw new IllegalArgumentException("Value must not be a ComputedValue instance");
     }

@@ -181,6 +181,13 @@ public abstract class AbstractDbMaster {
     s_logger.debug("installed TimeSource: {}", timeSource);
     _timeSource = timeSource;
   }
+  
+  /**
+   * Resets the time-source that determines the current time to the default.
+   */
+  public void resetTimeSource() {
+    setTimeSource(getDbConnector().timeSource());
+  }
 
   /**
    * Gets the current instant using the time-source.

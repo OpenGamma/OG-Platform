@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.forward.old;
+package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,10 +50,12 @@ import com.opengamma.util.tuple.DoublesPair;
 
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexForwardYieldCurveNodeSensitivitiesFunction
  */
-public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexForwardYieldCurveNodeSensitivitiesFunction.class);
+@Deprecated
+public class ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated.class);
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
   @Override
@@ -62,11 +64,11 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
-    final String payForwardCurveName = desiredValue.getConstraint(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE);
-    final String payCurveCalculationMethod = desiredValue.getConstraint(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
+    final String payForwardCurveName = desiredValue.getConstraint(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE);
+    final String payCurveCalculationMethod = desiredValue.getConstraint(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String receiveForwardCurveName = desiredValue.getConstraint(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE);
-    final String receiveCurveCalculationMethod = desiredValue.getConstraint(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
+    final String receiveForwardCurveName = desiredValue.getConstraint(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE);
+    final String receiveCurveCalculationMethod = desiredValue.getConstraint(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     final String calculationMethod;
     final String forwardCurveName;
@@ -168,19 +170,19 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
       s_logger.error("Did not specify a curve to which this security is sensitive; asked for {}", curveName);
       return null;
     }
-    final Set<String> payForwardCurveNames = constraints.getValues(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE);
+    final Set<String> payForwardCurveNames = constraints.getValues(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE);
     if (payForwardCurveNames == null || payForwardCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveForwardCurveNames = constraints.getValues(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE);
+    final Set<String> receiveForwardCurveNames = constraints.getValues(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE);
     if (receiveForwardCurveNames == null || receiveForwardCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveCalculationMethods = constraints.getValues(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
+    final Set<String> payCurveCalculationMethods = constraints.getValues(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
     if (payCurveCalculationMethods == null || payCurveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveCalculationMethods = constraints.getValues(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
+    final Set<String> receiveCurveCalculationMethods = constraints.getValues(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
     if (receiveCurveCalculationMethods == null || receiveCurveCalculationMethods.size() != 1) {
       return null;
     }
@@ -242,11 +244,11 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD).get();
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String curveName) {
@@ -255,11 +257,11 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE)
-        .withAny(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD).get();
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE)
+        .withAny(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String curveName, final String payCurveName, final String payForwardCurveName,
@@ -269,11 +271,11 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE, payForwardCurveName)
-        .with(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD, payCurveCalculationMethod)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE, payForwardCurveName)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD, payCurveCalculationMethod)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE, receiveForwardCurveName)
-        .with(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD, receiveCurveCalculationMethod).get();
+        .with(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE, receiveForwardCurveName)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD, receiveCurveCalculationMethod).get();
   }
 
   private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName,
@@ -298,11 +300,11 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
       final String receiveCurveName, final String receiveForwardCurveName, final String receiveCurveCalculationMethod, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(ForexForwardFunction.PROPERTY_PAY_FORWARD_CURVE, payForwardCurveName)
-        .with(ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD, payCurveCalculationMethod)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_PAY_FORWARD_CURVE, payForwardCurveName)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_PAY_CURVE_CALCULATION_METHOD, payCurveCalculationMethod)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(ForexForwardFunction.PROPERTY_RECEIVE_FORWARD_CURVE, receiveForwardCurveName)
-        .with(ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD, receiveCurveCalculationMethod).get();
+        .with(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_FORWARD_CURVE, receiveForwardCurveName)
+        .with(ForexForwardFunctionDeprecated.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD, receiveCurveCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
 
