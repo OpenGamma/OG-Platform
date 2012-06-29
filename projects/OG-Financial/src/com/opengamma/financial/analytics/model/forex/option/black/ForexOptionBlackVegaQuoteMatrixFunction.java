@@ -23,10 +23,10 @@ import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 /**
  * 
  */
-public class ForexOptionBlackVegaQuoteMatrixFunctionNew extends ForexOptionBlackSingleValuedFunctionNew {
+public class ForexOptionBlackVegaQuoteMatrixFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueBlackVolatilityQuoteSensitivityForexCalculator CALCULATOR = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance();
 
-  public ForexOptionBlackVegaQuoteMatrixFunctionNew() {
+  public ForexOptionBlackVegaQuoteMatrixFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 

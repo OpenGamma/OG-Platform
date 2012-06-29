@@ -47,8 +47,8 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackPV01FunctionNew.class);
+public class ForexOptionBlackPV01Function extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackPV01Function.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
   private static final ForexSecurityConverter CONVERTER = new ForexSecurityConverter();
 
@@ -71,10 +71,10 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionNew.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunctionNew.CALL_CURVE);
-    final String putCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG);
+    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE);
+    final String putCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final Currency curveCurrency;
@@ -139,11 +139,11 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
       s_logger.error("Did not specify a currency for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunctionNew.PUT_CURVE);
+    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunctionNew.CALL_CURVE);
+    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE);
     if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
@@ -164,11 +164,11 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final Set<String> putCurveConfigs = constraints.getValues(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG);
+    final Set<String> putCurveConfigs = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
     if (putCurveConfigs == null || putCurveConfigs.size() != 1) {
       return null;
     }
-    final Set<String> callCurveConfigs = constraints.getValues(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG);
+    final Set<String> callCurveConfigs = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     if (callCurveConfigs == null || callCurveConfigs.size() != 1) {
       return null;
     }
@@ -213,11 +213,11 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE).get();
   }
 
@@ -226,11 +226,11 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE).get();
   }
 
@@ -240,24 +240,24 @@ public class ForexOptionBlackPV01FunctionNew extends AbstractFunction.NonCompile
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy)
         .with(ValuePropertyNames.CURRENCY, ccy)
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
-        .with(ForexOptionBlackFunctionNew.PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunctionNew.CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG, callCurveConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ForexOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(ForexOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
+        .with(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
   }
 
   private ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String callCurveName, final String putCurveConfig,
       final String callCurveConfig, final String surfaceName, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
-        .with(ForexOptionBlackFunctionNew.PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunctionNew.CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG, callCurveConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ForexOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(ForexOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
+        .with(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, ForexOptionBlackSingleValuedFunctionNew.getResultCurrency(target)).get();
+        .with(ValuePropertyNames.CURRENCY, ForexOptionBlackSingleValuedFunction.getResultCurrency(target)).get();
     return new ValueRequirement(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
   }
 

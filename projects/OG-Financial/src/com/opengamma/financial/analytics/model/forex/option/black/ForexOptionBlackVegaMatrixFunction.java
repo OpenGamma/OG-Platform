@@ -21,11 +21,11 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 /**
  * 
  */
-public class ForexOptionBlackVegaMatrixFunctionNew extends ForexOptionBlackSingleValuedFunctionNew {
+public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexOptionBlackVegaMatrixFunctionNew() {
+  public ForexOptionBlackVegaMatrixFunction() {
     super(ValueRequirementNames.VEGA_MATRIX);
   }
 

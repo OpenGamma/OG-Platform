@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class ForexOptionBlackFunctionNew extends AbstractFunction.NonCompiledInvoker {
+public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String BLACK_METHOD = "BlackMethod";
   /** Property name for the put curve */
@@ -65,7 +65,7 @@ public abstract class ForexOptionBlackFunctionNew extends AbstractFunction.NonCo
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexOptionBlackFunctionNew(final String valueRequirementName) {
+  public ForexOptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

@@ -19,14 +19,14 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function to compute the Gamma of Forex options in the Black model.
  */
-public class ForexOptionBlackGammaFunctionNew extends ForexOptionBlackSingleValuedFunctionNew {
+public class ForexOptionBlackGammaFunction extends ForexOptionBlackSingleValuedFunction {
 
   /**
    * The calculator to compute the gamma value.
    */
   private static final GammaValueBlackForexCalculator CALCULATOR = GammaValueBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackGammaFunctionNew() {
+  public ForexOptionBlackGammaFunction() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 

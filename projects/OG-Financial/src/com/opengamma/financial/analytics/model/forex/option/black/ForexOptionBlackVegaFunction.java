@@ -20,14 +20,14 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function calculating the total Black volatility sensitivity. 
  */
-public class ForexOptionBlackVegaFunctionNew extends ForexOptionBlackSingleValuedFunctionNew {
+public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFunction {
 
   /**
    * The relevant calculator.
    */
   private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackVegaFunctionNew() {
+  public ForexOptionBlackVegaFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
 

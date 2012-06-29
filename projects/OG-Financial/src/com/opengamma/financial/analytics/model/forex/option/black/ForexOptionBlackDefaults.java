@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
+public class ForexOptionBlackDefaults extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -53,7 +53,7 @@ public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
   private final String _putCurrency;
   private final String _callCurrency;
 
-  public ForexOptionBlackDefaultsNew(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
+  public ForexOptionBlackDefaults(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
       final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName, final String putCurrency, final String callCurrency) {
     super(ComputationTargetType.SECURITY, true);
@@ -99,10 +99,10 @@ public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionNew.PUT_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionNew.CALL_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PUT_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.CALL_CURVE);
+      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -112,16 +112,16 @@ public class ForexOptionBlackDefaultsNew extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ForexOptionBlackFunctionNew.CALL_CURVE.equals(propertyName)) {
+    if (ForexOptionBlackFunction.CALL_CURVE.equals(propertyName)) {
       return Collections.singleton(_callCurveName);
     }
-    if (ForexOptionBlackFunctionNew.PUT_CURVE.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PUT_CURVE.equals(propertyName)) {
       return Collections.singleton(_putCurveName);
     }
-    if (ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(_callCurveConfig);
     }
-    if (ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(_putCurveConfig);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {

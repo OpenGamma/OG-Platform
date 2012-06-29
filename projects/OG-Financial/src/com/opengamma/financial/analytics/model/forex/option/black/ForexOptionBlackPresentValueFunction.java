@@ -8,27 +8,33 @@ package com.opengamma.financial.analytics.model.forex.option.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * 
  */
-public class ForexOptionBlackCurrencyExposureFunctionNew extends ForexOptionBlackMultiValuedFunctionNew {
-  private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
+public class ForexOptionBlackPresentValueFunction extends ForexOptionBlackSingleValuedFunction {
+  private static final PresentValueBlackForexCalculator CALCULATOR = PresentValueBlackForexCalculator.getInstance();
 
-  public ForexOptionBlackCurrencyExposureFunctionNew() {
-    super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+  public ForexOptionBlackPresentValueFunction() {
+    super(ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
-    return Collections.singleton(new ComputedValue(spec, result));
+    ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
+    final CurrencyAmount ca = result.getCurrencyAmounts()[0];
+    final double amount = ca.getAmount();
+    return Collections.singleton(new ComputedValue(spec, amount));
   }
+
 }

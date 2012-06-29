@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunctionNew;
+import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -43,11 +43,11 @@ public class ForexOptionBlackPnLSeriesCurrencyConversionFunction extends PnlSeri
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.PUT_CURVE_CALC_CONFIG)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE)
-        .withAny(ForexOptionBlackFunctionNew.CALL_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE)
+        .withAny(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE)
+        .withAny(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
