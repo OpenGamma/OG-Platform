@@ -5,23 +5,24 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import com.google.common.collect.Lists;
-import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
-import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.tuple.DoublesPair;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
+
+import com.google.common.collect.Lists;
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * This Calculator provides price sensitivities for the VarianceSwap derivative to changes in
@@ -118,7 +119,10 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
 
     // 2nd arg = LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves
     final YieldAndDiscountCurve discCrv = market.getDiscountCurve();
-    final String discCrvName = discCrv.getCurve().getName();
+    if (!(discCrv instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final String discCrvName = ((YieldCurve) discCrv).getCurve().getName();
     final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
     interpolatedCurves.setCurve(discCrvName, discCrv);
 
@@ -128,7 +132,7 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
-    final NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+    final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
   }
 

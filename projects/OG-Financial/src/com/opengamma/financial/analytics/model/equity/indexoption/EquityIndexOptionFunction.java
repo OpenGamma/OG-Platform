@@ -115,7 +115,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingObject;
-
+    
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");

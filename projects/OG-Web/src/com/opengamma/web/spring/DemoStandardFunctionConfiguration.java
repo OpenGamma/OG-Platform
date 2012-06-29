@@ -77,6 +77,17 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
+<<<<<<< HEAD
+=======
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionForwardValueFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFundingCurveSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionImpliedVolFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionSpotDeltaFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionSpotIndexFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaMatrixFunction;
+>>>>>>> Added Greeks to EquityIndexOption
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;

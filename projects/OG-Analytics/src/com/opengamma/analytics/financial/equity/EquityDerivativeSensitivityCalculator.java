@@ -12,7 +12,6 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -229,9 +228,7 @@ public class EquityDerivativeSensitivityCalculator {
 
     // Unpack market data
     final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
-    if (!(surface instanceof InterpolatedDoublesSurface)) {
-      throw new OpenGammaRuntimeException("Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
-    }
+    Validate.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
     final Double[] maturities = blackSurf.getXData();
     final Double[] strikes = blackSurf.getYData();
