@@ -529,14 +529,18 @@ $.register_module({
             views: { // all requests that begin with /views
                 root: 'views',
                 get: not_available.partial('get'),
-                put: function (config) {
+                put: function (config, promise) {
                     config = config || {};
-                    var root = this.root, method = [root], data = {}, meta,
+                    var promise = promise || new Promise,
+                        root = this.root, method = [root], data = {}, meta,
                         fields = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version'],
                         api_fields = [
                             'viewDefinitionId', 'aggregators', 'live',
                             'provider', 'snapshotId', 'versionDateTime'
                         ];
+                    if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
+                        return function () {api.views.put.call(context, config, promise);}; // complete, return a
+                    })(this), STALL), promise;                                              // promise and try again
                     meta = check({
                         bundle: {method: root + '#put', config: config},
                         required: [
@@ -548,7 +552,7 @@ $.register_module({
                     meta.type = 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
                     data['clientId'] = api.id;
-                    return request(method, {data: data, meta: meta});
+                    return request(method, {data: data, meta: meta}, promise);
                 },
                 del: not_available.partial('del')
             }
