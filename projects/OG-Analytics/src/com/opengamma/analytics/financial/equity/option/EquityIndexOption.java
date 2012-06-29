@@ -58,6 +58,7 @@ public class EquityIndexOption implements EquityDerivative {
    * Gets the date when payments are made 
    * @return the delivery date (in years as a double)
    */
+  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }

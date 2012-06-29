@@ -78,10 +78,13 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionForwardValueFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionImpliedVolFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionSpotDeltaFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionSpotIndexFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
@@ -747,6 +750,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionForwardValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionSpotIndexFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionSpotDeltaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionFundingCurveSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionVegaMatrixFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionVegaFunction.class));
+
+
 
   }
 

@@ -59,8 +59,15 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
 
+
   private final String _valueRequirementName;
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
+
+  // Get rid of this, refactor EquityIndexOptionFundingCurveSensitivitiesFunction
+  protected final EquityIndexOptionConverter getConverter() {
+    return _converter;
+  }
+
 
   public EquityIndexOptionFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
@@ -102,8 +109,6 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
     //TODO no choice of other surfaces
     final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
-
-
 
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);
@@ -161,7 +166,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       .get();
   }
 
-  private ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName) {
+  protected ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName) {
     return createValueProperties()
       .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
@@ -200,7 +205,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return Sets.newHashSet(volReq, fundingReq, spotReq);
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final EquityIndexOptionSecurity security, final String surfaceName) {
+  protected ValueRequirement getVolatilitySurfaceRequirement(final EquityIndexOptionSecurity security, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .get();
@@ -212,13 +217,13 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
-  private ValueRequirement getSpotRequirement(final EquityIndexOptionSecurity security) {
+  protected ValueRequirement getSpotRequirement(final EquityIndexOptionSecurity security) {
     final ExternalId id = security.getUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
-  private ValueRequirement getDiscountCurveRequirement(final EquityIndexOptionSecurity security, final String fundingCurveName) {
+  protected ValueRequirement getDiscountCurveRequirement(final EquityIndexOptionSecurity security, final String fundingCurveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }

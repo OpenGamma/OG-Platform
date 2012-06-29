@@ -5,12 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.variance.derivative;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.EquityDerivative;
 import com.opengamma.analytics.financial.equity.EquityDerivativeVisitor;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapPresentValueCalculator;
 import com.opengamma.util.money.Currency;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * A Variance Swap is a forward contract on the realized variance of an underlying security. 
@@ -76,12 +78,16 @@ public class VarianceSwap implements EquityDerivative {
 
   @Override
   public <S, T> T accept(EquityDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    return visitor.visitVarianceSwap(this, data);
+  }
+
+  public Double accept(VarianceSwapPresentValueCalculator pvc, EquityOptionDataBundle data) {
+    return pvc.visitVarianceSwap(this, data);
   }
 
   @Override
   public <T> T accept(EquityDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitVarianceSwap(this);
   }
 
   /**
@@ -104,6 +110,7 @@ public class VarianceSwap implements EquityDerivative {
    * Gets the timeToSettlement.
    * @return the timeToSettlement
    */
+  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }

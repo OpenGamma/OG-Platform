@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -36,7 +36,7 @@ import com.opengamma.util.money.Currency;
  */
 public class VarianceSwapRatesSensitivityTest {
 
-  private static VarianceSwapRatesSensitivityCalculator deltaCalculator = VarianceSwapRatesSensitivityCalculator.getInstance();
+  private static VarianceSwapSensitivityCalculator deltaCalculator = VarianceSwapSensitivityCalculator.getInstance();
   // Tests ------------------------------------------
 
   /*

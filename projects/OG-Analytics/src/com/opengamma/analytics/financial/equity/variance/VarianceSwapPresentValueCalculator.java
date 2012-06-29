@@ -32,6 +32,13 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
   }
 
   @Override
+  public Double visit(final EquityDerivative derivative, final EquityOptionDataBundle data) {
+    Validate.notNull(derivative, "derivative");
+    Validate.notNull(data, "data");
+    return derivative.accept(this, data);
+  }
+
+  @Override
   public Double visitVarianceSwap(final VarianceSwap derivative, final EquityOptionDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
