@@ -66,6 +66,9 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     if (!_includeIRFutures && security instanceof InterestRateFutureSecurity) {
       return false;
     }
+    if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
+      return false;
+    }
     final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
     if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
       return false;
@@ -77,10 +80,7 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
         return true;
       }
     }
-    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
-      return true;
-    }
-    return false;
+    return true;
   }
 
   @Override

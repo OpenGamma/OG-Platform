@@ -6,8 +6,11 @@
 package com.opengamma.financial.analytics.model.forex.defaultproperties;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -19,7 +22,7 @@ import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunctio
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -33,28 +36,21 @@ public class ForexForwardDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA
   };
-  private final String _payCurveName;
-  private final String _receiveCurveName;
-  private final String _payCurveConfig;
-  private final String _receiveCurveConfig;
-  private final String _payCurrency;
-  private final String _receiveCurrency;
+  private final PriorityClass _priority;
+  private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
-  public ForexForwardDefaults(final String payCurveName, final String receiveCurveName, final String payCurveConfig, final String receiveCurveConfig,
-      final String payCurrency, final String receiveCurrency) {
+  public ForexForwardDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(payCurveName, "pay curve name");
-    ArgumentChecker.notNull(receiveCurveName, "receive curve name");
-    ArgumentChecker.notNull(payCurveConfig, "pay curve config");
-    ArgumentChecker.notNull(receiveCurveConfig, "receive curve config");
-    ArgumentChecker.notNull(payCurrency, "pay currency");
-    ArgumentChecker.notNull(receiveCurrency, "receive currency");
-    _payCurveName = payCurveName;
-    _receiveCurveName = receiveCurveName;
-    _payCurveConfig = payCurveConfig;
-    _receiveCurveConfig = receiveCurveConfig;
-    _payCurrency = payCurrency;
-    _receiveCurrency = receiveCurrency;
+    ArgumentChecker.notNull(priority, "priority");
+    ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
+    final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
+    _priority = PriorityClass.valueOf(priority);
+    _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
+      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
+      _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
+    }
   }
 
   @Override
@@ -66,9 +62,9 @@ public class ForexForwardDefaults extends DefaultPropertyFunction {
       return false;
     }
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    final Currency payCurrency = security.getPayCurrency();
-    final Currency receiveCurrency = security.getReceiveCurrency();
-    return payCurrency.getCode().equals(_payCurrency) && receiveCurrency.getCode().equals(_receiveCurrency);
+    final String payCurrency = security.getPayCurrency().getCode();
+    final String receiveCurrency = security.getReceiveCurrency().getCode();
+    return _currencyCurveConfigAndDiscountingCurveNames.containsKey(payCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(receiveCurrency);
   }
 
   @Override
@@ -83,26 +79,37 @@ public class ForexForwardDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
+    final String payCurrency = security.getPayCurrency().getCode();
+    final String receiveCurrency = security.getReceiveCurrency().getCode();
+    if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(payCurrency)) {
+      throw new OpenGammaRuntimeException("Could not get config for pay currency " + payCurrency + "; should never happen");
+    }
+    if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(receiveCurrency)) {
+      throw new OpenGammaRuntimeException("Could not get config for receive currency " + receiveCurrency + "; should never happen");
+    }
+    final Pair<String, String> payPair = _currencyCurveConfigAndDiscountingCurveNames.get(payCurrency);
+    final Pair<String, String> receivePair = _currencyCurveConfigAndDiscountingCurveNames.get(receiveCurrency);
     if (ValuePropertyNames.PAY_CURVE.equals(propertyName)) {
-      return Collections.singleton(_payCurveName);
+      return Collections.singleton(payPair.getSecond());
     }
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
-      return Collections.singleton(_receiveCurveName);
+      return Collections.singleton(receivePair.getSecond());
     }
     if (ForexForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_payCurveConfig);
+      return Collections.singleton(payPair.getFirst());
     }
     if (ForexForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_receiveCurveConfig);
+      return Collections.singleton(receivePair.getFirst());
     }
     return null;
   }
-  
+
   @Override
   public PriorityClass getPriority() {
-    return PriorityClass.ABOVE_NORMAL;
+    return _priority;
   }
-  
+
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FX_FORWARD_DEFAULTS;

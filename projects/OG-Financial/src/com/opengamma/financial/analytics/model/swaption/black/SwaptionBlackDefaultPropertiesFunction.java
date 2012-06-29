@@ -59,10 +59,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     }
     final SwaptionSecurity swaption = (SwaptionSecurity) target.getSecurity();
     final String currencyName = FinancialSecurityUtils.getCurrency(swaption).getCode();
-    if (_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
-      return true;
-    }
-    return false;
+    return _currencyCurveConfigAndSurfaceNames.containsKey(currencyName);
   }
 
   @Override
