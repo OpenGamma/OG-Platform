@@ -5,6 +5,15 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +41,41 @@ public class MaximumJobItemExecutionWatchdog {
 
   }
 
+  private static final class ThreadInfo {
+
+    private long _startTime;
+    private CalculationJobItem _jobItem;
+    private int _fault;
+
+    public ThreadInfo(final CalculationJobItem jobItem) {
+      setJobItem(jobItem);
+    }
+
+    public long getElapsed(final long timeNow) {
+      return timeNow - _startTime;
+    }
+
+    public CalculationJobItem getJobItem() {
+      return _jobItem;
+    }
+
+    public void setJobItem(final CalculationJobItem jobItem) {
+      _startTime = System.nanoTime();
+      _jobItem = jobItem;
+      _fault = 0;
+    }
+
+    public int getFault() {
+      return _fault;
+    }
+
+    public void incrementFault() {
+      _fault++;
+    }
+
+  }
+
+  private final ConcurrentMap<Thread, ThreadInfo> _state = new ConcurrentHashMap<Thread, ThreadInfo>();
   private long _maxExecutionTime;
   private Action _action = new Action() {
     @Override
@@ -40,13 +84,15 @@ public class MaximumJobItemExecutionWatchdog {
       thread.interrupt();
     }
   };
+  private ScheduledExecutorService _scheduler;
+  private volatile Future<?> _task;
 
-  public void setMaximumJobItemExecutionTime(final long milliseconds) {
-    _maxExecutionTime = milliseconds;
+  public void setMaxJobItemExecutionTime(final long milliseconds) {
+    _maxExecutionTime = milliseconds * 1000000L;
   }
 
-  public long getMaximumJobItemExecutionTime() {
-    return _maxExecutionTime;
+  public long getMaxJobItemExecutionTime() {
+    return _maxExecutionTime / 1000000L;
   }
 
   public void setTimeoutAction(final Action action) {
@@ -58,6 +104,51 @@ public class MaximumJobItemExecutionWatchdog {
     return _action;
   }
 
+  public void setScheduler(final ScheduledExecutorService scheduler) {
+    _scheduler = scheduler;
+  }
+
+  public ScheduledExecutorService getScheduler() {
+    return _scheduler;
+  }
+
+  private final class CheckThreads implements Runnable {
+
+    @Override
+    public void run() {
+      final long time = System.nanoTime();
+      final long limit = _maxExecutionTime;
+      final Iterator<Map.Entry<Thread, ThreadInfo>> itr = _state.entrySet().iterator();
+      while (itr.hasNext()) {
+        final Map.Entry<Thread, ThreadInfo> thread = itr.next();
+        if (thread.getValue().getJobItem() == null) {
+          if (thread.getKey().isAlive()) {
+            s_logger.debug("Thread {} alive but not executing any job items", thread.getKey());
+          } else {
+            s_logger.info("Removed terminated thread {} from watchlist", thread.getKey());
+            itr.remove();
+          }
+        } else {
+          final long elapsed = thread.getValue().getElapsed(time);
+          if (elapsed > limit) {
+            s_logger.warn("Thread {} has been executing {} for {}ms", new Object[] {thread.getKey(), thread.getValue().getJobItem(), (double) elapsed / 1e6 });
+            thread.getValue().incrementFault();
+            getTimeoutAction().jobItemExecutionLimitExceeded(thread.getValue().getJobItem(), thread.getKey());
+          } else {
+            s_logger.debug("Thread {} within job limit", thread.getKey());
+          }
+        }
+      }
+      synchronized (this) {
+        if (_state.isEmpty()) {
+          _task.cancel(false);
+          _task = null;
+        }
+      }
+    }
+
+  }
+
   /**
    * The calling thread is about to start executing the job item. This call must be paired with a call to {@link #jobExecutionStopped} when the thread has finished, before the time limit elapses, to
    * avoid the watchdog triggering.
@@ -65,9 +156,25 @@ public class MaximumJobItemExecutionWatchdog {
    * @param jobItem the item
    */
   protected void jobExecutionStarted(final CalculationJobItem jobItem) {
-    if (_maxExecutionTime > 0) {
-      s_logger.debug("TODO: job execution started on {}", jobItem);
-      // TODO: update a data structure
+    if (getMaxJobItemExecutionTime() > 0) {
+      final Thread t = Thread.currentThread();
+      ThreadInfo info = _state.get(t);
+      if (info == null) {
+        info = new ThreadInfo(jobItem);
+        _state.put(t, info);
+        if (_task == null) {
+          synchronized (this) {
+            if (_task == null) {
+              if (_scheduler == null) {
+                _scheduler = Executors.newSingleThreadScheduledExecutor();
+              }
+              _task = getScheduler().scheduleWithFixedDelay(new CheckThreads(), getMaxJobItemExecutionTime(), getMaxJobItemExecutionTime(), TimeUnit.MILLISECONDS);
+            }
+          }
+        }
+      } else {
+        info.setJobItem(jobItem);
+      }
     }
   }
 
@@ -75,10 +182,21 @@ public class MaximumJobItemExecutionWatchdog {
    * The calling thread has finished executing the job item from the previous call to {@link #jobExecutionStarted}.
    */
   protected void jobExecutionStopped() {
-    if (_maxExecutionTime > 0) {
-      s_logger.debug("TODO: job execution stopped");
-      // TODO: update a data structure
+    if (getMaxJobItemExecutionTime() > 0) {
+      ThreadInfo info = _state.get(Thread.currentThread());
+      if (info != null) {
+        info.setJobItem(null);
+      }
     }
+  }
+
+  public boolean areThreadsAlive() {
+    for (Map.Entry<Thread, ThreadInfo> thread : _state.entrySet()) {
+      if ((thread.getValue().getFault() == 0) && thread.getKey().isAlive()) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

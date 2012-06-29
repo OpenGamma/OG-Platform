@@ -285,6 +285,11 @@
     <property name="useWriteBehindSharedCache" value="true" />
     <property name="useAsynchronousTargetResolve" value="true" />
     <property name="statisticsGatherer" ref="statisticsSender" />
+    <property name="maxJobItemExecution">
+      <bean class="com.opengamma.engine.view.calcnode.CalculationNodeProcess$JobItemExecutionWatchdog">
+        <property name="maxJobItemExecutionTime" value="${opengamma.engine.calcnode.maxjobitemtime}" />
+      </bean>
+    </property>
   </bean>
   <bean id="calcNodes" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
     <property name="nodeFactory" ref="calcNodeFactory" />

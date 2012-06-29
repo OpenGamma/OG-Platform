@@ -524,6 +524,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
             return CalculationJobResultItem.failure(t);
           }
         }
+        postEvaluationErrors(jobItem.getOutputs(), NotCalculatedSentinel.MISSING_INPUTS);
         return CalculationJobResultItem.missingInputs(missing);
       }
     }
