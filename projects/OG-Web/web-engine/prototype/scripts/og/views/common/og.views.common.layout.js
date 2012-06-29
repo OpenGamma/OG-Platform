@@ -73,7 +73,7 @@ $.register_module({
                         enableCursorHotkey: false, onresize_end: 'og.common.gadgets.manager.resize',
                         togglerLength_open: 0, paneClass: 'OG-gadgets-container'
                     },
-                    south: {paneSelector: '.OG-layout-analytics-south', size: '50%'},
+                    south: {paneSelector: '.OG-layout-analytics-south', size: '50%', spacing_open: 7},
                     center: {
                         paneSelector: '.OG-layout-analytics-center',
                         contentSelector: '.ui-layout-content', paneClass: 'OG-layout-analytics-center'

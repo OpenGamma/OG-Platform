@@ -71,7 +71,7 @@ $.register_module({
                             return '<a href="' + url + '">' + $(this).text() + '</a>'
                         };
                         if (cur_page !==  'positions') $html.find('thead span').html(link);
-                    $(selector).html($html).hide().fadeIn();
+                    $(selector).html($html);
                     timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                     if (editable) common.util.ui.content_editable({
                         pre_dispatch: function (rest_options, handler) {

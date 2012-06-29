@@ -65,7 +65,7 @@ public class ViewsResource {
                              @FormParam("provider") String provider,
                              @FormParam("snapshotId") String snapshotId,
                              @FormParam("versionDateTime") String versionDateTime,
-                             @QueryParam("clientId") String clientId) {
+                             @FormParam("clientId") String clientId) {
     ViewRequest.MarketData marketData;
     if (live) {
       marketData = new ViewRequest.Live(provider);

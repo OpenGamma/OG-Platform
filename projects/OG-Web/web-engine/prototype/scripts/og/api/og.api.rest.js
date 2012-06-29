@@ -108,22 +108,19 @@ $.register_module({
                     config.meta.handler(result);
                     promise.deferred.resolve(result);
                 }, INSTANT), promise;
-                if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
-                if (config.meta.update && is_get) config.data['clientId'] = api.id;
+                if (config.meta.update) if (is_get) config.data['clientId'] = api.id;
+                    else warn(module.name + ': update functions are only for GETs');
                 if (config.meta.cache_for && !is_get)
                     warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
-                if (is_get && get_cache(url) && typeof get_cache(url) === 'object') {
-                    return setTimeout((function (result) {
-                        return function () {
-                            config.meta.handler(result);
-                            promise.deferred.resolve(result);
-                        };
+                if (is_get) { // deal with client-side caching of GETs
+                    if (get_cache(url) && typeof get_cache(url) === 'object') return setTimeout((function (result) {
+                        return function () {config.meta.handler(result), promise.deferred.resolve(result);};
                     })(get_cache(url)), INSTANT), promise;
+                    if (get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
+                        return setTimeout(request.partial(method, config, promise), STALL), promise;
+                    if (config.meta.cache_for) set_cache(url, true);
                 }
-                if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
-                    return setTimeout(request.partial(method, config, promise), STALL), promise;
-                if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
                 return send(), promise;
             },
@@ -213,6 +210,12 @@ $.register_module({
                 // if request is still outstanding remove it
                 if (!xhr) return; else delete outstanding_requests[promise.id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
+            },
+            aggregators: { // all requests that begin with /aggregators
+                root: 'aggregators',
+                get: default_get.partial([], null),
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
             },
             clean: function () {
                 var id, current = routes.current(), request;
@@ -327,13 +330,13 @@ $.register_module({
                                 label: 'search request cannot have id, node, or version',
                                 fields: ['id', 'node', 'version']
                             },
-                            {condition: true, label: 'meta data unavailable for /' + root, fields: ['meta']}
+                            {label: 'meta data unavailable for /' + root, fields: ['meta']}
                         ]
                     });
                     if (search) data = paginate(config);
                     if (name_search) data.name = name;
-                    if (id_search) data.portfolioId = ids;
-                    if (node_search) data.nodeId = nodes;
+                    if (id_search) data['portfolioId'] = ids;
+                    if (node_search) data['nodeId'] = nodes;
                     version = version ? [id, 'versions', version_search ? false : version].filter(Boolean) : id;
                     if (id) method = method.concat(version);
                     if (node) method.push('nodes', node);
@@ -508,7 +511,7 @@ $.register_module({
                     var root = this.root, method = [root], data = {}, meta, meta_request = config.meta;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
-                        required: [{condition: true, all_of: ['meta']}]
+                        required: [{all_of: ['meta']}]
                     });
                     data = paginate(config);
                     if (meta_request) method.push('metaData');
@@ -521,6 +524,32 @@ $.register_module({
                 root: 'viewdefinitions',
                 get: default_get.partial([], null),
                 put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
+            views: { // all requests that begin with /views
+                root: 'views',
+                get: not_available.partial('get'),
+                put: function (config) {
+                    config = config || {};
+                    var root = this.root, method = [root], data = {}, meta,
+                        fields = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version'],
+                        api_fields = [
+                            'viewDefinitionId', 'aggregators', 'live',
+                            'provider', 'snapshotId', 'versionDateTime'
+                        ];
+                    meta = check({
+                        bundle: {method: root + '#put', config: config},
+                        required: [
+                            {all_of: ['viewdefinition']},
+                            {condition: config.live, all_of: ['provider']},
+                            {condition: !config.live, all_of: ['snapshot', 'version']}
+                        ]
+                    });
+                    meta.type = 'POST';
+                    fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    data['clientId'] = api.id;
+                    return request(method, {data: data, meta: meta});
+                },
                 del: not_available.partial('del')
             }
         };
