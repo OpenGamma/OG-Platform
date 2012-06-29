@@ -532,9 +532,9 @@ $.register_module({
                 put: function (config) {
                     config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
-                        fields = ['viewdefinition', 'aggregator', 'live', 'provider', 'snapshot', 'version'],
+                        fields = ['viewdefinition', 'aggregators', 'live', 'provider', 'snapshot', 'version'],
                         api_fields = [
-                            'viewDefinitionId', 'aggregator', 'marketDataType',
+                            'viewDefinitionId', 'aggregators', 'live',
                             'provider', 'snapshotId', 'versionDateTime'
                         ];
                     meta = check({
@@ -547,8 +547,7 @@ $.register_module({
                     });
                     meta.type = 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
-                    data['aggregator'] = data['aggregator'] || null;
-                    data['marketDataType'] = data['marketDataType'] ? 'live' : 'snapshot';
+                    data['clientId'] = api.id;
                     return request(method, {data: data, meta: meta});
                 },
                 del: not_available.partial('del')
