@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface;
@@ -35,12 +35,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedVolatilitySurfaceFunction.class);
@@ -50,12 +51,12 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-    final String leftXExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    final String rightXExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final String xInterpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
-    final String leftYExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
-    final String rightYExtrapolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
-    final String yInterpolatorName = desiredValue.getConstraint(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    final String leftXExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightXExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final String xInterpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftYExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    final String rightYExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    final String yInterpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
     final ValueRequirement volatilityDataRequirement = getVolatilityDataRequirement(target, surfaceName, instrumentType);
     final Object volatilityDataObject = inputs.getValue(volatilityDataRequirement);
     if (volatilityDataObject == null) {
@@ -101,13 +102,18 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+    final UniqueId uid = target.getUniqueId();
+    if (uid == null) {
+      return false;
+    }
+    if (target.getUniqueId() == null) {
+      s_logger.error("Target unique id was null, {}", target);
       return false;
     }
     final String scheme = target.getUniqueId().getScheme();
-    return (scheme.equals(Currency.OBJECT_SCHEME) 
-         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
-         || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    return (scheme.equals(Currency.OBJECT_SCHEME)
+        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+        || scheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
   }
 
   @Override
@@ -129,27 +135,27 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
       s_logger.error("Could not get instrument type from constraints {}", constraints);
       return null;
     }
-    final Set<String> leftXExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final Set<String> leftXExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     if (leftXExtrapolatorNames == null || leftXExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> rightXExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    final Set<String> rightXExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightXExtrapolatorNames == null || rightXExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> xInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME);
+    final Set<String> xInterpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     if (xInterpolatorNames == null || xInterpolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> leftYExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    final Set<String> leftYExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
     if (leftYExtrapolatorNames == null || leftYExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> rightYExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    final Set<String> rightYExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
     if (rightYExtrapolatorNames == null || rightYExtrapolatorNames.size() != 1) {
       return null;
     }
-    final Set<String> yInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
+    final Set<String> yInterpolatorNames = constraints.getValues(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
     if (yInterpolatorNames == null || yInterpolatorNames.size() != 1) {
       return null;
     }
@@ -165,20 +171,20 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
 
   private ValueProperties getResultProperties() {
     final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.SURFACE).withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-        .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME).withAny(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME)
-        .with(ValuePropertyNames.CALCULATION_METHOD, InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME).get();
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME).withAny(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME).withAny(InterpolatedDataProperties.Y_INTERPOLATOR_NAME)
+        .with(ValuePropertyNames.CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
     return properties;
   }
 
   private ValueProperties getResultProperties(final String surfaceName, final String instrumentType, final String leftXExtrapolatorName, final String rightXExtrapolatorName,
       final String xInterpolatorName, final String leftYExtrapolatorName, final String rightYExtrapolatorName, final String yInterpolatorName) {
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.SURFACE, surfaceName).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-        .with(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME, leftXExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightXExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.X_INTERPOLATOR_NAME, xInterpolatorName).with(InterpolatedCurveAndSurfaceProperties.LEFT_Y_EXTRAPOLATOR_NAME, leftYExtrapolatorName)
-        .with(InterpolatedCurveAndSurfaceProperties.RIGHT_Y_EXTRAPOLATOR_NAME, rightYExtrapolatorName).with(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME, yInterpolatorName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME).get();
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftXExtrapolatorName).with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightXExtrapolatorName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, xInterpolatorName).with(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME, leftYExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME, rightYExtrapolatorName).with(InterpolatedDataProperties.Y_INTERPOLATOR_NAME, yInterpolatorName)
+        .with(ValuePropertyNames.CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
     return properties;
   }
 }

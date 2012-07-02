@@ -28,6 +28,10 @@ public final class ComponentInfoAttributes {
    * The attribute name for the JMS change manager topic.
    */
   public static final String JMS_CHANGE_MANAGER_TOPIC = "jmsChangeManagerTopic";
+  /**
+   * The attribute name for the time-out where heartbeating is required.
+   */
+  public static final String TIMEOUT = "timeout";
 
   /**
    * Restricted constructor.

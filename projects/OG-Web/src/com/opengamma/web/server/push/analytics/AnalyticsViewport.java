@@ -5,40 +5,38 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO turn this into an interface? there's hardly anything left
+ * TODO does there even need to be an interface?
  */
-/* package */ class AnalyticsViewport {
+/* package */ abstract class AnalyticsViewport {
 
-  private final String _id;
+  protected final AnalyticsGridStructure _gridStructure;
+  private final String _dataId;
 
-  private AnalyticsViewport(String id) {
-    _id = id;
+  protected ViewportSpecification _viewportSpec;
+  protected ViewportResults _latestResults;
+
+  /* package */ AnalyticsViewport(AnalyticsGridStructure gridStructure,
+                                  ViewportSpecification viewportSpec,
+                                  AnalyticsHistory history,
+                                  String dataId) {
+    ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(viewportSpec, "viewportSpec");
+    ArgumentChecker.notNull(history, "history");
+    ArgumentChecker.notNull(dataId, "dataId");
+    _gridStructure = gridStructure;
+    _dataId = dataId;
   }
 
-  /**
-   * @return An empty viewport with no rows or columns
-   */
-  /* package */ static AnalyticsViewport empty() {
-    // TODO implement AnalyticsViewport.empty()
-    throw new UnsupportedOperationException("empty not implemented");
+
+  /* package */ ViewportResults getData() {
+    return _latestResults;
   }
 
-  /* package */ AnalyticsViewport updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history) {
-    // TODO implement AnalyticsViewport.updateResults()
-    throw new UnsupportedOperationException("updateResults not implemented");
-  }
-
-  /* package */ static AnalyticsViewport create(ViewportRequest request,
-                                                AnalyticsHistory history,
-                                                ViewComputationResultModel results) {
-    // TODO implement AnalyticsViewport.create()
-    throw new UnsupportedOperationException("create not implemented");
-  }
-
-  /* package */ String getId() {
-    return _id;
+  public String getDataId() {
+    return _dataId;
   }
 }

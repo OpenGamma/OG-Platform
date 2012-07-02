@@ -6,8 +6,8 @@
 
 package com.opengamma.language.connector;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Pass through adapter to allow filtering of all {@link UserMessagePayload} messages.

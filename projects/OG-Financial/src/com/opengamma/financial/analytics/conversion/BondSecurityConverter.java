@@ -9,7 +9,6 @@ import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -25,27 +24,30 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.bond.BondSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefinition<?>> {
+public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
 
   public BondSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
-    Validate.notNull(holidaySource, "holiday source");
-    Validate.notNull(conventionSource, "convention source");
-    Validate.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
     _regionSource = regionSource;
@@ -54,20 +56,30 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
   @Override
   public InstrumentDefinition<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
-    Validate.notNull(domicile, "bond security domicile cannot be null");
-    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_CORPORATE_BOND_CONVENTION"));
-    return visitBondSecurity(security, convention);
+    ArgumentChecker.notNull(domicile, "bond security domicile cannot be null");
+    final String conventionName = domicile + "_CORPORATE_BOND_CONVENTION";
+    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("No corporate bond convention found for domicile " + domicile);
+    }
+    return visitBondSecurity(security, convention, conventionName);
   }
 
   @Override
   public InstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     final String domicile = security.getIssuerDomicile();
-    Validate.notNull(domicile, "bond security domicile cannot be null");
-    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, domicile + "_TREASURY_BOND_CONVENTION"));
-    return visitBondSecurity(security, convention);
+    if (domicile == null) {
+      throw new OpenGammaRuntimeException("bond security domicile cannot be null");
+    }
+    final String conventionName = domicile + "_TREASURY_BOND_CONVENTION";
+    final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
+    }
+    return visitBondSecurity(security, convention, conventionName);
   }
 
-  public InstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention) {
+  public InstrumentDefinition<?> visitBondSecurity(final BondSecurity security, final ConventionBundle convention, final String conventionName) {
     final ExternalId regionId = ExternalSchemes.financialRegionId(security.getIssuerDomicile());
     if (regionId == null) {
       throw new OpenGammaRuntimeException("Could not find region for " + security.getIssuerDomicile());
@@ -78,12 +90,19 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
     final ZonedDateTime maturityDate = security.getLastTradeDate().getExpiry();
     final double rate = security.getCouponRate() / 100;
     final DayCount dayCount = security.getDayCount();
-    final boolean isEOM = convention.isEOMConvention();
-    final int settlementDays = convention.getSettlementDays();
+    if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+      throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
+    }
+    final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
     final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    if (convention.isEOMConvention() == null) {
+      throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
+    }
+    final boolean isEOM = convention.isEOMConvention();
     final YieldConvention yieldConvention = security.getYieldConvention();
     final Period paymentPeriod = getTenor(security.getCouponFrequency());
-    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay, yieldConvention, isEOM);
+    return BondFixedSecurityDefinition.from(currency, maturityDate, firstAccrualDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
+        yieldConvention, isEOM);
   }
 
   @Override
@@ -92,19 +111,11 @@ public class BondSecurityConverter implements BondSecurityVisitor<InstrumentDefi
   }
 
   private Period getTenor(final Frequency freq) {
-    Period tenor;
-    if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(12);
-    } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(6);
-    } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(3);
-    } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(1);
-    } else {
-      throw new OpenGammaRuntimeException(
-          "Can only handle annual, semi-annual, quarterly and monthly frequencies for floating swap legs");
+    if (freq instanceof PeriodFrequency) {
+      return ((PeriodFrequency) freq).getPeriod();
+    } else if (freq instanceof SimpleFrequency) {
+      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
     }
-    return tenor;
+    throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
   }
 }

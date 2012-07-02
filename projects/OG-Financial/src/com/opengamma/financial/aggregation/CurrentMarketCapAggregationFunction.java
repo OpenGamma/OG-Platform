@@ -5,12 +5,7 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.time.calendar.LocalDate;
 
@@ -19,11 +14,10 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquitySecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.CompareUtils;
@@ -40,19 +34,19 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   private static final String FIELD = "CUR_MKT_CAP";
   private static final String RESOLUTION_KEY = "DEFAULT_TSS_CONFIG";
   private static final String NO_CUR_MKT_CAP = "N/A";
-  
+
   private static final double NANO_CAP_UPPER_THRESHOLD = 10;
   private static final double MICRO_CAP_UPPER_THRESHOLD = 100;
   private static final double SMALL_CAP_UPPER_THRESHOLD = 1000;
   private static final double MID_CAP_UPPER_THRESHOLD = 10E3;
   //private static final double LARGE_CAP_UPPER_THRESHOLD = 100E3;
-  
+
   private static final String NANO_CAP = "Nano Cap";
   private static final String MICRO_CAP = "Micro Cap";
   private static final String SMALL_CAP = "Small Cap";
   private static final String MID_CAP = "Mid Cap";
   private static final String LARGE_CAP = "Large Cap";
-  
+
   private static final List<String> REQUIRED = Arrays.asList(LARGE_CAP, MID_CAP, SMALL_CAP, MICRO_CAP, NANO_CAP, NO_CUR_MKT_CAP);
 
   private HistoricalTimeSeriesSource _htsSource;
@@ -66,26 +60,26 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
     _useAttributes = useAttributes;
   }
 
-  
+
   public CurrentMarketCapAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
     this(secSource, htsSource, false);
   }
-  
-  private EquitySecurityVisitor<Double> _equitySecurityVisitor = new EquitySecurityVisitor<Double>() {
+
+  private FinancialSecurityVisitor<Double> _equitySecurityVisitor = new FinancialSecurityVisitorAdapter<Double>() {
     @Override
     public Double visitEquitySecurity(EquitySecurity security) {
       return getCurrentMarketCap(security);
     }
   };
-  
-  private EquityOptionSecurityVisitor<Double> _equityOptionSecurityVisitor = new EquityOptionSecurityVisitor<Double>() {
+
+  private FinancialSecurityVisitor<Double> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<Double>() {
     @Override
     public Double visitEquityOptionSecurity(EquityOptionSecurity security) {
       EquitySecurity underlying = (EquitySecurity) _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
       return getCurrentMarketCap(underlying);
-    }    
+    }
   };
-  
+
   protected Double getCurrentMarketCap(Security security) {
     try {
       if (_caching && security.getUniqueId() != null) {
@@ -106,7 +100,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       return null;
     }
   }
-  
+
   private String getCurrentMarketCapCategory(Double currentMarketCap) {
     if (currentMarketCap != null) {
       if (currentMarketCap < NANO_CAP_UPPER_THRESHOLD) {
@@ -124,7 +118,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
       return NO_CUR_MKT_CAP;
     }
   }
-  
+
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -135,13 +129,13 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
         return NO_CUR_MKT_CAP;
       }
     } else {
-      FinancialSecurityVisitorAdapter<Double> visitorAdapter = FinancialSecurityVisitorAdapter.<Double>builder()
-                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
-                                                                                              .equityOptionVisitor(_equityOptionSecurityVisitor)
-                                                                                              .create();
+      FinancialSecurityVisitor<Double> visitorAdapter = FinancialSecurityVisitorAdapter.<Double>builder()
+        .equitySecurityVisitor(_equitySecurityVisitor)
+        .equityOptionVisitor(_equityOptionSecurityVisitor)
+        .create();
       FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
       Double currMarketCap = security.accept(visitorAdapter);
-      String classification = getCurrentMarketCapCategory(currMarketCap); 
+      String classification = getCurrentMarketCapCategory(currMarketCap);
       return classification == null ? NO_CUR_MKT_CAP : classification;
     }
   }
@@ -160,14 +154,14 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   public int compare(String marketCapBucket1, String marketCapBucket2) {
     return CompareUtils.compareByList(REQUIRED, marketCapBucket1, marketCapBucket2);
   }
-  
+
   private class PositionComparator implements Comparator<Position> {
     @Override
     public int compare(Position position1, Position position2) {
-      FinancialSecurityVisitorAdapter<Double> visitorAdapter = FinancialSecurityVisitorAdapter.<Double>builder()
-          .equitySecurityVisitor(_equitySecurityVisitor)
-          .equityOptionVisitor(_equityOptionSecurityVisitor)
-          .create();
+      FinancialSecurityVisitor<Double> visitorAdapter = FinancialSecurityVisitorAdapter.<Double>builder()
+        .equitySecurityVisitor(_equitySecurityVisitor)
+        .equityOptionVisitor(_equityOptionSecurityVisitor)
+        .create();
       FinancialSecurity security1 = (FinancialSecurity) position1.getSecurityLink().resolve(_secSource);
       FinancialSecurity security2 = (FinancialSecurity) position2.getSecurityLink().resolve(_secSource);
       Double currMktCap1 = security1.accept(visitorAdapter);
@@ -181,5 +175,5 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
   public Comparator<Position> getPositionComparator() {
     return new PositionComparator();
   }
-  
+
 }

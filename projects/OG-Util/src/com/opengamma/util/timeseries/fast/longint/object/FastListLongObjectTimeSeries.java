@@ -88,7 +88,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
   }
 
   public FastListLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastIntObjectTimeSeries<T> dts) {
-    super(dts.getEncoding());
+    super(encoding);
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();

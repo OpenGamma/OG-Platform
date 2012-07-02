@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.analytics;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
 /**
@@ -13,65 +14,51 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 public interface AnalyticsView {
 
-  void close();
+  public enum GridType {
+    PORTFORLIO,
+    PRIMITIVES
+  }
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
   void updateResults(ViewComputationResultModel fullResult);
 
-  // -------- portfolio grid --------
+  void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle);
 
-  AnalyticsGridStructure getPortfolioGridStructure();
+  boolean isViewCycleRequired();
 
-  String createPortfolioViewport(ViewportRequest request);
+// -------- main grid --------
 
-  void updatePortfolioViewport(String viewportId, ViewportRequest request);
+  AnalyticsGridStructure getGridStructure(GridType gridType);
 
-  void deletePortfolioViewport(String viewportId);
+  void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
-  AnalyticsResults getPortfolioData(String viewportId);
+  void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec);
 
-  // -------- portfolio dependency graph grids --------
+  void deleteViewport(GridType gridType, String viewportId);
 
-  String openPortfolioDependencyGraph(int row, int col);
+  ViewportResults getData(GridType gridType, String viewportId);
 
-  void closePortfolioDependencyGraph(String dependencyGraphId);
+  // -------- dependency graph grids --------
 
-  AnalyticsGridStructure getPortfolioGridStructure(String dependencyGraphId);
+  // TODO specifying by row and col is a problem for two reasons
+  // 1) if the structure changes we don't know if the cell has moved and where to
+  // 2) there's a race condition if the structure changes as the client requests a depgraph - they might not get what they want
+  // would be better to specify the row and col in a way that persists across recompilation of the view def
+  // i.e. specify the target spec
+  // for now send a version ID to the client so it can tell the data is stale? or have the client supply the ID of the
+  // structure and perform that logic on the server?
+  void openDependencyGraph(GridType gridType, String graphId, String gridId, int row, int col);
 
-  String createPortfolioViewport(String dependencyGraphId, ViewportRequest request);
+  void closeDependencyGraph(GridType gridType, String graphId);
 
-  void updatePortfolioViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
+  AnalyticsGridStructure getGridStructure(GridType gridType, String graphId);
 
-  void deletePortfolioViewport(String dependencyGraphId, String viewportId);
+  void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
-  AnalyticsResults getPortfolioData(String dependencyGraphId, String viewportId);
+  void updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec);
 
-  // -------- primitives grid --------
+  void deleteViewport(GridType gridType, String graphId, String viewportId);
 
-  AnalyticsGridStructure getPrimitivesGridStructure();
-
-  String createPrimitivesViewport(ViewportRequest request);
-
-  void updatePrimitivesViewport(String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String viewportId);
-
-  AnalyticsResults getPrimitivesData(String viewportId);
-
-  // -------- primitives dependency graph grids --------
-
-  AnalyticsGridStructure getPrimitivesGridStructure(String dependencyGraphId);
-
-  String openPrimitivesDependencyGraph(int row, int col);
-
-  void closePrimitivesDependencyGraph(String dependencyGraphId);
-
-  String createPrimitivesViewport(String dependencyGraphId, ViewportRequest request);
-
-  void updatePrimitivesViewport(String dependencyGraphId, String viewportId, ViewportRequest request);
-
-  void deletePrimitivesViewport(String dependencyGraphId, String viewportId);
-
-  AnalyticsResults getPrimitivesData(String dependencyGraphId, String viewportId);
+  ViewportResults getData(GridType gridType, String graphId, String viewportId);
 }

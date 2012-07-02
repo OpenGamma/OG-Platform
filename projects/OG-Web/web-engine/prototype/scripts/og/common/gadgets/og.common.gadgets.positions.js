@@ -1,6 +1,6 @@
 /*
- * @copyright 2011 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 $.register_module({
     name: 'og.common.gadgets.positions',
@@ -71,7 +71,7 @@ $.register_module({
                             return '<a href="' + url + '">' + $(this).text() + '</a>'
                         };
                         if (cur_page !==  'positions') $html.find('thead span').html(link);
-                    $(selector).html($html).hide().fadeIn();
+                    $(selector).html($html);
                     timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                     if (editable) common.util.ui.content_editable({
                         pre_dispatch: function (rest_options, handler) {

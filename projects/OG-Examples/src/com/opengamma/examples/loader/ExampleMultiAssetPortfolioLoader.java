@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -63,6 +64,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -70,6 +72,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Example code to load a multi asset portfolio.
  */
+@Scriptable
 public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   /**
@@ -125,14 +128,15 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     addPosition(portfolioNode, equityVarianceSwap, BigDecimal.ONE);
     
     EquityIndexDividendFutureSecurity dividendFuture = new EquityIndexDividendFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "HSBA"));
+        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "HSBA"), "STOCK FUTURE");
+
     dividendFuture.setName("HSBC Holdings SSDF Dec11");
     dividendFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
     storeFinancialSecurity(dividendFuture);
     addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
     
     EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "SPX"));
+        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "SPX"), "Equity Index");
     equityFuture.setName("S&P 500 FUTURE Dec12");
     equityFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "SPZ2"));
     storeFinancialSecurity(equityFuture);
@@ -199,9 +203,10 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
     
     final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
-        "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
+        "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), "Bond");
     bond4.setName("US LONG BOND(CBT) Mar12");
+
     bond4.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USH12"));
     storeFinancialSecurity(bond4);
     addPosition(portfolioNode, bond4, BigDecimal.valueOf(10));
@@ -220,9 +225,9 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     
     InterestRateFutureSecurity edu12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 20, 0), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
-    edu12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"));
+        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M, "Interest Rate");
     edu12.setName("90DAY EURO$ FUTR Sep12");
+    edu12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDU12"));
     storeFinancialSecurity(edu12);
     
     AmericanExerciseType exerciseType = new AmericanExerciseType();
@@ -234,9 +239,9 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     securities.add(optionSec1);
     
     InterestRateFutureSecurity edz12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 20, 0), TimeZone.UTC)), 
-        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
-    edz12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ12"));
+        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M, "Interest Rate");
     edz12.setName("90DAY EURO$ FUTR Dec12");
+    edz12.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ12"));
     storeFinancialSecurity(edz12);
     
     IRFutureOptionSecurity optionSec2 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 0, 0), TimeZone.UTC)), 
@@ -564,12 +569,13 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private Collection<FinancialSecurity> getSwaptions() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    final int year = LocalDate.now().getYear();
     
     final EuropeanExerciseType europeanExerciseType = new EuropeanExerciseType();
     final SwapSecurity swap1 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2022, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 11, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -589,16 +595,16 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap1.setName("Swap: pay 3m Libor vs 4% fixed, start=1/6/2012, maturity=1/6/2022, notional=USD 10MM");
     storeFinancialSecurity(swap1);
     final SwaptionSecurity swaption1 = new SwaptionSecurity(false, swap1.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
-        true, new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC)), 
+        true, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption1.setName("Vanilla swaption, 1Y x 10Y, USD 10,000,000 @ 4%");
     securities.add(swaption1);
     
     final SwapSecurity swap2 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2015, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 4, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -618,16 +624,16 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap2.setName("Swap: pay 3m Libor vs 1% fixed, start=1/6/2013, maturity=1/6/2015, notional=USD 3MM");
     storeFinancialSecurity(swap2);
     final SwaptionSecurity swaption2 = new SwaptionSecurity(false, swap2.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
-        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption2.setName("Vanilla swaption, 2Y x 2Y, USD 3,000,000 @ 1%");
     securities.add(swaption2);
 
     final SwapSecurity swap3 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC),
-        ZonedDateTime.of(LocalDateTime.of(2031, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(year + 20, 6, 1, 1, 0), TimeZone.UTC), 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
             ExternalSchemes.financialRegionId("US+GB"),
@@ -647,7 +653,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap3.setName("Swap: pay 3m Libor vs 3.5% fixed, start=1/6/2016, maturity=1/6/2031, notional=USD 6MM");
     storeFinancialSecurity(swap3);
     final SwaptionSecurity swaption3 = new SwaptionSecurity(false, swap3.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
-        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swaption3.setName("Vanilla swaption, 5Y x 15Y, USD 6,000,000 @ 3.5%");
@@ -675,25 +681,27 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     securities.add(sec2);
     return securities;
   }
-  
+
   private static Collection<FinancialSecurity> getSimpleFixedIncome() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
-    final FRASecurity fra = new FRASecurity(Currency.USD, 
-                                            ExternalSchemes.countryRegionId(Country.of("US")), 
-                                            ZonedDateTime.of(LocalDateTime.of(2012, 1, 14, 11, 0), TimeZone.UTC), 
-                                            ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC), 
-                                            0.01, 
-                                            15000000, 
-                                            USDLIBOR3M, 
-                                            ZonedDateTime.of(LocalDateTime.of(2011, 1, 14, 11, 0), TimeZone.UTC));
+    final FRASecurity fra = new FRASecurity(Currency.USD,
+      ExternalSchemes.countryRegionId(Country.of("US")),
+      ZonedDateTime.of(LocalDateTime.of(2012, 1, 14, 11, 0), TimeZone.UTC),
+      ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC),
+      0.01,
+      15000000,
+      USDLIBOR3M,
+      ZonedDateTime.of(LocalDateTime.of(2011, 1, 14, 11, 0), TimeZone.UTC));
     fra.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     fra.setName("FRA: pay 1% vs 3m Libor, start=1/14/2012, maturity=4/14/2012, notional=USD 15MM");
-    final InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), 
-                                                                               "CME", 
-                                                                               "CME", 
-                                                                               Currency.USD, 
-                                                                               1000, 
-                                                                               USDLIBOR3M);
+    final InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)),
+      "CME",
+      "CME",
+      Currency.USD,
+      1000,
+      USDLIBOR3M,      
+      "Interest Rate");
+    irFuture.setName("90DAY EURO$ FUTR Jun13");
     irFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ13"));
     irFuture.setName("90DAY EURO$ FUTR Jun13");
     securities.add(fra);

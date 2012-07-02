@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.CoupledPDEDataBundleProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 
 public class CoupledFokkerPlankExample {
-  public static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
+  public static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
   public static final BoundaryCondition LOWER;
   public static final BoundaryCondition UPPER;
 

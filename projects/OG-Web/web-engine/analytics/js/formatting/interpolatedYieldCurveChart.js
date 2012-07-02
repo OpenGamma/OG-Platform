@@ -29,16 +29,16 @@
           shadowSize: 0
         },
         xaxis: {
-          min: 0,
-          /*
+	  /*
+	  min: 1,
           axisLabel: 'Time (years)',
           axisLabelFontSizePixels: 11,
           axisLabelUseCanvas: true
           */
         },
         yaxis: {
-          min: 0,
-          /*
+	  /*
+	  min: 1,
           axisLabel: 'Yield',
           axisLabelFontSizePixels: 11,
           axisLabelUseCanvas: true

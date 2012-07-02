@@ -103,7 +103,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
     RemoteReferenceDataProviderFactoryBean factory = new RemoteReferenceDataProviderFactoryBean();
     factory.setJmsConnector(getJmsConnector());
-    factory.setRequestTopic(_referenceDataJmsTopic);
+    factory.setRequestTopic(getReferenceDataJmsTopic());
     factory.setFudgeContext(getFudgeContext());
     
     ReferenceDataProvider refData = factory.getObjectCreating();

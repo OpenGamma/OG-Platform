@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Function to compute the implied volatility for physical delivery swaptions in the Black model.
+ * 
  */
 public class SwaptionBlackImpliedVolatilityFunction extends SwaptionBlackFunction {
 

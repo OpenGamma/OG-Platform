@@ -11,5 +11,5 @@ package com.opengamma.analytics.financial.var;
  */
 public interface VaRCalculator<S, T> {
 
-  Double evaluate(final S parameters, final T... data);
+  VaRCalculationResult evaluate(final S parameters, final T... data);
 }

@@ -141,7 +141,9 @@ public class BondLoader extends SecurityLoader {
       "SN",
       "Agncy ABS Other",
       "US GOVERNMENT",
-      "UK GILT STOCK");
+      "UK GILT STOCK",
+      "CANADIAN",
+      "DOMESTIC");
 
   /**
    * Creates an instance.

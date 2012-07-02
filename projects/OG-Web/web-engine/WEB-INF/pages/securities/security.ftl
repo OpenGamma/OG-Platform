@@ -85,6 +85,8 @@
         <@rowout label="Redemption value">${security.currency}</@rowout>
         
         <#if futureSecurityType == "BondFuture">
+            <@rowout label="First delivery date">${security.firstDeliveryDate}</@rowout>
+            <@rowout label="Last delivery date">${security.lastDeliveryDate}</@rowout>
             <@rowout label="Underlying Bond"></@rowout>
             <#list basket?keys as key>
               <@rowout label="">${key} - ${basket[key]}</@rowout>

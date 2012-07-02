@@ -22,25 +22,49 @@ import org.slf4j.LoggerFactory;
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolutionCacheCleanup.class);
   private static final Runtime s_runtime = Runtime.getRuntime();
+  /**
+   * Run cleanup whenever the free memory is below this threshold. For example 0.3 gives 300Mb on a 1Gb VM.
+   */
   private static final double THRESHOLD = 0.3;
+  /**
+   * Only run cleanup whenever the free memory is below this threshold, regardless of the % of total memory this is. For example never run if 1Gb or more is free.
+   */
+  private static final long MAX_FREE = 1024L * 1024L * 1024L;
+  /**
+   * Always run cleanup whenever the free memory is below this threshold, regardless of the % of total memory this is. For example always run if under 150Mb is free.
+   */
+  private static final long MIN_FREE = 150L * 1024L * 1024L;
 
   private ResolutionCacheCleanup() {
   }
 
-  @Override
-  public boolean tick(final DependencyGraphBuilder builder, final Void data) {
+  private boolean isLowMemory() {
+    final long free = s_runtime.freeMemory();
+    if (free >= MAX_FREE) {
+      return false;
+    }
+    if (free < MIN_FREE) {
+      return true;
+    }
     final double fractionFree = (double) s_runtime.freeMemory() / (double) s_runtime.totalMemory();
     if (s_logger.isInfoEnabled()) {
       s_logger.info("Free memory = {}", fractionFree);
     }
-    if (fractionFree < THRESHOLD) {
+    return fractionFree < THRESHOLD;
+  }
+
+  @Override
+  public boolean tick(final DependencyGraphBuilder builder, final Void data) {
+    if (isLowMemory()) {
       final int originalActive = builder.getActiveResolveTasks();
-      builder.flushCachedStates();
-      final int freedActive = originalActive - builder.getActiveResolveTasks();
-      if (s_logger.isInfoEnabled()) {
-        s_logger.info("Freed {} tasks for {}", freedActive, builder);
+      if (builder.flushCachedStates()) {
+        final int freedActive = originalActive - builder.getActiveResolveTasks();
+        if (s_logger.isInfoEnabled()) {
+          s_logger.info("Freed {} tasks for {}", freedActive, builder);
+        }
+      } else {
+        s_logger.warn("Low memory detected, but no intermediate state to flush");
       }
-      // TODO: monitor how successful the flush was -- don't want to hammer it too hard
     } else {
       builder.reportStateSize();
     }
@@ -55,8 +79,9 @@ import org.slf4j.LoggerFactory;
 
   @Override
   public boolean completed(final DependencyGraphBuilder builder, final Void data) {
-    // Ignore completion - might be an intermediate state
-    return true;
+    // Flush the cache and stop. If this is an intermediate state we'll be restarted. If the cache isn't empty, we'll run again
+    // and keep going until the cache is empty.
+    return builder.flushCachedStates();
   }
 
 }

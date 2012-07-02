@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -22,7 +22,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
  */
 public class LocalVolDensity {
 
-  public static ConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
+  public static ZZConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -80,7 +80,7 @@ public class LocalVolDensity {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), initialCondition);
+    return new ZZConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), initialCondition);
 
   }
 

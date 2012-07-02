@@ -45,7 +45,7 @@ public class DirichletBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double getConstant(final PDEDataBundle data, final double t) {
+  public double getConstant(final ConvectionDiffusionPDE1DStandardCoefficients data, final double t) {
     return _timeValue.evaluate(t);
   }
 
@@ -55,12 +55,12 @@ public class DirichletBoundaryCondition implements BoundaryCondition {
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
-    return new double[] {1.0};
+  public double[] getLeftMatrixCondition(ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, double t) {
+    return new double[] {1.0 };
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, PDEGrid1D grid, double t) {
+  public double[] getRightMatrixCondition(ConvectionDiffusionPDE1DStandardCoefficients data, PDEGrid1D grid, double t) {
     return new double[0];
   }
 

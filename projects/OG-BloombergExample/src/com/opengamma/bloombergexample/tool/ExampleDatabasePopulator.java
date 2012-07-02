@@ -41,6 +41,7 @@ import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -48,6 +49,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
+@Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
 
   /**

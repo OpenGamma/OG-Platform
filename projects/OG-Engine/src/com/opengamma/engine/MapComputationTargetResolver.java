@@ -8,6 +8,8 @@ package com.opengamma.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,6 +18,8 @@ import com.opengamma.util.ArgumentChecker;
  * This class is intended for use by a single thread.
  */
 public class MapComputationTargetResolver implements ComputationTargetResolver {
+
+  // TODO: move to com.opengamma.engine.target
 
   /**
    * The backing map.
@@ -38,7 +42,16 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
     _backingMap.put(target.toSpecification(), target);
   }
 
-  //-------------------------------------------------------------------------
+  @Override
+  public SecuritySource getSecuritySource() {
+    return null;
+  }
+
+  @Override
+  public PositionSource getPositionSource() {
+    return null;
+  }
+
   /**
    * Returns a string suitable for debugging.
    * 

@@ -5,111 +5,95 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
-import com.opengamma.core.position.impl.PortfolioNodeTraverser;
-import com.opengamma.core.position.impl.PositionAccumulator;
+import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Compiles dependency graphs for each stage in a portfolio tree.
  */
 /* package */class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCompilerTraversalCallback.class);
-  private final Set<ValueRequirement> _valueRequirements = new HashSet<ValueRequirement>();
+
   private final ViewCalculationConfiguration _calculationConfiguration;
   private final ResultModelDefinition _resultModelDefinition;
+  private final ConcurrentMap<UniqueId, Set<Pair<String, ValueProperties>>> _nodeRequirements = new ConcurrentHashMap<UniqueId, Set<Pair<String, ValueProperties>>>();
+  private final DependencyGraphBuilder _builder;
 
-  public PortfolioCompilerTraversalCallback(ViewCalculationConfiguration calculationConfiguration) {
+  public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder) {
     _calculationConfiguration = calculationConfiguration;
     _resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
+    _builder = builder;
   }
 
-  public Set<ValueRequirement> getAllValueRequirements() {
-    return _valueRequirements;
-  }
-
-  /**
-   * Gathers all security types. 
-   */
-  protected static class SubNodeSecurityTypeAccumulator extends AbstractPortfolioNodeTraversalCallback {
-
-    private final Set<String> _subNodeSecurityTypes = new TreeSet<String>();
-
-    /**
-     * @return the subNodeSecurityTypes
-     */
-    public Set<String> getSubNodeSecurityTypes() {
-      return _subNodeSecurityTypes;
-    }
-
-    @Override
-    public void preOrderOperation(Position position) {
-      _subNodeSecurityTypes.add(position.getSecurity().getSecurityType());
-    }
-
-  }
-
-  /**
-   * @param portfolioNode
-   * @return
-   */
-  private static Set<String> getSubNodeSecurityTypes(PortfolioNode portfolioNode) {
-    SubNodeSecurityTypeAccumulator accumulator = new SubNodeSecurityTypeAccumulator();
-    PortfolioNodeTraverser.depthFirst(accumulator).traverse(portfolioNode);
-    return accumulator.getSubNodeSecurityTypes();
+  protected void addValueRequirement(final ValueRequirement valueRequirement) {
+    _builder.addTarget(valueRequirement);
   }
 
   @Override
-  public void preOrderOperation(PortfolioNode portfolioNode) {
-    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(portfolioNode);
-    for (Position position : allPositions) {
-      for (Trade trade : position.getTrades()) {
-        if (trade.getSecurity() == null) {
-          s_logger.debug("found a trade with security not resolved {}", trade);
+  public void preOrderOperation(final PortfolioNode node) {
+    _nodeRequirements.put(node.getUniqueId(), new HashSet<Pair<String, ValueProperties>>());
+    final Set<Pair<String, ValueProperties>> requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
+    if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
+      final ComputationTargetSpecification nodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
+      for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+        addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
+      }
+    }
+  }
+
+  @Override
+  public void preOrderOperation(final Position position) {
+    final Security security = position.getSecurity();
+    if (security == null) {
+      return;
+    }
+    final String securityType = security.getSecurityType();
+    Set<Pair<String, ValueProperties>> requiredOutputs;
+    if ((_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE)
+        || (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE)) {
+      requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(securityType);
+      if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
+        if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
+          final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(position.getParentNodeId());
+          synchronized (nodeRequirements) {
+            nodeRequirements.addAll(requiredOutputs);
+          }
+        }
+        if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
+          final ComputationTargetSpecification positionSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
+          for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
+            addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), positionSpec, requiredOutput.getSecond()));
+          }
         }
       }
     }
-    addNodeRequirements(portfolioNode);
-    addPortfolioRequirements(portfolioNode);
-    addTradeRequirements(portfolioNode);
-  }
-
-  private void addTradeRequirements(PortfolioNode portfolioNode) {
-    final Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    final Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getTradeRequirementsBySecurityType();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (String secType : subNodeSecurityTypes) {
-      final Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
-      if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
-        continue;
-      }
-      // add requirements for trades as well
-      if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-        for (Position position : portfolioNode.getPositions()) {
-          requirements.clear();
-          for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-            _valueRequirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
-          }
-          // add requirements for trades as well
-          for (Trade trade : position.getTrades()) {
+    if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
+      final Collection<Trade> trades = position.getTrades();
+      if (!trades.isEmpty()) {
+        requiredOutputs = _calculationConfiguration.getTradeRequirementsBySecurityType().get(securityType);
+        if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
+          for (Trade trade : trades) {
+            final ComputationTargetSpecification tradeSpec = new ComputationTargetSpecification(ComputationTargetType.TRADE, trade.getUniqueId());
             for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-              _valueRequirements.add(new ValueRequirement(requiredOutput.getFirst(), trade, requiredOutput.getSecond()));
+              addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), tradeSpec, requiredOutput.getSecond()));
             }
           }
         }
@@ -117,36 +101,18 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private void addPortfolioRequirements(PortfolioNode portfolioNode) {
-    final Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-    final Map<String, Set<Pair<String, ValueProperties>>> outputsBySecurityType = _calculationConfiguration.getPortfolioRequirementsBySecurityType();
-    for (String secType : subNodeSecurityTypes) {
-      final Set<Pair<String, ValueProperties>> requiredOutputs = outputsBySecurityType.get(secType);
-      if ((requiredOutputs == null) || requiredOutputs.isEmpty()) {
-        continue;
-      }
-      // If the outputs are not even required in the results then there's no point adding them as terminal outputs
-      if (_resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE) {
-        for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-          _valueRequirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
-        }
-      }
-      if (_resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE) {
-        for (Position position : portfolioNode.getPositions()) {
-          for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-            _valueRequirements.add(new ValueRequirement(requiredOutput.getFirst(), position, requiredOutput.getSecond()));
-          }
-        }
+  @Override
+  public void postOrderOperation(final PortfolioNode node) {
+    final Set<Pair<String, ValueProperties>> nodeRequirements = _nodeRequirements.get(node.getUniqueId());
+    if (node.getParentNodeId() != null) {
+      final Set<Pair<String, ValueProperties>> parentNodeRequirements = _nodeRequirements.get(node.getParentNodeId());
+      synchronized (parentNodeRequirements) {
+        parentNodeRequirements.addAll(nodeRequirements);
       }
     }
-  }
-  
-  private void addNodeRequirements(final PortfolioNode portfolioNode) {
-    final Set<Pair<String, ValueProperties>> requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(ViewCalculationConfiguration.SECURITY_TYPE_AGGREGATE_ONLY);
-    if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-      for (Pair<String, ValueProperties> requiredOutput : requiredOutputs) {
-        _valueRequirements.add(new ValueRequirement(requiredOutput.getFirst(), portfolioNode, requiredOutput.getSecond()));
-      }
+    final ComputationTargetSpecification nodeSpec = new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
+    for (Pair<String, ValueProperties> requiredOutput : nodeRequirements) {
+      addValueRequirement(new ValueRequirement(requiredOutput.getFirst(), nodeSpec, requiredOutput.getSecond()));
     }
   }
 

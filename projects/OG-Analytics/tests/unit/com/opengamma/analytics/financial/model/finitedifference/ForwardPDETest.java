@@ -9,26 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
-import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
@@ -42,9 +27,8 @@ import com.opengamma.analytics.math.surface.Surface;
  */
 public class ForwardPDETest {
 
-  private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
-  //private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
+  private static final PDE1DCoefficientsProvider PDE_DATA_PROVIDER = new PDE1DCoefficientsProvider();
+  private static final InitialConditionsProvider INITIAL_COND_PROVIDER = new InitialConditionsProvider();
 
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
@@ -52,11 +36,13 @@ public class ForwardPDETest {
   private static final double SPOT = 100;
   private static final double T = 5.0;
   private static final double RATE = 0.05;// TODO change back to 5%
-  private static final ForwardCurve FORWARD = new ForwardCurve(SPOT,RATE);
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final ForwardCurve FORWARD = new ForwardCurve(SPOT, RATE);
+
   private static final double ATM_VOL = 0.20;
   //private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 7, 1);
-  private static final ConvectionDiffusionPDEDataBundle DATA;
+  // private static final ZZConvectionDiffusionPDEDataBundle DATA;
+  private static final ConvectionDiffusionPDE1DCoefficients PDE;
+  private static final Function1D<Double, Double> INT_COND;
 
   @SuppressWarnings("unused")
   private static Surface<Double, Double, Double> ZERO_SURFACE;
@@ -70,7 +56,7 @@ public class ForwardPDETest {
       @Override
       public Double evaluate(final Double t) {
         if (ISCALL) {
-          return SPOT;
+          return 1.0;
         }
         return 0.0;
       }
@@ -79,37 +65,39 @@ public class ForwardPDETest {
     LOWER = new DirichletBoundaryCondition(strikeZeroPrice, 0.0);
 
     if (ISCALL) {
-      UPPER = new DirichletBoundaryCondition(0, 10.0 * SPOT * Math.exp(T * RATE));
+      UPPER = new DirichletBoundaryCondition(0, 10.0);
       // UPPER = new NeumannBoundaryCondition(0.0, 10.0 * SPOT * Math.exp(T * RATE), false);
     } else {
-      UPPER = new NeumannBoundaryCondition(1.0, 10.0 * SPOT * Math.exp(T * RATE), false);
+      UPPER = new NeumannBoundaryCondition(1.0, 10.0, false);
     }
-    DATA = PDE_DATA_PROVIDER.getForwardLocalVol(FORWARD, 1.0, ISCALL, new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(ATM_VOL)));
-
+    //  DATA = PDE_DATA_PROVIDER.getForwardLocalVol(FORWARD, 1.0, ISCALL, new AbsoluteLocalVolatilitySurface(ConstantDoublesSurface.from(ATM_VOL)));
+    PDE = PDE_DATA_PROVIDER.getForwardLocalVol(FORWARD, new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(ATM_VOL)));
+    INT_COND = INITIAL_COND_PROVIDER.getForwardCallPut(ISCALL);
   }
 
   @Test
   public void testBlackScholes() {
 
     final boolean print = false;
-    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.55, true);
     // ConvectionDiffusionPDESolver solver = new RichardsonExtrapolationFiniteDifference(base);
 
     final int tNodes = 51;
     final int xNodes = 101;
 
     final MeshingFunction timeMesh = new ExponentialMeshing(0, T, tNodes, 5.0);
-    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), SPOT, xNodes, 0.01);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), 1.0, xNodes, 0.01);
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), xNodes, 0.0);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA, grid, LOWER, UPPER);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INT_COND, LOWER, UPPER, grid);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
 
-    double t, k;
+    double t, x;
     double price;
     double impVol;
-    double lowerK, upperK;
+    double lowerX, upperX;
     final double tMin = 0.02;
 
     if (print) {
@@ -121,20 +109,17 @@ public class ForwardPDETest {
 
     for (int j = 0; j < tNodes; j++) {
       t = res.getTimeValue(j);
-      final double df = YIELD_CURVE.getDiscountFactor(t);
-      final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, 0.0);
-      lowerK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t - ATM_VOL * Math.sqrt(t) * 3);
-      upperK = SPOT * Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t + ATM_VOL * Math.sqrt(t) * 3);
+      lowerX = Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t - ATM_VOL * Math.sqrt(t) * 3);
+      upperX = Math.exp((RATE - ATM_VOL * ATM_VOL / 2) * t + ATM_VOL * Math.sqrt(t) * 3);
       if (print) {
         System.out.print(t);
       }
       for (int i = 0; i < xNodes; i++) {
-        k = res.getSpaceValue(i);
+        x = res.getSpaceValue(i);
         price = res.getFunctionValue(i, j);
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, ISCALL);
-        if (k > lowerK && k < upperK && t > tMin) {
+        if (x > lowerX && x < upperX && t > tMin) {
           try {
-            impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+            impVol = BlackFormulaRepository.impliedVolatility(price, 1.0, x, t, ISCALL);
           } catch (final Exception e) {
             impVol = 0.0;
           }
@@ -144,7 +129,7 @@ public class ForwardPDETest {
           }
         } else {
           if (print) {
-            System.out.print("\t" + ATM_VOL);
+            System.out.print("\t" + "");
           }
         }
 

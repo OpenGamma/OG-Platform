@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.StaticDefaultPropertyFunction;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -30,9 +31,7 @@ import com.opengamma.util.money.Currency;
  */
 public class DefaultYieldCurveMarketDataShiftFunction extends StaticDefaultPropertyFunction {
 
-  /**
-   * Property to shift all yield curve market data.
-   */
+  /** Property to shift all yield curve market data. */
   protected static final String YIELD_CURVE_MARKET_DATA_SHIFT = "YIELD_CURVE_MARKET_DATA_" + YieldCurveShiftFunction.SHIFT;
 
   public DefaultYieldCurveMarketDataShiftFunction() {
@@ -41,7 +40,8 @@ public class DefaultYieldCurveMarketDataShiftFunction extends StaticDefaultPrope
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    final UniqueId uid = target.getUniqueId();
+    return (uid != null) && Currency.OBJECT_SCHEME.equals(uid.getScheme());
   }
 
   @Override

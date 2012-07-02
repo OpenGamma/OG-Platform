@@ -16,12 +16,12 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.generator.USD1YFEDFUND;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
@@ -287,13 +287,13 @@ public class CouponOISDiscountingMethodTest {
   private static final double EUR_FIXED_RATE = 0.01;
   private static final boolean IS_PAYER = true;
   private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
-  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
+  private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3M = EONIA_SWAP_3M_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
   //Swap EONIA 3Y
   private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
   private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
-  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS,
+  private static final SwapFixedONSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS,
       EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_DAY_COUNT, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3Y = EONIA_SWAP_3Y_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
 
@@ -323,10 +323,10 @@ public class CouponOISDiscountingMethodTest {
 
   // Swap Fed Fund 6M (the fixing take place at the end of the period; in some cases a negative time discount factor is required).
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorOIS OIS_USD_GENERATOR = new USD1YFEDFUND(NYC);
+  private static final GeneratorFixedON OIS_USD_GENERATOR = new USD1YFEDFUND(NYC);
   private static final double USD_FIXED_RATE = 0.0050;
   private static final Period TENOR_6M = Period.ofMonths(6);
-  private static final SwapFixedOISDefinition OIS_DEFINITION = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+  private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
   private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVES_NAMES_2 = TestsDataSetsSABR.curves2Names();
 
@@ -385,7 +385,7 @@ public class CouponOISDiscountingMethodTest {
 
     final ZonedDateTime referenceDate = TRADE_DATE;
     final Period tenor = Period.ofYears(50);
-    SwapFixedOISDefinition oidUsd5YDefinition;
+    SwapFixedONDefinition oidUsd5YDefinition;
     Swap<? extends Payment, ? extends Payment> ois;
 
     final double[] pv = new double[nbTest];
@@ -394,7 +394,7 @@ public class CouponOISDiscountingMethodTest {
     double totalValue = 0.0;
 
     startTime = System.currentTimeMillis();
-    oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+    oidUsd5YDefinition = SwapFixedONDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
     ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
     endTime = System.currentTimeMillis();
     System.out.println("OIS swap " + tenor + " (construction): " + (endTime - startTime) + " ms");
@@ -419,7 +419,7 @@ public class CouponOISDiscountingMethodTest {
       totalValue += pv[looptest];
     }
     startTime = System.currentTimeMillis();
-    oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+    oidUsd5YDefinition = SwapFixedONDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
     ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
     endTime = System.currentTimeMillis();
     System.out.println("OIS swap " + tenor + " (construction): " + (endTime - startTime) + " ms");

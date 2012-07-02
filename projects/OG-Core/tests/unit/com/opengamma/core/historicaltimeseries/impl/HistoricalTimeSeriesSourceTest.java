@@ -265,6 +265,10 @@ public class HistoricalTimeSeriesSourceTest {
                                                        startDate, includeStart, endDate, includeEnd, maxPoints);      
         assertEquals(inMemSeries, cachedSeries);        
       }
+      
+      // Test getting id bundle
+      HistoricalTimeSeries historicalTimeSeries = cachedProvider.getHistoricalTimeSeries(ids, dataSource, dataProvider, field);
+      assertEquals(ids, cachedProvider.getExternalIdBundle(historicalTimeSeries.getUniqueId()));
     }
   }
 }

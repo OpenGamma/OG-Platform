@@ -77,7 +77,7 @@ public class HistoricalTimeSeriesMasterUtils {
   
   /**
    * Updates an existing time-series in the master.
-   * @param uid  the unique identifier of the time-series to be updated, not null
+   * @param uniqueId  the unique identifier of the time-series to be updated, not null
    * @param timeSeries  the time-series, not null
    * @return the unique identifier of the time-series
    */

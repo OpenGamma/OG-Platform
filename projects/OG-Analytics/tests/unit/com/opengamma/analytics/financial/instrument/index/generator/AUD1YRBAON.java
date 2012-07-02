@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.indexon.EONIA;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * OIS generator for AUD annual payments with RBA rates.
  */
-public class AUD1YRBAON extends GeneratorOIS {
+public class AUD1YRBAON extends GeneratorFixedON {
 
   /**
    * Constructor of the OIS generator AUD annual payment for RBA ON rates.

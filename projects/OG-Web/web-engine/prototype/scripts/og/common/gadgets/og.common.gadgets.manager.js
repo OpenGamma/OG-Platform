@@ -1,15 +1,13 @@
 /*
- * @copyright 2012 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 $.register_module({
     name: 'og.common.gadgets.manager',
     dependencies: [],
     obj: function () {
-        var manager, collector, gadgets = [], interval = 5 * 60 * 1000, layout, first = true,
-            resize = function () {
-                return layout && first ? first = false : manager.clean().forEach(function (gadget) {gadget.resize();});
-            };
+        var manager, collector, gadgets = [], interval = 5 * 60 * 1000, layout,
+            resize = function () {return layout && manager.clean().forEach(function (gadget) {gadget.resize();});};
         setTimeout((collector = function () {return manager.clean(), setTimeout(collector, interval);}), interval);
         $(function () {if (!(layout = !!og.views.common.layout)) $(window).on('resize', manager.resize);});
         return manager = {

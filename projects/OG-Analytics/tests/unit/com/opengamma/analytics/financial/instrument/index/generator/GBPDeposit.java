@@ -21,7 +21,7 @@ public class GBPDeposit extends GeneratorDeposit {
    * @param calendar A GBP calendar.
    */
   public GBPDeposit(final Calendar calendar) {
-    super(Currency.GBP, calendar, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
+    super("GBP Deposit", Currency.GBP, calendar, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true);
   }
 
 }

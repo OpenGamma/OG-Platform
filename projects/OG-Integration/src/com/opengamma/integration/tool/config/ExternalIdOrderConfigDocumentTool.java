@@ -7,11 +7,13 @@ package com.opengamma.integration.tool.config;
 
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master.
  * The pairs must be in the format AAA/BBB, one per line in the file.
  */
+@Scriptable
 public class ExternalIdOrderConfigDocumentTool extends AbstractIntegrationTool {
 
   private static final String DEFAULT_CONFIG_NAME = "DEFAULT";

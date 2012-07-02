@@ -5,6 +5,35 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static com.opengamma.util.functional.Functional.submapByKeySet;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.time.Duration;
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
@@ -27,55 +56,20 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
-import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
-import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.functional.Function1;
-import com.opengamma.util.functional.Function2;
 import com.opengamma.util.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.time.Duration;
-import javax.time.Instant;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import static com.opengamma.util.functional.Functional.flatMap;
-import static com.opengamma.util.functional.Functional.map;
-import static com.opengamma.util.functional.Functional.reduce;
-import static com.opengamma.util.functional.Functional.submapByKeySet;
-
 
 /**
  * Holds all data and actions for a single computation pass. The view cycle may be executed at most once.
  * <p>
- * The cycle is thread-safe for readers, for example obtaining the current state or the result, but is only designed
- * for a single executor.
+ * The cycle is thread-safe for readers, for example obtaining the current state or the result, but is only designed for a single executor.
  */
 public class SingleComputationCycle implements ViewCycle, EngineResource {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
@@ -87,7 +81,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
-  
+
   private final ComputationResultListener _cycleFragmentResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
@@ -103,7 +97,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
-
 
   public SingleComputationCycle(UniqueId cycleId, UniqueId viewProcessId,
       ComputationResultListener cycleFragmentResultListener, ViewProcessContext viewProcessContext,
@@ -122,9 +115,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
-    
-    _cycleFragmentResultListener = cycleFragmentResultListener;
 
+    _cycleFragmentResultListener = cycleFragmentResultListener;
 
     _executionOptions = executionOptions;
     _versionCorrection = versionCorrection;
@@ -134,7 +126,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _dependencyGraphExecutor = getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(this);
     _statisticsGatherer = getViewProcessContext().getGraphExecutorStatisticsGathererProvider().getStatisticsGatherer(getViewProcessId());
   }
-
 
   private InMemoryViewComputationResultModel constructTemplateResultModel() {
     InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
@@ -160,8 +151,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * Gets the start time
-   *
-   * @return the start time 
+   * 
+   * @return the start time
    */
   public Instant getStartTime() {
     return _startTime;
@@ -169,8 +160,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * Gets the end time.
-   *
-   * @return the end time 
+   * 
+   * @return the end time
    */
   public Instant getEndTime() {
     return _endTime;
@@ -276,14 +267,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   /**
    * Synchronously runs the cycle.
-   *
-   * @param previousCycle  the previous cycle from which a delta cycle should be performed, or null to perform
-   *                       a full cycle
-   * @param marketDataSnapshot  the market data snapshot with which to execute the cycle, not null
-   * @param calcJobResultExecutorService  the executor to use for streaming calculation job result consumption, not null
-   * @throws InterruptedException  if the thread is interrupted while waiting for the computation cycle to complete.
-   *                               Execution of any outstanding jobs will be cancelled, but {@link #release()}
-   *                               still must be called.
+   * 
+   * @param previousCycle the previous cycle from which a delta cycle should be performed, or null to perform a full cycle
+   * @param marketDataSnapshot the market data snapshot with which to execute the cycle, not null
+   * @param calcJobResultExecutorService the executor to use for streaming calculation job result consumption, not null
+   * @throws InterruptedException if the thread is interrupted while waiting for the computation cycle to complete. Execution of any outstanding jobs will be cancelled, but {@link #release()} still
+   *           must be called.
    */
   public void execute(SingleComputationCycle previousCycle, MarketDataSnapshot marketDataSnapshot, ExecutorService calcJobResultExecutorService) throws InterruptedException {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
@@ -299,7 +288,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       computeDelta(previousCycle);
     }
 
-    final BlockingQueue<CalculationJobResult> calcJobResultQueue = new LinkedBlockingQueue<CalculationJobResult>();
+    final BlockingQueue<ExecutionResult> calcJobResultQueue = new LinkedBlockingQueue<ExecutionResult>();
     CalculationJobResultStreamConsumer calculationJobResultStreamConsumer = new CalculationJobResultStreamConsumer(calcJobResultQueue, this);
     Future<?> resultStreamConsumerJobInProgress;
     try {
@@ -360,11 +349,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   /**
-   * Creates a map containing the "shift" operations to apply to market data or each
-   * calculation configuration. If there is no operation to apply, the map contains
-   * null for that configuration.
+   * Creates a map containing the "shift" operations to apply to market data or each calculation configuration. If there is no operation to apply, the map contains null for that configuration.
    * 
-   * @return the map of computation cache to shift operations 
+   * @return the map of computation cache to shift operations
    */
   private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
     final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
@@ -452,7 +439,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
-      if ((dataAsValue.getValue() instanceof MissingMarketDataSentinel) || (cacheMarketData.getValue() == null)) {
+      if ((dataAsValue.getValue() instanceof MissingInput) || (cacheMarketData.getValue() == null)) {
         cacheValue = dataAsValue;
       } else {
         final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
@@ -475,8 +462,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * <ul>
    * <li>Copy over all values that can be demonstrated to be the same from the previous iteration (because no input has changed)
    * <li>Only recompute the values that could have changed based on live data inputs
-   * </ul> 
-   *
+   * </ul>
+   * 
    * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
    */
   private void computeDelta(SingleComputationCycle previousCycle) {
@@ -494,7 +481,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       deltaCalculator.computeDelta();
 
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.",
-          new Object[]{calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize()});
+          new Object[] {calcConfigurationName, deltaCalculator.getChangedNodes().size(), depGraph.getSize() });
 
       Collection<ValueSpecification> specsToCopy = new HashSet<ValueSpecification>();
 
@@ -547,7 +534,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    
+
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
         continue;
@@ -559,79 +546,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationResultModel populateResultModel(CalculationJobResult calculationJobResult) {
-    InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
-    String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
-    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-
-    Map<ValueSpecification, Set<ValueRequirement>> specsToRequirementsMapping = depGraph.getTerminalOutputs();
-    
-    /*Map<ValueSpecification, Set<ValueRequirement>> mapping = depGraph.getTerminalOutputs();
-
-    final Map<ValueRequirement, ValueSpecification> reverseMapping = new HashMap<ValueRequirement, ValueSpecification>();
-    for (ValueSpecification specification : mapping.keySet()) {
-      Set<ValueRequirement> requirements = mapping.get(specification);
-      for (ValueRequirement requirement : requirements) {
-        reverseMapping.put(requirement, specification);
-      }
-    }*/
-
-
-
-    for (CalculationJobResultItem calculationJobResultItem : calculationJobResult.getResultItems()) {
-      
-      if (calculationJobResultItem.failed()) {
-        // build computed values denoting failure
-        for (ValueSpecification specification : calculationJobResultItem.getOutputs()) {                     
-          ComputedValue computedValue = new ComputedValue(specification, null);
-          computedValue.setInvocationResult(calculationJobResultItem.getResult());
-          computedValue.setMissingInputs(calculationJobResultItem.getMissingInputs());
-          computedValue.setExceptionClass(calculationJobResultItem.getExceptionClass());
-          computedValue.setExceptionMsg(calculationJobResultItem.getExceptionMsg());
-          computedValue.setStackTrace(calculationJobResultItem.getStackTrace());
-          computedValue.setRequirements(specsToRequirementsMapping.get(specification));
-          computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
-          resultModel.addValue(calcConfigurationName, computedValue);
-        }
-      } else {
-        // build computed values denoting success
-        Set<ValueSpecification> specifications = calculationJobResultItem.getOutputs();
-
-        // lookup computed values from cache by specifications, and build mapping from these specifications to actual values
-        Map<ValueSpecification, Object> valuesFromCacheBySpecification = reduce(new HashMap<ValueSpecification, Object>(),
-            computationCache.getValues(specifications, CacheSelectHint.allShared()),
-            new Function2<HashMap<ValueSpecification, Object>, Pair<ValueSpecification, Object>, HashMap<ValueSpecification, Object>>() {
-              @Override
-              public HashMap<ValueSpecification, Object> execute(HashMap<ValueSpecification, Object> acc, Pair<ValueSpecification, Object> value) {
-                acc.put(value.getKey(), value.getValue());
-                return acc;
-              }
-            });
-
-        // iterate trough all specifications of the calc job result item and build computed values
-        for (ValueSpecification specification : specifications) {
-          Object actualValue = valuesFromCacheBySpecification.get(specification);
-          if(actualValue == null){
-            throw new OpenGammaRuntimeException("Encountered cache miss for successful CalculationJobResultItem [spec: "+specification+"]");
-          } else {
-            ComputedValue computedValue = new ComputedValue(specification, actualValue);
-            computedValue.setInvocationResult(InvocationResult.SUCCESS);
-            computedValue.setRequirements(specsToRequirementsMapping.get(specification));
-            computedValue.setRequirements(specsToRequirementsMapping.get(specification));
-            computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
-            resultModel.addValue(calcConfigurationName, computedValue);
-          }
-        }
-
-      }
-    }
-
-    return resultModel;
-  }
-
-  //-------------------------------------------------------------------------
-  /*package*/void calculationJobsCompleted(List<CalculationJobResult> results) {
+  /*package*/void calculationJobsCompleted(List<ExecutionResult> results) {
     try {
       ViewComputationResultModel fragmentResult = generateCycleFragmentResult(results);
       if (fragmentResult != null) {
@@ -650,37 +565,39 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
   }
 
-  private ViewComputationResultModel generateCycleFragmentResult(List<CalculationJobResult> calculationJobResults) {
+  private ViewComputationResultModel generateCycleFragmentResult(List<ExecutionResult> calculationJobResults) {
     InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
-    for (CalculationJobResult calculationJobResult : calculationJobResults) {
-      String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
+    for (ExecutionResult calculationJobResult : calculationJobResults) {
+      String calcConfigurationName = calculationJobResult.getResult().getSpecification().getCalcConfigName();
       DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-
       ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-      for (CalculationJobResultItem calculationJobResultItem : calculationJobResult.getResultItems()) {
-        Set<ValueSpecification> specifications = calculationJobResultItem.getOutputs();
-      Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
-      resultModel.addRequirements(requirements);
-        //
-      for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
-        ValueSpecification valueSpec = value.getFirst();
-        Object calculatedValue = value.getSecond();
+      final Iterator<CalculationJobResultItem> itrResultItem = calculationJobResult.getResult().getResultItems().iterator();
+      final Iterator<DependencyNode> itrNode = calculationJobResult.getNodes().iterator();
+      while (itrResultItem.hasNext()) {
+        assert itrNode.hasNext();
+        final CalculationJobResultItem resultItem = itrResultItem.next();
+        final DependencyNode node = itrNode.next();
+        Set<ValueSpecification> specifications = node.getOutputValues();
+        Map<ValueSpecification, Set<ValueRequirement>> requirements = submapByKeySet(depGraph.getTerminalOutputs(), specifications);
+        resultModel.addRequirements(requirements);
+        for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
+          ValueSpecification valueSpec = value.getFirst();
+          Object calculatedValue = value.getSecond();
           if (!requirements.containsKey(valueSpec)) {
             // Not in cache or not a terminal output
-          continue;
-        }
-        if (calculatedValue instanceof MissingMarketDataSentinel) {
-          continue;
-        }
+            continue;
+          }
+          if (calculatedValue instanceof MissingMarketDataSentinel) {
+            continue;
+          }
           ComputedValue computedValue = new ComputedValue(valueSpec, calculatedValue);
-          
-          computedValue.setInvocationResult(calculationJobResultItem.getResult());
-          computedValue.setMissingInputs(calculationJobResultItem.getMissingInputs());
-          computedValue.setExceptionClass(calculationJobResultItem.getExceptionClass());
-          computedValue.setExceptionMsg(calculationJobResultItem.getExceptionMsg());
-          computedValue.setStackTrace(calculationJobResultItem.getStackTrace());
+          computedValue.setInvocationResult(resultItem.getResult());
+          computedValue.setMissingInputs(resultItem.getMissingInputs());
+          computedValue.setExceptionClass(resultItem.getExceptionClass());
+          computedValue.setExceptionMsg(resultItem.getExceptionMsg());
+          computedValue.setStackTrace(resultItem.getStackTrace());
           computedValue.setRequirements(depGraph.getTerminalOutputs().get(valueSpec));
-          computedValue.setComputeNodeId(calculationJobResult.getComputeNodeId());
+          computedValue.setComputeNodeId(calculationJobResult.getResult().getComputeNodeId());
           resultModel.addValue(calcConfigurationName, computedValue);
         }
       }
@@ -712,9 +629,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   }
 
   /**
-   * @param calcConfName  calculation configuration name
-   * @return a dependency graph with any nodes which have already been satisfied filtered out, not null
-   * See {@link #computeDelta} and how it calls {@link #markExecuted}.
+   * @param calcConfName calculation configuration name
+   * @return a dependency graph with any nodes which have already been satisfied filtered out, not null See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
   protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {
     DependencyGraph originalDepGraph = getDependencyGraph(calcConfName);

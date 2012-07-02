@@ -15,32 +15,9 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
-import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
-import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -93,41 +70,11 @@ public class UnderlyingTimeSeriesProvider {
     }
   }
 
-  private class UnderlyingFinancialSecurityVisitor implements FinancialSecurityVisitor<ExternalIdBundle> {
+  private class UnderlyingFinancialSecurityVisitor extends FinancialSecurityVisitorAdapter<ExternalIdBundle> {
     private final SecuritySource _securitySource;
 
     public UnderlyingFinancialSecurityVisitor(final SecuritySource securitySource) {
       _securitySource = securitySource;
-    }
-
-    @Override
-    public ExternalIdBundle visitBondSecurity(final BondSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support BondSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitCashSecurity(final CashSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support CashSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitEquitySecurity(final EquitySecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support EquitySecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFRASecurity(final FRASecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FRASecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFutureSecurity(final FutureSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FutureSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitSwapSecurity(final SwapSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support SwapSecurity");
     }
 
     @Override
@@ -138,91 +85,6 @@ public class UnderlyingTimeSeriesProvider {
     @Override
     public ExternalIdBundle visitEquityOptionSecurity(final EquityOptionSecurity security) {
       return _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId())).getExternalIdBundle();
-    }
-
-    @Override
-    public ExternalIdBundle visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support EquityBarrierOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFXOptionSecurity(final FXOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FXOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FXDigitalOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitSwaptionSecurity(final SwaptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support SwaptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support IRFutureOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support EquityIndexDividendFutureOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FXBarrierOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFXForwardSecurity(final FXForwardSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FXForwardSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXForwardSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitCapFloorSecurity(final CapFloorSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support CapFloorSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support CapFloorCMSSpreadSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support EquityVarianceSwapSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXDigitalOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support SimpleZeroDepositSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support PeriodicZeroDepositSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support ContinuousZeroDepositSecurity");
     }
 
   }

@@ -1,4 +1,11 @@
+/*
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 /**
+ * <em>THIS IS OUT OF DATE. SEE {@link com.opengamma.web.server.push.rest}</em>
  * <p>This package provides push notifications when changes occur to resources requested through the REST interface.
  * This includes analytics data, entities and queries for entities.</p>
  *

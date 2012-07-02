@@ -20,6 +20,9 @@
         </#if>
         "quantity": "${position.quantity}"
     },
+    <#--if attributes?has_content-->
+    "attributes" : { <#list attributes?keys as key>"${key}":"${attributes[key]}"<#if key_has_next>,</#if></#list> },
+    <#-- /#if -->
     <#if position.trades?has_content>
     "trades": [
         <#list position.trades as trade>{

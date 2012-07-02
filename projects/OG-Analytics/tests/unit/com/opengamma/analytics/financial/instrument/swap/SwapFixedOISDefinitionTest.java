@@ -8,10 +8,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.generator.AUD1YRBAON;
 import com.opengamma.analytics.financial.instrument.index.generator.EUR1YEONIA;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -23,7 +23,7 @@ public class SwapFixedOISDefinitionTest {
 
   // EONIA tests
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final GeneratorOIS EONIA_GENERATOR = new EUR1YEONIA(EUR_CALENDAR);
+  private static final GeneratorFixedON EONIA_GENERATOR = new EUR1YEONIA(EUR_CALENDAR);
 
   private static final double NOTIONAL = 100000000;
   private static final double FIXED_RATE = 0.01;
@@ -31,10 +31,10 @@ public class SwapFixedOISDefinitionTest {
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EONIA_GENERATOR.getSpotLag(), EUR_CALENDAR);
   // Swap EONIA 3M
   private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
-  private static final SwapFixedOISDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedOISDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
+  private static final SwapFixedONDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
   // Swap EONIA 3Y
   private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
-  private static final SwapFixedOISDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedOISDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
+  private static final SwapFixedONDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
 
   @Test
   public void construction3M() {
@@ -75,13 +75,13 @@ public class SwapFixedOISDefinitionTest {
       // In EUR the payment date and the end accrual date are one day apart.
     }
     final ZonedDateTime eurMaturity3Y = SPOT_DATE.plus(EUR_SWAP_3Y_TENOR);
-    SwapFixedOISDefinition eoniaSwap3YDefinitionFromMaturity = SwapFixedOISDefinition.from(SPOT_DATE, eurMaturity3Y, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
+    SwapFixedONDefinition eoniaSwap3YDefinitionFromMaturity = SwapFixedONDefinition.from(SPOT_DATE, eurMaturity3Y, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
     assertEquals("Swap OIS definition: constructor", EONIA_SWAP_3Y_DEFINITION, eoniaSwap3YDefinitionFromMaturity);
   }
 
   // EONIA tests
   private static final Calendar AUD_CALENDAR = new MondayToFridayCalendar("SYDNEY");
-  private static final GeneratorOIS RBAON_GENERATOR = new AUD1YRBAON(AUD_CALENDAR);
+  private static final GeneratorFixedON RBAON_GENERATOR = new AUD1YRBAON(AUD_CALENDAR);
 
   private static final double AUD_NOTIONAL = 100000000;
   private static final double AUD_FIXED_RATE = 0.01;
@@ -89,10 +89,10 @@ public class SwapFixedOISDefinitionTest {
   private static final ZonedDateTime AUD_SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, RBAON_GENERATOR.getSpotLag(), AUD_CALENDAR);
   // Swap EONIA 3M
   private static final Period AUD_SWAP_3M_TENOR = Period.ofMonths(3);
-  private static final SwapFixedOISDefinition RBAON_SWAP_3M_DEFINITION = SwapFixedOISDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3M_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
+  private static final SwapFixedONDefinition RBAON_SWAP_3M_DEFINITION = SwapFixedONDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3M_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
   // Swap EONIA 3Y
   private static final Period AUD_SWAP_3Y_TENOR = Period.ofYears(3);
-  private static final SwapFixedOISDefinition RBAON_SWAP_3Y_DEFINITION = SwapFixedOISDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3Y_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
+  private static final SwapFixedONDefinition RBAON_SWAP_3Y_DEFINITION = SwapFixedONDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3Y_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
 
   @Test
   public void constructionAUD3M() {

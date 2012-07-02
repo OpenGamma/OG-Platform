@@ -146,15 +146,21 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     return result;
   }
 
+  /**
+   * Computes the sensitivity of the present value of a FRA with notional 1 to the change of fixed rate.
+   * @param fra The FRA.
+   * @param curves The curve bundle.
+   * @return The sensitivity.
+   */
   public double presentValueCouponSensitivity(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     Validate.notNull(fra, "FRA");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(fra.getFundingCurveName());
     final YieldAndDiscountCurve liborCurve = curves.getCurve(fra.getForwardCurveName());
-    final double fwdAlpha = fra.getFixingYearFraction();
-    final double discountAlpha = fra.getPaymentYearFraction();
-    final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fwdAlpha;
-    final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * discountAlpha / (1 + forward * discountAlpha);
+    final double fixingAF = fra.getFixingYearFraction();
+    final double paymentAF = fra.getPaymentYearFraction();
+    final double forward = (liborCurve.getDiscountFactor(fra.getFixingPeriodStartTime()) / liborCurve.getDiscountFactor(fra.getFixingPeriodEndTime()) - 1.0) / fixingAF;
+    final double res = -fundingCurve.getDiscountFactor(fra.getPaymentTime()) * paymentAF / (1 + forward * paymentAF);
     return res;
   }
 

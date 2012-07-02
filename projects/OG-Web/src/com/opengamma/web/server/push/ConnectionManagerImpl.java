@@ -34,9 +34,6 @@ public class ConnectionManagerImpl implements ConnectionManager {
   /** Client ID of the next connection */
   private final AtomicLong _clientConnectionId = new AtomicLong();
 
-  /** Creates and stores viewports */
-  private final ViewportManager _viewportManager;
-
   /** Provides a connection to the long-polling HTTP connections */
   private final LongPollingConnectionManager _longPollingConnectionManager;
 
@@ -49,9 +46,6 @@ public class ConnectionManagerImpl implements ConnectionManager {
   /** Connections keyed on client ID */
   private final Map<String, ClientConnection> _connectionsByClientId = new ConcurrentHashMap<String, ClientConnection>();
 
-  /** Connections keyed on viewport ID */
-  private final Map<String, ClientConnection> _connectionsByViewportId = new ConcurrentHashMap<String, ClientConnection>();
-
   /** Timer for tasks that check for idle clients */
   private final Timer _timer = new Timer();
 
@@ -63,20 +57,20 @@ public class ConnectionManagerImpl implements ConnectionManager {
 
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportManager viewportManager,
                                LongPollingConnectionManager longPollingConnectionManager) {
-    this(changeManager, masterChangeManager,
-         viewportManager, longPollingConnectionManager, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_CHECK_PERIOD);
+    this(changeManager,
+         masterChangeManager,
+         longPollingConnectionManager,
+         DEFAULT_TIMEOUT,
+         DEFAULT_TIMEOUT_CHECK_PERIOD);
   }
 
   public ConnectionManagerImpl(ChangeManager changeManager,
                                MasterChangeManager masterChangeManager,
-                               ViewportManager viewportManager,
                                LongPollingConnectionManager longPollingConnectionManager,
                                long timeout,
                                long timeoutCheckPeriod) {
     _changeManager = changeManager;
-    _viewportManager = viewportManager;
     _longPollingConnectionManager = longPollingConnectionManager;
     _timeout = timeout;
     _timeoutCheckPeriod = timeoutCheckPeriod;
@@ -92,11 +86,11 @@ public class ConnectionManagerImpl implements ConnectionManager {
    */
   @Override
   public String clientConnected(String userId) {
-    // TODO check args
+    //ArgumentChecker.notNull(userId, "userId"); // reinstate this when logins are done
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
     ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(this, userId, clientId, _timeout);
     LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId, timeoutTask);
-    ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportManager, timeoutTask);
+    ClientConnection connection = new ClientConnection(userId, clientId, updateListener, timeoutTask);
     _changeManager.addChangeListener(connection);
     _masterChangeManager.addChangeListener(connection);
     _connectionsByClientId.put(clientId, connection);
@@ -124,33 +118,6 @@ public class ConnectionManagerImpl implements ConnectionManager {
     getConnectionByClientId(userId, clientId).subscribe(masterType, url);
   }
 
-  @Override
-  public Viewport getViewport(String userId, String clientId, String viewportId) {
-    // TODO check args
-    if (clientId == null) {
-      // TODO check the viewport is owned by the user
-      return _viewportManager.getViewport(viewportId);
-    } else {
-      return getConnectionByViewportId(userId, viewportId).getViewport(viewportId);
-    }
-  }
-
-  @Override
-  public void createViewport(String userId,
-                             String clientId,
-                             ViewportDefinition viewportDefinition,
-                             String viewportId,
-                             String dataUrl,
-                             String gridStructureUrl) {
-    if (clientId == null) {
-      _viewportManager.createViewport(viewportId, viewportDefinition);
-    } else {
-      ClientConnection connection = getConnectionByClientId(userId, clientId);
-      connection.createViewport(viewportDefinition, viewportId, dataUrl, gridStructureUrl);
-      _connectionsByViewportId.put(viewportId, connection);
-    }
-  }
-
   /**
    * Returns the {@link ClientConnection} corresponding to a client ID.
    * @param userId The ID of the user who owns the connection
@@ -158,8 +125,9 @@ public class ConnectionManagerImpl implements ConnectionManager {
    * @return The connection
    * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
    * the client and user IDs don't correspond
+   * TODO not sure this should be public
    */
-  private ClientConnection getConnectionByClientId(String userId, String clientId) {
+  public ClientConnection getConnectionByClientId(String userId, String clientId) {
     // TODO user logins
     //ArgumentChecker.notEmpty(userId, "userId");
     ArgumentChecker.notEmpty(clientId, "clientId");
@@ -169,25 +137,6 @@ public class ConnectionManagerImpl implements ConnectionManager {
     }
     if (!Objects.equal(userId, connection.getUserId())) {
       throw new DataNotFoundException("User ID " + userId + " is not associated with client ID " + clientId);
-    }
-    return connection;
-  }
-
-  /**
-   * Returns the {@link ClientConnection} that owns a viewport.
-   * @param userId The ID of the user who owns the connection
-   * @param viewportId The ID of the viewport
-   * @return The connection
-   * @throws DataNotFoundException If there is no viewport with the specified ID, the connection doesn't own viewport,
-   * the user ID is invalid or if the client connection isn't owned by the specified user.
-   */
-  private ClientConnection getConnectionByViewportId(String userId, String viewportId) {
-    ClientConnection connection = _connectionsByViewportId.get(viewportId);
-    if (connection == null) {
-      throw new DataNotFoundException("Unknown viewport ID: " + viewportId);
-    }
-    if (!Objects.equal(userId, connection.getUserId())) {
-      throw new DataNotFoundException("User ID " + userId + " is not associated with viewport " + viewportId);
     }
     return connection;
   }

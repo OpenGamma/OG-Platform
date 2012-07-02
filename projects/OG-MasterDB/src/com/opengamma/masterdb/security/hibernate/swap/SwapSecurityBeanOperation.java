@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -9,9 +9,9 @@ package com.opengamma.masterdb.security.hibernate.swap;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -32,7 +32,7 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   @Override
   public SwapSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final SwapSecurity security) {
-    return security.accept(new SwapSecurityVisitor<SwapSecurityBean>() {
+    return security.accept(new FinancialSecurityVisitorAdapter<SwapSecurityBean>() {
 
       private SwapSecurityBean createSwapSecurityBean(final SwapSecurity security) {
         final SwapSecurityBean bean = new SwapSecurityBean();
@@ -63,19 +63,19 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   @Override
   public SwapSecurity createSecurity(final OperationContext context, final SwapSecurityBean bean) {
-    return bean.getSwapType().accept(new SwapSecurityVisitor<SwapSecurity>() {
-      
+    return bean.getSwapType().accept(new FinancialSecurityVisitorAdapter<SwapSecurity>() {
+
       @Override
       public SwapSecurity visitForwardSwapSecurity(ForwardSwapSecurity ignore) {
         return new ForwardSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
-            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
-            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
+          zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+          SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()), zonedDateTimeBeanToDateTimeWithZone(bean.getForwardStartDate()));
       }
 
       @Override
       public SwapSecurity visitSwapSecurity(SwapSecurity ignore) {
         return new SwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()), zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()), zonedDateTimeBeanToDateTimeWithZone(bean
-            .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
+          .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
       }
 
     });

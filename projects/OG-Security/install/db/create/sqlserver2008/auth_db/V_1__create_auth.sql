@@ -7,7 +7,7 @@ create table audit_log (
     operation varchar(255) not null,
     description varchar(255),
     success bit not null,
-    timestamp timestamp not null,
+    timestamp datetime2(6) not null,
     primary key (id)
 );
 

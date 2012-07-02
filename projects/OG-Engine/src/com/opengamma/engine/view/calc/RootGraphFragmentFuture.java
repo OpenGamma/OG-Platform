@@ -19,13 +19,15 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
  */
 /* package */class RootGraphFragmentFuture implements Future<DependencyGraph> {
 
-  private final GraphFragment<?, ?> _this;
+  private final GraphFragmentContext _context;
+  private final GraphFragment<?> _fragment;
   private final GraphExecutorStatisticsGatherer _statistics;
   private long _jobStarted;
   private boolean _done;
 
-  public RootGraphFragmentFuture(final GraphFragment<?, ?> root, final GraphExecutorStatisticsGatherer statistics) {
-    _this = root;
+  public RootGraphFragmentFuture(final GraphFragmentContext context, final GraphFragment<?> root, final GraphExecutorStatisticsGatherer statistics) {
+    _context = context;
+    _fragment = root;
     _statistics = statistics;
     _jobStarted = System.nanoTime();
   }
@@ -39,11 +41,11 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
   }
 
   protected GraphFragmentContext getContext() {
-    return _this.getContext();
+    return _context;
   }
 
-  protected GraphFragment<?, ?> getThis() {
-    return _this;
+  protected GraphFragment<?> getFragment() {
+    return _fragment;
   }
 
   // Future

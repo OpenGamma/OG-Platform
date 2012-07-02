@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.view.cache.AbstractIdentifierMap;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Busy;
 import com.opengamma.engine.view.calcnode.msg.Cancel;
@@ -139,7 +140,7 @@ import com.opengamma.transport.FudgeMessageSender;
       final JobInvocationReceiver receiver = getJobCompletionCallbacks().remove(message.getResult().getSpecification());
       if (receiver != null) {
         final CalculationJobResult result = message.getResult();
-        result.resolveInputs(getIdentifierMap());
+        AbstractIdentifierMap.resolveIdentifiers(getIdentifierMap(), result);
         receiver.jobCompleted(result);
       } else {
         s_logger.warn("Duplicate or result for cancelled callback {} received", message.getResult().getSpecification());
@@ -214,7 +215,7 @@ import com.opengamma.transport.FudgeMessageSender;
       private void sendJob(final CalculationJob job) {
         try {
           getJobCompletionCallbacks().put(job.getSpecification(), receiver);
-          job.convertInputs(getIdentifierMap());
+          AbstractIdentifierMap.convertIdentifiers(getIdentifierMap(), job);
           sendMessage(new Execute(job));
         } catch (Exception e) {
           s_logger.warn("Error sending job {}", job.getSpecification().getJobId());
@@ -295,13 +296,14 @@ import com.opengamma.transport.FudgeMessageSender;
   public void connectionFailed(final FudgeConnection connection, final Exception cause) {
     s_logger.warn("Client connection {} dropped", connection, cause);
     _launched.addAndGet(_capacity);
+    final String invokerId = _invokerId;
     _invokerId = null;
     for (CalculationJobSpecification jobSpec : getJobCompletionCallbacks().keySet()) {
       final JobInvocationReceiver callback = getJobCompletionCallbacks().remove(jobSpec);
       // There could still be late messages arriving from a buffer even though the connection has now failed
       if (callback != null) {
         s_logger.debug("Cancelling pending operation {}", jobSpec);
-        callback.jobFailed(this, "node on " + getInvokerId(), cause);
+        callback.jobFailed(this, "node on " + invokerId, cause);
       }
     }
   }

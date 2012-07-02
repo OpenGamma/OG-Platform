@@ -54,7 +54,8 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
    * @param forexRate The near leg forex rate.
    * @param forwardPoints The forward points, i.e. the far leg forex rate is forexRate+forwardPoints.
    */
-  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, double forwardPoints) {
+  public ForexSwapDefinition(final Currency currency1, final Currency currency2, final ZonedDateTime nearDate, final ZonedDateTime farDate, final double amount1, double forexRate, 
+      double forwardPoints) {
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
     Validate.notNull(nearDate, "Near date");

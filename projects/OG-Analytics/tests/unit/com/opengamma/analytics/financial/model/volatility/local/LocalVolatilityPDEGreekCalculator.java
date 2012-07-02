@@ -12,7 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.DoubleExponentialMeshing;
@@ -20,11 +20,13 @@ import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshi
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -35,6 +37,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Sta
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
@@ -685,8 +688,8 @@ public class LocalVolatilityPDEGreekCalculator {
       final double theta, final double maxT, final double maxAbsProxyDelta, final int nTimeSteps, final int nStrikeSteps,
       final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
-    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, isCall);
+    final PDE1DCoefficientsProvider provider = new PDE1DCoefficientsProvider();
+    ConvectionDiffusionPDE1DCoefficients pde = provider.getForwardLocalVol(localVolatility);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
 
     final double minMoneyness = Math.exp(-maxAbsProxyDelta * Math.sqrt(maxT));
@@ -709,7 +712,8 @@ public class LocalVolatilityPDEGreekCalculator {
 
     final MeshingFunction spaceMesh = new HyperbolicMeshing(minMoneyness, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
+    final Function1D<Double, Double> intCond = (new InitialConditionsProvider()).getForwardCallPut(isCall);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid));
     return res;
   }
 
@@ -741,8 +745,11 @@ public class LocalVolatilityPDEGreekCalculator {
       nTimeNodes, final int nFwdNodes, final double timeMeshLambda, final double spotMeshBunching, final double fwdNodeCentre) {
     final ForwardCurve forwardCurve = _marketData.getForwardCurve();
 
-    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
+    final PDE1DCoefficientsProvider pdeProvider = new PDE1DCoefficientsProvider();
+    final InitialConditionsProvider intProvider = new InitialConditionsProvider();
+    final ConvectionDiffusionPDE1DCoefficients pde = pdeProvider.getBackwardsLocalVol(forwardCurve, expiry, localVolatility);
+    final Function1D<Double, Double> payoff = intProvider.getEuropeanPayoff(strike, isCall);
+    // final ZZConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, false);
 
     BoundaryCondition lower;
@@ -760,7 +767,8 @@ public class LocalVolatilityPDEGreekCalculator {
     //keep the grid the same regardless of spot (useful for finite-difference)
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxFwd, fwdNodeCentre, nFwdNodes, spotMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEResults1D res = solver.solve(db, grid, lower, upper);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    final PDEResults1D res = solver.solve(db);
     return res;
   }
 

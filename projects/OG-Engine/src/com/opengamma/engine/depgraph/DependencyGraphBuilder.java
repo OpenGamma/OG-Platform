@@ -37,7 +37,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given set of value requirements. Although a graph builder may itself use additional threads to complete the
@@ -65,7 +65,7 @@ public final class DependencyGraphBuilder implements Cancelable {
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
   private final GetTerminalValuesCallback _getTerminalValuesCallback = new GetTerminalValuesCallback(DEBUG_DUMP_FAILURE_INFO ? new ResolutionFailurePrinter(openDebugStream("resolutionFailure"))
-      : ResolutionFailureVisitor.DEFAULT_INSTANCE);
+      : ResolutionFailureVisitor.DEFAULT_INSTANCE, _context);
   private final Executor _executor;
   private final Housekeeper _contextCleaner = Housekeeper.of(this, ResolutionCacheCleanup.INSTANCE);
   private final PendingRequirements _pendingRequirements = new PendingRequirements(this);
@@ -476,7 +476,6 @@ public final class DependencyGraphBuilder implements Cancelable {
           // started. We are officially "dead"; another worker thread may become active
         }
       }
-      _contextCleaner.stop();
       s_logger.debug("Building job {} stopped after {} operations", _objectId, completed);
     }
 
@@ -615,16 +614,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     return getDependencyGraph(true);
   }
 
-  /**
-   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, the calling thread will participate in graph
-   * construction (which will be the full graph construction if additional threads is set to zero). When background threads are being used, the caller may optionally be blocked until all have
-   * completed. For a completely non-blocking form see {@link #pollDependencyGraph}.
-   * 
-   * @param allowBackgroundContinuation whether to block the caller until graph construction is complete. If set to false the function may return null if background threads are still completing but
-   *          there was no work for the calling thread to do.
-   * @return the graph if built, null if still being built in the background
-   */
-  public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
+  protected boolean isGraphBuilt(final boolean allowBackgroundContinuation) throws InterruptedException {
     if (!isGraphBuilt()) {
       s_logger.info("Building dependency graph");
       do {
@@ -645,17 +635,41 @@ public final class DependencyGraphBuilder implements Cancelable {
         if (allowBackgroundContinuation) {
           // ... but nothing in the queue for us so take a nap
           s_logger.info("Waiting for background threads");
-          try {
-            Thread.sleep(100);
-          } catch (InterruptedException e) {
-            throw new OpenGammaRuntimeException("Interrupted during graph building", e);
-          }
+          Thread.sleep(100);
         } else {
-          return null;
+          return false;
         }
       } while (!isGraphBuilt());
     }
+    return true;
+  }
+
+  /**
+   * Returns the constructed dependency graph able to compute as many of the requirements requested as possible. If graph construction has not completed, the calling thread will participate in graph
+   * construction (which will be the full graph construction if additional threads is set to zero). When background threads are being used, the caller may optionally be blocked until all have
+   * completed. For a completely non-blocking form see {@link #pollDependencyGraph}.
+   * 
+   * @param allowBackgroundContinuation whether to block the caller until graph construction is complete. If set to false the function may return null if background threads are still completing but
+   *          there was no work for the calling thread to do.
+   * @return the graph if built, null if still being built in the background
+   */
+  public DependencyGraph getDependencyGraph(final boolean allowBackgroundContinuation) {
+    try {
+      if (!isGraphBuilt(allowBackgroundContinuation)) {
+        return null;
+      }
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
     return createDependencyGraph();
+  }
+
+  /**
+   * Blocks the caller until {@link #getDependencyGraph} is able to return without blocking. This can be used to build large graphs by submitting requirements in batches and waiting for each batch to
+   * complete. This will reduce the amount of working memory required during the build if the fragments are sufficiently disjoint.
+   */
+  public void waitForDependencyGraphBuild() throws InterruptedException {
+    isGraphBuilt(true);
   }
 
   protected void discardIntermediateState() {
@@ -665,8 +679,16 @@ public final class DependencyGraphBuilder implements Cancelable {
     _specifications.clear();
   }
 
+  /**
+   * Flushes data that is unlikely to be needed again from the resolution caches. Anything discarded will either never be needed again for any pending resolutions, or is a cached production that can
+   * be recalculated if necessary. Discards can be a multiple stage process - repeated calls all the while this function returns true must be used to flush all possible state and make as much memory
+   * available as possible for the garbage collector.
+   * 
+   * @return true if one or more states were discarded, false if there was nothing that can be discarded
+   */
   @SuppressWarnings("unchecked")
-  protected void flushCachedStates() {
+  protected boolean flushCachedStates() {
+    boolean result = false;
     // TODO: use heuristics to throw data away more sensibly (e.g. LRU)
     int removed = 0;
     final Iterator<Map.Entry<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>> itrSpecifications = _specifications.entrySet().iterator();
@@ -683,8 +705,10 @@ public final class DependencyGraphBuilder implements Cancelable {
         while (itrProducer.hasNext()) {
           final Map.Entry<ResolveTask, ResolvedValueProducer> producer = itrProducer.next();
           if (!producer.getValue().hasActiveCallbacks()) {
-            producer.getKey().addRef();
             discards.add(producer.getValue());
+            // The key isn't ref counted, but we to release it after the producer has been discarded in case it is then available
+            // for discard because the producer is complete & inactive
+            producer.getKey().addRef();
             discards.add(producer.getKey());
             itrProducer.remove();
           }
@@ -711,6 +735,9 @@ public final class DependencyGraphBuilder implements Cancelable {
       } else {
         s_logger.info("No production tasks to discard");
       }
+    }
+    if (removed > 0) {
+      result = true;
     }
     removed = 0;
     final Iterator<Map<ResolveTask, ResolveTask>> itrRequirements = _requirements.values().iterator();
@@ -748,9 +775,11 @@ public final class DependencyGraphBuilder implements Cancelable {
       _activeResolveTasks.addAndGet(-removed);
       s_logger.info("Discarded {} resolve task(s) - {} still active", removed, _activeResolveTasks);
       getContext().mergeThreadContext(context);
+      result = true;
     } else {
       s_logger.info("No tasks to discard - {} active", _activeResolveTasks);
     }
+    return result;
   }
 
   protected void reportStateSize() {
@@ -792,7 +821,7 @@ public final class DependencyGraphBuilder implements Cancelable {
       ps.close();
     }
     // Clear out the build caches
-    discardIntermediateState();
+    //discardIntermediateState();
     s_logger.info("{} node graph built after {} steps", graph.getSize(), _completedSteps);
     return graph;
   }

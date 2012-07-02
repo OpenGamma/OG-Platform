@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -31,7 +31,7 @@ public final class ConstantSpreadFXBlackRolldown implements RolldownFunction<Smi
   public SmileDeltaTermStructureDataBundle rollDown(final SmileDeltaTermStructureDataBundle data, final double shiftTime) {
     final YieldCurveBundle shiftedCurves = CURVES_ROLLDOWN.rollDown(data, shiftTime);
     final Pair<Currency, Currency> currencyPair = data.getCurrencyPair();
-    final SmileDeltaTermStructureParameter smile = data.getSmile();
+    final SmileDeltaTermStructureParametersStrikeInterpolation smile = data.getSmile();
     return new SmileDeltaTermStructureDataBundle(data.getFxRates(), data.getCcyMap(), shiftedCurves, smile, currencyPair) {
 
       @Override

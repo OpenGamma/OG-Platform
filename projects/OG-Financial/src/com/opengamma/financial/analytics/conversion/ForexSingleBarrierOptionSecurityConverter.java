@@ -21,14 +21,13 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class ForexSingleBarrierOptionSecurityConverter implements FXBarrierOptionSecurityVisitor<InstrumentDefinition<?>> {
+public class ForexSingleBarrierOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   public ForexSingleBarrierOptionSecurityConverter(final FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> visitor) {
     Validate.notNull(visitor, "visitor");

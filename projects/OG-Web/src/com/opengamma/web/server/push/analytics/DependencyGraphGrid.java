@@ -8,6 +8,18 @@ package com.opengamma.web.server.push.analytics;
 /**
  *
  */
-/* package */ class DependencyGraphGrid {
+public class DependencyGraphGrid extends AnalyticsGrid {
 
+  protected DependencyGraphGrid(AnalyticsGridStructure gridStructure, String gridId) {
+    super(gridStructure, gridId);
+  }
+
+  @Override
+  protected AnalyticsViewport createViewport(AnalyticsGridStructure gridStructure,
+                                             ViewportSpecification viewportSpecification,
+                                             AnalyticsHistory history,
+                                             String dataId) {
+    // TODO implement createViewport()
+    throw new UnsupportedOperationException("createViewport not implemented");
+  }
 }

@@ -72,6 +72,15 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Some bonds have this code.
    */
   public static final YieldConvention STEP_FLOATER = new SimpleYieldConvention("STEP FLOATER"); // TODO: check if real yield convention
+  /**
+   * Japanese bonds
+   */
+  public static final YieldConvention JAPAN_SIMPLE = new SimpleYieldConvention("JAPAN:SIMPLE YIELD");
+  /**
+   * Bank of Canada 
+   */
+  public static final YieldConvention BANK_OF_CANADA = new SimpleYieldConvention("BANK OF CANADA YLD");
+  
 
   /**
    * The convention name.

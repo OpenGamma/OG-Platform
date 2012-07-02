@@ -17,6 +17,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -50,15 +51,15 @@ public class FXFutureSecurity extends FutureSecurity {
   }
 
   public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      Currency numerator, Currency denominator) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+      Currency numerator, Currency denominator, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
     setNumerator(numerator);
     setDenominator(denominator);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitFXFutureSecurity(this);
   }
 

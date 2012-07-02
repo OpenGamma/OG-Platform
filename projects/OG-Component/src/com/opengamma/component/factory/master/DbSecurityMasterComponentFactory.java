@@ -26,7 +26,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.impl.DataSecurityMasterResource;
+import com.opengamma.masterdb.security.DataDbSecurityMasterResource;
 import com.opengamma.masterdb.security.DbSecurityMaster;
 import com.opengamma.masterdb.security.EHCachingSecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
@@ -123,7 +123,7 @@ public class DbSecurityMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataSecurityMasterResource(master));
+      repo.getRestComponents().publish(info, new DataDbSecurityMasterResource(master));
     }
   }
 

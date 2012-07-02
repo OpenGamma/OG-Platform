@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.id.UniqueId;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.client.CombinedPortfolioMaster;
 import com.opengamma.language.client.CombiningMaster;
 import com.opengamma.language.client.MasterID;
@@ -28,6 +27,7 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Returns the identifier of a portfolio with a given name.

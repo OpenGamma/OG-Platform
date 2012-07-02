@@ -12,9 +12,6 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -66,7 +63,7 @@ public class CMSIndexTest {
     assertEquals(CMS_INDEX.getFixedLegPeriod(), FIXED_LEG_PERIOD);
     assertEquals(CMS_INDEX.getIborIndex(), IBOR_INDEX);
     assertEquals(CMS_INDEX.getTenor(), CMS_TENOR);
-    GeneratorSwapFixedIbor generator = new GeneratorSwapFixedIbor(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
+    GeneratorSwapFixedIbor generator = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
     String name = CMS_TENOR.toString() + generator.getName();
     assertEquals(name, CMS_INDEX.getName());
     assertEquals(CMS_INDEX.toString(), CMS_INDEX.getName());

@@ -35,12 +35,12 @@
     <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Master-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.opengamma/region/jars/og-regions-20110908a.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/com.opengamma/region/jars/og-regions-20110908a.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/sources/opencsv-src-2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache/net.sf.opencsv/opencsv/sources/opencsv-src-2.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

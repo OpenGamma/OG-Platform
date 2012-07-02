@@ -8,9 +8,7 @@ package com.opengamma.engine.view.compilation;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -68,11 +66,11 @@ public final class ViewDefinitionCompiler {
     private final ConcurrentMap<String, Double> _buildEstimates;
 
     private CompilationCompletionEstimate(final ViewCompilationContext context) {
-      final Collection<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> builders = context.getBuilders();
+      final Collection<DependencyGraphBuilder> builders = context.getBuilders();
       _buildEstimates = new ConcurrentHashMap<String, Double>();
-      for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : builders) {
-        _buildEstimates.put(builder.getFirst().getCalculationConfigurationName(), 0d);
-        Housekeeper.of(builder.getFirst(), this, builder.getFirst().buildFractionEstimate()).start();
+      for (DependencyGraphBuilder builder : builders) {
+        _buildEstimates.put(builder.getCalculationConfigurationName(), 0d);
+        Housekeeper.of(builder, this, builder.buildFractionEstimate()).start();
       }
       _label = context.getViewDefinition().getName();
     }
@@ -136,8 +134,8 @@ public final class ViewDefinitionCompiler {
       @Override
       public boolean cancel(final boolean mayInterruptIfRunning) {
         boolean result = true;
-        for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : viewCompilationContext.getBuilders()) {
-          result &= builder.getFirst().cancel(mayInterruptIfRunning);
+        for (DependencyGraphBuilder builder : viewCompilationContext.getBuilders()) {
+          result &= builder.cancel(mayInterruptIfRunning);
         }
         return result;
       }
@@ -148,8 +146,8 @@ public final class ViewDefinitionCompiler {
       @Override
       public boolean isCancelled() {
         boolean result = false;
-        for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : viewCompilationContext.getBuilders()) {
-          result |= builder.getFirst().isCancelled();
+        for (DependencyGraphBuilder builder : viewCompilationContext.getBuilders()) {
+          result |= builder.isCancelled();
         }
         return result;
       }
@@ -167,23 +165,23 @@ public final class ViewDefinitionCompiler {
         long t = -System.nanoTime();
         EnumSet<ComputationTargetType> specificTargetTypes = SpecificRequirementsCompiler.execute(viewCompilationContext);
         t += System.nanoTime();
-        s_logger.debug("Added specific requirements after {}ms", (double) t / 1e6);
+        s_logger.info("Added specific requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
         boolean requirePortfolioResolution = specificTargetTypes.contains(ComputationTargetType.PORTFOLIO_NODE) || specificTargetTypes.contains(ComputationTargetType.POSITION);
         Portfolio portfolio = PortfolioCompiler.execute(viewCompilationContext, versionCorrection, requirePortfolioResolution);
         t += System.nanoTime();
-        s_logger.debug("Added portfolio requirements after {}ms", (double) t / 1e6);
+        s_logger.info("Added portfolio requirements after {}ms", (double) t / 1e6);
         t -= System.nanoTime();
         Map<String, DependencyGraph> graphsByConfiguration = processDependencyGraphs(viewCompilationContext);
         t += System.nanoTime();
-        s_logger.debug("Processed dependency graphs after {}ms", (double) t / 1e6);
+        s_logger.info("Processed dependency graphs after {}ms", (double) t / 1e6);
         timer.finished();
         _result = new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
         if (OUTPUT_DEPENDENCY_GRAPHS) {
           outputDependencyGraphs(graphsByConfiguration);
         }
         if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getSecuritySource());
+          outputLiveDataRequirements(graphsByConfiguration, compilationServices.getComputationTargetResolver().getSecuritySource());
         }
         if (OUTPUT_FAILURE_REPORTS) {
           outputFailureReports(viewCompilationContext.getBuilders());
@@ -209,20 +207,14 @@ public final class ViewDefinitionCompiler {
     }
   }
 
-  private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
-    // TODO: support one of two modes; sequential build of the graphs (below) or parallel build using the executor service from the compilation services
-    // TODO: perhaps a heuristic to determine which is better, or a global setting
+  private static Map<String, DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
+    final Collection<DependencyGraphBuilder> builders = context.getBuilders();
     final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    final Iterator<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> itr = context.getBuilders().iterator();
-    while (itr.hasNext()) {
-      final Pair<DependencyGraphBuilder, Set<ValueRequirement>> entry = itr.next();
-      final DependencyGraphBuilder builder = entry.getFirst();
-      builder.addTarget(entry.getSecond());
+    for (DependencyGraphBuilder builder : builders) {
       final DependencyGraph graph = builder.getDependencyGraph();
       graph.removeUnnecessaryValues();
       result.put(builder.getCalculationConfigurationName(), graph);
       // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data?
-      itr.remove();
     }
     return result;
   }
@@ -259,9 +251,9 @@ public final class ViewDefinitionCompiler {
     s_logger.warn("Live data requirements -- \n{}", sb);
   }
 
-  private static void outputFailureReports(final Collection<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> builders) {
-    for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : builders) {
-      outputFailureReport(builder.getFirst());
+  private static void outputFailureReports(final Collection<DependencyGraphBuilder> builders) {
+    for (DependencyGraphBuilder builder : builders) {
+      outputFailureReport(builder);
     }
   }
 

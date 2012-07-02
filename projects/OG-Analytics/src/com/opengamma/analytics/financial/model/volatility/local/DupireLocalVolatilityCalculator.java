@@ -6,8 +6,6 @@
 
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -20,6 +18,8 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -203,7 +203,6 @@ public class DupireLocalVolatilityCalculator {
           final double h1 = (Math.log(forward / k) + (vol * vol / 2) * t) / vol;
           final double h2 = h1 - vol * t;
           var = (vol * vol + 2 * vol * t * (divT + k * drift * divK)) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
-          //  System.out.println(t+"\t"+vol+"\t"+divT+"\t"+divK+"\t"+divK2+"\t"+drift);
           if (var < 0.0) {
             // throw new MathException("negative variance");
             var = 0.0;
@@ -393,7 +392,8 @@ public class DupireLocalVolatilityCalculator {
     }
     final double up = surface.getZValue(t, k + eps + offset);
     final double down = surface.getZValue(t, k - eps + offset);
-    return (up + down - 2 * cent) / eps / eps;
+    final double res = (up + down - 2 * cent) / eps / eps;
+    return res;
   }
 
 }

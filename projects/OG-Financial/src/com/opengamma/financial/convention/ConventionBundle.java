@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -70,6 +71,15 @@ public interface ConventionBundle extends UniqueIdentifiable {
    * @return the number of days
    */
   int getSettlementDays();
+
+  /**
+   * The time from now to when the bond coupon is paid, in days. If the number of settlement days depends on the length of the bond, this is 
+   * taken into account
+   * @param bondSettlementDate The bond settlement date
+   * @param bondMaturityDate The bond maturity date
+   * @return the number of days
+   */
+  Integer getBondSettlementDays(ZonedDateTime bondSettlementDate, ZonedDateTime bondMaturityDate);
 
   /**
    * Future point value, if applicable.

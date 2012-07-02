@@ -65,7 +65,7 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
     final SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> surfaceInstrumentProvider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(currencyCrossString, "Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_EURUSD_" + InstrumentTypeProperties.FOREX, target,
-        SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
+        SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));
   }

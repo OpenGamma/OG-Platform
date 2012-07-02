@@ -22,15 +22,15 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class CapFloorSecurityConverter implements CapFloorSecurityVisitor<InstrumentDefinition<?>> {
+public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;

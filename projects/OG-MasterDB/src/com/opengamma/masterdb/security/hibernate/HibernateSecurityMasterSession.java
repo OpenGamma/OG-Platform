@@ -23,12 +23,8 @@ import com.opengamma.masterdb.security.hibernate.bond.IssuerTypeBean;
 import com.opengamma.masterdb.security.hibernate.bond.MarketBean;
 import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
-import com.opengamma.masterdb.security.hibernate.future.BondFutureTypeBean;
-import com.opengamma.masterdb.security.hibernate.future.CashRateTypeBean;
-import com.opengamma.masterdb.security.hibernate.future.CommodityFutureTypeBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
-import com.opengamma.masterdb.security.hibernate.future.UnitBean;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
@@ -207,43 +203,6 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   public List<FrequencyBean> getFrequencyBeans() {
     return getBeansFromNamedQuery("FrequencyBean.all");
   }
-  
-  // CommodityFutureTypes
-  @Override
-  public CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean(final String type) {
-    final Query query = getSession().getNamedQuery("CommodityFutureTypeBean.one");
-    query.setString("name", type);
-    CommodityFutureTypeBean bean = (CommodityFutureTypeBean) query.uniqueResult();
-    if (bean == null) {
-      bean = persistBean(new CommodityFutureTypeBean(type));
-    }
-    return bean;
-  }
-  
-  
-  @SuppressWarnings ("unchecked")
-  @Override
-  public List<CommodityFutureTypeBean> getCommodityFutureTypeBeans() {
-    return getBeansFromNamedQuery("CommodityFutureTypeBean.all");
-  }
-
-  // BondFutureType
-  @Override
-  public BondFutureTypeBean getOrCreateBondFutureTypeBean(final String type) {
-    final Query query = getSession().getNamedQuery("BondFutureTypeBean.one");
-    query.setString("name", type);
-    BondFutureTypeBean bean = (BondFutureTypeBean) query.uniqueResult();
-    if (bean == null) {
-      bean = persistBean(new BondFutureTypeBean(type));
-    }
-    return bean;
-  }
-  
-  @SuppressWarnings ("unchecked")
-  @Override
-  public List<BondFutureTypeBean> getBondFutureTypeBeans() {
-    return getBeansFromNamedQuery("BondFutureTypeBean.all");
-  }
 
   // UnitName
   @Override
@@ -261,24 +220,6 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
   @Override
   public List<UnitBean> getUnitNameBeans() {
     return getBeansFromNamedQuery("UnitBean.all");
-  }
-
-  // CashRateType
-  @Override
-  public CashRateTypeBean getOrCreateCashRateTypeBean(final String type) {
-    final Query query = getSession().getNamedQuery("CashRateTypeBean.one");
-    query.setString("name", type);
-    CashRateTypeBean bean = (CashRateTypeBean) query.uniqueResult();
-    if (bean == null) {
-      bean = persistBean(new CashRateTypeBean(type));
-    }
-    return bean;
-  }
-
-  @SuppressWarnings ("unchecked")
-  @Override
-  public List<CashRateTypeBean> getCashRateTypeBeans() {
-    return getBeansFromNamedQuery("CashRateTypeBean.all");
   }
 
   // IssuerTypeBean
@@ -664,6 +605,18 @@ public class HibernateSecurityMasterSession implements HibernateSecurityMasterDa
       }
     }
     timer.finished();
+  }
+
+  @Override
+  public ContractCategoryBean getOrCreateContractCategoryBean(String name) {
+    Query query = getSession().getNamedQuery("ContractCategoryBean.one");
+    query.setString("name", name);
+    ContractCategoryBean contractCategory = (ContractCategoryBean) query.uniqueResult();
+    if (contractCategory == null) {
+      contractCategory = persistBean(new ContractCategoryBean(name));
+    }
+    return contractCategory;
+
   }
 
   //-------------------------------------------------------------------------

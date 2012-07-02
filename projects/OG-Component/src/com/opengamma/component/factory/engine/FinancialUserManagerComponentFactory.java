@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.DefaultFinancialUsersTracker;
 import com.opengamma.financial.user.FinancialUserManager;
@@ -117,6 +118,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     manager.createDeleteTask(getScheduler(), getClientTimeOut());
     
     ComponentInfo info = new ComponentInfo(FinancialUserManager.class, getClassifier());
+    info.addAttribute(ComponentInfoAttributes.TIMEOUT, getClientTimeOut().toString());
     repo.registerComponent(info, manager);
     
     if (isPublishRest()) {

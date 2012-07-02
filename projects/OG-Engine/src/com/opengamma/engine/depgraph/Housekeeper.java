@@ -70,17 +70,27 @@ public final class Housekeeper {
       _cancel = s_executor.scheduleWithFixedDelay(new Runnable() {
         @Override
         public void run() {
-          if (!housekeep()) {
-            cancel();
+          try {
+            if (housekeep()) {
+              return;
+            } else {
+              s_logger.info("Housekeeper {} for {} returned false", getCallback(), _builder);
+            }
+          } catch (Throwable t) {
+            s_logger.error("Cancelling errored {} for {}", getCallback(), _builder);
+            s_logger.warn("Caught exception", t);
           }
+          cancel();
         }
       }, 1, 1, TimeUnit.SECONDS);
     }
   }
 
   public synchronized void stop() {
-    if (--_startCount == 0) {
-      cancel();
+    if (_startCount > 0) {
+      if (--_startCount == 0) {
+        cancel();
+      }
     }
   }
 

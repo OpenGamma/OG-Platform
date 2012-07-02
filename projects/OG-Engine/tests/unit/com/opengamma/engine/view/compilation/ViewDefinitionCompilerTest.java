@@ -86,7 +86,7 @@ public class ViewDefinitionCompilerTest {
         EHCacheUtils.createCacheManager());
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
-        new DependencyGraphBuilderFactory(), securitySource, positionSource);
+        new DependencyGraphBuilderFactory());
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
     assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
@@ -124,7 +124,7 @@ public class ViewDefinitionCompilerTest {
     functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
-        new DependencyGraphBuilderFactory(), securitySource, positionSource);
+        new DependencyGraphBuilderFactory());
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     // We've not provided a function that targets the position level, so we can't ask for it.
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
@@ -171,7 +171,7 @@ public class ViewDefinitionCompilerTest {
     functionCompilationContext.setComputationTargetResolver(computationTargetResolver);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, functionCompilationContext, computationTargetResolver, executorService,
-        new DependencyGraphBuilderFactory(), securitySource, positionSource);
+        new DependencyGraphBuilderFactory());
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
     viewDefinition.getResultModelDefinition().setPositionOutputMode(ResultOutputMode.NONE);
     ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");

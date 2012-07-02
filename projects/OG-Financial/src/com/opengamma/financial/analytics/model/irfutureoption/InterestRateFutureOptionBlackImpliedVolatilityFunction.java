@@ -17,17 +17,18 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Interpolates, for InterestRateFutureOptions using Black model, and returns the implied volatility required.
+ * 
  */
 public class InterestRateFutureOptionBlackImpliedVolatilityFunction extends InterestRateFutureOptionBlackFunction {
-  
+
   private static final ImpliedVolatilityBlackCalculator CALCULATOR = ImpliedVolatilityBlackCalculator.getInstance();
 
   public InterestRateFutureOptionBlackImpliedVolatilityFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
-  
+
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle data, ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
     final Double impliedVol = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, impliedVol));
   }

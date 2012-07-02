@@ -5,8 +5,14 @@
  */
 package com.opengamma.engine.view.calc;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,12 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.view.calcnode.CalculationJob;
-import com.opengamma.engine.view.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 
 /**
  * State shared among all fragments of a dependency graph for execution. Also implements
@@ -34,27 +39,29 @@ import com.opengamma.util.Cancelable;
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphFragmentContext.class);
 
+  private static final AtomicInteger s_nextObjectId = new AtomicInteger();
+
+  private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
   private final long _functionInitializationTimestamp;
   private final AtomicLong _executionTime = new AtomicLong();
   private final MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
-  private final Map<CalculationJobItem, DependencyNode> _item2node;
+  // TODO: don't need the full spec in the keys here -- just the job identifier will do
   private final Map<CalculationJobSpecification, Cancelable> _cancels = new ConcurrentHashMap<CalculationJobSpecification, Cancelable>();
-  private Map<CalculationJobSpecification, GraphFragment<?, ?>> _job2fragment;
+  private Map<CalculationJobSpecification, GraphFragment<?>> _job2fragment;
   private volatile boolean _cancelled;
-  private final BlockingQueue<CalculationJobResult> _calcJobResultQueue;
+  private final Queue<ExecutionResult> _executionResultQueue;
 
   protected static <K, V> ConcurrentMap<K, V> createMap(int numElements) {
     return new ConcurrentHashMap<K, V>((numElements << 2) / 3);
   }
 
-  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final BlockingQueue<CalculationJobResult> calcJobResultQueue) {
+  public GraphFragmentContext(final MultipleNodeExecutor executor, final DependencyGraph graph, final Queue<ExecutionResult> executionResultQueue) {
     _executor = executor;
     _graph = graph;
-    _item2node = createMap(graph.getSize());
     _functionInitializationTimestamp = executor.getFunctionInitId();
-    _calcJobResultQueue = calcJobResultQueue;
+    _executionResultQueue = executionResultQueue;
   }
 
   public MultipleNodeExecutor getExecutor() {
@@ -65,8 +72,8 @@ import com.opengamma.util.Cancelable;
     return _graph;
   }
 
-  public BlockingQueue<CalculationJobResult> getCalculationJobResultQueue() {
-    return _calcJobResultQueue;
+  public Queue<ExecutionResult> getExecutionResultQueue() {
+    return _executionResultQueue;
   }
 
   public int nextIdentifier() {
@@ -85,33 +92,31 @@ import com.opengamma.util.Cancelable;
     _job2fragment = createMap(size);
   }
 
-  public void registerJobItem(final CalculationJobItem jobitem, final DependencyNode node) {
-    _item2node.put(jobitem, node);
-  }
-
-  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment<?, ?> fragment) {
+  public void registerCallback(final CalculationJobSpecification jobspec, final GraphFragment<?> fragment) {
     _job2fragment.put(jobspec, fragment);
   }
 
   @Override
   public void resultReceived(final CalculationJobResult result) {
     _cancels.remove(result.getSpecification());
-    final GraphFragment<?, ?> fragment = _job2fragment.remove(result.getSpecification());
+    final GraphFragment<?> fragment = _job2fragment.remove(result.getSpecification());
     if (fragment != null) {
       // Put result into the queue
-      getCalculationJobResultQueue().offer(result);
-      fragment.resultReceived(result);
-      // Mark nodes as good or bad
-      for (CalculationJobResultItem item : result.getResultItems()) {
-        DependencyNode node = _item2node.remove(item.getItem());
-        if (node == null) {
-          continue;
-        }
+      getExecutionResultQueue().offer(new ExecutionResult(Collections.unmodifiableList(fragment.getNodes()), result));
+      fragment.resultReceived(this, result);
+      // Mark nodes as good or bad - the result items are in the same order as the request items (the dependency nodes)
+      final Iterator<CalculationJobResultItem> itrResult = result.getResultItems().iterator();
+      final Iterator<DependencyNode> itrNode = fragment.getNodes().iterator();
+      while (itrResult.hasNext()) {
+        assert itrNode.hasNext();
+        final CalculationJobResultItem resultItem = itrResult.next();
+        final DependencyNode node = itrNode.next();
         getExecutor().markExecuted(node);
-        if (item.failed()) {
+        if (resultItem.failed()) {
           getExecutor().markFailed(node);
         }
       }
+      assert !itrNode.hasNext();
     }
   }
 
@@ -143,6 +148,16 @@ import com.opengamma.util.Cancelable;
 
   public long getFunctionInitId() {
     return _functionInitializationTimestamp;
+  }
+
+  protected PrintStream openDebugStream(final String name) {
+    try {
+      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
+      return new PrintStream(new FileOutputStream(fileName));
+    } catch (IOException e) {
+      s_logger.error("Can't open debug file", e);
+      return System.out;
+    }
   }
 
 }

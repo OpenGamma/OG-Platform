@@ -62,6 +62,7 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_INDEX_TYPE = "Index";
   private static final String BLOOMBERG_FX_FORWARD_TYPE = "FORWARD";
   private static final String BLOOMBERG_FX_ONSHORE_FORWARD_TYPE = "ONSHORE FORWARD";
+  private static final String BLOOMBERG_FX_NDF = "NON-DELIVERABLE FORWARD";
   /**
    * The valid Bloomberg security types for spot rates
    */
@@ -100,5 +101,5 @@ public final class NonLoadedSecurityTypes {
   /**
    * The valid Bloomberg security types for FX forwards
    */
-  public static final Set<String> VALID_FX_FORWARD_TYPES = ImmutableSet.of(BLOOMBERG_FX_FORWARD_TYPE, BLOOMBERG_FX_ONSHORE_FORWARD_TYPE);
+  public static final Set<String> VALID_FX_FORWARD_TYPES = ImmutableSet.of(BLOOMBERG_FX_FORWARD_TYPE, BLOOMBERG_FX_ONSHORE_FORWARD_TYPE, BLOOMBERG_FX_NDF);
 }

@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -170,17 +171,24 @@ public class USConventions {
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_GENERIC_CASH")), "USD_GENERIC_CASH", act360, following, Period.ofDays(7), 2,
         true, null);
 
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_USD_P3M")), IndexType.Libor + "_USD_P3M", thirty360, modified,
+        null, 2, false, usgb);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.Libor + "_USD_P6M")), IndexType.Libor + "_USD_P6M", thirty360, modified,
+        null, 2, false, usgb);
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_BASIS_SWAP")), "USD_BASIS_SWAP", act360, modified, quarterly, 2,
+        null, usgb, act360, modified, quarterly, 2, null, usgb);
+
     // TODO: Add all ISDA fixing
-    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30};
+    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30 };
     // ISDA fixing 11.00 New-York
-    for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
-      final String tenorString = isdaFixTenor[looptenor] + "Y";
-      final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
+    for (final int element : isdaFixTenor) {
+      final String tenorString = element + "Y";
+      final String tenorStringBbg = String.format("%02d", element);
       final String sytheticID = "USDISDA10P" + tenorString;
       utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_ISDAFIX_USDLIBOR10_" + tenorString),
           ExternalSchemes.ricSecurityId("USDSFIX" + tenorString + "="), ExternalSchemes.bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index"),
           ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, sytheticID)), "USD_ISDAFIX_USDLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency,
-          2, us, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), us, true, Period.ofYears(isdaFixTenor[looptenor]));
+          2, us, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), us, true, Period.ofYears(element));
     }
 
     //Identifiers for external data

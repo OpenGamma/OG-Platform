@@ -10,25 +10,23 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
@@ -155,8 +153,11 @@ public class DupireLocalVolatilityTest {
 
   @Test
   public void pdePriceTest() {
-    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL, FORWARD_CURVE);
+    final PDE1DCoefficientsProvider pde_provider = new PDE1DCoefficientsProvider();
+    final InitialConditionsProvider int_provider = new InitialConditionsProvider();
+    //final ZZConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL, FORWARD_CURVE);
+    final ConvectionDiffusionPDE1DCoefficients pde = pde_provider.getBackwardsLocalVol(FORWARD_CURVE, EXPIRY, LOCAL_VOL);
+    final Function1D<Double, Double> payoff = int_provider.getEuropeanPayoff(STRIKE, true);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final double forward = FORWARD_CURVE.getForward(EXPIRY);
 
@@ -169,7 +170,7 @@ public class DupireLocalVolatilityTest {
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 6.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0, upperLevel, STRIKE, nSpotNodes, 0.05);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEResults1D res = solver.solve(db, grid, lower, upper);
+    final PDEResults1D res = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid));
 
     final int fwdIndex = grid.getLowerBoundIndexForSpace(forward);
     final double[] fwd = new double[4];

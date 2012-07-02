@@ -1,6 +1,6 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 $.register_module({
     name: 'og.common.gadgets.trades',
@@ -336,7 +336,7 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody)).hide().fadeIn();
+                $(selector).html(html.og_table.replace('{TBODY}', tbody));
                 /*
                  * Remove expand links when no trade attributes are available
                  */

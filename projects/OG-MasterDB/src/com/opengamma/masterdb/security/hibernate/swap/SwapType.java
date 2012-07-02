@@ -6,9 +6,10 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 
 /**
  * 
@@ -24,7 +25,7 @@ public enum SwapType {
   FORWARD;
 
   public static SwapType identify(final SwapSecurity object) {
-    return object.accept(new SwapSecurityVisitor<SwapType>() {
+    return object.accept(new FinancialSecurityVisitorAdapter<SwapType>() {
 
       @Override
       public SwapType visitForwardSwapSecurity(ForwardSwapSecurity security) {
@@ -39,7 +40,7 @@ public enum SwapType {
     });
   }
 
-  public <T> T accept(final SwapSecurityVisitor<T> visitor) {
+  public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
     switch (this) {
       case SWAP:
         return visitor.visitSwapSecurity(null);

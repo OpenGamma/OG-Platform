@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 
 /**
  *
@@ -40,15 +40,13 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(SURFACE);
-    final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
-    final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final Object interpolatorObject = inputs.getValue(getInterpolatorRequirement(target, desiredValue));
     if (interpolatorObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface interpolator");
     }
     final VolatilitySurfaceInterpolator surfaceInterpolator = (VolatilitySurfaceInterpolator) interpolatorObject;
     final SmileSurfaceDataBundle data = getData(inputs, getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits()),
-        getForwardCurveRequirement(target, curveCalculationMethodName, forwardCurveName));
+        getForwardCurveRequirement(target, desiredValue));
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = surfaceInterpolator.getVolatilitySurface(data);
     final ValueProperties properties = getResultProperties(desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
@@ -86,13 +84,12 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final String forwardCurveCalculationMethod = forwardCurveCalculationMethods.iterator().next();
-    final String forwardCurveName = forwardCurveNames.iterator().next();
+    
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveName);
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits());
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(target, desiredValue);
-    return Sets.newHashSet(interpolatorRequirement, volatilitySurfaceRequirement, forwardCurveRequirement);
+    return Sets.newHashSet(interpolatorRequirement, forwardCurveRequirement, volatilitySurfaceRequirement);
   }
 
   protected abstract boolean isCorrectIdType(final ComputationTarget target);
@@ -114,22 +111,18 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
         BlackVolatilitySurfaceUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
 
-  private ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName, final String instrumentType,
+  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName, final String instrumentType,
       final String surfaceQuoteType, final String surfaceQuoteUnits) {
     final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
         ValueProperties.builder()
         .with(SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get());
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get());
     return volDataRequirement;
   }
 
-  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String calculationMethod, final String forwardCurveName) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_CALCULATION_METHOD, calculationMethod)
-        .with(CURVE, forwardCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
-  }
+  protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
+
 
 }

@@ -3,7 +3,7 @@
 // CSOFF: Generated File
 package com.opengamma.language.livedata;
 public class Disconnect extends com.opengamma.language.connector.LiveData implements java.io.Serializable {
-  public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution { return visitor.visitDisconnect (this, data); }
+  public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.util.async.AsynchronousExecution { return visitor.visitDisconnect (this, data); }
   private static final long serialVersionUID = -24045094766l;
   private int _connection;
   public static final String CONNECTION_KEY = "connection";

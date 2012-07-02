@@ -43,10 +43,12 @@ import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known statically and each value may differ in type. TODO temporary name just to
- * distinguish it from the similarly named class in the parent package
+ * Represents a dependency graph grid. This is slightly special since, unlike the other grids, the columns are known
+ * statically and each value may differ in type.
+ * TODO temporary name just to distinguish it from the similarly named class in the parent package
+ * @deprecated This class isn't needed for the new analytics web UI
  */
-/* package */class PushWebViewDepGraphGrid extends PushWebViewGrid {
+/* package */ class PushWebViewDepGraphGrid extends PushWebViewGrid {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushWebViewDepGraphGrid.class);
 
@@ -57,38 +59,44 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
   private final ValueSpecification _parentValueSpecification;
   private final ComputationTargetResolver _computationTargetResolver;
   private final Set<ValueSpecification> _typedRows = new HashSet<ValueSpecification>();
+
   private Map<ValueSpecification, IntSet> _rowIdMap;
   private List<Object> _rowStructure;
   private ComputationCacheQuery _cacheQuery;
 
-  protected PushWebViewDepGraphGrid(String name, ViewClient viewClient, ResultConverterCache resultConverterCache, WebGridCell parentGridCell, String parentCalcConfigName,
-      ValueSpecification parentValueSpecification, ComputationTargetResolver computationTargetResolver) {
+  protected PushWebViewDepGraphGrid(String name,
+                                    ViewClient viewClient,
+                                    ResultConverterCache resultConverterCache,
+                                    WebGridCell parentGridCell,
+                                    String parentCalcConfigName,
+                                    ValueSpecification parentValueSpecification,
+                                    ComputationTargetResolver computationTargetResolver) {
     super(name, viewClient, resultConverterCache);
     _parentGridCell = parentGridCell;
     _parentCalcConfigName = parentCalcConfigName;
     _parentValueSpecification = parentValueSpecification;
     _computationTargetResolver = computationTargetResolver;
   }
-
+  
   //-------------------------------------------------------------------------
-
-  /*package*/boolean isInit() {
+  
+  /*package*/ boolean isInit() {
     return _init.get();
   }
-
-  /*package*/boolean init(DependencyGraph depGraph, String calcConfigName, ValueSpecification valueSpecification) {
+  
+  /*package*/ boolean init(DependencyGraph depGraph, String calcConfigName, ValueSpecification valueSpecification) {
     if (!_init.compareAndSet(false, true)) {
       return false;
     }
-
+    
     HashMap<ValueSpecification, IntSet> rowIdMap = new HashMap<ValueSpecification, IntSet>();
     _rowStructure = generateRowStructure(depGraph, valueSpecification, rowIdMap);
     _rowIdMap = rowIdMap;
-
+    
     _cacheQuery = new ComputationCacheQuery();
     _cacheQuery.setCalculationConfigurationName(calcConfigName);
     _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
-
+    
     // Not doing viewport for now, so tell it that everything is in the viewport
     SortedMap<Integer, Long> viewportMap = new TreeMap<Integer, Long>();
     for (IntSet rowIds : rowIdMap.values()) {
@@ -99,16 +107,16 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     setViewport(viewportMap);
     return true;
   }
-
-  /*package*/WebGridCell getParentGridCell() {
+  
+  /*package*/ WebGridCell getParentGridCell() {
     return _parentGridCell;
   }
 
-  /*package*/String getParentCalcConfigName() {
+  /*package*/ String getParentCalcConfigName() {
     return _parentCalcConfigName;
   }
 
-  /*package*/ValueSpecification getParentValueSpecification() {
+  /*package*/ ValueSpecification getParentValueSpecification() {
     return _parentValueSpecification;
   }
 
@@ -123,7 +131,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     addInputRowStructures(depGraph, depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
     return rowStructure;
   }
-
+  
   private int addInputRowStructures(DependencyGraph graph, DependencyNode node, Map<ValueSpecification, IntSet> rowIdMap, List<Object> rowStructure, int indent, int parentRowId, int nextRowId) {
     for (ValueSpecification inputValue : node.getInputValues()) {
       DependencyNode inputNode = graph.getNodeProducing(inputValue);
@@ -134,7 +142,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return nextRowId;
   }
-
+  
   private void addRowIdAssociation(int rowId, ValueSpecification specification, Map<ValueSpecification, IntSet> rowIdMap) {
     IntSet rowIdSet = rowIdMap.get(specification);
     if (rowIdSet == null) {
@@ -143,7 +151,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     rowIdSet.add(rowId);
   }
-
+  
   private String getTargetName(final ComputationTargetSpecification targetSpec) {
     ComputationTarget target = getComputationTargetResolver().resolve(targetSpec);
     if (target != null) {
@@ -164,14 +172,14 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     final String targetType = getTargetTypeName(node.getComputationTarget().getType());
     final String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
     final String displayProperties = getValuePropertiesForDisplay(valueSpecification.getProperties());
-
+    
     row.put("rowId", rowId);
     if (parentRowId > -1) {
       row.put("parentRowId", parentRowId);
     }
     row.put("indent", indent);
     row.put("target", targetName);
-
+    
     // These are static cell values which are not updated on each tick
     addCellValue(row, "targetType", targetType);
     addCellValue(row, "function", functionName);
@@ -181,13 +189,13 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return row;
   }
-
+  
   private void addCellValue(Map<String, Object> row, String fieldName, Object fieldValue) {
     Map<String, Object> valueMap = new HashMap<String, Object>();
     valueMap.put("v", fieldValue);
     row.put(fieldName, valueMap);
   }
-
+  
   //-------------------------------------------------------------------------
 
   public Map<String, Object> processViewCycle(ViewCycle viewCycle, Long resultTimestamp) {
@@ -196,7 +204,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     for (Pair<ValueSpecification, Object> valuePair : valueResponse.getResults()) {
       ValueSpecification specification = valuePair.getFirst();
       Object value = valuePair.getSecond();
-
+      
       IntSet rowIds = _rowIdMap.get(specification);
       if (rowIds == null) {
         s_logger.warn("Cache query returned unexpected item with value specification {}", specification);
@@ -227,7 +235,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return rows;
   }
-
+  
   private String getValuePropertiesForDisplay(ValueProperties properties) {
     StringBuilder sb = new StringBuilder();
     boolean isFirst = true;
@@ -258,7 +266,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
     }
     return sb.length() == 0 ? null : sb.toString();
   }
-
+  
   private String getTargetTypeName(ComputationTargetType targetType) {
     switch (targetType) {
       case PORTFOLIO_NODE:
@@ -273,7 +281,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
         return null;
     }
   }
-
+  
   @SuppressWarnings("unchecked")
   private ResultConverter<Object> getConverter(Object value) {
     if (value == null) {

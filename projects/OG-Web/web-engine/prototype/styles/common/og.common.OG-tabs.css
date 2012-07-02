@@ -1,13 +1,13 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 
 /*
 * Page Masthead styles
 *
-* @copyright 2009 - present by OpenGamma Inc
-* @license See distribution for license
+* Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+* Please see distribution for license.
 */
 
 .OG-tabs {
@@ -22,7 +22,7 @@
 .OG-tabs a {
   color: #555;
   display: inline-block;
-  padding: 7px 5px 14px 5px;
+  padding: 7px 5px 12px 5px;
   text-decoration: none;
 }
 
@@ -95,10 +95,6 @@
   top: 14px;
 }
 
-.OG-tabs a:hover.og-home:after {
-  background-position: -20px -75px;
-}
-
 .OG-tabs .og-home.og-active:before {
   background-position: -20px -75px;
 }
@@ -117,7 +113,7 @@
   cursor: pointer;
   background-position: 0 -75px;
   height: 16px;
-  width: 16px;
+  width: 17px;
   position: absolute;
   top: 8px; left: 6px;
 }

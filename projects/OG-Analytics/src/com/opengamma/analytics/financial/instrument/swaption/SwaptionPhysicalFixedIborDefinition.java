@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.swaption;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -109,12 +110,14 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
   }
 
   @Override
-  public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+  public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
+    Validate.notNull(dateTime, "date");
+    final LocalDate dayConversion = dateTime.toLocalDate();
+    Validate.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(date, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
+    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
     return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 

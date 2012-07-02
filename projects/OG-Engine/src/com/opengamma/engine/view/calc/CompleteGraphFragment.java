@@ -16,21 +16,21 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 /**
  * Special case of a graph fragment for small graphs where all nodes end up in a single fragment.
  */
-/* package */class CompleteGraphFragment extends GraphFragment<GraphFragmentContext, CompleteGraphFragment> {
+/* package */class CompleteGraphFragment extends GraphFragment<CompleteGraphFragment> {
 
   private final RootGraphFragmentFuture _future;
 
   public CompleteGraphFragment(final GraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics, final Collection<DependencyNode> nodes) {
     super(context, nodes);
-    _future = new RootGraphFragmentFuture(this, statistics);
+    _future = new RootGraphFragmentFuture(context, this, statistics);
   }
 
   /**
    * Only gets called if this was the only node created because the dep graph was too small.
    */
   @Override
-  public void resultReceived(final CalculationJobResult result) {
-    super.resultReceived(result);
+  public void resultReceived(final GraphFragmentContext context, final CalculationJobResult result) {
+    super.resultReceived(context, result);
     _future.executed();
   }
 

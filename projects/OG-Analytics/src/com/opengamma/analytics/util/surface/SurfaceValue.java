@@ -175,12 +175,24 @@ public class SurfaceValue {
   public static boolean compare(final SurfaceValue value1, final SurfaceValue value2, double tolerance) {
     Set<DoublesPair> set1 = value1._data.keySet();
     Set<DoublesPair> set2 = value2._data.keySet();
-    if (!set1.equals(set2)) {
-      return false;
-    }
     for (final DoublesPair p : set1) {
-      if (Math.abs(value1._data.get(p) - value2._data.get(p)) > tolerance) {
+      if (value2._data.get(p) == null && Math.abs(value1._data.get(p)) > tolerance) {
         return false;
+      }
+      if (value2._data.get(p) != null) {
+        if (Math.abs(value1._data.get(p) - value2._data.get(p)) > tolerance) {
+          return false;
+        }
+      }
+    }
+    for (final DoublesPair p : set2) {
+      if (value1._data.get(p) == null && Math.abs(value2._data.get(p)) > tolerance) {
+        return false;
+      }
+      if (value1._data.get(p) != null) {
+        if (Math.abs(value2._data.get(p) - value1._data.get(p)) > tolerance) {
+          return false;
+        }
       }
     }
     return true;

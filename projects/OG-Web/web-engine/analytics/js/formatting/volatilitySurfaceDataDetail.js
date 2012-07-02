@@ -87,7 +87,7 @@
       var columns = [];
       columns.push({
         id : 'x0',
-        name : 'Swap Length \\ Expiry',
+        name : data.axesLabel ? data.axesLabel : 'X \\ Y', 
         field : 'x0',
         width : 120,
         formatter: formatHeader

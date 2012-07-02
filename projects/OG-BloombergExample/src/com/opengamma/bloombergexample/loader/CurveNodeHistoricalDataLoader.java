@@ -20,8 +20,8 @@ import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.collections.Lists;
 
+import com.google.common.collect.Lists;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -43,6 +43,7 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.functional.Function1;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 
@@ -54,6 +55,7 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
+@Scriptable
 public class CurveNodeHistoricalDataLoader extends AbstractExampleTool {
   /**
    * Logger.

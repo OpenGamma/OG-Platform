@@ -167,19 +167,19 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     graph.removeUnnecessaryValues();
     Map<MockFunction, DependencyNode> nodes = assertGraphContains(graph, fn1, fnConv1);
     s_logger.debug("fnConv1 - inputs = {}", nodes.get(fnConv1).getInputValues());
-    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputRequirements());
-    assertTrue(nodes.get(fnConv1).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Foo"));
+    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputValues());
+    assertTrue(nodes.get(fnConv1).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Foo"));
     builder.addTarget(helper.getRequirement2Bar());
     graph = builder.getDependencyGraph();
     assertNotNull(graph);
     graph.removeUnnecessaryValues();
     nodes = assertGraphContains(graph, fn1, fnConv1, fnConv2);
     s_logger.debug("fnConv1 - inputs = {}", nodes.get(fnConv1).getInputValues());
-    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputRequirements());
-    assertTrue(nodes.get(fnConv1).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Foo"));
+    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputValues());
+    assertTrue(nodes.get(fnConv1).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Foo"));
     s_logger.debug("fnConv2 - inputs = {}", nodes.get(fnConv2).getInputValues());
-    s_logger.debug("fnConv2 - outputs = {}", nodes.get(fnConv2).getOutputRequirements());
-    assertTrue(nodes.get(fnConv2).getOutputRequirements().iterator().next().getConstraints().getValues("TEST").contains("Bar"));
+    s_logger.debug("fnConv2 - outputs = {}", nodes.get(fnConv2).getOutputValues());
+    assertTrue(nodes.get(fnConv2).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Bar"));
   }
 
   public void functionWithDynamicConversionDouble() {
@@ -212,7 +212,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     graph.removeUnnecessaryValues();
     Map<MockFunction, DependencyNode> nodes = assertGraphContains(graph, fn1, fnConv, fnConv);
     s_logger.debug("fnConv - inputs = {}", nodes.get(fnConv).getInputValues());
-    s_logger.debug("fnConv - outputs = {}", nodes.get(fnConv).getOutputRequirements());
+    s_logger.debug("fnConv - outputs = {}", nodes.get(fnConv).getOutputValues());
     assertEquals(2, getResultsInvoked.get());
   }
 

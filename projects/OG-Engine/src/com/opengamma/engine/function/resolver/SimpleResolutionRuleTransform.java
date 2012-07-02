@@ -15,8 +15,8 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.collections.Lists;
 
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
@@ -81,9 +81,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
   //-------------------------------------------------------------------------
   @Override
   public Collection<ResolutionRule> transform(final Collection<ResolutionRule> rules) {
-    final Collection<ResolutionRule> result = Lists.newArrayList(rules.size());
+    final Collection<ResolutionRule> result = Lists.newArrayListWithCapacity(rules.size());
     for (ResolutionRule rule : rules) {
-      final String function = rule.getFunction().getFunction().getFunctionDefinition().getShortName();
+      final String function = rule.getParameterizedFunction().getFunction().getFunctionDefinition().getShortName();
       final Action action = _functionTransformations.get(function);
       if (action == null) {
         s_logger.debug("Function {} has no transformation rules", function);
@@ -203,9 +203,9 @@ public class SimpleResolutionRuleTransform implements ResolutionRuleTransform {
 
     @Override
     protected void apply(final ResolutionRule originalRule, final Collection<ResolutionRule> output) {
-      ParameterizedFunction function = originalRule.getFunction();
+      ParameterizedFunction function = originalRule.getParameterizedFunction();
       if (_parameters != null) {
-        function = new ParameterizedFunction(originalRule.getFunction().getFunction(), _parameters);
+        function = new ParameterizedFunction(originalRule.getParameterizedFunction().getFunction(), _parameters);
       }
       final ComputationTargetFilter computationTargetFilter;
       if (_computationTargetFilter != null) {

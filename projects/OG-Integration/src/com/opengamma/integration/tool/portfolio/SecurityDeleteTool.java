@@ -19,10 +19,12 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
  */
+@Scriptable
 public class SecurityDeleteTool extends AbstractTool {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityDeleteTool.class);

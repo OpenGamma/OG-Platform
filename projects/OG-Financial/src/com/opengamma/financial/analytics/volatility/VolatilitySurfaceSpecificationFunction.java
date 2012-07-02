@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -77,8 +77,8 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
             createValueProperties()
             .with(ValuePropertyNames.SURFACE, surfaceName)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-            .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-            .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get());
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get());
         return Collections.singleton(new ComputedValue(spec, specification));
       }
 
@@ -102,8 +102,8 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
             createValueProperties()
             .withAny(ValuePropertyNames.SURFACE)
             .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-            .withAny(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE)
-            .withAny(SurfacePropertyNames.PROPERTY_SURFACE_UNITS).get()));
+            .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE)
+            .withAny(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS).get()));
       }
 
       @Override

@@ -30,6 +30,7 @@ bootstrap/
 tests/output/
 javadoc
 lib/
+target/
 .idea/
 .DS_Store
 .*.sw?

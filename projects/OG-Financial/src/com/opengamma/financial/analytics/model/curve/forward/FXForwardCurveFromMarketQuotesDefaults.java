@@ -41,25 +41,28 @@ public class FXForwardCurveFromMarketQuotesDefaults extends DefaultPropertyFunct
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveInterpolator);
     }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveLeftExtrapolator);
     }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveRightExtrapolator);
     }
     return null;

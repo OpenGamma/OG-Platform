@@ -18,6 +18,7 @@ import com.opengamma.web.server.push.ViewportDefinition;
 
 /**
  * Jersey {@link MessageBodyReader} that produces {@link ViewportDefinition} instances from JSON.
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 @Provider
 @Consumes(MediaType.APPLICATION_JSON)

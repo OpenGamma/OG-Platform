@@ -7,6 +7,8 @@ package com.opengamma.engine.function.resolver;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collection;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -17,7 +19,7 @@ import com.opengamma.engine.test.PrimitiveTestFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 
@@ -47,7 +49,7 @@ public class DefaultFunctionResolverTest {
   public void globalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, ApplyToAllTargets.INSTANCE, 200));
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
+    Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
     assertEquals(_parameterizedF2, result.getFirst());
   }
 
@@ -70,7 +72,7 @@ public class DefaultFunctionResolverTest {
   public void nonGlobalRuleSelection() {
     _resolver.addRule(new ResolutionRule(_parameterizedF1, ApplyToAllTargets.INSTANCE, 100));
     _resolver.addRule(new ResolutionRule(_parameterizedF2, new Filter(_target), 200));
-    Pair<ParameterizedFunction, ValueSpecification> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
+    Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> result = _resolver.resolveFunction(new ValueRequirement("req1", _target.toSpecification()), _target).next();
     assertEquals(_parameterizedF2, result.getFirst());
     ComputationTarget anotherTarget = new ComputationTarget(UniqueId.of("scheme", "target2"));
     result = _resolver.resolveFunction(new ValueRequirement("req1", anotherTarget.toSpecification()), anotherTarget).next();

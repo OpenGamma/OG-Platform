@@ -125,6 +125,9 @@ public class ConfigLoader {
       }
       UniqueId replacementId = lookupPortfolioByName(idNameMap.get(viewDefinition.getPortfolioId()));
       if (replacementId != null) {
+        if (viewDefinition.getPortfolioId().isLatest()) {
+          replacementId = replacementId.toLatest();
+        }
         return viewDefinition.copyWith(viewDefinition.getName(), replacementId, viewDefinition.getMarketDataUser());
       }
     }

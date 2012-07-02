@@ -56,7 +56,7 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
+    return isCorrectIdType(target);
   }
 
   @Override
@@ -69,7 +69,7 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<ValueRequirement> requirements = LocalVolatilitySurfaceUtils.ensureDupireLocalVolatilitySurfaceProperties(constraints);
-    if (requirements == null) {
+    if (requirements == null) { 
       return null;
     }
     final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);
@@ -82,16 +82,16 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
 
   protected abstract String getBlackSmileInterpolatorName();
 
-  private ValueProperties getResultProperties(final String parameterizationType) {
+  protected ValueProperties getResultProperties(final String parameterizationType) {
     return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType).get();
   }
 
-  private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String parameterizationType) {
+  protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String parameterizationType) {
     return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(createValueProperties().get(), getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType,
         desiredValue).get();
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = BlackVolatilitySurfaceUtils.addAllBlackSurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), desiredValue).get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
   }

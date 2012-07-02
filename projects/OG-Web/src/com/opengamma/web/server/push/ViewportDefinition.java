@@ -41,6 +41,7 @@ import com.opengamma.web.server.WebGridCell;
  *     </ul>
  *   </li>
  * </ul>
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 public class ViewportDefinition {
 

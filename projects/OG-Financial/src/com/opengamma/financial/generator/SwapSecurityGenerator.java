@@ -40,6 +40,7 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
       Tenor.ofYears(20) };
 
   private int _daysTrading = 60;
+  private LocalDate _swaptionExpiry;
 
   public void setDaysTrading(final int daysTrading) {
     _daysTrading = daysTrading;
@@ -47,6 +48,14 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
 
   public int getDaysTrading() {
     return _daysTrading;
+  }
+  
+  public void setSwationExpiry(final LocalDate swaptionExpiry) {
+    _swaptionExpiry = swaptionExpiry;
+  }
+  
+  public LocalDate getSwaptionExpiry() {
+    return _swaptionExpiry;
   }
 
   /**
@@ -79,8 +88,13 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
   public SwapSecurity createSecurity() {
     final Currency ccy = getRandomCurrency();
     LocalDate tradeDate;
+    int i = 0;
     do {
-      tradeDate = LocalDate.now().minusDays(getRandom(getDaysTrading()));
+      if (getSwaptionExpiry() == null) { // just a normal swap
+        tradeDate = LocalDate.now().minusDays(getRandom(getDaysTrading()));
+      } else {
+        tradeDate = getSwaptionExpiry().plusDays(2 + i++); // effective date should be at least two days after expiry of swaption.
+      }
     } while (getHolidaySource().isHoliday(tradeDate, ccy));
     ConventionBundle swapConvention = getConventionSource().getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {

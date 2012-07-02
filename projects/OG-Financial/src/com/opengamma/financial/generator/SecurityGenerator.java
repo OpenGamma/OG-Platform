@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.time.calendar.DateProvider;
 import javax.time.calendar.DayOfWeek;
@@ -66,6 +67,8 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -262,7 +265,13 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     for (ComputedValue input : inputs) {
       functionInputs.addValue(input);
     }
-    return function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output)).iterator().next();
+    Set<ComputedValue> result;
+    try {
+      result = function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output));
+    } catch (AsynchronousExecution ex) {
+      result = AsynchronousOperation.getResult(ex);
+    }
+    return result.iterator().next();
   }
 
   private ComputedValue findMarketData(final ValueRequirement requirement) {

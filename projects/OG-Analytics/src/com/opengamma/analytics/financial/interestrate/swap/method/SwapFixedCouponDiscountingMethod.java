@@ -176,6 +176,42 @@ public final class SwapFixedCouponDiscountingMethod {
   }
 
   /**
+   * Compute the sensitivity of the PVBP to the discounting curve.
+   * @param fixedCouponSwap The swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param discountingCurve The discounting curve.
+   * @return The sensitivity.
+   */
+  public List<DoublesPair> presentValueBasisPointCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldAndDiscountCurve discountingCurve) {
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    double time;
+    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
+      final DoublesPair s = new DoublesPair(time, -time * discountingCurve.getDiscountFactor(time)
+          * dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate())
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
+      list.add(s);
+    }
+    return list;
+  }
+
+  /**
+   * Compute the sensitivity of the PVBP to a curve bundle.
+   * @param fixedCouponSwap The swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param curves The yield curve bundle (containing the appropriate discounting curve).
+   * @return The sensitivity.
+   */
+  public InterestRateCurveSensitivity presentValueBasisPointCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldCurveBundle curves) {
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
+    result.put(annuityFixed.getNthPayment(0).getFundingCurveName(), presentValueBasisPointCurveSensitivity(fixedCouponSwap, dayCount, discountingCurve));
+    return new InterestRateCurveSensitivity(result);
+  }
+
+  /**
    * Computes the coupon equivalent of a swap (without margins).
    * @param fixedCouponSwap The underlying swap.
    * @param pvbp The swap PVBP.
@@ -208,4 +244,5 @@ public final class SwapFixedCouponDiscountingMethod {
     final double pvbp = presentValueBasisPoint(fixedCouponSwap, dayCount, curves);
     return couponEquivalent(fixedCouponSwap, pvbp, curves);
   }
+
 }

@@ -12,12 +12,10 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -47,7 +45,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -123,29 +120,20 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     }
     final double spot = (Double) spotObject;
 
-    //    Object forwardObject = inputs.getValue(getForwardRequirement(security));
-    //    ValueRequirement temp = getForwardRequirement(security);
-    //    if (forwardObject == null) {
-    //      throw new OpenGammaRuntimeException("Could not get Underlying's Forward Value");
-    //    }
-
-    //TODO remove this when the forward is coming through the engine
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
     final double discountFactor = discountCurve.getDiscountFactor(expiry);
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
-    // final double forward = spot / discountFactor;
     final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this
-    final VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, forwardCurve);
+    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, discountCurve, forwardCurve);
     
     // 3. Compute and return the value (ComputedValue)
     return computeValues(target, inputs, deriv, market);
   }
 
-  protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
+  protected abstract Set<ComputedValue> computeValues(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final EquityOptionDataBundle market);
 
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final ValueProperties properties = getValueProperties(target);
-    final ValueProperties allProperties = properties.with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
     return new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
   }
 
@@ -164,14 +152,6 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     return _surfaceDefinitionName;
   }
 
-  //  private ValueRequirement getForwardRequirement(EquityVarianceSwapSecurity security) {
-  //    ExternalId id = security.getSpotUnderlyingId();
-  //    ValueProperties properties = ValueProperties.builder().with(EquityForwardFromSpotAndYieldCurveFunction.FORWARD_CALCULATION_METHOD, _forwardCalculationMethod)
-  //                                                          .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
-  //                                                          .get();
-  //    return new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()), properties);
-  //  }
-
   private ValueRequirement getSpotRequirement(final EquityVarianceSwapSecurity security) {
     final ExternalId id = security.getSpotUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
@@ -186,12 +166,10 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   private ValueRequirement getVolatilitySurfaceRequirement(final EquityVarianceSwapSecurity security) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, _surfaceDefinitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
-        .withAny(STRIKE_PARAMETERIZATION_METHOD)//, _strikeParameterizationMethodName)
         .get();
     final ExternalId id = security.getSpotUnderlyingId();
     final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
       UniqueId.of(id.getScheme().getName(), id.getValue());
-    //UniqueId temp = UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index");
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
@@ -217,18 +195,12 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    
-    return Sets.newHashSet(getDiscountCurveRequirement(security), getVolatilitySurfaceRequirement(security), getSpotRequirement(security));
-    //TODO
-    //    return Sets.newHashSet(getForwardRequirement(security), getSpotRequirement(security), getDiscountRequirement(security), getVolatilitySurfaceRequirement(security));
+    return Sets.newHashSet(getDiscountCurveRequirement(security), getSpotRequirement(security), getVolatilitySurfaceRequirement(security));  
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(getValueSpecification(target));
   }
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 }

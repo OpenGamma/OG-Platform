@@ -1,6 +1,6 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 $.register_module({
     name: 'og.api.common',
@@ -30,7 +30,8 @@ $.register_module({
                     check_empties = function (bundle, params) { // if condition then fields can't exist, optional label
                         var config = bundle.config, method = bundle.method, self = 'check_empties';
                         ($.isArray(params) ? params : [params]).forEach(function (obj) {
-                            var condition = obj.condition, fields = obj.fields, label = obj.label || 'unknown reason';
+                            var condition = 'condition' in obj ? obj.condition : true,
+                                fields = obj.fields, label = obj.label || 'unknown reason';
                             if (!condition) return; // if condition isn't true, don't bother with anything else
                             if (!$.isArray(fields)) throw new TypeError(self + ': obj.fields must be an array');
                             fields.forEach(function (field) {
@@ -90,7 +91,7 @@ $.register_module({
                     cache['setItem'](key, JSON.stringify(value));
                 } catch (error) {
                     warn(module.name + ': set_cache failed\n', error);
-                    del_cache(key);
+                    common.del_cache(key);
                 }
             },
             del_cache: function (key) {

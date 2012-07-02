@@ -64,9 +64,16 @@ public class RemoteFudgeMessageStore implements FudgeMessageStore {
     final GetResponse response = getRemoteCacheClient().sendGetMessage(request, GetResponse.class);
     final Map<Long, FudgeMsg> result = new HashMap<Long, FudgeMsg>();
     final List<FudgeMsg> values = response.getData();
+    if (values.size() != identifiers.size()) {
+      // An error at the server end, possibly an invalid cache (gives a result with just one null in)
+      return Collections.emptyMap();
+    }
     int i = 0;
     for (Long identifier : request.getIdentifier()) {
-      result.put(identifier, values.get(i++));
+      final FudgeMsg value = values.get(i++);
+      if (!value.isEmpty()) {
+        result.put(identifier, value);
+      }
     }
     return result;
   }

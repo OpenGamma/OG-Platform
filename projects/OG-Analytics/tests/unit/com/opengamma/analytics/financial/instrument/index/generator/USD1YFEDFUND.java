@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.indexon.FEDFUND;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * OIS generator for USD annual payments with Federal Funds rates.
  */
-public class USD1YFEDFUND extends GeneratorOIS {
+public class USD1YFEDFUND extends GeneratorFixedON {
 
   /**
    * Constructor of the OIS generator USD annual payment for Fed Funds.

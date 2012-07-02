@@ -5,19 +5,18 @@
  */
 package com.opengamma.util.mongo;
 
-import java.io.Closeable;
-
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Connector;
 
 /**
  * Connector used to access Mongo databases.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class MongoConnector implements Closeable {
+public class MongoConnector implements Connector {
 
   /**
    * The configuration name.
@@ -56,15 +55,17 @@ public class MongoConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the display name of the connector.
-   * 
-   * @return a name usable for display, not null
-   */
-  public String getName() {
+  @Override
+  public final String getName() {
     return _name;
   }
 
+  @Override
+  public final Class<? extends Connector> getType() {
+    return MongoConnector.class;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the Mongo instance.
    * <p>

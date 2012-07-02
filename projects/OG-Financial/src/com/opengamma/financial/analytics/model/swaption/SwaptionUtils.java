@@ -60,6 +60,6 @@ public class SwaptionUtils {
     } else {
       throw new OpenGammaRuntimeException("Can only handle PeriodFrequency or SimpleFrequency");
     }
-    return new GeneratorSwapFixedIbor(fixedLegPeriod, fixedLegDayCount, iborIndex);
+    return new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex);
   }
 }

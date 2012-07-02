@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.GeneratorFixedON;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.generator.USD1YFEDFUND;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
@@ -338,7 +338,7 @@ public class CouponOISDefinitionTest {
   }
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
-  private static final GeneratorOIS USD_GENERATOR = new USD1YFEDFUND(NYC);
+  private static final GeneratorFixedON USD_GENERATOR = new USD1YFEDFUND(NYC);
   private static final IndexON USD_FEDFUND = USD_GENERATOR.getIndex();
 
   private static final ZonedDateTime USD_END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, CPN_TENOR, USD_GENERATOR.getBusinessDayConvention(), NYC,

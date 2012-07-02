@@ -10,18 +10,20 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
-import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.InitialConditionsProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDE1DCoefficientsProvider;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -30,6 +32,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Smi
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.StrikeType;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
@@ -425,12 +428,12 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
       final boolean isCall, final double theta, final double maxT, final double maxAbsProxyDelta, final int
       nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
-    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    ConvectionDiffusionPDEDataBundle db;
+    final PDE1DCoefficientsProvider provider = new PDE1DCoefficientsProvider();
+    ConvectionDiffusionPDE1DCoefficients pde;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
-      db = provider.getForwardLocalVol((LocalVolatilitySurfaceStrike) localVolatility, forwardCurve, isCall);
+      pde = provider.getForwardLocalVol(forwardCurve, (LocalVolatilitySurfaceStrike) localVolatility);
     } else if (localVolatility instanceof LocalVolatilitySurfaceMoneyness) {
-      db = provider.getForwardLocalVol((LocalVolatilitySurfaceMoneyness) localVolatility, isCall);
+      pde = provider.getForwardLocalVol((LocalVolatilitySurfaceMoneyness) localVolatility);
     } else {
       throw new IllegalArgumentException();
     }
@@ -454,7 +457,8 @@ public class LocalVolatilityForwardPDEGreekCalculator1<T extends StrikeType> {
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, maxT, nTimeSteps, timeMeshLambda);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(minMoneyness, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
+    final Function1D<Double, Double> initialCond = (new InitialConditionsProvider()).getForwardCallPut(isCall);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCond, lower, upper, grid));
     return res;
   }
 }

@@ -80,18 +80,20 @@ public class BlackVolatilitySurfaceMoneynessConverter implements ResultConverter
         String[] yLabels = new String[20];
         double[][] surface = new double[20][20];
         boolean[][] missingValues = new boolean[20][20];
-        double x = 0;
+        
+        double[] expiries = {0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 2.5, 3., 4., 5., 6., 7., 8., 9., 10., 12., 15., 20., 30.}; 
         for (int i = 0; i < 20; i++) {
-          x += 0.5;
-          xLabels[i] = LABEL_FORMAT.format(x);
-          double y = .5;
+          double t = expiries[i];
+          xLabels[i] = LABEL_FORMAT.format(t);
+          double m = .5;
           for (int j = 0; j < 20; j++) {
-            y += 0.05;
+            m += 0.05;
             if (i == 0) {
-              yLabels[j] = LABEL_FORMAT.format(y);
+              yLabels[j] = LABEL_FORMAT.format(m);
             }
-            surface[i][j] = 100 * functional.getZValue(x, y);
+            surface[j][i] = 100 * functional.getZValue(t, m);
           }
+          
         }
         result.put("xs", xLabels);
         result.put("ys", yLabels);
@@ -99,6 +101,7 @@ public class BlackVolatilitySurfaceMoneynessConverter implements ResultConverter
         result.put("missingValues", missingValues);
       }
     }
+    result.put("axesLabel", "Strike/Fwd \\ Expiry (yr)");
     return result;
   }
 

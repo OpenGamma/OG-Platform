@@ -83,7 +83,9 @@ public class ReportingInputStream extends FilterInputStream {
     beginRead();
     try {
       final int bytes = in.read(b, off, len);
-      _readBytes += bytes;
+      if (bytes > 0) {
+        _readBytes += bytes;
+      }
       return bytes;
     } finally {
       endRead();
@@ -108,7 +110,7 @@ public class ReportingInputStream extends FilterInputStream {
     if (--_callStack == 0) {
       long time = System.nanoTime();
       _readTime += time;
-      if (time >= _nextReportTime) {
+      if (time - _nextReportTime >= 0) {
         _nextReportTime = time + TIME_TO_REPORT;
         _logger.info("Stream {} read {}Kb in {}ms from {} operations ({}M)}", new Object[] {_streamName, (double) _readBytes / 1024d, (double) _readTime / 1000000d, _readOperations,
           (double) _readBytes * 8192d / (double) _readTime});

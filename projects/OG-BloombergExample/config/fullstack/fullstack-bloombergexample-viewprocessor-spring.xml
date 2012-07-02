@@ -60,26 +60,25 @@
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
-  <bean id="mainComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
+  <bean id="localNodeFactory" class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeFactory">
+    <property name="viewComputationCache" ref="mainComputationCacheSource" />
+    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
+    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
+    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
+    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
+    <property name="nodeIdentifier" value="local" />
+    <property name="statisticsGatherer" ref="functionCosts" />
+  </bean>
+  <bean id="localNodeInvoker" class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
     <constructor-arg>
-      <bean class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
-        <constructor-arg>
-				  <bean class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
-				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
-				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
-				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-				    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
-				    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
-				    <property name="writeBehindExecutorService">
-				      <null/> <!-- The cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
-				    </property>
-				    <property name="nodesPerCore" value="1" />
-				    <property name="nodeIdentifier" value="local" />
-				    <property name="statisticsGatherer" ref="functionCosts" />
-				  </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.engine.view.calcnode.SimpleCalculationNodeSet">
+        <property name="nodeFactory" ref="localNodeFactory" />
+        <property name="nodesPerCore" value="1" />
       </bean>
     </constructor-arg>
+  </bean>
+  <bean id="mainComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
+    <constructor-arg ref="localNodeInvoker" />
     <!-- Maximum execution time (5 minutes) useful to keep going, but not if you're testing large/long running jobs --> 
     <property name="maxJobExecutionTime" value="300000" />
     <property name="statisticsGatherer" ref="jobDispatchStatistics" />
@@ -145,8 +144,6 @@
     <property name="name" value="main" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="namedMarketDataSpecificationRepository" ref="bbgNamedMarketDataSpecificationRepository" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
@@ -286,6 +283,16 @@
       <list>
         <ref bean="mainViewProcessor" />
         <ref bean="graphExecutionStatistics" />
+        <ref bean="standardMBeanServer" />
+      </list>
+    </property>
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="com.opengamma.engine.view.calcnode.jmx.SimpleCalculationNodeInvocationContainer.registerMBeans" />
+    <property name="arguments">
+      <list>
+        <ref bean="localNodeInvoker" />
+        <ref bean="localNodeFactory" />
         <ref bean="standardMBeanServer" />
       </list>
     </property>

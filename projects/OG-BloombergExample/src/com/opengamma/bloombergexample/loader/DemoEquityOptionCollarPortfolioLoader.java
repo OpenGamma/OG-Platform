@@ -63,12 +63,14 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * A portfolio loader which generates a sensible portfolio of liquid equities and options on them
  * Also see DemoEquityOptionPortfolioLoader.
  */
+@Scriptable
 public class DemoEquityOptionCollarPortfolioLoader extends AbstractExampleTool {
 
   private static final String TOOL_NAME = "Demo Equity Option Portfolio Loader";

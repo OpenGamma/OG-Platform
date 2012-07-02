@@ -13,10 +13,12 @@ import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Updates time-series using the Bloomberg historical loader.
  */
+@Scriptable
 public class BloombergTimeSeriesUpdateTool extends AbstractTool {
 
   @Override

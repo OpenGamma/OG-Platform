@@ -12,7 +12,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
@@ -25,19 +25,19 @@ public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTe
   @Test
   public void testSwaptionCycle() {
     BloombergSwaptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
-    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
+    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy", MarketDataRequirementNames.MARKET_VALUE);
-    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
+    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy", MarketDataRequirementNames.IMPLIED_VOLATILITY);
-    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
+    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
             new VolatilitySurfaceSpecification("DEFAULT",
                 Currency.USD,
-                SurfaceQuoteType.PAY_RECEIVE_DELTA,
+                SurfaceAndCubeQuoteType.PAY_RECEIVE_DELTA,
                 new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy")))));
   }
 
@@ -45,12 +45,12 @@ public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTe
   public void testEOCycle() {
     final BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"),
-        SurfaceQuoteType.CALL_AND_PUT_STRIKE, instrumentProvider);
+        SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
             new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), "DJX Index"),
-                SurfaceQuoteType.CALL_AND_PUT_STRIKE,
+                SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE,
                 new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
   }
 }

@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.equity;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -19,6 +19,8 @@ import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap
 public abstract class AbstractEquityDerivativeVisitor<S, T> implements EquityDerivativeVisitor<S, T> {
 
   @Override
+  // Note: If you have built a class that extends this one and ended up here by accident,
+  // copy this method into your class.
   public T visit(final EquityDerivative derivative, final S data) {
     Validate.notNull(derivative, "derivative");
     Validate.notNull(data, "data");

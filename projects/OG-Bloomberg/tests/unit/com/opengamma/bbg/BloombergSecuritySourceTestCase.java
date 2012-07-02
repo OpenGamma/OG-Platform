@@ -314,7 +314,7 @@ public abstract class BloombergSecuritySourceTestCase {
     assertTrue(bond instanceof BondFutureSecurity);
     BondFutureSecurity euroBondFuture = (BondFutureSecurity) bond;
     assertEquals("FUTURE", euroBondFuture.getSecurityType());
-    assertEquals("Bond", euroBondFuture.getBondType());
+    assertEquals("Bond", euroBondFuture.getContractCategory());
     assertEquals(EUR, euroBondFuture.getCurrency());
     String displayName = euroBondFuture.getName();
     assertNotNull(displayName);

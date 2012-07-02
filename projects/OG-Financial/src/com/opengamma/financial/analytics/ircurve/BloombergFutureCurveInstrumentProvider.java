@@ -62,12 +62,23 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     return createQuarterlyIRFutureStrips(curveDate, tenor, numQuarterlyFuturesFromTenor, _futurePrefix, " " + _marketSector);
   }
 
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor payTenor, final Tenor receiveTenor, final IndexType payIndexType,
+      final IndexType receiveIndexType) {
+    throw new OpenGammaRuntimeException("Only futures supported");
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
+    throw new OpenGammaRuntimeException("Only futures supported");
+  }
+
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
 
   private ExternalId createQuarterlyIRFutureStrips(final LocalDate curveDate, final Tenor tenor, final int numQuartlyFuturesFromTenor, final String prefix, final String postfix) {
     final StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);
-    final LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());    
+    final LocalDate curveFutureStartDate = curveDate.plus(tenor.getPeriod());
     final String expiryCode = BloombergIRFutureUtils.getQuarterlyExpiryCodeForFutures(prefix, numQuartlyFuturesFromTenor, curveFutureStartDate);
     futureCode.append(expiryCode);
     futureCode.append(postfix);

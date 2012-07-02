@@ -1,0 +1,223 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+
+.OG-analytics-form .og-view,
+.OG-analytics-form .og-aggregation,
+.OG-analytics-form .og-datasources,
+.OG-analytics-form .og-load {
+    position: absolute;
+    display: inline-block;
+    float: left;
+}
+
+.OG-analytics-form input {
+    text-overflow: ellipsis;
+}
+
+.OG-analytics-form .og-icon-down {
+    width: 15px;
+    position: absolute;
+    top: 5px;
+    margin-left: 2px;
+    background-color: #eee;
+    border: 1px solid #fff;
+    outline: 1px solid #ddd;
+    right: 1px;
+}
+
+.OG-analytics-form .og-icon-down:before {
+    content: '';
+    position: absolute;
+    background: #fff;
+    top: 0;
+    bottom: 50%;
+    left: 0;
+    right: 0;
+}
+
+.OG-analytics-form .og-icon-down:after {
+    top: 45%;
+    left: 4px;
+}
+
+/**
+ * View
+ */
+.OG-analytics-form .og-view {
+    width: 20%;
+    left: 0;
+}
+
+.OG-analytics-form .og-view:hover input {
+    background: #fffee5;
+}
+
+.OG-analytics-form .og-view div:first-child {
+    position: absolute;
+    top: 4px;
+    left: 2px;
+    right: 21px;
+}
+
+.OG-analytics-form .og-view input {
+    width: 100%;
+    height: 32px;
+    font-size: 26px;
+    color: #475562;
+    font-family: 'Open Sans', arial, serif;
+}
+
+.OG-analytics-form .og-view .og-icon-down {
+    height: 32px;
+}
+
+/**
+ * Title (for aggregation and datasource)
+ */
+
+.OG-analytics-form .og-option-title {
+    cursor: default;
+    height: 40px;
+}
+
+.OG-analytics-form .og-option-title:hover ul {
+    background: #fffee5;
+}
+
+.OG-analytics-form .og-option-title header {
+    font-size: 10px;
+    color: #fff;
+    display: inline-block;
+    padding: 0 2px 2px 2px;
+    line-height: 12px;
+    position: relative;
+    top: -4px;
+    text-transform: uppercase;
+    vertical-align: bottom;
+}
+
+.OG-analytics-form .og-option-title ul {
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: absolute;
+    left: 0;
+    right: 21px;
+    color: #475562;
+    height: 22px;
+    padding: 2px 0 0 5px;
+    top: 15px;
+    line-height: 20px;
+}
+
+.OG-analytics-form .og-option-title li {
+    list-style: none;
+    display: inline-block;
+    font-family: 'Open Sans', arial, serif;
+}
+
+.OG-analytics-form .og-option-title span {
+    color: #999;
+    text-transform: uppercase;
+    font-size: 12px;
+    padding-left: 5px;
+    font-family: arial, helvetica, sans-serif;
+}
+
+.OG-analytics-form .og-option-title .og-icon-down {
+    height: 22px;
+    top: 16px;
+}
+
+.OG-analytics-form .og-option-title ul {
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+}
+
+.OG-analytics-form .og-option-title.og-active ul {
+    border: 1px solid #ccc;
+    border-right: none;
+}
+
+/**
+ * Aggregation
+ */
+.OG-analytics-form .og-aggregation {
+    width: 20%;
+    left: 21%;
+}
+
+/**
+ * Datasources
+ */
+.OG-analytics-form .og-datasources {
+    width: 30%;
+    left: 42%;
+}
+
+/**
+ * Load
+ */
+.OG-analytics-form .og-load {
+    left: 73%;
+    top: 7px;
+}
+
+/**
+ * Status
+ */
+.OG-analytics-form .og-status {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    font-size: 10px;
+}
+
+.OG-analytics-form .og-status span {
+    color: #999;
+    vertical-align: middle;
+}
+
+.OG-analytics-form .og-status button {
+    width: 20px;
+    height: 15px;
+    position: relative;
+    margin-left: 4px;
+}
+
+.OG-analytics-form .og-status .og-icon-pause:after {
+    top: 2px;
+    left: 7px;
+}
+
+.OG-analytics-form .og-status .og-icon-play:after {
+    top: 2px;
+    left: 6px;
+}
+
+.OG-analytics-form .og-status em {
+    background-color: #ccc;
+    color: #fff;
+    display: inline-block;
+    text-transform: uppercase;
+    height: 13px;
+    line-height: 13px;
+    padding: 0 2px;
+    font-style: normal;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.ie9 .OG-analytics-form .og-status em {
+    line-height: 15px;
+}
+
+.OG-analytics-form .og-status .paused {
+    background-color: #f08800;
+}
+
+.OG-analytics-form .og-status .live {
+    background-color: #0c9605;
+}

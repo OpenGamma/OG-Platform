@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention;
 
 import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
@@ -16,6 +17,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.time.Tenor;
 
 /**
  * An implementation of ConventionBundle for use by the InMemoryConventionBundleMaster.  Note it is NOT immutable, because the master needs to be able to assign 
@@ -72,6 +74,9 @@ public class ConventionBundleImpl implements ConventionBundle {
   private int _exDividendDays;
   private YieldConvention _yieldConvention;
   private boolean _rollToSettlement;
+  private int _shortSettlementDays;
+  private int _longSettlementDays;
+  private Tenor _cutoffTenor;
 
   //swaptions
   private boolean _isCashSettled;
@@ -85,8 +90,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param frequency the frequency
    * @param settlementDays the number of days to settle
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
-      final int settlementDays) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Frequency frequency, final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -103,7 +108,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param businessDayConvention the business day convention
    * @param settlementDays the number of days to settle
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int settlementDays) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -121,8 +127,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param settlementDays the number of days to settle
    * @param region the ExternalId of the region associated with this type
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays, final ExternalId region) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Period period, final int settlementDays, final ExternalId region) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -143,8 +149,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param isEOM whether the End-of-month convention is used in schedule generation 
    * @param region the ExternalId of the region associated with this type
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays, final boolean isEOM, final ExternalId region) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Period period, final int settlementDays, final boolean isEOM, final ExternalId region) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -164,8 +170,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param settlementDays the number of days to settle
    * @param isEOMConvention whether the End-of-month convention is used in schedule generation 
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int settlementDays,
-      final boolean isEOMConvention) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int settlementDays, final boolean isEOMConvention) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -186,8 +192,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param region the ExternalId of the region associated with this type
    * @param publicationLag the lag in publication from start of the period to publication of the index (e.g. USD = 1, most 0)
    */
-  public ConventionBundleImpl(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
-      final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
+  public ConventionBundleImpl(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Period period, final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
     _bundle = bundle;
     _name = name;
     _dayCount = dayCount;
@@ -209,8 +215,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param settlementDays the number of days to settle
    * @param yearFraction the year fraction
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
-      final int settlementDays, final double yearFraction) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final Frequency frequency, final int settlementDays, final double yearFraction) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = dayCount;
@@ -236,10 +242,11 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param swapFloatingLegInitialRate the initial rate of the floating leg
    * @param swapFloatingLegRegion the ExternalId referencing the region associated with the floating leg
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
-      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
-      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays, final ExternalId swapFloatingLegInitialRate,
+      final ExternalId swapFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -276,10 +283,11 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param swapFloatingLegRegion the ExternalId referencing the region associated with the floating leg
    * @param isEOM whether the swap or FRA should follow the end-of-month convention when calculating schedules
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
-      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
-      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final boolean isEOM) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays, final ExternalId swapFloatingLegInitialRate,
+      final ExternalId swapFloatingLegRegion, final boolean isEOM) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -318,10 +326,11 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param isEOM whether the swap or FRA should follow the end-of-month convention when calculating schedules
    * @param swapTenor the period of the swap (tenor)
    */
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
-      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
-      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final boolean isEOM, final Period swapTenor) {
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays, final ExternalId swapFloatingLegInitialRate,
+      final ExternalId swapFloatingLegRegion, final boolean isEOM, final Period swapTenor) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -360,11 +369,12 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param swapFloatingLegRegion the ExternalId referencing the region associated with the floating leg
    * @param isEOM whether the swap or FRA should follow the end-of-month convention when calculating schedules
    * @param publicationLag the lag in publication from start of the period to publication of the index (e.g. USD = 1, most 0)
-   */ 
-  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
-      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
-      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
-      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final boolean isEOM, final Integer publicationLag) {
+   */
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays,
+      final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays, final ExternalId swapFloatingLegInitialRate,
+      final ExternalId swapFloatingLegRegion, final boolean isEOM, final Integer publicationLag) {
     _bundle = initialBundle;
     _name = name;
     _dayCount = null;
@@ -404,9 +414,10 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param basisSwapReceiveFloatingLegRegion the ExternalId referencing the region associated with the receive floating leg
    */
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
-      final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
-      final ExternalId basisSwapPayFloatingLegInitialRate, final ExternalId basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
-      final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention, final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
+      final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency,
+      final Integer basisSwapPayFloatingLegSettlementDays, final ExternalId basisSwapPayFloatingLegInitialRate, final ExternalId basisSwapPayFloatingLegRegion,
+      final DayCount basisSwapReceiveFloatingLegDayCount, final BusinessDayConvention basisSwapReceiveFloatingLegBusinessDayConvention,
+      final Frequency basisSwapReceiveFloatingLegFrequency, final Integer basisSwapReceiveFloatingLegSettlementDays,
       final ExternalId basisSwapReceiveFloatingLegInitialRate, final ExternalId basisSwapReceiveFloatingLegRegion) {
     _bundle = initialBundle;
     _name = name;
@@ -452,8 +463,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param settlementDays the number of days to settle
    * @param rollToSettlement whether to roll to settlement
    */
-  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays,
-      final boolean rollToSettlement) {
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays,
+      final int settlementDays, final boolean rollToSettlement) {
     Validate.notNull(name, "name");
     Validate.isTrue(exDividendDays >= 0);
     Validate.isTrue(settlementDays >= 0);
@@ -463,6 +474,33 @@ public class ConventionBundleImpl implements ConventionBundle {
     _exDividendDays = exDividendDays;
     _settlementDays = settlementDays;
     _rollToSettlement = rollToSettlement;
+  }
+
+  /**
+   * Constructor to create a convention bundle for Bonds
+   * @param name the descriptive name of the type
+   * @param isEOMConvention whether the end-of-month convention should be followed when calculating date schedules
+   * @param calculateScheduleFromMaturity whether to calculate the schedule from the maturity
+   * @param exDividendDays the number of ex dividend days
+   * @param shortSettlementDays the number of days to settle for short bonds
+   * @param longSettlementDays the number of days to settle for long bonds
+   * @param rollToSettlement whether to roll to settlement
+   * @param cutoffTenor The cutoff tenor to decide whether a bond is long or short
+   */
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays,
+      final int shortSettlementDays, final int longSettlementDays, final boolean rollToSettlement, final Tenor cutoffTenor) {
+    Validate.notNull(name, "name");
+    Validate.isTrue(exDividendDays >= 0);
+    Validate.isTrue(shortSettlementDays >= 0);
+    Validate.isTrue(longSettlementDays >= 0);
+    _name = name;
+    _isEOMConvention = isEOMConvention;
+    _calculateScheduleFromMaturity = calculateScheduleFromMaturity;
+    _exDividendDays = exDividendDays;
+    _shortSettlementDays = shortSettlementDays;
+    _longSettlementDays = longSettlementDays;
+    _rollToSettlement = rollToSettlement;
+    _cutoffTenor = cutoffTenor;
   }
 
   /**
@@ -476,8 +514,8 @@ public class ConventionBundleImpl implements ConventionBundle {
    * @param businessDayConvention the business day convention
    * @param yieldConvention the yield convention
    */
-  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays, final int settlementDays,
-      final DayCount dayCount, final BusinessDayConvention businessDayConvention, final YieldConvention yieldConvention) {
+  public ConventionBundleImpl(final String name, final boolean isEOMConvention, final boolean calculateScheduleFromMaturity, final int exDividendDays,
+      final int settlementDays, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final YieldConvention yieldConvention) {
     Validate.notNull(name, "name");
     Validate.isTrue(exDividendDays >= 0);
     Validate.isTrue(settlementDays >= 0);
@@ -527,6 +565,17 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   @Override
   public int getSettlementDays() {
+    return _settlementDays;
+  }
+
+  @Override
+  public Integer getBondSettlementDays(final ZonedDateTime bondSettlementDate, final ZonedDateTime bondMaturityDate) {
+    if (_cutoffTenor != null) {
+      if (bondSettlementDate.plus(_cutoffTenor.getPeriod()).isBefore(bondMaturityDate)) {
+        return _shortSettlementDays;
+      }
+      return _longSettlementDays;
+    }
     return _settlementDays;
   }
 
@@ -778,4 +827,5 @@ public class ConventionBundleImpl implements ConventionBundle {
   public Integer getOvernightIndexSwapPublicationLag() {
     return _publicationLag;
   }
+
 }

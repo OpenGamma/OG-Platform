@@ -13,7 +13,7 @@ import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Resolver returned by {@link FunctionResolver} to do the actual resolution for a specific timestamp.
@@ -24,15 +24,13 @@ public interface CompiledFunctionResolver {
   /**
    * Resolves the requirement for a node to one or more functions.
    * <p>
-   * The resolution finds functions that are capable of satisfying the requirement.
-   * If multiple functions can satisfy, they should be returned from highest priority
-   * to lowest priority.
+   * The resolution finds functions that are capable of satisfying the requirement. If multiple functions can satisfy, they should be returned from highest priority to lowest priority.
    * 
    * @param requirement Output requirement to satisfy
    * @param target Target to satisfy the requirement on
-   * @return the function(s) found
+   * @return the function(s) found, the specification from the output set that matches the requirement and the maximal set of outputs from the function on that target
    */
-  Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
+  Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
 
   /**
    * Gets the full set of resolution rules backing the resolver.

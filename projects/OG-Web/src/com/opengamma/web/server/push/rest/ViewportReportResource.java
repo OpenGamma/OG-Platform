@@ -18,6 +18,7 @@ import com.opengamma.web.server.push.reports.ReportFactory;
  * REST resource for generating {@link Report}s from {@link Viewport}s.  Support for different report formats is
  * configured in {@link ReportFactory}
  * @see ReportFactory
+ * @deprecated Reports are being redesigned
  */
 public class ViewportReportResource {
 

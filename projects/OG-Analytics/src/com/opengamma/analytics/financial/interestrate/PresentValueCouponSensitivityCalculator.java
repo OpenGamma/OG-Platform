@@ -38,6 +38,11 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
   private PresentValueCouponSensitivityCalculator() {
   }
 
+  /**
+   * Methods used in the calculator.
+   */
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+
   @Override
   public Double visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     Validate.notNull(curves);
@@ -63,10 +68,11 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
     return curve.getDiscountFactor(cash.getEndTime()) * cash.getAccrualFactor();
   }
 
+  // TODO: Add DepositZero
+
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
-    return method.presentValueCouponSensitivity(fra, curves);
+    return METHOD_FRA.presentValueCouponSensitivity(fra, curves);
   }
 
   @Override

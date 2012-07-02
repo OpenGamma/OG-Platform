@@ -29,11 +29,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.support.GenericApplicationContext;
 
+import com.google.common.collect.Sets;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.jms.JmsConnector;
-import com.opengamma.util.mongo.MongoConnector;
+import com.opengamma.util.Connector;
 
 /**
  * Component definition for the infrastructure defined in Spring.
@@ -54,15 +53,25 @@ public class SpringInfrastructureComponentFactory extends AbstractSpringComponen
    * @param appContext  the Spring application context, not null
    */
   protected void register(ComponentRepository repo, GenericApplicationContext appContext) {
-    registerInfrastructureByType(repo, DbConnector.class, appContext);
-    registerInfrastructureByType(repo, MongoConnector.class, appContext);
-    registerInfrastructureByType(repo, JmsConnector.class, appContext);
+    registerConnectors(repo, appContext);
     registerInfrastructureByType(repo, FudgeContext.class, appContext);
     registerInfrastructureByType(repo, CacheManager.class, appContext);
     registerInfrastructureByType(repo, ScheduledExecutorService.class, appContext);
     registerInfrastructureByType(repo, MBeanServer.class, appContext);
     
     registerJmxCacheManager(repo);
+  }
+
+  protected void registerConnectors(ComponentRepository repo, GenericApplicationContext appContext) {
+    Set<Class<? extends Connector>> types = Sets.newHashSet();
+    String[] beanNames = appContext.getBeanNamesForType(Connector.class);
+    for (String beanName : beanNames) {
+      Connector bean = appContext.getBean(beanName, Connector.class);
+      types.add(bean.getType());
+    }
+    for (Class<? extends Connector> type : types) {
+      registerInfrastructureByType(repo, type, appContext);
+    }
   }
 
   protected void registerJmxCacheManager(ComponentRepository repo) {

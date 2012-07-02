@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
+
 import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -16,10 +19,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -31,6 +35,9 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   @Override
   protected boolean isCorrectIdType(final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
@@ -51,18 +58,28 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
   }
 
   @Override
+  protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String forwardCurveName = desiredValue.getConstraint(CURVE);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(CURVE_CALCULATION_METHOD, curveCalculationMethodName)
+        .with(CURVE, forwardCurveName).get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
+  }
+
+  @Override
   protected String getInstrumentType() {
     return InstrumentTypeProperties.FOREX;
   }
 
   @Override
   protected String getSurfaceQuoteUnits() {
-    return SurfacePropertyNames.VOLATILITY_QUOTE;
+    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
   }
 
   @Override
   protected String getSurfaceQuoteType() {
-    return SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
+    return SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
   }
 
   /**

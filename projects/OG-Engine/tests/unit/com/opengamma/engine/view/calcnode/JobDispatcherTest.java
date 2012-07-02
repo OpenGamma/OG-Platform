@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Timeout;
 
 /**

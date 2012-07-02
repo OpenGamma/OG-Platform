@@ -28,8 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * An implementation of {@link ViewComputationCache} which backs value storage on
- * a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.
+ * An implementation of {@link ViewComputationCache} which backs value storage on a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.
  */
 public class DefaultViewComputationCache implements ViewComputationCache,
     Iterable<Pair<ValueSpecification, FudgeMsg>> {
@@ -68,12 +67,12 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     }
     return c;
   }
-  
+
   /**
    * The size of classes which will always have the same size
    */
   private final Map<Class<?>, Integer> _valueSizeByClassCache;
-  
+
   private void cacheValueSize(final ValueSpecification specification, FudgeMsg data, Object value) {
     if (value != null && _valueSizeByClassCache.containsKey(value.getClass())) {
       return;
@@ -100,11 +99,10 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     _valueSizeByClassCache = buildValueSizeByClassMap();
   }
 
-
   private Map<Class<?>, Integer> buildValueSizeByClassMap() {
     //All of these classes must be have consistent sizes
     ArrayList<Object> templates = Lists.newArrayList(Double.valueOf(12.0), MissingMarketDataSentinel.getInstance());
-    
+
     Map<Class<?>, Integer> valueSizeByClass = new HashMap<Class<?>, Integer>(templates.size());
     for (Object obj : templates) {
       final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
@@ -125,6 +123,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
 
   /**
    * Gets the identifierSource field.
+   * 
    * @return the identifierSource
    */
   public IdentifierMap getIdentifierMap() {
@@ -133,6 +132,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
 
   /**
    * Gets the private / local data store.
+   * 
    * @return the dataStore
    */
   public FudgeMessageStore getPrivateDataStore() {
@@ -145,6 +145,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
 
   /**
    * Gets the fudgeContext field.
+   * 
    * @return the fudgeContext
    */
   public FudgeContext getFudgeContext() {
@@ -179,8 +180,8 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   public Object getValue(final ValueSpecification specification, final CacheSelectHint filter) {
     ArgumentChecker.notNull(specification, "Specification");
     final long identifier = getIdentifierMap().getIdentifier(specification);
-    FudgeMsg data = (filter.isPrivateValue(specification) ? getPrivateDataStore() : getSharedDataStore())
-        .get(identifier);
+    final boolean isPrivate = filter.isPrivateValue(specification);
+    final FudgeMsg data = (isPrivate ? getPrivateDataStore() : getSharedDataStore()).get(identifier);
     if (data == null) {
       return null;
     }
@@ -309,7 +310,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     Object obj = value.getValue();
     final FudgeMsg data = serializeValue(serializer, obj);
-    cacheValueSize(value.getSpecification(), data, value.getValue());
+    cacheValueSize(value.getSpecification(), data, obj);
     dataStore.put(identifier, data);
   }
 
@@ -340,7 +341,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
     for (ComputedValue value : values) {
       Object obj = value.getValue();
       final FudgeMsg valueData = serializeValue(serializer, obj);
-      cacheValueSize(value.getSpecification(), valueData, value.getValue());
+      cacheValueSize(value.getSpecification(), valueData, obj);
       data.put(identifiers.get(value.getSpecification()), valueData);
     }
     dataStore.put(data);
@@ -439,8 +440,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
   }
 
   /**
-   * Remove any underlying resources from the data stores and make the size cache available for garbage
-   * collection. 
+   * Remove any underlying resources from the data stores and make the size cache available for garbage collection.
    */
   public void delete() {
     _valueSizeCache.remove(); //TODO this is not right

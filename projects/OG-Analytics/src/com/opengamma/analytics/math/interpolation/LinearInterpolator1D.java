@@ -36,7 +36,6 @@ public class LinearInterpolator1D extends Interpolator1D {
     return y1 + (value - x1) / (x2 - x1) * (y2 - y1);
   }
 
-
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
@@ -57,6 +56,7 @@ public class LinearInterpolator1D extends Interpolator1D {
     result[index + 1] = b;
     return result;
   }
+
   @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y);

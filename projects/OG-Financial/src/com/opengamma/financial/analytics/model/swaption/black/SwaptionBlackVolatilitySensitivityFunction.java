@@ -20,7 +20,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();

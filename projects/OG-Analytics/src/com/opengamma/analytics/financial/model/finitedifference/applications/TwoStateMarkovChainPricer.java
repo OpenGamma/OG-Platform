@@ -23,7 +23,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * Solves a coupled forward PDE for the price of a call option when the process is CEV with vol levels determined by a two state Markov chain.  
  */
 public class TwoStateMarkovChainPricer {
-  private static final PDEDataBundleProvider BUNDLE_PROVIDER = new PDEDataBundleProvider();
+  private static final CoupledPDEDataBundleProvider BUNDLE_PROVIDER = new CoupledPDEDataBundleProvider();
 
   private final CoupledPDEDataBundle[] _data;
 

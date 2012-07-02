@@ -26,6 +26,8 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 public class ComputationTarget implements Serializable {
 
+  // TODO: move to com.opengamma.engine.target
+
   private static final long serialVersionUID = 1L;
   
   /**

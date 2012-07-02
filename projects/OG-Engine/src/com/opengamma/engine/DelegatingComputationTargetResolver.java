@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine;
 
+import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -14,6 +16,8 @@ import com.opengamma.util.ArgumentChecker;
  * resolver as per the decorator pattern.
  */
 public abstract class DelegatingComputationTargetResolver implements ComputationTargetResolver {
+
+  // TODO: move to com.opengamma.engine.target
 
   /**
    * The underlying resolver.
@@ -29,7 +33,6 @@ public abstract class DelegatingComputationTargetResolver implements Computation
     _underlying = underlying;
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Gets the underlying resolver.
    * @return the underlying resolver, not null
@@ -38,10 +41,19 @@ public abstract class DelegatingComputationTargetResolver implements Computation
     return _underlying;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
     return getUnderlying().resolve(specification);
+  }
+
+  @Override
+  public SecuritySource getSecuritySource() {
+    return getUnderlying().getSecuritySource();
+  }
+
+  @Override
+  public PositionSource getPositionSource() {
+    return getUnderlying().getPositionSource();
   }
 
 }

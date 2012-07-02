@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
 
 /**
- *  Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
+ * Container for the results of a least square (minimum chi-square) fit, where some model (with a set of parameters), is calibrated
  * to a data set, but the model parameters are first transformed to some fitting parameters (usually to impose some constants).
  */
 public class LeastSquareResultsWithTransform extends LeastSquareResults {
@@ -22,13 +22,13 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
   private final NonLinearParameterTransforms _transform;
-  private final DoubleMatrix1D _modelParamters;
+  private final DoubleMatrix1D _modelParameters;
   private DoubleMatrix2D _inverseJacobianModelPararms;
 
   public LeastSquareResultsWithTransform(final LeastSquareResults transformedFitResult) {
     super(transformedFitResult);
     _transform = null;
-    _modelParamters = transformedFitResult.getFitParameters();
+    _modelParameters = transformedFitResult.getFitParameters();
     _inverseJacobianModelPararms = getFittingParameterSensitivityToData();
   }
 
@@ -36,11 +36,11 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
     super(transformedFitResult);
     Validate.notNull(transform, "null transform");
     _transform = transform;
-    _modelParamters = transform.inverseTransform(getFitParameters());
+    _modelParameters = transform.inverseTransform(getFitParameters());
   }
 
   public DoubleMatrix1D getModelParameters() {
-    return _modelParamters;
+    return _modelParameters;
   }
 
   /**
@@ -66,7 +66,7 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((_inverseJacobianModelPararms == null) ? 0 : _inverseJacobianModelPararms.hashCode());
-    result = prime * result + ((_modelParamters == null) ? 0 : _modelParamters.hashCode());
+    result = prime * result + ((_modelParameters == null) ? 0 : _modelParameters.hashCode());
     result = prime * result + ((_transform == null) ? 0 : _transform.hashCode());
     return result;
   }
@@ -90,11 +90,11 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
     } else if (!_inverseJacobianModelPararms.equals(other._inverseJacobianModelPararms)) {
       return false;
     }
-    if (_modelParamters == null) {
-      if (other._modelParamters != null) {
+    if (_modelParameters == null) {
+      if (other._modelParameters != null) {
         return false;
       }
-    } else if (!_modelParamters.equals(other._modelParamters)) {
+    } else if (!_modelParameters.equals(other._modelParameters)) {
       return false;
     }
     if (_transform == null) {
@@ -109,8 +109,8 @@ public class LeastSquareResultsWithTransform extends LeastSquareResults {
 
   @Override
   public String toString() {
-    return "LeastSquareResults [chiSq=" + getChiSq() + ", fit parameters=" + getFitParameters().toString() + ", model parameters= " +
-    getModelParameters().toString() + ", covariance=" + getCovariance().toString() + "]";
+    return "LeastSquareResults [chiSq=" + getChiSq() + ", fit parameters=" + getFitParameters().toString() + ", model parameters= " + getModelParameters().toString() + ", covariance="
+        + getCovariance().toString() + "]";
   }
 
 }

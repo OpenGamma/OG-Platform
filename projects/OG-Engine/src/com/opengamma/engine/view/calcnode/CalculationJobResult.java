@@ -5,30 +5,37 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import java.io.Serializable;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.cache.IdentifierMap;
+import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * The response that a Calculation Node will return to invokers.
  *
  */
-public class CalculationJobResult implements Serializable {
+public class CalculationJobResult implements IdentifierEncodedValueSpecifications {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJobResult.class);
-  /** Serialization. */
-  private static final long serialVersionUID = 1L;
 
   private final CalculationJobSpecification _specification;
+
+  /**
+   * The set of result items in the same order as the items from the original job request.
+   */
   private final List<CalculationJobResultItem> _resultItems;
+  // TODO: don't return all result items -- just the ones that were failures
   private final long _durationNanos;
   private final String _nodeId;
   
@@ -71,27 +78,31 @@ public class CalculationJobResult implements Serializable {
     return _nodeId;
   }
 
-  /**
-   * Numeric identifiers may have been passed when the result items were encoded as a Fudge message. This will resolve
-   * them to full {@link ValueSpecification} objects.
-   * 
-   * @param identifierMap Identifier map to resolve the inputs with
-   */
-  public void resolveInputs(final IdentifierMap identifierMap) {
+  @Override
+  public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     for (CalculationJobResultItem item : _resultItems) {
-      item.resolveInputs(identifierMap);
+      item.convertIdentifiers(identifiers);
     }
   }
 
-  /**
-   * Convert full {@link ValueSpecification} objects to numeric identifiers within the result items for more efficient Fudge
-   * encoding.
-   * 
-   * @param identifierMap Identifier map to convert the inputs with
-   */
-  public void convertInputs(final IdentifierMap identifierMap) {
+  @Override
+  public void collectIdentifiers(final LongSet identifiers) {
     for (CalculationJobResultItem item : _resultItems) {
-      item.convertInputs(identifierMap);
+      item.collectIdentifiers(identifiers);
+    }
+  }
+
+  @Override
+  public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
+    for (CalculationJobResultItem item : _resultItems) {
+      item.convertValueSpecifications(valueSpecifications);
+    }
+  }
+
+  @Override
+  public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
+    for (CalculationJobResultItem item : _resultItems) {
+      item.collectValueSpecifications(valueSpecifications);
     }
   }
 

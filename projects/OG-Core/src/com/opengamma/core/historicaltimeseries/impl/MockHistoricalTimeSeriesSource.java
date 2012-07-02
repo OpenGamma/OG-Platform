@@ -33,6 +33,10 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
    */
   private Map<HistoricalTimeSeriesKey, UniqueId> _metaUniqueIdStore = new ConcurrentHashMap<HistoricalTimeSeriesKey, UniqueId>();
   /**
+   * The store of unique identifiers.
+   */
+  private Map<UniqueId, HistoricalTimeSeriesKey> _uniqueIdMetaStore = new ConcurrentHashMap<UniqueId, HistoricalTimeSeriesKey>();
+  /**
    * The store of unique time-series.
    */
   private Map<UniqueId, HistoricalTimeSeries> _timeSeriesStore = new ConcurrentHashMap<UniqueId, HistoricalTimeSeries>();
@@ -312,6 +316,7 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       if (uniqueId == null) {
         uniqueId = _uniqueIdSupplier.get();
         _metaUniqueIdStore.put(metaKey, uniqueId);
+        _uniqueIdMetaStore.put(uniqueId, metaKey);
       }
     }
     _timeSeriesStore.put(uniqueId, new SimpleHistoricalTimeSeries(uniqueId, timeSeriesDataPoints));
@@ -351,6 +356,14 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
+  }
+
+  @Override
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    if (_uniqueIdMetaStore.containsKey(uniqueId)) {
+      return _uniqueIdMetaStore.get(uniqueId).getExternalIdBundle();
+    }
+    return null;
   }
 
 }

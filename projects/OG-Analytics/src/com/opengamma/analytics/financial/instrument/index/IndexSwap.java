@@ -40,7 +40,7 @@ public class IndexSwap {
    */
   public IndexSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, Period tenor) {
     Validate.notNull(tenor, "Swap tenor");
-    _swapGenerator = new GeneratorSwapFixedIbor(fixedLegPeriod, fixedLegDayCount, iborIndex);
+    _swapGenerator = new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex);
     _tenor = tenor;
     _name = tenor.toString() + _swapGenerator.getName();
   }

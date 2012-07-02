@@ -6,8 +6,8 @@
 
 package com.opengamma.language.function;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Form of {@link AbstractFunctionInvoker} that allows another instance to be wrapped.

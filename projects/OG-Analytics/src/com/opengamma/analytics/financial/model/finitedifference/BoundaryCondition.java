@@ -10,11 +10,11 @@ package com.opengamma.analytics.financial.model.finitedifference;
  */
 public interface BoundaryCondition {
 
-  double[] getLeftMatrixCondition(final PDEDataBundle data, final PDEGrid1D grid, final double t);
+  double[] getLeftMatrixCondition(final ConvectionDiffusionPDE1DStandardCoefficients data, final PDEGrid1D grid, final double t);
 
-  double[] getRightMatrixCondition(final PDEDataBundle data, final PDEGrid1D grid, final double t);
+  double[] getRightMatrixCondition(final ConvectionDiffusionPDE1DStandardCoefficients data, final PDEGrid1D grid, final double t);
 
-  double getConstant(final PDEDataBundle data, final double t);
+  double getConstant(final ConvectionDiffusionPDE1DStandardCoefficients data, final double t);
 
   double getLevel();
 

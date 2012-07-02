@@ -5,12 +5,14 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.view.cache.DeferredStatistics;
 import com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsGatherer;
 
 /**
  * 
  */
-public class DeferredInvocationStatistics {
+/* package */class DeferredInvocationStatistics implements DeferredStatistics {
 
   private final FunctionInvocationStatisticsGatherer _gatherer;
   private final String _configuration;
@@ -26,12 +28,9 @@ public class DeferredInvocationStatistics {
     _configuration = configuration;
   }
 
-  protected void setFunctionIdentifier(final String functionIdentifier) {
-    _functionIdentifier = functionIdentifier;
-  }
-
-  protected void beginInvocation() {
+  protected void beginInvocation(final String functionIdentifier) {
     _invocationTime = System.nanoTime();
+    _functionIdentifier = functionIdentifier;
   }
 
   protected void endInvocation() {
@@ -50,22 +49,16 @@ public class DeferredInvocationStatistics {
     _expectedDataOutputSamples = samples;
   }
 
-  /**
-   * 
-   * @param bytes size of output sample, or null if no size available
-   * @return true if this was the last one expected, false if expecting more
-   */
-  public boolean addDataOutputBytes(final Integer bytes) {
+  @Override
+  public void reportEstimatedSize(final ComputedValue value, final Integer bytes) {
     if (bytes != null) {
       _dataOutputBytes += bytes;
       _dataOutputSamples++;
     }
     _expectedDataOutputSamples--;
-    if (_expectedDataOutputSamples > 0) {
-      return false;
+    if (_expectedDataOutputSamples == 0) {
+      _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _invocationTime, _dataInputBytes, (_dataOutputSamples > 0) ? _dataOutputBytes / _dataOutputSamples : Double.NaN);
     }
-    _gatherer.functionInvoked(_configuration, _functionIdentifier, 1, _invocationTime, _dataInputBytes, (_dataOutputSamples > 0) ? _dataOutputBytes / _dataOutputSamples : Double.NaN);
-    return true;
   }
 
 }

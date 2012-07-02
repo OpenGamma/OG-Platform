@@ -8,12 +8,10 @@ package com.opengamma.financial.analytics.volatility.fittedresults;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.money.Currency;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -25,24 +23,18 @@ public class SABRFittedSurfaces {
   private final InterpolatedDoublesSurface _nuSurface;
   private final InterpolatedDoublesSurface _rhoSurface;
   private final Map<DoublesPair, DoubleMatrix2D> _inverseJacobian;
-  private final Currency _currency;
-  private final DayCount _dayCount;
 
   public SABRFittedSurfaces(final InterpolatedDoublesSurface alphaSurface, final InterpolatedDoublesSurface betaSurface, final InterpolatedDoublesSurface nuSurface,
-      final InterpolatedDoublesSurface rhoSurface, final Map<DoublesPair, DoubleMatrix2D> inverseJacobian, final Currency currency, final DayCount dayCount) {
-    Validate.notNull(alphaSurface, "alpha surface");
-    Validate.notNull(betaSurface, "beta surface");
-    Validate.notNull(nuSurface, "nu surface");
-    Validate.notNull(rhoSurface, "rho surface");
-    Validate.notNull(currency, "currency");
-    Validate.notNull(dayCount, "day count");
+      final InterpolatedDoublesSurface rhoSurface, final Map<DoublesPair, DoubleMatrix2D> inverseJacobian) {
+    ArgumentChecker.notNull(alphaSurface, "alpha surface");
+    ArgumentChecker.notNull(betaSurface, "beta surface");
+    ArgumentChecker.notNull(nuSurface, "nu surface");
+    ArgumentChecker.notNull(rhoSurface, "rho surface");
     _alphaSurface = alphaSurface;
     _betaSurface = betaSurface;
     _nuSurface = nuSurface;
     _rhoSurface = rhoSurface;
     _inverseJacobian = inverseJacobian;
-    _currency = currency;
-    _dayCount = dayCount;
   }
 
   public InterpolatedDoublesSurface getAlphaSurface() {
@@ -65,14 +57,6 @@ public class SABRFittedSurfaces {
     return _inverseJacobian;
   }
 
-  public Currency getCurrency() {
-    return _currency;
-  }
-
-  public DayCount getDayCount() {
-    return _dayCount;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -82,8 +66,6 @@ public class SABRFittedSurfaces {
     result = prime * result + _nuSurface.hashCode();
     result = prime * result + _rhoSurface.hashCode();
     result = prime * result + _inverseJacobian.hashCode();
-    result = prime * result + _currency.hashCode();
-    result = prime * result + _dayCount.hashCode();
     return result;
   }
 
@@ -109,12 +91,6 @@ public class SABRFittedSurfaces {
       return false;
     }
     if (!ObjectUtils.equals(_inverseJacobian, other._inverseJacobian)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_currency, other._currency)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
       return false;
     }
     return true;

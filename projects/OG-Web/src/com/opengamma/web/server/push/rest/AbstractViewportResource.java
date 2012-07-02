@@ -5,38 +5,51 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsResults;
+import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.ViewportRequest;
+import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
  * REST resource superclass
  */
 public abstract class AbstractViewportResource {
 
+  protected final AnalyticsView.GridType _gridType;
   protected final AnalyticsView _view;
   protected final String _viewportId;
 
-  public AbstractViewportResource(AnalyticsView view, String viewportId) {
+  public AbstractViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, String viewportId) {
+    ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(view, "view");
     ArgumentChecker.notNull(viewportId, "viewportId");
+    _gridType = gridType;
     _view = view;
     _viewportId = viewportId;
   }
 
   @POST
-  public abstract void update(ViewportRequest viewportRequest);
+  public void update(List<Integer> rows, List<Integer> columns) {
+    update(new ViewportSpecification(rows, columns));
+  }
+
+  public abstract void update(ViewportSpecification viewportSpecification);
 
   @DELETE
-  public abstract void delete(String viewportId);
+  public abstract void delete();
 
   @GET
   @Path("data")
-  public abstract AnalyticsResults getData();
+  @Produces(MediaType.APPLICATION_JSON)
+  public abstract ViewportResults getData();
 }

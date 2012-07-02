@@ -23,6 +23,7 @@ public class BloombergFXForwardCurveInstrumentProviderFudgeBuilder implements Fu
   private static final String POSTFIX = "postfix";
   private static final String PREFIX = "prefix";
   private static final String SPOT_PREFIX = "spotPrefix";
+
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final BloombergFXForwardCurveInstrumentProvider object) {
     final MutableFudgeMsg message = serializer.newMessage();

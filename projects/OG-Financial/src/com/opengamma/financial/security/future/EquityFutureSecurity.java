@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
@@ -54,15 +55,15 @@ public class EquityFutureSecurity extends FutureSecurity {
   }
 
   public EquityFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      ZonedDateTime settlementDate, ExternalId underlyingIdentifier) {
-    super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
+      ZonedDateTime settlementDate, ExternalId underlyingIdentifier, String category) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
     setSettlementDate(settlementDate);
     setUnderlyingId(underlyingIdentifier);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
     return visitor.visitEquityFutureSecurity(this);
   }
 

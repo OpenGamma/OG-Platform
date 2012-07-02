@@ -22,6 +22,7 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
   private final StripInstrumentType _type;
   private StripInstrumentType _idType;
   private final ExternalScheme _scheme;
+
   public SyntheticIdentifierCurveInstrumentProvider(final Currency ccy, final StripInstrumentType type, final ExternalScheme scheme) {
     Validate.notNull(ccy, "currency");
     Validate.notNull(type, "instrument type");
@@ -57,6 +58,17 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int periodsPerYear, final boolean isPeriodicZeroDeposit) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor payTenor, final Tenor receiveTenor, final IndexType payIndexType,
+      final IndexType receiveIndexType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
     throw new UnsupportedOperationException();
   }
 

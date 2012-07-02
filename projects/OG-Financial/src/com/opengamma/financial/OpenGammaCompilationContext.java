@@ -7,6 +7,7 @@ package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -34,6 +35,7 @@ public final class OpenGammaCompilationContext {
   private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
   private static final String SECURITY_SOURCE_NAME = "securitySource";
   private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
+  private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
 
   /**
    * Restricted constructor.
@@ -185,5 +187,13 @@ public final class OpenGammaCompilationContext {
    */
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
+  }
+  
+  public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
+  }
+  
+  public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
   }
 }

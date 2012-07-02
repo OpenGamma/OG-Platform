@@ -48,11 +48,8 @@ public class CurveSpecificationBuilderConfiguration {
   private final Map<Tenor, CurveInstrumentProvider> _oisSwapInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _stiborInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _ciborInstrumentProviders;
-
   private final Map<Tenor, CurveInstrumentProvider> _simpleZeroDepositInstrumentProviders;
-
   private final Map<Tenor, CurveInstrumentProvider> _periodicZeroDepositInstrumentProviders;
-
   private final Map<Tenor, CurveInstrumentProvider> _continuousZeroDepositInstrumentProviders;
 
   /**
@@ -325,7 +322,7 @@ public class CurveSpecificationBuilderConfiguration {
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, periodsPerYear, true);
     } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
+      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for periodic zero deposit strip)");
     }
   }
 
@@ -357,7 +354,7 @@ public class CurveSpecificationBuilderConfiguration {
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor, numberQuarterlyFuturesFromTenor);
     } else {
-      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
+      throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor + " (looking for future strip)");
     }
   }
 

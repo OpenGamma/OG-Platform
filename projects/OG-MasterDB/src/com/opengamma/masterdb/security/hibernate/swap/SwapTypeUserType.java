@@ -5,9 +5,9 @@
  */
 package com.opengamma.masterdb.security.hibernate.swap;
 
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
 /**
@@ -24,7 +24,7 @@ public class SwapTypeUserType extends EnumUserType<SwapType> {
 
   @Override
   protected String enumToStringNoCache(SwapType value) {
-    return value.accept(new SwapSecurityVisitor<String>() {
+    return value.accept(new FinancialSecurityVisitorAdapter<String>() {
 
       @Override
       public String visitForwardSwapSecurity(ForwardSwapSecurity security) {

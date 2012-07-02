@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
@@ -15,6 +13,8 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.util.ArgumentChecker;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
@@ -121,7 +121,10 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The simple delta
+   * The simple delta. 
+   * Note that this is not the standard delta one is accustomed to. 
+   * The argument of the cumulative normal is simply d = Math.log(forward / strike) / sigmaRootT 
+   * 
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry

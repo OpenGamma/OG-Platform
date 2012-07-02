@@ -71,7 +71,7 @@ public class GetVolatilityCubeTensorFunction extends AbstractFunctionInvoker imp
     Collections.sort(keyX);
     Collections.sort(keyY);
     Collections.sort(keyZ);
-    final Value[][][] values = new Value[keyY.size()][keyX.size()][keyY.size()];
+    final Value[][][] values = new Value[keyZ.size()][keyY.size()][keyX.size()];
     for (int i = 0; i < keyZ.size(); i++) {
       final Double z = keyZ.get(i);
       for (int j = 0; j < keyY.size(); j++) {

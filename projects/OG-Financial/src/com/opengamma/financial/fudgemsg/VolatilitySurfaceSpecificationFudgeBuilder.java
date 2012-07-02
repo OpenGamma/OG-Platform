@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -60,7 +60,7 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     if (message.hasField("quote") && message.getString("quote") != null) {
       quoteType = message.getString("quote");
     } else {
-      quoteType = SurfaceQuoteType.CALL_STRIKE;
+      quoteType = SurfaceAndCubeQuoteType.CALL_STRIKE;
     }
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");

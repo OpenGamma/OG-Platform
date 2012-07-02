@@ -8,8 +8,6 @@ package com.opengamma.analytics.util.time;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import com.opengamma.analytics.util.time.TimeCalculator;
-
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
@@ -28,10 +26,7 @@ public class TimeCalculatorTest {
   @Test
   /** Same instant must have no time between */
   public void sameInstant() {
-
     final ZonedDateTime now = ZonedDateTime.now();
-    //final ZonedDateTime dt1 = ZonedDateTime.of(LocalDate.now(), LocalTime.MIDDAY, TimeZone.UTC);
-
     assertEquals(0.0, TimeCalculator.getTimeBetween(now, now));
   }
 
@@ -55,7 +50,7 @@ public class TimeCalculatorTest {
     assertEquals(0.0, yearFraction, TOLERANCE);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   /** Time between same instants but specified under time zones that fall on different days.
       This is trapped as daycount computation first converts each ZonedDateTime to LocalDate. */
   public void sameTimeDifferentLocalDates() {

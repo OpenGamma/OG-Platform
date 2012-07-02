@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -26,8 +28,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Implements a {@link FunctionRepositoryCompiler} that caches the results of previous compilations so
- * that a minimal compilation is performed each time. 
+ * Implements a {@link FunctionRepositoryCompiler} that caches the results of previous compilations so that a minimal compilation is performed each time.
  */
 public class CachingFunctionRepositoryCompiler implements FunctionRepositoryCompiler {
 
@@ -60,6 +61,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   private final Queue<Pair<FunctionRepository, Instant>> _activeEntries = new ArrayDeque<Pair<FunctionRepository, Instant>>();
   private int _cacheSize = 16;
   private long _functionInitId;
+  private final ConcurrentMap<Pair<FunctionRepository, Instant>, Callable<CompiledFunctionRepository>> _activeCompilations =
+      new ConcurrentHashMap<Pair<FunctionRepository, Instant>, Callable<CompiledFunctionRepository>>();
 
   public synchronized void setCacheSize(final int cacheSize) {
     _cacheSize = cacheSize;
@@ -228,8 +231,37 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       return compiled;
     }
     // Create a compilation, salvaging results from previous and next if possible
+    final CompiledFunctionRepository[] ref = new CompiledFunctionRepository[1];
+    final Callable<CompiledFunctionRepository> existing = _activeCompilations.putIfAbsent(key, new Callable<CompiledFunctionRepository>() {
+      @Override
+      public CompiledFunctionRepository call() throws Exception {
+        CompiledFunctionRepository repository;
+        synchronized (ref) {
+          repository = ref[0];
+          while (repository == null) {
+            s_logger.info("Waiting for concurrent call to compile {}", atInstant);
+            ref.wait();
+            repository = ref[0];
+          }
+        }
+        return repository;
+      }
+    });
+    if (existing != null) {
+      try {
+        s_logger.info("Using concurrent call to compile {}", atInstant);
+        return existing.call();
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Exception from concurrent call", e);
+      }
+    }
     compiled = compile(context, repository, atInstant, previous, next, executor);
     cacheCompilation(key, compiled);
+    synchronized (ref) {
+      ref[0] = compiled;
+      ref.notifyAll();
+    }
+    _activeCompilations.remove(key);
     return compiled;
   }
 

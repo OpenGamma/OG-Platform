@@ -55,7 +55,7 @@ import com.opengamma.util.money.Currency;
 public class FuturePriceCurveFunction extends AbstractFunction {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
-  
+
   @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
       final String definitionName) {
@@ -98,6 +98,10 @@ public class FuturePriceCurveFunction extends AbstractFunction {
       @Override
       public final boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        if (target.getUniqueId() == null) {
+          s_logger.error("Target unique id was null; {}", target);
           return false;
         }
         return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
@@ -172,7 +176,7 @@ public class FuturePriceCurveFunction extends AbstractFunction {
               final Double ttm = IRFutureOptionUtils.getFutureTtm(xNum.intValue(), valDate);
               xList.add(ttm);
               prices.add(futurePrice);
-            } 
+            }
           }
         }
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,

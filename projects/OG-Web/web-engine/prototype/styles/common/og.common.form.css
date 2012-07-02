@@ -1,6 +1,6 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 
 input[type="text"] {
@@ -11,8 +11,4 @@ input[type="text"] {
   border-left: 1px solid #e3e9ef;
   border-right: 1px solid #e3e9ef;
   border-top: 1px solid #abadb3;
-}
-
-input, select, textarea {
-  outline: 0 none;
 }

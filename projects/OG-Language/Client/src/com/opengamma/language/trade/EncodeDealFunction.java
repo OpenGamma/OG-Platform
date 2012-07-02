@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
@@ -19,6 +18,7 @@ import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.master.position.Deal;
 import com.opengamma.master.position.DealAttributeEncoder;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Function to encode a {@link Deal} object into a set of deal attributes.

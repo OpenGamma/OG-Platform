@@ -99,6 +99,16 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     }
     return responseOkFudge(result);
   }
+  
+  @GET
+  @Path("htsMeta/externalIdBundle/{htsId}")
+  public Response getExternalIdBundle(
+      @PathParam("htsId") String idStr,
+      @QueryParam("version") String version) {
+    final UniqueId uniqueId = ObjectId.parse(idStr).atVersion(version);
+    final ExternalIdBundle idBundle = getHistoricalTimeSeriesSource().getExternalIdBundle(uniqueId);
+    return responseOkFudge(idBundle);
+  }
 
   @GET
   @Path("htsSearches/single")
@@ -226,6 +236,14 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   //-------------------------------------------------------------------------
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("hts/{htsId}");
+    if (uniqueId.getVersion() != null) {
+      bld.queryParam("version", uniqueId.getVersion());
+    }
+    return bld.build(uniqueId.getObjectId());
+  }
+  
+  public static URI uriExternalIdBundleGet(URI baseUri, UniqueId uniqueId) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsMeta/externalIdBundle/{htsId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }

@@ -282,4 +282,15 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     return Pair.of(series.getLatestTime(), series.getLatestValue());
   }
 
+  @Override
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriExternalIdBundleGet(getBaseUri(), uniqueId);
+      return accessRemote(uri).get(ExternalIdBundle.class);
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
+  }
+
 }

@@ -31,6 +31,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.
+ * OG-Implementation: Vanilla Forex options: Garman-Kohlhagen and risk reversal/strangle, version 1.5, May 2012.
  */
 public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
 
@@ -144,7 +145,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
-   * Computes the relative delta of the Forex option. The relative delta is the amount in the foreign currency equivalent to the first oder to the option relative to the option notional.
+   * Computes the relative delta of the Forex option. The relative delta is the amount in the foreign currency equivalent to the option up to the first order divided by the option notional.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
@@ -170,7 +171,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
 
   /**
    * Computes the relative delta of the Forex option multiplied by the spot rate. 
-   * The relative delta is the amount in the foreign currency equivalent to the first oder to the option relative to the option notional.
+   * The relative delta is the amount in the foreign currency equivalent to the option up to the first order divided by the option notional.
    * The reason to multiply by the spot rate is to be able to compute the change of value for a relative increase of e of the spot rate (from X to X(1+e)).
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
@@ -197,7 +198,8 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
   }
 
   /**
-   * Computes the relative gamma of the Forex option. The relative gamma is the second oder derivative of the pv relative to the option notional.
+   * Computes the relative gamma of the Forex option.
+   * The relative gamma is the second order derivative of the pv divided by the option notional.
    * @param optionForex The Forex option.
    * @param smile The curve and smile data.
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
@@ -322,13 +324,14 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
     final double rForeignBar = -payTime * dfForeign * dfForeignBar;
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
+    double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar * optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+    listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
     final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<String, List<DoublesPair>>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
     final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar * optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+    listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));

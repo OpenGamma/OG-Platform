@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDeposit {
+public class GeneratorDeposit extends Generator {
 
   /**
    * The index currency. Not null.
@@ -45,6 +45,7 @@ public class GeneratorDeposit {
 
   /**
    * Deposit generator from all the financial details.
+   * @param name The generator name. Not null.
    * @param currency The index currency. Not null.
    * @param calendar The calendar associated to the index. Not null.
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
@@ -52,7 +53,9 @@ public class GeneratorDeposit {
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth Flag indicating if the end-of-month rule is used.
    */
-  public GeneratorDeposit(final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
+  public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth) {
+    super(name);
     Validate.notNull(currency, "Currency");
     Validate.notNull(calendar, "Calendar");
     Validate.notNull(dayCount, "Day count");

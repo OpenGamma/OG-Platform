@@ -14,6 +14,7 @@ import com.opengamma.id.UniqueId;
 
 /**
  * Contains a snapshot of raw data from a view client.
+ * @deprecated Reports are being redesigned
  */
 public class ViewportData {
 

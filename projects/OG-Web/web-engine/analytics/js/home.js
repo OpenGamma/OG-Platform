@@ -283,7 +283,7 @@
       $versionMsg.text('No snapshot selected');
     }
     
-    var dialogDate = _versionDateTime == null ? new Date() : _versionDateTime;
+    var dialogDate = _versionDateTime == null ? new Date() : new Date(_versionDateTime);
     setDialogCustomDateTime(dialogDate);
     $('#versionDateTime').dialog('open');
   }

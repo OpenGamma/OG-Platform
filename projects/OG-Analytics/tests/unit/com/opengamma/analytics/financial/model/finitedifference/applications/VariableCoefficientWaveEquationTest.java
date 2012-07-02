@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
-import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ZZConvectionDiffusionPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
@@ -33,7 +33,7 @@ public class VariableCoefficientWaveEquationTest {
   private static final  Surface<Double,Double,Double> A = ConstantDoublesSurface.from(-0.01);
   private static final  Surface<Double,Double,Double> B;
   private static final  Surface<Double,Double,Double> C = ConstantDoublesSurface.from(0);
-  private static final ConvectionDiffusionPDEDataBundle PDE_DATA_BUNDLE;
+  private static final ZZConvectionDiffusionPDEDataBundle PDE_DATA_BUNDLE;
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
   
@@ -56,7 +56,7 @@ public class VariableCoefficientWaveEquationTest {
     };
        
     B = FunctionalDoublesSurface.from(b);
-    PDE_DATA_BUNDLE = new ConvectionDiffusionPDEDataBundle(A, B, C, initial);
+    PDE_DATA_BUNDLE = new ZZConvectionDiffusionPDEDataBundle(A, B, C, initial);
     //Trefethen uses periodic boundary conditions 
     LOWER = new DirichletBoundaryCondition(0, 0);
     UPPER = new DirichletBoundaryCondition(0,2*Math.PI);

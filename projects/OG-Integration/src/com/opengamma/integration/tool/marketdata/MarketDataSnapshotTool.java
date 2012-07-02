@@ -50,7 +50,7 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.integration.tool.AbstractComponentTool;
+import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;

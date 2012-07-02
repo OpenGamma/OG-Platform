@@ -32,6 +32,7 @@ import com.opengamma.web.server.push.reports.ReportFactory;
  * REST resource for creating and retrieving {@link Viewport} instances.
  * TODO catch RestRuntimeException and set the status on the response?
  * TODO would that be best done with a servlet filter? surely there's a standard way to do that?
+ * @deprecated This class isn't needed for the new analytics web UI
  */
 @Path("viewports")
 public class ViewportsResource {
@@ -70,7 +71,7 @@ public class ViewportsResource {
     String viewportUrl = generateViewportUrl(viewportId, request);
     String gridUrl = generateGridUrl(viewportId, viewportUrl);
     String dataUrl = generateDataUrl(viewportId, viewportUrl);
-    _connectionManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
+    //_connectionManager.createViewport(userId, clientId, viewportDefinition, viewportId, dataUrl, gridUrl);
     JSONObject jsonObject = new JSONObject();
     try {
       jsonObject.put("viewportUrl", viewportUrl);
@@ -93,14 +94,15 @@ public class ViewportsResource {
   public ViewportResource findViewport(@QueryParam("clientId") String clientId, // TODO should this be optional? how? different method?
                                        @PathParam("viewportId") String viewportId,
                                        @Context HttpServletRequest request) {
-    String userId = request.getRemoteUser();
-    Viewport viewport = _connectionManager.getViewport(userId, clientId, viewportId);
-    if (viewport != null) {
-      return new ViewportResource(viewport, _reportGeneratorFactory);
-    } else {
-      throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
-                                          ", viewportId: " + viewportId);
-    }
+    //String userId = request.getRemoteUser();
+    //Viewport viewport = _connectionManager.getViewport(userId, clientId, viewportId);
+    //if (viewport != null) {
+    //  return new ViewportResource(viewport, _reportGeneratorFactory);
+    //} else {
+    //  throw new DataNotFoundException("Unable to find viewport, userId: " + userId + ", clientId: " + clientId +
+    //                                      ", viewportId: " + viewportId);
+    //}
+    throw new UnsupportedOperationException();
   }
 
   private String generateViewportId() {

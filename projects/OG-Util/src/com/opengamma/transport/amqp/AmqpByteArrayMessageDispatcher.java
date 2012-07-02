@@ -14,25 +14,35 @@ import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Dispatcher for AMQP.
  */
 public class AmqpByteArrayMessageDispatcher implements MessageListener {
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(AmqpByteArrayMessageDispatcher.class);
+
   private final ByteArrayMessageReceiver _underlying;
-  
+
+  /**
+   * Creates an instance.
+   * 
+   * @param underlying  the underlying receiver, not null
+   */
   public AmqpByteArrayMessageDispatcher(ByteArrayMessageReceiver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlying
+   * Gets the underlying receiver.
+   * 
+   * @return the underlying receiver, not null
    */
   public ByteArrayMessageReceiver getUnderlying() {
     return _underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void onMessage(Message message) {
     byte[] bytes = message.getBody();

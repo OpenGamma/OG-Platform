@@ -49,7 +49,7 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<No
   }
 
   @Override
-  public Double evaluate(final NormalVaRParameters parameters, final T... data) {
+  public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
     Validate.notNull(parameters, "parameters");
     Validate.notNull(data, "data");
     final double z = parameters.getZ();
@@ -60,7 +60,9 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<No
     final double skew = _skewCalculator.evaluate(data);
     final double kurtosis = _kurtosisCalculator.evaluate(data);
     final double x = z + skew * (zSq - 1) / 6. + kurtosis * z * (zSq - 3) / 24. - skew * skew * z * (2 * zSq - 5) / 36.;
-    return x * std * mult + mean * mult * mult;
+    final double value = x * std * mult + mean * mult * mult;
+    // REVIEW kirk 2012-06-22 -- Can we use "std" as the standard deviation?
+    return new VaRCalculationResult(value, null);
   }
 
   @Override

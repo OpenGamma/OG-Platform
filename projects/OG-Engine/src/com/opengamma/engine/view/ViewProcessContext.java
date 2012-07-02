@@ -5,9 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.CachingComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -35,12 +33,10 @@ public class ViewProcessContext {
   private final ViewPermissionProvider _viewPermissionProvider;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
-  private final PositionSource _positionSource;
-  private final SecuritySource _securitySource;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final CachingComputationTargetResolver _computationTargetResolver;
+  private final ComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
@@ -54,9 +50,7 @@ public class ViewProcessContext {
       MarketDataProviderResolver marketDataProviderResolver,
       CompiledFunctionService functionCompilationService,
       FunctionResolver functionResolver,
-      PositionSource positionSource,
-      SecuritySource securitySource,
-      CachingComputationTargetResolver computationTargetResolver,
+      ComputationTargetResolver computationTargetResolver,
       ViewComputationCacheSource computationCacheSource,
       JobDispatcher computationJobDispatcher,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
@@ -69,8 +63,6 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
-    ArgumentChecker.notNull(positionSource, "positionSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
     ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
@@ -80,13 +72,11 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     _viewDefinitionRepository = viewDefinitionRepository;
     _viewPermissionProvider = viewPermissionProvider;
-    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(securitySource);
+    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(computationTargetResolver.getSecuritySource());
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
     _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
-    _positionSource = positionSource;
-    _securitySource = securitySource;
     _computationTargetResolver = computationTargetResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
@@ -157,24 +147,6 @@ public class ViewProcessContext {
   }
 
   /**
-   * Gets the source of positions.
-   * 
-   * @return the source of positions, not null
-   */
-  public PositionSource getPositionSource() {
-    return _positionSource;
-  }
-
-  /**
-   * Gets the source of securities.
-   * 
-   * @return the source of securities, not null
-   */
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
-  /**
    * Gets the computation cache source.
    * 
    * @return the computation cache source, not null
@@ -207,7 +179,7 @@ public class ViewProcessContext {
    * 
    * @return the computationTargetResolver, not null
    */
-  public CachingComputationTargetResolver getComputationTargetResolver() {
+  public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 
@@ -237,7 +209,7 @@ public class ViewProcessContext {
    */
   public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
     return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
-        getFunctionCompilationService().getExecutorService(), getDependencyGraphBuilderFactory(), getSecuritySource(), getPositionSource());
+        getFunctionCompilationService().getExecutorService(), getDependencyGraphBuilderFactory());
   }
 
 }

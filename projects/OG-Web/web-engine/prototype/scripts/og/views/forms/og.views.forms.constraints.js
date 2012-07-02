@@ -1,36 +1,40 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 $.register_module({
     name: 'og.views.forms.Constraints',
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
-        var module = this, id_count = 0, prefix = 'constraints_widget_';
+        var module = this, counter = 0, prefix = 'constraints_widget_';
         return function (config) {
             var data = config.data, data_index = config.index, render, classes = config.classes || '',
                 ids = {
-                    container: prefix + id_count++,
-                    widget: prefix + id_count++,
-                    row_with: prefix + id_count++,
-                    row_without: prefix + id_count++
+                    container: prefix + counter++,
+                    widget: prefix + counter++,
+                    row_with: prefix + counter++,
+                    row_without: prefix + counter++
                 },
                 convert = function (datum) {
                     var length = 0, item, data = [], lcv;
                     if (!datum || typeof datum === 'string') return datum || '';
                     for (item in datum) if (+item + 0 === +item) length += 1;
                     for (lcv = 0; lcv < length; lcv += 1) data.push(datum[lcv]);
-                    return data.map(function (str) {return str.replace(/,/g, '\\,');}).join(', ');
+                    return data.length > 1 ?
+                        '[' + data.map(function (str) {return str.replace(/\,/g, '\\,');}).join(', ') + ']'
+                            : data.join('');
+                },
+                to_array = function (datum) {
+                    return datum ?
+                        /^\[(.*)\]$/.test(datum) ? RegExp.$1.replace(/\\\,/g, '\0').split(/,\s*/)
+                            .map(function (str) {return str.replace(/\0/g, ',');}) : [datum]
+                        : [];
                 },
                 deconvert = function (datum, optional) {
-                    var array = datum ?
-                        datum.replace(/\\\,/g, '\0').split(/\,\s*/g).map(function (s) {return s.replace(/\0/g, ',');})
-                            : [], result, empty = true;
+                    var empty = true, result, array = to_array(datum);
                     if (!optional && !array.length) return null;
-                    result = array.reduce(function (acc, val, idx) {
-                        empty = false;
-                        return val ? (acc[idx] = val, acc) : acc;
-                    }, {});
+                    result = array
+                        .reduce(function (acc, val, idx) {return (empty = 0), val ? (acc[idx] = val, acc) : acc;}, {});
                     if (empty && !optional) return null;
                     if (optional) result.optional = null;
                     return result;
@@ -46,7 +50,7 @@ $.register_module({
                     $withs.each(function (idx, el) {
                         var $el = $(el), optional = !!$el.find('input[type=checkbox]').filter(':checked').length,
                             key = $el.find('input.og-js-key').val();
-                        if (!key) throw Error('Type in a with constraint must be defined.');
+                        if (!key) throw Error('In a with constraint, type must be defined.');
                         if (!result['with']) result['with'] = {};
                         result['with'][key] = deconvert($el.find('input.og-js-value').val(), optional);
                     });

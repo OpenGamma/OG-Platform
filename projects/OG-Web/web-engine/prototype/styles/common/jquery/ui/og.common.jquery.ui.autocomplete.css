@@ -1,6 +1,6 @@
 /*
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 .ui-autocomplete {
   position: absolute;
@@ -8,6 +8,9 @@
   max-height: 150px;
   overflow-y: auto;
   color: #555;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .ui-autocomplete li {

@@ -63,7 +63,9 @@ public class NormalLinearVaRCalculatorTest {
 
   @Test
   public void test() {
-    assertEquals(CALCULATOR.evaluate(PARAMETERS, 0.), 3 * 0.2 - 0.016, 1e-9);
+    VaRCalculationResult calcResult = CALCULATOR.evaluate(PARAMETERS, 0.);
+    assertEquals(calcResult.getVaRValue(), 3 * 0.2 - 0.016, 1e-9);
+    assertEquals(calcResult.getStdDev(), 1., 1e-9);
   }
 
   @Test

@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -92,11 +91,8 @@ public class ValueRenamingFunction extends AbstractFunction.NonCompiledInvoker {
   
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-    if (inputs.isEmpty()) {
-      throw new OpenGammaRuntimeException("Unable to satify any of " + _valueNamesToChange + " in order to rename to " + _newValueName + " for target " + target);
-    }
-    if (inputs.size() > 1) {
-      throw new OpenGammaRuntimeException("Unable to uniquely map from one of " + _valueNamesToChange + " to " + _newValueName + " since multiple inputs satisfied: " + inputs);
+    if (inputs.size() != 1) {
+      return null;
     }
     ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
     return ImmutableSet.of(getOutputSpec(inputSpec));

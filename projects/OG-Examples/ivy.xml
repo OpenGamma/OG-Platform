@@ -6,7 +6,6 @@
 	</publications>
 	<dependencies>
 		<dependency name="og-web" rev="latest.integration" />
-		<dependency name="og-integration" rev="latest.integration" />
 		<dependency name="og-master" rev="latest.integration" />
 		<dependency name="og-masterdb" rev="latest.integration" />
 		<dependency name="og-financial" rev="latest.integration" />

@@ -39,6 +39,6 @@ public class DependencyGraphRequestMessageBodyReader implements MessageBodyReade
                                          MultivaluedMap<String, String> httpHeaders,
                                          InputStream entityStream) throws IOException, WebApplicationException {
     //JSONObject jsonObject = new JSONObject(IOUtils.toString(new BufferedInputStream(entityStream)));
-    return new DependencyGraphRequest();
+    return new DependencyGraphRequest(0, 0);
   }
 }

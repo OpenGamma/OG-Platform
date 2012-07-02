@@ -21,10 +21,12 @@ import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Tool to generate a template for doing field mapping tasks
  */
+@Scriptable
 public class SecurityFieldMappingTemplateGenerator extends AbstractTool {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityFieldMappingTemplateGenerator.class);
   @Override

@@ -10,6 +10,7 @@ import com.opengamma.web.server.WebGridCell;
 /**
  * Contains a depdency graph grid's raw data.  <em>Not currenly used as dependency graphs have no support
  * for raw data</em>
+ * @deprecated Reports are being redesigned
  */
 public class DependencyGraphGridData extends GridData {
 

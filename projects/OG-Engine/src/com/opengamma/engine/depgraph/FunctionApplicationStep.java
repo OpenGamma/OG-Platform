@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -25,32 +28,36 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /* package */class FunctionApplicationStep extends NextFunctionStep {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionApplicationStep.class);
 
-  private final ParameterizedFunction _function;
-  private final ValueSpecification _originalOutput;
+  private final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _resolved;
   private final ValueSpecification _resolvedOutput;
 
-  public FunctionApplicationStep(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions, final ParameterizedFunction function,
-      final ValueSpecification originalOutput, final ValueSpecification resolvedOutput) {
+  public FunctionApplicationStep(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
+      final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
     super(task, functions);
-    assert function != null;
-    assert originalOutput != null;
-    assert resolvedOutput != null;
-    _function = function;
-    _originalOutput = originalOutput;
+    _resolved = resolved;
     _resolvedOutput = resolvedOutput;
   }
 
+  protected Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> getResolved() {
+    return _resolved;
+  }
+
   protected ParameterizedFunction getFunction() {
-    return _function;
+    return getResolved().getFirst();
   }
 
   protected ValueSpecification getOriginalOutput() {
-    return _originalOutput;
+    return getResolved().getSecond();
+  }
+
+  protected Collection<ValueSpecification> getOriginalOutputs() {
+    return getResolved().getThird();
   }
 
   protected ValueSpecification getResolvedOutput() {
@@ -61,7 +68,7 @@ import com.opengamma.util.tuple.Pair;
 
     private ResolutionPump _pump;
 
-    public DelegateState(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions) {
+    public DelegateState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions) {
       super(task, functions);
     }
 
@@ -139,13 +146,13 @@ import com.opengamma.util.tuple.Pair;
 
   protected static final class PumpingState extends NextFunctionStep {
 
-    private final ValueSpecification _valueSpecification;
-    private final Set<ValueSpecification> _outputs;
     private final ParameterizedFunction _function;
+    private final ValueSpecification _valueSpecification;
+    private final Collection<ValueSpecification> _outputs;
     private final FunctionApplicationWorker _worker;
 
-    private PumpingState(final ResolveTask task, final Iterator<Pair<ParameterizedFunction, ValueSpecification>> functions, final ValueSpecification valueSpecification,
-        final Set<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
+    private PumpingState(final ResolveTask task, final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> functions,
+        final ValueSpecification valueSpecification, final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
       super(task, functions);
       assert outputs.contains(valueSpecification);
       _valueSpecification = valueSpecification;
@@ -159,7 +166,7 @@ import com.opengamma.util.tuple.Pair;
       return _valueSpecification;
     }
 
-    private Set<ValueSpecification> getOutputs() {
+    private Collection<ValueSpecification> getOutputs() {
       return _outputs;
     }
 
@@ -195,16 +202,19 @@ import com.opengamma.util.tuple.Pair;
         getWorker().storeFailure(functionApplication(context).requirements(inputs).getResultsFailed());
         return false;
       }
-      if (getOutputs().equals(newOutputValues)) {
+      if ((getOutputs().size() == newOutputValues.size()) && newOutputValues.containsAll(getOutputs())) {
         // Fetch any additional input requirements now needed as a result of input and output resolution
-        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, getOutputs(), lastWorkerResult);
+        return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, new HashSet<ValueSpecification>(getOutputs()), lastWorkerResult);
       }
       // Resolve output value is now different (probably more precise), so adjust ResolvedValueProducer
       final Set<ValueSpecification> resolvedOutputValues = Sets.newHashSetWithExpectedSize(newOutputValues.size());
       resolvedOutput = null;
       for (ValueSpecification outputValue : newOutputValues) {
         if ((resolvedOutput == null) && getValueRequirement().isSatisfiedBy(outputValue)) {
-          resolvedOutput = MemoryUtils.instance(outputValue.compose(getValueRequirement()));
+          resolvedOutput = outputValue.compose(getValueRequirement());
+          if (resolvedOutput != outputValue) {
+            resolvedOutput = MemoryUtils.instance(resolvedOutput);
+          }
           s_logger.debug("Raw output {} resolves to {}", outputValue, resolvedOutput);
           resolvedOutputValues.add(resolvedOutput);
         } else {
@@ -524,24 +534,6 @@ import com.opengamma.util.tuple.Pair;
       // Populate the worker and position this task in the chain for pumping alternative resolutions to dependents
       s_logger.debug("Registered worker {} for {} production", worker, getResolvedOutput());
       final CompiledFunctionDefinition functionDefinition = getFunction().getFunction();
-      Set<ValueSpecification> originalOutputValues = null;
-      try {
-        originalOutputValues = functionDefinition.getResults(context.getCompilationContext(), getComputationTarget(context));
-      } catch (Throwable t) {
-        s_logger.warn("Exception thrown by getResults", t);
-        context.exception(t);
-      }
-      if (originalOutputValues == null) {
-        s_logger.info("Function {} returned NULL for getResults on {}", functionDefinition, getValueRequirement().getTargetSpecification());
-        final ResolutionFailure failure = context.functionApplication(getValueRequirement(), getFunction(), getResolvedOutput()).getResultsFailed();
-        context.discardTaskProducing(getResolvedOutput(), getTask());
-        worker.storeFailure(failure);
-        worker.finished(context);
-        storeFailure(failure);
-        setRunnableTaskState(new NextFunctionStep(getTask(), getFunctions()), context);
-        worker.release(context);
-        return;
-      }
       Set<ValueRequirement> inputRequirements = null;
       try {
         inputRequirements = functionDefinition.getRequirements(context.getCompilationContext(), getComputationTarget(context), getValueRequirement());
@@ -560,20 +552,18 @@ import com.opengamma.util.tuple.Pair;
         worker.release(context);
         return;
       }
-      final Set<ValueSpecification> resolvedOutputValues;
+      final Collection<ValueSpecification> resolvedOutputValues;
       if (getOriginalOutput().equals(getResolvedOutput())) {
-        resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
-        for (ValueSpecification outputValue : originalOutputValues) {
-          resolvedOutputValues.add(MemoryUtils.instance(outputValue));
-        }
+        resolvedOutputValues = getOriginalOutputs();
       } else {
-        resolvedOutputValues = Sets.newHashSetWithExpectedSize(originalOutputValues.size());
+        final Collection<ValueSpecification> originalOutputValues = getOriginalOutputs();
+        resolvedOutputValues = new ArrayList<ValueSpecification>(originalOutputValues.size());
         for (ValueSpecification outputValue : originalOutputValues) {
           if (getOriginalOutput().equals(outputValue)) {
             s_logger.debug("Substituting {} with {}", outputValue, getResolvedOutput());
             resolvedOutputValues.add(getResolvedOutput());
           } else {
-            resolvedOutputValues.add(MemoryUtils.instance(outputValue));
+            resolvedOutputValues.add(outputValue);
           }
         }
       }

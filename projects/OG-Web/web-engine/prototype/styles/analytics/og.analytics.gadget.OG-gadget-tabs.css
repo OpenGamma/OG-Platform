@@ -1,6 +1,6 @@
 /*
- * @copyright 2012 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  */
 
 .OG-gadget-tabs {
@@ -8,7 +8,6 @@
     font-size: 10px;
     color: #555;
     text-shadow: 0 1px 0 #fff;
-    background: #dadcdd;
     border-top: 1px solid #fff;
     white-space: nowrap;
     height: 23px;
@@ -26,14 +25,11 @@
 
 .OG-gadget-tabs li {
     display: inline-block;
-    float: left;
     list-style: none;
     background: #eee;
-    padding: 1px 5px;
     border-top: 1px solid #d8d8d8;
     border-bottom: 1px solid #d8d8d8;
     border-right: 1px solid #d8d8d8;
-    margin-bottom: -1px;
     position: relative;
     cursor: default;
 }
@@ -106,6 +102,10 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .OG-gadget-tabs li div:first-child {
+        padding: 2px 5px 1px 5px;
     }
 
     .OG-gadget-tabs li:last-child {

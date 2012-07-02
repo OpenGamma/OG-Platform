@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Invokes jobs on one or more local calculation node implementations.
  */
-public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContainer implements JobInvoker {
+public class LocalNodeJobInvoker extends SimpleCalculationNodeInvocationContainer implements JobInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LocalNodeJobInvoker.class);
 
@@ -29,13 +29,13 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
   public LocalNodeJobInvoker() {
   }
 
-  public LocalNodeJobInvoker(final AbstractCalculationNode node) {
+  public LocalNodeJobInvoker(final SimpleCalculationNode node) {
     addNode(node);
     recalculateCapabilities();
   }
 
-  public LocalNodeJobInvoker(final Collection<AbstractCalculationNode> nodes) {
-    getNodes().addAll(nodes);
+  public LocalNodeJobInvoker(final Collection<SimpleCalculationNode> nodes) {
+    addNodes(nodes);
     recalculateCapabilities();
   }
 
@@ -89,7 +89,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
 
   @Override
   public boolean invoke(final CalculationJob job, final JobInvocationReceiver receiver) {
-    final AbstractCalculationNode node = getNodes().poll();
+    final SimpleCalculationNode node = getNodes().poll();
     if (node == null) {
       return false;
     }
@@ -101,7 +101,7 @@ public class LocalNodeJobInvoker extends AbstractCalculationNodeInvocationContai
       }
 
       @Override
-      public void executionFailed(AbstractCalculationNode node, Exception exception) {
+      public void executionFailed(SimpleCalculationNode node, Exception exception) {
         s_logger.warn("Exception thrown by job execution", exception);
         receiver.jobFailed(LocalNodeJobInvoker.this, node.getNodeId(), exception);
       }

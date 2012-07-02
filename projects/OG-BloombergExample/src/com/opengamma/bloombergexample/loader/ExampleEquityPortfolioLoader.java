@@ -37,6 +37,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.functional.Function1;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Example code to load a very simple equity portfolio.
@@ -46,6 +47,7 @@ import com.opengamma.util.functional.Function1;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
+@Scriptable
 public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
 
   /** Logger. */

@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.PublicSPI;
+import com.opengamma.util.async.AsynchronousExecution;
 
 
 /**
@@ -37,7 +38,8 @@ public interface FunctionInvoker {
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       ComputationTarget target,
-      Set<ValueRequirement> desiredValues);
+      //Set<ValueSpecification> outputs // PLAT-2290
+      Set<ValueRequirement> desiredValues) throws AsynchronousExecution;
 
   /**
    * Tests whether the function should be executed when one or more of its expected input values

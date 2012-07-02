@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -19,6 +20,10 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class InterestRateFuturePresentValueFunction extends InterestRateFutureFunction {
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
+
+  public InterestRateFuturePresentValueFunction() {
+    super(ValueRequirementNames.PRESENT_VALUE);
+  }
 
   @Override
   protected Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final YieldCurveBundle data, final ValueSpecification spec) {

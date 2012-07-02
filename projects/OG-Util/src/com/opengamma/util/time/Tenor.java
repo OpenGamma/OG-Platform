@@ -38,13 +38,17 @@ public class Tenor implements Comparable<Tenor> {
    */
   public static final Tenor ONE_WEEK = new Tenor(Period.ofDays(7));
   /**
-   * A tenor of 2 week.
+   * A tenor of 2 weeks.
    */
   public static final Tenor TWO_WEEKS = new Tenor(Period.ofDays(14));
   /**
-   * A tenor of 3 week.
+   * A tenor of 3 weeks.
    */
   public static final Tenor THREE_WEEKS = new Tenor(Period.ofDays(21));
+  /**
+   * A tenor of 6 weeks.
+   */
+  public static final Tenor SIX_WEEKS = new Tenor(Period.ofDays(42));
   /**
    * A tenor of 1 month.
    */
@@ -94,6 +98,10 @@ public class Tenor implements Comparable<Tenor> {
    */
   public static final Tenor TWELVE_MONTHS = new Tenor(Period.ofMonths(12));
   /**
+   * A tenor of 18 months.
+   */
+  public static final Tenor EIGHTEEN_MONTHS = new Tenor(Period.ofMonths(18));
+  /**
    * A tenor of 1 year.
    */
   public static final Tenor ONE_YEAR = new Tenor(Period.ofYears(1));
@@ -110,9 +118,13 @@ public class Tenor implements Comparable<Tenor> {
    */
   public static final Tenor FOUR_YEARS = new Tenor(Period.ofYears(4));
   /**
-   * A tenor of 4 year.
+   * A tenor of 5 years.
    */
   public static final Tenor FIVE_YEARS = new Tenor(Period.ofYears(5));
+  /**
+   * A tenor of 5 years.
+   */
+  public static final Tenor TEN_YEARS = new Tenor(Period.ofYears(10));
   /**
    * A tenor of one working week (5 days).
    */

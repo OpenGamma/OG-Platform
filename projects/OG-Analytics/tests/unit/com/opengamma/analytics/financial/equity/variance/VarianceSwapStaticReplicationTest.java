@@ -8,10 +8,7 @@ package com.opengamma.analytics.financial.equity.variance;
 import static com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.apache.commons.lang.Validate;
-import org.testng.annotations.Test;
-
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
@@ -36,6 +33,9 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
+
+import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -79,15 +79,15 @@ public class VarianceSwapStaticReplicationTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0 };
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0};
 
   //private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9 };
 
-  private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1 };
+  private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1};
 
-  private static final double[] STRIKES = new double[] {20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120 };
+  private static final double[] STRIKES = new double[] {20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120};
 
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.25, 0.27, 0.26, 0.24, 0.23, 0.25, 0.27, 0.26, 0.25, 0.26, 0.27 };
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.25, 0.27, 0.26, 0.24, 0.23, 0.25, 0.27, 0.26, 0.25, 0.26, 0.27};
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
@@ -100,9 +100,9 @@ public class VarianceSwapStaticReplicationTest {
   //  private static final BlackVolatilityDeltaSurface VOL_PUTDELTA_SURFACE = new BlackVolatilityDeltaSurface(new InterpolatedDoublesSurface(EXPIRIES, PUTDELTAS, VOLS, INTERPOLATOR_2D), false);
   private static final BlackVolatilitySurfaceDelta VOL_CALLDELTA_SURFACE = new BlackVolatilitySurfaceDelta(new InterpolatedDoublesSurface(EXPIRIES, CALLDELTAS, VOLS, INTERPOLATOR_2D), FORWARD_CURVE);
 
-  private static final VarianceSwapDataBundle MARKET_W_STRIKESURF = new VarianceSwapDataBundle(VOL_STRIKE_SURFACE, DISCOUNT, FORWARD_CURVE);
-  // private static final VarianceSwapDataBundle MARKET_W_PUTDELTASURF = new VarianceSwapDataBundle(VOL_PUTDELTA_SURFACE, DISCOUNT, SPOT, FORWARD);
-  private static final VarianceSwapDataBundle MARKET_W_CALLDELTASURF = new VarianceSwapDataBundle(VOL_CALLDELTA_SURFACE, DISCOUNT, FORWARD_CURVE);
+  private static final EquityOptionDataBundle MARKET_W_STRIKESURF = new EquityOptionDataBundle(VOL_STRIKE_SURFACE, DISCOUNT, FORWARD_CURVE);
+  // private static final EquityOptionDataBundle MARKET_W_PUTDELTASURF = new EquityOptionDataBundle(VOL_PUTDELTA_SURFACE, DISCOUNT, SPOT, FORWARD);
+  private static final EquityOptionDataBundle MARKET_W_CALLDELTASURF = new EquityOptionDataBundle(VOL_CALLDELTA_SURFACE, DISCOUNT, FORWARD_CURVE);
 
   //Since we use very conservative estimates of the tolerance, the actual error is 100x less than the tolerance set. In really, you'll never need a  1 part in 1,000,000,000
   //accuracy that we test for here.
@@ -121,8 +121,8 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testConstantDoublesDeltaSurface() {
     final BlackVolatilitySurfaceDelta constVolSurf = new BlackVolatilitySurfaceDelta(ConstantDoublesSurface.from(TEST_VOL), FORWARD_CURVE);
-    final double testVar = PRICER.impliedVariance(swap1, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
-    final double testVar2 = PRICER.impliedVariance(swap10, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar = PRICER.impliedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar2 = PRICER.impliedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double targetVar = TEST_VOL * TEST_VOL;
 
     assertEquals(targetVar, testVar, TEST_TOL);
@@ -135,8 +135,8 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testConstantDoublesStrikeSurface() {
     final BlackVolatilitySurfaceStrike constVolSurf = new BlackVolatilitySurfaceStrike(ConstantDoublesSurface.from(TEST_VOL));
-    final double testVar = PRICER.impliedVariance(swap1, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
-    final double testVar2 = PRICER.impliedVariance(swap10, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar = PRICER.impliedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar2 = PRICER.impliedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double targetVar = TEST_VOL * TEST_VOL;
     assertEquals(targetVar, testVar, TEST_TOL);
     assertEquals(targetVar, testVar2, TEST_TOL);
@@ -151,7 +151,7 @@ public class VarianceSwapStaticReplicationTest {
     final Interpolator2D interp2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, interpOnlyStrike);
     final InterpolatedDoublesSurface surface = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, interp2D);
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(surface);
-    PRICER.impliedVariance(swap1, new VarianceSwapDataBundle(volSurface, DISCOUNT, FORWARD_CURVE));
+    PRICER.impliedVariance(swap1, new EquityOptionDataBundle(volSurface, DISCOUNT, FORWARD_CURVE));
   }
 
   /**
@@ -196,10 +196,10 @@ public class VarianceSwapStaticReplicationTest {
     final BlackVolatilitySurfaceMoneyness surfaceMoneyness = BlackVolatilitySurfaceConverter.toMoneynessSurface(surfaceLogMoneyness);
     final BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceLogMoneyness);
 
-    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
-    final VarianceSwapDataBundle marketLogMoneyness = new VarianceSwapDataBundle(surfaceLogMoneyness, DISCOUNT, FORWARD_CURVE);
-    final VarianceSwapDataBundle marketMoneyness = new VarianceSwapDataBundle(surfaceMoneyness, DISCOUNT, FORWARD_CURVE);
-    final VarianceSwapDataBundle marketDelta = new VarianceSwapDataBundle(surfaceDelta, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketStrike = new EquityOptionDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketLogMoneyness = new EquityOptionDataBundle(surfaceLogMoneyness, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketMoneyness = new EquityOptionDataBundle(surfaceMoneyness, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketDelta = new EquityOptionDataBundle(surfaceDelta, DISCOUNT, FORWARD_CURVE);
 
     final double totalVarStrike = PRICER.impliedVariance(swap1, marketStrike);
     final double totalVarLogMoneyness = PRICER.impliedVariance(swap1, marketLogMoneyness);
@@ -234,7 +234,7 @@ public class VarianceSwapStaticReplicationTest {
     };
 
     final BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
-    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketStrike = new EquityOptionDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
     final double compVar = PRICER.impliedVariance(swap1, marketStrike);
     final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
@@ -257,8 +257,8 @@ public class VarianceSwapStaticReplicationTest {
     final double fwd = FORWARD_CURVE.getForward(t);
 
     final int n = 3;
-    final double[] sigma = new double[] {0.2, 0.5, 2.0 };
-    final double[] w = new double[] {0.8, 0.15, 0.05 };
+    final double[] sigma = new double[] {0.2, 0.5, 2.0};
+    final double[] w = new double[] {0.8, 0.15, 0.05};
     final double[] f = new double[n];
     f[0] = 1.05 * fwd;
     f[1] = 0.9 * fwd;
@@ -287,7 +287,7 @@ public class VarianceSwapStaticReplicationTest {
 
     //PDEUtilityTools.printSurface(null, surfaceStrike.getSurface(), 0.1, 4, 5, 300);
 
-    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
+    final EquityOptionDataBundle marketStrike = new EquityOptionDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
     final double compVar = PRICER.impliedVariance(swap2, marketStrike);
 

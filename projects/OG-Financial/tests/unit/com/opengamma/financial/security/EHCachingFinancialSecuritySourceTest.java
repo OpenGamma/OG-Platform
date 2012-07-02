@@ -81,7 +81,6 @@ public class EHCachingFinancialSecuritySourceTest {
     for (int i = 1; i < 10; i++) {
       cachedSec = _cachingSecuritySource.getSecurity(uid1);
       assertNotNull(cachedSec);
-      assertEquals(i, element.getHitCount());
     }
   }
 
@@ -190,71 +189,6 @@ public class EHCachingFinancialSecuritySourceTest {
     Security cachedSec = _cachingSecuritySource.getSecurity(secKey);
     assertNull(cachedSec);
     assertEquals(0, singleSecCache.getSize());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void refreshGetSecurity_UniqueIdentity() {
-    addSecuritiesToMock(_security1, _security2);
-    UniqueId uid1 = _security1.getUniqueId();
-    _cachingSecuritySource.getSecurity(uid1);
-    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
-    assertEquals(1, singleSecCache.getSize());
-    Element sec1Element = singleSecCache.getQuiet(uid1);
-    assertNotNull(sec1Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecuritySource.getSecurity(uid1);
-      assertEquals(i, sec1Element.getHitCount());
-    }
-    _cachingSecuritySource.refresh(uid1);
-    assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(uid1);
-    assertNull(sec1Element);
-    _cachingSecuritySource.getSecurity(uid1);
-    assertEquals(1, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(uid1);
-    assertNotNull(sec1Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecuritySource.getSecurity(uid1);
-      assertEquals(i, sec1Element.getHitCount());
-    }
-  }
-   
-  @Test
-  public void refreshGetSecurities_ExternalIdBundle() {
-    addSecuritiesToMock(_security1, _security2);
-    ExternalIdBundle secKey = ExternalIdBundle.of(_secId1, _secId2);
-    _cachingSecuritySource.getSecurities(secKey);
-    Cache singleSecCache = _cachingSecuritySource.getCacheManager().getCache(EHCachingFinancialSecuritySource.SINGLE_SECURITY_CACHE);
-    assertEquals(2, singleSecCache.getSize());
-    
-    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
-    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
-    assertNotNull(sec1Element);
-    assertNotNull(sec2Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecuritySource.getSecurities(secKey);
-      assertEquals(0, sec1Element.getHitCount());
-      assertEquals(0, sec2Element.getHitCount());
-    }
-    
-    _cachingSecuritySource.refresh(secKey);
-    assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
-    sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
-    assertNull(sec1Element);
-    assertNull(sec2Element);
-    
-    _cachingSecuritySource.getSecurities(secKey);
-    sec1Element = singleSecCache.getQuiet(_security1.getUniqueId());
-    sec2Element = singleSecCache.getQuiet(_security2.getUniqueId());
-    assertNotNull(sec1Element);
-    assertNotNull(sec2Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecuritySource.getSecurities(secKey);
-      assertEquals(0, sec1Element.getHitCount());
-      assertEquals(0, sec2Element.getHitCount());
-    }
   }
 
   private void addSecuritiesToMock(Security ... securities) {

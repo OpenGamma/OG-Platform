@@ -45,6 +45,6 @@ public class EmpiricalDistributionVaRCalculatorTest {
       pnl[i] = i / 10. - 0.5;
     }
     final DoubleTimeSeries<?> ts = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, pnl);
-    assertEquals(CALCULATOR.evaluate(PARAMETERS, ts), 0.082, 1e-7);
+    assertEquals(CALCULATOR.evaluate(PARAMETERS, ts).getVaRValue(), 0.082, 1e-7);
   }
 }

@@ -37,7 +37,7 @@ public class DirichletBoundaryCondition2D implements BoundaryCondition2D {
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, double t, double x) {
+  public double[] getLeftMatrixCondition(ZZPDEDataBundle data, double t, double x) {
     return new double[] {1.0};
   }
 
@@ -47,12 +47,12 @@ public class DirichletBoundaryCondition2D implements BoundaryCondition2D {
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, double t, double x) {
+  public double[] getRightMatrixCondition(ZZPDEDataBundle data, double t, double x) {
     return new double[0];
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, double t, double boundaryPosition, double gridSpacing) {
+  public double getConstant(ZZPDEDataBundle data, double t, double boundaryPosition, double gridSpacing) {
     return _f.getZValue(t, boundaryPosition);
   }
 

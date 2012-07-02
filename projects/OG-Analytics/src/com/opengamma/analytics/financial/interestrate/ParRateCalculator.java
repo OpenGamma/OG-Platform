@@ -34,7 +34,9 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRa
 import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
+import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -72,6 +74,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
+  private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -128,6 +131,32 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
   public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     final double pvSecond = PVC.visit(swap.getSecondLeg(), curves);
     final double pvbp = PVC.visit(swap.getFixedLeg().withUnitCoupon(), curves);
+    return -pvSecond / pvbp;
+  }
+
+  /**
+   * Computes the swap convention-modified par rate for a fixed coupon swap.
+   * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
+   * @param swap The swap.
+   * @param dayCount The day count convention to modify the swap rate.
+   * @param curves The curves.
+   * @return The modified rate.
+   */
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final YieldCurveBundle curves) {
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, curves);
+    return visitFixedCouponSwap(swap, pvbp, curves);
+  }
+
+  /**
+   * Computes the swap convention-modified par rate for a fixed coupon swap with a PVBP externally provided.
+   * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
+   * @param swap The swap.
+   * @param pvbp The present value of a basis point.
+   * @param curves The curves.
+   * @return The modified rate.
+   */
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final double pvbp, final YieldCurveBundle curves) {
+    final double pvSecond = -PVC.visit(swap.getSecondLeg(), curves) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
     return -pvSecond / pvbp;
   }
 

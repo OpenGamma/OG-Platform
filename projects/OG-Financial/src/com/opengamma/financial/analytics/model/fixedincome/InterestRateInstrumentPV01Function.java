@@ -13,10 +13,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PV01Calculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 
 /**
  * 
@@ -29,8 +30,9 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCu
   }
 
   @Override
-  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
-      final YieldCurveBundle curves, final ValueSpecification resultSpec) {
+  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final YieldCurveBundle curves,
+      final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target,
+      final ValueSpecification resultSpec) {
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, curves);
     if (!pv01.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for curve named " + curveName + "; should never happen");

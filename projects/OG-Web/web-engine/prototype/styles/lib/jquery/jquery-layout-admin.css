@@ -16,25 +16,24 @@
 
 .OG-layout-admin-search,
 .OG-layout-analytics { /* legacy analytics */
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
     background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #bbb;
+    border-radius: 3px;
     position: relative;
     overflow: hidden;
 }
 
-.OG-layout-admin-search:after,
-.OG-layout-analytics:after {
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-top-right-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-topright: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+.OG-layout-admin-search:after {
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
     content: '';
-    background-color: #2b343c;
+    background-color: #394249;
     position: absolute;
     top: 0;
     left: 0;
@@ -44,13 +43,23 @@
 
 .OG-layout-admin-details-center,
 .OG-layout-admin-details-south {
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
     background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 1px solid #bbb;
+    border-radius: 3px;
     position: relative;
     overflow: auto;
+}
+
+/* IE has some glitch at 3px, renders wierdly */
+.ie9 .OG-layout-admin-search {
+    border-radius: 4px;
+}
+
+.ie9 .OG-layout-admin-details-center,
+.ie9 .OG-layout-admin-details-south {
+    border-radius: 4px;
 }
 
 .OG-layout-admin-details-center .ui-layout-header { /* Keeps the header in the main section from jumping on load */

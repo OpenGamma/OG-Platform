@@ -6,7 +6,10 @@
 
 package com.opengamma.engine.view.cache;
 
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A filter to determine whether given values are to go into a private or shared cache. 
  */
-public final class CacheSelectHint {
+public final class CacheSelectHint implements IdentifierEncodedValueSpecifications {
 
   private static final CacheSelectHint ALL_SHARED_INSTANCE = new CacheSelectHint(null, null, true);
   private static final CacheSelectHint ALL_PRIVATE_INSTANCE = new CacheSelectHint(null, null, false);
@@ -54,34 +57,35 @@ public final class CacheSelectHint {
     return ALL_PRIVATE_INSTANCE;
   }
 
-  /**
-   * Converts the full {@link ValueSpecification} objects to numeric identifiers for Fudge message encoding.
-   * 
-   * @param identifierMap the identifier map to use
-   */
-  public void convertSpecifications(final IdentifierMap identifierMap) {
+  @Override
+  public void convertValueSpecifications(final Object2LongMap<ValueSpecification> valueSpecifications) {
     if (_valueIdentifiers == null) {
-      final Collection<Long> identifiers = identifierMap.getIdentifiers(_valueSpecifications).values();
-      _valueIdentifiers = new long[identifiers.size()];
+      _valueIdentifiers = new long[_valueSpecifications.size()];
       int i = 0;
-      for (Long identifier : identifiers) {
-        _valueIdentifiers[i++] = identifier;
+      for (ValueSpecification specification : _valueSpecifications) {
+        _valueIdentifiers[i++] = valueSpecifications.getLong(specification);
       }
     }
   }
 
-  /**
-   * Converts numeric identifiers to full {@link ValueSpecification} objects.
-   * 
-   * @param identifierMap the identifier map to use
-   */
-  public void resolveSpecifications(final IdentifierMap identifierMap) {
+  @Override
+  public void collectValueSpecifications(final Set<ValueSpecification> valueSpecifications) {
+    valueSpecifications.addAll(_valueSpecifications);
+  }
+
+  @Override
+  public void convertIdentifiers(final Long2ObjectMap<ValueSpecification> identifiers) {
     if (_valueSpecifications.isEmpty()) {
-      final Collection<Long> identifiers = new ArrayList<Long>(_valueIdentifiers.length);
       for (long identifier : _valueIdentifiers) {
-        identifiers.add(identifier);
+        _valueSpecifications.add(identifiers.get(identifier));
       }
-      _valueSpecifications.addAll(identifierMap.getValueSpecifications(identifiers).values());
+    }
+  }
+
+  @Override
+  public void collectIdentifiers(final LongSet identifiers) {
+    for (long identifier : _valueIdentifiers) {
+      identifiers.add(identifier);
     }
   }
 

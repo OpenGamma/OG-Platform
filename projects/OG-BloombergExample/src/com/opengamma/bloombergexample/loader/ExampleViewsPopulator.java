@@ -37,6 +37,7 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -44,6 +45,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
+@Scriptable
 public class ExampleViewsPopulator extends AbstractExampleTool {
 
   private static final String FORWARD_3M = "FORWARD_3M";

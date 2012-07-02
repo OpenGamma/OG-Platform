@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Wraps a report that is downloaded from the web interface, e.g. a CSV file, Excel workbook or PDF.  The report
  * contains a snapshot of a view client's data.
+ * @deprecated Reports are being redesigned
  */
 public class Report {
 

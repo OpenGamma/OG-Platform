@@ -398,7 +398,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
-      derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
+      try {
+        derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
+      } catch (OpenGammaRuntimeException ogre) {
+        s_logger.error("Error thrown by convertor for security {}, definition {}, time {}, curveNames {}, dataSource {}", new Object[] {financialSecurity, definition, now, curveNames, dataSource });
+        throw ogre;
+      }
       if (derivative == null) {
         throw new NullPointerException("Had a null InterestRateDefinition for " + strip);
       }
@@ -449,7 +454,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, curveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, curveName);
     if (createJacobian) {
       final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
-      System.out.println(jacobianMatrix.toString());
       result.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianMatrix.getData()));
     }
     if (createSensitivities) {
@@ -534,7 +538,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         }
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (final Exception e) {
-        s_logger.error("Caught exception {} for {}", e, financialSecurity);
+        s_logger.error("Caught exception for " + financialSecurity, e);
       }
       if (derivative == null) {
         throw new OpenGammaRuntimeException("Had a null InterestRateDefinition for " + strip);

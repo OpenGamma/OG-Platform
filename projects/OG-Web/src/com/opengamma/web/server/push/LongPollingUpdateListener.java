@@ -79,7 +79,9 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void itemsUpdated(Collection<String> urls) {
     ArgumentChecker.notNull(urls, "urls");
-    ArgumentChecker.notEmpty(urls, "urls");
+    if (urls.isEmpty()) {
+      return;
+    }
     synchronized (_lock) {
       if (_continuation != null) {
         try {

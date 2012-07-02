@@ -490,6 +490,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     long startTime, endTime;
     final int nbTest = 1000;
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       METHOD_STANDARD_CAP.presentValue(CMS_CAP_LONG, sabrBundle);
@@ -506,7 +507,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS coupon by replication SABR with extrapolation (price+delta+vega): " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega (standard SABR): 18-Apr-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 600 ms for 1000 CMS cap 5Y.
+    // Performance note: price+delta+vega (standard SABR): 18-Apr-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 700 ms for 1000 CMS cap 5Y.
     // Performance note: price+delta+vega (SABR with extrapolation): 18-Apr-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 500 ms for 1000 CMS cap 5Y.
   }
 

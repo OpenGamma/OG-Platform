@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -95,15 +96,6 @@ public class AUConventions {
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("AU0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 12m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDLIBORP12M")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
 
-    utils.addConventionBundle(
-        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("BBSW3M Index"), ExternalSchemes.ricSecurityId("AUBABSL3M=AFMA"),
-            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP3M")), "AUD Bank Bill 3m",
-        act365, following, Period.ofMonths(3), 0, false, au);
-    utils.addConventionBundle(
-        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("BBSW6M Index"), ExternalSchemes.ricSecurityId("AUBABSL6M=AFMA"),
-            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP6M")), "AUD Bank Bill 6m",
-        act365, following, Period.ofMonths(6), 0, false, au);
-
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("ADDR1T Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD DEPOSIT 1d")), "AUD DEPOSIT 1d", act365,
@@ -173,6 +165,16 @@ public class AUConventions {
         following, Period.ofYears(5), 2, false, au);
 
     utils.addConventionBundle(
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("ADBB1M Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD BILL 1m")), "AUD BILL 1m", act365,
+        following, Period.ofMonths(1), 2, false, au);
+    utils.addConventionBundle(
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("ADBB2M Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD BILL 2m")), "AUD BILL 2m", act365,
+        following, Period.ofMonths(2), 2, false, au);
+    utils.addConventionBundle(
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("ADBB3M Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD BILL 3m")), "AUD BILL 3m", act365,
+        following, Period.ofMonths(3), 2, false, au);
+
+    utils.addConventionBundle(
         ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("RBACOR Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE")),
         "RBA OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, au, overnightPublicationLag);
 
@@ -180,20 +182,33 @@ public class AUConventions {
     final BusinessDayConvention swapFixedBusinessDay = modified;
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 0, au, act365,
-        modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), au, true);
+        modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P6M"), au, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_3M_SWAP")), "AUD_3M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
-        quarterly, 0, au, act365, modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m"), au, true);
+        quarterly, 0, au, act365, modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P3M"), au, true);
+    // ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m")
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_6M_SWAP")), "AUD_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
-        semiAnnual, 0, au, act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), au, true);
+        semiAnnual, 0, au, act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P6M"), au, true);
+    // ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m")
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_3M_FRA")), "AUD_3M_FRA", act365, modified, quarterly, 0, au, act365,
-        modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m"), au, true);
+        modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P3M"), au, true);
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_6M_FRA")), "AUD_6M_FRA", act365, modified, semiAnnual, 0, au,
-        act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), au, true);
+        act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P6M"), au, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true, overnightPublicationLag);
+
+    utils.addConventionBundle(
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("BBSW3M Index"), ExternalSchemes.ricSecurityId("AUBABSL3M=AFMA"),
+            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P3M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP3M")), 
+            "AUD Bank Bill 3m",
+        act365, modified, Period.ofMonths(3), 0, true, au); // "AUD Bank Bill 3m"
+    utils.addConventionBundle(
+        ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("BBSW6M Index"), ExternalSchemes.ricSecurityId("AUBABSL6M=AFMA"),
+            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, IndexType.BBSW + "_AUD_P6M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP6M")), 
+            "AUD Bank Bill 6m",
+        act365, modified, Period.ofMonths(6), 0, true, au); // "AUD Bank Bill 6m"
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
   }

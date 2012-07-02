@@ -15,10 +15,11 @@ START TRANSACTION;
   UPDATE sec_ndffxdigitaloption SET payment_currency_id=put_currency_id WHERE payment_currency_id IS NULL;  
   ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2paymentcurrency FOREIGN KEY (payment_currency_id) REFERENCES sec_currency (id);
   
-  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxdigitaloption2sec;
-  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxdigitaloption2putcurrency;
-  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxdigitaloption2callcurrency;
-  -- ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id);
-  -- ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id);
-  -- ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id);
-COMMIT;
+  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxndfdigitaloption2callcurrency;
+  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency;
+  ALTER TABLE sec_ndffxdigitaloption DROP CONSTRAINT sec_fk_fxndfdigitaloption2sec;
+  ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id);
+  ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id);
+  ALTER TABLE sec_ndffxdigitaloption ADD CONSTRAINT sec_fk_ndffxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id);
+
+  COMMIT;

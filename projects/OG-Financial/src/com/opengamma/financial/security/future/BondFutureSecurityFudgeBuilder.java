@@ -47,8 +47,7 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
       for (BondFutureDeliverable bfd : object.getBasket()) {
         addToMessage(serializer, msg, BASKET_FIELD_NAME, bfd, BondFutureDeliverable.class);
       }
-    }
-    addToMessage(msg, BOND_TYPE_FIELD_NAME, object.getBondType());
+    }    
     addToMessage(msg, FIRST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
     addToMessage(msg, LAST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
   }
@@ -68,7 +67,6 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
       basket.add(deserializer.fieldValueToObject(BondFutureDeliverable.class, field));
     }
     object.setBasket(basket);
-    object.setBondType(msg.getString(BOND_TYPE_FIELD_NAME));
     object.setFirstDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_FIELD_NAME)));
     object.setLastDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_FIELD_NAME)));
   }

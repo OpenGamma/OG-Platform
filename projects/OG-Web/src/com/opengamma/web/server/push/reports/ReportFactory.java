@@ -12,6 +12,7 @@ import com.opengamma.DataNotFoundException;
 
 /**
  * Creates {@link Report}s for different report formats.
+ * @deprecated Reports are being redesigned
  */
 public class ReportFactory {
 

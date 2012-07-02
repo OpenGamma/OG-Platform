@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -28,6 +29,8 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public final class ComputationTargetSpecification implements Serializable {
+
+  // TODO: move to com.opengamma.engine.target
 
   private static final long serialVersionUID = 1L;
   
@@ -172,6 +175,10 @@ public final class ComputationTargetSpecification implements Serializable {
       .append(getUniqueId())
       .append(']')
       .toString();
+  }
+
+  public Object readResolve() throws ObjectStreamException {
+    return MemoryUtils.instance(this);
   }
 
 }

@@ -6,8 +6,8 @@
 
 package com.opengamma.language.function;
 
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.Function;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Pass through adapter to allow filtering of all function messages

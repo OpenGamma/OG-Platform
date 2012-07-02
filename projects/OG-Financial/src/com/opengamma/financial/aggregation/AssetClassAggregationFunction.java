@@ -5,18 +5,16 @@
  */
 package com.opengamma.financial.aggregation;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -25,21 +23,15 @@ import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
+import com.opengamma.financial.security.forward.EnergyForwardSecurity;
+import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.*;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
@@ -59,12 +51,14 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String EQUITIES = "Equities";
   /* package */static final String FRAS = "FRAs";
   /* package */static final String FUTURES = "Futures";
+  /* package */static final String FORWARDS = "Forwards";
   /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
   /* package */static final String EQUITY_OPTIONS = "Equity Options";
   /* package */static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
   /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String SWAPTIONS = "Swaptions";
   /* package */static final String IRFUTURE_OPTIONS = "IR Future Options";
+  /* package */static final String COMMODITY_FUTURE_OPTIONS = "Commodity Future Options";
   /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS = "Equity Index Dividend Future Options";
   /* package */static final String SWAPS = "Swaps";
   /* package */static final String FX_FORWARDS = "FX Forwards";
@@ -79,11 +73,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /* package */static final List<String> ALL_CATEGORIES = Arrays.asList(FX_OPTIONS, NONDELIVERABLE_FX_FORWARDS, FX_BARRIER_OPTIONS, FX_DIGITAL_OPTIONS,
-      NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
-      FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
-      EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD,
-      UNKNOWN);
+    NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
+    FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
+    EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
+    SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD,
+    UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -103,7 +97,17 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       return finSec.accept(new FinancialSecurityVisitor<String>() {
 
         @Override
-        public String visitBondSecurity(final BondSecurity security) {
+        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+          return BONDS;
+        }
+
+        @Override
+        public String visitCorporateBondSecurity(CorporateBondSecurity security) {
+          return BONDS;
+        }
+
+        @Override
+        public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
           return BONDS;
         }
 
@@ -120,11 +124,6 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitFRASecurity(final FRASecurity security) {
           return FRAS;
-        }
-
-        @Override
-        public String visitFutureSecurity(final FutureSecurity security) {
-          return FUTURES;
         }
 
         @Override
@@ -146,6 +145,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         public String visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           return EQUITY_BARRIER_OPTIONS;
         }
+
         @Override
         public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
           return FX_OPTIONS;
@@ -167,8 +167,13 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
+        public String visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return COMMODITY_FUTURE_OPTIONS;
+        }
+
+        @Override
         public String visitEquityIndexDividendFutureOptionSecurity(
-            final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
         }
 
@@ -227,6 +232,75 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
           throw new UnsupportedOperationException("ContinuousZeroDepositSecurity should not be used in a position");
         }
 
+        @Override
+        public String visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitBondFutureSecurity(BondFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitEquityFutureSecurity(EquityFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitEquityIndexDividendFutureSecurity(EquityIndexDividendFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitFXFutureSecurity(FXFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitForwardSwapSecurity(ForwardSwapSecurity security) {
+          return SWAPS;
+        }
+
+        @Override
+        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitStockFutureSecurity(StockFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
+        public String visitAgricultureForwardSecurity(AgricultureForwardSecurity security) {
+          return FORWARDS;
+        }
+
+        @Override
+        public String visitEnergyForwardSecurity(EnergyForwardSecurity security) {
+          return FORWARDS;
+        }
+
+        @Override
+        public String visitMetalForwardSecurity(MetalForwardSecurity security) {
+          return FORWARDS;
+        }
       });
     } else {
       if (security instanceof RawSecurity && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {

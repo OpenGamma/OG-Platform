@@ -1,6 +1,6 @@
 /**
- * @copyright 2009 - present by OpenGamma Inc
- * @license See distribution for license
+ * Copyright 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
  *
  * Renders a Canvas plot using Flot
  * @see http://code.google.com/p/flot/
@@ -26,7 +26,7 @@ $.register_module({
                 load_plots, initial_preset, meta = {}, // object that stores the structure and data of the plots
                 plot_template, data_template, common_plot_options, top_plot_options, bot_plot_options, spoofed_data,
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colors for plot 1 data sets
-                colors_arr_p2 = ['#aaa', '#b1b1b1', '#969696', '#858585']; // line colors for plot 2 data sets
+                colors_arr_p2 = ['#fff', '#fff', '#fff', '#fff']; // line colors for plot 2 data sets
             timeseries.resize = (function (timeout) {
                var resize = function () {
                    var height = config.height ? config.height : $(selector).parent().height(),
@@ -34,7 +34,7 @@ $.register_module({
                        h_ticks = Math.ceil(width / 100),
                        v_ticks = Math.ceil((height - 80) / 50);
                    $(selector).find('.og-js-p1, .og-js-p2, .og-flot-xaxis').width(width - 2 + 'px');
-                   $(selector).find('.og-js-p1').height(height - 104);
+                   $(selector).find('.og-js-p1').height(height - 83);
                    top_plot_options.xaxis.ticks = bot_plot_options.xaxis.ticks = h_ticks;
                    top_plot_options.yaxis.ticks = bot_plot_options.yaxis.ticks = v_ticks;
                    load_plots();
@@ -52,22 +52,22 @@ $.register_module({
                 return {main: {error: false, data: data[0]}, search: {error: false, data: {data: []}}};
             })(config.data);
             common_plot_options = {
-                grid: {borderWidth: 0, color: '#999', borderColor: '#c1c1c2', aboveData: false, minBorderMargin: 0},
+                grid: {borderWidth: 0, color: '#999', aboveData: false, minBorderMargin: 0},
                 lines: {lineWidth: 1, fill: true, fillColor: '#f8fbfd'},
                 legend: {backgroundColor: null},
                 series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
                 xaxis: {ticks: 6, mode: 'time', tickLength: 0},
-                yaxis: {position: 'left', color: '#555'}
+                yaxis: {position: 'left', color: '#4a6d9e'}
             };
             top_plot_options = $.extend(true, {}, common_plot_options, {
                 colors: colors_arr,
                 crosshair: {mode: 'x', color: '#e5e5e5', lineWidth: '1'},
-                grid: {labelMargin: -40, hoverable: true, borderColor: '#999', aboveData: true},
+                grid: {labelMargin: 4, hoverable: true, aboveData: true},
                 lines: {fillColor: '#f8fbfd'},
                 legend: {show: true, labelBoxBorderColor: 'transparent', position: 'nw', margin: 1},
                 pan: {interactive: true, cursor: "move", frameRate: 30},
                 selection: {mode: null},
-                xaxis: {labelHeight: 20, color: '#000', tickColor: null, min: initial_preset, max: x_max},
+                xaxis: {labelHeight: 14, color: '#4a6d9e', tickColor: '#fff', min: initial_preset, max: x_max},
                 yaxis: {ticks: 5, panRange: false, tickLength: 'full', tickColor: '#f3f3f3', labelWidth: 40}
             });
             bot_plot_options = $.extend(true, {}, common_plot_options, {
@@ -75,8 +75,8 @@ $.register_module({
                 grid: {aboveData: true, labelMargin: -13, minBorderMargin: 1},
                 lines: {fill: false},
                 legend: {show: false},
-                selection: {mode: 'x', color: '#42669a'},
-                xaxis: {labelHeight: 13, tickColor: '#fff'},
+                selection: {mode: 'x', color: '#fff'},
+                xaxis: {labelHeight: 13, tickColor: '#fff', color: '#fff'},
                 yaxis: {show: false}
             });
             handler = function (result) {
@@ -230,7 +230,6 @@ $.register_module({
                                 $legend = get_legend();
                                 $legend.css({visibility: 'hidden'});
                             });
-                        $(tenor + ', .og-flot-xaxis').css({visibility: 'visible'});
                     }());
                     reset_options();
                     p1_options.xaxis.panRange = [data[0][0], data[data.length-1][0]];
@@ -276,6 +275,10 @@ $.register_module({
                     $legend = get_legend(), $legend.css({visibility: 'hidden'});
                     rescale_yaxis();
                     load_data_points();
+                    setTimeout(function () {
+                        $(selector + ' .og-plots').css('visibility', 'visible');
+                        $(selector + ' .og-loading').remove();
+                    }); // load smoother
                 };
                 calculate_y_values = function () {
                     var cur, // the current data set
@@ -386,7 +389,7 @@ $.register_module({
                         build_select = function () {
                             var field, select = '';
                             for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Data Field</span><select>' + select
+                            return select = '<div class="og-field"><select>' + select
                                 + '</select></div>';
                         },
                         // build checkboxes

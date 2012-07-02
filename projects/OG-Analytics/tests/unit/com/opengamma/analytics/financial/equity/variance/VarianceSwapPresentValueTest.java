@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.RealizedVariance;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -67,7 +67,7 @@ public class VarianceSwapPresentValueTest {
 
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, INTERPOLATOR_1D_STRIKE));
   private static final BlackVolatilitySurfaceStrike VOL_SURFACE = new BlackVolatilitySurfaceStrike(SURFACE);
-  private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
+  private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, DISCOUNT, FORWARD_CURVE);
 
   // The derivative
   final double varStrike = 0.05;

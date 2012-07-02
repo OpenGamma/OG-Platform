@@ -161,7 +161,7 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
         getUser(), 
         getPassword(), 
         "SELECT name FROM sys.databases WHERE name NOT IN ('master', 'model', 'msdb', 'tempdb')", 
-        "template1");
+        null);
   }
   
   @Override

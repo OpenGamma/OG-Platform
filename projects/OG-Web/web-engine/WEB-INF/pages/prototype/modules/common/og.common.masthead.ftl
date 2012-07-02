@@ -1,6 +1,6 @@
 <section class="OG-tabs OG-masthead">
   <ul>
-    <li><a href="admin.ftl#/portfolios/" class="og-home">&nbsp;</a></li>
+    <li><a class="og-home">&nbsp;</a></li>
     <li><a href="analytics.ftl" class="og-analytics">analytics</a></li>
     <li><a href="admin.ftl#/portfolios/" class="og-portfolios">portfolios</a></li>
     <li><a href="admin.ftl#/positions/" class="og-positions">positions</a></li>

@@ -8,7 +8,6 @@ package com.opengamma.util.db;
 
 import static com.opengamma.util.db.HibernateDbUtils.fixSQLExceptionCause;
 
-import java.io.Closeable;
 import java.sql.Timestamp;
 
 import javax.sql.DataSource;
@@ -28,6 +27,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.Connector;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
 
@@ -41,7 +41,7 @@ import com.opengamma.util.time.DateUtils;
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class DbConnector implements Closeable {
+public class DbConnector implements Connector {
 
   static {
     DateUtils.initTimeZone();
@@ -99,15 +99,17 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the display name of the connector.
-   * 
-   * @return a name usable for display, not null
-   */
-  public String getName() {
+  @Override
+  public final String getName() {
     return _name;
   }
 
+  @Override
+  public final Class<? extends Connector> getType() {
+    return DbConnector.class;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the data source.
    * 

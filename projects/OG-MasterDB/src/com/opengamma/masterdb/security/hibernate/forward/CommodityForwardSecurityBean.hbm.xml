@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.forward">
+  <class name="CommodityForwardSecurityBean" table="sec_commodity_forward">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <discriminator column="forward_type" type="string"/>
+    <property name="securityId" type="long" column="security_id"/>
+
+    <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ExpiryBean">
+      <component name="expiry" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+        <property name="date" column="expiry_date" type="timestamp" not-null="true"/>
+        <property name="zone" column="expiry_zone" type="string" not-null="true"/>
+      </component>
+      <property name="accuracy" column="expiry_accuracy"
+                type="com.opengamma.masterdb.security.hibernate.ExpiryAccuracyUserType" not-null="true"/>
+    </component>
+
+    <many-to-one name="category" column="contract_category_id"
+                 class="com.opengamma.masterdb.security.hibernate.ContractCategoryBean" not-null="true"/>
+
+    <many-to-one name="currency" column="currency1_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean"/>
+
+    <many-to-one name="unitName" column="unitname_id" class="com.opengamma.masterdb.security.hibernate.UnitBean"/>
+    <component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="underlying_scheme" type="string"/>
+      <property name="identifier" column="underlying_identifier" type="string"/>
+    </component>
+    <property name="unitNumber" column="unitnumber" type="double"/>
+    <property name="unitAmount" column="unit_amount" type="double"/>
+    <component name="firstDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondForwardFirstDeliveryDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondForwardFirstDeliveryDate_zone" type="string" not-null="false"/>
+    </component>
+    <component name="lastDeliveryDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondForwardLastDeliveryDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondForwardLastDeliveryDate_zone" type="string" not-null="false"/>
+    </component>
+
+    <subclass name="com.opengamma.masterdb.security.hibernate.forward.AgricultureForwardSecurityBean"
+              discriminator-value="Agriculture">
+    </subclass>
+
+    <subclass name="com.opengamma.masterdb.security.hibernate.forward.MetalForwardSecurityBean"
+              discriminator-value="Metal">
+    </subclass>
+
+    <subclass name="com.opengamma.masterdb.security.hibernate.forward.EnergyForwardSecurityBean"
+              discriminator-value="Energy">
+    </subclass>
+
+  </class>
+
+  <query name="CommodityForwardSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      CommodityForwardSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="ForwardSecurityBean.all">
+    from CommodityForwardSecurityBean
+  </query>
+</hibernate-mapping>

@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.interestrate;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.util.surface.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -23,6 +23,10 @@ public class PresentValueSABRSensitivityDataBundle {
    * The object containing the alpha sensitivity.
    */
   private final SurfaceValue _alpha;
+  /**
+   * The object containing the beta sensitivity.
+   */
+  private final SurfaceValue _beta;
   /**
    * The object containing the rho (correlation) sensitivity.
    */
@@ -37,6 +41,7 @@ public class PresentValueSABRSensitivityDataBundle {
    */
   public PresentValueSABRSensitivityDataBundle() {
     _alpha = new SurfaceValue();
+    _beta = new SurfaceValue();
     _rho = new SurfaceValue();
     _nu = new SurfaceValue();
   }
@@ -47,11 +52,13 @@ public class PresentValueSABRSensitivityDataBundle {
    * @param rho The rho sensitivity.
    * @param nu The nu sensitivity.
    */
-  public PresentValueSABRSensitivityDataBundle(final Map<DoublesPair, Double> alpha, final Map<DoublesPair, Double> rho, final Map<DoublesPair, Double> nu) {
-    Validate.notNull(alpha, "alpha");
-    Validate.notNull(rho, "rho");
-    Validate.notNull(nu, "nu");
+  public PresentValueSABRSensitivityDataBundle(final Map<DoublesPair, Double> alpha, final Map<DoublesPair, Double> beta, final Map<DoublesPair, Double> rho, final Map<DoublesPair, Double> nu) {
+    ArgumentChecker.notNull(alpha, "alpha");
+    ArgumentChecker.notNull(beta, "beta");
+    ArgumentChecker.notNull(rho, "rho");
+    ArgumentChecker.notNull(nu, "nu");
     _alpha = SurfaceValue.from(alpha);
+    _beta = SurfaceValue.from(beta);
     _rho = SurfaceValue.from(rho);
     _nu = SurfaceValue.from(nu);
   }
@@ -62,11 +69,13 @@ public class PresentValueSABRSensitivityDataBundle {
    * @param rho The rho sensitivities.
    * @param nu The nu sensitivities.
    */
-  public PresentValueSABRSensitivityDataBundle(final SurfaceValue alpha, final SurfaceValue rho, final SurfaceValue nu) {
-    Validate.notNull(alpha, "alpha");
-    Validate.notNull(rho, "rho");
-    Validate.notNull(nu, "nu");
+  public PresentValueSABRSensitivityDataBundle(final SurfaceValue alpha, final SurfaceValue beta, final SurfaceValue rho, final SurfaceValue nu) {
+    ArgumentChecker.notNull(alpha, "alpha");
+    ArgumentChecker.notNull(beta, "beta");
+    ArgumentChecker.notNull(rho, "rho");
+    ArgumentChecker.notNull(nu, "nu");
     _alpha = alpha;
+    _beta = SurfaceValue.from(beta);
     _rho = rho;
     _nu = nu;
   }
@@ -79,6 +88,16 @@ public class PresentValueSABRSensitivityDataBundle {
    */
   public void addAlpha(final DoublesPair expiryMaturity, final double sensitivity) {
     _alpha.add(expiryMaturity, sensitivity);
+  }
+
+  /**
+   * Add one sensitivity to the beta sensitivity. The existing object is modified. If the point is not in the existing points of the sensitivity, it is put in the map.
+   * If a point is already in the existing points of the object, the value is added to the existing value.
+   * @param expiryMaturity The expirytime/maturity pair.
+   * @param sensitivity The sensitivity.
+   */
+  public void addBeta(final DoublesPair expiryMaturity, final double sensitivity) {
+    _beta.add(expiryMaturity, sensitivity);
   }
 
   /**
@@ -106,7 +125,8 @@ public class PresentValueSABRSensitivityDataBundle {
    * @return The multiplied sensitivity.
    */
   public static PresentValueSABRSensitivityDataBundle multiplyBy(final PresentValueSABRSensitivityDataBundle sensi, final double factor) {
-    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.multiplyBy(sensi._alpha, factor), SurfaceValue.multiplyBy(sensi._rho, factor), SurfaceValue.multiplyBy(sensi._nu, factor));
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.multiplyBy(sensi._alpha, factor), SurfaceValue.multiplyBy(sensi._beta, factor), SurfaceValue.multiplyBy(sensi._rho, factor),
+        SurfaceValue.multiplyBy(sensi._nu, factor));
   }
 
   /**
@@ -116,7 +136,8 @@ public class PresentValueSABRSensitivityDataBundle {
    * @return The sum sensitivity.
    */
   public static PresentValueSABRSensitivityDataBundle plus(final PresentValueSABRSensitivityDataBundle sensi1, final PresentValueSABRSensitivityDataBundle sensi2) {
-    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.plus(sensi1._alpha, sensi2._alpha), SurfaceValue.plus(sensi1._rho, sensi2._rho), SurfaceValue.plus(sensi1._nu, sensi2._nu));
+    return new PresentValueSABRSensitivityDataBundle(SurfaceValue.plus(sensi1._alpha, sensi2._alpha), SurfaceValue.plus(sensi1._beta, sensi2._beta), SurfaceValue.plus(sensi1._rho, sensi2._rho),
+        SurfaceValue.plus(sensi1._nu, sensi2._nu));
   }
 
   /**
@@ -125,6 +146,14 @@ public class PresentValueSABRSensitivityDataBundle {
    */
   public SurfaceValue getAlpha() {
     return _alpha;
+  }
+
+  /**
+   * Gets the beta sensitivity.
+   * @return The beta sensitivity.
+   */
+  public SurfaceValue getBeta() {
+    return _beta;
   }
 
   /**
@@ -148,6 +177,7 @@ public class PresentValueSABRSensitivityDataBundle {
     final int prime = 31;
     int result = 1;
     result = prime * result + _alpha.hashCode();
+    result = prime * result + _beta.hashCode();
     result = prime * result + _nu.hashCode();
     result = prime * result + _rho.hashCode();
     return result;
@@ -166,6 +196,9 @@ public class PresentValueSABRSensitivityDataBundle {
     }
     final PresentValueSABRSensitivityDataBundle other = (PresentValueSABRSensitivityDataBundle) obj;
     if (!ObjectUtils.equals(_alpha, other._alpha)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_beta, other._beta)) {
       return false;
     }
     if (!ObjectUtils.equals(_nu, other._nu)) {

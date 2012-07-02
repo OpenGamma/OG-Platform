@@ -12,8 +12,7 @@
   <bean id="updateManager" class="com.opengamma.web.server.push.ConnectionManagerImpl">
     <constructor-arg index="0" ref="changeManager"/>
     <constructor-arg index="1" ref="masterChangeManager"/>
-    <constructor-arg index="2"><bean class="com.opengamma.web.server.push.TestViewportManager"/></constructor-arg>
-    <constructor-arg index="3" ref="longPollingConnectionManager"/>
+    <constructor-arg index="2" ref="longPollingConnectionManager"/>
   </bean>
 
   <bean id="changeManager" class="com.opengamma.web.server.push.TestChangeManager"/>

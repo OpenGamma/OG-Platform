@@ -18,12 +18,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class GeneratorSwapFixedIbor {
+public class GeneratorSwapFixedIbor extends Generator {
 
-  /**
-   * Name of the index.
-   */
-  private final String _name;
   /**
    * The fixed leg period of payments.
    */
@@ -53,18 +49,20 @@ public class GeneratorSwapFixedIbor {
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
    */
-  public GeneratorSwapFixedIbor(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
+  public GeneratorSwapFixedIbor(String name, Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
+    super(name);
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
     Validate.notNull(iborIndex, "ibor index");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
-    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
+    //    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
     _businessDayConvention = iborIndex.getBusinessDayConvention();
     _endOfMonth = iborIndex.isEndOfMonth();
     _spotLag = iborIndex.getSpotLag();
@@ -72,6 +70,7 @@ public class GeneratorSwapFixedIbor {
 
   /**
    * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * @param name The generator name. Not null.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
@@ -79,25 +78,19 @@ public class GeneratorSwapFixedIbor {
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapFixedIbor(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+  public GeneratorSwapFixedIbor(String name, Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+      final int spotLag) {
+    super(name);
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
     Validate.notNull(iborIndex, "ibor index");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
-    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
+    //    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
     _businessDayConvention = businessDayConvention;
     _endOfMonth = endOfMonth;
     _spotLag = spotLag;
-  }
-
-  /**
-   * Gets the generator name.
-   * @return The name
-   */
-  public String getName() {
-    return _name;
   }
 
   /**
@@ -166,7 +159,7 @@ public class GeneratorSwapFixedIbor {
 
   @Override
   public String toString() {
-    return _name;
+    return getName();
   }
 
   @Override
@@ -178,7 +171,7 @@ public class GeneratorSwapFixedIbor {
     result = prime * result + _fixedLegDayCount.hashCode();
     result = prime * result + _fixedLegPeriod.hashCode();
     result = prime * result + _iborIndex.hashCode();
-    result = prime * result + _name.hashCode();
+    result = prime * result + getName().hashCode();
     result = prime * result + _spotLag;
     return result;
   }

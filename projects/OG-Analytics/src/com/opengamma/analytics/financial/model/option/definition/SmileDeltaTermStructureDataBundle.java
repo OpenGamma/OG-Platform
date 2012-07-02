@@ -23,7 +23,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
   /**
    * The smile parameters for one currency pair.
    */
-  private final SmileDeltaTermStructureParameter _smile;
+  private final SmileDeltaTermStructureParametersStrikeInterpolation _smile;
   /**
    * The currency pair for which the smile data is valid.
    */
@@ -37,8 +37,8 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
    * @param smile The smile parameters.
    * @param currencyPair The currency pair for which the smile is valid.
    */
-  public SmileDeltaTermStructureDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameter smile,
-      Pair<Currency, Currency> currencyPair) {
+  public SmileDeltaTermStructureDataBundle(final FXMatrix fxRates, final Map<String, Currency> curveCurrency, final YieldCurveBundle ycBundle,
+      final SmileDeltaTermStructureParametersStrikeInterpolation smile, Pair<Currency, Currency> currencyPair) {
     super(fxRates, curveCurrency, ycBundle);
     Validate.notNull(smile, "Smile parameters");
     //TODO: check rate is available for currency pair.
@@ -59,7 +59,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
    * Gets the smile parameters.
    * @return The smile parameters.
    */
-  public SmileDeltaTermStructureParameter getSmile() {
+  public SmileDeltaTermStructureParametersStrikeInterpolation getSmile() {
     return _smile;
   }
 
@@ -68,7 +68,7 @@ public class SmileDeltaTermStructureDataBundle extends YieldCurveWithFXBundle {
   }
 
   /**
-   * Get the volatility at a given time/strike/forward taking the currency pair order in account. See {@link SmileDeltaTermStructureParameter} for the interpolation/extrapolation. 
+   * Get the volatility at a given time/strike/forward taking the currency pair order in account. See {@link SmileDeltaTermStructureParametersStrikeInterpolation} for the interpolation/extrapolation. 
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
    * @param time The time to expiration.

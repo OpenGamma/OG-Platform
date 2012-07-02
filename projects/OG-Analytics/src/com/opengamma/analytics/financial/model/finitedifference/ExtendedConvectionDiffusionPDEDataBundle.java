@@ -12,16 +12,17 @@ import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * PDE Data bundle representing PDEs of the type
- * $\frac{\partial f}{\partial t} + a(t,x)\frac{\partial^2}{\partial x^2}\left[ \alpha(t,x) f \right] + * b(t,x)\frac{\partial}{\partial x}\left[\beta(t,x) f \right] + c(t,x)f = 0$
+ * $\frac{\partial f}{\partial t} + a(t,x)\frac{\partial^2}{\partial x^2}\left[ \alpha(t,x) f \right] +  b(t,x)\frac{\partial}{\partial x}\left[\beta(t,x) f \right] + c(t,x)f = 0$
  * , which includes the Fokker-Planck PDE.
  */
-public class ExtendedConvectionDiffusionPDEDataBundle extends ConvectionDiffusionPDEDataBundle {
+@SuppressWarnings("deprecation")
+public class ExtendedConvectionDiffusionPDEDataBundle extends ZZConvectionDiffusionPDEDataBundle {
   private final Surface<Double, Double, Double> _alpha;
   private final Surface<Double, Double, Double> _beta;
 
   /**
    * PDE Data bundle representing PDEs of the type
-   * $\frac{\partial f}{\partial t} + a(t,x)\frac{\partial^2}{\partial x^2}\left[ \alpha(t,x) f \right] + * b(t,x)\frac{\partial}{\partial x}\left[\beta(t,x) f \right] + c(t,x)f = 0$
+   * $\frac{\partial f}{\partial t} + a(t,x)\frac{\partial^2}{\partial x^2}\left[ \alpha(t,x) f \right] +  b(t,x)\frac{\partial}{\partial x}\left[\beta(t,x) f \right] + c(t,x)f = 0$
    * @param a $a(t,x)$
    * @param b $b(t,x)$
    * @param c $c(t,x)$

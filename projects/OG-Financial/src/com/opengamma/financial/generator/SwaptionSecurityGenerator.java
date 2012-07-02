@@ -54,10 +54,11 @@ public class SwaptionSecurityGenerator extends SecurityGenerator<SwaptionSecurit
     return _securityPersister;
   }
 
-  protected SwapSecurity createUnderlying(final ZonedDateTime earliestMaturity) {
+  protected SwapSecurity createUnderlying(final ZonedDateTime earliestMaturity, final ZonedDateTime swaptionExpiry) {
     SwapSecurity security;
     do {
       do {
+        getUnderlyingGenerator().setSwationExpiry(swaptionExpiry.toLocalDate());
         security = getUnderlyingGenerator().createSecurity();
       } while (security == null);
     } while ((FinancialSecurityUtils.getCurrency(security) == null) || security.getMaturityDate().isBefore(earliestMaturity));
@@ -119,7 +120,7 @@ public class SwaptionSecurityGenerator extends SecurityGenerator<SwaptionSecurit
   public SwaptionSecurity createSecurity() {
     final int optionLength = getRandom(OPTION_LENGTH);
     ZonedDateTime expiry = ZonedDateTime.now().plusMonths(optionLength);
-    final SwapSecurity underlying = createUnderlying(expiry.plusMonths(2));
+    final SwapSecurity underlying = createUnderlying(expiry.plusMonths(2), expiry);
     final Currency currency = FinancialSecurityUtils.getCurrency(underlying);
     expiry = nextWorkingDay(expiry, currency);
     final boolean isPayer = getRandom().nextBoolean();

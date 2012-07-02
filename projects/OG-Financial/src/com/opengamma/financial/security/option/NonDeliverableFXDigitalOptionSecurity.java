@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.LongShort;
+import com.opengamma.financial.security.SecurityVisitor;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -106,17 +107,6 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
-    return visitor.visitNonDeliverableFXDigitalOptionSecurity(this);
-  }
-
-  /**
-   * Accepts a visitor to manage traversal of the hierarchy.
-   * 
-   * @param <T> the result type of the visitor
-   * @param visitor  the visitor, not null
-   * @return the result
-   */
-  public <T> T accept(NonDeliverableFXDigitalOptionSecurityVisitor<T> visitor) {
     return visitor.visitNonDeliverableFXDigitalOptionSecurity(this);
   }
 

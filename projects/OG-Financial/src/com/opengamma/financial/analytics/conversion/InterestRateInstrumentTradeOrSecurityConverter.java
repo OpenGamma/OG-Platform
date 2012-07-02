@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -23,7 +23,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
- * 
+ *
  */
 public class InterestRateInstrumentTradeOrSecurityConverter {
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
@@ -33,7 +33,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
   private final InterestRateFutureOptionTradeConverter _interestRateFutureOptionTradeConverter;
 
   public InterestRateInstrumentTradeOrSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource, final boolean forCurves) {
+                                                        final SecuritySource securitySource, final boolean forCurves) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     Validate.notNull(regionSource, "region source");
@@ -45,15 +45,15 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
+
     final ZeroDepositConverter zeroDepositConverter = new ZeroDepositConverter(conventionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter)
-        .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter)
-        .futureSecurityVisitor(futureConverter)
-        .bondSecurityVisitor(bondConverter)
-        .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
+      .cashSecurityVisitor(cashConverter)
+      .fraSecurityVisitor(fraConverter)
+      .swapSecurityVisitor(swapConverter)
+      .interestRateFutureSecurityVisitor(irFutureConverter)
+      .bondSecurityVisitor(bondConverter)
+      .periodicZeroDepositSecurityVisitor(zeroDepositConverter).create();
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
     _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);

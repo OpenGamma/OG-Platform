@@ -28,7 +28,7 @@ public class SumUtils {
       return value;
     }
     if (currentTotal.getClass() != value.getClass()) {
-      throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName);
+      throw new IllegalArgumentException("Inputs have different value types for requirement " + valueName + " currentTotal type = " + currentTotal.getClass() + " value type = " + value.getClass());
     }
     if (value instanceof Double) {
       final Double previousDouble = (Double) currentTotal;

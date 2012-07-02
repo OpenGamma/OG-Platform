@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -21,7 +22,7 @@ import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -86,7 +87,7 @@ public class FixedIncomeConverterDataProvider {
       }
     }
     if (security instanceof SwapSecurity) {
-      if (definition instanceof SwapFixedOISSimplifiedDefinition) {
+      if (definition instanceof SwapFixedONSimplifiedDefinition) {
         return definition.toDerivative(now, curveNames);
       }
       return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);
@@ -184,6 +185,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Convert from the "security" and "definition" version of a CMS cap/floor annuity to its "derivative" version.
+   * 
    * @param security The security.
    * @param definition The definition version of the instrument.
    * @param now The conversion moment.
@@ -202,6 +204,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Convert from the "security" and "definition" version of a CMS spread cap/floor annuity to its "derivative" version.
+   * 
    * @param security The security.
    * @param definition The definition version of the instrument.
    * @param now The conversion moment.
@@ -227,25 +230,46 @@ public class FixedIncomeConverterDataProvider {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     final ZonedDateTime swapStartDate = security.getEffectiveDate();
+    final ZonedDateTime swapStartLocalDate = ZonedDateTime.of(swapStartDate.toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
     final boolean includeCurrentDatesFixing = true;
-    final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartDate, now, includeCurrentDatesFixing,
+    final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartLocalDate, now, includeCurrentDatesFixing,
         dataSource);
-    final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartDate, now,
+    final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartLocalDate, now,
         includeCurrentDatesFixing, dataSource);
     if (payLegTS != null) {
       if (receiveLegTS != null) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS}, curveNames);
+        try {
+          return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+        } catch (final OpenGammaRuntimeException e) {
+          final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+          throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+        }
       }
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
+      try {
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
+      } catch (final OpenGammaRuntimeException e) {
+        final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+        throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+      }
     }
     if (receiveLegTS != null) {
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS}, curveNames);
+        try {
+          return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+        } catch (final OpenGammaRuntimeException e) {
+          final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
+          throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+        }
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
+      try {
+        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
+      } catch (final OpenGammaRuntimeException e) {
+        final ExternalId id = ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId();
+        throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
+      }
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }
@@ -255,8 +279,9 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
-      if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate) || now.equals(swapEffectiveDate)) {
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(360);
+      // Implementation note: To catch first fixing. SwapSecurity does not have this date.
+      if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate)) { // TODO: review if this is the correct condition
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
       final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), includeEndDate);
@@ -284,6 +309,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Returns the ExternalIDBundle associated to an ExternalId as stored in the convention source.
+   * 
    * @param indexId The external id.
    * @return The bundle.
    */
@@ -297,6 +323,7 @@ public class FixedIncomeConverterDataProvider {
 
   /**
    * Returns the time series to be used in the toDerivative method.
+   * 
    * @param id The ExternalId bundle.
    * @param startDate The time series start date (included in the time series).
    * @param endDate The time series end date (included or not in the series according to includeEndDate flag).

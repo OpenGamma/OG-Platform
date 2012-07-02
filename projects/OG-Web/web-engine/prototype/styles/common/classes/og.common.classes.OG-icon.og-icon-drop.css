@@ -1,9 +1,9 @@
 .OG-icon.og-icon-drop:after {
-  background-position: -37px -75px;
-  background-color: transparent;
-  height: 15px;
-  width: 13px;
-  z-index: 2;
-  top: 0;
-  position: absolute;
+    background-position: -37px -75px;
+    background-color: transparent;
+    height: 15px;
+    width: 13px;
+    z-index: 2;
+    top: 0;
+    position: absolute;
 }

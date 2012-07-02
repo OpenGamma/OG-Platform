@@ -103,17 +103,6 @@ public class FXOptionSecurity extends FinancialSecurity {
     return visitor.visitFXOptionSecurity(this);
   }
 
-  /**
-   * Accepts a visitor to manage traversal of the hierarchy.
-   * 
-   * @param <T> the result type of the visitor
-   * @param visitor  the visitor, not null
-   * @return the result
-   */
-  public <T> T accept(FXOptionSecurityVisitor<T> visitor) {
-    return visitor.visitFXOptionSecurity(this);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Checks if the long/short type is long.

@@ -14,6 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
@@ -63,25 +64,37 @@ public class SwapIborIborDefinitionTest {
     assertEquals(SWAP_IBOR_IBOR.getSecondLeg(), IBOR_LEG_2);
   }
 
+  @Test
+  /**
+   * Tests the builder (from) using a Ibor/Ibor swap generator.
+   */
+  public void from() {
+    GeneratorSwapIborIbor generator = new GeneratorSwapIborIbor("USDLIBOR3MLIBOR6M", USDLIBOR3M, USDLIBOR6M);
+    SwapIborIborDefinition swapFrom = SwapIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, generator, NOTIONAL, SPREAD_1, IS_PAYER_1);
+    assertEquals("SwapIborIborDefinition: from", swapFrom, SWAP_IBOR_IBOR);
+  }
+
   /**
    * Tests toDerivative with different reference dates.
    */
   @Test
   public void toDerivative() {
-    String[] yieldCurveNames = new String[] {"dsc", "fwd"};
-    ArrayZonedDateTimeDoubleTimeSeries fixingTs3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()}, new double[] {0.0123});
-    ArrayZonedDateTimeDoubleTimeSeries fixingTs6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()}, new double[] {0.0135});
-    ArrayZonedDateTimeDoubleTimeSeries[] fixingTs = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6};
-    ZonedDateTime referenceDateBeforeFirstFixing = DateUtils.getUTCDate(2012, 4, 13);
-    Swap<? extends Payment, ? extends Payment> swapConvertedBeforeFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateBeforeFirstFixing, yieldCurveNames);
+    final String[] yieldCurveNames = new String[] {"dsc", "fwd", "fwd6m"};
+    final ArrayZonedDateTimeDoubleTimeSeries fixingTs3 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
+        new double[] {0.0123});
+    final ArrayZonedDateTimeDoubleTimeSeries fixingTs6 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {SWAP_IBOR_IBOR.getFirstLeg().getNthPayment(0).getFixingDate()},
+        new double[] {0.0135});
+    final ArrayZonedDateTimeDoubleTimeSeries[] fixingTs = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTs3, fixingTs6};
+    final ZonedDateTime referenceDateBeforeFirstFixing = DateUtils.getUTCDate(2012, 4, 13);
+    final Swap<? extends Payment, ? extends Payment> swapConvertedBeforeFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateBeforeFirstFixing, yieldCurveNames);
     for (int loopcpn = 0; loopcpn < swapConvertedBeforeFirstFixing.getFirstLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedBeforeFirstFixing.getFirstLeg().getNthPayment(loopcpn) instanceof Coupon);
     }
     for (int loopcpn = 0; loopcpn < swapConvertedBeforeFirstFixing.getSecondLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedBeforeFirstFixing.getSecondLeg().getNthPayment(loopcpn) instanceof Coupon);
     }
-    ZonedDateTime referenceDateOnFirstFixing = DateUtils.getUTCDate(2012, 4, 16);
-    Swap<? extends Payment, ? extends Payment> swapConvertedOnFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateOnFirstFixing, fixingTs, yieldCurveNames);
+    final ZonedDateTime referenceDateOnFirstFixing = DateUtils.getUTCDate(2012, 4, 16);
+    final Swap<? extends Payment, ? extends Payment> swapConvertedOnFirstFixing = SWAP_IBOR_IBOR.toDerivative(referenceDateOnFirstFixing, fixingTs, yieldCurveNames);
     for (int loopcpn = 0; loopcpn < swapConvertedOnFirstFixing.getFirstLeg().getNumberOfPayments(); loopcpn++) {
       assertTrue("SwapIborIborDefinition: toDerivative", swapConvertedOnFirstFixing.getFirstLeg().getNthPayment(loopcpn) instanceof Coupon);
     }

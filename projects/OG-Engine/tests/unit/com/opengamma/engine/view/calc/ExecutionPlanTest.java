@@ -34,7 +34,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.Cancelable;
+import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -74,7 +74,7 @@ public class ExecutionPlanTest {
         final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
         for (CalculationJobItem jobItem : job.getJobItems()) {
           s_logger.debug("Job item {}", jobItem);
-          resultItems.add(new CalculationJobResultItem(jobItem));
+          resultItems.add(CalculationJobResultItem.success());
         }
         final CalculationJobResult result = new CalculationJobResult(job.getSpecification(), 0, resultItems, "");
         jobResultReceiver.resultReceived(result);
@@ -126,12 +126,12 @@ public class ExecutionPlanTest {
   }
 
   private MutableGraphFragmentContext createMutableGraphFragmentContext() {
-    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(createExecutor(), createDependencyGraph(), new LinkedBlockingQueue<CalculationJobResult>());
+    final MutableGraphFragmentContext context = new MutableGraphFragmentContext(createExecutor(), createDependencyGraph(), new LinkedBlockingQueue<ExecutionResult>());
     return context;
   }
 
   private GraphFragmentContext createGraphFragmentContext() {
-    final GraphFragmentContext context = new GraphFragmentContext(createExecutor(), createDependencyGraph(), new LinkedBlockingQueue<CalculationJobResult>());
+    final GraphFragmentContext context = new GraphFragmentContext(createExecutor(), createDependencyGraph(), new LinkedBlockingQueue<ExecutionResult>());
     return context;
   }
 

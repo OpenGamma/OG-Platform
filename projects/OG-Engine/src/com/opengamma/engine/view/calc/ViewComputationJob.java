@@ -458,6 +458,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } else {
       s_logger.info("Performing delta computation");
       deltaCycle = _previousCycleReference.get();
+      if ((deltaCycle != null) && (deltaCycle.getState() != ViewCycleState.EXECUTED)) {
+        // Can only do a delta cycle if the previous was valid
+        deltaCycle = null;
+      }
     }
 
     try {

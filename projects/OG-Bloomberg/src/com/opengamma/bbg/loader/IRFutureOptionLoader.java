@@ -185,6 +185,7 @@ public class IRFutureOptionLoader extends SecurityLoader {
   }
 
   private boolean getIsMargined(String exchangeCode) {
+    // Yomi put this in on direction from mark.
     if (exchangeCode.equalsIgnoreCase("CME")) {
       return false;
     } else if (exchangeCode.equalsIgnoreCase("LIF") || exchangeCode.equalsIgnoreCase("EUX")) {

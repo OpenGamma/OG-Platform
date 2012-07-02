@@ -31,7 +31,7 @@ public class InMemoryIdentifierMap extends AbstractIdentifierMap implements Iden
     if (result != null) {
       return result;
     }
-    Long freshIdentifier = _nextIdentifier.getAndIncrement();
+    long freshIdentifier = _nextIdentifier.getAndIncrement();
     result = _identifiers.putIfAbsent(spec, freshIdentifier);
     if (result == null) {
       result = freshIdentifier;

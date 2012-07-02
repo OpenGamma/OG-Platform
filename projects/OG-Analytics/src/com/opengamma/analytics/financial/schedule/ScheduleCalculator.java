@@ -83,6 +83,21 @@ public final class ScheduleCalculator {
   }
 
   /**
+    * Return a good business date computed from a given date and shifted by a certain number of business days. The number of business days is given by the getDays part of a peeriod.
+    * If the number of shift days is 0, the return date is the next business day.
+    * If the number of shift days is non-zero (positive or negative), a 0 shift is first applied and then a one business day shift is applied as many time as the absolute value of the shift.
+    * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
+    * @param date The initial date.
+    * @param shiftDays The number of days of the adjustment as a period.
+    * @param calendar The calendar representing the god business days.
+    * @return The adjusted dates.
+    */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime date, final Period shiftDays, final Calendar calendar) {
+    Validate.notNull(shiftDays);
+    return getAdjustedDate(date, shiftDays.getDays(), calendar);
+  }
+
+  /**
    * Return a good business date computed from a given date and shifted by a certain number of business days.
    * This version uses LocalDate.
    * If the number of shift days is 0, the return date is the next business day.

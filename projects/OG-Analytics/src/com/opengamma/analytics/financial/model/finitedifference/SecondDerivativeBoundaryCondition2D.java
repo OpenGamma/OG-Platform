@@ -30,12 +30,12 @@ public class SecondDerivativeBoundaryCondition2D implements BoundaryCondition2D 
   }
 
   @Override
-  public double getConstant(PDEDataBundle data, double t, double boundaryPosition, double gridSpacing) {
+  public double getConstant(ZZPDEDataBundle data, double t, double boundaryPosition, double gridSpacing) {
     return _f.getZValue(t, boundaryPosition) * gridSpacing * gridSpacing;
   }
 
   @Override
-  public double[] getLeftMatrixCondition(PDEDataBundle data, double t, double boundaryPosition) {
+  public double[] getLeftMatrixCondition(ZZPDEDataBundle data, double t, double boundaryPosition) {
     return new double[] {1, -2, 1};
   }
 
@@ -45,7 +45,7 @@ public class SecondDerivativeBoundaryCondition2D implements BoundaryCondition2D 
   }
 
   @Override
-  public double[] getRightMatrixCondition(PDEDataBundle data, double t, double boundaryPosition) {
+  public double[] getRightMatrixCondition(ZZPDEDataBundle data, double t, double boundaryPosition) {
     return new double[0];
   }
 

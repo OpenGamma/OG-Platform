@@ -486,7 +486,22 @@
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
 		<ivy:retrieve type="jar,webapp,resource" pattern="${dist.dir}/${dist.name}/lib/[organization]-[module]-[artifact]-[revision].[ext]" />
 		<antcall target="dist-fixcrlf" />
+    <antcall target="script-gen" />
 	</target>
+  
+  <target name="script-gen">
+    <taskdef name="scriptgen" classname="com.opengamma.util.generate.scripts.ScriptsGeneratorTask" classpath="${lib.path.jar.file}" />
+      
+    <scriptgen scriptDir="${dist.dir}/${dist.name}/scripts" projectName="${ant.project.name}">
+      <fileset dir="${dist.dir}/${dist.name}/lib/" includes="*.jar"/>
+    </scriptgen>
+    
+    <chmod perm="+x">
+      <fileset dir="${dist.dir}/${dist.name}">
+        <include name="**/*.sh" />
+      </fileset>
+    </chmod>
+  </target>
 
 	<target name="dist-src-nodep" depends="dist-common,version">
 		<copy todir="${dist.dir}/${dist.name}/src">

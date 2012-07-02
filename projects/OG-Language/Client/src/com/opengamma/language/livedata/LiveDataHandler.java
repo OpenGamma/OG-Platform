@@ -17,7 +17,6 @@ import com.opengamma.language.Data;
 import com.opengamma.language.DataUtils;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
-import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.LiveData;
 import com.opengamma.language.connector.UserMessagePayload;
 import com.opengamma.language.context.SessionContext;
@@ -26,6 +25,7 @@ import com.opengamma.language.custom.CustomLiveDataVisitorRegistry;
 import com.opengamma.language.custom.CustomVisitors;
 import com.opengamma.language.error.AbstractException;
 import com.opengamma.language.error.Constants;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Standard handling of live-data messages.

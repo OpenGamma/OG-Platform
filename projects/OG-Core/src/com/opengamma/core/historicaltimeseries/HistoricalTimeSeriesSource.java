@@ -499,6 +499,13 @@ public interface HistoricalTimeSeriesSource {
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd);
 
   //-------------------------------------------------------------------------
+  
+  /**
+   * Returns the external id bundle associated with the time series identified by the specified unique id.
+   * @param uniqueId the unique id of the time series in question
+   * @return the bundle of external ids associated with the time series, or null if it doesn't exist
+   */
+  ExternalIdBundle getExternalIdBundle(UniqueId uniqueId);
 
 }
 

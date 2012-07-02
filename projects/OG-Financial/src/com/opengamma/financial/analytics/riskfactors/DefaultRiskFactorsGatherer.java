@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.riskfactors;
@@ -28,10 +28,12 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -47,14 +49,13 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurityVisitor;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -76,7 +77,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link RiskFactorsGatherer}.
  */
-public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisitor<Set<Pair<String, ValueProperties>>> {
+public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<Set<Pair<String, ValueProperties>>> implements RiskFactorsGatherer {
 
   private final SecuritySource _securities;
   private final RiskFactorsConfigurationProvider _configProvider;
@@ -151,7 +152,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
       if (_calcConfig != null) {
         for (final ValueRequirement riskFactorRequirement : riskFactorRequirements) {
           _calcConfig.addPortfolioRequirement(position.getSecurity().getSecurityType(),
-              riskFactorRequirement.getValueName(), riskFactorRequirement.getConstraints());
+            riskFactorRequirement.getValueName(), riskFactorRequirement.getConstraints());
         }
       }
     }
@@ -170,22 +171,40 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   // Securities
 
   @Override
-  public Set<Pair<String, ValueProperties>> visitBondSecurity(final BondSecurity security) {
+  public Set<Pair<String, ValueProperties>> visitCorporateBondSecurity(CorporateBondSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()),
-        getPV01(getFundingCurve()),
-        getPV01(getForwardCurve(security.getCurrency())));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+    return ImmutableSet.of(
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitMunicipalBondSecurity(MunicipalBondSecurity security) {
+    return ImmutableSet.of(
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCashSecurity(final CashSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()),
-        getPV01(getFundingCurve()),
-        getPV01(getForwardCurve(security.getCurrency())));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
@@ -196,21 +215,12 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitFRASecurity(final FRASecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()),
-        getPV01(getFundingCurve()),
-        getPV01(getForwardCurve(security.getCurrency())));
-  }
-
-  @Override
-  public Set<Pair<String, ValueProperties>> visitFutureSecurity(final FutureSecurity security) {
-    return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getPresentValue(ValueProperties.builder()))
-        .add(getPV01(getFundingCurve()))
-        .add(getPV01(getForwardCurve(security.getCurrency())))
-        .addAll(security.accept((FutureSecurityVisitor<Set<Pair<String, ValueProperties>>>) this)).build();
-  }
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
+  }  
 
   @Override
   public Set<Pair<String, ValueProperties>> visitSwapSecurity(final SwapSecurity security) {
@@ -225,12 +235,12 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
       builder.add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy));
       final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(security);
       if (type == InterestRateInstrumentType.SWAP_CMS_CMS ||
-          type == InterestRateInstrumentType.SWAP_FIXED_CMS ||
-          type == InterestRateInstrumentType.SWAP_IBOR_CMS) {
+        type == InterestRateInstrumentType.SWAP_FIXED_CMS ||
+        type == InterestRateInstrumentType.SWAP_IBOR_CMS) {
         builder.add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")));
       } else if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR ||
-          type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD ||
-          type == InterestRateInstrumentType.SWAP_IBOR_IBOR) {
+        type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD ||
+        type == InterestRateInstrumentType.SWAP_IBOR_IBOR) {
         builder.add(getPV01(getFundingCurve()));
         builder.add(getPV01(getForwardCurve(ccy)));
       }
@@ -243,16 +253,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.builder())).build();
+      .addAll(getSabrSensitivities())
+      .add(getPresentValue(ValueProperties.builder())).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityOptionSecurity(final EquityOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.builder()))
-        .add(getVegaMatrix(ValueProperties.builder())).build();
+      .addAll(getSabrSensitivities())
+      .add(getPresentValue(ValueProperties.builder()))
+      .add(getVegaMatrix(ValueProperties.builder())).build();
   }
 
   @Override
@@ -263,182 +273,187 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(final FXOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue(ValueProperties
-            .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
-            .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-            .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
-            .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
-            .add(getFXCurrencyExposure(ValueProperties
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
-                .add(getVegaMatrix(ValueProperties
-                    .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-                    .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-                    .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-                    .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
-                    .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
-                    .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
-                    .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-                    .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getFXPresentValue(ValueProperties
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+      .add(getFXCurrencyExposure(ValueProperties
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   // REVIEW: jim 23-Jan-2012 -- bit of a leap to assume it's the same as FX Options...
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue())
-        .add(getFXCurrencyExposure())
-        .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getFXPresentValue())
+      .add(getFXCurrencyExposure())
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+        .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   // REVIEW: jim 23-Jan-2012 -- bit of a leap to assume it's the same as FX Options...
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue())
-        .add(getFXCurrencyExposure())
-        .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getFXPresentValue())
+      .add(getFXCurrencyExposure())
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+        .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitSwaptionSecurity(final SwaptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
-        .addAll(getSabrSensitivities())
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
-        .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
+      .addAll(getSabrSensitivities())
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
+      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     final Currency ccy = security.getCurrency();
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .addAll(getSabrSensitivities())
-        .add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy))
-        .add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy))
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
-        .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT")
-            .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy))
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
+      .addAll(getSabrSensitivities())
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), ccy))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(ccy), ccy))
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT")
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy))
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+    throw new NotImplementedException();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureOptionSecurity(
-      final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
     throw new NotImplementedException();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue(ValueProperties
-            .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
-            .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-            .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
-            .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
-            .add(getFXCurrencyExposure(ValueProperties
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_CURVE, getFundingCurve())
-                .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
-                .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
-                .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
-                .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
-                .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-                .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getFXPresentValue(ValueProperties
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+      .add(getFXCurrencyExposure(ValueProperties
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+      .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue())
-        .add(getFXCurrencyExposure())
-        .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
-            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
-            .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+      .add(getFXPresentValue())
+      .add(getFXCurrencyExposure())
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+        .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+        .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Set<Pair<String, ValueProperties>> visitFXForwardSecurity(final FXForwardSecurity security) {
     return ImmutableSet.of(
-        getFXPresentValue(),
-        getFXCurrencyExposure(),
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
+      getFXPresentValue(),
+      getFXCurrencyExposure(),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
   }
 
   // REVIEW jim 23-Jan-2012 -- bit of a leap to copy fx forwards, but there you go.
   @SuppressWarnings("unchecked")
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXForwardSecurity(
-      final NonDeliverableFXForwardSecurity security) {
+    final NonDeliverableFXForwardSecurity security) {
     return ImmutableSet.of(
-        getFXPresentValue(),
-        getFXCurrencyExposure(),
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
+      getFXPresentValue(),
+      getFXCurrencyExposure(),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCapFloorSecurity(final CapFloorSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
-        .addAll(getSabrSensitivities())
-        .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
+      .addAll(getSabrSensitivities())
+      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
-        .addAll(getSabrSensitivities())
-        .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
-        .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()))
+      .addAll(getSabrSensitivities())
+      .add(getVegaCubeMatrix(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG")))
+      .add(getPresentValue(ValueProperties.with(ValuePropertyNames.CUBE, "BLOOMBERG"))).build();
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getPresentValue(ValueProperties.builder()))
-        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
-        .add(getVegaMatrix(ValueProperties
-            .with(ValuePropertyNames.SURFACE, "DEFAULT")
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
+      .add(getPresentValue(ValueProperties.builder()))
+      .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
+      .add(getVegaMatrix(ValueProperties
+        .with(ValuePropertyNames.SURFACE, "DEFAULT")
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
   }
 
   //-------------------------------------------------------------------------
@@ -452,7 +467,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitBondFutureSecurity(final BondFutureSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()));
   }
 
   @Override
@@ -473,11 +488,11 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()),
-        getPV01(getFundingCurve()),
-        getPV01(getForwardCurve(security.getCurrency())));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getYieldCurveNodeSensitivities(getForwardCurve(security.getCurrency()), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()),
+      getPV01(getFundingCurve()),
+      getPV01(getForwardCurve(security.getCurrency())));
   }
 
   @Override
@@ -493,15 +508,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityFutureSecurity(final EquityFutureSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()));
   }
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
     return ImmutableSet.of(
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
-        getPresentValue(ValueProperties.builder()));
+      getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()),
+      getPresentValue(ValueProperties.builder()));
   }
 
   @Override
@@ -522,10 +537,10 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(final String curve, final Currency currency) {
     final ValueProperties.Builder constraints = ValueProperties
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
-        .with(ValuePropertyNames.CURVE, curve)
-        .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED)
-        .withOptional(ValuePropertyNames.AGGREGATION);
+      .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
+      .with(ValuePropertyNames.CURVE, curve)
+      .with(ValuePropertyNames.AGGREGATION, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED)
+      .withOptional(ValuePropertyNames.AGGREGATION);
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
 
@@ -559,15 +574,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
 
   private Pair<String, ValueProperties> getPV01(final String curveName) {
     final ValueProperties.Builder constraints = ValueProperties
-        .with(ValuePropertyNames.CURVE, curveName);
+      .with(ValuePropertyNames.CURVE, curveName);
     return getRiskFactor(ValueRequirementNames.PV01, constraints, true);
   }
 
   private Set<Pair<String, ValueProperties>> getSabrSensitivities() {
     return ImmutableSet.of(
-        getPresentValueSabrAlphaSensitivity(),
-        getPresentValueSabrRhoSensitivity(),
-        getPresentValueSabrNuSensitivity());
+      getPresentValueSabrAlphaSensitivity(),
+      getPresentValueSabrRhoSensitivity(),
+      getPresentValueSabrNuSensitivity());
   }
 
   private Pair<String, ValueProperties> getPresentValueSabrAlphaSensitivity() {

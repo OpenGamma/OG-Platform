@@ -5,16 +5,16 @@
  */
 package com.opengamma.engine;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.NormalizingWeakInstanceCache;
 import com.opengamma.util.WeakInstanceCache;
 
 /**
@@ -27,8 +27,30 @@ public final class MemoryUtils {
 
   private static final WeakInstanceCache<ComputationTargetSpecification> s_computationTargetSpecification = new WeakInstanceCache<ComputationTargetSpecification>();
   private static final WeakInstanceCache<ValueProperties> s_valueProperties = new WeakInstanceCache<ValueProperties>();
-  private static final WeakInstanceCache<ValueRequirement> s_valueRequirement = new WeakInstanceCache<ValueRequirement>();
-  private static final WeakInstanceCache<ValueSpecification> s_valueSpecification = new WeakInstanceCache<ValueSpecification>();
+  private static final WeakInstanceCache<ValueRequirement> s_valueRequirement = new NormalizingWeakInstanceCache<ValueRequirement>() {
+    @Override
+    protected ValueRequirement normalize(final ValueRequirement valueRequirement) {
+      final ComputationTargetSpecification ctspec = instance(valueRequirement.getTargetSpecification());
+      final ValueProperties constraints = instance(valueRequirement.getConstraints());
+      if ((ctspec == valueRequirement.getTargetSpecification()) && (constraints == valueRequirement.getConstraints())) {
+        return valueRequirement;
+      } else {
+        return new ValueRequirement(valueRequirement.getValueName(), ctspec, constraints);
+      }
+    }
+  };
+  private static final WeakInstanceCache<ValueSpecification> s_valueSpecification = new NormalizingWeakInstanceCache<ValueSpecification>() {
+    @Override
+    protected ValueSpecification normalize(final ValueSpecification valueSpecification) {
+      final ComputationTargetSpecification ctspec = instance(valueSpecification.getTargetSpecification());
+      final ValueProperties properties = instance(valueSpecification.getProperties());
+      if ((ctspec == valueSpecification.getTargetSpecification()) && (properties == valueSpecification.getProperties())) {
+        return valueSpecification;
+      } else {
+        return new ValueSpecification(valueSpecification.getValueName(), ctspec, properties);
+      }
+    }
+  };
 
   private MemoryUtils() {
   }
@@ -42,23 +64,11 @@ public final class MemoryUtils {
   }
 
   public static ValueRequirement instance(final ValueRequirement valueRequirement) {
-    final ComputationTargetSpecification ctspec = instance(valueRequirement.getTargetSpecification());
-    final ValueProperties constraints = instance(valueRequirement.getConstraints());
-    if ((ctspec == valueRequirement.getTargetSpecification()) && (constraints == valueRequirement.getConstraints())) {
-      return s_valueRequirement.get(valueRequirement);
-    } else {
-      return s_valueRequirement.get(new ValueRequirement(valueRequirement.getValueName(), ctspec, constraints));
-    }
+    return s_valueRequirement.get(valueRequirement);
   }
 
   public static ValueSpecification instance(final ValueSpecification valueSpecification) {
-    final ComputationTargetSpecification ctspec = instance(valueSpecification.getTargetSpecification());
-    final ValueProperties properties = instance(valueSpecification.getProperties());
-    if ((ctspec == valueSpecification.getTargetSpecification()) && (properties == valueSpecification.getProperties())) {
-      return s_valueSpecification.get(valueSpecification);
-    } else {
-      return s_valueSpecification.get(new ValueSpecification(valueSpecification.getValueName(), ctspec, properties));
-    }
+    return s_valueSpecification.get(valueSpecification);
   }
 
   /**
@@ -67,20 +77,16 @@ public final class MemoryUtils {
    * @param object the object to estimate the size of
    * @return the size estimate in bytes
    */
-  public static long estimateSize(final Object object) {
+  public static long estimateSize(final Serializable object) {
     if (object == null) {
       return 0;
     }
     try {
-      final File temp = File.createTempFile("object", "bin");
-      try {
-        final ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(temp)));
-        out.writeObject(object);
-        out.close();
-        return temp.length();
-      } finally {
-        temp.delete();
-      }
+      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      final ObjectOutputStream out = new ObjectOutputStream(baos);
+      out.writeObject(object);
+      out.close();
+      return baos.toByteArray().length;
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("I/O error", e);
     }

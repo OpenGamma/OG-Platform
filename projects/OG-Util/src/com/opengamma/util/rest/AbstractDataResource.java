@@ -6,7 +6,6 @@
 package com.opengamma.util.rest;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 
 import javax.ws.rs.DELETE;
@@ -139,27 +138,25 @@ public abstract class AbstractDataResource {
 
   private void buildHateoas(final UriInfo uriInfo, final Class<?> cls, final StringBuilder buf, final String basePath) {
     try {
-      Method[] methods = cls.getDeclaredMethods();
+      Method[] methods = cls.getMethods();
       for (Method method : methods) {
-        if (Modifier.isPublic(method.getModifiers())) {
-          String path = basePath;
-          if (method.isAnnotationPresent(Path.class)) {
-            path += "/" + method.getAnnotation(Path.class).value();
+        String path = basePath;
+        if (method.isAnnotationPresent(Path.class)) {
+          path += "/" + method.getAnnotation(Path.class).value();
+        }
+        if (method.isAnnotationPresent(GET.class)) {
+          if (path.length() > 0) {
+            buf.append("<p>GET ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
           }
-          if (method.isAnnotationPresent(GET.class)) {
-            if (path.length() > 0) {
-              buf.append("<p>GET ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
-            }
-          } else if (method.isAnnotationPresent(POST.class)) {
-            buf.append("<p>POST ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
-          } else if (method.isAnnotationPresent(PUT.class)) {
-            buf.append("<p>PUT ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
-          } else if (method.isAnnotationPresent(DELETE.class)) {
-            buf.append("<p>DELETE ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
-          } else if (AbstractDataResource.class.isAssignableFrom(method.getReturnType()) &&
-              method.getReturnType() != cls && method.isAnnotationPresent(Path.class)) {
-            buildHateoas(uriInfo, method.getReturnType(), buf, path);
-          }
+        } else if (method.isAnnotationPresent(POST.class)) {
+          buf.append("<p>POST ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+        } else if (method.isAnnotationPresent(PUT.class)) {
+          buf.append("<p>PUT ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+        } else if (method.isAnnotationPresent(DELETE.class)) {
+          buf.append("<p>DELETE ").append(uriInfo.getRequestUri().getPath() + path).append(" => \"").append(method.getName()).append("\"</p>");
+        } else if (AbstractDataResource.class.isAssignableFrom(method.getReturnType()) &&
+            method.getReturnType() != cls && method.isAnnotationPresent(Path.class)) {
+          buildHateoas(uriInfo, method.getReturnType(), buf, path);
         }
       }
     } catch (Exception ex) {

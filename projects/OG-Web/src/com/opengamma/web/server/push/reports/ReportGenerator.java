@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.reports;
 
 /**
  * Generates a {@link Report} containing a snapshot of analytics data, e.g. a CSV file, Excel workbook or PDF.
+ * @deprecated Reports are being redesigned
  */
 public interface ReportGenerator {
 

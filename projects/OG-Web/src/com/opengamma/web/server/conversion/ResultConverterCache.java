@@ -6,6 +6,7 @@
 package com.opengamma.web.server.conversion;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,6 +71,9 @@ public class ResultConverterCache {
     registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
     registerConverter(DoublesCurve.class, new CurveConverter());
     registerConverter(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesConverter());
+    registerConverter(double[][].class, new DoubleArrayConverter());
+    registerConverter(Double[][].class, new DoubleObjectArrayConverter());
+    registerConverter(List.class, new ListDoubleArrayConverter());
     registerConverter(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueVolatilitySensitivityConverter(_doubleConverter));
   }
 

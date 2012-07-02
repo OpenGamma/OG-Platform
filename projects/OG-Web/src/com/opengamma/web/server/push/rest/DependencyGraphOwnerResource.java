@@ -18,7 +18,6 @@ import com.opengamma.web.server.push.analytics.DependencyGraphRequest;
 /**
  * TODO this is an awful name
  */
-// TODO will @Path("depgraphs") work here?
 public interface DependencyGraphOwnerResource {
 
   @POST
@@ -27,8 +26,4 @@ public interface DependencyGraphOwnerResource {
 
   @Path("depgraphs/{graphId}")
   public AbstractGridResource getDependencyGraph(@PathParam("graphId") String graphId);
-
-  @DELETE
-  @Path("depgraphs/{graphId}")
-  public void closeDependencyGraph(@PathParam("graphId") String graphId);
 }

@@ -6,7 +6,7 @@
 
 package com.opengamma.language.connector;
 
-import com.opengamma.language.async.AsynchronousExecution;
+import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Defines a visitor interface for the incoming user messages. Further visitor interfaces may be
