@@ -10,7 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -18,9 +21,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -28,6 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class ForexForwardDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexForwardDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -58,12 +65,16 @@ public class ForexForwardDefaults extends DefaultPropertyFunction {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (!(target.getSecurity() instanceof FXForwardSecurity)) {
+    final Security security = target.getSecurity();
+    if (!(security instanceof FinancialSecurity)) {
       return false;
     }
-    final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    final String payCurrency = security.getPayCurrency().getCode();
-    final String receiveCurrency = security.getReceiveCurrency().getCode();
+    if (!(security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity)) {
+      return false;
+    }
+    final FinancialSecurity fxSecurity = (FinancialSecurity) security;
+    final String payCurrency = fxSecurity.accept(ForexVisitors.getPayCurrencyVisitor()).getCode();
+    final String receiveCurrency = fxSecurity.accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode();
     return _currencyCurveConfigAndDiscountingCurveNames.containsKey(payCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(receiveCurrency);
   }
 
@@ -79,14 +90,16 @@ public class ForexForwardDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    final String payCurrency = security.getPayCurrency().getCode();
-    final String receiveCurrency = security.getReceiveCurrency().getCode();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final String payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor()).getCode();
+    final String receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode();
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(payCurrency)) {
-      throw new OpenGammaRuntimeException("Could not get config for pay currency " + payCurrency + "; should never happen");
+      s_logger.error("Could not get config for pay currency " + payCurrency + "; should never happen");
+      return null;
     }
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(receiveCurrency)) {
-      throw new OpenGammaRuntimeException("Could not get config for receive currency " + receiveCurrency + "; should never happen");
+      s_logger.error("Could not get config for receive currency " + receiveCurrency + "; should never happen");
+      return null;
     }
     final Pair<String, String> payPair = _currencyCurveConfigAndDiscountingCurveNames.get(payCurrency);
     final Pair<String, String> receivePair = _currencyCurveConfigAndDiscountingCurveNames.get(receiveCurrency);

@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -33,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -61,16 +61,8 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Currency payCurrency, receiveCurrency;
-    if (security instanceof FXForwardSecurity) {
-      final FXForwardSecurity forward = (FXForwardSecurity) security;
-      payCurrency = forward.getPayCurrency();
-      receiveCurrency = forward.getReceiveCurrency();
-    } else {
-      final NonDeliverableFXForwardSecurity ndf = (NonDeliverableFXForwardSecurity) security;
-      payCurrency = ndf.getPayCurrency();
-      receiveCurrency = ndf.getReceiveCurrency();
-    }
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final InstrumentDefinition<?> definition = security.accept(VISITOR);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
@@ -148,17 +140,9 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final String receiveCurveName = receiveCurveNames.iterator().next();
     final String payCurveCalculationConfig = payCurveConfigNames.iterator().next();
     final String receiveCurveCalculationConfig = receiveCurveConfigNames.iterator().next();
-    final Currency payCurrency, receiveCurrency;
-    final Security security = target.getSecurity();
-    if (security instanceof FXForwardSecurity) {
-      final FXForwardSecurity forward = (FXForwardSecurity) security;
-      payCurrency = forward.getPayCurrency();
-      receiveCurrency = forward.getReceiveCurrency();
-    } else {
-      final NonDeliverableFXForwardSecurity ndf = (NonDeliverableFXForwardSecurity) security;
-      payCurrency = ndf.getPayCurrency();
-      receiveCurrency = ndf.getReceiveCurrency();
-    }
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
+    final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final ValueRequirement payFundingCurve = getCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
     return Sets.newHashSet(payFundingCurve, receiveFundingCurve);

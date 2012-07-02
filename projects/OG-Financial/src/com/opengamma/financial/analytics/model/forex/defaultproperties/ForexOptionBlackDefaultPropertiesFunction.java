@@ -26,8 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexOptionBlackDefaults
  */
+@Deprecated
 public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,

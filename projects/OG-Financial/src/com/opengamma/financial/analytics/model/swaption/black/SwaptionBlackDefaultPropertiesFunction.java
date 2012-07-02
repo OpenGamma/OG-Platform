@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -28,6 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackDefaultPropertiesFunction.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -75,7 +78,8 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
-      throw new OpenGammaRuntimeException("Could not config and surface names for currency " + currencyName + "; should never happen");
+      s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
+      return null;
     }
     final Pair<String, String> pair = _currencyCurveConfigAndSurfaceNames.get(currencyName);
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
