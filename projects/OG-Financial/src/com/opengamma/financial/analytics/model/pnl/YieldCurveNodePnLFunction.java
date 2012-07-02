@@ -55,7 +55,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
-import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -110,7 +110,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       }
       final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) ycnsObject;
       final DoubleTimeSeries<?> pnLSeries;
-      if (curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+      if (curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
         pnLSeries = getPnLSeries(ycns, historicalSource, startDate, now, schedule, samplingFunction);
       } else {
         final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, yieldCurveName);
@@ -201,7 +201,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         return null;
       }
       requirements.add(ycns);
-      if (!curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+      if (!curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
         requirements.add(getCurveSpecRequirement(currency, yieldCurveName));
       }
     }

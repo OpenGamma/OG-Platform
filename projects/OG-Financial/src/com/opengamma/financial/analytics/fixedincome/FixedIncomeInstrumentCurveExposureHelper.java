@@ -11,15 +11,21 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * @deprecated Methods in this class are used for either the old curve calculation methods or to supply information that will eventually
- * be pulled from a configuration
+ * 
  */
-@Deprecated
 public final class FixedIncomeInstrumentCurveExposureHelper {
 
   private FixedIncomeInstrumentCurveExposureHelper() {
   }
 
+  /**
+   * @deprecated This method is used for either the old curve calculation methods
+   * @param type The strip instrument type
+   * @param fundingCurveName The funding curve name
+   * @param forwardCurveName The forward curve name
+   * @return An array containing the order of the curve names for the type
+   */
+  @Deprecated
   public static String[] getCurveNamesForFundingCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
@@ -55,6 +61,14 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
+  /**
+   * @deprecated This method is used for either the old curve calculation methods
+   * @param type The strip instrument type
+   * @param fundingCurveName The funding curve name
+   * @param forwardCurveName The forward curve name
+   * @return An array containing the order of the curve names for the type
+   */
+  @Deprecated
   public static String[] getCurveNamesForForwardCurveInstrument(final StripInstrumentType type, final String fundingCurveName, final String forwardCurveName) {
     switch (type) {
       case SWAP_3M:
@@ -90,6 +104,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     }
   }
 
+  //TODO This method should be replaced when we have calculation configurations
   public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String fundingCurveName, final String forwardCurveName) {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     switch (type) {

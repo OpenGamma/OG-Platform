@@ -41,7 +41,6 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackMultiValuedFunction;
-import com.opengamma.financial.analytics.model.horizon.deprecated.InterestRateFutureConstantSpreadThetaFunctionDeprecated;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -147,7 +146,7 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends ForexOptionBlac
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunctionDeprecated.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunctionDeprecated.THETA_CONSTANT_SPREAD);
+    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -156,7 +155,7 @@ public class ForexOptionBlackConstantSpreadThetaFunction extends ForexOptionBlac
       final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(putCurveName, callCurveName, putCurveConfig, callCurveConfig, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunctionDeprecated.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunctionDeprecated.THETA_CONSTANT_SPREAD);
+    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 }

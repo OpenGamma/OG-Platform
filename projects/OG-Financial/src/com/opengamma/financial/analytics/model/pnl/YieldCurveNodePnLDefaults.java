@@ -6,7 +6,12 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
@@ -21,6 +26,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -29,35 +35,34 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
-  private final String _curveCalculationConfig;
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
   private final PriorityClass _priority;
-  private final String _excludedSecurityName;
-  private final String _applicableCurrency;
+  private final boolean _includeIRFutures;
+  private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public YieldCurveNodePnLDefaults(final String curveCalculationConfig, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
-      final String priority, final String applicableCurrency) {
-    this(curveCalculationConfig, samplingPeriod, scheduleCalculator, samplingFunction, priority, null, applicableCurrency);
-  }
-
-  public YieldCurveNodePnLDefaults(final String curveCalculationConfig, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
-      final String priority, final String excludedSecurityName, final String applicableCurrency) {
+  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
+      final String priority, final String includeIRFutures, final String... currencyAndCurveConfigNames) {
     super(ComputationTargetType.POSITION, true);
-    ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(applicableCurrency, "applicable currency");
-    _curveCalculationConfig = curveCalculationConfig;
+    ArgumentChecker.notNull(includeIRFutures, "include IR futures field");
+    ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
+    final int nPairs = currencyAndCurveConfigNames.length;
+    ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
     _priority = PriorityClass.valueOf(priority);
-    _excludedSecurityName = excludedSecurityName;
-    _applicableCurrency = applicableCurrency;
+    _includeIRFutures = Boolean.parseBoolean(includeIRFutures);
+    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
+      _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
+    }
   }
 
   @Override
@@ -66,7 +71,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
-    if (_excludedSecurityName != null && security.getClass().getName().equals(_excludedSecurityName)) {
+    if (!_includeIRFutures && security instanceof InterestRateFutureSecurity) {
       return false;
     }
     if (FXUtils.isFXSecurity(security)) {
@@ -86,11 +91,11 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security)) {
       return false;
     }
-    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    if (_applicableCurrency.equals(currency)) {
-      return true;
+    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
+      return false;
     }
-    return false;
+    return true;
   }
 
   @Override
@@ -105,7 +110,13 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationConfig);
+      final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+      final String configName = _currencyAndCurveConfigNames.get(currencyName);
+      if (configName == null) {
+        s_logger.error("Could not get config for currency " + currencyName + "; should never happen");
+        return null;
+      }
+      return Collections.singleton(configName);
     }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);

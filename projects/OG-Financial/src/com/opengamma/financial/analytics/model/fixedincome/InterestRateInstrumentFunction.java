@@ -116,12 +116,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
+    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
+    final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final InstrumentDerivative derivative = getDerivative(security, now, dataSource, curveNames, definition, _definitionConverter);
+    final InstrumentDerivative derivative = getDerivative(security, now, dataSource, curveNamesForSecurity, definition, _definitionConverter);
     return getComputedValues(derivative, bundle, security, target, curveCalculationConfigName, currency.getCode());
   }
 
@@ -289,8 +291,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       final InstrumentDefinition<?> definition, final FixedIncomeConverterDataProvider definitionConverter) {
     final InstrumentDerivative derivative;
     if (security instanceof SwapSecurity) {
-      SwapSecurity swapSecurity = (SwapSecurity) security;
-      InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(swapSecurity);
+      final SwapSecurity swapSecurity = (SwapSecurity) security;
+      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(swapSecurity);
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD) {
         final Frequency resetFrequency;
         if (swapSecurity.getPayLeg() instanceof FloatingInterestRateLeg) {
@@ -299,14 +301,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
           resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getReceiveLeg()).getFrequency();
         }
         derivative = definitionConverter.convert(security, definition, now,
-            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency), dataSource);   
+            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency), dataSource);
       } else {
         derivative = definitionConverter.convert(security, definition, now,
-            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);        
+            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
       }
     } else {
       derivative = definitionConverter.convert(security, definition, now,
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
+          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), dataSource);
     }
     return derivative;
   }

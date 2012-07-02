@@ -6,7 +6,11 @@
 package com.opengamma.financial.analytics.model.irfutureoption;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -16,13 +20,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaultPropertiesFunction.class);
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
@@ -35,18 +42,22 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     ValueRequirementNames.DAILY_PRICE,
     ValueRequirementNames.VALUE_THETA
   };
-  private final String _surfaceName;
-  private final String _curveCalculationConfig;
-  private final String[] _applicableCurrencies;
+  private final PriorityClass _priority;
+  private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public InterestRateFutureOptionBlackDefaultPropertiesFunction(final String curveCalculationConfig, final String surfaceName, final String... applicableCurrencies) {
+  public InterestRateFutureOptionBlackDefaultPropertiesFunction(final String priority,
+      final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
-    ArgumentChecker.notNull(surfaceName, "surface name");
-    ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
-    ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
-    _surfaceName = surfaceName;
-    _curveCalculationConfig = curveCalculationConfig;
-    _applicableCurrencies = applicableCurrencies;
+    ArgumentChecker.notNull(priority, "priority");
+    ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
+    final int nPairs = currencyCurveConfigAndSurfaceNames.length;
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
+    _priority = PriorityClass.valueOf(priority);
+    _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
+      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
+      _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
+    }
   }
 
   @Override
@@ -56,12 +67,7 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     }
     final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getTrade().getSecurity();
     final String currency = irFutureOption.getCurrency().getCode();
-    for (final String applicableCurrency : _applicableCurrencies) {
-      if (applicableCurrency.equals(currency)) {
-        return true;
-      }
-    }
-    return false;
+    return _currencyCurveConfigAndSurfaceNames.containsKey(currency);
   }
 
   @Override
@@ -74,18 +80,24 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceName);
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
+      s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
+      return null;
     }
+    final Pair<String, String> pair = _currencyCurveConfigAndSurfaceNames.get(currencyName);
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationConfig);
+      return Collections.singleton(pair.getFirst());
+    }
+    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
+      return Collections.singleton(pair.getSecond());
     }
     return null;
   }
 
   @Override
   public PriorityClass getPriority() {
-    return PriorityClass.ABOVE_NORMAL;
+    return _priority;
   }
 
   @Override

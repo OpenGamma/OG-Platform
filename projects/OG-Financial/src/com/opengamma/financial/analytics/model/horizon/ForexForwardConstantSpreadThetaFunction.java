@@ -31,7 +31,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.forex.forward.ForexForwardMultiValuedFunction;
-import com.opengamma.financial.analytics.model.horizon.deprecated.InterestRateFutureConstantSpreadThetaFunctionDeprecated;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -42,7 +41,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardConstantSpreadThetaFunction extends ForexForwardMultiValuedFunction {  
+public class ForexForwardConstantSpreadThetaFunction extends ForexForwardMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 
@@ -103,7 +102,7 @@ public class ForexForwardConstantSpreadThetaFunction extends ForexForwardMultiVa
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunctionDeprecated.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunctionDeprecated.THETA_CONSTANT_SPREAD);
+    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 
@@ -111,7 +110,7 @@ public class ForexForwardConstantSpreadThetaFunction extends ForexForwardMultiVa
   protected ValueProperties.Builder getResultProperties(final String payCurveName, final String receiveCurveName, final String payCurveCalculationConfig, final String receiveCurveCalculationConfig,
       final ComputationTarget target) {
     final ValueProperties.Builder properties = super.getResultProperties(payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig, target);
-    properties.with(InterestRateFutureConstantSpreadThetaFunctionDeprecated.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunctionDeprecated.THETA_CONSTANT_SPREAD);
+    properties.with(InterestRateFutureConstantSpreadThetaFunction.PROPERTY_THETA_CALCULATION_METHOD, InterestRateFutureConstantSpreadThetaFunction.THETA_CONSTANT_SPREAD);
     return properties;
   }
 }
