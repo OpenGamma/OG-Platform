@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
  * @see ForexForwardDefaultPropertiesFunction
  */
 @Deprecated
-public class ForexForwardDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
+public class ForexForwardDefaultsDeprecated extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -42,7 +42,7 @@ public class ForexForwardDefaultPropertiesFunctionDeprecated extends DefaultProp
   private final String _payCurrency;
   private final String _receiveCurrency;
 
-  public ForexForwardDefaultPropertiesFunctionDeprecated(final String payCurveName, final String payForwardCurveName, final String payCurveCalculationMethod, final String receiveCurveName,
+  public ForexForwardDefaultsDeprecated(final String payCurveName, final String payForwardCurveName, final String payCurveCalculationMethod, final String receiveCurveName,
       final String receiveForwardCurveName, final String receiveCurveCalculationMethod, final String payCurrency, final String receiveCurrency) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(payCurveName, "pay curve name");

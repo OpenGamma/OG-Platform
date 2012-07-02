@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackCurveSensitivityFunctionDeprecated
+ * @see FXDigitalCallSpreadBlackCurveSensitivityFunctionDeprecated
  */
 @Deprecated
-public class ForexDigitalOptionCallSpreadBlackCurveSensitivityFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
+public class FXDigitalCallSpreadBlackCurveSensitivityFunctionDeprecated extends FXDigitalCallSpreadBlackSingleValuedFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackCurveSensitivityFunctionDeprecated() {
+  public FXDigitalCallSpreadBlackCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 

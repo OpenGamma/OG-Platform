@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
+package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 
 import java.util.Collections;
 import java.util.Set;
@@ -17,13 +17,11 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackCurrencyExposureFunctionDeprecated
+ * 
  */
-@Deprecated
-public class ForexDigitalOptionCallSpreadBlackCurrencyExposureFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
+public class FXDigitalCallSpreadBlackCurrencyExposureFunction extends FXDigitalCallSpreadBlackMultiValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackCurrencyExposureFunctionDeprecated() {
+  public FXDigitalCallSpreadBlackCurrencyExposureFunction() {
     super(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
   }
 

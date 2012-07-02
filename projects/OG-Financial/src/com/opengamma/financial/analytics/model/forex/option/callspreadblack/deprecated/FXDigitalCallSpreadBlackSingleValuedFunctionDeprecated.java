@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackSingleValuedFunction;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackSingleValuedFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -25,12 +25,12 @@ import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackSingleValuedFunction
+ * @see FXDigitalCallSpreadBlackSingleValuedFunction
  */
 @Deprecated
-public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackFunctionDeprecated {
+public abstract class FXDigitalCallSpreadBlackSingleValuedFunctionDeprecated extends FXDigitalCallSpreadBlackFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated(final String valueRequirementName) {
+  public FXDigitalCallSpreadBlackSingleValuedFunctionDeprecated(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

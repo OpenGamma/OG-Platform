@@ -23,9 +23,9 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
  * @see ForexigitalOptionCallSpreadBlackMultiValuedFunctionNew
  */
 @Deprecated
-public abstract class ForexigitalOptionCallSpreadBlackMultiValuedFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackFunctionDeprecated {
+public abstract class FXDigitalCallSpreadBlackMultiValuedFunctionDeprecated extends FXDigitalCallSpreadBlackFunctionDeprecated {
 
-  public ForexigitalOptionCallSpreadBlackMultiValuedFunctionDeprecated(final String valueRequirementName) {
+  public FXDigitalCallSpreadBlackMultiValuedFunctionDeprecated(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

@@ -17,19 +17,20 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated.ForexDigitalOptionCallSpreadBlackFunctionDeprecated;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexOptionCallSpreadBlackDefaults
+ * @see ForexOptionBlackDefaults
  */
 @Deprecated
-public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated extends DefaultPropertyFunction {
+public class ForexOptionBlackDefaultsDeprecated extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -40,8 +41,8 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
     ValueRequirementNames.VEGA_QUOTE_MATRIX,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.CALL_SPREAD_VALUE_VEGA,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY
   };
   private final String _putCurveName;
   private final String _putForwardCurveName;
@@ -55,11 +56,10 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
   private final String _rightExtrapolatorName;
   private final String _putCurrency;
   private final String _callCurrency;
-  private final String _spread;
 
-  public ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
+  public ForexOptionBlackDefaultsDeprecated(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
       final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String putCurrency, final String callCurrency, final String spread) {
+      final String rightExtrapolatorName, final String putCurrency, final String callCurrency) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(putCurveName, "put curve name");
     ArgumentChecker.notNull(putForwardCurveName, "put forward curve name");
@@ -73,7 +73,6 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(putCurrency, "put currency");
     ArgumentChecker.notNull(callCurrency, "call currency");
-    ArgumentChecker.notNull(spread, "spread");
     _putCurveName = putCurveName;
     _putForwardCurveName = putForwardCurveName;
     _putCurveCalculationMethod = putCurveCalculationMethod;
@@ -86,7 +85,6 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
     _rightExtrapolatorName = rightExtrapolatorName;
     _putCurrency = putCurrency;
     _callCurrency = callCurrency;
-    _spread = spread;
   }
 
   @Override
@@ -98,7 +96,7 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (!(security instanceof FXDigitalOptionSecurity)) {
+    if (!(security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity)) {
       return false;
     }
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
@@ -115,7 +113,6 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE);
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE);
       defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(valueRequirement, ForexDigitalOptionCallSpreadBlackFunctionDeprecated.PROPERTY_CALL_SPREAD_VALUE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -142,9 +139,6 @@ public class ForexOptionCallSpreadBlackDefaultPropertiesFunctionDeprecated exten
     }
     if (ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_putCurveCalculationMethod);
-    }
-    if (ForexDigitalOptionCallSpreadBlackFunctionDeprecated.PROPERTY_CALL_SPREAD_VALUE.equals(propertyName)) {
-      return Collections.singleton(_spread);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);

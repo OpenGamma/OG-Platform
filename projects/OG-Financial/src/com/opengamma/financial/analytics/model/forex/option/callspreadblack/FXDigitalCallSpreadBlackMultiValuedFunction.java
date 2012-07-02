@@ -9,19 +9,14 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction extends ForexDigitalOptionCallSpreadBlackFunction {
+public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXDigitalCallSpreadBlackFunction {
 
-  public ForexDigitalOptionCallSpreadBlackSingleValuedFunction(final String valueRequirementName) {
+  public FXDigitalCallSpreadBlackMultiValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
@@ -37,7 +32,6 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target))
         .withAny(PROPERTY_CALL_SPREAD_VALUE);
   }
 
@@ -54,23 +48,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction exte
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
-        .with(PROPERTY_CALL_SPREAD_VALUE, spread)
-        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+        .with(PROPERTY_CALL_SPREAD_VALUE, spread);
   }
 
-  protected static String getResultCurrency(final ComputationTarget target) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (security instanceof FXDigitalOptionSecurity) {
-      return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
-    }
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    Currency ccy;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      ccy = callCurrency;
-    } else {
-      ccy = putCurrency;
-    }
-    return ccy.getCode();
-  }
 }

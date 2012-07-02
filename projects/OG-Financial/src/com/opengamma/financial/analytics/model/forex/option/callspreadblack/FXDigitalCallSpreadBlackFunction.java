@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class ForexDigitalOptionCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
   /** The name of the property that sets the value of the call spread */
@@ -59,7 +59,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexDigitalOptionCallSpreadBlackFunction(final String valueRequirementName) {
+  public FXDigitalCallSpreadBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

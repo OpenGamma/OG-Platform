@@ -20,9 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForexDigitalOptionCallSpreadBlackCurveSensitivityFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
+public class FXDigitalCallSpreadBlackCurveSensitivityFunction extends FXDigitalCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackCurveSensitivityFunction() {
+  public FXDigitalCallSpreadBlackCurveSensitivityFunction() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
   }
 

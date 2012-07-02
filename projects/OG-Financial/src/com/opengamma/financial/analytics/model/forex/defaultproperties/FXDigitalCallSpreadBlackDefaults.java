@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -34,8 +34,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexOptionCallSpreadBlackDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionCallSpreadBlackDefaults.class);
+public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalCallSpreadBlackDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
@@ -75,7 +75,7 @@ public class ForexOptionCallSpreadBlackDefaults extends DefaultPropertyFunction 
    * <li><i>i + 6</i> = surface name
    * </ul>
    */
-  public ForexOptionCallSpreadBlackDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
+  public FXDigitalCallSpreadBlackDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String spread, final String... propertyValuesByCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
@@ -135,7 +135,7 @@ public class ForexOptionCallSpreadBlackDefaults extends DefaultPropertyFunction 
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
+      defaults.addValuePropertyName(valueRequirement, FXDigitalCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE);
     }
   }
 
@@ -189,7 +189,7 @@ public class ForexOptionCallSpreadBlackDefaults extends DefaultPropertyFunction 
     if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_rightExtrapolatorName);
     }
-    if (ForexDigitalOptionCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE.equals(propertyName)) {
+    if (FXDigitalCallSpreadBlackFunction.PROPERTY_CALL_SPREAD_VALUE.equals(propertyName)) {
       return Collections.singleton(_spread);
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {

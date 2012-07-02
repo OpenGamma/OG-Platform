@@ -19,12 +19,12 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function to compute the Gamma of Forex options in the Call-spread / Black model.
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackGammaFunctionDeprecated
+ * @see FXDigitalCallSpreadBlackGammaFunctionDeprecated
  */
 @Deprecated
-public class ForexDigitalOptionCallSpreadBlackGammaFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
+public class FXDigitalCallSpreadBlackGammaFunctionDeprecated extends FXDigitalCallSpreadBlackSingleValuedFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackGammaFunctionDeprecated() {
+  public FXDigitalCallSpreadBlackGammaFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 

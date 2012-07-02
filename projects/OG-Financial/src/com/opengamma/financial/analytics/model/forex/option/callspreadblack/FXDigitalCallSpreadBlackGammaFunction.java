@@ -19,9 +19,9 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function to compute the Gamma of Forex options in the Black model.
  */
-public class ForexDigitalOptionCallSpreadBlackGammaFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
+public class FXDigitalCallSpreadBlackGammaFunction extends FXDigitalCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackGammaFunction() {
+  public FXDigitalCallSpreadBlackGammaFunction() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 

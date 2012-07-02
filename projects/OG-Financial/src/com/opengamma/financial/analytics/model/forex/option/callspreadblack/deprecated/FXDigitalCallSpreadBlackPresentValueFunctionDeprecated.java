@@ -14,19 +14,19 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackPresentValueFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackPresentValueFunction
+ * @see FXDigitalCallSpreadBlackPresentValueFunction
  */
 @Deprecated
-public class ForexDigitalOptionCallSpreadBlackPresentValueFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
+public class FXDigitalCallSpreadBlackPresentValueFunctionDeprecated extends FXDigitalCallSpreadBlackSingleValuedFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackPresentValueFunctionDeprecated() {
+  public FXDigitalCallSpreadBlackPresentValueFunctionDeprecated() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
 

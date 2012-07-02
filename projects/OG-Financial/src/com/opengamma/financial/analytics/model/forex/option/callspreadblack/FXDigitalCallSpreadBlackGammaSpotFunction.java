@@ -19,9 +19,9 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * The function to compute the Gamma Spot of Forex options in the Call-spread / Black model.
  */
-public class ForexDigitalOptionCallSpreadBlackGammaSpotFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
+public class FXDigitalCallSpreadBlackGammaSpotFunction extends FXDigitalCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackGammaSpotFunction() {
+  public FXDigitalCallSpreadBlackGammaSpotFunction() {
     super(ValueRequirementNames.VALUE_GAMMA_P);
   }
 

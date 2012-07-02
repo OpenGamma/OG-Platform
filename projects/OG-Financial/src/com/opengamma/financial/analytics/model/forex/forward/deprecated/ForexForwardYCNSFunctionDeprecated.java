@@ -54,8 +54,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * @see ForexForwardYieldCurveNodeSensitivitiesFunction
  */
 @Deprecated
-public class ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexForwardYieldCurveNodeSensitivitiesFunctionDeprecated.class);
+public class ForexForwardYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexForwardYCNSFunctionDeprecated.class);
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
   @Override

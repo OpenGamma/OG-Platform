@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
+package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,27 +15,21 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackVegaFunction;
-import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * The function calculating the Black volatility sensitivity to each point to which the option is sensitive.
- * @deprecated Use the version that does not refer to funding or forward curves
- * @see ForexDigitalOptionCallSpreadBlackVegaFunction
+ * The function calculating the Black volatility sensitivity to each point to which the option is sensitive..
  */
-@Deprecated
-public class ForexDigitalOptionCallSpreadBlackVegaFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
+public class FXDigitalCallSpreadBlackVegaPointFunction extends FXDigitalCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackVegaFunctionDeprecated() {
-    super(ValueRequirementNames.VALUE_VEGA);
+  public FXDigitalCallSpreadBlackVegaPointFunction() {
+    super(ValueRequirementNames.CALL_SPREAD_VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator(spread);
     final PresentValueForexBlackVolatilitySensitivity result = calculator.visit(fxDigital, data);
-    final CurrencyAmount vegaValue = result.toSingleValue();
-    return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 
 }
