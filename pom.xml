@@ -196,6 +196,11 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-repository-plugin</artifactId>
         <version>2.3.1</version>
       </plugin>
@@ -212,10 +217,11 @@
             </goals>
             <configuration>
               <rules>
-                <!-- no commons-logging, junit only in test/provided -->
+                <!-- no commons-logging or good/evil licensed json, junit only in test/provided -->
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-logging:*</exclude>
+                    <exclude>org.json:json</exclude>
                     <exclude>junit:*</exclude>
                   </excludes>
                   <includes>
@@ -242,7 +248,7 @@
   <!-- define versions here, so sub-projects do not have to -->
   <dependencyManagement>
     <dependencies>
-      <!-- Apache/Joda/Guava/Fudge low-level libraries -->
+      <!-- Apache Commons low-level libraries -->
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
@@ -259,6 +265,11 @@
         <version>3.2.1</version>
       </dependency>
       <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.8.3</version>
+      </dependency>
+      <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>1.6</version>
@@ -273,6 +284,8 @@
         <artifactId>commons-math</artifactId>
         <version>2.1</version>
       </dependency>
+
+      <!-- Joda/Guava/Fudge/ThreeTen low-level libraries -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
@@ -293,6 +306,16 @@
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
         <version>0.3.9.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.external.threeten</groupId>
+        <artifactId>threeten-core</artifactId>
+        <version>0.6.4</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.external.json</groupId>
+        <artifactId>json</artifactId>
+        <version>1.0.0.v20101106</version>
       </dependency>
       <dependency>
         <groupId>org.joda</groupId>
@@ -347,6 +370,11 @@
         <groupId>org.mindrot</groupId>
         <artifactId>jbcrypt</artifactId>
         <version>0.3m</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.scannotation</groupId>
+        <artifactId>scannotation</artifactId>
+        <version>1.0.2</version>
       </dependency>
 
       <!-- Mid-level libraries -->
