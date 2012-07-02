@@ -5,81 +5,105 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
 import com.opengamma.analytics.financial.model.interestrate.InterestRateModel;
-import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.function.special.TopHatFunction;
 
 /**
- * A DiscountCurve contains discount factors <i>e<sup>-r(t)t</sup></i> (where
- * <i>t</i> is the maturity in years and <i>r(t)</i> is the continuously-compounded interest rate to
- * maturity <i>t</i>).
+ * A curve that provides interest rate (continuously compounded) discount factor. 
+ * <p>The relation between the rate <i>r(t)</i> at the maturity <i>t</i> and the discount factor <i>df(t)</i> is <i>df(t)=e<sup>-r(t)t</sup></i>.
  */
 
-public abstract class YieldAndDiscountCurve  implements InterestRateModel<Double> {
-  private final Curve<Double, Double> _curve;
+public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
 
-  public YieldAndDiscountCurve(final Curve<Double, Double> curve) {
-    Validate.notNull(curve, "curve");
-    _curve = curve;
+  private final String _name;
+
+  /**
+   * Constructor.
+   * @param name The curve name.
+   */
+  public YieldAndDiscountCurve(String name) {
+    _name = name;
   }
 
   /**
+   * Returns the curve name.
+   * @return The name.
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Returns the interest rate (zero-coupon continuously-compounded) at a given time.
    * @param t The time 
    * @return The interest rate for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
+   *           TODO: Review if the exception is the one required. Currently it is not implemented.
    */
   @Override
-  public abstract double getInterestRate(final Double t);
+  public double getInterestRate(final Double t) {
+    return -Math.log(getDiscountFactor(t)) / t;
+  }
 
   /**
+   * Returns the discount factor at a given time.
    * @param t The time 
    * @return The discount factor for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    */
-  public abstract double getDiscountFactor(final Double t);
-
-  public Curve<Double, Double> getCurve() {
-    return _curve;
+  public double getDiscountFactor(final Double t) {
+    return Math.exp(-t * getInterestRate(t));
   }
 
+  /**
+   * Returns the interest rate in a given compounding per year at a given time.
+   * @param t The time.
+   * @param compoundingPeriodsPerYear The number of composition per year.
+   * @return The rate in the requested composition.
+   */
+  public double getPeriodicInterestRate(final Double t, final int compoundingPeriodsPerYear) {
+    final double rcc = getInterestRate(t);
+    final ContinuousInterestRate cont = new ContinuousInterestRate(rcc);
+    return cont.toPeriodic(compoundingPeriodsPerYear).getRate();
+  }
+
+  //  /**
+  //   * Gets the underlying curve. 
+  //   * TODO: do we want to return the underlying curve even if a priori we don't know what it contains as information?
+  //   * @return The curve.
+  //   */
+  //  public Curve<Double, Double> getCurve() {
+  //    return _curve;
+  //  }
+
+  /**
+   * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount.
+   * @param shift The shift amount.
+   * @return The new curve.
+   */
   public YieldAndDiscountCurve withParallelShift(final double shift) {
-    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, shift));
+    return new YieldAndDiscountAddZeroSpreadCurve(false, this, new YieldCurve(ConstantDoublesCurve.from(shift)));
   }
 
+  /**
+   * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount at a given time.
+   * The shift is done around the given time within the default range 1.0E-3.
+   * @param t The time.
+   * @param shift The shift amount.
+   * @return The new curve.
+   */
   public YieldAndDiscountCurve withSingleShift(final double t, final double shift) {
-    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, t, shift));
+    double defaultRange = 1.0E-3; // 1 day ~ 3E-3
+    return new YieldAndDiscountAddZeroSpreadCurve(false, this, new YieldCurve(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
   }
-
-  public YieldAndDiscountCurve withMultipleShifts(final double[] xShifts, final double[] yShifts) {
-    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, xShifts, yShifts));
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _curve.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final YieldAndDiscountCurve other = (YieldAndDiscountCurve) obj;
-    return ObjectUtils.equals(_curve, other._curve);
-  }
+  //
+  //  public YieldAndDiscountCurve withMultipleShifts(final double[] xShifts, final double[] yShifts) {
+  //    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, xShifts, yShifts));
+  //  }
 
 }

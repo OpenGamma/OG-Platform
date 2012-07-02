@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.equity.variance.definition.VarianceSwap
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -112,7 +113,10 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     if (discountObject == null) {
       throw new OpenGammaRuntimeException("Could not get Discount Curve");
     }
-    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) discountObject;
+    if (!(discountObject instanceof YieldCurve)) { //TODO: make it more generic
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final YieldCurve discountCurve = (YieldCurve) discountObject;
 
     final Object spotObject = inputs.getValue(getSpotRequirement(security));
     if (spotObject == null) {

@@ -53,7 +53,7 @@ public class ConstantSpreadCurveRolldownFunctionTest {
   @Test
   public void testRolldown() {
     YieldAndDiscountCurve newYieldCurve = FUNCTION.rollDown(INTERPOLATED_CURVE, 1);
-    assertTrue(newYieldCurve.getCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(((YieldCurve) newYieldCurve).getCurve() instanceof FunctionalDoublesCurve);
     assertEquals(newYieldCurve.getInterestRate(1.), INTERPOLATED_CURVE.getInterestRate(2.), 0);
     assertEquals(newYieldCurve.getInterestRate(2.), INTERPOLATED_CURVE.getInterestRate(3.), 0);
     assertEquals(newYieldCurve.getInterestRate(3.), INTERPOLATED_CURVE.getInterestRate(4.), 0);
@@ -63,21 +63,21 @@ public class ConstantSpreadCurveRolldownFunctionTest {
     assertEquals(0.04, newYieldCurve.getInterestRate(0.5), 0);
     assertEquals(0.02 + 4 * 0.08 / 5, newYieldCurve.getInterestRate(8.), 0);
     newYieldCurve = FUNCTION.rollDown(INTERPOLATED_CURVE, 3);
-    assertTrue(newYieldCurve.getCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(((YieldCurve) newYieldCurve).getCurve() instanceof FunctionalDoublesCurve);
     assertEquals(newYieldCurve.getInterestRate(1.), INTERPOLATED_CURVE.getInterestRate(4.), 0);
     assertEquals(newYieldCurve.getInterestRate(2.), INTERPOLATED_CURVE.getInterestRate(5.), 0);
     assertEquals(newYieldCurve.getInterestRate(3.), INTERPOLATED_CURVE.getInterestRate(6.), 0);
     assertEquals(newYieldCurve.getInterestRate(4.), INTERPOLATED_CURVE.getInterestRate(7.), 0);
     assertEquals(newYieldCurve.getInterestRate(5.), INTERPOLATED_CURVE.getInterestRate(8.), 0);
     newYieldCurve = FUNCTION.rollDown(INTERPOLATED_CURVE, -1);
-    assertTrue(newYieldCurve.getCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(((YieldCurve) newYieldCurve).getCurve() instanceof FunctionalDoublesCurve);
     assertEquals(newYieldCurve.getInterestRate(2.1), INTERPOLATED_CURVE.getInterestRate(1.1), 0);
     assertEquals(newYieldCurve.getInterestRate(2.), INTERPOLATED_CURVE.getInterestRate(1.), 0);
     assertEquals(newYieldCurve.getInterestRate(3.), INTERPOLATED_CURVE.getInterestRate(2.), 0);
     assertEquals(newYieldCurve.getInterestRate(4.), INTERPOLATED_CURVE.getInterestRate(3.), 0);
     assertEquals(newYieldCurve.getInterestRate(5.), INTERPOLATED_CURVE.getInterestRate(4.), 0);
     newYieldCurve = FUNCTION.rollDown(FUNCTIONAL_CURVE, 1);
-    assertTrue(newYieldCurve.getCurve() instanceof FunctionalDoublesCurve);
+    assertTrue(((YieldCurve) newYieldCurve).getCurve() instanceof FunctionalDoublesCurve);
     assertEquals(newYieldCurve.getInterestRate(1.), FUNCTIONAL_CURVE.getInterestRate(2.), 0);
     assertEquals(newYieldCurve.getInterestRate(2.), FUNCTIONAL_CURVE.getInterestRate(3.), 0);
     assertEquals(newYieldCurve.getInterestRate(3.), FUNCTIONAL_CURVE.getInterestRate(4.), 0);

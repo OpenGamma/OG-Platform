@@ -14,7 +14,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -136,7 +135,7 @@ public class VarianceSwapRatesSensitivityTest {
     final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
     final DoubleMatrix1D deltaBuckets = deltaCalculator.calcDeltaBucketed(swapStartsNow, MARKET);
     final int nDeltas = deltaBuckets.getNumberOfElements();
-    final int nYieldNodes = MARKET.getDiscountCurve().getCurve().size();
+    final int nYieldNodes = ((YieldCurve) MARKET.getDiscountCurve()).getCurve().size();
     assertEquals(nDeltas, nYieldNodes, TOLERATED);
 
     double bucketSum = 0.0;
@@ -217,35 +216,22 @@ public class VarianceSwapRatesSensitivityTest {
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
   // private static final double FORWARD = 100;
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-    1.0, 1.0, 1.0, 1.0,
-    5.0, 5.0, 5.0, 5.0,
-    10.0, 10.0, 10.0, 10.0 };
-  private static final double[] STRIKES = new double[] {40, 80, 100, 120,
-    40, 80, 100, 120,
-    40, 80, 100, 120,
-    40, 80, 100, 120 };
-  private static final double[] CALLDELTAs = new double[] {0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25,
-    0.9, 0.75, 0.5, 0.25 };
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0};
+  private static final double[] STRIKES = new double[] {40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120};
+  private static final double[] CALLDELTAs = new double[] {0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25, 0.9, 0.75, 0.5, 0.25};
 
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-    0.25, 0.25, 0.25, 0.25,
-    0.26, 0.24, 0.23, 0.25,
-    0.20, 0.20, 0.20, 0.20 };
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.26, 0.24, 0.23, 0.25, 0.20, 0.20, 0.20, 0.20};
 
-  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_DBLQUAD = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  final static CombinedInterpolatorExtrapolator INTERPOLATOR_1D_LINEAR = getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final InterpolatedDoublesSurface SURFACE = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, new GridInterpolator2D(INTERPOLATOR_1D_LINEAR, INTERPOLATOR_1D_DBLQUAD));
   private static final BlackVolatilitySurfaceStrike VOL_SURFACE = new BlackVolatilitySurfaceStrike(SURFACE);
 
-  private static double[] maturities = {0.5, 1.0, 5.0, 10.0, 20.0 };
-  private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04 };
+  private static double[] maturities = {0.5, 1.0, 5.0, 10.0, 20.0};
+  private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04};
   private static final YieldCurve FUNDING = new YieldCurve(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
 
   private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
@@ -268,7 +254,7 @@ public class VarianceSwapRatesSensitivityTest {
 
   final double[] noObservations = {};
   final double[] noObsWeights = {};
-  final double[] singleObsSoNoReturn = {80 };
+  final double[] singleObsSoNoReturn = {80};
 
   final VarianceSwap swapStartsNow = new VarianceSwap(now, expiry2, expiry2, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, singleObsSoNoReturn, noObsWeights);
 

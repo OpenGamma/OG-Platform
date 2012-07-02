@@ -18,15 +18,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionInstrumentsDescriptionDataSet;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -45,7 +36,7 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   private static PresentValueNodeSensitivityCalculator CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
 
   @Override
-  protected NodeSensitivityCalculator getCalculator() {
+  protected NodeYieldSensitivityCalculator getCalculator() {
     return CALCULATOR;
   }
 
@@ -85,13 +76,12 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   public void testPresentValue() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(IRD, senseCalculator, null, INTERPOLATED_CURVES);
-    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivities(IRD, valueCalculator, null, INTERPOLATED_CURVES);
-    assertArrayEquals(result.getData(), fdresult.getData(), 1e-8);
+    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
+    final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
+    assertArrayEquals(result.getData(), fdresult.getData(), TOLERANCE_SENSI);
   }
 
   //private static final ForexSwapDefinition FX_SWAP = ForexInstrumentsDescriptionDataSet.createForexSwapDefinition(); // EUR/USD - Near date: 2011-May26
-  private static final double TOLERANCE_DELTA = 1.0E-0; // 1.0E+2 = 0.01 unit by bp
 
   @Test
   /**
@@ -108,15 +98,16 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
     final SABRInterestRateParameters sabrParam = TestsDataSetsSABR.createSABR2();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParam, curves);
     final DoubleMatrix1D resultCalculator = CALCULATOR.calculateSensitivities(swaption, pvcsc, null, sabrBundle);
-    final DoubleMatrix1D resultFiniteDifference = finiteDiffNodeSensitivities(swaption, pvc, null, sabrBundle);
-    assertArrayEquals("Present Value Node Sensitivity", resultFiniteDifference.getData(), resultCalculator.getData(), TOLERANCE_DELTA);
+    final DoubleMatrix1D resultFiniteDifference = finiteDiffNodeSensitivitiesYield(swaption, pvc, null, sabrBundle);
+    double notional = Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
+    assertArrayEquals("Present Value Node Sensitivity", resultFiniteDifference.getData(), resultCalculator.getData(), notional * TOLERANCE_SENSI);
 
     final SwaptionPhysicalFixedIborSABRMethod method = SwaptionPhysicalFixedIborSABRMethod.getInstance();
     final InterestRateCurveSensitivity pvcsMethod = method.presentValueCurveSensitivity(swaption, sabrBundle);
     final DoubleMatrix1D resultMethod = CALCULATOR.curveToNodeSensitivities(pvcsMethod, sabrBundle);
     final DoubleMatrix1D resultMethod2 = CALCULATOR.curveToNodeSensitivities(pvcsMethod, curves);
-    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod.getData(), TOLERANCE_DELTA);
-    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod2.getData(), TOLERANCE_DELTA);
+    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod.getData(), notional * TOLERANCE_SENSI);
+    assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod2.getData(), notional * TOLERANCE_SENSI);
   }
 
 }

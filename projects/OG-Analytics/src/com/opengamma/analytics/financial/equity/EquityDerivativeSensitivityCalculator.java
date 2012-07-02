@@ -5,12 +5,18 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
@@ -18,12 +24,6 @@ import com.opengamma.analytics.math.surface.InterpolatedSurfaceAdditiveShiftFunc
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * This Calculator provides simple bump and reprice sensitivities for EquityDerivatives
@@ -147,7 +147,10 @@ public class EquityDerivativeSensitivityCalculator {
     // NodeSensitivityCalculator.curveToNodeSensitivities(curveSensitivities, interpolatedCurves)
 
     // 2nd arg = LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves
-    final YieldAndDiscountCurve discCrv = market.getDiscountCurve();
+    if (!(market.getDiscountCurve() instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final YieldCurve discCrv = (YieldCurve) market.getDiscountCurve();
     final String discCrvName = discCrv.getCurve().getName();
     final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
     interpolatedCurves.setCurve(discCrvName, discCrv);
@@ -158,7 +161,7 @@ public class EquityDerivativeSensitivityCalculator {
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
-    final NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+    final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
   }
 
@@ -258,8 +261,7 @@ public class EquityDerivativeSensitivityCalculator {
   public double calcBlackVegaForSinglePoint(final EquityDerivative derivative, final EquityOptionDataBundle market, final double maturity, final double strike, final double shift) {
 
     final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
-    Validate.isTrue(surface instanceof InterpolatedDoublesSurface,
-        "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
+    Validate.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
 
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
     final InterpolatedSurfaceAdditiveShiftFunction volShifter = new InterpolatedSurfaceAdditiveShiftFunction();

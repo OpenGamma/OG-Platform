@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
@@ -63,7 +65,11 @@ public class MultipleYieldCurveFinderIRSJacobian extends Function1D<DoubleMatrix
       int offset = 0;
       for (final String name : curveNames) { // loop over all curves (by name)
         if (senseMap.containsKey(name)) {
-          final Curve<Double, Double> curve = curves.getCurve(name).getCurve();
+          final YieldAndDiscountCurve ydCurve = curves.getCurve(name);
+          if (!(ydCurve instanceof YieldCurve)) {
+            throw new IllegalArgumentException("Can only handle YieldCurve");
+          }
+          final Curve<Double, Double> curve = ((YieldCurve) ydCurve).getCurve();
           if (!(curve instanceof InterpolatedDoublesCurve)) {
             throw new IllegalArgumentException("Can only handle InterpolatedDoublesCurve");
           }

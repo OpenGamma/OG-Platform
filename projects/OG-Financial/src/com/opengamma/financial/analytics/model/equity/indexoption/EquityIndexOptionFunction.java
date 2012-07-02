@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -110,7 +111,10 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     if (fundingObject == null) {
       throw new OpenGammaRuntimeException("Could not get Funding Curve");
     }
-    final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingObject;
+    if (!(fundingObject instanceof YieldCurve)) { //TODO: make it more generic
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final YieldCurve fundingCurve = (YieldCurve) fundingObject;
 
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);

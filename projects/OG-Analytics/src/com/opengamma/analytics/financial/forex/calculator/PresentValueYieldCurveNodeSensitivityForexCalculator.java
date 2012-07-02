@@ -22,6 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
+
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra(); //TODO make this a parameter
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator INSTANCE = new PresentValueYieldCurveNodeSensitivityForexCalculator();
   private static final PresentValueNodeSensitivityCalculator NODE_SENSITIVITY_CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
