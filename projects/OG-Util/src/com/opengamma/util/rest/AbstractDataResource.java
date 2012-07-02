@@ -6,7 +6,6 @@
 package com.opengamma.util.rest;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 
 import javax.ws.rs.DELETE;
