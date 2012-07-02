@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.GammaValueCallSpreadBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.GammaSpotCallSpreadBlackForexCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -17,20 +17,20 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * The function to compute the Gamma of Forex options in the Black model.
+ * The function to compute the Gamma Spot of Forex options in the Call-spread / Black model.
  */
-public class ForexDigitalOptionCallSpreadBlackGammaFunctionNew extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew {
+public class ForexDigitalOptionCallSpreadBlackGammaSpotFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackGammaFunctionNew() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+  public ForexDigitalOptionCallSpreadBlackGammaSpotFunction() {
+    super(ValueRequirementNames.VALUE_GAMMA_P);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final GammaValueCallSpreadBlackForexCalculator calculator = new GammaValueCallSpreadBlackForexCalculator(spread);
+    final GammaSpotCallSpreadBlackForexCalculator calculator = new GammaSpotCallSpreadBlackForexCalculator(spread);
     final CurrencyAmount result = calculator.visit(fxDigital, data);
-    final double amount = result.getAmount();
-    return Collections.singleton(new ComputedValue(spec, amount));
+    final double gammaSpot = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
+    return Collections.singleton(new ComputedValue(spec, gammaSpot));
   }
 
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
+package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 
 import java.util.Collections;
 import java.util.Set;

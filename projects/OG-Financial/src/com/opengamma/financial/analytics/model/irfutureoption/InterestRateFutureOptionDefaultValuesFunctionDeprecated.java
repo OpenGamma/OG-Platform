@@ -21,7 +21,10 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateFutureOptionDefaultValuesFunction
  */
+@Deprecated
 public class InterestRateFutureOptionDefaultValuesFunctionDeprecated extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,

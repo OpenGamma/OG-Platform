@@ -17,15 +17,19 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackVegaMatrixFunction;
 
 /**
  * The function calculating the Black volatility sensitivity to the matrix with volatility data.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexDigitalOptionCallSpreadBlackVegaMatrixFunction
  */
-public class ForexDigitalOptionCallSpreadBlackVegaMatrixFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
+@Deprecated
+public class ForexDigitalOptionCallSpreadBlackVegaMatrixFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
 
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexDigitalOptionCallSpreadBlackVegaMatrixFunction() {
+  public ForexDigitalOptionCallSpreadBlackVegaMatrixFunctionDeprecated() {
     super(ValueRequirementNames.VEGA_MATRIX);
   }
 

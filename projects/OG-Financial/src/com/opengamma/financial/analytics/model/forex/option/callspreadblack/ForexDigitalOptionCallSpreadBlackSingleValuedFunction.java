@@ -19,9 +19,9 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew extends ForexDigitalOptionCallSpreadBlackFunctionNew {
+public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunction extends ForexDigitalOptionCallSpreadBlackFunction {
 
-  public ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew(final String valueRequirementName) {
+  public ForexDigitalOptionCallSpreadBlackSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

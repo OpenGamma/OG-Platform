@@ -14,14 +14,18 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackGammaSpotFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the Gamma Spot of Forex options in the Call-spread / Black model.
+ * @deprecated Use the versiont that does not refer to funding or forward curves
+ * @see ForexDigitalOptionCallSpreadBlackGammaSpotFunction
  */
-public class ForexDigitalOptionCallSpreadBlackGammaSpotFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
+@Deprecated
+public class ForexDigitalOptionCallSpreadBlackGammaSpotFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated {
 
-  public ForexDigitalOptionCallSpreadBlackGammaSpotFunction() {
+  public ForexDigitalOptionCallSpreadBlackGammaSpotFunctionDeprecated() {
     super(ValueRequirementNames.VALUE_GAMMA_P);
   }
 

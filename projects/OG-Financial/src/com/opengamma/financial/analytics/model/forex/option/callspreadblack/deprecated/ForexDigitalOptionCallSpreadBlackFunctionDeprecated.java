@@ -56,9 +56,11 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexDigitalOptionCallSpreadBlackFunctionDeprecated
  */
-public abstract class ForexDigitalOptionCallSpreadBlackFunction extends AbstractFunction.NonCompiledInvoker {
+@Deprecated
+public abstract class ForexDigitalOptionCallSpreadBlackFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String CALL_SPREAD_BLACK_METHOD = "CallSpreadBlackMethod";
   /** The name of the property that sets the value of the call spread */
@@ -66,7 +68,7 @@ public abstract class ForexDigitalOptionCallSpreadBlackFunction extends Abstract
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
-  public ForexDigitalOptionCallSpreadBlackFunction(final String valueRequirementName) {
+  public ForexDigitalOptionCallSpreadBlackFunctionDeprecated(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
   }

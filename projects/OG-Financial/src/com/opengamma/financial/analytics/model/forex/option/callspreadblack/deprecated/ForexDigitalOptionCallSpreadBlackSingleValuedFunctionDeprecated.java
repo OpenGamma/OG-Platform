@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
 
-
 import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE;
 import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE;
@@ -17,13 +16,21 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.callspreadblack.ForexDigitalOptionCallSpreadBlackSingleValuedFunction;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see ForexDigitalOptionCallSpreadBlackSingleValuedFunction
  */
-public abstract class ForexigitalOptionCallSpreadBlackMultiValuedFunction extends ForexDigitalOptionCallSpreadBlackFunction {
+@Deprecated
+public abstract class ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated extends ForexDigitalOptionCallSpreadBlackFunctionDeprecated {
 
-  public ForexigitalOptionCallSpreadBlackMultiValuedFunction(final String valueRequirementName) {
+  public ForexDigitalOptionCallSpreadBlackSingleValuedFunctionDeprecated(final String valueRequirementName) {
     super(valueRequirementName);
   }
 
@@ -37,10 +44,12 @@ public abstract class ForexigitalOptionCallSpreadBlackMultiValuedFunction extend
         .withAny(PROPERTY_CALL_CURVE)
         .withAny(PROPERTY_CALL_FORWARD_CURVE)
         .withAny(PROPERTY_CALL_CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(PROPERTY_CALL_SPREAD_VALUE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
-        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   @Override
@@ -59,7 +68,23 @@ public abstract class ForexigitalOptionCallSpreadBlackMultiValuedFunction extend
         .with(PROPERTY_CALL_SPREAD_VALUE, spread)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
-        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName);
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
+  protected static String getResultCurrency(final ComputationTarget target) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    if (security instanceof FXDigitalOptionSecurity) {
+      return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
+    }
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    Currency ccy;
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      ccy = callCurrency;
+    } else {
+      ccy = putCurrency;
+    }
+    return ccy.getCode();
+  }
 }

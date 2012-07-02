@@ -14,9 +14,9 @@ import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBla
 /**
  * 
  */
-public abstract class ForexDigitalOptionCallSpreadBlackMultiValuedFunctionNew extends ForexDigitalOptionCallSpreadBlackFunctionNew {
+public abstract class ForexDigitalOptionCallSpreadBlackMultiValuedFunction extends ForexDigitalOptionCallSpreadBlackFunction {
 
-  public ForexDigitalOptionCallSpreadBlackMultiValuedFunctionNew(final String valueRequirementName) {
+  public ForexDigitalOptionCallSpreadBlackMultiValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
 

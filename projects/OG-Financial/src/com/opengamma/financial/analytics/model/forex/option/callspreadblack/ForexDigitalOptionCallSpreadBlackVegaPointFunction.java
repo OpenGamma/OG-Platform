@@ -8,29 +8,27 @@ package com.opengamma.financial.analytics.model.forex.option.callspreadblack;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityCallSpreadBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * The function calculating the Black volatility sensitivity to each point to which the option is sensitive..
  */
-public class ForexDigitalOptionCallSpreadBlackCurveSensitivityFunctionNew extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew {
+public class ForexDigitalOptionCallSpreadBlackVegaPointFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackCurveSensitivityFunctionNew() {
-    super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);
+  public ForexDigitalOptionCallSpreadBlackVegaPointFunction() {
+    super(ValueRequirementNames.CALL_SPREAD_VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final PresentValueCurveSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueCurveSensitivityCallSpreadBlackForexCalculator(spread);
-    final MultipleCurrencyInterestRateCurveSensitivity result = calculator.visit(fxDigital, data);
-    ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
+    final PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilitySensitivityCallSpreadBlackForexCalculator(spread);
+    final PresentValueForexBlackVolatilitySensitivity result = calculator.visit(fxDigital, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 

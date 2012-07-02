@@ -21,11 +21,11 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 /**
  * The function calculating the Black volatility sensitivity to the matrix with volatility data.
  */
-public class ForexDigitalOptionCallSpreadBlackVegaMatrixFunctionNew extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew {
+public class ForexDigitalOptionCallSpreadBlackVegaMatrixFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
 
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexDigitalOptionCallSpreadBlackVegaMatrixFunctionNew() {
+  public ForexDigitalOptionCallSpreadBlackVegaMatrixFunction() {
     super(ValueRequirementNames.VEGA_MATRIX);
   }
 

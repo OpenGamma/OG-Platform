@@ -21,9 +21,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexDigitalOptionCallSpreadBlackPresentValueFunctionNew extends ForexDigitalOptionCallSpreadBlackSingleValuedFunctionNew {
+public class ForexDigitalOptionCallSpreadBlackPresentValueFunction extends ForexDigitalOptionCallSpreadBlackSingleValuedFunction {
 
-  public ForexDigitalOptionCallSpreadBlackPresentValueFunctionNew() {
+  public ForexDigitalOptionCallSpreadBlackPresentValueFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
 
