@@ -212,8 +212,6 @@ public class JobDispatcher implements JobInvokerRegister {
         if (job.canRunOn(jobInvoker)) {
           if (job.runOn(jobInvoker)) {
             s_logger.debug("Invoker {} accepted job {}", jobInvoker, job);
-            // request a job timeout
-            job.setTimeout(jobInvoker);
             // put invoker to the end of the list
             iterator.remove();
             getInvokers().add(jobInvoker);
@@ -269,7 +267,7 @@ public class JobDispatcher implements JobInvokerRegister {
     s_logger.info("Dispatching job {}", job.getSpecification().getJobId());
     final DispatchableJob dispatchJob = new StandardJob(this, job, resultReceiver);
     dispatchJobImpl(dispatchJob);
-    return dispatchJob;
+    return dispatchJob.getCancelHandle();
   }
 
   /**

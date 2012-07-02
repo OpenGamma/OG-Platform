@@ -27,9 +27,52 @@ import com.opengamma.util.async.Cancelable;
  * shared cache for values. The first will then be resubmitted with a job result receiver that will submit the second part of the job on first part completion. When the second part of the job
  * completed the original callback will be notified.
  */
-/* package */abstract class DispatchableJob implements JobInvocationReceiver, Cancelable {
+/* package */abstract class DispatchableJob implements JobInvocationReceiver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DispatchableJob.class);
+
+  protected static final class CancelHandle implements Cancelable {
+
+    private volatile DispatchableJob[] _jobs;
+
+    private CancelHandle(final DispatchableJob job) {
+      _jobs = new DispatchableJob[] {job };
+    }
+
+    public synchronized void addCallback(final DispatchableJob job) {
+      DispatchableJob[] jobs = new DispatchableJob[_jobs.length + 1];
+      System.arraycopy(_jobs, 0, jobs, 1, _jobs.length);
+      jobs[0] = job;
+      _jobs = jobs;
+    }
+
+    public synchronized void removeCallback(final DispatchableJob job) {
+      DispatchableJob[] jobs = new DispatchableJob[_jobs.length - 1];
+      int i = 0;
+      for (DispatchableJob oldJob : _jobs) {
+        if (job != oldJob) {
+          jobs[i++] = oldJob;
+        }
+      }
+      _jobs = jobs;
+    }
+
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+      DispatchableJob[] jobs = _jobs;
+      if (jobs.length == 0) {
+        // Nothing here to cancel - probably already finished
+        return false;
+      } else {
+        boolean result = true;
+        for (DispatchableJob job : jobs) {
+          result &= job.cancel(mayInterruptIfRunning);
+        }
+        return result;
+      }
+    }
+
+  }
 
   private final JobDispatcher _dispatcher;
   private final CalculationJob _job;
@@ -37,6 +80,7 @@ import com.opengamma.util.async.Cancelable;
   private final long _jobCreationTime;
   private final CapabilityRequirements _capabilityRequirements;
   private final AtomicReference<DispatchableJobTimeout> _timeout = new AtomicReference<DispatchableJobTimeout>();
+  private final CancelHandle _cancelHandle;
 
   /**
    * Creates a new dispatchable job for submission to the invokers.
@@ -49,6 +93,22 @@ import com.opengamma.util.async.Cancelable;
     _job = job;
     _jobCreationTime = System.nanoTime();
     _capabilityRequirements = dispatcher.getCapabilityRequirementsProvider().getCapabilityRequirements(job);
+    _cancelHandle = new CancelHandle(this);
+  }
+
+  /**
+   * Creates a new dispatchable job for submission to the invokers.
+   * 
+   * @param creater the source job with the parameters for construction
+   * @param job the root job to send
+   */
+  protected DispatchableJob(final DispatchableJob creater, final CalculationJob job) {
+    _dispatcher = creater.getDispatcher();
+    _job = job;
+    _jobCreationTime = System.nanoTime();
+    _capabilityRequirements = _dispatcher.getCapabilityRequirementsProvider().getCapabilityRequirements(job);
+    _cancelHandle = creater.getCancelHandle();
+    _cancelHandle.addCallback(this);
   }
 
   protected long getDurationNanos() {
@@ -61,6 +121,10 @@ import com.opengamma.util.async.Cancelable;
 
   public JobDispatcher getDispatcher() {
     return _dispatcher;
+  }
+
+  protected CancelHandle getCancelHandle() {
+    return _cancelHandle;
   }
 
   protected abstract JobResultReceiver getResultReceiver(CalculationJobResult result);
@@ -94,21 +158,29 @@ import com.opengamma.util.async.Cancelable;
     }
   }
 
-  protected abstract boolean isAbort(JobInvoker jobInvoker);
-
-  protected abstract void retry();
+  protected abstract DispatchableJob prepareRetryJob(JobInvoker jobInvoker);
 
   @Override
   public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
     s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
     if (_completed.getAndSet(true) == false) {
       cancelTimeout(null);
-      boolean abort = isAbort(jobInvoker);
-      _completed.set(false);
-      if (abort) {
-        abort(exception, "internal node error");
+      DispatchableJob retry = prepareRetryJob(jobInvoker);
+      if (retry != null) {
+        if (retry == this) {
+          // We're scheduled to retry
+          _completed.set(false);
+          getDispatcher().dispatchJobImpl(this);
+        } else {
+          // A replacement has been constructed
+          getCancelHandle().removeCallback(this);
+          cancelTimeout(DispatchableJobTimeout.REPLACED);
+          _completed.set(false);
+          getDispatcher().dispatchJobImpl(retry);
+        }
       } else {
-        retry();
+        _completed.set(false);
+        abort(exception, "node invocation error");
       }
       if (getDispatcher().getStatisticsGatherer() != null) {
         getDispatcher().getStatisticsGatherer().jobFailed(computeNodeId, getDurationNanos());
@@ -131,13 +203,14 @@ import com.opengamma.util.async.Cancelable;
   protected abstract void fail(final CalculationJob job, final CalculationJobResultItem failure);
 
   public void abort(Exception exception, final String alternativeError) {
-    s_logger.error("Aborted job {}", this);
     if (_completed.getAndSet(true) == false) {
       cancelTimeout(DispatchableJobTimeout.FINISHED);
       if (exception == null) {
         s_logger.error("Aborted job {} with {}", this, alternativeError);
         exception = new OpenGammaRuntimeException(alternativeError);
         exception.fillInStackTrace();
+      } else {
+        s_logger.error("Aborted job {} with {}", this, exception);
       }
       fail(getJob(), CalculationJobResultItem.failure(exception));
     } else {
@@ -164,42 +237,23 @@ import com.opengamma.util.async.Cancelable;
     }
   }
 
-  public void setTimeout(final JobInvoker jobInvoker) {
-    DispatchableJobTimeout timeout = new DispatchableJobTimeout(this, jobInvoker);
-    if (_timeout.compareAndSet(null, timeout)) {
-      s_logger.debug("Timeout set for job {}", this);
-    } else {
-      timeout.cancel();
-      timeout = _timeout.get();
-      if (timeout == DispatchableJobTimeout.FINISHED) {
-        s_logger.debug("Job {} already completed", this);
-      } else if (timeout == DispatchableJobTimeout.CANCELLED) {
-        s_logger.debug("Job {} cancelled", this);
-      } else {
-        s_logger.debug("Job {} timeout already set", this);
-      }
-    }
-  }
-
   private DispatchableJobTimeout cancelTimeout(final DispatchableJobTimeout flagState) {
     final DispatchableJobTimeout timeout = _timeout.getAndSet(flagState);
     if (timeout == null) {
-      s_logger.debug("Cancel timeout for {} - no timeout set", this);
-    } else if (timeout == DispatchableJobTimeout.FINISHED) {
-      s_logger.debug("Cancel timeout for {} - job finished", this);
-    } else if (timeout == DispatchableJobTimeout.CANCELLED) {
-      s_logger.debug("Cancel timeout for {} - job cancelled", this);
-    } else {
-      s_logger.debug("Cancelling timeout for {}", this);
+      s_logger.debug("Job {} timeout transition NULL to {}", this, flagState);
+    } else if (timeout.isActive()) {
+      s_logger.debug("Cancelling timeout for {} on transition to {}", this, flagState);
       timeout.cancel();
       return timeout;
+    } else {
+      s_logger.debug("Job {} timeout transition from {} to {}", new Object[] {this, timeout, flagState });
     }
     return null;
   }
 
   private void extendTimeout(final long remainingMillis, final boolean resetTimeAccrued) {
     final DispatchableJobTimeout timeout = _timeout.get();
-    if ((timeout != null) && (timeout != DispatchableJobTimeout.FINISHED) && (timeout != DispatchableJobTimeout.CANCELLED)) {
+    if ((timeout != null) && timeout.isActive()) {
       s_logger.debug("Extending timeout on job {}", getJob().getSpecification().getJobId());
       timeout.extend(Math.min(remainingMillis, getDispatcher().getMaxJobExecutionTime()), resetTimeAccrued);
     }
@@ -220,19 +274,21 @@ import com.opengamma.util.async.Cancelable;
 
   protected abstract void cancel(final JobInvoker jobInvoker);
 
-  @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
+  private boolean cancel(boolean mayInterruptIfRunning) {
     s_logger.info("Cancelling job {}", this);
     while (_completed.getAndSet(true) != false) {
       Thread.yield();
-      if (_timeout.get() == DispatchableJobTimeout.FINISHED) {
-        s_logger.warn("Can't cancel job {} - already finished", this);
-        return false;
-      } else if (_timeout.get() == DispatchableJobTimeout.CANCELLED) {
-        s_logger.info("Job {} already cancelled", this);
-        return true;
-      } else {
+      final DispatchableJobTimeout timeout = _timeout.get();
+      if (timeout.isActive()) {
         s_logger.debug("Job {} - currently failing, cancelling or aborting", this);
+      } else {
+        if (timeout == DispatchableJobTimeout.CANCELLED) {
+          s_logger.info("Job {} already cancelled", this);
+          return true;
+        } else {
+          s_logger.info("Job {} - can't cancel: {}", this, timeout);
+          return false;
+        }
       }
     }
     final DispatchableJobTimeout timeout = cancelTimeout(DispatchableJobTimeout.CANCELLED);
@@ -250,7 +306,20 @@ import com.opengamma.util.async.Cancelable;
   }
 
   public boolean runOn(final JobInvoker jobInvoker) {
-    return jobInvoker.invoke(getJob(), this);
+    if (!jobInvoker.invoke(getJob(), this)) {
+      return false;
+    }
+    DispatchableJobTimeout timeout = new DispatchableJobTimeout(this, jobInvoker);
+    if (_timeout.compareAndSet(null, timeout)) {
+      s_logger.debug("Timeout set for job {}", this);
+    } else {
+      timeout.cancel();
+      if (s_logger.isDebugEnabled()) {
+        timeout = _timeout.get();
+        s_logger.debug("Timeout {} for job {}", timeout, this);
+      }
+    }
+    return true;
   }
 
 }

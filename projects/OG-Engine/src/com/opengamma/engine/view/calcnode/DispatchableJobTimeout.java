@@ -8,10 +8,39 @@ package com.opengamma.engine.view.calcnode;
 import java.util.concurrent.RunnableScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-/* package */final class DispatchableJobTimeout implements Runnable {
+/* package */class DispatchableJobTimeout implements Runnable {
 
-  public static final DispatchableJobTimeout FINISHED = new DispatchableJobTimeout();
-  public static final DispatchableJobTimeout CANCELLED = new DispatchableJobTimeout();
+  private static final class Placeholder extends DispatchableJobTimeout {
+
+    private final String _label;
+
+    public Placeholder(final String label) {
+      _label = label;
+    }
+
+    @Override
+    public boolean isActive() {
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return _label;
+    }
+  }
+
+  /**
+   * Timeout placeholder for a job that has finished.
+   */
+  public static final DispatchableJobTimeout FINISHED = new Placeholder("finished");
+  /**
+   * Timeout placeholder for a job that has been canceled.
+   */
+  public static final DispatchableJobTimeout CANCELLED = new Placeholder("cancelled");
+  /**
+   * Timeout placeholder for a job that has been substituted by a rewritten replacement in order to isolate a failure.
+   */
+  public static final DispatchableJobTimeout REPLACED = new Placeholder("replaced");
 
   private DispatchableJob _dispatchJob;
   private JobInvoker _jobInvoker;
@@ -19,6 +48,10 @@ import java.util.concurrent.TimeUnit;
   private long _timeAccrued;
 
   private DispatchableJobTimeout() {
+  }
+
+  public boolean isActive() {
+    return true;
   }
 
   public DispatchableJobTimeout(final DispatchableJob dispatchJob, final JobInvoker jobInvoker) {
@@ -63,6 +96,11 @@ import java.util.concurrent.TimeUnit;
 
   public synchronized JobInvoker getInvoker() {
     return _jobInvoker;
+  }
+
+  @Override
+  public String toString() {
+    return "running";
   }
 
 }
