@@ -5,10 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.future.*;
 
 /**
  * 

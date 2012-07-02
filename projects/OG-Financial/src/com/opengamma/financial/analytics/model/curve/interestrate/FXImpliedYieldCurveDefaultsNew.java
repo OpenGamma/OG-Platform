@@ -22,8 +22,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FXImpliedYieldCurveDefaultsNew extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.YIELD_CURVE,
-      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+    ValueRequirementNames.YIELD_CURVE,
+    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
   };
   private final String _absoluteTolerance;
   private final String _relativeTolerance;

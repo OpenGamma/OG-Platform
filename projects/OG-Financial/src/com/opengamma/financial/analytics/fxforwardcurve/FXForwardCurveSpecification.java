@@ -12,8 +12,11 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * 
  */
 public class FXForwardCurveSpecification {
+  /** The type of the FX forward quote */
   public enum QuoteType {
+    /** Outright */
     Outright,
+    /** Points */
     Points
   }
   private final FXForwardCurveInstrumentProvider _curveInstrumentProvider;
@@ -25,7 +28,7 @@ public class FXForwardCurveSpecification {
     this(name, target, curveInstrumentProvider, QuoteType.Points);
   }
 
-  public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider, 
+  public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider,
       final QuoteType quoteType) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
@@ -36,7 +39,7 @@ public class FXForwardCurveSpecification {
     _curveInstrumentProvider = curveInstrumentProvider;
     _quoteType = quoteType;
   }
-  
+
   public String getName() {
     return _name;
   }
@@ -52,7 +55,7 @@ public class FXForwardCurveSpecification {
   public QuoteType getQuoteType() {
     return _quoteType;
   }
-  
+
   @Override
   public int hashCode() {
     return getName().hashCode() + getTarget().hashCode() + getQuoteType().hashCode();

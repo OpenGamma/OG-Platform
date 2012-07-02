@@ -5,15 +5,14 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
-import javax.time.calendar.Period;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ * @deprecated Methods in this class are used for either the old curve calculation methods or to supply information that will eventually
+ * be pulled from a configuration
  */
 @Deprecated
 public final class FixedIncomeInstrumentCurveExposureHelper {
@@ -157,7 +156,7 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
     }
   }
-  
+
   public static String[] getCurveNamesForSecurity(final FinancialSecurity security, final String[] curveNames, final Frequency resetFrequency) {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     final String fundingCurveName = curveNames[0];

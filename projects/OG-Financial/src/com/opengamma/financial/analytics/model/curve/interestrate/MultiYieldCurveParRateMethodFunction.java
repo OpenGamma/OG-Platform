@@ -33,11 +33,6 @@ import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderIRSJacobian;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
-import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadRateCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -86,7 +81,7 @@ import com.opengamma.id.ExternalId;
  * 
  */
 public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunction {
-  
+
   private static final ParSpreadRateCalculator PAR_SPREAD_RATE_CALCULATOR = ParSpreadRateCalculator.getInstance();
   private static final ParSpreadRateCurveSensitivityCalculator PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR = ParSpreadRateCurveSensitivityCalculator.getInstance();
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
@@ -270,5 +265,5 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         .with(PROPERTY_DECOMPOSITION, decomposition)
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
-  
+
 }
