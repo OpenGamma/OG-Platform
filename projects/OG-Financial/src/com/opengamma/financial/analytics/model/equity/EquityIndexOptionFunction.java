@@ -106,7 +106,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // a. The Vol Surface
 
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirementForExecute(executionContext, security, volSurfaceName));
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
@@ -194,7 +195,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       return null;
     }
     final String volSurfaceName = surfaceNames.iterator().next();
-    final ValueRequirement volReq = getVolatilitySurfaceRequirementForReq(context, security, volSurfaceName);
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(context);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName);
     // Get Funding Curve Requirement
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
@@ -209,27 +211,27 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return Sets.newHashSet(volReq, fundingReq, spotReq);
   }
 
-  protected ValueRequirement getVolatilitySurfaceRequirementForExecute(final FunctionExecutionContext context, final EquityIndexOptionSecurity security, final String surfaceName) {
-    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
-        .get();
-    final ExternalId underlyingBuid = security.getUnderlyingId();
-    HistoricalTimeSeriesSource htsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
-    HistoricalTimeSeries historicalTimeSeries = htsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
-    ExternalIdBundle idBundle = htsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-    String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionExecutionContext context) {
+    return OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
   }
 
-  protected ValueRequirement getVolatilitySurfaceRequirementForReq(final FunctionCompilationContext context, final EquityIndexOptionSecurity security, final String surfaceName) {
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
+    HistoricalTimeSeriesSource tss =  OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
+    return tss;
+  }
+
+  protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final EquityIndexOptionSecurity security, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .get();
-    //    final ExternalId underlyingBuid = security.getUnderlyingId();
-    //    final UniqueId newId = underlyingBuid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
-    //    UniqueId.of(underlyingBuid.getScheme().getName(), underlyingBuid.getValue());
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"); // !!! FIXME THIS IS HARDCODED BECAUSE THE SECURITY HOLDS A BUID, WHILE THE SURFACE TARGET ID IS THE TICKER !!!
+    ExternalId underlyingBuid = security.getUnderlyingId();
+    String bbgTicker = "DJX Index";
+    if (tsSource != null)  {
+      HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+      ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+      bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+    }
+    UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 

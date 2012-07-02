@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -92,7 +93,8 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     // a. The Vol Surface
 
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(security, volSurfaceName));
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
