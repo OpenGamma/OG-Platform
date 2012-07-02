@@ -80,7 +80,7 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
       s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
       return null;

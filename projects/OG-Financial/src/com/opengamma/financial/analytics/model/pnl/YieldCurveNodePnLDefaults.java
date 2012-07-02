@@ -110,7 +110,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+      final String currencyName = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity()).getCode();
       final String configName = _currencyAndCurveConfigNames.get(currencyName);
       if (configName == null) {
         s_logger.error("Could not get config for currency " + currencyName + "; should never happen");

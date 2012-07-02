@@ -59,10 +59,10 @@ public class InterestRateFutureOptionBlackYieldCurveNodePnLDefaults extends Defa
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getTrade().getSecurity() instanceof IRFutureOptionSecurity)) {
+    if (!(target.getPositionOrTrade().getSecurity() instanceof IRFutureOptionSecurity)) {
       return false;
     }
-    final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getTrade().getSecurity();
+    final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getPositionOrTrade().getSecurity();
     final String currency = irFutureOption.getCurrency().getCode();
     return _currencyCurveConfigAndSurfaceNames.containsKey(currency);
   }
@@ -88,7 +88,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodePnLDefaults extends Defa
     if (ValuePropertyNames.SAMPLING_FUNCTION.equals(propertyName)) {
       return Collections.singleton(_samplingFunction);
     }
-    final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity()).getCode();
     if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
       s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
       return null;
