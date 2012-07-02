@@ -45,7 +45,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -176,7 +176,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunctionDeprecated.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
@@ -197,7 +197,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunctionDeprecated.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE))
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE))
@@ -274,7 +274,7 @@ public class SwaptionBlackYieldCurveNodePnLFunctionDeprecated extends AbstractFu
   private ValueProperties getSensitivityProperties(final String currencyString, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethodName,
       final String curveName, final String surfaceName) {
     return ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunctionDeprecated.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, currencyString)
         .with(ValuePropertyNames.CURVE_CURRENCY, currencyString)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)

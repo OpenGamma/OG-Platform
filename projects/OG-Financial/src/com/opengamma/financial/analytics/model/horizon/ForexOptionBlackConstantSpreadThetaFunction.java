@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackMultiValuedFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackMultiValuedFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -52,7 +52,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexOptionBlackConstantSpreadThetaFunction extends ForexOptionBlackMultiValuedFunction {
+public class ForexOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 

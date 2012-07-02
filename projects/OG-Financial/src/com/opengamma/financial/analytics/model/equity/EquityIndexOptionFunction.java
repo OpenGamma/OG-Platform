@@ -49,7 +49,7 @@ import com.opengamma.financial.analytics.equity.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -165,7 +165,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    */
   private ValueProperties getValueProperties(ComputationTarget target) {
     return createValueProperties()
-      .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+      .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
       .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
       .withAny(ValuePropertyNames.SURFACE)
       .get();
@@ -173,7 +173,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
 
   protected ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName) {
     return createValueProperties()
-      .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+      .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
       .with(ValuePropertyNames.SURFACE, volSurfaceName)
       .get();

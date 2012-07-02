@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
-import com.opengamma.financial.analytics.model.forex.forward.ForexForwardMultiValuedFunction;
+import com.opengamma.financial.analytics.model.forex.forward.FXForwardMultiValuedFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -41,7 +41,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexForwardConstantSpreadThetaFunction extends ForexForwardMultiValuedFunction {
+public class ForexForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFunction {
   private static final ForexSecurityConverter VISITOR = new ForexSecurityConverter();
   private static final int DAYS_TO_MOVE_FORWARD = 1; // TODO Add to Value Properties
 

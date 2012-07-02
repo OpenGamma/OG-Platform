@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.FXDigitalCallSpreadBlackFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -127,10 +127,10 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PUT_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.CALL_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.PUT_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -168,16 +168,16 @@ public class FXDigitalCallSpreadBlackDefaults extends DefaultPropertyFunction {
       putCurveConfig = secondCurrencyValues.getFirst();
       putCurve = secondCurrencyValues.getSecond();
     }
-    if (ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(putCurveConfig);
     }
-    if (ForexOptionBlackFunction.PUT_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunction.PUT_CURVE.equals(propertyName)) {
       return Collections.singleton(putCurve);
     }
-    if (ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG.equals(propertyName)) {
       return Collections.singleton(callCurveConfig);
     }
-    if (ForexOptionBlackFunction.CALL_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunction.CALL_CURVE.equals(propertyName)) {
       return Collections.singleton(callCurve);
     }
     if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {

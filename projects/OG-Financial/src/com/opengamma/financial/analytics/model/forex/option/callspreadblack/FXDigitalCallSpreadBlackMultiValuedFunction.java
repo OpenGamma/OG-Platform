@@ -9,7 +9,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * 
@@ -24,10 +24,10 @@ public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXDigi
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
-        .withAny(ForexOptionBlackFunction.PUT_CURVE)
-        .withAny(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
-        .withAny(ForexOptionBlackFunction.CALL_CURVE)
-        .withAny(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+        .withAny(FXOptionBlackFunction.PUT_CURVE)
+        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(FXOptionBlackFunction.CALL_CURVE)
+        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
@@ -40,10 +40,10 @@ public abstract class FXDigitalCallSpreadBlackMultiValuedFunction extends FXDigi
       final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String spread, final ComputationTarget target) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CALL_SPREAD_BLACK_METHOD)
-        .with(ForexOptionBlackFunction.PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(ForexOptionBlackFunction.CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)

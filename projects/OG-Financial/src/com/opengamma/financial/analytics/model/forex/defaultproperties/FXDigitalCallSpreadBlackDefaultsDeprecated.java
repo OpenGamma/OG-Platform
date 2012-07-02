@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated.FXDigitalCallSpreadBlackFunctionDeprecated;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -109,12 +109,12 @@ public class FXDigitalCallSpreadBlackDefaultsDeprecated extends DefaultPropertyF
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE);
-      defaults.addValuePropertyName(valueRequirement, ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE);
+      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, FXDigitalCallSpreadBlackFunctionDeprecated.PROPERTY_CALL_SPREAD_VALUE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
@@ -125,22 +125,22 @@ public class FXDigitalCallSpreadBlackDefaultsDeprecated extends DefaultPropertyF
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE.equals(propertyName)) {
       return Collections.singleton(_callCurveName);
     }
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE.equals(propertyName)) {
       return Collections.singleton(_callForwardCurveName);
     }
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_callCurveCalculationMethod);
     }
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE.equals(propertyName)) {
       return Collections.singleton(_putCurveName);
     }
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE.equals(propertyName)) {
       return Collections.singleton(_putForwardCurveName);
     }
-    if (ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+    if (FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_putCurveCalculationMethod);
     }
     if (FXDigitalCallSpreadBlackFunctionDeprecated.PROPERTY_CALL_SPREAD_VALUE.equals(propertyName)) {

@@ -38,7 +38,7 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -74,11 +74,11 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE);
+    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String putCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
@@ -157,19 +157,19 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE);
+    final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE);
+    final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
     if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> putCurveCalculationConfigs = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
     if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final Set<String> callCurveCalculationConfigs = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
       return null;
     }

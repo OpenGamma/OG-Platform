@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -66,11 +66,11 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
     final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String putCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE);
-    final String callCurveName = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE);
+    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String putCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-    final String callCurveConfig = desiredValue.getConstraint(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
@@ -94,11 +94,11 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
     result = result.multiply(position.getQuantity().doubleValue() * delta);
     final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
     final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .with(ForexOptionBlackFunction.PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
-        .with(ForexOptionBlackFunction.CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
@@ -134,11 +134,11 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .withAny(ForexOptionBlackFunction.PUT_CURVE)
-        .withAny(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
-        .withAny(ForexOptionBlackFunction.CALL_CURVE)
-        .withAny(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .withAny(FXOptionBlackFunction.PUT_CURVE)
+        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(FXOptionBlackFunction.CALL_CURVE)
+        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
@@ -155,19 +155,19 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> putCurveNames = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE);
+    final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
     if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> putCurveCalculationConfigs = constraints.getValues(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
     if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final Set<String> callCurveNames = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE);
+    final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
     if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> callCurveCalculationConfigs = constraints.getValues(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
     if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
       return null;
     }
@@ -196,11 +196,11 @@ public class ForexOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompil
     final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
     final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .with(ForexOptionBlackFunction.PUT_CURVE, putCurveName)
-        .with(ForexOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
-        .with(ForexOptionBlackFunction.CALL_CURVE, callCurveName)
-        .with(ForexOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)

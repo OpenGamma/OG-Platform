@@ -63,7 +63,7 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -250,7 +250,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -265,7 +265,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
 
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfig) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -280,7 +280,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
 
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName, final String curveName) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency)

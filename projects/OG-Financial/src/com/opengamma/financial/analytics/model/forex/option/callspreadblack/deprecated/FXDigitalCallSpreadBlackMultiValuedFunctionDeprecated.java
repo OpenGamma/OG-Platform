@@ -6,12 +6,12 @@
 package com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated;
 
 
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE;
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE_CALCULATION_METHOD;
+import static com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
