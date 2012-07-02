@@ -54,8 +54,8 @@ public class DbBatchMasterTest extends DbTest {
   private ValueSpecification _specification;
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public DbBatchMasterTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
+  public DbBatchMasterTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion, databaseVersion);
   }
 
   @BeforeMethod

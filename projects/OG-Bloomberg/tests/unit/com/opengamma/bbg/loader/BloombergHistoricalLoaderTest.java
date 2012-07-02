@@ -92,8 +92,8 @@ public class BloombergHistoricalLoaderTest extends DbTest {
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergHistoricalLoaderTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.debug("running test for database = {} version = {}", databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+    s_logger.debug("running test for database = {}", databaseType);
   }
 
   @BeforeMethod
