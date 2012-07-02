@@ -269,31 +269,33 @@ public class PDE1DCoefficientsProvider {
   }
 
   /**
-   * Backwards PDE setup for option price under a local volatility parameterised by moneyness. The state variables are time-to-maturity, $\tau$, and
-   * log-forward value of the underlying, $x$. <b>Note</b> the option price will be the forward (non-discounted) price. <P>The PDE is
+   * Backwards PDE setup for option price under a local volatility parameterised by spot. The state variables are time-to-maturity, $\tau$, and
+   * log-spot , $x = \log(s)$. <b>Note</b> the option price will be the forward (non-discounted) price. <P>The PDE is
    * $$
-   * \frac{\partial V}{\partial \tau} - \frac{1}{2}\sigma\left(t,\frac{e^x}{f(0,T)}\right)^2\frac{\partial^2 V}{\partial x^2} + 
-   * \frac{1}{2}\sigma\left(t,\frac{e^x}{f(0,T)}\right)^2\frac{\partial V}{\partial x}=0\\
-   * \text{where} \quad x \equiv \log f(T-\tau,T)
+   * \frac{\partial V}{\partial \tau} - \frac{1}{2}\sigma\left(T-\tau,e^x\right)^2\frac{\partial^2 V}{\partial x^2} + 
+   * \left(\frac{1}{2}\sigma\left(T-\tau,e^x\right)^2 -r + y \right)\frac{\partial V}{\partial x} + rV=0\\
+   * \text{where} \quad x \equiv \log S
    * $$
+  * @param rate The risk free rate (domestic risk free rate in FX case)
+   * @param yield The dividend yield (for equity) or foreign risk free (for FX)
    * @param maturity the time-to-maturity
-   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and moneyness
-   * @return The data to run through a PDE solver that will give the time-zero <b>forward</b> option price as a function of the time-zero
-   * value of the underlying
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and spot
+   * @return The data to run through a PDE solver that will give the time-zero option price as a function of the time-zero
+   * value of the log-spot
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final double maturity, final LocalVolatilitySurfaceMoneyness localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final double rate, final double yield, final double maturity,
+      final LocalVolatilitySurfaceStrike localVol) {
 
-    final ForwardCurve fc = localVol.getForwardCurve();
-    final double f0 = fc.getForward(maturity);
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... tx) {
         Validate.isTrue(tx.length == 2);
         final double tau = tx[0];
         final double x = tx[1];
+        final double s = Math.exp(x);
         final double t = maturity - tau;
-        final double f = Math.exp(x);
-        final double temp = localVol.getVolatilityForMoneyness(t, f / f0);
+
+        final double temp = localVol.getVolatility(t, s);
         return -0.5 * temp * temp;
       }
     };
@@ -305,8 +307,105 @@ public class PDE1DCoefficientsProvider {
         final double tau = tx[0];
         final double x = tx[1];
         final double t = maturity - tau;
-        final double f = Math.exp(x);
-        final double temp = localVol.getVolatilityForMoneyness(t, f / f0);
+        final double s = Math.exp(x);
+        final double temp = localVol.getVolatility(t, s);
+        return 0.5 * temp * temp - (rate - yield);
+      }
+    };
+
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate));
+  }
+
+  /**
+   * Backwards PDE setup for option price under a local volatility parameterised by moneyness. The state variables are time-to-maturity, $\tau$, and
+   * log-forward value of the underlying, $x$. <b>Note</b> the option price will be the forward (non-discounted) price. <P>The PDE is
+   * $$
+   * \frac{\partial V}{\partial \tau} - \frac{1}{2}\sigma\left(t,\frac{e^x}{f(0,T)}\right)^2\frac{\partial^2 V}{\partial x^2} + 
+   * \frac{1}{2}\sigma\left(t,\frac{e^x}{f(0,T)}\right)^2\frac{\partial V}{\partial x}=0\\
+   * \text{where} \quad x \equiv \log f(T-\tau,T)
+   * $$
+   * @param maturity the time-to-maturity
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and moneyness
+   * @return The data to run through a PDE solver that will give the time-zero <b>forward</b> option price as a function of the time-zero
+   * value of the log-forward
+   */
+  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final double maturity, final LocalVolatilitySurfaceMoneyness localVol) {
+
+    final ForwardCurve fc = localVol.getForwardCurve();
+    final double f0T = fc.getForward(maturity);
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double tau = tx[0];
+        final double x = tx[1];
+        final double t = maturity - tau;
+        final double ftT = Math.exp(x);
+        final double temp = localVol.getVolatilityForMoneyness(t, ftT / f0T);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double tau = tx[0];
+        final double x = tx[1];
+        final double t = maturity - tau;
+        final double ftT = Math.exp(x);
+        final double temp = localVol.getVolatilityForMoneyness(t, ftT / f0T);
+        return 0.5 * temp * temp;
+      }
+    };
+
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ZERO_SURFACE);
+  }
+
+  /**
+   * Backwards PDE setup for option price under a local volatility parameterised by spot. The state variables are time-to-maturity, $\tau$, and
+   * log-forward value of the underlying, $x$. <b>Note</b> the option price will be the forward (non-discounted) price. <P>The PDE is
+   * $$
+   * \frac{\partial V}{\partial \tau} - \frac{1}{2}\sigma\left(t,\frac{e^xf(0,T-\tau)}{f(0,T)}\right)^2\frac{\partial^2 V}{\partial x^2} + 
+   * \frac{1}{2}\sigma\left(t,\frac{e^xf(0,T-\tau)}{f(0,T)}\right)^2\frac{\partial V}{\partial x}=0\\
+   * \text{where} \quad x \equiv \log f(T-\tau,T)
+   * $$
+   * @param forwardCurve Forward Curve 
+   * @param maturity the time-to-maturity
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and spot
+   * @return The data to run through a PDE solver that will give the time-zero <b>forward</b> option price as a function of the time-zero
+   * value of the log of the forward
+   */
+  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final ForwardCurve forwardCurve, final double maturity,
+      final LocalVolatilitySurfaceStrike localVol) {
+
+    final double f0T = forwardCurve.getForward(maturity);
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double tau = tx[0];
+        final double x = tx[1];
+        final double ftT = Math.exp(x);
+        final double t = maturity - tau;
+        final double f0t = forwardCurve.getForward(t);
+
+        final double temp = localVol.getVolatility(t, ftT * f0t / f0T); //NOTE: f * ft / fT = s, the spot
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double tau = tx[0];
+        final double x = tx[1];
+        final double t = maturity - tau;
+        final double ftT = Math.exp(x);
+        final double f0t = forwardCurve.getForward(t);
+        final double temp = localVol.getVolatility(t, ftT * f0t / f0T);
         return 0.5 * temp * temp;
       }
     };
