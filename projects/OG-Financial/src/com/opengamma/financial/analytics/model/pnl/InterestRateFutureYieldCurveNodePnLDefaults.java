@@ -13,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -22,27 +21,25 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLDefaults.class);
+public class InterestRateFutureYieldCurveNodePnLDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureYieldCurveNodePnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
   private final PriorityClass _priority;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority, final String... currencyAndCurveConfigNames) {
+  public InterestRateFutureYieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+      final String... currencyAndCurveConfigNames) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
@@ -67,28 +64,11 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
-    if (security instanceof InterestRateFutureSecurity) {
-      return false;
-    }
-    if (FXUtils.isFXSecurity(security)) {
+    if (!(security instanceof InterestRateFutureSecurity)) {
       return false;
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-    if (!_currencyAndCurveConfigNames.containsKey(currencyName)) {
-      return false;
-    }
-    if (security instanceof SwapSecurity) {
-      try {
-        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
-        if (type != InterestRateInstrumentType.SWAP_FIXED_IBOR && type != InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD && type != InterestRateInstrumentType.SWAP_IBOR_IBOR
-            && type != InterestRateInstrumentType.SWAP_FIXED_OIS) {
-          return false;
-        }
-      } catch (final OpenGammaRuntimeException ogre) {
-        return false;
-      }
-    }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
+    return _currencyAndCurveConfigNames.containsKey(currencyName);
   }
 
   @Override

@@ -13,6 +13,9 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -61,6 +64,7 @@ import com.opengamma.util.money.Currency;
  */
 @Deprecated
 public class InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.getDefaultInstance();
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
@@ -167,8 +171,9 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated ext
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
     if (!curveName.equals(forwardCurveName) && !curveName.equals(fundingCurveName)) {
-      throw new OpenGammaRuntimeException("Asked for sensitivities to a curve (" + curveName + ") to which this interest rate future is not sensitive " +
+      s_logger.error("Asked for sensitivities to a curve (" + curveName + ") to which this interest rate future is not sensitive " +
           "(allowed " + forwardCurveName + " and " + fundingCurveName + ")");
+      return null;
     }
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
