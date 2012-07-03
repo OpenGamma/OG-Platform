@@ -21,11 +21,7 @@ public interface AnalyticsView {
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
-  void updateResults(ViewComputationResultModel fullResult);
-
   void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle);
-
-  boolean isViewCycleRequired();
 
 // -------- main grid --------
 

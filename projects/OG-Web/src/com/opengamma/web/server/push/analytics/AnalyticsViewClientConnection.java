@@ -33,6 +33,8 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   private final AggregatedViewDefinition _aggregatedViewDef;
   private final ViewExecutionOptions _executionOptions;
 
+  private EngineResourceReference<? extends ViewCycle> _cycleReference = EmptyViewCycle.REFERENCE;
+
   public AnalyticsViewClientConnection(ViewRequest viewRequest,
                                        ViewClient viewClient,
                                        AnalyticsView view,
@@ -63,24 +65,19 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    if (_viewClient.isViewCycleAccessSupported()) {
-      EngineResourceReference<? extends ViewCycle> cycleReference = null;
-      try {
-        cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
-        _view.updateResults(fullResult, cycleReference.get());
-      } finally {
-        if (cycleReference != null) {
-          cycleReference.release();
-        }
-      }
+    EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
+    if (cycleReference == null) {
+      // this shouldn't happen if everything in the engine is working as it should
+      _cycleReference = EmptyViewCycle.REFERENCE;
     } else {
-      _view.updateResults(fullResult);
+      _cycleReference = cycleReference;
     }
-    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());
+    _view.updateResults(fullResult, _cycleReference.get());
   }
 
   /* package */ void start() {
     _viewClient.setResultListener(this);
+    _viewClient.setViewCycleAccessSupported(true);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {
@@ -93,6 +90,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     try {
       _viewClient.detachFromViewProcess();
     } finally {
+      _cycleReference.release();
       _aggregatedViewDef.close();
     }
   }

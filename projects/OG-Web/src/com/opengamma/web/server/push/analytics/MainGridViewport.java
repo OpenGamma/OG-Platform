@@ -22,17 +22,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class MainViewport extends AnalyticsViewport {
+public class MainGridViewport extends AnalyticsViewport {
 
-  private final AnalyticsResultsMapper _resultsMapper;
+  // TODO should the mapper just be merged into this class? or the grid?
+  private final MainGridResultsMapper _resultsMapper;
+  private final MainGridStructure _gridStructure;
 
-  MainViewport(ViewportSpecification viewportSpec,
-               AnalyticsGridStructure gridStructure,
-               AnalyticsResultsMapper resultsMapper,
-               String dataId,
-               ViewComputationResultModel latestResults,
-               AnalyticsHistory history) {
-    super(gridStructure, viewportSpec, history, dataId);
+  MainGridViewport(ViewportSpecification viewportSpec,
+                   MainGridStructure gridStructure,
+                   MainGridResultsMapper resultsMapper,
+                   String dataId,
+                   ViewComputationResultModel latestResults,
+                   AnalyticsHistory history) {
+    super(dataId);
+    _gridStructure = gridStructure;
     ArgumentChecker.notNull(resultsMapper, "resultsMapper");
     _resultsMapper = resultsMapper;
     update(viewportSpec, latestResults, history);
@@ -42,7 +45,7 @@ public class MainViewport extends AnalyticsViewport {
   /* package */ void updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     List<List<Object>> allResults = new ArrayList<List<Object>>();
     for (Integer rowIndex : _viewportSpec.getRows()) {
-      AnalyticsGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
+      MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
       Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
