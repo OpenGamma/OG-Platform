@@ -2,16 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <!-- Property file configuration -->
-  <bean id="demoCalcNodeProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreUnresolvablePlaceholders" value="true" />
-    <property name="locations">
-      <list>
-        <value>${opengamma.engine.calcnode.baseurl}configuration.properties</value>
-      </list>
-    </property>
-  </bean>
-
   <!-- A global Fudge context configured with all of the relevant builders --> 
   <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
 
