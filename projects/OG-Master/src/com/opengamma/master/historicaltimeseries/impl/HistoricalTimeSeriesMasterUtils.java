@@ -38,6 +38,10 @@ public class HistoricalTimeSeriesMasterUtils {
 
   /**
    * Updates an existing time-series in the master.
+   * If the time series provided has overlaps with the existing time series, the old
+   * versions of intersecting points will be corrected to the new ones.
+   * After that, points later than the existing latest point of the time series will
+   * be appended.
    * 
    * @param description  a description of the time-series for display purposes, not null
    * @param dataSource  the data source, not null
