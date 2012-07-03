@@ -30,7 +30,7 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(AnalyticsGridStructure.class);
+    return AnalyticsGridStructure.class.isAssignableFrom(type);
   }
 
   @Override
