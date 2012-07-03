@@ -22,9 +22,9 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 /**
  * 
  */
-public class ForexForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
+public class FXForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCurrencyConversionFunction {
 
-  public ForexForwardPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
+  public FXForwardPnLSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     super(currencyMatrixName);
   }
 

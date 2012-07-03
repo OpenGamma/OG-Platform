@@ -27,9 +27,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer the put or call currency
+ * @see FXOptionBlackDeltaPnLDefaults
  */
-public class ForexOptionBlackDeltaPnLDefaults extends DefaultPropertyFunction {
+@Deprecated
+public class FXOptionBlackDeltaPnLDefaultsDeprecated extends DefaultPropertyFunction {
   private final String _putCurveName;
   private final String _callCurveName;
   private final String _putCurveConfig;
@@ -44,7 +46,7 @@ public class ForexOptionBlackDeltaPnLDefaults extends DefaultPropertyFunction {
   private final String _putCurrency;
   private final String _callCurrency;
 
-  public ForexOptionBlackDeltaPnLDefaults(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
+  public FXOptionBlackDeltaPnLDefaultsDeprecated(final String putCurveName, final String callCurveName, final String putCurveConfig, final String callCurveConfig,
       final String surfaceName, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String putCurrency, final String callCurrency) {
     super(ComputationTargetType.POSITION, true);

@@ -22,9 +22,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to pay or receive currency
+ * @see FXForwardCurrencyExposurePnLFunction
  */
-public class ForexForwardCurrencyExposurePnLDefaults extends DefaultPropertyFunction {
+@Deprecated
+public class FXForwardCurrencyExposurePnLDefaultsDeprecated extends DefaultPropertyFunction {
   private final String _payCurveName;
   private final String _receiveCurveName;
   private final String _payCurveConfig;
@@ -35,7 +37,7 @@ public class ForexForwardCurrencyExposurePnLDefaults extends DefaultPropertyFunc
   private final String _payCurrency;
   private final String _receiveCurrency;
 
-  public ForexForwardCurrencyExposurePnLDefaults(final String payCurveName, final String receiveCurveName, final String payCurveConfig, final String receiveCurveConfig,
+  public FXForwardCurrencyExposurePnLDefaultsDeprecated(final String payCurveName, final String receiveCurveName, final String payCurveConfig, final String receiveCurveConfig,
       final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String payCurrency, final String receiveCurrency) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(payCurveName, "pay curve name");

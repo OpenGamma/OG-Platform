@@ -38,11 +38,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
+import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -51,7 +55,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCompiledInvoker {
+public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledInvoker {
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
@@ -62,10 +66,14 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
-    final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveConfig = desiredValue.getConstraint(FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveConfig = desiredValue.getConstraint(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    final String putCurveName = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE);
+    final String callCurveName = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE);
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String putCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    final String callCurveConfig = desiredValue.getConstraint(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
     final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
@@ -73,21 +81,28 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
     if (ccyExposureObject == null) {
       throw new OpenGammaRuntimeException("Could not get currency exposure");
     }
-    final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
     final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) ccyExposureObject;
     final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
-    final Currency currencyNonBase = FXUtils.nonBaseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The non-base currency
-    final double exposure = mca.getAmount(currencyNonBase);
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final Currency currencyNonBase = FXUtils.nonBaseCurrency(putCurrency, callCurrency); // The non-base currency
+    final double delta = mca.getAmount(currencyNonBase);
     DoubleTimeSeries<?> result = getPnLSeries(tsSource, startDate, now.toLocalDate(), schedule, sampling, security);
-    result = result.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
-    final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
+    result = result.multiply(position.getQuantity().doubleValue() * delta);
+    final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
     final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveConfig)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveConfig)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveConfig)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculator)
@@ -109,18 +124,25 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
       return false;
     }
     final Security security = target.getPosition().getSecurity();
-    return security instanceof FXForwardSecurity;
+    return security instanceof FXOptionSecurity || security instanceof FXDigitalOptionSecurity;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
-    final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
+    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final Currency currencyBase = FXUtils.baseCurrency(putCurrency, callCurrency); // The base currency
     final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
-        .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .withAny(FXOptionBlackFunction.PUT_CURVE)
+        .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
+        .withAny(FXOptionBlackFunction.CALL_CURVE)
+        .withAny(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
+        .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
         .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
@@ -133,42 +155,74 @@ public class ForexForwardCurrencyExposurePnLFunction extends AbstractFunction.No
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> payCurveNames = constraints.getValues(ValuePropertyNames.PAY_CURVE);
-    if (payCurveNames == null || payCurveNames.size() != 1) {
+    final Set<String> putCurveNames = constraints.getValues(FXOptionBlackFunction.PUT_CURVE);
+    if (putCurveNames == null || putCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveCalculationConfigs = constraints.getValues(FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-    if (payCurveCalculationConfigs == null || payCurveCalculationConfigs.size() != 1) {
+    final Set<String> putCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    if (putCurveCalculationConfigs == null || putCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveNames = constraints.getValues(ValuePropertyNames.RECEIVE_CURVE);
-    if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
+    final Set<String> callCurveNames = constraints.getValues(FXOptionBlackFunction.CALL_CURVE);
+    if (callCurveNames == null || callCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveCalculationConfigs = constraints.getValues(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
-    if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
+    final Set<String> callCurveCalculationConfigs = constraints.getValues(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    if (callCurveCalculationConfigs == null || callCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final String payCurveName = payCurveNames.iterator().next();
-    final String payCurveCalculationConfig = payCurveCalculationConfigs.iterator().next();
-    final String receiveCurveName = receiveCurveNames.iterator().next();
-    final String receiveCurveCalculationConfig = receiveCurveCalculationConfigs.iterator().next();
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final Set<String> interpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    if (interpolatorNames == null || interpolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> leftExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    if (leftExtrapolatorNames == null || leftExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> rightExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
+      return null;
+    }
+    final String putCurveName = putCurveNames.iterator().next();
+    final String putCurveCalculationConfig = putCurveCalculationConfigs.iterator().next();
+    final String callCurveName = callCurveNames.iterator().next();
+    final String callCurveCalculationConfig = callCurveCalculationConfigs.iterator().next();
+    final String surfaceName = surfaceNames.iterator().next();
+    final String interpolatorName = interpolatorNames.iterator().next();
+    final String leftExtrapolatorName = leftExtrapolatorNames.iterator().next();
+    final String rightExtrapolatorName = rightExtrapolatorNames.iterator().next();
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
+        .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
     final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), properties);
     return Collections.singleton(requirement);
   }
 
   private DoubleTimeSeries<?> getPnLSeries(final HistoricalTimeSeriesSource historicalSource, final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final FXForwardSecurity fxForward) {
+      final TimeSeriesSamplingFunction samplingFunction, final Security security) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    final ExternalIdBundle id = ExternalIdBundle.of(FXUtils.getSpotIdentifier(fxForward));
+    final ExternalIdBundle id;
+    if (security instanceof FXOptionSecurity) {
+      id = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXOptionSecurity) security));
+    } else if (security instanceof FXDigitalOptionSecurity) {
+      id = ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXDigitalOptionSecurity) security));
+    } else {
+      throw new OpenGammaRuntimeException("Instrument was not a FX vanilla option or FX digital; should never happen");
+    }
     final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
     if (dbTimeSeries == null) {
-      throw new OpenGammaRuntimeException("Could not get time series for id " + id);
+      throw new OpenGammaRuntimeException("Could not get time series for id bundle " + id);
     }
     DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.

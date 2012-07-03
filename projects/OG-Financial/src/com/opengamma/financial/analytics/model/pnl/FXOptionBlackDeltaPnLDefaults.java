@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex.defaultproperties;
+package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,24 +32,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Default properties for FX options priced using the Black functions.
+ * 
  */
-public class FXOptionBlackDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDefaults.class);
-  private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_PRESENT_VALUE,
-    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_GAMMA_P,
-    ValueRequirementNames.VEGA_MATRIX,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-    ValueRequirementNames.PV01,
-    ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-    ValueRequirementNames.VALUE_THETA
-  };
+public class FXOptionBlackDeltaPnLDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDeltaPnLDefaults.class);
+  private final String _samplingPeriod;
+  private final String _scheduleCalculator;
+  private final String _samplingFunction;
   private final PriorityClass _priority;
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
@@ -58,31 +47,24 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _propertyValuesBySecondCurrency;
   private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
 
-  /**
-   * @param priority The priority of the functions
-   * @param interpolatorName The volatility surface interpolator name
-   * @param leftExtrapolatorName The volatility surface left extrapolator name
-   * @param rightExtrapolatorName The volatility surface right extrapolator name
-   * @param propertyValuesByCurrencies Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
-   * <ul>
-   * <li><i>i</i> = first currency name,
-   * <li><i>i + 1</i> = first currency curve configuration name
-   * <li><i>i + 2</i> = first currency discounting curve name
-   * <li><i>i + 3</i> = second currency name,
-   * <li><i>i + 4</i> = second currency curve configuration name
-   * <li><i>i + 5</i> = second currency discounting curve name
-   * <li><i>i + 6</i> = surface name
-   * </ul>
-   */
-  public FXOptionBlackDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
-      final String... propertyValuesByCurrencies) {
-    super(ComputationTargetType.SECURITY, true);
+  public FXOptionBlackDeltaPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+      final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final String... propertyValuesByCurrencies) {
+    super(ComputationTargetType.POSITION, true);
+    ArgumentChecker.notNull(interpolatorName, "interpolator name");
+    ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
+    ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
+    ArgumentChecker.notNull(samplingPeriod, "sampling period");
+    ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
+    ArgumentChecker.notNull(samplingFunction, "sampling function");
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(propertyValuesByCurrencies, "property values by currency");
     ArgumentChecker.isTrue(propertyValuesByCurrencies.length % 7 == 0, "Must have two currencies, one curve config and discounting curve name per currency pair and one surface name");
+    _samplingPeriod = samplingPeriod;
+    _scheduleCalculator = scheduleCalculator;
+    _samplingFunction = samplingFunction;
     _priority = PriorityClass.valueOf(priority);
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
@@ -105,13 +87,13 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
+    if (target.getType() != ComputationTargetType.POSITION) {
       return false;
     }
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+    if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     if (!(security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity)) {
       return false;
     }
@@ -123,21 +105,40 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.PUT_CURVE);
-      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE);
-      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-      defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    }
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXOptionBlackFunction.PUT_CURVE);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXOptionBlackFunction.CALL_CURVE);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SURFACE);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_interpolatorName);
+    }
+    if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_leftExtrapolatorName);
+    }
+    if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
+      return Collections.singleton(_rightExtrapolatorName);
+    }
+    if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
+      return Collections.singleton(_samplingPeriod);
+    }
+    if (ValuePropertyNames.SCHEDULE_CALCULATOR.equals(propertyName)) {
+      return Collections.singleton(_scheduleCalculator);
+    }
+    if (ValuePropertyNames.SAMPLING_FUNCTION.equals(propertyName)) {
+      return Collections.singleton(_samplingFunction);
+    }
+    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     if (!(_propertyValuesByFirstCurrency.containsKey(putCurrency) || _propertyValuesBySecondCurrency.containsKey(putCurrency))) {
@@ -205,6 +206,6 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_OPTION_BLACK_DEFAULTS;
+    return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 }

@@ -5,9 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -21,46 +25,48 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
  */
 public class SwaptionBlackYieldCurveNodePnLDefaults extends DefaultPropertyFunction {
-  private final String _curveCalculationConfig;
-  private final String _surfaceName;
+  private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackYieldCurveNodePnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  private final String[] _applicableCurrencies;
+  private final PriorityClass _priority;
+  private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public SwaptionBlackYieldCurveNodePnLDefaults(final String curveCalculationConfig, final String surfaceName, final String samplingPeriod, final String scheduleCalculator,
-      final String samplingFunction, final String... applicableCurrencies) {
+  public SwaptionBlackYieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
+      final String priority, final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.POSITION, true);
-    ArgumentChecker.notNull(curveCalculationConfig, "curve calculation config");
-    ArgumentChecker.notNull(surfaceName, "surface name");
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
-    ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
-    _curveCalculationConfig = curveCalculationConfig;
-    _surfaceName = surfaceName;
+    ArgumentChecker.notNull(priority, "priority");
+    ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _applicableCurrencies = applicableCurrencies;
+    final int nPairs = currencyCurveConfigAndSurfaceNames.length;
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
+    _priority = PriorityClass.valueOf(priority);
+    _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
+    for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
+      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
+      _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
+    }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = target.getPositionOrTrade().getSecurity();
+    final Security security = target.getPosition().getSecurity();
     if (!(security instanceof SwaptionSecurity)) {
       return false;
     }
-    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    if (Arrays.binarySearch(_applicableCurrencies, currency) < 0) {
-      return false;
-    }
-    return true;
+    final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
+    return _currencyCurveConfigAndSurfaceNames.containsKey(currencyName);
   }
 
   @Override
@@ -75,12 +81,6 @@ public class SwaptionBlackYieldCurveNodePnLDefaults extends DefaultPropertyFunct
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_curveCalculationConfig);
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceName);
-    }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {
       return Collections.singleton(_samplingPeriod);
     }
@@ -90,7 +90,24 @@ public class SwaptionBlackYieldCurveNodePnLDefaults extends DefaultPropertyFunct
     if (ValuePropertyNames.SAMPLING_FUNCTION.equals(propertyName)) {
       return Collections.singleton(_samplingFunction);
     }
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity()).getCode();
+    if (!_currencyCurveConfigAndSurfaceNames.containsKey(currencyName)) {
+      s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
+      return null;
+    }
+    final Pair<String, String> pair = _currencyCurveConfigAndSurfaceNames.get(currencyName);
+    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
+      return Collections.singleton(pair.getFirst());
+    }
+    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
+      return Collections.singleton(pair.getSecond());
+    }
     return null;
+  }
+
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
   }
 
   @Override
