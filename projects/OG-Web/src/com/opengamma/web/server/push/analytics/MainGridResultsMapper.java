@@ -57,8 +57,7 @@ public class MainGridResultsMapper {
                                      Collections.<String, Map<ValueSpecification,Set<ValueRequirement>>>emptyMap());
   }
 
-  // TODO combine with primitives()
-  /* package */ static MainGridResultsMapper portfolio(CompiledViewDefinition compiledViewDef) {
+  private static MainGridResultsMapper create(CompiledViewDefinition compiledViewDef, ColumnBuilder columnBuilder) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     // map of column index keyed by column key
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
@@ -74,10 +73,8 @@ public class MainGridResultsMapper {
       specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
 
-      for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
-        String valueName = portfolioOutput.getFirst();
-        ValueProperties constraints = portfolioOutput.getSecond();
-        RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(configName, valueName, constraints);
+      List<RequirementBasedColumnKey> columnKeys = columnBuilder.buildColumns(calcConfig);
+      for (RequirementBasedColumnKey columnKey : columnKeys) {
         if (!indexMap.containsKey(columnKey)) {
           indexMap.put(columnKey, colIndex);
           colIndex++;
@@ -86,45 +83,17 @@ public class MainGridResultsMapper {
       }
       columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
     }
-    // TODO what about unsatisfied columns?
     return new MainGridResultsMapper(columnGroups, indexMap, specsToReqs);
   }
 
-  // TODO combine with portfolio()
-/* package */ static MainGridResultsMapper primitives(CompiledViewDefinition compiledViewDef) {
-    ViewDefinition viewDef = compiledViewDef.getViewDefinition();
-    // map of column index keyed by column key
-    Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
-    // column group for the label column
-    AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "")));
-    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
-    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
-    int colIndex = 1; // col 0 is the node name
-    for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
-      String configName = calcConfig.getName();
-      CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
-      // store the mappings from outputs to requirements for each calc config
-      specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
-      List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
-
-      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
-        if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-          String valueName = specificRequirement.getValueName();
-          ValueProperties constraints = specificRequirement.getConstraints();
-          RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(configName, valueName, constraints);
-          if (!indexMap.containsKey(columnKey)) {
-            indexMap.put(columnKey, colIndex);
-            colIndex++;
-            configColumns.add(AnalyticsColumn.forKey(columnKey));
-          }
-        }
-      }
-      columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
-    }
-    return new MainGridResultsMapper(columnGroups, indexMap, specsToReqs);
+  /* package */ static MainGridResultsMapper portfolio(CompiledViewDefinition compiledViewDef) {
+    return create(compiledViewDef, new PortfolioColumnBuilder());
   }
 
-  // TODO are any of these needed for dependency graphs?
+  /* package */ static MainGridResultsMapper primitives(CompiledViewDefinition compiledViewDef) {
+    return create(compiledViewDef, new PrimitivesColumnBuilder());
+  }
+
   /* package */ int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
     RequirementBasedColumnKey key =
         new RequirementBasedColumnKey(calcConfigName, requirement.getValueName(), requirement.getConstraints());
@@ -166,5 +135,42 @@ public class MainGridResultsMapper {
         ", _indexByRequirement=" + _indexByRequirement +
         ", _specsToReqs=" + _specsToReqs +
         "]";
+  }
+
+  private interface ColumnBuilder {
+
+    List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
+  }
+
+  private static class PortfolioColumnBuilder implements ColumnBuilder {
+
+    @Override
+    public List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
+      List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
+      for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
+        String valueName = portfolioOutput.getFirst();
+        ValueProperties constraints = portfolioOutput.getSecond();
+        RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
+        columnKeys.add(columnKey);
+      }
+      return columnKeys;
+    }
+  }
+
+  private static class PrimitivesColumnBuilder implements ColumnBuilder {
+
+    @Override
+    public List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
+      List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
+      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
+        if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+          String valueName = specificRequirement.getValueName();
+          ValueProperties constraints = specificRequirement.getConstraints();
+          RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
+          columnKeys.add(columnKey);
+        }
+      }
+      return columnKeys;
+    }
   }
 }
