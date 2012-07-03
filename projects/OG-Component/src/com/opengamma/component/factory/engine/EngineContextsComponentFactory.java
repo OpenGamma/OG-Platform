@@ -138,6 +138,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
     OpenGammaCompilationContext.setCurrencyMatrixSource(context, getCurrencyMatrixSource());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setExchangeSource(context, getExchangeSource());
+    OpenGammaCompilationContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     context.setComputationTargetResolver(getTargetResolver());

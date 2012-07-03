@@ -232,6 +232,22 @@ public class ExternalSchemes {
     }
     return ExternalId.of(BLOOMBERG_TICKER, ticker);
   }
+  
+  /**
+   * Creates a Synthetic ticker.
+   * <p>
+   * This is the ticker used mainly by OG-Examples
+   * 
+   * @param ticker  the OG-Synthetic ticker, not null
+   * @return the security identifier, not null
+   */
+  public static ExternalId syntheticSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "code");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return ExternalId.of(OG_SYNTHETIC_TICKER, ticker);
+  }
 
   /**
    * Creates a Bloomberg ticker coupon maturity identifier.

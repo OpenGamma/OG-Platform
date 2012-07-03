@@ -42,6 +42,13 @@ public final class EquityIndexOptionPresentValueCalculator extends AbstractEquit
   }
 
   @Override
+  public Double visit(final EquityDerivative derivative, final EquityOptionDataBundle data) {
+    Validate.notNull(derivative, "derivative");
+    Validate.notNull(data, "data");
+    return derivative.accept(this, data);
+  }
+
+  @Override
   public Double visit(EquityDerivative derivative) {
     if (derivative instanceof EquityIndexOption) {
       return visitEquityIndexOption((EquityIndexOption) derivative);

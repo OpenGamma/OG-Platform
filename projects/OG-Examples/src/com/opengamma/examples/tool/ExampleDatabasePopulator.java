@@ -45,11 +45,20 @@ import com.opengamma.util.time.Tenor;
 @Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
   
+  
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The name of the multi-currency swap portfolio.
    */
   public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
+  /**
+   * The name of Forward Swap Portfolio
+   */
+  public static final String FORWARD_SWAP_PORTFOLION_NAME = "Forward Swap Portfolio";
+  /**
+   * The name of Cap/Floor portfolio
+   */
+  public static final String CAP_FLOOR_PORTFOLIO_NAME = "Cap/Floor Portfolio";
 
   /**
    * The currencies.
@@ -81,7 +90,6 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadSimulatedHistoricalData();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
-    loadSwapPortfolio();
     loadMultiCurrencySwapPortfolio();
     loadForwardSwapPortfolio();
 //    loadSwaptionPortfolio();
@@ -191,17 +199,6 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
-  private void loadSwapPortfolio() {
-    final Log log = new Log("Creating example swap portfolio");
-    try {
-      final ExampleSwapPortfolioLoader swapLoader = new ExampleSwapPortfolioLoader();
-      swapLoader.run(getToolContext());
-      log.done();
-    } catch (RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
   private PortfolioGeneratorTool portfolioGeneratorTool() {
     final PortfolioGeneratorTool tool = new PortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
@@ -221,7 +218,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadForwardSwapPortfolio() {
     final Log log = new Log("Creating example forward swap portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), "Forward Swap Portfolio", "ForwardSwap", true, null);
+      portfolioGeneratorTool().run(getToolContext(), FORWARD_SWAP_PORTFOLION_NAME, "ForwardSwap", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -261,7 +258,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadCapFloorPortfolio() {
     final Log log = new Log("Creating example cap/floor portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), "Cap/Floor Portfolio", "CapFloor", true, null);
+      portfolioGeneratorTool().run(getToolContext(), CAP_FLOOR_PORTFOLIO_NAME, "CapFloor", true, null);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);

@@ -28,7 +28,8 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see YieldCurveNodePnLDefaults
  */
 @Deprecated
 public class YieldCurveNodeSensitivityPnLDefaultsDeprecated extends DefaultPropertyFunction {

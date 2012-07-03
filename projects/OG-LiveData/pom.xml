@@ -31,10 +31,12 @@
       <artifactId>og-security</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>

@@ -17,8 +17,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.core.Context;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -30,9 +28,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -45,26 +40,16 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
-import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
-import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 
@@ -126,7 +111,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     } else {
       sensitivities = CALCULATOR.calculateFromParRate(derivative, fixedCurves, curves, jacobian, NSC);
     }
-    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       final Currency domesticCurrency = Currency.of(curveCalculationConfig.getUniqueId().getUniqueId().getValue());
       final Currency foreignCurrency =
           Currency.of(curveCalculationConfigSource.getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next()).getUniqueId().getUniqueId().getValue());
@@ -176,7 +161,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+    if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curve));
     }
     requirements.add(getJacobianRequirement(currency, curveCalculationConfigName, curveCalculationMethod));

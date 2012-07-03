@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -30,6 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentDefaultPropertiesFunction.class);
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PAR_RATE,
@@ -96,7 +99,8 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
       final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
       final String configName = _currencyAndCurveConfigNames.get(currencyName);
       if (configName == null) {
-        throw new OpenGammaRuntimeException("Could not get config for currency " + currencyName + "; should never happen");
+        s_logger.error("Could not get config for currency " + currencyName + "; should never happen");
+        return null;
       }
       return Collections.singleton(configName);
     }

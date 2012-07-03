@@ -57,6 +57,6 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
   }
 
   private static String columnsJson(AnalyticsGridStructure gridStructure) {
-    return AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumns().getColumnGroups());
+    return AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumnGroups());
   }
 }

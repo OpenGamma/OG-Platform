@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
@@ -274,19 +274,19 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(final FXOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getFXPresentValue(ValueProperties
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
       .add(getFXCurrencyExposure(ValueProperties
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
       .add(getVegaMatrix(ValueProperties
         .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
@@ -368,15 +368,15 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
       .add(getFXPresentValue(ValueProperties
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
       .add(getFXCurrencyExposure(ValueProperties
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
-        .with(ForexOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_PUT_FORWARD_CURVE, getForwardCurve(security.getPutCurrency()))
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_CURVE, getFundingCurve())
+        .with(FXOptionBlackFunctionDeprecated.PROPERTY_CALL_FORWARD_CURVE, getForwardCurve(security.getCallCurrency()))))
       .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
       .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))

@@ -10,7 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.definition.*;
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionSingleBarrierDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
@@ -19,7 +23,13 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.financial.security.option.*;
+import com.opengamma.financial.security.option.BarrierDirection;
+import com.opengamma.financial.security.option.BarrierType;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.MonitoringType;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**

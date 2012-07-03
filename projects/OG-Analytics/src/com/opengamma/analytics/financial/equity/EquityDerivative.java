@@ -13,4 +13,9 @@ public interface EquityDerivative {
   <S, T> T accept(EquityDerivativeVisitor<S, T> visitor, S data);
 
   <T> T accept(EquityDerivativeVisitor<?, T> visitor);
+
+  /**
+   * @return
+   */
+  double getTimeToSettlement();
 }

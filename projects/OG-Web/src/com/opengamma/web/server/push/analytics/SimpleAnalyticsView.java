@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 
@@ -57,10 +58,26 @@ import com.opengamma.util.ArgumentChecker;
     _primitivesGrid.updateResults(fullResult, _history);
     List<String> dataIds = new ArrayList<String>();
     dataIds.addAll(_portfolioGrid.getViewportDataIds());
+    dataIds.addAll(_primitivesGrid.getViewportDataIds());
+    _listener.gridDataChanged(dataIds);
+  }
+
+  @Override
+  public void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle) {
+    _history.addResults(fullResult);
+    _portfolioGrid.updateResults(fullResult, _history, viewCycle);
+    _primitivesGrid.updateResults(fullResult, _history, viewCycle);
+    List<String> dataIds = new ArrayList<String>();
+    dataIds.addAll(_portfolioGrid.getViewportDataIds());
     dataIds.addAll(_portfolioGrid.getDependencyGraphViewportDataIds());
     dataIds.addAll(_primitivesGrid.getViewportDataIds());
     dataIds.addAll(_primitivesGrid.getDependencyGraphViewportDataIds());
     _listener.gridDataChanged(dataIds);
+  }
+
+  @Override
+  public boolean isViewCycleRequired() {
+    return _portfolioGrid.dependencyGraphVisible() || _primitivesGrid.dependencyGraphVisible();
   }
 
   private MainAnalyticsGrid getGrid(GridType gridType) {
@@ -77,7 +94,7 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public AnalyticsGridStructure getGridStructure(GridType gridType) {
     s_logger.debug("Getting grid structure for the {} grid", gridType);
-    return getGrid(gridType)._gridStructure;
+    return getGrid(gridType).getGridStructure();
   }
 
   @Override
@@ -90,6 +107,7 @@ import com.opengamma.util.ArgumentChecker;
   public void updateViewport(GridType gridType, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport {} for {} grid to {}", new Object[]{viewportId, gridType, viewportSpec});
     getGrid(gridType).updateViewport(viewportId, viewportSpec, _history);
+    // TODO fire event - might have to return the viewport dataId. or just return the updated data?
   }
 
   @Override
@@ -131,7 +149,8 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void updateViewport(GridType gridType, String graphId, String viewportId, ViewportSpecification viewportSpec) {
     s_logger.debug("Updating viewport for dependency graph {} of the {} grid using {}", new Object[]{graphId, gridType, viewportSpec});
-    getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec);
+    getGrid(gridType).updateViewport(graphId, viewportId, viewportSpec, _history);
+    // TODO fire event - might have to return the viewport dataId. or just return the updated data?
   }
 
   @Override

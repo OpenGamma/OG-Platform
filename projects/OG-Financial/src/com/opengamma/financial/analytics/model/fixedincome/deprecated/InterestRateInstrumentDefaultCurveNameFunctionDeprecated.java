@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -24,6 +25,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see InterestRateInstrumentDefaultPropertiesFunction
  */
 @Deprecated
 public class InterestRateInstrumentDefaultCurveNameFunctionDeprecated extends DefaultPropertyFunction {

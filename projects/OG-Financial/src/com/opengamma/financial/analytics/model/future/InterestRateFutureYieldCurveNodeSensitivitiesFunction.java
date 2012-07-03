@@ -54,7 +54,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunctionNew;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -135,7 +135,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     } else {
       sensitivities = CALCULATOR.calculateFromParRate(derivative, fixedCurves, curves, jacobian, NSC);
     }
-    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+    if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       final Currency domesticCurrency = Currency.of(curveCalculationConfig.getUniqueId().getUniqueId().getValue());
       final Currency foreignCurrency =
           Currency.of(curveCalculationConfigSource.getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next()).getUniqueId().getUniqueId().getValue());
@@ -199,7 +199,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunctionNew.FX_IMPLIED)) {
+    if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curve));
     }
     requirements.add(getJacobianRequirement(currency, curveCalculationConfigName, curveCalculationMethod));

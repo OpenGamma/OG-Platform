@@ -63,7 +63,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    /*if (_viewClient.isViewCycleAccessSupported()) {
+    if (_viewClient.isViewCycleAccessSupported()) {
       EngineResourceReference<? extends ViewCycle> cycleReference = null;
       try {
         cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
@@ -76,8 +76,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     } else {
       _view.updateResults(fullResult);
     }
-    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());*/
-    _view.updateResults(fullResult);
+    _viewClient.setViewCycleAccessSupported(_view.isViewCycleRequired());
   }
 
   /* package */ void start() {

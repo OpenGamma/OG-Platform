@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -17,7 +18,6 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -28,41 +28,45 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AnalyticsGridStructure {
 
+  private final int _columnCount;
+
+  private final List<AnalyticsColumnGroup> _columnGroups;
   private final AnalyticsNode _root;
-  private final AnalyticsColumns _columns;
+  // TODO this is only for the main grids
   private final List<Row> _rows;
   // TODO persistent row IDs that can be tracked when the structure changes (for dynamic reaggregation)
 
-  private AnalyticsGridStructure(AnalyticsNode root, AnalyticsColumns columns, List<Row> rows) {
+  private AnalyticsGridStructure(AnalyticsNode root, List<AnalyticsColumnGroup> columnGroups, List<Row> rows) {
     ArgumentChecker.notNull(root, "root");
-    ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(rows, "rows");
+    ArgumentChecker.notNull(columnGroups, "columnGroups");
     _root = root;
-    _columns = columns;
     _rows = rows;
+    int columnCount = 0;
+    for (AnalyticsColumnGroup group : columnGroups) {
+      columnCount += group.getColumnCount();
+    }
+    _columnCount = columnCount;
+    _columnGroups = ImmutableList.copyOf(columnGroups);
   }
 
   public static AnalyticsGridStructure empty() {
-    return new AnalyticsGridStructure(AnalyticsNode.emptyRoot(), AnalyticsColumns.empty(), Collections.<Row>emptyList());
+    return new AnalyticsGridStructure(AnalyticsNode.emptyRoot(),
+                                      Collections.<AnalyticsColumnGroup>emptyList(),
+                                      Collections.<Row>emptyList());
   }
 
-  public static AnalyticsGridStructure portoflio(CompiledViewDefinition compiledViewDef) {
-    return new AnalyticsGridStructure(AnalyticsNode.portoflioRoot(compiledViewDef),
-                                      AnalyticsColumns.portfolio(compiledViewDef),
-                                      portfolioRows(compiledViewDef));
+  public static AnalyticsGridStructure portoflio(CompiledViewDefinition compiledViewDef, List<AnalyticsColumnGroup> columnGroups) {
+    return new AnalyticsGridStructure(AnalyticsNode.portoflioRoot(compiledViewDef), columnGroups, portfolioRows(compiledViewDef));
   }
 
-  public static AnalyticsGridStructure primitives(CompiledViewDefinition compiledViewDef) {
+  public static AnalyticsGridStructure primitives(CompiledViewDefinition compiledViewDef, List<AnalyticsColumnGroup> columnGroups) {
     List<Row> rows = primitivesRows(compiledViewDef);
-    return new AnalyticsGridStructure(AnalyticsNode.primitivesRoot(rows.size()),
-                                      AnalyticsColumns.primitives(compiledViewDef),
-                                      rows);
+    return new AnalyticsGridStructure(AnalyticsNode.primitivesRoot(rows.size()), columnGroups, rows);
   }
 
   public static AnalyticsGridStructure depdencyGraph(CompiledViewDefinition compiledViewDef) {
-    return new AnalyticsGridStructure(AnalyticsNode.portoflioRoot(compiledViewDef),
-                                      AnalyticsColumns.dependencyGraph(/*compiledViewDef*/),
-                                      /*rowsForViewDefinition(compiledViewDef)*/null/* TODO what here? */);
+    throw new UnsupportedOperationException("not implemented");
   }
 
   private static List<Row> portfolioRows(CompiledViewDefinition viewDef) {
@@ -107,21 +111,26 @@ public class AnalyticsGridStructure {
     return _root;
   }
 
-  public AnalyticsColumns getColumns() {
-    return _columns;
-  }
-
   public Row getRowAtIndex(int rowIndex) {
     return _rows.get(rowIndex);
   }
 
-  public int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
-    return _columns.getColumnIndexForRequirement(calcConfigName, requirement);
+  public int getColumnCount() {
+    return _columnCount;
+  }
+
+  public List<AnalyticsColumnGroup> getColumnGroups() {
+    return _columnGroups;
   }
 
   @Override
   public String toString() {
-    return "AnalyticsGridStructure [_root=" + _root + ", _columns=" + _columns + ", _rows=" + _rows + "]";
+    return "AnalyticsGridStructure [" +
+        "_columnCount=" + _columnCount +
+        ", _columnGroups=" + _columnGroups +
+        ", _root=" + _root +
+        ", _rows=" + _rows +
+        "]";
   }
 
   public static class Row {

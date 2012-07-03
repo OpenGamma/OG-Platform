@@ -12,16 +12,23 @@ import java.util.Arrays;
  */
 public class SurfaceArrayUtils {
 
-  public static int getLowerBoundIndex(final double[] strikes, final double strike) {
-    final int n = strikes.length;
-    if (strike < strikes[0]) {
+  /**
+   * For an array of doubles in strictly acceding order find the index of the entry in the array that is largest value less than or equal to the lookUpValue. 
+   * If the lookUpValue is less than the first entry, zero is return, and if the lookUpValue is greater than the last entry, n-1 is returned. 
+   * @param array The array of strictly acceding doubles 
+   * @param lookUpValue lookup value
+   * @return index 
+   */
+  public static int getLowerBoundIndex(final double[] array, final double lookUpValue) {
+    final int n = array.length;
+    if (lookUpValue < array[0]) {
       return 0;
     }
-    if (strike > strikes[n - 1]) {
+    if (lookUpValue > array[n - 1]) {
       return n - 1;
     }
 
-    int index = Arrays.binarySearch(strikes, strike);
+    int index = Arrays.binarySearch(array, lookUpValue);
     if (index >= 0) {
       // Fast break out if it's an exact match.
       return index;

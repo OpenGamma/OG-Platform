@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.model.swaption.black;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -49,12 +47,11 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.forex.option.black.ForexOptionBlackFunctionNew;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -161,7 +158,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.addAll(getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     return requirements;
   }
@@ -170,7 +167,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currency).get();
@@ -178,46 +175,12 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionNew.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
     return properties;
 
-  }
-
-  protected static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    if (curveConfig.getExogenousConfigData() != null) {
-      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
-      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
-        final String exogenousConfigName = entry.getKey();
-        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable id = exogenousConfig.getUniqueId();
-        final String curveCalculationMethod = exogenousConfig.getCalculationMethod();
-        for (final String exogenousCurveName : entry.getValue()) {
-          requirements.add(getCurveRequirement(id, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
-        }
-        requirements.addAll(getCurveRequirements(exogenousConfig, configSource));
-      }
-    }
-    final String[] yieldCurveNames = curveConfig.getYieldCurveNames();
-    final String curveCalculationConfigName = curveConfig.getCalculationConfigName();
-    final String curveCalculationMethod = curveConfig.getCalculationMethod();
-    final UniqueIdentifiable uniqueId = curveConfig.getUniqueId();
-    for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
-    }
-    return requirements;
-  }
-
-  protected static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
-      final String curveCalculationMethod) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, yieldCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, id.getUniqueId(), properties);
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {

@@ -25,6 +25,8 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
@@ -42,14 +44,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.ForexOptionBlackFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -59,8 +63,15 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
 
+
   private final String _valueRequirementName;
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
+
+  // Get rid of this, refactor EquityIndexOptionFundingCurveSensitivitiesFunction
+  protected final EquityIndexOptionConverter getConverter() {
+    return _converter;
+  }
+
 
   public EquityIndexOptionFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
@@ -95,15 +106,14 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // a. The Vol Surface
 
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(security, volSurfaceName));
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
     final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
     //TODO no choice of other surfaces
     final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
-
-
 
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);
@@ -155,15 +165,15 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    */
   private ValueProperties getValueProperties(ComputationTarget target) {
     return createValueProperties()
-      .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+      .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
       .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
       .withAny(ValuePropertyNames.SURFACE)
       .get();
   }
 
-  private ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName) {
+  protected ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName) {
     return createValueProperties()
-      .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunctionDeprecated.BLACK_METHOD)
+      .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
       .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
       .with(ValuePropertyNames.SURFACE, volSurfaceName)
       .get();
@@ -185,7 +195,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       return null;
     }
     final String volSurfaceName = surfaceNames.iterator().next();
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName);
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(context);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName);
     // Get Funding Curve Requirement
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
@@ -200,25 +211,37 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return Sets.newHashSet(volReq, fundingReq, spotReq);
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final EquityIndexOptionSecurity security, final String surfaceName) {
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionExecutionContext context) {
+    return OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
+  }
+
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
+    HistoricalTimeSeriesSource tss =  OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
+    return tss;
+  }
+
+  protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final EquityIndexOptionSecurity security, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .get();
-    final ExternalId id = security.getUnderlyingId();
-//    final UniqueId newId = id.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ? UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), id.getValue()) :
-//      UniqueId.of(id.getScheme().getName(), id.getValue());
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"); // !!! FIXME THIS IS HARDCODED BECAUSE THE SECURITY HOLDS A BUID, WHILE THE SURFACE TARGET ID IS THE TICKER !!!
-
+    ExternalId underlyingBuid = security.getUnderlyingId();
+    String bbgTicker = "DJX Index";
+    if (tsSource != null)  {
+      HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+      ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+      bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+    }
+    UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
-  private ValueRequirement getSpotRequirement(final EquityIndexOptionSecurity security) {
+  protected ValueRequirement getSpotRequirement(final EquityIndexOptionSecurity security) {
     final ExternalId id = security.getUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(), id.getValue()));
   }
 
   // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
-  private ValueRequirement getDiscountCurveRequirement(final EquityIndexOptionSecurity security, final String fundingCurveName) {
+  protected ValueRequirement getDiscountCurveRequirement(final EquityIndexOptionSecurity security, final String fundingCurveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }

@@ -24,10 +24,20 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * 
  */
 public class ForexVisitors {
+  private static final FinancialSecurityVisitor<Currency> s_payCurrencyInstance = new PayCurrencyVisitor();
+  private static final FinancialSecurityVisitor<Currency> s_receiveCurrencyInstance = new ReceiveCurrencyVisitor();
   private static final FinancialSecurityVisitor<Currency> s_callCurrencyInstance = new CallCurrencyVisitor();
   private static final FinancialSecurityVisitor<Currency> s_putCurrencyInstance = new PutCurrencyVisitor();
   private static final FinancialSecurityVisitor<ValueRequirement> s_spotIdentifierInstance = new SpotIdentifierVisitor();
   private static final FinancialSecurityVisitor<ValueRequirement> s_inverseSpotIdentifierInstance = new InverseSpotIdentifierVisitor();
+
+  public static FinancialSecurityVisitor<Currency> getPayCurrencyVisitor() {
+    return s_payCurrencyInstance;
+  }
+
+  public static FinancialSecurityVisitor<Currency> getReceiveCurrencyVisitor() {
+    return s_receiveCurrencyInstance;
+  }
 
   public static FinancialSecurityVisitor<Currency> getCallCurrencyVisitor() {
     return s_callCurrencyInstance;
@@ -43,6 +53,32 @@ public class ForexVisitors {
 
   public static FinancialSecurityVisitor<ValueRequirement> getInverseSpotIdentifierVisitor() {
     return s_inverseSpotIdentifierInstance;
+  }
+
+  private static class PayCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
+
+    @Override
+    public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
+      return security.getPayCurrency();
+    }
+
+    @Override
+    public Currency visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+      return security.getPayCurrency();
+    }
+  }
+
+  private static class ReceiveCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
+
+    @Override
+    public Currency visitFXForwardSecurity(final FXForwardSecurity security) {
+      return security.getReceiveCurrency();
+    }
+
+    @Override
+    public Currency visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+      return security.getReceiveCurrency();
+    }
   }
 
   private static class CallCurrencyVisitor extends FinancialSecurityVisitorAdapter<Currency> {
