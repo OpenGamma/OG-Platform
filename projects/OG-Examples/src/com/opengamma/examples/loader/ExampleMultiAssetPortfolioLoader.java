@@ -88,6 +88,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ExternalId USDLIBOR3M = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
+  private static final LocalDate TODAY = LocalDate.now();
 
   public static void main(String[] args) { //CSIGNORE
     new ExampleMultiAssetPortfolioLoader().initAndRun(args);
@@ -304,9 +305,9 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   private List<FinancialSecurity> getIborSwaps() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final SwapSecurity swap1 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2040, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 40, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -324,11 +325,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     USDLIBOR3M, 
                                     FloatingRateType.IBOR));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap1.setName("Swap: pay 5% fixed vs 3m Libor, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
+    swap1.setName("Swap: pay 5% fixed vs 3m Libor, start=" + swap1.getEffectiveDate().toLocalDate() + ", maturity=" + swap1.getMaturityDate().toLocalDate() + ", notional=USD 15MM");
     final SwapSecurity swap2 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2005, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2005, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2030, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 30, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -346,11 +347,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap2.setName("Swap: pay 4% fixed vs 6m Euribor, start=1/5/2005, maturity=1/5/2030, notional=EUR 20MM");
+    swap2.setName("Swap: pay 4% fixed vs 6m Euribor, start=" + swap2.getEffectiveDate().toLocalDate() + ", maturity=" + swap2.getMaturityDate().toLocalDate() + ", notional=EUR 20MM");
     final SwapSecurity swap3 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2007, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2007, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2020, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 13, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -368,11 +369,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "GBPLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap3.setName("Swap: pay 3% fixed vs 6m Libor, start=1/5/2007, maturity=1/5/2020, notional=GBP 15MM");
+    swap3.setName("Swap: pay 3% fixed vs 6m Libor, start=" + swap3.getEffectiveDate().toLocalDate() + ", maturity=" + swap3.getMaturityDate().toLocalDate() + ", notional=GBP 15MM");
     final SwapSecurity swap4 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2003, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2003, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2028, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 25, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -390,11 +391,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "JPYLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap4.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap4.setName("Swap: pay 2% fixed vs 6m Libor, start=1/5/2003, maturity=1/5/2028, notional=JPY 100MM");
+    swap4.setName("Swap: pay 2% fixed vs 6m Libor, start=" + swap4.getEffectiveDate().toLocalDate() + ", maturity=" + swap4.getMaturityDate().toLocalDate() + ", notional=JPY 100MM");
     final SwapSecurity swap5 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2004, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2004, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2044, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 40, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -412,7 +413,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "CHFLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap5.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap5.setName("Swap: pay 7% fixed vs 6m Libor, start=1/5/2004, maturity=1/5/2044, notional=CHF 50MM");
+    swap5.setName("Swap: pay 7% fixed vs 6m Libor, start=" + swap5.getEffectiveDate().toLocalDate() + ", maturity=" + swap5.getMaturityDate().toLocalDate() + ", notional=CHF 50MM");
 //    final SwapSecurity swap6 = new SwapSecurity(
 //        ZonedDateTime.of(LocalDateTime.of(2010, 5, 1, 11, 0), TimeZone.UTC), 
 //        ZonedDateTime.of(LocalDateTime.of(2010, 5, 1, 11, 0), TimeZone.UTC), 
@@ -482,9 +483,9 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     swap8.setName("Swap: pay 5% fixed vs 6m Libor, start=1/5/2010, maturity=1/5/2030, notional=NZD 55MM");
     */
     final SwapSecurity swap9 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2010, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2010, 5, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2030, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 5, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 20, 5, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.SEMI_ANNUAL, 
@@ -502,7 +503,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "DKKLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap9.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap9.setName("Swap: pay 5% fixed vs 6m Cibor, start=1/5/2010, maturity=1/5/2030, notional=DKK 90MM");
+    swap9.setName("Swap: pay 5% fixed vs 6m Cibor, start=" + swap9.getEffectiveDate().toLocalDate() + ", maturity=" + swap9.getMaturityDate().toLocalDate() + ", notional=DKK 90MM");
     securities.add(swap1);
     securities.add(swap2);
     securities.add(swap3);
@@ -517,10 +518,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private Collection<FinancialSecurity> getCMSwaps() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    final int year = TODAY.getYear();
     final SwapSecurity swap1 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2011, 12, 20, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 12, 20, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2016, 12, 20, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 12, 20, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 12, 20, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 5, 12, 20, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FixedInterestRateLeg(DAY_COUNT, 
                                  SimpleFrequency.QUARTERLY, 
@@ -538,11 +540,11 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDISDA10P10Y"), 
                                     FloatingRateType.CMS));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap1.setName("CMSwap: pay 5Y fixed @ 3.5% vs USDISDA10P10Y, start=20/12/2011, maturity=20/12/2016, notional=USD 21MM");
+    swap1.setName("CMSwap: pay 5Y fixed @ 3.5% vs USDISDA10P10Y, start=" + swap1.getEffectiveDate().toLocalDate() + ", maturity=" + swap1.getMaturityDate().toLocalDate() + ", notional=USD 21MM");
     final SwapSecurity swap2 = new SwapSecurity(
-        ZonedDateTime.of(LocalDateTime.of(2011, 4, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 4, 1, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2018, 4, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 4, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 1, 4, 1, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 7, 4, 1, 11, 0), TimeZone.UTC), 
         "Cpty", 
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
@@ -561,7 +563,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                     USDLIBOR3M, 
                                     FloatingRateType.IBOR, 0.005));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap2.setName("CMSwap: pay USDISDA10P1Y vs 3m Libor, start=1/4/2011, maturity=1/4/2018, notional=USD 123MM");
+    swap2.setName("CMSwap: pay USDISDA10P1Y vs 3m Libor, start=" + swap2.getEffectiveDate().toLocalDate() + ", maturity=" + swap2.getMaturityDate().toLocalDate() + ", notional=USD 123MM");
     securities.add(swap1);
     securities.add(swap2);
     return securities;
@@ -569,8 +571,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private Collection<FinancialSecurity> getSwaptions() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
-    final int year = LocalDate.now().getYear();
-    
+    final int year = TODAY.getYear();
     final EuropeanExerciseType europeanExerciseType = new EuropeanExerciseType();
     final SwapSecurity swap1 = new SwapSecurity(
         ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC), 
@@ -592,7 +593,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
             false, 
             0.04));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap1.setName("Swap: pay 3m Libor vs 4% fixed, start=1/6/2012, maturity=1/6/2022, notional=USD 10MM");
+    swap1.setName("Swap: pay 3m Libor vs 4% fixed, start=" + swap1.getEffectiveDate().toLocalDate() + ", maturity=" + swap1.getMaturityDate().toLocalDate() + ", notional=USD 10MM");
     storeFinancialSecurity(swap1);
     final SwaptionSecurity swaption1 = new SwaptionSecurity(false, swap1.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
         true, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 1, 6, 1, 1, 0), TimeZone.UTC)), 
@@ -621,7 +622,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
             false, 
             0.01));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap2.setName("Swap: pay 3m Libor vs 1% fixed, start=1/6/2013, maturity=1/6/2015, notional=USD 3MM");
+    swap2.setName("Swap: pay 3m Libor vs 1% fixed, start=" + swap2.getEffectiveDate().toLocalDate() + ", maturity=" + swap2.getMaturityDate().toLocalDate() + ", notional=USD 3MM"); 
     storeFinancialSecurity(swap2);
     final SwaptionSecurity swaption2 = new SwaptionSecurity(false, swap2.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
         false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 2, 6, 1, 1, 0), TimeZone.UTC)), 
@@ -650,7 +651,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
             false, 
             0.035));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap3.setName("Swap: pay 3m Libor vs 3.5% fixed, start=1/6/2016, maturity=1/6/2031, notional=USD 6MM");
+    swap3.setName("Swap: pay 3m Libor vs 3.5% fixed, start=" + swap3.getEffectiveDate().toLocalDate() + ", maturity=" + swap3.getMaturityDate().toLocalDate() + ", notional=USD 6MM");
     storeFinancialSecurity(swap3);
     final SwaptionSecurity swaption3 = new SwaptionSecurity(false, swap3.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
         false, new Expiry(ZonedDateTime.of(LocalDateTime.of(year + 5, 6, 1, 1, 0), TimeZone.UTC)), 
@@ -663,17 +664,17 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private Collection<FinancialSecurity> getIborCapFloor() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
-    
-    final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+    int year = TODAY.getYear();
+    final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(year + 1, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 3, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
         USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
         DayCountFactory.INSTANCE.getDayCount("30U/360"), false, true, true);
     sec1.setName(getCapFloorName(sec1));
     sec1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     securities.add(sec1);
     
-    final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+    final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(year + 1, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(year + 3, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
         USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
         DayCountFactory.INSTANCE.getDayCount("30U/360"), false, false, true);
     sec2.setName(getCapFloorName(sec2));
@@ -703,7 +704,6 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
       "Interest Rate");
     irFuture.setName("90DAY EURO$ FUTR Jun13");
     irFuture.addExternalId(ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "EDZ13"));
-    irFuture.setName("90DAY EURO$ FUTR Jun13");
     securities.add(fra);
     securities.add(irFuture);
     return securities;
@@ -711,6 +711,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   private static Collection<FinancialSecurity> getSimpleFX() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    int year = LocalDate.now().getYear();
     final FXForwardSecurity fxForward1 = new FXForwardSecurity(Currency.USD, 1000000, Currency.EUR, 1000000,
                                                                ZonedDateTime.of(LocalDateTime.of(2013, 2, 1, 11, 0), TimeZone.UTC), 
                                                                ExternalSchemes.countryRegionId(Country.of("US")));
@@ -740,28 +741,28 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                                            Currency.EUR, 
                                                            1000000, 
                                                            1000000, 
-                                                           new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 1, 6, 11, 0), TimeZone.UTC)), 
-                                                           ZonedDateTime.of(LocalDateTime.of(2013, 1, 6, 11, 0), TimeZone.UTC), 
+                                                           new Expiry(ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 1, 6, 11, 0), TimeZone.UTC)), 
+                                                           ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 1, 6, 11, 0), TimeZone.UTC), 
                                                            true, 
                                                            new EuropeanExerciseType());
     vanilla1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    vanilla1.setName("FX vanilla option, put USD 1000000, receive EUR 1000000, maturity=1/6/2013");
+    vanilla1.setName("FX vanilla option, put USD 1000000, receive EUR 1000000, maturity=" + vanilla1.getSettlementDate().toLocalDate());
     final FXOptionSecurity vanilla2 = new FXOptionSecurity(Currency.EUR, 
                                                            Currency.USD, 
                                                            1500000, 
                                                            1000000, 
-                                                           new Expiry(ZonedDateTime.of(LocalDateTime.of(2014, 1, 6, 11, 0), TimeZone.UTC)), 
-                                                           ZonedDateTime.of(LocalDateTime.of(2014, 1, 6, 11, 0), TimeZone.UTC), 
+                                                           new Expiry(ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 2, 1, 6, 11, 0), TimeZone.UTC)), 
+                                                           ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 2, 1, 6, 11, 0), TimeZone.UTC), 
                                                            true, 
                                                            new EuropeanExerciseType());
     vanilla2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    vanilla2.setName("FX vanilla option, put EUR 1500000, receive USD 1000000, maturity=1/6/2014");
+    vanilla2.setName("FX vanilla option, put EUR 1500000, receive USD 1000000, maturity=" + vanilla2.getSettlementDate().toLocalDate());
     final FXBarrierOptionSecurity barrier1 = new FXBarrierOptionSecurity(Currency.USD, 
                                                                          Currency.EUR, 
                                                                          1000000, 
                                                                          1000000, 
-                                                                         new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 1, 6, 11, 0), TimeZone.UTC)), 
-                                                                         ZonedDateTime.of(LocalDateTime.of(2013, 1, 6, 11, 0), TimeZone.UTC), 
+                                                                         new Expiry(ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 1, 6, 11, 0), TimeZone.UTC)), 
+                                                                         ZonedDateTime.of(LocalDateTime.of(TODAY.getYear() + 1, 1, 6, 11, 0), TimeZone.UTC), 
                                                                          BarrierType.UP, 
                                                                          BarrierDirection.KNOCK_OUT, 
                                                                          MonitoringType.CONTINUOUS, 
@@ -769,7 +770,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
                                                                          1.5, 
                                                                          true);
     barrier1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    barrier1.setName("FX single barrier up knock-out option, put USD 1000000, receive EUR 1000000, maturity=1/6/2013, barrier=1.5 EUR/USD");
+    barrier1.setName("FX single barrier up knock-out option, put USD 1000000, receive EUR 1000000, maturity=" + barrier1.getSettlementDate().toLocalDate() + ", barrier=1.5 EUR/USD");
 //    final FXBarrierOptionSecurity barrier2 = new FXBarrierOptionSecurity(Currency.EUR, 
 //                                                                         Currency.USD, 
 //                                                                         1500000, 
