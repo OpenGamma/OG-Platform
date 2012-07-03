@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -43,7 +44,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public static InterpolatedDoublesCurve from(final Double[] xData, final Double[] yData, final Interpolator1D interpolator) {
     return new InterpolatedDoublesCurve(xData, yData, interpolator, false);
   }
-  
+
   /**
    * 
    * @param data A map of <i>x-y</i> data points, not null, contains at least 2 data points
@@ -118,7 +119,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public static InterpolatedDoublesCurve from(final Double[] xData, final Double[] yData, final Interpolator1D interpolator, final String name) {
     return new InterpolatedDoublesCurve(xData, yData, interpolator, false, name);
   }
-  
+
   /**
    * 
    * @param data A map of <i>x-y</i> data points, not null, contains at least 2 data points
@@ -174,7 +175,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public static InterpolatedDoublesCurve from(final List<DoublesPair> data, final Interpolator1D interpolator, final String name) {
     return new InterpolatedDoublesCurve(data, interpolator, false, name);
   }
-  
+
   /**
    * 
    * @param xData An array of <i>x</i> data points, assumed to be sorted ascending, not null, contains at least 2 data points
@@ -293,7 +294,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public static InterpolatedDoublesCurve fromSorted(final DoublesPair[] data, final Interpolator1D interpolator, final String name) {
     return new InterpolatedDoublesCurve(data, interpolator, true, name);
   }
-  
+
   /**
    * 
    * @param data A set of <i>x-y</i> pairs, assumed to be sorted ascending in <i>x</i>, not null, contains at least 2 data points
@@ -481,7 +482,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
-  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D interpolator, final boolean isSorted, 
+  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D interpolator, final boolean isSorted,
       final String name) {
     super(xData, yData, isSorted, name);
     init(interpolator);
@@ -510,6 +511,12 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public Double getYValue(final Double x) {
     Validate.notNull(x, "x");
     return _interpolator.interpolate(_dataBundle, x);
+  }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    Validate.notNull(x, "x");
+    return ArrayUtils.toObject(_interpolator.getNodeSensitivitiesForValue(_dataBundle, x));
   }
 
   public Interpolator1D getInterpolator() {

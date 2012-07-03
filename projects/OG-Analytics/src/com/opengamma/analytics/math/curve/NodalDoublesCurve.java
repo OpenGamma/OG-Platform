@@ -40,7 +40,6 @@ public class NodalDoublesCurve extends DoublesCurve {
     return new NodalDoublesCurve(xData, yData, false);
   }
 
-  
   /**
    * 
    * @param data A map of <i>x-y</i> data points, not null, contains at least 2 data points
@@ -49,7 +48,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   public static NodalDoublesCurve from(final Map<Double, Double> data) {
     return new NodalDoublesCurve(data, false);
   }
-  
+
   /**
    * 
    * @param data An array of <i>x-y</i> pairs, not null, contains at least 2 data points
@@ -86,6 +85,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   public static NodalDoublesCurve from(final List<DoublesPair> data) {
     return new NodalDoublesCurve(data, false);
   }
+
   /**
    * 
    * @param xData An array of <i>x</i> data points, not null, contains at least 2 data points
@@ -107,7 +107,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   public static NodalDoublesCurve from(final Double[] xData, final Double[] yData, final String name) {
     return new NodalDoublesCurve(xData, yData, false, name);
   }
-  
+
   /**
    * 
    * @param data A map of <i>x-y</i> data points, not null, contains at least 2 data points
@@ -158,7 +158,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   public static NodalDoublesCurve from(final List<DoublesPair> data, final String name) {
     return new NodalDoublesCurve(data, false, name);
   }
-  
+
   /**
    * 
    * @param xData An array of <i>x</i> data points, assumed to be sorted ascending, not null, contains at least 2 data points
@@ -266,7 +266,7 @@ public class NodalDoublesCurve extends DoublesCurve {
   public static NodalDoublesCurve fromSorted(final DoublesPair[] data, final String name) {
     return new NodalDoublesCurve(data, true, name);
   }
-  
+
   /**
    * 
    * @param data A set of <i>x-y</i> pairs, assumed to be sorted ascending in <i>x</i>, not null, contains at least 2 data points
@@ -450,4 +450,10 @@ public class NodalDoublesCurve extends DoublesCurve {
     }
     return getYDataAsPrimitive()[index];
   }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for NodalDoublesCurve");
+  }
+
 }

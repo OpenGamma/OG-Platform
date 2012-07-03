@@ -69,7 +69,7 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
    */
   @Override
   public Double[] getYData() {
-    return new Double[] {_y};
+    return new Double[] {_y };
   }
 
   /**
@@ -79,6 +79,11 @@ public class ConstantDoublesCurve extends Curve<Double, Double> {
   @Override
   public Double getYValue(final Double x) {
     return _y;
+  }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    return new Double[] {1.0d };
   }
 
   /**

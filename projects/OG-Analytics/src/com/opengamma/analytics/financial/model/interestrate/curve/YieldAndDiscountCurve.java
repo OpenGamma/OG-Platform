@@ -38,15 +38,15 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
 
   /**
    * Returns the interest rate (zero-coupon continuously-compounded) at a given time.
-   * @param t The time 
+   * @param time The time 
    * @return The interest rate for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    *           TODO: Review if the exception is the one required. Currently it is not implemented.
    */
   @Override
-  public double getInterestRate(final Double t) {
-    return -Math.log(getDiscountFactor(t)) / t;
+  public double getInterestRate(final Double time) {
+    return -Math.log(getDiscountFactor(time)) / time;
   }
 
   /**
@@ -72,14 +72,14 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
     return cont.toPeriodic(compoundingPeriodsPerYear).getRate();
   }
 
-  //  /**
-  //   * Gets the underlying curve. 
-  //   * TODO: do we want to return the underlying curve even if a priori we don't know what it contains as information?
-  //   * @return The curve.
-  //   */
-  //  public Curve<Double, Double> getCurve() {
-  //    return _curve;
-  //  }
+  /**
+   * Returns the sensitivity (derivative) of the interest rate at a given time with respect to the parameters defining the curve.
+   * @param time The time.
+   * @return The sensitivity.
+   */
+  public abstract double[] getInterestRateParameterSensitivity(final double time);
+
+  // TODO: should the number of parameters be available?
 
   /**
    * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount.
@@ -101,9 +101,5 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
     double defaultRange = 1.0E-3; // 1 day ~ 3E-3
     return new YieldAndDiscountAddZeroSpreadCurve(false, this, new YieldCurve(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
   }
-  //
-  //  public YieldAndDiscountCurve withMultipleShifts(final double[] xShifts, final double[] yShifts) {
-  //    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(_curve, xShifts, yShifts));
-  //  }
 
 }

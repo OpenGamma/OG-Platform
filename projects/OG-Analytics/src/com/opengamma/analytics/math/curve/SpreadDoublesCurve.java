@@ -149,6 +149,11 @@ public class SpreadDoublesCurve extends Curve<Double, Double> {
     return _f.evaluate(x);
   }
 
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
+  }
+
   /**
    * @return Not supported
    * @throws UnsupportedOperationException

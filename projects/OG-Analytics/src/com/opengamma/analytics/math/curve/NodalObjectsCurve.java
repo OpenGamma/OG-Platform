@@ -127,4 +127,9 @@ public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<
     return getYData()[index];
   }
 
+  @Override
+  public U[] getYValueParameterSensitivity(T x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for NodalObjectsCurve");
+  }
+
 }

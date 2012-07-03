@@ -69,6 +69,8 @@ public abstract class Curve<T extends Comparable<T>, U> {
    */
   public abstract U getYValue(T x);
 
+  public abstract U[] getYValueParameterSensitivity(T x);
+
   /**
    * converts a curve to a Function1D
    * @return The curve as a mapping f(x) -> y

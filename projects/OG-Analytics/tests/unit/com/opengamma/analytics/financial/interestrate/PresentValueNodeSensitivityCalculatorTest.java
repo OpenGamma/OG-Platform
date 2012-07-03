@@ -33,11 +33,11 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
 
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();
   private static PresentValueCurveSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
-  private static PresentValueNodeSensitivityCalculator CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+  private static PresentValueNodeSensitivityCalculator NODE_CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
 
   @Override
   protected NodeYieldSensitivityCalculator getCalculator() {
-    return CALCULATOR;
+    return NODE_CALCULATOR;
   }
 
   @Override
@@ -63,20 +63,20 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
   @Test
   public void testObject() {
     PresentValueNodeSensitivityCalculator other = new PresentValueNodeSensitivityCalculator();
-    assertEquals(CALCULATOR, other);
-    assertEquals(CALCULATOR.hashCode(), other.hashCode());
+    assertEquals(NODE_CALCULATOR, other);
+    assertEquals(NODE_CALCULATOR.hashCode(), other.hashCode());
     other = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    assertEquals(CALCULATOR, other);
-    assertEquals(CALCULATOR.hashCode(), other.hashCode());
+    assertEquals(NODE_CALCULATOR, other);
+    assertEquals(NODE_CALCULATOR.hashCode(), other.hashCode());
     other = new PresentValueNodeSensitivityCalculator(PresentValueCurveSensitivitySABRCalculator.getInstance());
-    assertFalse(other.equals(CALCULATOR));
+    assertFalse(other.equals(NODE_CALCULATOR));
   }
 
   @Test
   public void testPresentValue() {
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = PresentValueCalculator.getInstance();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> senseCalculator = PresentValueCurveSensitivityCalculator.getInstance();
-    final DoubleMatrix1D result = CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
+    final DoubleMatrix1D result = NODE_CALCULATOR.calculateSensitivities(SWAP, senseCalculator, null, CURVE_BUNDLE_YIELD);
     final DoubleMatrix1D fdresult = finiteDiffNodeSensitivitiesYield(SWAP, valueCalculator, null, CURVE_BUNDLE_YIELD);
     assertArrayEquals(result.getData(), fdresult.getData(), TOLERANCE_SENSI);
   }
@@ -97,15 +97,15 @@ public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCa
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves2();
     final SABRInterestRateParameters sabrParam = TestsDataSetsSABR.createSABR2();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParam, curves);
-    final DoubleMatrix1D resultCalculator = CALCULATOR.calculateSensitivities(swaption, pvcsc, null, sabrBundle);
+    final DoubleMatrix1D resultCalculator = NODE_CALCULATOR.calculateSensitivities(swaption, pvcsc, null, sabrBundle);
     final DoubleMatrix1D resultFiniteDifference = finiteDiffNodeSensitivitiesYield(swaption, pvc, null, sabrBundle);
     double notional = Math.abs(swaption.getUnderlyingSwap().getFirstLeg().getNthPayment(0).getNotional());
     assertArrayEquals("Present Value Node Sensitivity", resultFiniteDifference.getData(), resultCalculator.getData(), notional * TOLERANCE_SENSI);
 
     final SwaptionPhysicalFixedIborSABRMethod method = SwaptionPhysicalFixedIborSABRMethod.getInstance();
     final InterestRateCurveSensitivity pvcsMethod = method.presentValueCurveSensitivity(swaption, sabrBundle);
-    final DoubleMatrix1D resultMethod = CALCULATOR.curveToNodeSensitivities(pvcsMethod, sabrBundle);
-    final DoubleMatrix1D resultMethod2 = CALCULATOR.curveToNodeSensitivities(pvcsMethod, curves);
+    final DoubleMatrix1D resultMethod = NODE_CALCULATOR.curveToNodeSensitivities(pvcsMethod, sabrBundle);
+    final DoubleMatrix1D resultMethod2 = NODE_CALCULATOR.curveToNodeSensitivities(pvcsMethod, curves);
     assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod.getData(), notional * TOLERANCE_SENSI);
     assertArrayEquals("Present Value Node Sensitivity", resultCalculator.getData(), resultMethod2.getData(), notional * TOLERANCE_SENSI);
   }

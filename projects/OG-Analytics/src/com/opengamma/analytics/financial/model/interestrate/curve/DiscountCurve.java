@@ -34,6 +34,11 @@ public class DiscountCurve extends YieldAndDiscountCurve {
     return _curve.getYValue(t);
   }
 
+  @Override
+  public double[] getInterestRateParameterSensitivity(double time) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for DiscountCurve");
+  }
+
   /**
    * Gets the underlying curve. 
    * @return The curve.

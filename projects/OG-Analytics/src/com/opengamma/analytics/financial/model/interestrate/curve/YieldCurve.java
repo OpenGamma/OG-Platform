@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.curve.Curve;
@@ -31,6 +32,11 @@ public class YieldCurve extends YieldAndDiscountCurve {
   @Override
   public double getInterestRate(final Double t) {
     return getCurve().getYValue(t);
+  }
+
+  @Override
+  public double[] getInterestRateParameterSensitivity(double t) {
+    return ArrayUtils.toPrimitive(_curve.getYValueParameterSensitivity(t));
   }
 
   /**

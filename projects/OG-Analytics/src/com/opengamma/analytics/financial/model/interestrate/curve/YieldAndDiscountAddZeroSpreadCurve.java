@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.ArrayUtils;
+
 /**
  * YieldAndDiscountCurve created by adding the zero-coupon continuously compounded rate of other curves.
  */
@@ -32,6 +37,27 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
       rate += _sign * _curves[loopcurve].getInterestRate(t);
     }
     return rate;
+  }
+
+  @Override
+  public double[] getInterestRateParameterSensitivity(double time) {
+    final List<Double> result = new ArrayList<Double>();
+    double[] temp;
+    temp = _curves[0].getInterestRateParameterSensitivity(time);
+    for (int loops = 0; loops < temp.length; loops++) {
+      result.add(temp[loops]);
+    }
+    for (int loopcurve = 1; loopcurve < _curves.length; loopcurve++) {
+      temp = _curves[loopcurve].getInterestRateParameterSensitivity(time);
+      for (int loops = 0; loops < temp.length; loops++) {
+        result.add(temp[loops]);
+      }
+    }
+    return ArrayUtils.toPrimitive(result.toArray(new Double[0]));
+  }
+
+  public YieldAndDiscountCurve[] getCurves() {
+    return _curves;
   }
 
 }

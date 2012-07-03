@@ -82,6 +82,11 @@ public class FunctionalDoublesCurve extends Curve<Double, Double> {
     return _function.evaluate(x);
   }
 
+  @Override
+  public Double[] getYValueParameterSensitivity(Double x) {
+    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for FunctionalDoublesCurve");
+  }
+
   /**
    * @return Not supported
    * @throws UnsupportedOperationException

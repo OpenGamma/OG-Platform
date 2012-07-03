@@ -20,7 +20,6 @@ import java.util.TreeSet;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
-import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
@@ -357,6 +356,11 @@ public class DoublesCurveTestCase {
 
     @Override
     public Double getYValue(final Double x) {
+      return null;
+    }
+
+    @Override
+    public Double[] getYValueParameterSensitivity(Double x) {
       return null;
     }
 
