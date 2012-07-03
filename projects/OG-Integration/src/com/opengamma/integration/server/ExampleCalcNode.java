@@ -11,9 +11,9 @@ import com.opengamma.util.PlatformConfigUtils;
 /**
  * Starts a calculation node and joins a job dispatcher.
  */
-public final class DemoCalcNode {
+public final class ExampleCalcNode {
 
-  private DemoCalcNode() {
+  private ExampleCalcNode() {
   }
 
   /**
@@ -27,7 +27,7 @@ public final class DemoCalcNode {
     PlatformConfigUtils.configureSystemProperties();
     // Configuration URL (should get from command line)
     final String url = "http://" + System.getProperty("opengamma.viewprocessor.host", "localhost") + ":" + System.getProperty("opengamma.viewprocessor.port", "8080")
-        + "/demoCalcNode/configuration.xml";
+        + "/calcNode/example.xml";
     // And run
     CalculationNodeProcess.main(url);
   }
