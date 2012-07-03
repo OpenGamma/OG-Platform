@@ -77,6 +77,7 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
+import com.opengamma.financial.analytics.model.equity.EquityIndexOptionDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.EquityIndexOptionImpliedVolFunction;
@@ -754,9 +755,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionFundingCurveSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionVegaFunction.class));
-
-
-
+    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaultPropertiesFunction.class, "BBG", "FUNDING"));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {

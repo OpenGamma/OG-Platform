@@ -85,6 +85,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     _converter = new EquityIndexOptionConverter(holidaySource, conventionSource, regionSource);
   }
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
@@ -225,11 +226,14 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .get();
     ExternalId underlyingBuid = security.getUnderlyingId();
-    String bbgTicker = "DJX Index";
+    String bbgTicker;
     if (tsSource != null)  {
       HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
       ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
       bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+    } else {
+      s_logger.error("!!! getRequirements was unable to build ticker for Vol Surface as we couldn't get the HistoricalTimeSeriesSource. DEFAULTING TO DJX");
+      bbgTicker = "DJX Index";
     }
     UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
