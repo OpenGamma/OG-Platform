@@ -107,7 +107,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
   protected FudgeRestClient getClient() {
     return _client;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Externally visible for testing.
@@ -116,7 +116,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
     URI heartbeatUri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_HEARTBEAT);
     heartbeat(heartbeatUri);
   }
-  
+
   /**
    * Externally visible for testing.
    * 
@@ -128,25 +128,29 @@ public abstract class AbstractRestfulJmsResultConsumer {
       try {
         _client.accessFudge(heartbeatUri).post();
         return;
-      } catch (Exception e) {
-        s_logger.warn("Heartbeat attempt " + i + " of " + HEARTBEAT_RETRIES + " failed", e);
+      } catch (Exception ex) {
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Heartbeat attempt " + i + " of " + HEARTBEAT_RETRIES + " failed", ex);
+        } else {
+          s_logger.warn("Heartbeat attempt " + i + " of " + HEARTBEAT_RETRIES + " failed" + ex.toString());
+        }
         if (i == HEARTBEAT_RETRIES) {
-          heartbeatFailed(e);
+          heartbeatFailed(ex);
         }
       }
     }
   }
-  
+
   /**
    * Called when heartbeating has failed, indicating that the remote resource has been discarded or the connection to
    * the remote host has been lost. This is intended to be overridden to add custom error handling.
    * <p>
    * Externally visible for testing.
    * 
-   * @param e  an exception associated with the failed heartbeat, may be null
+   * @param ex  an exception associated with the failed heartbeat, may be null
    */
-  public void heartbeatFailed(Exception e) {
-    s_logger.error("Heartbeating failed for resource " + getBaseUri() + " failed", e);
+  public void heartbeatFailed(Exception ex) {
+    s_logger.error("Heartbeating failed for resource " + getBaseUri() + " failed", ex);
   }
 
   /**
@@ -157,7 +161,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
       _scheduledHeartbeat.cancel(true);
     }
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Increments the listener demand, starting the underlying subscription if this is the first listener.
