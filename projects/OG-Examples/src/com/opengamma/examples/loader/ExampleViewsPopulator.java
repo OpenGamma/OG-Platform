@@ -5,6 +5,9 @@
  */
 package com.opengamma.examples.loader;
 
+import static com.opengamma.examples.tool.ExampleDatabasePopulator.CAP_FLOOR_PORTFOLIO_NAME;
+import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,31 +64,37 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    createEquityViewDefinition();
-    createSwapViewDefinition();
-    createMultiCurrencySwapViewDefinition();
-    createMixedPortfolioViewDefinition();
-  }
-
-  private void createEquityViewDefinition() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
+    storeViewDefinition(getCapFloorPortfolio(CAP_FLOOR_PORTFOLIO_NAME));
+    storeViewDefinition(getMultiCurrencySwapViewDefinition(MULTI_CURRENCY_SWAP_PORTFOLIO_NAME));
+    storeViewDefinition(getMultiAssetPortfolioViewDefinition(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME));
+  }
+  
+  private ViewDefinition getCapFloorPortfolio(final String portfolioName) {
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    final ValueProperties secondaryCurveProp = ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get();
+    defaultCalc.addPortfolioRequirementName(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_CUBE,
+        ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, "SABRNoExtrapolation").with("CubeInstrumentType", "SWAPTION_CUBE").get());
+    viewDefinition.addViewCalculationConfiguration(defaultCalc);
+    return viewDefinition;
   }
 
-  private void createSwapViewDefinition() {
-    storeViewDefinition(getSwapViewDefinition(ExampleSwapPortfolioLoader.PORTFOLIO_NAME));
-  }
-
-  private void createMultiCurrencySwapViewDefinition() {
-    storeViewDefinition(getMultiCurrencySwapViewDefinition());
-  }
-
-  private void createMixedPortfolioViewDefinition() {
-    storeViewDefinition(getMultiAssetPortfolioViewDefinition());
-  }
-
-  private ViewDefinition getMultiAssetPortfolioViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+  private ViewDefinition getMultiAssetPortfolioViewDefinition(final String portfolioName) {
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -246,8 +255,8 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
     return viewDefinition;
   }
 
-  private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId("MultiCurrency Swap Portfolio");
+  private ViewDefinition getMultiCurrencySwapViewDefinition(final String swapPortfolioName) {
+    UniqueId portfolioId = getPortfolioId(swapPortfolioName);
     ViewDefinition viewDefinition = new ViewDefinition("MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
