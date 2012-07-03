@@ -6,6 +6,7 @@
 package com.opengamma.examples.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import javax.time.calendar.Period;
 
@@ -18,6 +19,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -31,13 +34,16 @@ public class SyntheticJPConventions {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final ExternalId jp = ExternalSchemes.financialRegionId("JP");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     
     //TODO looked at BSYM and the codes seem right but need to check
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP3M")), "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP6M")), "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP3M"), simpleNameSecurityId("JPY LIBOR 3m")), "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP6M"), simpleNameSecurityId("JPY LIBOR 6m")), "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYLIBORP12M")), "JPY LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, jp);
 
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP1D")),
@@ -66,5 +72,14 @@ public class SyntheticJPConventions {
         "JPYCASHP11M", act360, modified, Period.ofMonths(11), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("JPYCASHP12M")),
         "JPYCASHP12M", act360, modified, Period.ofMonths(12), 2, false, jp);
+    
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_SWAP")), "JPY_SWAP", act365, modified, semiAnnual, 2, jp, act360,
+        modified, semiAnnual, 2, simpleNameSecurityId("JPY LIBOR 6m"), jp, true);
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_3M_SWAP")), "JPY_3M_SWAP", act365, modified, semiAnnual, 2, jp,
+        act360, modified, quarterly, 2, simpleNameSecurityId("JPY LIBOR 3m"), jp, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("JPY_6M_SWAP")), "JPY_6M_SWAP", act365, modified, semiAnnual, 2, jp,
+        act360, modified, semiAnnual, 2, simpleNameSecurityId("JPY LIBOR 6m"), jp, true);
+
   }
 }

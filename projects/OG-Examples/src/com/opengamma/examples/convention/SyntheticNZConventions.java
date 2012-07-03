@@ -6,6 +6,7 @@
 package com.opengamma.examples.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import javax.time.calendar.Period;
 
@@ -18,6 +19,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -31,11 +34,13 @@ public class SyntheticNZConventions {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
+    final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final ExternalId nz = ExternalSchemes.financialRegionId("NZ");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP3M")), "NZD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, nz);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP3M"), simpleNameSecurityId("NZD LIBOR 3m")), "NZD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP6M")), "NZD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDLIBORP12M")), "NZD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, nz);
 
@@ -52,5 +57,10 @@ public class SyntheticNZConventions {
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP10M")), "NZDCASHP10M", act365, modified, Period.ofMonths(10), 2, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP11M")), "NZDCASHP11M", act365, modified, Period.ofMonths(1), 2, false, nz);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("NZDCASHP12M")), "NZDCASHP12M", act365, modified, Period.ofMonths(12), 2, false, nz);
+    
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 2, nz, act365,
+        modified, quarterly, 2, simpleNameSecurityId("NZD LIBOR 3m"), nz, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("NZD_3M_SWAP")), "NZD_3M_SWAP", act365, modified, semiAnnual, 2, nz,
+        act365, modified, quarterly, 2, simpleNameSecurityId("NZD LIBOR 3m"), nz, true);
   }
 }
