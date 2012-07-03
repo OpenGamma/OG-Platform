@@ -33,10 +33,9 @@ public class DependencyGraphGridStructure extends AnalyticsGridStructure {
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _gridValueSpecs;
 
-  DependencyGraphGridStructure(AnalyticsNode root,
-                               List<AnalyticsColumnGroup> columnGroups,
-                               List<ValueSpecification> gridValueSpecs) {
-    super(root, columnGroups);
+  // TODO gridValueSpecs should be a List<Row>
+  /* package */ DependencyGraphGridStructure(AnalyticsNode root, List<ValueSpecification> gridValueSpecs) {
+    super(root, COLUMN_GROUPS);
     _gridValueSpecs = gridValueSpecs;
   }
 
@@ -44,7 +43,8 @@ public class DependencyGraphGridStructure extends AnalyticsGridStructure {
     return _gridValueSpecs.get(rowIndex);
   }
 
-  /* package */ List<Object> createResultsForRow(SortedSet<Integer> cols, ValueSpecification valueSpec, Object value) {
+  /* package */ List<Object> createResultsForRow(int rowIndex, SortedSet<Integer> cols, Object value) {
+    ValueSpecification valueSpec = _gridValueSpecs.get(rowIndex);
     List<Object> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
       rowResults.add(getValueForColumn(colIndex, valueSpec, value));
@@ -122,5 +122,30 @@ public class DependencyGraphGridStructure extends AnalyticsGridStructure {
 
   private static AnalyticsColumn column(String header) {
     return new AnalyticsColumn(header, header);
+  }
+
+  /* package */ static class Row {
+
+    private final ValueSpecification _valueSpec;
+    private final String _targetName;
+    private final String _functionName;
+
+    Row(ValueSpecification valueSpec, String targetName, String functionName) {
+      _valueSpec = valueSpec;
+      _targetName = targetName;
+      _functionName = functionName;
+    }
+
+    public ValueSpecification getValueSpecification() {
+      return _valueSpec;
+    }
+
+    public String getTargetName() {
+      return _targetName;
+    }
+
+    public String getFunctionName() {
+      return _functionName;
+    }
   }
 }

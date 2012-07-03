@@ -87,7 +87,6 @@ public class MainGridResultsMapper {
       columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
     }
     // TODO what about unsatisfied columns?
-    // TODO fixed column group for the position name? what about the position column
     return new MainGridResultsMapper(columnGroups, indexMap, specsToReqs);
   }
 

@@ -25,14 +25,9 @@ public class DependencyGraphViewport extends AnalyticsViewport {
 
   private final String _calcConfigName;
   private final DependencyGraphGridStructure _gridStructure;
-  // TODO let's worry about where these will come from later
-  /** {@link ValueSpecification}s for all rows in the grid in row index order. */
-  //private final List<ValueSpecification> _gridValueSpecs = Collections.emptyList();
+
   /** {@link ValueSpecification}s for all rows visible in the viewport. */
   private List<ValueSpecification> _viewportValueSpecs = Collections.emptyList();
-  /** The column index in the dependency graph that contains the computed value. */
-  private static final Integer VALUE_COLUMN = 3;
-
 
   DependencyGraphViewport(ViewportSpecification viewportSpec,
                           String calcConfigName,
@@ -66,21 +61,16 @@ public class DependencyGraphViewport extends AnalyticsViewport {
   /* package */ void updateResults(ViewCycle cycle, AnalyticsHistory history) {
     ComputationCacheQuery query = new ComputationCacheQuery();
     Map<ValueSpecification, Object> resultsMap = Maps.newHashMap();
-    // there's no point querying the cache for the results if they're not visible
-    if (_viewportSpec.getColumns().contains(VALUE_COLUMN)) {
-      query.setCalculationConfigurationName(_calcConfigName);
-      query.setValueSpecifications(_viewportValueSpecs);
-      ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
-      List<Pair<ValueSpecification, Object>> results = cacheResponse.getResults();
-      for (Pair<ValueSpecification, Object> result : results) {
-        resultsMap.put(result.getFirst(), result.getSecond());
-      }
+    query.setCalculationConfigurationName(_calcConfigName);
+    query.setValueSpecifications(_viewportValueSpecs);
+    ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
+    List<Pair<ValueSpecification, Object>> results = cacheResponse.getResults();
+    for (Pair<ValueSpecification, Object> result : results) {
+      resultsMap.put(result.getFirst(), result.getSecond());
     }
     List<List<Object>> gridResults = Lists.newArrayList();
     for (Integer rowIndex : _viewportSpec.getRows()) {
-      ValueSpecification valueSpec = _gridStructure.getTargetForRow(rowIndex);
-      Object value = resultsMap.get(valueSpec);
-      gridResults.add(_gridStructure.createResultsForRow(_viewportSpec.getColumns(), valueSpec, value));
+      gridResults.add(_gridStructure.createResultsForRow(rowIndex, _viewportSpec.getColumns(), resultsMap));
     }
     _latestResults = new ViewportResults(gridResults);
   }

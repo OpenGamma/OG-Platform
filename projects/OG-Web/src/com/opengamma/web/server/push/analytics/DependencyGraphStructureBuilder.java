@@ -43,14 +43,13 @@ public class DependencyGraphStructureBuilder {
                         " Dependency graphs not supported");
       // TODO create empty() factory method
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
-                                                    DependencyGraphGridStructure.COLUMN_GROUPS,
                                                     Collections.<ValueSpecification>emptyList());
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, DependencyGraphGridStructure.COLUMN_GROUPS, _rowValueSpecs);
+      _structure = new DependencyGraphGridStructure(node, _rowValueSpecs);
     }
   }
 
