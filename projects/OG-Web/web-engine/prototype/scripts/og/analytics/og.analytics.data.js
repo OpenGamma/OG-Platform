@@ -8,7 +8,8 @@ $.register_module({
     obj: function () {
         var module = this, counter = 1;
         return function (config) {
-            var data = this, events = {init: [], data: []}, id = 'data_' + counter++, meta, viewport = null;
+            var data = this, events = {init: [], data: []}, id = 'data_' + counter++, meta,
+                viewport = null, root = 'rootNode';
             var fire = function (type) {
                 var args = Array.prototype.slice.call(arguments, 1);
                 events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
@@ -16,7 +17,7 @@ $.register_module({
             var data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.
                 var matrix = [], rows = data.meta.rows,
-                    row_start = viewport.rows[0] || 1, row_end = viewport.rows[1],
+                    row_start = viewport.rows[0] || 0, row_end = viewport.rows[1],
                     fixed_len = data.meta.columns.fixed
                         .reduce(function (acc, set) {return acc + set.columns.length;}, 0),
                     req_cols = viewport.cols.reduce(function (acc, val) {return (acc[val] = null), acc;}, {});
@@ -27,79 +28,37 @@ $.register_module({
                     return row;
                 }(fixed_len + data.meta.columns.scroll.reduce(function (acc, set) {
                     return acc + set.columns.length;
-                }, 0) - 1, [rows]));
+                }, 0) - 1, [rows + 1]));
                 fire('data', matrix.reverse());
                 setTimeout(data_handler, 1000);
             };
             var initialize = function () {
-                meta.rows = 10000;
-                meta.columns = {
-                    fixed: [
-                        {
-                            name: 'Portfolio View',
-                            columns: [
-                                {name: 'Fixed 1', width: 50},
-                                {name: 'Fixed 2', width: 150}
-                            ]
-                        }
-                    ],
-                    scroll: [
-                        {
-                            name: 'Set 1',
-                            columns: [
-                                {name: 'Column 3', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 4', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 5', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 6', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 7', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 8', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 9', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 10', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 11', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 12', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 13', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 14', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 15', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 16', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        },
-                        {
-                            name: 'Set 2',
-                            columns: [
-                                {name: 'Column 17', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 18', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 19', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 20', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 21', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 22', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 23', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 24', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 25', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 26', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 27', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 28', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 29', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        },
-                        {
-                            name: 'Set 3',
-                            columns: [
-                                {name: 'Column 30', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 31', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 32', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 33', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 34', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 35', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 36', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 37', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 38', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 39', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        }
-                    ]
-                };
-                fire('init', meta);
-                data_handler();
+                (config.view ? og.api.rest.views.portfolio.grid.get({id: config.view})
+                    : og.api.rest.views.put(config).pipe(function (result) {
+                        return og.api.rest.views.portfolio.grid.get({id: result.meta.id});
+                })).pipe(function (result) {
+                    var data = result.data;
+                    if (result.error) return og.dev.warn(result.message);
+                    meta.rows = data[root] ? data[root][1] + 1 : 10000;
+                    meta.columns = {
+                        fixed: [
+                            {
+                                name: 'Portfolio View',
+                                columns: data.columns[0].columns.map(function (col) {return (col.width = 100), col;})
+                            }
+                        ],
+                        scroll: data.columns.slice(1).map(function (set) {
+                            return {
+                                name: set.name,
+                                columns: set.columns.map(function (col) {
+                                    return (col.width = 225), col;
+                                })
+                            };
+                        })
+                    };
+                    fire('init', meta);
+                    data_handler();
+                });
             };
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};

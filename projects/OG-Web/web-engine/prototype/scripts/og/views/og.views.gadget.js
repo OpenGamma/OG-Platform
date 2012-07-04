@@ -13,7 +13,16 @@ $.register_module({
             root: function () {$content.html('No gadget was specified.');},
             grid: function (args) {
                 // TODO this is a global ... remove it!
-                grid = new og.analytics.Grid({selector: content});
+                grid = new og.analytics.Grid({
+                    selector: content,
+                    source: {
+                        type: 'portfolio',
+                        depgraph: false,
+                        viewdefinition: 'DbCfg~2195066~1729',
+                        live: true,
+                        provider: 'Live market data (Bloomberg, Activ)'
+                    }
+                });
             },
             gadgetscontainer: function (args) {
                 ['center'].forEach(function (val) {

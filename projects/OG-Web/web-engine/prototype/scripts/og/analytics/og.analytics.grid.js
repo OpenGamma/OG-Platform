@@ -52,7 +52,7 @@ $.register_module({
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
-            (grid.dataman = new og.analytics.Data).on('init', init_grid, grid, config);
+            (grid.dataman = new og.analytics.Data(config.source)).on('init', init_grid, grid, config);
         };
         var init_grid = function (grid, config, metadata) {
             var $ = grid.$, columns = metadata.columns;
@@ -60,12 +60,10 @@ $.register_module({
             grid.meta = metadata;
             grid.meta.row_height = row_height;
             grid.meta.header_height = header_height;
-            grid.meta.fixed_length = grid.meta.columns.fixed.reduce(function (acc, set) {
-                return acc + set.columns.length;
-            }, 0);
-            grid.meta.scroll_length = grid.meta.columns.fixed.reduce(function (acc, set) {
-                return acc + set.columns.length;
-            }, 0);
+            grid.meta.fixed_length = grid.meta.columns.fixed
+                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            grid.meta.scroll_length = grid.meta.columns.fixed
+                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             grid.on = function (type, handler) {
                 if (type in grid.events)
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
@@ -104,7 +102,7 @@ $.register_module({
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar_size : 0,
                     sets: sets.map(function (set, idx) {
                         var columns = set.columns.map(function (col) {
-                            return {index: (col_offset || 0) + index++, name: col.name, width: col.width};
+                            return {index: (col_offset || 0) + index++, name: col.header, width: col.width};
                         });
                         return {
                             name: set.name,
