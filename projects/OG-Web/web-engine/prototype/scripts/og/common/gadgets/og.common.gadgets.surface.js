@@ -32,9 +32,9 @@ $.register_module({
                     42.45738031081145, 38.85913433449903, 25.094146490034564, 13.520447631949908, 16.35244060217202, 12.543160233896385, 13.151659641249115, 14.867596343136109, 16.627712492400654, 18.843342975875473, 18.76513063298974, 18.863971441873908, 19.356227076517516, 19.67335504409258, 19.673973024969282, 19.713974690152785, 19.846710760859818, 20.321422820973726, 22.40608988405136, 25.010207673279478
                 ],
                 xs: ['0.1', '0.25', '0.5', '0.75', '1', '1.5', '2', '2.5', '3', '4', '5', '6', '7', '8', '9', '10', '12', '15', '20', '30'],
-                xs_labels: ['0.1', '0.25', '0.5', '0.75', '1', '1.5', '2', '2.5', '3', '4', '5', '6', '7', '8', '9', '10', '12', '15', '20', '30'],
+                xs_label: 'Term',
                 zs: ['0.55', '0.6', '0.65', '0.7', '0.75', '0.8', '0.85', '0.9', '0.95', '1', '1.05', '1.1', '1.15', '1.2', '1.25', '1.3', '1.35', '1.4', '1.45', '1.5'],
-                zs_labels: ['0.55', '0.6', '0.65', '0.7', '0.75', '0.8', '0.85', '0.9', '0.95', '1', '1.05', '1.1', '1.15', '1.2', '1.25', '1.3', '1.35', '1.4', '1.45', '1.5']
+                zs_label: 'Strike'
             },
             2: {
                 vol: [
@@ -46,8 +46,10 @@ $.register_module({
                     0.1651, 0.26, 0.2337, 0.21, 1.797
                 ],
                 xs: ['0.083', '0.25', '0.5', '1', '2'],
+                xs_label: 'X Axis',
                 xs_labels: ['1M', '3M', '6M', '1Y', '2Y'],
                 zs: ['2', '3', '4', '5', '7', '10'],
+                zs_label: 'Z Axis',
                 zs_labels: ['2Y', '3Y', '4Y', '5Y', '7Y', '10Y']
             }
         };
@@ -86,12 +88,14 @@ $.register_module({
             return result;
         };
         return function (config) {
-            /* Temp map fake data to config */
+            /* Temp: map fake data to config */
             config.vol = tmp_data[config.id].vol;
             config.xs = tmp_data[config.id].xs;
             config.xs_labels = tmp_data[config.id].xs_labels;
+            config.xs_label = tmp_data[config.id].xs_label;
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
+            config.zs_label = tmp_data[config.id].zs_label;
             var surface = this, selector = config.selector, $selector = $(selector), group,
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, /* surface segments */
                 renderer, camera, scene, backlight, keylight, filllight,
@@ -131,12 +135,6 @@ $.register_module({
                 };
                 return create_mesh(text);
             };
-            /**
-             * @param {String} axis Axis (x or z)
-             * @param nth
-             * @param spacing
-             * @param values
-             */
             surface.alive = function () {return true};
             surface.animate = function () {
                 var mousedown = false, sx = 0, sy = 0;
@@ -155,19 +153,35 @@ $.register_module({
                     });
                 return surface;
             };
-            surface.create_axis = function (axis, spacing, values) {
-                var mesh = new THREE.Object3D(), i, nth = Math.ceil(spacing.length / 6),
-                    val_arr = util.thin(values, nth), pos_arr = util.thin(spacing, nth);
+            /**
+             * Creates an Axis with labels for the bottom grid
+             * @param {Object} config
+             * config.axis {String} x or z
+             * config.spacing {Array} Array of numbers adjusted to fit units of mesh
+             * config.labels {Array} Array of lables
+             * config.label {String} Axis label
+             */
+            surface.create_axis = function (config) {
+                var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6), scale = '0.1',
+                    lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth);
                 (function () { // axis values
                     var value;
-                    for (i = 0; i < val_arr.length; i++) {
-                        value = new Text(val_arr[i]);
-                        value.scale.set(0.1, 0.1, 0.1);
+                    for (i = 0; i < lbl_arr.length; i++) {
+                        value = new Text(lbl_arr[i]);
+                        value.scale.set(scale, scale, scale);
                         value.position.x = pos_arr[i];
                         value.position.y = 1;
                         value.position.z = 58;
                         mesh.add(value);
                     }
+                }());
+                (function () { // axis label
+                    var label = new Text(config.label);
+                    label.scale.set(scale, scale, scale);
+                    label.position.x = -47;
+                    label.position.y = 1;
+                    label.position.z = 63;
+                    mesh.add(label);
                 }());
                 (function () { // axis ticks
                     var canvas = document.createElement('canvas'),
@@ -176,7 +190,7 @@ $.register_module({
                         texture = new THREE.Texture(canvas),
                         material = new THREE.MeshBasicMaterial({map: texture, transparent: true}),
                         axis = new THREE.Mesh(plane, material),
-                        labels = util.thin(spacing.map(function (val) {return (val + 50) * 5}), nth);
+                        labels = util.thin(config.spacing.map(function (val) {return (val + 50) * 5}), nth);
                     canvas.width = 500;
                     canvas.height = 50;
                     ctx.beginPath();
@@ -193,7 +207,7 @@ $.register_module({
                     axis.position.z = 55;
                     mesh.add(axis);
                 }());
-                if (axis === 'z') mesh.rotation.y = -1.57;
+                if (config.axis === 'z') mesh.rotation.y = -1.57;
                 return mesh;
             };
             surface.create_bottom_grid = function () {
@@ -256,8 +270,12 @@ $.register_module({
                 group = new THREE.Object3D();
                 group.add(surface.create_surface());
                 group.add(surface.create_bottom_grid());
-                if (webgl) group.add(surface.create_axis('x', adjusted_xs, config.xs));
-                if (webgl) group.add(surface.create_axis('z', adjusted_zs, config.zs));
+                if (webgl) group.add(surface.create_axis({
+                    axis: 'x', spacing: adjusted_xs, labels: config.xs_labels || config.xs, label: config.xs_label
+                }));
+                if (webgl) group.add(surface.create_axis({
+                    axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label
+                }));
                 group.rotation.y = 0.7;
                 scene = new THREE.Scene();
                 scene.add(group);
