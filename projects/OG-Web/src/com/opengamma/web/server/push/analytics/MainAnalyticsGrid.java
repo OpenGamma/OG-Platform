@@ -47,12 +47,12 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
-    MainGridStructure gridStructure = MainGridStructure.portoflio(compiledViewDef);
+    MainGridStructure gridStructure = new PortfolioGridStructure(compiledViewDef);
     return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId);
   }
 
   /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef, String gridId) {
-    MainGridStructure gridStructure = MainGridStructure.primitives(compiledViewDef);
+    MainGridStructure gridStructure = new PrimitivesGridStructure(compiledViewDef);
     return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId);
   }
 
@@ -109,7 +109,7 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  /* package */ AnalyticsGridStructure getGridStructure(String graphId) {
+  /* package */ DependencyGraphGridStructure getGridStructure(String graphId) {
     return getDependencyGraph(graphId).getGridStructure();
   }
 
@@ -151,7 +151,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public AnalyticsGridStructure getGridStructure() {
+  public Object getGridStructure() {
     return _gridStructure;
   }
 

@@ -78,7 +78,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public AnalyticsGridStructure getGridStructure(GridType gridType) {
+  public Object getGridStructure(GridType gridType) {
     s_logger.debug("Getting grid structure for the {} grid", gridType);
     return getGrid(gridType).getGridStructure();
   }
@@ -125,7 +125,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public AnalyticsGridStructure getGridStructure(GridType gridType, String graphId) {
+  public Object getGridStructure(GridType gridType, String graphId) {
     s_logger.debug("Getting grid structure for dependency graph {} of the {} grid", graphId, gridType);
     return getGrid(gridType).getGridStructure(graphId);
   }

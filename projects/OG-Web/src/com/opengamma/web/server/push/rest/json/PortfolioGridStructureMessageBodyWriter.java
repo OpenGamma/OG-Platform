@@ -18,23 +18,23 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
-import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
+import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
 
 /**
- * Writes an instance of {@link AnalyticsGridStructure} to JSON.
+ * Writes an instance of {@link PortfolioGridStructure} to JSON.
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWriter<AnalyticsGridStructure> {
+public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWriter<PortfolioGridStructure> {
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return AnalyticsGridStructure.class.isAssignableFrom(type);
+    return type.equals(PortfolioGridStructure.class);
   }
 
   @Override
-  public long getSize(AnalyticsGridStructure analyticsGridStructure,
+  public long getSize(PortfolioGridStructure gridStructure,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
@@ -44,7 +44,7 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
   }
 
   @Override
-  public void writeTo(AnalyticsGridStructure gridStructure,
+  public void writeTo(PortfolioGridStructure gridStructure,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
@@ -56,7 +56,7 @@ public class AnalyticsGridStructureMessageBodyWriter implements MessageBodyWrite
         "\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 
-  private static String columnsJson(AnalyticsGridStructure gridStructure) {
+  private static String columnsJson(PortfolioGridStructure gridStructure) {
     return AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumnGroups());
   }
 }

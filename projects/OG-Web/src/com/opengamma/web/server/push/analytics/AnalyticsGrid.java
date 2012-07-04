@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
     _gridId = gridId;
   }
 
-  public abstract AnalyticsGridStructure getGridStructure();
+  public abstract Object getGridStructure();
 
   protected V getViewport(String viewportId) {
     V viewport = _viewports.get(viewportId);

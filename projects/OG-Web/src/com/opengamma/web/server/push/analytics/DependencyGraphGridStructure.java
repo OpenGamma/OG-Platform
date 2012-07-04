@@ -19,9 +19,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class DependencyGraphGridStructure extends AnalyticsGridStructure {
+public class DependencyGraphGridStructure implements GridBounds {
 
-  // TODO maybe this should move to DependencyGraphViewport, need to consult the columns to build the results
+  private final AnalyticsNode _root;
+
   public static final List<AnalyticsColumnGroup> COLUMN_GROUPS = ImmutableList.of(
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
           column("Target"),
@@ -30,12 +31,13 @@ public class DependencyGraphGridStructure extends AnalyticsGridStructure {
           column("Value"),
           column("Function"),
           column("Properties"))));
+
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _gridValueSpecs;
 
   // TODO gridValueSpecs should be a List<Row>
   /* package */ DependencyGraphGridStructure(AnalyticsNode root, List<ValueSpecification> gridValueSpecs) {
-    super(root, COLUMN_GROUPS);
+    _root = root;
     _gridValueSpecs = gridValueSpecs;
   }
 
@@ -122,6 +124,20 @@ public class DependencyGraphGridStructure extends AnalyticsGridStructure {
 
   private static AnalyticsColumn column(String header) {
     return new AnalyticsColumn(header, header);
+  }
+
+  @Override
+  public int getRowCount() {
+    return _gridValueSpecs.size();
+  }
+
+  @Override
+  public int getColumnCount() {
+    return COLUMN_GROUPS.size();
+  }
+
+  public AnalyticsNode getRoot() {
+    return _root;
   }
 
   /* package */ static class Row {

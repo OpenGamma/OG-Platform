@@ -25,7 +25,7 @@ public interface AnalyticsView {
 
 // -------- main grid --------
 
-  AnalyticsGridStructure getGridStructure(GridType gridType);
+  Object getGridStructure(GridType gridType);
 
   void createViewport(GridType gridType, String viewportId, String dataId, ViewportSpecification viewportSpec);
 
@@ -48,7 +48,7 @@ public interface AnalyticsView {
 
   void closeDependencyGraph(GridType gridType, String graphId);
 
-  AnalyticsGridStructure getGridStructure(GridType gridType, String graphId);
+  Object getGridStructure(GridType gridType, String graphId);
 
   void createViewport(GridType gridType, String graphId, String viewportId, String dataId, ViewportSpecification viewportSpec);
 

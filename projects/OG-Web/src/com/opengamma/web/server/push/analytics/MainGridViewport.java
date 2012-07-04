@@ -79,10 +79,12 @@ public class MainGridViewport extends AnalyticsViewport {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(results, "results");
     ArgumentChecker.notNull(history, "history");
+/*
     if (!viewportSpec.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
                                              viewportSpec + ", grid: " + _gridStructure);
     }
+*/
     _viewportSpec = viewportSpec;
     updateResults(results, history);
     // TODO fire an update here so the client knows to get some updated results?

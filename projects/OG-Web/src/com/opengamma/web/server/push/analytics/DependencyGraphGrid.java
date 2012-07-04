@@ -5,9 +5,6 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -52,7 +49,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   }
 
   @Override
-  public AnalyticsGridStructure getGridStructure() {
+  public DependencyGraphGridStructure getGridStructure() {
     return _gridStructure;
   }
 

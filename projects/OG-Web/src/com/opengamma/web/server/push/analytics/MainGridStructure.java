@@ -36,50 +36,24 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 /**
  * TODO different subclasses for portfolio and primitives? portfolio has a tree, primitives is flat
  */
-public class MainGridStructure extends AnalyticsGridStructure {
+/* package */ abstract class MainGridStructure implements GridBounds {
 
   private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
 
   private final List<Row> _rows;
+  private final AnalyticsColumnGroups _columnGroups;
   private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
 
-  MainGridStructure(AnalyticsNode root,
-                    List<AnalyticsColumnGroup> columnGroups,
-                    List<Row> rows,
-                    Map<RequirementBasedColumnKey, Integer> indexByRequirement,
-                    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs) {
-    super(root, columnGroups);
-    _rows = rows;
-    _indexByRequirement = indexByRequirement;
-    _specsToReqs = specsToReqs;
+  private MainGridStructure() {
+    _columnGroups = AnalyticsColumnGroups.empty();
+    _rows = Collections.emptyList();
+    _indexByRequirement = Collections.emptyMap();
+    _specsToReqs = Collections.emptyMap();
   }
 
-  public static MainGridStructure portoflio(CompiledViewDefinition compiledViewDef) {
-    List<Row> rows = portfolioRows(compiledViewDef);
-    AnalyticsNode root = AnalyticsNode.portoflioRoot(compiledViewDef);
-    return create(compiledViewDef, new PortfolioColumnBuilder(), root, rows);
-  }
-
-  public static MainGridStructure primitives(CompiledViewDefinition compiledViewDef) {
-    List<Row> rows = primitivesRows(compiledViewDef);
-    AnalyticsNode root = AnalyticsNode.primitivesRoot(rows.size());
-    return create(compiledViewDef, new PrimitivesColumnBuilder(), root, rows);
-  }
-
-  public static MainGridStructure empty() {
-    return new MainGridStructure(AnalyticsNode.emptyRoot(),
-                                 Collections.<AnalyticsColumnGroup>emptyList(),
-                                 Collections.<Row>emptyList(),
-                                 Collections.<RequirementBasedColumnKey, Integer>emptyMap(),
-                                 Collections.<String, Map<ValueSpecification, Set<ValueRequirement>>>emptyMap());
-  }
-
-  private static MainGridStructure create(CompiledViewDefinition compiledViewDef,
-                                          ColumnBuilder columnBuilder,
-                                          AnalyticsNode root,
-                                          List<Row> rows) {
+  /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     // map of column index keyed by column key
     Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
@@ -95,7 +69,8 @@ public class MainGridStructure extends AnalyticsGridStructure {
       specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
 
-      List<RequirementBasedColumnKey> columnKeys = columnBuilder.buildColumns(calcConfig);
+      List<RequirementBasedColumnKey> columnKeys = buildColumns(calcConfig);
+      //List<RequirementBasedColumnKey> columnKeys = columnBuilder.buildColumns(calcConfig);
       for (RequirementBasedColumnKey columnKey : columnKeys) {
         if (!indexMap.containsKey(columnKey)) {
           indexMap.put(columnKey, colIndex);
@@ -105,48 +80,15 @@ public class MainGridStructure extends AnalyticsGridStructure {
       }
       columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
     }
-    return new MainGridStructure(root, columnGroups, rows, indexMap, specsToReqs);
+    _columnGroups = new AnalyticsColumnGroups(columnGroups);
+    _rows = rows;
+    _indexByRequirement = indexMap;
+    _specsToReqs = specsToReqs;
   }
 
-  private static List<Row> portfolioRows(CompiledViewDefinition viewDef) {
-    PortfolioMapperFunction<Row> targetFn = new PortfolioMapperFunction<Row>() {
-      @Override
-      public Row apply(PortfolioNode node) {
-        ComputationTargetSpecification target =
-            new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, node.getUniqueId());
-        return new Row(target, node.getName());
-      }
+  abstract List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
 
-      @Override
-      public Row apply(Position position) {
-        ComputationTargetSpecification target =
-            new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
-        // TODO will the security be resolved?
-        return new Row(target, position.getSecurity().getName());
-      }
-    };
-    return PortfolioMapper.map(viewDef.getPortfolio().getRootNode(), targetFn);
-  }
-
-  private static List<Row> primitivesRows(CompiledViewDefinition compiledViewDef) {
-    Set<ComputationTargetSpecification> specs = new LinkedHashSet<ComputationTargetSpecification>();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
-      for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
-        ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-        if (targetSpec.getType() == ComputationTargetType.PRIMITIVE) {
-          specs.add(targetSpec);
-        }
-      }
-    }
-    // TODO is the row name right?
-    List<Row> rows = Lists.newArrayList();
-    for (ComputationTargetSpecification spec : specs) {
-      rows.add(new Row(spec, spec.getIdentifier().toString()));
-    }
-    return rows;
-  }
-
-  public Row getRowAtIndex(int rowIndex) {
+  /* package */ Row getRowAtIndex(int rowIndex) {
     return _rows.get(rowIndex);
   }
 
@@ -180,7 +122,30 @@ public class MainGridStructure extends AnalyticsGridStructure {
     throw new UnsupportedOperationException();
   }
 
-  public static class Row {
+  public List<AnalyticsColumnGroup> getColumnGroups() {
+    return _columnGroups.getGroups();
+  }
+
+  @Override
+  public int getRowCount() {
+    return _rows.size();
+  }
+
+  @Override
+  public int getColumnCount() {
+    return _columnGroups.getColumnCount();
+  }
+
+  public static MainGridStructure empty() {
+    return new MainGridStructure() {
+      @Override
+      List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
+        return Collections.emptyList();
+      }
+    };
+  }
+
+  /* package */ static class Row {
 
     private final ComputationTargetSpecification _target;
     private final String _name;
@@ -192,54 +157,17 @@ public class MainGridStructure extends AnalyticsGridStructure {
       _name = name;
     }
 
-    public ComputationTargetSpecification getTarget() {
+    /* package */ ComputationTargetSpecification getTarget() {
       return _target;
     }
 
-    public String getName() {
+    /* package */ String getName() {
       return _name;
     }
 
     @Override
     public String toString() {
       return "Row [_target=" + _target + ", _name='" + _name + '\'' + "]";
-    }
-  }
-
-  private interface ColumnBuilder {
-
-    List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
-  }
-
-  private static class PortfolioColumnBuilder implements ColumnBuilder {
-
-    @Override
-    public List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-      List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
-      for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
-        String valueName = portfolioOutput.getFirst();
-        ValueProperties constraints = portfolioOutput.getSecond();
-        RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
-        columnKeys.add(columnKey);
-      }
-      return columnKeys;
-    }
-  }
-
-  private static class PrimitivesColumnBuilder implements ColumnBuilder {
-
-    @Override
-    public List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-      List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
-      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
-        if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-          String valueName = specificRequirement.getValueName();
-          ValueProperties constraints = specificRequirement.getConstraints();
-          RequirementBasedColumnKey columnKey = new RequirementBasedColumnKey(calcConfig.getName(), valueName, constraints);
-          columnKeys.add(columnKey);
-        }
-      }
-      return columnKeys;
     }
   }
 }

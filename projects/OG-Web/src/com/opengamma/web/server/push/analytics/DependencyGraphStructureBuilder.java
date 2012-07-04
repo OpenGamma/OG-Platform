@@ -42,8 +42,7 @@ public class DependencyGraphStructureBuilder {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       // TODO create empty() factory method
-      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
-                                                    Collections.<ValueSpecification>emptyList());
+      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(), Collections.<ValueSpecification>emptyList());
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
