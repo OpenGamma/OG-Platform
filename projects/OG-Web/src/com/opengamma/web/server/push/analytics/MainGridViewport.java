@@ -24,20 +24,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MainGridViewport extends AnalyticsViewport {
 
-  // TODO should the mapper just be merged into this class? or the grid?
-  private final MainGridResultsMapper _resultsMapper;
   private final MainGridStructure _gridStructure;
 
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
-                   MainGridResultsMapper resultsMapper,
                    String dataId,
                    ViewComputationResultModel latestResults,
                    AnalyticsHistory history) {
     super(dataId);
+    ArgumentChecker.notNull(gridStructure, "gridStructure");
     _gridStructure = gridStructure;
-    ArgumentChecker.notNull(resultsMapper, "resultsMapper");
-    _resultsMapper = resultsMapper;
     update(viewportSpec, latestResults, history);
   }
 
@@ -54,9 +50,9 @@ public class MainGridViewport extends AnalyticsViewport {
           for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
             ValueSpecification valueSpec = value.getSpecification();
             Set<ValueRequirement> valueReqs =
-                _resultsMapper.getRequirementsForSpecification(calcConfigName, valueSpec);
+                _gridStructure.getRequirementsForSpecification(calcConfigName, valueSpec);
             for (ValueRequirement req : valueReqs) {
-              int colIndex = _resultsMapper.getColumnIndexForRequirement(calcConfigName, req);
+              int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
               if (_viewportSpec.getColumns().contains(colIndex)) {
                 rowResultsMap.put(colIndex, value.getValue());
               }

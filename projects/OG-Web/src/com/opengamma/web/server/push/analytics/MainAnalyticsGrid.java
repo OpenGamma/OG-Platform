@@ -26,42 +26,34 @@ import com.opengamma.util.tuple.Pair;
 
   private final AnalyticsView.GridType _gridType;
   private final Map<String, DependencyGraphGrid> _depGraphs = new HashMap<String, DependencyGraphGrid>();
-  private final MainGridResultsMapper _resultsMapper;
+  private final MainGridStructure _gridStructure;
 
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
   private AnalyticsHistory _history = new AnalyticsHistory();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
-  private final MainGridStructure _gridStructure;
 
 
-  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                  MainGridResultsMapper resultsMapper,
-                                  MainGridStructure gridStructure,
-                                  String gridId) {
+  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType, MainGridStructure gridStructure, String gridId) {
     super(gridId);
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(resultsMapper, "resultsMapper");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     _gridType = gridType;
-    _resultsMapper = resultsMapper;
     _gridStructure = gridStructure;
   }
 
   // TODO does this actually need the grid type parameter? could hard code it as one or other and it probably wouldn't matter
   /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType, String gridId) {
-    return new MainAnalyticsGrid(gridType, MainGridResultsMapper.empty(), MainGridStructure.empty(), gridId);
+    return new MainAnalyticsGrid(gridType, MainGridStructure.empty(), gridId);
   }
 
   /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
-    MainGridResultsMapper resultsMapper = MainGridResultsMapper.portfolio(compiledViewDef);
-    MainGridStructure gridStructure = MainGridStructure.portoflio(compiledViewDef, resultsMapper.getColumnGroups());
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, resultsMapper,  gridStructure, gridId);
+    MainGridStructure gridStructure = MainGridStructure.portoflio(compiledViewDef);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId);
   }
 
   /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef, String gridId) {
-    MainGridResultsMapper resultsMapper = MainGridResultsMapper.primitives(compiledViewDef);
-    MainGridStructure gridStructure = MainGridStructure.primitives(compiledViewDef, resultsMapper.getColumnGroups());
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, resultsMapper, gridStructure, gridId);
+    MainGridStructure gridStructure = MainGridStructure.primitives(compiledViewDef);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId);
   }
 
   // -------- dependency graph grids --------
@@ -83,7 +75,7 @@ import com.opengamma.util.tuple.Pair;
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    Pair<ValueSpecification, String> targetForCell = _resultsMapper.getTargetForCell(row, col);
+    Pair<ValueSpecification, String> targetForCell = _gridStructure.getTargetForCell(row, col);
     ValueSpecification valueSpec = targetForCell.getFirst();
     String calcConfigName = targetForCell.getSecond();
     DependencyGraphGrid grid =
@@ -165,6 +157,6 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
-    return new MainGridViewport(viewportSpecification, _gridStructure, _resultsMapper, dataId, _latestResults, _history);
+    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _history);
   }
 }
