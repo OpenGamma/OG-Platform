@@ -23,6 +23,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
   private static final double FORWARD = 0.04;
   private static final double EXPIARY = 2.5;
   private static final double[][] LEFT_STRIKES = {
+      {0.0057, 0.0061 },
       {0.02, 0.025 },
       {0.02, 0.021 },
       {0.015, 0.035 } };
@@ -31,6 +32,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
       {0.045, 0.09 },
       {0.055, 0.065 } };
   private static final double[][] LEFT_VOLS = {
+      {0.7366, 0.7277 },
       {0.35, 0.3 },
       {0.4, 0.41 },
       {0.31, 0.15 } };
@@ -38,7 +40,7 @@ public class ShiftedLogNormalTailExtrapolationTest {
       {0.35, 0.348 },
       {0.4, 0.42 },
       {0.31, 0.37 } };
-  private static final double[] LEFT_DD = {0.1, 0.2, 0.1 };
+  private static final double[] LEFT_DD = {0.1, 0.1, 0.2, 0.1 };
   private static final double[] RIGHT_DD = {-0.4, -0.4, -0.3 };
   private static final double[] LEFT_DV_DK;
   private static final double[] RIGHT_DV_DK;

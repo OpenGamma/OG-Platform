@@ -126,7 +126,7 @@ public class EquityVarianceSwapStaticReplication {
 
   private double integrate(Function1D<Double, Double> func) {
     final double put = INTEGRATOR.integrate(func, 0.0, 1.0);
-    final double call = INTEGRATOR.integrate(func, 1.0, 30.0); //TODO set upper limit from tolerance 
+    final double call = INTEGRATOR.integrate(func, 1.0, 50.0); //TODO set upper limit from tolerance 
     return put + call;
   }
 

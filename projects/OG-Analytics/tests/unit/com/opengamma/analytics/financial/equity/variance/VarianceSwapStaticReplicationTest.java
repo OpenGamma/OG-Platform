@@ -8,6 +8,9 @@ package com.opengamma.analytics.financial.equity.variance;
 import static com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
@@ -33,9 +36,6 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-
-import org.apache.commons.lang.Validate;
-import org.testng.annotations.Test;
 
 /**
  * 
@@ -79,15 +79,15 @@ public class VarianceSwapStaticReplicationTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
-  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0};
+  private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0 };
 
   //private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9 };
 
-  private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1};
+  private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1 };
 
-  private static final double[] STRIKES = new double[] {20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120};
+  private static final double[] STRIKES = new double[] {20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120, 20, 40, 80, 100, 120 };
 
-  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.25, 0.27, 0.26, 0.24, 0.23, 0.25, 0.27, 0.26, 0.25, 0.26, 0.27};
+  private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28, 0.28, 0.25, 0.25, 0.25, 0.25, 0.25, 0.27, 0.26, 0.24, 0.23, 0.25, 0.27, 0.26, 0.25, 0.26, 0.27 };
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D_STRIKE = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
@@ -240,7 +240,7 @@ public class VarianceSwapStaticReplicationTest {
     final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, compVar, TEST_TOL);
-    assertEquals(expected, compVarLimits, 2e-3); //TODO The shifted log normal does not perform that well here
+    assertEquals(expected, compVarLimits, 2e-4); //The substitution of shifted log-normal below the cutoff introduced some error 
 
     //test a forward start
     final double compVar2 = PRICER.impliedVariance(swap5x10, marketStrike);
@@ -257,8 +257,8 @@ public class VarianceSwapStaticReplicationTest {
     final double fwd = FORWARD_CURVE.getForward(t);
 
     final int n = 3;
-    final double[] sigma = new double[] {0.2, 0.5, 2.0};
-    final double[] w = new double[] {0.8, 0.15, 0.05};
+    final double[] sigma = new double[] {0.2, 0.5, 2.0 };
+    final double[] w = new double[] {0.8, 0.15, 0.05 };
     final double[] f = new double[n];
     f[0] = 1.05 * fwd;
     f[1] = 0.9 * fwd;
@@ -298,27 +298,6 @@ public class VarianceSwapStaticReplicationTest {
 
     assertEquals(expected, compVar, 5e-7);
   }
-
-  //  @Test
-  //  public void testHestonVolSurface() {
-  //
-  //    double kappa = 0.0;
-  //    double var0 = 0.3;
-  //    double theta = 0.3;
-  //    double lambda = 0.5;
-  //    double eps = 1e-5;
-  //
-  //    IntegratedCIRTimeChangeCharacteristicExponent cf = new IntegratedCIRTimeChangeCharacteristicExponent(kappa, theta / var0, lambda / Math.sqrt(var0));
-  //    Function1D<ComplexNumber, ComplexNumber> func = cf.getFunction(1.0);
-  //    ComplexNumber v1 = func.evaluate(new ComplexNumber(eps));
-  //    ComplexNumber v2 = func.evaluate(new ComplexNumber(-eps));
-  //
-  //    ComplexNumber res = ComplexMathUtils.subtract(v1, v2);
-  //    System.out.println(res.toString());
-  //
-  //    double div = var0 * res.getImaginary() / 2 / eps;
-  //    System.out.println(div);
-  //  }
 
   // impliedVolatility Tests ------------------------------------------
 

@@ -5,10 +5,15 @@
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.ShiftedLogNormalTailExtrapolation;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.ShiftedLogNormalTailExtrapolationFitter;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
@@ -19,16 +24,12 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.Integrator1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
-import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -219,23 +220,35 @@ public class VarianceSwapStaticReplication {
       return 0.0; //i.e. the tail function is never used
     }
     // The typical case - fit a  ShiftedLognormal to the two strike-vol pairs
-    final ShiftedLognormalVolModel leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, ks[0], vols[0], ks[1], vols[1]);
-
-    // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
-    // What we do is to find the strike, k_min, at which f(k) = p(k)/k^2 begins to blow up, by finding the minimum of this function, k_min
-    // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
+    ShiftedLogNormalTailExtrapolationFitter fitter = new ShiftedLogNormalTailExtrapolationFitter();
+    final double[] sln = fitter.fitTwoVolatilities(fwd, ks, vols, expiry);
     final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
-        return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
+        if (strike == 0) {
+          return 0.0;
+        }
+        double price = ShiftedLogNormalTailExtrapolation.price(fwd, strike, expiry, false, sln[0], sln[1]);
+        return price / (strike * strike);
       }
     };
-    final double kMin = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, ks[0]);
-    final double fMin = shiftedLnIntegrand.evaluate(kMin);
-    double res = fMin * kMin; //the (hopefully) very small rectangular bit between zero and kMin
 
-    res += _integrator.integrate(shiftedLnIntegrand, kMin, ks[0]);
+    //    final DisplacedDiffusionModel leftExtrapolator = new DisplacedDiffusionModel(fwd, expiry, ks[0], vols[0], ks[1], vols[1]);
+    //
+    //    // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
+    //    // What we do is to find the strike, k_min, at which f(k) = p(k)/k^2 begins to blow up, by finding the minimum of this function, k_min
+    //    // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
+    //    final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
+    //      @Override
+    //      public Double evaluate(final Double strike) {
+    //        return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
+    //      }
+    //    };
+    //    final double kMin = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, ks[0]);
+    //    final double fMin = shiftedLnIntegrand.evaluate(kMin);
+    //    double res = fMin * kMin; //the (hopefully) very small rectangular bit between zero and kMin
 
+    double res = _integrator.integrate(shiftedLnIntegrand, 0.0, ks[0]);
     return res;
   }
 

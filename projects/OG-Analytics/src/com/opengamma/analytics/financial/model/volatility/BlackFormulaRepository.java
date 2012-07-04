@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
@@ -13,8 +15,6 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.lang.annotation.ExternalFunction;
 import com.opengamma.util.ArgumentChecker;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
@@ -195,6 +195,26 @@ public abstract class BlackFormulaRepository {
     final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
 
     return NORMAL.getPDF(d2) / strike / sigmaRootT;
+  }
+
+  /**
+   * The driftless cross gamma - the sensitity of the delta to the strike $\frac{\partial^2 V}{\partial f \partial K}$
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The dual gamma
+   */
+  @ExternalFunction
+  public static double crossGamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (strike == 0) {
+      return 0.0;
+    }
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+
+    return -NORMAL.getPDF(d2) / forward / sigmaRootT;
   }
 
   /**

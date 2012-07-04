@@ -74,8 +74,8 @@ public class ShiftedLogNormalTailExtrapolation {
       return volGuess;
     }
 
-    // return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, volGuess);
     return BlackFormulaRepository.impliedVolatility(p, forward, strike, timeToExpiry, isCall);
+
   }
 
   /**
