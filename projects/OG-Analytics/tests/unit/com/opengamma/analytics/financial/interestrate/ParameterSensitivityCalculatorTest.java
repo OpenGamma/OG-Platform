@@ -40,11 +40,11 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.time.DateUtils;
 
-public abstract class ParameterSensitivityCalculator1Test {
+public abstract class ParameterSensitivityCalculatorTest {
 
   protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
   protected static final YieldAndDiscountCurve DISCOUNTING_CURVE_YIELD;
@@ -73,23 +73,23 @@ public abstract class ParameterSensitivityCalculator1Test {
   protected static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
-    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
-    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0 };
+    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0};
+    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0};
 
-    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03 };
-    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032 };
+    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03};
+    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032};
 
-    DISCOUNTING_CURVE_YIELD = new YieldCurve(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
-    FORWARD_CURVE_YIELD = new YieldCurve(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
+    DISCOUNTING_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
+    FORWARD_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
     LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_YIELD);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_CURVE_YIELD);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY);
 
     double spread = 0.01;
-    YieldAndDiscountCurve spreadCurve = new YieldCurve(new ConstantDoublesCurve(spread));
-    DISCOUNTING_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve(false, DISCOUNTING_CURVE_YIELD, spreadCurve);
-    FORWARD_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve(false, FORWARD_CURVE_YIELD, spreadCurve);
+    YieldAndDiscountCurve spreadCurve = YieldCurve.from(new ConstantDoublesCurve(spread));
+    DISCOUNTING_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Dsc+Spread", false, DISCOUNTING_CURVE_YIELD, spreadCurve);
+    FORWARD_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Fwd+Spread", false, FORWARD_CURVE_YIELD, spreadCurve);
     LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
@@ -141,10 +141,8 @@ public abstract class ParameterSensitivityCalculator1Test {
     assertArrayEquals("Sensitivity to rates: YieldCurve", fdResult.getData(), result.getData(), TOLERANCE_SENSI);
   }
 
-  // TODO: make this a method generally available?
   protected DoubleMatrix1D finiteDiffNodeSensitivitiesYield(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-      final YieldCurveBundle fixedCurves,
-      final YieldCurveBundle interpolatedCurves) {
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
 
     int nNodes = 0;
     for (final String curveName : interpolatedCurves.getAllNames()) {
@@ -172,7 +170,7 @@ public abstract class ParameterSensitivityCalculator1Test {
           final int numberOfNodes = dataBundle.size();
           final double[] yields1 = Arrays.copyOfRange(x.getData(), index2, index2 + numberOfNodes);
           index2 += numberOfNodes;
-          final YieldAndDiscountCurve newCurve = new YieldCurve(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
+          final YieldAndDiscountCurve newCurve = YieldCurve.from(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
           curves.replaceCurve(name, newCurve);
         }
         if (fixedCurves != null) {
@@ -190,8 +188,7 @@ public abstract class ParameterSensitivityCalculator1Test {
   }
 
   protected DoubleMatrix1D finiteDiffNodeSensitivitiesSpread(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-        final YieldCurveBundle fixedCurves,
-        final YieldCurveBundle spreadCurves) {
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle spreadCurves) {
     int nNodes = 0;
     for (final String curveName : spreadCurves.getAllNames()) {
       YieldCurve yieldCurve = (YieldCurve) ((YieldAndDiscountAddZeroSpreadCurve) spreadCurves.getCurve(curveName)).getCurves()[0];
@@ -222,9 +219,9 @@ public abstract class ParameterSensitivityCalculator1Test {
           final double[] yields1 = Arrays.copyOfRange(x.getData(), index2, index2 + numberOfNodes);
           final double spread1 = x.getData()[index2 + numberOfNodes];
           index2 += numberOfNodes + 1;
-          final YieldCurve newYieldCurve = new YieldCurve(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) yieldCurve.getCurve()).getInterpolator()));
-          final YieldCurve newSpreadCurve = new YieldCurve(new ConstantDoublesCurve(spread1));
-          final YieldAndDiscountCurve newCurve = new YieldAndDiscountAddZeroSpreadCurve(false, newYieldCurve, newSpreadCurve);
+          final YieldCurve newYieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) yieldCurve.getCurve()).getInterpolator()));
+          final YieldCurve newSpreadCurve = YieldCurve.from(new ConstantDoublesCurve(spread1));
+          final YieldAndDiscountCurve newCurve = new YieldAndDiscountAddZeroSpreadCurve("NewYield+Spread", false, newYieldCurve, newSpreadCurve);
           curves.replaceCurve(name, newCurve);
         }
         if (fixedCurves != null) {

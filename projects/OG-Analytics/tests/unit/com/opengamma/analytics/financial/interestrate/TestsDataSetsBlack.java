@@ -95,9 +95,9 @@ public class TestsDataSetsBlack {
     InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward6MCurveName);
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(discountingCurvename, new YieldCurve(dscC));
-    curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));
-    curves.setCurve(forward6MCurveName, new YieldCurve(fwd6C));
+    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
+    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
+    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
   }
 
@@ -119,9 +119,9 @@ public class TestsDataSetsBlack {
     InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, forward6MCurveName);
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(discountingCurvename, new YieldCurve(dscC));
-    curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));
-    curves.setCurve(forward6MCurveName, new YieldCurve(fwd6C));
+    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
+    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
+    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
   }
 

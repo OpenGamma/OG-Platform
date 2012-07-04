@@ -277,8 +277,8 @@ public class TestsDataSetsSABR {
   public static YieldCurveBundle createCurves1() {
     final String FUNDING_CURVE_NAME = "Funding";
     final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
+    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(FUNDING_CURVE_NAME, CURVE_5);
     curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
@@ -306,9 +306,9 @@ public class TestsDataSetsSABR {
     InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd6");
     final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(discountingCurvename, new YieldCurve(dscC));
-    curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));
-    curves.setCurve(forward6MCurveName, new YieldCurve(fwd6C));
+    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
+    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
+    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
   }
 
@@ -328,9 +328,9 @@ public class TestsDataSetsSABR {
     final String CREDIT_CURVE_NAME = "Credit";
     final String DISCOUNTING_CURVE_NAME = "Repo";
     final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
-    final YieldAndDiscountCurve CURVE_45 = new YieldCurve(ConstantDoublesCurve.from(0.045));
+    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
+    final YieldAndDiscountCurve CURVE_45 = YieldCurve.from(ConstantDoublesCurve.from(0.045));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
     curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);
@@ -347,9 +347,9 @@ public class TestsDataSetsSABR {
     final String CREDIT_CURVE_NAME = "Credit";
     final String DISCOUNTING_CURVE_NAME = "Repo";
     final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_6 = new YieldCurve(ConstantDoublesCurve.from(0.06));
-    final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_55 = new YieldCurve(ConstantDoublesCurve.from(0.0550));
+    final YieldAndDiscountCurve CURVE_6 = YieldCurve.from(ConstantDoublesCurve.from(0.06));
+    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_55 = YieldCurve.from(ConstantDoublesCurve.from(0.0550));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(CREDIT_CURVE_NAME, CURVE_6);
     curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_5);
@@ -364,8 +364,8 @@ public class TestsDataSetsSABR {
   public static YieldCurveBundle createCurvesBond3() {
     final String DISCOUNTING_CURVE_NAME = "EUR Discounting";
     final String CREDIT_CURVE_NAME = "EUR Credit";
-    final YieldAndDiscountCurve CURVE_5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = new YieldCurve(ConstantDoublesCurve.from(0.04));
+    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
     curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);

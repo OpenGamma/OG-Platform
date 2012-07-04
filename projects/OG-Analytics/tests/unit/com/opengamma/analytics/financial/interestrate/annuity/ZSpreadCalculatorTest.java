@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.annuity.ZSpreadCalculator;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -39,7 +38,7 @@ public class ZSpreadCalculatorTest {
   static {
     final int n = 5;
     final CouponFixed[] rateAtYield = new CouponFixed[n];
-    CURVES = new YieldCurveBundle(new String[] {CURVE_NAME}, new YieldCurve[] {new YieldCurve(ConstantDoublesCurve.from(YIELD))});
+    CURVES = new YieldCurveBundle(new String[] {CURVE_NAME}, new YieldCurve[] {YieldCurve.from(ConstantDoublesCurve.from(YIELD))});
     for (int i = 0; i < n; i++) {
       rateAtYield[i] = new CouponFixed(CUR, 0.5 * (i + 1), CURVE_NAME, 0.5, YIELD);
     }

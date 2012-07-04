@@ -39,7 +39,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final BlackScholesMertonImpliedVolatilitySurfaceModel MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.01)), 0.1, new VolatilitySurface(ConstantDoublesSurface.from(0.01)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.01)), 0.1, new VolatilitySurface(ConstantDoublesSurface.from(0.01)),
       100.,
       DateUtils.getUTCDate(2010, 1, 1));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
@@ -74,7 +74,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       sigma += 0.03;
       spot = 2 * RANDOM.nextDouble() + 10;
       strike = 2 * RANDOM.nextDouble() + 10;
-      curve = new YieldCurve(ConstantDoublesCurve.from(RANDOM.nextDouble() / 10));
+      curve = YieldCurve.from(ConstantDoublesCurve.from(RANDOM.nextDouble() / 10));
       b = 0;//RANDOM.nextDouble() / 20;
       isCall = RANDOM.nextDouble() < 0.5 ? true : false;
       definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);

@@ -105,7 +105,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    */
   public void presentValueExternal() {
     G2ppPiecewiseConstantParameters parametersCst = G2ppTestsDataSet.createG2ppCstParameters();
-    final YieldAndDiscountCurve curve5 = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve curve5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(FUNDING_CURVE_NAME, curve5);
     curves.setCurve(FORWARD_CURVE_NAME, curve5);

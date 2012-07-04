@@ -433,7 +433,7 @@ public class ForexOptionDigitalBlackMethodTest {
     //Foreign
     yields[0] = curveForeign.getInterestRate(nodeTimes[0]);
     yields[1] = curveForeign.getInterestRate(nodeTimes[1]);
-    curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
+    curveNode = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
     curveBumpedPlus = curveNode.withSingleShift(nodeTimes[1], deltaShift);
     curveBumpedMinus = curveNode.withSingleShift(nodeTimes[1], -deltaShift);
     final YieldCurveBundle curvesForeign = new YieldCurveBundle();
@@ -453,7 +453,7 @@ public class ForexOptionDigitalBlackMethodTest {
     //Domestic
     yields[0] = curveDomestic.getInterestRate(nodeTimes[0]);
     yields[1] = curveDomestic.getInterestRate(nodeTimes[1]);
-    curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
+    curveNode = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimes, yields, new LinearInterpolator1D()));
     curveBumpedPlus = curveNode.withSingleShift(nodeTimes[1], deltaShift);
     curveBumpedMinus = curveNode.withSingleShift(nodeTimes[1], -deltaShift);
     final YieldCurveBundle curvesDomestic = new YieldCurveBundle();

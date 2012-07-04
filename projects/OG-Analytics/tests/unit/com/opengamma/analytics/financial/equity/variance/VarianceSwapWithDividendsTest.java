@@ -51,7 +51,7 @@ public class VarianceSwapWithDividendsTest {
   private static final LocalVolatilitySurfaceStrike LOCAL_VOL_FLAT = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(VOL));
   private static final PureLocalVolatilitySurface PURE_LOCAL_VOL_FLAT = new PureLocalVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
   private static final PureImpliedVolatilitySurface PURE_IMPLIED_VOL_FLAT = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-  private static final YieldAndDiscountCurve DISCOUNT_CURVE = new YieldCurve(ConstantDoublesCurve.from(DRIFT));
+  private static final YieldAndDiscountCurve DISCOUNT_CURVE = YieldCurve.from(ConstantDoublesCurve.from(DRIFT));
   // private static final ForwardCurve FORWARD_CURVE;
 
   static {
@@ -84,36 +84,36 @@ public class VarianceSwapWithDividendsTest {
 
   @Test
   public void proportionalOnlyTest() {
-    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6 };
+    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6};
     double[] alpha = new double[3];
-    double[] beta = new double[] {0.1, 0.1, 0.1 };
+    double[] beta = new double[] {0.1, 0.1, 0.1};
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAfterExpiryTest() {
-    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
-    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT };
-    double[] beta = new double[] {0.02, 0.02 };
+    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6};
+    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT};
+    double[] beta = new double[] {0.02, 0.02};
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsBeforeExpiryTest() {
-    double[] tau = new double[] {0.85, 1.2 };
-    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
-    double[] beta = new double[] {0.1, 0.2 };
+    double[] tau = new double[] {0.85, 1.2};
+    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT};
+    double[] beta = new double[] {0.1, 0.2};
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAtExpiryTest() {
-    double[] tau = new double[] {1.2, EXPIRY };
-    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT };
-    double[] beta = new double[] {0.1, 0.2 };
+    double[] tau = new double[] {1.2, EXPIRY};
+    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT};
+    double[] beta = new double[] {0.1, 0.2};
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }

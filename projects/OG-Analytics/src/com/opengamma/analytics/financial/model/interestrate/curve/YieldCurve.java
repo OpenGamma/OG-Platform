@@ -9,6 +9,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * The implementation of a YieldAndDiscount curve where the curve is stored with maturities and zero-coupon continuously-compounded rates.
@@ -18,15 +20,26 @@ public class YieldCurve extends YieldAndDiscountCurve {
   /**
    * The curve storing the required data in the zero-coupon continuously compounded convention.
    */
-  private final Curve<Double, Double> _curve;
+  private final DoublesCurve _curve;
 
   /** 
+   * @param name The curve name.
    * @param yieldCurve Curve containing continuously-compounded rates against maturities. Rates are unitless (eg 0.02 for two percent) and maturities are in years.
-   * TODO: Change the constructor to check for null yield curve.
    */
-  public YieldCurve(final Curve<Double, Double> yieldCurve) {
-    super(yieldCurve.getName());
+  public YieldCurve(final String name, final DoublesCurve yieldCurve) {
+    super(name);
+    ArgumentChecker.notNull(yieldCurve, "Curve");
     _curve = yieldCurve;
+  }
+
+  /**
+   * Builder from a DoublesCurve using the name of the DoublesCurve as the name of the YieldCurve.
+   * @param yieldCurve The underlying curve based on yields (continuously-compounded).
+   * @return The yield curve.
+   */
+  public static YieldCurve from(final DoublesCurve yieldCurve) {
+    ArgumentChecker.notNull(yieldCurve, "Curve");
+    return new YieldCurve(yieldCurve.getName(), yieldCurve);
   }
 
   @Override
@@ -37,6 +50,11 @@ public class YieldCurve extends YieldAndDiscountCurve {
   @Override
   public double[] getInterestRateParameterSensitivity(double t) {
     return ArrayUtils.toPrimitive(_curve.getYValueParameterSensitivity(t));
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return _curve.getNumberOfParameters();
   }
 
   /**

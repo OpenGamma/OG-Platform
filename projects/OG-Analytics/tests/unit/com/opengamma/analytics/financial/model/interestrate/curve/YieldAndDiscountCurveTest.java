@@ -18,32 +18,40 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
  */
 public class YieldAndDiscountCurveTest {
 
-  private static final double[] TIME = new double[] {1, 2, 3 };
-  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, new double[] {0.03, 0.04, 0.05 }, new LinearInterpolator1D());
-  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve
-      .from(TIME, new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15) }, new LinearInterpolator1D());
-  private static final YieldCurve YIELD = new YieldCurve(R);
-  private static final DiscountCurve DISCOUNT = new DiscountCurve(DF);
+  private static final double[] TIME = new double[] {1, 2, 3};
+  private static final InterpolatedDoublesCurve R = InterpolatedDoublesCurve.from(TIME, new double[] {0.03, 0.04, 0.05}, new LinearInterpolator1D());
+  private static final InterpolatedDoublesCurve DF = InterpolatedDoublesCurve.from(TIME, new double[] {Math.exp(-0.03), Math.exp(-0.08), Math.exp(-0.15)}, new LinearInterpolator1D());
+  private static final YieldCurve YIELD = YieldCurve.from(R);
+  private static final DiscountCurve DISCOUNT = DiscountCurve.from(DF);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
 
-  //TODO: Uncomment the tests when the constructor is corrected.
-  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testNull1() {
-  //    new YieldCurve(null);
-  //  }
-  //
-  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testNull2() {
-  //    new DiscountCurve(null);
-  //  }
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullName() {
+    new YieldCurve(null, R);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurve() {
+    new YieldCurve("Name", null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullNameDsc() {
+    new DiscountCurve(null, R);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullCurveDsc() {
+    new DiscountCurve("Name", null);
+  }
 
   @Test
   public void testHashCodeAndEquals() {
-    YieldAndDiscountCurve other = new YieldCurve(R);
+    YieldAndDiscountCurve other = YieldCurve.from(R);
     assertEquals(other, YIELD);
     assertEquals(other.hashCode(), YIELD.hashCode());
-    other = new YieldCurve(DF);
+    other = YieldCurve.from(DF);
     assertFalse(other.equals(YIELD));
   }
 

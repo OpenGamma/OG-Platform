@@ -35,7 +35,7 @@ public class EuropeanStandardBarrierOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final Barrier BARRIER = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CONTINUOUS, 90);
   private static final double REBATE = 2;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       100, DATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -25,7 +25,7 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
 
   @Test
   public void testConstantYieldCurve() {
-    final YieldCurve dc1 = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldCurve dc1 = new YieldCurve("Curve name-Yld", ConstantDoublesCurve.from(0.05));
     final YieldCurve dc2 = cycleObject(YieldCurve.class, dc1);
     assertEquals(dc1, dc2);
   }
@@ -36,7 +36,7 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
-    final DiscountCurve dc1 = new DiscountCurve(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
+    final DiscountCurve dc1 = new DiscountCurve("Curve name-dsc",InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
     final DiscountCurve dc2 = cycleObject(DiscountCurve.class, dc1);
     assertEquals(dc1, dc2);
   }
@@ -47,7 +47,7 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
-    final YieldCurve dc1 = new YieldCurve(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
+    final YieldCurve dc1 = new YieldCurve("Curve name-Yld", InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
     final YieldCurve dc2 = cycleObject(YieldCurve.class, dc1);
     assertEquals(dc1, dc2);
   }

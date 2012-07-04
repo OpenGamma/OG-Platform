@@ -40,7 +40,7 @@ public final class ConstantSpreadYieldCurveRolldownFunction implements RolldownF
       }
 
     };
-    return new YieldCurve(FunctionalDoublesCurve.from(shiftedFunction));
+    return YieldCurve.from(FunctionalDoublesCurve.from(shiftedFunction));
   }
 
 }

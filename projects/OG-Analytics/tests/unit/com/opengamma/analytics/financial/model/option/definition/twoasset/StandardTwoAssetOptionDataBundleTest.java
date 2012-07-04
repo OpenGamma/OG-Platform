@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class StandardTwoAssetOptionDataBundleTest {
-  private static final YieldAndDiscountCurve CURVE1 = new YieldCurve(ConstantDoublesCurve.from(0.1));
-  private static final YieldAndDiscountCurve CURVE2 = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve CURVE1 = YieldCurve.from(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve CURVE2 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double B1 = 0.04;
   private static final double B2 = 0.06;
   private static final VolatilitySurface SURFACE1 = new VolatilitySurface(ConstantDoublesSurface.from(0.2));

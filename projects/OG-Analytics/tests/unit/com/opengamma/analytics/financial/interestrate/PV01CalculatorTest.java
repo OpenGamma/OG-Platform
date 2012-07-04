@@ -45,8 +45,8 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class PV01CalculatorTest {
-  private final static YieldAndDiscountCurve FUNDING_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.1, 0.05)));
-  private final static YieldAndDiscountCurve LIBOR_CURVE = new YieldCurve(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.005, 0.11, 0.055)));
+  private final static YieldAndDiscountCurve FUNDING_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.1, 0.05)));
+  private final static YieldAndDiscountCurve LIBOR_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.005, 0.11, 0.055)));
   private final static PV01Calculator PV01 = PV01Calculator.getInstance();
   private final static PresentValueCalculator PV = PresentValueCalculator.getInstance();
   private final static double EPS = 1e-8;

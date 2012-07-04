@@ -21,6 +21,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
  * 
  */
 public class MultipleYieldCurveFinderDataBundle {
+
   private final List<InstrumentDerivative> _derivatives;
   private final double[] _marketValues;
   private final YieldCurveBundle _knownCurves;
@@ -30,11 +31,11 @@ public class MultipleYieldCurveFinderDataBundle {
   private final List<String> _names;
   private final boolean _useFiniteDifferenceByDefault;
 
-//  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
-//      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators) {
-//    this(derivatives, marketValues, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, false);
-//  }
-  
+  //  public MultipleYieldCurveFinderDataBundle(final List<InterestRateDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
+  //      final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators) {
+  //    this(derivatives, marketValues, knownCurves, unknownCurveNodePoints, unknownCurveInterpolators, false);
+  //  }
+
   public MultipleYieldCurveFinderDataBundle(final List<InstrumentDerivative> derivatives, final double[] marketValues, final YieldCurveBundle knownCurves,
       final LinkedHashMap<String, double[]> unknownCurveNodePoints, final LinkedHashMap<String, Interpolator1D> unknownCurveInterpolators, boolean useFiniteDifferenceByDefault) {
     Validate.notNull(derivatives);
@@ -44,8 +45,8 @@ public class MultipleYieldCurveFinderDataBundle {
     Validate.notNull(unknownCurveInterpolators, "unknown curve interpolators");
     Validate.notEmpty(unknownCurveNodePoints, "unknown curve node points");
     Validate.notEmpty(unknownCurveInterpolators, "unknown curve interpolators");
-    Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have " + marketValues.length + " values for " 
-        + derivatives.size() + " derivatives)");
+    Validate.isTrue(derivatives.size() == marketValues.length, "marketValues wrong length; must be one par rate per derivative (have " + marketValues.length + " values for " + derivatives.size()
+        + " derivatives)");
 
     if (knownCurves != null) {
       for (final String name : knownCurves.getAllNames()) {
@@ -124,7 +125,7 @@ public class MultipleYieldCurveFinderDataBundle {
   public boolean useFiniteDifferenceForNodeSensitivities() {
     return _useFiniteDifferenceByDefault;
   }
-  
+
   public double[] getCurveNodePointsForCurve(final String name) {
     Validate.notNull(name, "name");
     final double[] result = _unknownCurveNodePoints.get(name);

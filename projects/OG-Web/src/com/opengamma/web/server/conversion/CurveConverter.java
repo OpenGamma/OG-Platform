@@ -12,7 +12,6 @@ import java.util.Map;
 
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -34,21 +33,6 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
       result.put("summary", data);
       if (mode == ConversionMode.FULL) {
         List<Double[]> detailedData = getData(interpolatedCurve);
-        result.put("detailed", detailedData);
-      }
-      return result;
-    }
-    if (value instanceof NodalDoublesCurve) {
-      NodalDoublesCurve nodalCurve = (NodalDoublesCurve) value;
-      List<Double[]> data = new ArrayList<Double[]>();
-      final double[] xData = nodalCurve.getXDataAsPrimitive();
-      final double[] yData = nodalCurve.getYDataAsPrimitive();      
-      for (int i = 0; i < xData.length; i++) {
-        data.add(new Double[] {xData[i], yData[i]});
-      }
-      result.put("summary", data);
-      if (mode == ConversionMode.FULL) {
-        List<Double[]> detailedData = getData(nodalCurve);
         result.put("detailed", detailedData);
       }
       return result;
@@ -79,21 +63,6 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
         sb.append(xData[i]).append("=").append(yData[i]);
       }
       return sb.length() > 0 ? sb.toString() : null;
-    } else if (value instanceof NodalDoublesCurve) {
-      StringBuilder sb = new StringBuilder();
-      NodalDoublesCurve nodalCurve = (NodalDoublesCurve) value;
-      double[] xData = nodalCurve.getXDataAsPrimitive();
-      double[] yData = nodalCurve.getYDataAsPrimitive();
-      boolean isFirst = true;
-      for (int i = 0; i < nodalCurve.size(); i++) {
-        if (isFirst) {
-          isFirst = false;
-        } else {
-          sb.append("; ");
-        }
-        sb.append(xData[i]).append("=").append(yData[i]);
-      }
-      return sb.length() > 0 ? sb.toString() : null;   
     } else {
       return value.getClass().getSimpleName();
     }
@@ -113,17 +82,6 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
     for (int i = 0; i < 100; i++) {      
       detailedData.add(new Double[]{x, detailedCurve.getYValue(x)});
       x += eps;
-    }
-    return detailedData;
-  }
-
-  private List<Double[]> getData(final NodalDoublesCurve detailedCurve) {
-    List<Double[]> detailedData = new ArrayList<Double[]>();
-    
-    Double[] xs = detailedCurve.getXData();
-    Double[] ys = detailedCurve.getYData();
-    for (int i = 0; i < xs.length; i++) {      
-      detailedData.add(new Double[]{xs[i], ys[i]});
     }
     return detailedData;
   }

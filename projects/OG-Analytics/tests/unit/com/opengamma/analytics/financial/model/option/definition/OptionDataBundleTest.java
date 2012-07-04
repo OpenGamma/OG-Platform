@@ -24,7 +24,7 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class OptionDataBundleTest {
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 5, 1);
   private static final OptionDataBundle DATA = new OptionDataBundle(CURVE, SURFACE, DATE);
@@ -50,7 +50,7 @@ public class OptionDataBundleTest {
     other = new OptionDataBundle(DATA);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new OptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), SURFACE, DATE);
+    other = new OptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), SURFACE, DATE);
     assertFalse(other.equals(DATA));
     other = new OptionDataBundle(CURVE, new VolatilitySurface(ConstantDoublesSurface.from(0.6)), DATE);
     assertFalse(other.equals(DATA));
@@ -62,7 +62,7 @@ public class OptionDataBundleTest {
   public void testBuilders() {
     final ZonedDateTime newDate = DATE.plusDays(1);
     assertEquals(DATA.withDate(newDate), new OptionDataBundle(CURVE, SURFACE, newDate));
-    final YieldCurve newCurve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldCurve newCurve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     assertEquals(DATA.withInterestRateCurve(newCurve), new OptionDataBundle(newCurve, SURFACE, DATE));
     final VolatilitySurface newSurface = new VolatilitySurface(ConstantDoublesSurface.from(0.9));
     assertEquals(DATA.withVolatilitySurface(newSurface), new OptionDataBundle(CURVE, newSurface, DATE));

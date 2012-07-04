@@ -29,13 +29,24 @@ public class ParameterSensitivityCalculator {
    */
   private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> _curveSensitivityCalculator;
 
+  /**
+   * The constructor from a curve sensitivity calculator.
+   * @param curveSensitivityCalculator The calculator.
+   */
   public ParameterSensitivityCalculator(AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
 
-  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative derivative, final YieldCurveBundle fixedCurves, final YieldCurveBundle sensitivityCurves) {
-    Validate.notNull(derivative, "null InterestRateDerivative");
+  /**
+   * Computes the sensitivity with respect to the parameters.
+   * @param instrument The instrument.
+   * @param fixedCurves The fixed curves (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
+   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @return The sensitivity (as a DoubleMatrix1D).
+   */
+  public DoubleMatrix1D calculateSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle fixedCurves, final YieldCurveBundle sensitivityCurves) {
+    Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(sensitivityCurves, "interpolated curves");
     final YieldCurveBundle allCurves = sensitivityCurves.copy();
     if (fixedCurves != null) {
@@ -44,10 +55,16 @@ public class ParameterSensitivityCalculator {
       }
       allCurves.addAll(fixedCurves);
     }
-    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(derivative, allCurves);
+    final InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, allCurves);
     return pointToParameterSensitivity(sensitivity, sensitivityCurves);
   }
 
+  /**
+   * Computes the sensitivity with respect to the parameters from the point sensitivities to the continuously compounded rate.
+   * @param sensitivity The point sensitivity.
+   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @return The sensitivity (as a DoubleMatrix1D).
+   */
   public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves) {
     final List<Double> result = new ArrayList<Double>();
     for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
@@ -57,6 +74,12 @@ public class ParameterSensitivityCalculator {
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
 
+  /**
+   * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.
+   * @param sensitivity The point sensitivity with respect to the given curve.
+   * @param curve The curve.
+   * @return The sensitivity (as a list of doubles).
+   */
   private List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
     final List<Double> result = new ArrayList<Double>();
     if (sensitivity != null && sensitivity.size() > 0) {
@@ -75,7 +98,9 @@ public class ParameterSensitivityCalculator {
         result.add(temp);
       }
     } else {
-      // TODO: for the extreme case where the initial sensitivity is empty, a list of zeros should be provided
+      for (int i = 0; i < curve.getNumberOfParameters(); i++) {
+        result.add(0.0);
+      }
     }
     return result;
   }

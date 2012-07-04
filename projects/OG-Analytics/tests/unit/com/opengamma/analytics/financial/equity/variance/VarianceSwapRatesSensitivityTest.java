@@ -232,7 +232,7 @@ public class VarianceSwapRatesSensitivityTest {
 
   private static double[] maturities = {0.5, 1.0, 5.0, 10.0, 20.0};
   private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04};
-  private static final YieldCurve FUNDING = new YieldCurve(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
+  private static final YieldCurve FUNDING = YieldCurve.from(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
 
   private static final EquityOptionDataBundle MARKET = new EquityOptionDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
 

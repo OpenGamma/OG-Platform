@@ -40,7 +40,7 @@ public class NormalBinomialTreeBuilderTest {
   private static final double FORWARD;
   private static final double T = 5.0;
   private static final double BETA = 0.4;
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double ATM_VOL = 0.20;
   private static final double SIGMA_BETA;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);

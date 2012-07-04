@@ -20,10 +20,6 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.SABRTermStructureParameters;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
-import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloorPricer;
-import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingFunction;
-import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingJacobian;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
@@ -42,8 +38,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
-import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -155,14 +151,14 @@ public class CapletStrippingTest {
   private static double[] MARKET_VOLS;
   private static double[] MARKET_VEGAS;
 
-  private static int[] CAP_MATURITIES = new int[] {1, 2, 3, 5, 10, 15, 20 };
-  private static double[] NODES = new double[] {0., 1, 2, 3, 5, 10, 15, 20 };
-  private static double[] STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1 };
+  private static int[] CAP_MATURITIES = new int[] {1, 2, 3, 5, 10, 15, 20};
+  private static double[] NODES = new double[] {0., 1, 2, 3, 5, 10, 15, 20};
+  private static double[] STRIKES = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1};
   private static LinkedHashMap<String, double[]> CURVE_NODES;
   private static LinkedHashMap<String, Interpolator1D> INTERPOLATORS;
   private static LinkedHashMap<String, ParameterLimitsTransform> TRANSFORMS;
   private static final InterpolatedCurveBuildingFunction CURVE_BUILDER;
-  private static String[] NAMES = new String[] {"alpha", "beta", "rho", "nu" };
+  private static String[] NAMES = new String[] {"alpha", "beta", "rho", "nu"};
   private static final DoubleMatrix1D START;
   private static final DoubleMatrix1D END;
 
@@ -204,8 +200,8 @@ public class CapletStrippingTest {
     VOL_MODEL = new SABRTermStructureParameters(CURVES.get(NAMES[0]), CURVES.get(NAMES[1]), CURVES.get(NAMES[2]), CURVES.get(NAMES[3]));
 
     YIELD_CURVES = new YieldCurveBundle();
-    YIELD_CURVES.setCurve("funding", new YieldCurve(FunctionalDoublesCurve.from(DISCOUNT_CURVE)));
-    YIELD_CURVES.setCurve("3m Libor", new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
+    YIELD_CURVES.setCurve("funding", YieldCurve.from(FunctionalDoublesCurve.from(DISCOUNT_CURVE)));
+    YIELD_CURVES.setCurve("3m Libor", YieldCurve.from(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
 
     CAPS = new ArrayList<CapFloor>(CAP_MATURITIES.length * STRIKES.length);
     MARKET_PRICES = new double[CAP_MATURITIES.length * STRIKES.length];

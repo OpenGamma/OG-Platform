@@ -36,7 +36,7 @@ public class BensoussanCrouhyGalaiOptionOnOptionModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.25));
   private static final EuropeanOptionOnEuropeanVanillaOptionDefinition OPTION = new EuropeanOptionOnEuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false, UNDERLYING);
   private static final BensoussanCrouhyGalaiOptionOnOptionModel BCG = new BensoussanCrouhyGalaiOptionOnOptionModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.08)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.35)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.08)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.35)),
       SPOT, DATE);
   private static final EuropeanOptionOnEuropeanVanillaOptionModel MODEL = new EuropeanOptionOnEuropeanVanillaOptionModel();
 

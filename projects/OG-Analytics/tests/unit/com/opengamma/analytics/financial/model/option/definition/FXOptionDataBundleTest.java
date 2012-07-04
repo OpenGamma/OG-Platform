@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class FXOptionDataBundleTest {
-  private static final YieldAndDiscountCurve DOMESTIC = new YieldCurve(ConstantDoublesCurve.from(0.03));
-  private static final YieldAndDiscountCurve FOREIGN = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve DOMESTIC = YieldCurve.from(ConstantDoublesCurve.from(0.03));
+  private static final YieldAndDiscountCurve FOREIGN = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final VolatilitySurface SIGMA = new VolatilitySurface(ConstantDoublesSurface.from(0.3));
   private static final double SPOT = 1.5;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);

@@ -52,7 +52,7 @@ public class BlackBarrierPriceFunctionTest {
    */
   public void comparison() {
     final AnalyticOptionModel<EuropeanStandardBarrierOptionDefinition, StandardOptionDataBundle> model = new EuropeanStandardBarrierOptionModel();
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(RATE)), COST_OF_CARRY, new VolatilitySurface(ConstantDoublesSurface.from(VOLATILITY)),
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(RATE)), COST_OF_CARRY, new VolatilitySurface(ConstantDoublesSurface.from(VOLATILITY)),
         SPOT, REFERENCE_DATE);
     final Expiry expiry = new Expiry(EXPIRY_DATE);
 
@@ -78,7 +78,7 @@ public class BlackBarrierPriceFunctionTest {
 
     final double vol0 = 0.0;
     final double priceVol01 = BARRIER_FUNCTION.getPrice(OPTION_VANILLA, BARRIER_DOWN_IN, REBATE, SPOT, COST_OF_CARRY, RATE, vol0);
-    final StandardOptionDataBundle data0 = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(RATE)), COST_OF_CARRY, new VolatilitySurface(ConstantDoublesSurface.from(vol0)), SPOT,
+    final StandardOptionDataBundle data0 = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(RATE)), COST_OF_CARRY, new VolatilitySurface(ConstantDoublesSurface.from(vol0)), SPOT,
         REFERENCE_DATE);
     final double priceVol02 = model.getPricingFunction(optionBarrierDI).evaluate(data0);
     assertEquals(priceVol02, priceVol01, 1.0E-10);

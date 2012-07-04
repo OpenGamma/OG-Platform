@@ -32,7 +32,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class DermanKaniImpliedBinomialTreeModelTest {
   private static final double SPOT = 100;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.05));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.05;
   private static final double ATM_VOL = 0.15;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);

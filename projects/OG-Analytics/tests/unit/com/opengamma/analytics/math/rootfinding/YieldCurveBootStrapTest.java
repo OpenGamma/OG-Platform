@@ -443,7 +443,7 @@ public class YieldCurveBootStrapTest {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
+    return YieldCurve.from(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static FixedFloatSwap setParSwapRate(final FixedFloatSwap swap, final double rate) {

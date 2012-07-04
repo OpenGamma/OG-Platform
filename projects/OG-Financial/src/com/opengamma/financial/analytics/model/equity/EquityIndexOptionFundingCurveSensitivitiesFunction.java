@@ -18,11 +18,12 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
-import com.opengamma.analytics.financial.interestrate.NodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -118,13 +119,16 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     }
     final double spot = (Double) spotObject;
 
-    final ForwardCurve forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve());
+    if (!(fundingCurve instanceof YieldCurve)) {
+      throw new IllegalArgumentException("Can only handle YieldCurve");
+    }
+    final ForwardCurve forwardCurve = new ForwardCurve(spot, ((YieldCurve) fundingCurve).getCurve());
     final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
 
     // 3. Perform the calculation - what we came here to do
     final DoubleMatrix1D sensVector;
 
-    if (fundingCurve.getCurve() instanceof InterpolatedDoublesCurve) {
+    if (((YieldCurve) fundingCurve).getCurve() instanceof InterpolatedDoublesCurve) {
       // We can use chain rule to distribute closed-form model sensitivity across the curve
       // We have two dates of interest, expiry and settlement
       // Sensitivity to the rate to expiry might be used to estimate the underlying's forward, but we don't include this here.
@@ -133,7 +137,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
       EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
       final double rhoSettle = -1 * settle * model.presentValue(derivative, market);
       //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
-      final NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+      final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
       // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities
       final Map<String, List<DoublesPair>> curveSensMap = new HashMap<String, List<DoublesPair>>();
       curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settle, rhoSettle)));

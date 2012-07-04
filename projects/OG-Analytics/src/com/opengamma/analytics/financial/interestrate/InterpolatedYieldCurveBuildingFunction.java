@@ -21,8 +21,7 @@ public class InterpolatedYieldCurveBuildingFunction extends YieldCurveBundleBuil
 
   private final InterpolatedCurveBuildingFunction _curveBuilder;
 
-  public InterpolatedYieldCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints,
-      LinkedHashMap<String, Interpolator1D> interpolators) {
+  public InterpolatedYieldCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints, LinkedHashMap<String, Interpolator1D> interpolators) {
     _curveBuilder = new InterpolatedCurveBuildingFunction(knotPoints, interpolators);
   }
 
@@ -32,7 +31,7 @@ public class InterpolatedYieldCurveBuildingFunction extends YieldCurveBundleBuil
     LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
     Set<String> names = curves.keySet();
     for (String name : names) {
-      res.setCurve(name, new YieldCurve(curves.get(name)));
+      res.setCurve(name, YieldCurve.from(curves.get(name)));
     }
 
     return res;

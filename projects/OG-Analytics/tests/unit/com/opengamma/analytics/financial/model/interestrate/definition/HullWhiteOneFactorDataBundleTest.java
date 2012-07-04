@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.time.DateUtils;
@@ -26,7 +25,7 @@ public class HullWhiteOneFactorDataBundleTest {
   private static final double R = 0.04;
   private static final double SIGMA = 0.2;
   private static final double SPEED = 0.1;
-  private static final YieldAndDiscountCurve R_CURVE = new YieldCurve(ConstantDoublesCurve.from(R));
+  private static final YieldAndDiscountCurve R_CURVE = YieldCurve.from(ConstantDoublesCurve.from(R));
   private static final VolatilityCurve SIGMA_CURVE = new VolatilityCurve(ConstantDoublesCurve.from(SIGMA));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final HullWhiteOneFactorDataBundle DATA = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
@@ -62,7 +61,7 @@ public class HullWhiteOneFactorDataBundleTest {
     HullWhiteOneFactorDataBundle other = new HullWhiteOneFactorDataBundle(R_CURVE, SIGMA_CURVE, DATE, SPEED);
     assertEquals(other, DATA);
     assertEquals(other.hashCode(), DATA.hashCode());
-    other = new HullWhiteOneFactorDataBundle(new YieldCurve(ConstantDoublesCurve.from(R + 0.01)), SIGMA_CURVE, DATE, SPEED);
+    other = new HullWhiteOneFactorDataBundle(YieldCurve.from(ConstantDoublesCurve.from(R + 0.01)), SIGMA_CURVE, DATE, SPEED);
     assertFalse(other.equals(DATA));
     other = new HullWhiteOneFactorDataBundle(R_CURVE, new VolatilityCurve(ConstantDoublesCurve.from(SIGMA + 0.1)), DATE, SPEED);
     assertFalse(other.equals(DATA));

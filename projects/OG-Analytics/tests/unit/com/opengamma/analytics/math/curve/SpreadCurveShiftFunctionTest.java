@@ -10,12 +10,6 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.SpreadCurveShiftFunction;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -41,7 +35,7 @@ public class SpreadCurveShiftFunctionTest {
       Y[i] = 2 * i + 1;
     }
     CURVE1 = InterpolatedDoublesCurve.fromSorted(X, Y, LINEAR, "A");
-    SPREAD = SpreadDoublesCurve.from(SPREAD_FUNCTION, new Curve[] {CURVE1, CURVE2});
+    SPREAD = SpreadDoublesCurve.from(SPREAD_FUNCTION, new DoublesCurve[] {CURVE1, CURVE2});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -178,7 +178,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     for (final String curveName : curveNames) {
       final Integer offset = nodesPerCurve.get(curveName);
       final double[] yields = Arrays.copyOfRange(fittedYields, i, i + offset);
-      final YieldCurve yieldCurve = new YieldCurve(InterpolatedDoublesCurve.from(curveNodes.get(curveName), yields, interpolators.get(curveName)));
+      final YieldCurve yieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(curveNodes.get(curveName), yields, interpolators.get(curveName)));
       final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteToleranceName,
           relativeToleranceName, iterationsName, decompositionName, useFiniteDifferenceName);
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, curveProperties);

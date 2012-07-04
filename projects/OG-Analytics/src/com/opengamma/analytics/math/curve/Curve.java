@@ -18,6 +18,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * @param <U> The type of the <i>y</i> data
  */
 public abstract class Curve<T extends Comparable<T>, U> {
+
   private static final AtomicLong ATOMIC = new AtomicLong();
   private final String _name;
 
@@ -68,8 +69,6 @@ public abstract class Curve<T extends Comparable<T>, U> {
    * @return The <i>y</i> value
    */
   public abstract U getYValue(T x);
-
-  public abstract U[] getYValueParameterSensitivity(T x);
 
   /**
    * converts a curve to a Function1D

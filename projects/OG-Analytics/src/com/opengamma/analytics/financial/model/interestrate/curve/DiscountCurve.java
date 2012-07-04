@@ -8,7 +8,8 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -18,15 +19,27 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   /**
    * The curve storing the required data as discount factors.
    */
-  private final Curve<Double, Double> _curve;
+  private final DoublesCurve _curve;
 
   /**
    * Constructor from a curve containing the discount factors.
-   * @param discountFactorCurve The curve.
+   * @param name The discount curve name.
+   * @param discountFactorCurve The underlying curve.
    */
-  public DiscountCurve(final Curve<Double, Double> discountFactorCurve) {
-    super(discountFactorCurve.getName());
+  public DiscountCurve(final String name, final DoublesCurve discountFactorCurve) {
+    super(name);
+    ArgumentChecker.notNull(discountFactorCurve, "Curve");
     _curve = discountFactorCurve;
+  }
+
+  /**
+   * Builder from a DoublesCurve using the name of the DoublesCurve as the name of the DiscountCurve.
+   * @param discountFactorCurve The underlying curve based on discount factors.
+   * @return The discount curve.
+   */
+  public static DiscountCurve from(final DoublesCurve discountFactorCurve) {
+    ArgumentChecker.notNull(discountFactorCurve, "Curve");
+    return new DiscountCurve(discountFactorCurve.getName(), discountFactorCurve);
   }
 
   @Override
@@ -36,7 +49,18 @@ public class DiscountCurve extends YieldAndDiscountCurve {
 
   @Override
   public double[] getInterestRateParameterSensitivity(double time) {
-    throw new UnsupportedOperationException("Parameter sensitivity not supported yet for DiscountCurve");
+    Double[] dfSensitivity = _curve.getYValueParameterSensitivity(time);
+    double[] rSensitivity = new double[dfSensitivity.length];
+    double df = getDiscountFactor(time);
+    for (int loopp = 0; loopp < dfSensitivity.length; loopp++) {
+      rSensitivity[loopp] = -dfSensitivity[loopp] / (time * df);
+    }
+    return rSensitivity;
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return _curve.getNumberOfParameters();
   }
 
   /**
@@ -45,11 +69,6 @@ public class DiscountCurve extends YieldAndDiscountCurve {
    */
   public Curve<Double, Double> getCurve() {
     return _curve;
-  }
-
-  @Override
-  public YieldCurve withParallelShift(final double shift) {
-    return new YieldCurve(CurveShiftFunctionFactory.getShiftedCurve(getCurve(), shift));
   }
 
   @Override

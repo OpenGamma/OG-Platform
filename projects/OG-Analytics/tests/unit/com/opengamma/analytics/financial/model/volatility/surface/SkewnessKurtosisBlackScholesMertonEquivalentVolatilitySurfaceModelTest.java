@@ -32,7 +32,7 @@ public class SkewnessKurtosisBlackScholesMertonEquivalentVolatilitySurfaceModelT
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 1, 1);
   private static final OptionDefinition OPTION = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1)), true);
   private static final double SIGMA = 0.4;
-  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.02)), 0.02, new VolatilitySurface(
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.02)), 0.02, new VolatilitySurface(
       ConstantDoublesSurface.from(SIGMA)), 100, DATE, 0,
       3);
 

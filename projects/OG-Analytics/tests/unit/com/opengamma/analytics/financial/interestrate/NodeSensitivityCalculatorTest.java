@@ -49,7 +49,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
   protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
   protected static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
@@ -78,14 +78,14 @@ public abstract class NodeSensitivityCalculatorTest {
   protected static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
-    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
-    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0 };
+    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0};
+    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0};
 
-    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03 };
-    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032 };
+    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03};
+    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032};
 
-    DISCOUNTING_YIELD_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
-    FORWARD_YIELD_CURVE = new YieldCurve(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
+    DISCOUNTING_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
+    FORWARD_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
     LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
@@ -100,8 +100,8 @@ public abstract class NodeSensitivityCalculatorTest {
       fwdCurveDf[loopnode] = Math.exp(-fwdCurveNodes[loopnode] * fwdCurveYields[loopnode]);
     }
 
-    DISCOUNTING_DISCOUNTING_CURVE = new DiscountCurve(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
-    FORWARD_DISCOUNTING_CURVE = new DiscountCurve(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
+    DISCOUNTING_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
+    FORWARD_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
     LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
@@ -161,16 +161,15 @@ public abstract class NodeSensitivityCalculatorTest {
     final DoubleMatrix1D resultFdDf = finiteDiffNodeSensitivitiesDsc(SWAP, valueCalculator, fixedCurve, fittingCurve); // Sensi with respect to df
     final double[] resultFdY = new double[resultFdDf.getNumberOfElements()];
     for (int loopnode = 0; loopnode < resultFdDf.getNumberOfElements(); loopnode++) {
-      resultFdY[loopnode] = -resultFdDf.getEntry(loopnode) *
-          ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getXData()[loopnode] * ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getYData()[loopnode];
+      resultFdY[loopnode] = -resultFdDf.getEntry(loopnode) * ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getXData()[loopnode]
+          * ((DiscountCurve) FORWARD_DISCOUNTING_CURVE).getCurve().getYData()[loopnode];
     }
     assertArrayEquals("Sensitivity to rates: DiscountingCurve", resultFdY, result.getData(), TOLERANCE_SENSI);
   }
 
   // TODO: make this a method generally available?
   protected DoubleMatrix1D finiteDiffNodeSensitivitiesYield(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-      final YieldCurveBundle fixedCurves,
-      final YieldCurveBundle interpolatedCurves) {
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
 
     int nNodes = 0;
     for (final String curveName : interpolatedCurves.getAllNames()) {
@@ -198,7 +197,7 @@ public abstract class NodeSensitivityCalculatorTest {
           final int numberOfNodes = dataBundle.size();
           final double[] yields1 = Arrays.copyOfRange(x.getData(), index2, index2 + numberOfNodes);
           index2 += numberOfNodes;
-          final YieldAndDiscountCurve newCurve = new YieldCurve(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
+          final YieldAndDiscountCurve newCurve = YieldCurve.from(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
           curves.replaceCurve(name, newCurve);
         }
         if (fixedCurves != null) {
@@ -216,8 +215,7 @@ public abstract class NodeSensitivityCalculatorTest {
   }
 
   protected DoubleMatrix1D finiteDiffNodeSensitivitiesDsc(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-      final YieldCurveBundle fixedCurves,
-      final YieldCurveBundle interpolatedCurves) {
+      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
     int nNodes = 0;
     for (final String curveName : interpolatedCurves.getAllNames()) {
       final Interpolator1DDataBundle dataBundle = ((InterpolatedDoublesCurve) ((DiscountCurve) interpolatedCurves.getCurve(curveName)).getCurve()).getDataBundle();
@@ -243,7 +241,7 @@ public abstract class NodeSensitivityCalculatorTest {
           final int numberOfNodes = dataBundle.size();
           final double[] df1 = Arrays.copyOfRange(x.getData(), index2, index2 + numberOfNodes);
           index2 += numberOfNodes;
-          final YieldAndDiscountCurve newCurve = new DiscountCurve(InterpolatedDoublesCurve.from(dataBundle.getKeys(), df1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
+          final YieldAndDiscountCurve newCurve = DiscountCurve.from(InterpolatedDoublesCurve.from(dataBundle.getKeys(), df1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
           curves.replaceCurve(name, newCurve);
         }
         if (fixedCurves != null) {

@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator to return values of <i>y</i> for values 
  * of <i>x</i> that do not lie on nodal <i>x</i> values. 
  */
-public class InterpolatedDoublesCurve extends DoublesCurve {
+public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   /**
    * 
@@ -482,8 +482,7 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
-  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D interpolator, final boolean isSorted,
-      final String name) {
+  public InterpolatedDoublesCurve(final List<Double> xData, final List<Double> yData, final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(xData, yData, isSorted, name);
     init(interpolator);
   }
@@ -517,6 +516,11 @@ public class InterpolatedDoublesCurve extends DoublesCurve {
   public Double[] getYValueParameterSensitivity(Double x) {
     Validate.notNull(x, "x");
     return ArrayUtils.toObject(_interpolator.getNodeSensitivitiesForValue(_dataBundle, x));
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return _dataBundle.size();
   }
 
   public Interpolator1D getInterpolator() {

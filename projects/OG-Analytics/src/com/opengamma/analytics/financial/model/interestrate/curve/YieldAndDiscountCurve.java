@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.model.interestrate.InterestRateModel;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.special.TopHatFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A curve that provides interest rate (continuously compounded) discount factor. 
@@ -18,6 +19,9 @@ import com.opengamma.analytics.math.function.special.TopHatFunction;
 
 public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
 
+  /**
+   * The curve name.
+   */
   private final String _name;
 
   /**
@@ -25,6 +29,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @param name The curve name.
    */
   public YieldAndDiscountCurve(String name) {
+    ArgumentChecker.notNull(name, "Name");
     _name = name;
   }
 
@@ -40,9 +45,6 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * Returns the interest rate (zero-coupon continuously-compounded) at a given time.
    * @param time The time 
    * @return The interest rate for time to maturity <i>t</i>.
-   * @throws IllegalArgumentException
-   *           If the time to maturity is negative.
-   *           TODO: Review if the exception is the one required. Currently it is not implemented.
    */
   @Override
   public double getInterestRate(final Double time) {
@@ -53,8 +55,6 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * Returns the discount factor at a given time.
    * @param t The time 
    * @return The discount factor for time to maturity <i>t</i>.
-   * @throws IllegalArgumentException
-   *           If the time to maturity is negative.
    */
   public double getDiscountFactor(final Double t) {
     return Math.exp(-t * getInterestRate(t));
@@ -79,7 +79,11 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   public abstract double[] getInterestRateParameterSensitivity(final double time);
 
-  // TODO: should the number of parameters be available?
+  /**
+   * Return the number of parameters for the definition of the curve.
+   * @return The number of parameters.
+   */
+  public abstract int getNumberOfParameters();
 
   /**
    * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount.
@@ -87,7 +91,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    * @return The new curve.
    */
   public YieldAndDiscountCurve withParallelShift(final double shift) {
-    return new YieldAndDiscountAddZeroSpreadCurve(false, this, new YieldCurve(ConstantDoublesCurve.from(shift)));
+    return new YieldAndDiscountAddZeroSpreadCurve(this._name + "WithParallelShift", false, this, YieldCurve.from(ConstantDoublesCurve.from(shift)));
   }
 
   /**
@@ -99,7 +103,8 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   public YieldAndDiscountCurve withSingleShift(final double t, final double shift) {
     double defaultRange = 1.0E-3; // 1 day ~ 3E-3
-    return new YieldAndDiscountAddZeroSpreadCurve(false, this, new YieldCurve(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
+    return new YieldAndDiscountAddZeroSpreadCurve(this._name + "WithSingleShift", false, this,
+        YieldCurve.from(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
   }
 
 }

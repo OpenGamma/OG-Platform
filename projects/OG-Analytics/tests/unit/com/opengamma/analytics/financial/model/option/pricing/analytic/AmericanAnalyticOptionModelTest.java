@@ -31,7 +31,7 @@ public abstract class AmericanAnalyticOptionModelTest extends AnalyticOptionMode
   private static final Expiry TENTH_YEAR = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.1));
   private static final Expiry SIX_MONTHS = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final double STRIKE = 100;
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final double B = 0;
   private static final double SPOT1 = 90;
   private static final double SPOT2 = 100;

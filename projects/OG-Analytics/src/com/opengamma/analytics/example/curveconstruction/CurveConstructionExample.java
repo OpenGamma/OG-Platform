@@ -123,7 +123,7 @@ public class CurveConstructionExample {
     static int maturity = 5;
     static String yieldCurveName = "Euro Yield Curve Fixed 2%";
     static PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
-    static YieldCurve yieldCurve = new YieldCurve(new ConstantDoublesCurve(y));
+    static YieldCurve yieldCurve = YieldCurve.from(new ConstantDoublesCurve(y));
     static ParRateCalculator parRateCalculator = ParRateCalculator.getInstance();
 
     public static YieldCurveBundle getBundle(double y) {

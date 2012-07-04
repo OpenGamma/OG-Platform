@@ -34,7 +34,7 @@ public class PoweredOptionDefinitionTest {
   private static final double POWER = 4;
   private static final OptionDefinition CALL = new PoweredOptionDefinition(STRIKE, EXPIRY, POWER, true);
   private static final OptionDefinition PUT = new PoweredOptionDefinition(STRIKE, EXPIRY, POWER, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0.05, new VolatilitySurface(ConstantDoublesSurface.from(0.1)),
       STRIKE, DateUtils.getUTCDate(2009, 5, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)

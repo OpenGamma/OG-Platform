@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.swap.VanillaSwapPresentValueCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -23,7 +22,7 @@ public class VanillaSwapPresentValueCalculatorTest {
   private static final double[] FIXED_PAYMENT = new double[] {10, 10, 10, 10, 10};
   private static final double FLOAT_TIME = 1.5;
   private static final double FLOAT_PAYMENT = -10.5;
-  private static final YieldAndDiscountCurve CURVE = new DiscountCurve(InterpolatedDoublesCurve.from(new double[] {0, 5}, new double[] {1, 0.5}, new LinearInterpolator1D()));
+  private static final YieldAndDiscountCurve CURVE = DiscountCurve.from(InterpolatedDoublesCurve.from(new double[] {0, 5}, new double[] {1, 0.5}, new LinearInterpolator1D()));
   private static final VanillaSwapPresentValueCalculator CALCULATOR = new VanillaSwapPresentValueCalculator();
 
   @Test(expectedExceptions = IllegalArgumentException.class)

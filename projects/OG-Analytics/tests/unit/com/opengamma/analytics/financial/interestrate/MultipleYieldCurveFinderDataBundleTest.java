@@ -16,9 +16,6 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -96,7 +93,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNameClash() {
     final YieldCurveBundle bundle = new YieldCurveBundle();
-    final YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    final YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     bundle.setCurve(CURVE_NAME1, curve);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, bundle, NODES, INTERPOLATORS, false);
   }
@@ -109,7 +106,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCurveAlreadyPresent() {
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, new YieldCurveBundle(Collections.<String, YieldAndDiscountCurve> singletonMap(CURVE_NAME1,
-        new YieldCurve(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, false);
+        YieldCurve.from(ConstantDoublesCurve.from(2.)))), NODES, INTERPOLATORS, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

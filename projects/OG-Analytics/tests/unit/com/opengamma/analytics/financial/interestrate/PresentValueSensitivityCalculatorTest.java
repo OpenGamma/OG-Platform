@@ -74,10 +74,10 @@ public class PresentValueSensitivityCalculatorTest {
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   static {
-    YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     CURVES = new YieldCurveBundle();
     CURVES.setCurve(FIVE_PC_CURVE_NAME, curve);
-    curve = new YieldCurve(ConstantDoublesCurve.from(0.0));
+    curve = YieldCurve.from(ConstantDoublesCurve.from(0.0));
     CURVES.setCurve(ZERO_PC_CURVE_NAME, curve);
   }
 

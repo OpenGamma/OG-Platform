@@ -138,18 +138,10 @@ public abstract class FDCurveSensitivityCalculator {
       }
     };
 
-    //    FunctionalDoublesCurve blipCurve = FunctionalDoublesCurve.from(blip);
-    YieldAndDiscountCurve blipCurve = new YieldCurve(new FunctionalDoublesCurve(blip));
+    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-
-    // @SuppressWarnings("rawtypes")
-    // Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve};
-    // @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve(false, originalCurve, blipCurve);
-    // new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
-    // @SuppressWarnings("unchecked")
-    //YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
-    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve(true, originalCurve, blipCurve);
+    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
     double up = calculator.visit(ird, curves);
@@ -171,19 +163,10 @@ public abstract class FDCurveSensitivityCalculator {
       }
     };
 
-    //FunctionalDoublesCurve blipCurve = FunctionalDoublesCurve.from(blip);
-    YieldAndDiscountCurve blipCurve = new YieldCurve(new FunctionalDoublesCurve(blip));
+    YieldAndDiscountCurve blipCurve = YieldCurve.from(new FunctionalDoublesCurve(blip));
     YieldAndDiscountCurve originalCurve = curves.getCurve(curveName);
-
-    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve(false, originalCurve, blipCurve);
-    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve(true, originalCurve, blipCurve);
-
-    //    @SuppressWarnings("rawtypes")
-    //    Curve[] curveSet = new Curve[] {originalCurve.getCurve(), blipCurve };
-    //    @SuppressWarnings("unchecked")
-    //    YieldAndDiscountCurve upCurve = new YieldCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), curveSet));
-    //    @SuppressWarnings("unchecked")
-    //    YieldAndDiscountCurve downCurve = new YieldCurve(SpreadDoublesCurve.from(new SubtractCurveSpreadFunction(), curveSet));
+    YieldAndDiscountCurve upCurve = new YieldAndDiscountAddZeroSpreadCurve("UpCurve", false, originalCurve, blipCurve);
+    YieldAndDiscountCurve downCurve = new YieldAndDiscountAddZeroSpreadCurve("DownCurve", true, originalCurve, blipCurve);
 
     curves.replaceCurve(curveName, upCurve);
     double up = method.presentValue(ird, curves).getAmount();

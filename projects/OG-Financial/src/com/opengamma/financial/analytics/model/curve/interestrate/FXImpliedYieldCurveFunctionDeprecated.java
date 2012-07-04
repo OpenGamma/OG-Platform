@@ -174,7 +174,7 @@ public class FXImpliedYieldCurveFunctionDeprecated extends AbstractFunction {
             throw new OpenGammaRuntimeException(eSV.getMessage());
           }
         }
-        final YieldCurve curve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
+        final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes, yields, interpolator));
         final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(4);
         final ValueProperties properties = getResultProperties(curveName, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
         final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(yields));
