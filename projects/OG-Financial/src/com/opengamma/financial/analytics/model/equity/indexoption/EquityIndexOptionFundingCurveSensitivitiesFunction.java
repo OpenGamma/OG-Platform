@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.HashMap;
 import java.util.List;

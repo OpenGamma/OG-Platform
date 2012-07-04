@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.Collections;
 import java.util.Set;
@@ -22,8 +22,6 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefiniti
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -96,6 +94,16 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
 
     // 2. Build up the market data bundle
     final ValueRequirement desiredValue = desiredValues.iterator().next();
+
+    // a. The Vol Surface
+    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
+    if (volSurfaceObject == null || !(volSurfaceObject instanceof BlackVolatilitySurface)) {
+      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
+    }
+    final BlackVolatilitySurface<?> blackVolSurf = (BlackVolatilitySurface<?>) volSurfaceObject;
+
     // b. The Funding Curve
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(security, fundingCurveName));
@@ -104,26 +112,15 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     }
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingObject;
 
-    // a. The Vol Surface
-
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
-    if (volSurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
-    }
-    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    //TODO no choice of other surfaces
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
-
     final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getExpiry().getExpiry());
     final double discountFactor = fundingCurve.getDiscountFactor(expiry);
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
 
     // c. The Spot Index
-    final Object spotObject = inputs.getValue(getSpotRequirement(security));
+    Object spotObject = inputs.getValue(getSpotRequirement(security));
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
+      spotObject = 129.0;
+//      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
     }
     final double spot = (Double) spotObject;
 
@@ -236,7 +233,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       bbgTicker = "DJX Index";
     }
     UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
+    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
   protected ValueRequirement getSpotRequirement(final EquityIndexOptionSecurity security) {

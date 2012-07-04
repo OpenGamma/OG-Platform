@@ -7,23 +7,25 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  *
  */
-public class EquityIndexOptionPresentValueFunction extends EquityIndexOptionFunction {
-  private static final EquityIndexOptionPresentValueCalculator s_calculator = EquityIndexOptionPresentValueCalculator.getInstance();
+public class EquityIndexOptionRhoFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  /**
+   * @param valueRequirementName
+   */
+  public EquityIndexOptionRhoFunction() {
+    super(ValueRequirementNames.VALUE_RHO);
   }
 
   @Override
   protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
-    final double pv = s_calculator.visitEquityIndexOption(derivative, market);
-    return pv;
+    EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
+    return model.rho(derivative, market);
   }
 
 }

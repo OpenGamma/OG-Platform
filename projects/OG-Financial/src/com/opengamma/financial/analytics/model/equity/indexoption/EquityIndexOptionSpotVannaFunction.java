@@ -11,18 +11,22 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMet
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- *
+ * Vanna wrt the spot underlying, ie the 2nd order cross-sensitivity of the present value to the spot underlying and implied vol,
+ *          $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
  */
-public class EquityIndexOptionSpotDeltaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionSpotVannaFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionSpotDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+  /**
+   * @param valueRequirementName
+   */
+  public EquityIndexOptionSpotVannaFunction() {
+    super(ValueRequirementNames.VALUE_VANNA);
   }
 
   @Override
   protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return model.deltaWrtSpot(derivative, market);
+    return model.vannaWrtSpot(derivative, market);
   }
 
 }

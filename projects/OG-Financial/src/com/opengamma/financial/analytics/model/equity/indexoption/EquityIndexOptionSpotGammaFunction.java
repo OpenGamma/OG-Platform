@@ -11,18 +11,22 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMet
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- *
+ * Returns the spot gamma wrt the spot underlying, ie the 2nd order sensitivity of the present value to the spot value of the underlying,
+ *          $\frac{\partial^2 (PV)}{\partial S^2}$
  */
-public class EquityIndexOptionSpotDeltaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionSpotGammaFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionSpotDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+  /**
+   * @param valueRequirementName
+   */
+  public EquityIndexOptionSpotGammaFunction() {
+    super(ValueRequirementNames.VALUE_GAMMA);
   }
 
   @Override
   protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return model.deltaWrtSpot(derivative, market);
+    return model.gammaWrtSpot(derivative, market);
   }
 
 }

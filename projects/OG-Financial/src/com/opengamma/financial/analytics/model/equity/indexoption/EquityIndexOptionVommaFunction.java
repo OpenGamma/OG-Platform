@@ -11,18 +11,22 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMet
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- *
+ * Returns the spot Vomma, ie the 2nd order sensitivity of the spot price to the implied vol,
+ *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
  */
-public class EquityIndexOptionSpotDeltaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionVommaFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionSpotDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+  /**
+   * @param valueRequirementName
+   */
+  public EquityIndexOptionVommaFunction() {
+    super(ValueRequirementNames.VALUE_VOMMA);
   }
 
   @Override
   protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return model.deltaWrtSpot(derivative, market);
+    return model.vomma(derivative, market);
   }
 
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity;
+package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.Collections;
 import java.util.Set;
@@ -36,7 +36,12 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.FORWARD,
     ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA};
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_VOMMA,
+    ValueRequirementNames.VALUE_VANNA,
+    ValueRequirementNames.VALUE_RHO
+  };
 
   public EquityIndexOptionDefaultPropertiesFunction(final String volSurface, final String fundingCurve) {
     super(ComputationTargetType.SECURITY, true);
