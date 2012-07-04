@@ -54,6 +54,6 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       OutputStream entityStream) throws IOException, WebApplicationException {
     String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
     String columnsJson = AnalyticsColumnsJsonWriter.getJson(DependencyGraphGridStructure.COLUMN_GROUPS);
-    entityStream.write(("{\"columns\":" + columnsJson + ",\"rootNode\":" + rootNodeJson + "}").getBytes());
+    entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 }

@@ -11,7 +11,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.web.server.push.analytics.GridBounds;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.DependencyGraphRequest;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;

@@ -52,7 +52,7 @@ public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWrite
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
     String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    entityStream.write(("{\"columns\":" + columnsJson(gridStructure) + "," +
+    entityStream.write(("{\"columnSets\":" + columnsJson(gridStructure) + "," +
         "\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 

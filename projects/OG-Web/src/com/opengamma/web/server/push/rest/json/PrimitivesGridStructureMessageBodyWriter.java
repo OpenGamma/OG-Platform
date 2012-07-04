@@ -52,6 +52,6 @@ public class PrimitivesGridStructureMessageBodyWriter implements MessageBodyWrit
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
     String columnsJson = AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumnGroups());
-    entityStream.write(("{\"columns\":" + columnsJson + ",\"rowCount\":" + gridStructure.getRowCount() + "}").getBytes());
+    entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rowCount\":" + gridStructure.getRowCount() + "}").getBytes());
   }
 }
