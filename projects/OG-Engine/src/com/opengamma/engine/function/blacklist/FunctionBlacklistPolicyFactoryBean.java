@@ -8,6 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.engine.function.blacklist.FunctionBlacklistPolicy.Entry;
 import com.opengamma.id.UniqueId;
@@ -19,8 +20,10 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class FunctionBlacklistPolicyFactoryBean extends SingletonFactoryBean<FunctionBlacklistPolicy> {
 
+  private static final AtomicInteger s_nextName = new AtomicInteger(1);
+
   private UniqueId _uniqueId;
-  private String _name;
+  private String _name = Integer.toString(s_nextName.getAndIncrement());
   private int _defaultEntryActivationPeriod = 3600;
   private int _wildcard;
   private int _function;
@@ -29,6 +32,8 @@ public class FunctionBlacklistPolicyFactoryBean extends SingletonFactoryBean<Fun
   private int _buildNode;
   private int _executionNode;
   private Collection<Entry> _entries;
+
+  // TODO: also allow this bean to be used to create a policy by loading one from a source
 
   public UniqueId getUniqueId() {
     return _uniqueId;

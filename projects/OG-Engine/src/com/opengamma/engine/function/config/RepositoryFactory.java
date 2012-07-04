@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.NoOpFunction;
 
 /**
  * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration
@@ -27,7 +28,7 @@ public class RepositoryFactory {
 
   public static InMemoryFunctionRepository constructRepository(RepositoryConfiguration configuration) {
     InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
-
+    repository.addFunction(new NoOpFunction());
     if (configuration.getFunctions() != null) {
       for (FunctionConfiguration functionConfig : configuration.getFunctions()) {
         if (functionConfig instanceof ParameterizedFunctionConfiguration) {

@@ -135,7 +135,7 @@ import com.opengamma.util.async.Cancelable;
   public void jobCompleted(final CalculationJobResult result) {
     final JobResultReceiver resultReceiver = getResultReceiver(result);
     if (resultReceiver == null) {
-      s_logger.warn("Job {} completed on node {} but is not currently pending", result.getSpecification().getJobId(), result.getComputeNodeId());
+      s_logger.warn("Job {} completed on node {} but is not currently pending", this, result.getComputeNodeId());
       // Note the above warning can happen if we've been retried
       extendTimeout(getDispatcher().getMaxJobExecutionTime(), true);
       return;
@@ -148,7 +148,7 @@ import com.opengamma.util.async.Cancelable;
       // Others are still running, but we can extend the timeout period
       extendTimeout(getDispatcher().getMaxJobExecutionTime(), true);
     }
-    s_logger.info("Job {} completed on node {}", result.getSpecification().getJobId(), result.getComputeNodeId());
+    s_logger.info("Job {} completed on node {}", this, result.getComputeNodeId());
     resultReceiver.resultReceived(result);
     final long durationNanos = getDurationNanos();
     s_logger.debug("Reported time = {}ms, non-executing job time = {}ms", (double) result.getDuration() / 1000000d, ((double) durationNanos - (double) result.getDuration()) / 1000000d);
@@ -162,7 +162,7 @@ import com.opengamma.util.async.Cancelable;
 
   @Override
   public void jobFailed(final JobInvoker jobInvoker, final String computeNodeId, final Exception exception) {
-    s_logger.warn("Job {} failed, {}", getJob().getSpecification().getJobId(), (exception != null) ? exception.getMessage() : "no exception passed");
+    s_logger.warn("Job {} failed, {}", this, (exception != null) ? exception.getMessage() : "no exception passed");
     if (_completed.getAndSet(true) == false) {
       cancelTimeout(null);
       DispatchableJob retry = prepareRetryJob(jobInvoker);
@@ -240,7 +240,7 @@ import com.opengamma.util.async.Cancelable;
   private DispatchableJobTimeout cancelTimeout(final DispatchableJobTimeout flagState) {
     final DispatchableJobTimeout timeout = _timeout.getAndSet(flagState);
     if (timeout == null) {
-      s_logger.debug("Job {} timeout transition NULL to {}", this, flagState);
+      s_logger.debug("Job {} timeout transition null to {}", this, flagState);
     } else if (timeout.isActive()) {
       s_logger.debug("Cancelling timeout for {} on transition to {}", this, flagState);
       timeout.cancel();

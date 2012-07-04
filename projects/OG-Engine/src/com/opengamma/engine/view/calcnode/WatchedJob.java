@@ -6,6 +6,8 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +43,10 @@ import com.opengamma.engine.view.calc.JobIdSource;
     return true;
   }
 
-  protected static final class Whole extends WatchedJob {
+  /**
+   * The basic case of watched job that contains a calculation job in its entirety and reports to a single result receiver.
+   */
+  protected static class Whole extends WatchedJob {
 
     private final JobResultReceiver _receiver;
 
@@ -57,7 +62,70 @@ import com.opengamma.engine.view.calc.JobIdSource;
 
   }
 
-  private static final class Split extends WatchedJob implements JobResultReceiver {
+  /**
+   * A job result receiver that will dispatch a second job on the first notification and report the merged results to an underlying receiver on the second notification.
+   */
+  private static final class HalfJobResultReceiver implements JobResultReceiver {
+
+    private final JobResultReceiver _underlying;
+    private DispatchableJob _next;
+    private long _duration;
+    private Set<String> _nodeIds;
+    private List<CalculationJobResultItem> _items;
+
+    public HalfJobResultReceiver(final JobResultReceiver underlying, final WatchedJob creator, final CalculationJob next) {
+      _underlying = underlying;
+      _next = new Whole(creator, next, this);
+    }
+
+    private void resultReceived(final CalculationJobSpecification spec, final long duration, final Set<String> nodeIds, final List<CalculationJobResultItem> items) {
+      final DispatchableJob next = _next;
+      if (next != null) {
+        // First half received -- store results and submit the second half
+        _duration = duration;
+        _nodeIds = nodeIds;
+        _items = new ArrayList<CalculationJobResultItem>(items);
+        _next = null;
+        next.getDispatcher().dispatchJobImpl(next);
+      } else {
+        // Second half received -- merge results and notify the underlying
+        _duration += duration;
+        if (!_nodeIds.containsAll(nodeIds)) {
+          _nodeIds = new HashSet<String>(_nodeIds);
+          _nodeIds.addAll(nodeIds);
+        }
+        _items.addAll(items);
+        if (_underlying instanceof HalfJobResultReceiver) {
+          ((HalfJobResultReceiver) _underlying).resultReceived(spec, _duration, _nodeIds, _items);
+        } else {
+          final StringBuilder nodeIdString = new StringBuilder();
+          final String[] nodeIdSet = _nodeIds.toArray(new String[_nodeIds.size()]);
+          Arrays.sort(nodeIdSet);
+          for (String nodeId : nodeIdSet) {
+            if (nodeIdString.length() != 0) {
+              nodeIdString.append(", ");
+            } else {
+              nodeIdString.append(nodeId);
+            }
+          }
+          _underlying.resultReceived(new CalculationJobResult(spec, _duration, _items, nodeIdString.toString()));
+        }
+      }
+    }
+
+    @Override
+    public void resultReceived(final CalculationJobResult result) {
+      resultReceived(result.getSpecification(), result.getDuration(), Collections.singleton(result.getComputeNodeId()), result.getResultItems());
+    }
+
+  }
+
+  /**
+   * A watched job that is composed of two sequential calculation jobs created by splitting the original. This object manages the first of the jobs. If that fails it will be split. When that job (or
+   * it's split form) completes the second job will be submitted using. This behavior is implemented using a new instance of {@link Whole} and the {@HalfJobResultReceiver} to
+   * manage the merging of results and submission of the second to allow the original job object to be garbage collected at the first opportunity.
+   */
+  private static final class Split extends WatchedJob {
 
     private final CalculationJob _next;
     private final JobResultReceiver _receiver;
@@ -70,26 +138,21 @@ import com.opengamma.engine.view.calc.JobIdSource;
 
     @Override
     protected JobResultReceiver getResultReceiver(final CalculationJobResult result) {
-      return this;
-    }
-
-    @Override
-    public void resultReceived(final CalculationJobResult result) {
-      getDispatcher().dispatchJobImpl(new Whole(this, _next, _receiver));
+      return new HalfJobResultReceiver(_receiver, this, _next);
     }
 
   }
 
   /**
    * Split a job into two that can be executed sequentially. Any values that are produced in the first but needed in the second and previously considered "private" will be "shared" in the new jobs.
-   * The job identifier of the second will be the same as the original job so that any of its tails will recognise its completion as before. The first will receive a new job identifier from
+   * The job identifier of the second will be the same as the original job so that any of its tails will recognize its completion as before. The first will receive a new job identifier from
    * JobIdSource.
    * 
    * @param creator the source job, not null
    * @param job the job to split, not null and with at least 2 items
    * @param receiver the receiver to notify when the second job completes, not null
    */
-  /* package */static DispatchableJob splitJob(final DispatchableJob creator, final CalculationJob job) {
+  /* package */static DispatchableJob splitJob(final WatchedJob creator, final CalculationJob job) {
     final List<CalculationJobItem> items = job.getJobItems();
     s_logger.debug("Splitting {} for resubmission ", job);
     final CacheSelectHint hint = job.getCacheSelectHint();

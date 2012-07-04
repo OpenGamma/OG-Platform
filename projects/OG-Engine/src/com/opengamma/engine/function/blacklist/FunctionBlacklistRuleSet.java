@@ -18,25 +18,38 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Manages a set of {@link FunctionBlacklistRule}s with expiry times.
  */
 public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionBlacklistRuleSet.class);
+  private static final int MAX_TTL = 86400;
 
-  private static final long MIN_TTL = 5 * 60;
   private final Map<FunctionBlacklistRule, Long> _rules = new ConcurrentHashMap<FunctionBlacklistRule, Long>();
-  private final long _minimumTTL;
+  private volatile int _minimumTTL;
+  private final Cleaner _cleaner;
 
   private static class Cleaner implements Runnable {
 
+    private final ScheduledExecutorService _executor;
     private final WeakReference<FunctionBlacklistRuleSet> _ref;
-    private final Future<?> _future;
+    private Future<?> _future;
 
-    public Cleaner(final FunctionBlacklistRuleSet ref, final ScheduledExecutorService executor, final long minimumTTL) {
+    public Cleaner(final FunctionBlacklistRuleSet ref, final ScheduledExecutorService executor, final int minimumTTL) {
+      s_logger.debug("Creating cleaner for {} at {}s", ref, minimumTTL);
+      _executor = executor;
       _ref = new WeakReference<FunctionBlacklistRuleSet>(ref);
       _future = executor.scheduleWithFixedDelay(this, minimumTTL, minimumTTL, TimeUnit.SECONDS);
+    }
+
+    public void reschedule(final int time) {
+      // Reference must be valid because this gets called from the referent
+      s_logger.debug("Rescheduling cleanup of {} for {}s", _ref.get(), time);
+      _future.cancel(false);
+      _future = _executor.scheduleWithFixedDelay(this, time, time, TimeUnit.SECONDS);
     }
 
     @Override
@@ -52,12 +65,12 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
   }
 
   public FunctionBlacklistRuleSet(final ScheduledExecutorService executor) {
-    this(executor, MIN_TTL);
+    this(executor, MAX_TTL);
   }
 
-  public FunctionBlacklistRuleSet(final ScheduledExecutorService executor, final long minimumTTL) {
-    new Cleaner(this, executor, minimumTTL);
+  public FunctionBlacklistRuleSet(final ScheduledExecutorService executor, final int minimumTTL) {
     _minimumTTL = minimumTTL;
+    _cleaner = new Cleaner(this, executor, minimumTTL);
   }
 
   @Override
@@ -114,7 +127,7 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
 
   @Override
   public boolean add(final FunctionBlacklistRule e) {
-    add(e, MIN_TTL);
+    add(e, _minimumTTL);
     return true;
   }
 
@@ -171,21 +184,46 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
     }
   }
 
-  public void add(final FunctionBlacklistRule rule, final long timeToLive) {
+  public void add(final FunctionBlacklistRule rule, final int timeToLive) {
+    ArgumentChecker.notNegativeOrZero(timeToLive, "timeToLive");
     final long expiry = System.nanoTime() + timeToLive * 1000000000L;
     if (_rules.put(rule, expiry) == null) {
       onAdd(rule);
     }
+    if (timeToLive < _minimumTTL) {
+      synchronized (this) {
+        if (timeToLive < _minimumTTL) {
+          _cleaner.reschedule(timeToLive);
+          _minimumTTL = timeToLive;
+        }
+      }
+    }
   }
 
   protected void clean() {
+    s_logger.debug("Cleaning ruleset {}", this);
     final long time = System.nanoTime();
+    _minimumTTL = MAX_TTL + 1;
     final Iterator<Map.Entry<FunctionBlacklistRule, Long>> itr = _rules.entrySet().iterator();
+    long lowestTTL = MAX_TTL;
     while (itr.hasNext()) {
       final Map.Entry<FunctionBlacklistRule, Long> entry = itr.next();
-      if (entry.getValue() - time <= 0) {
+      final long ttl = entry.getValue() - time;
+      if (ttl <= 0) {
         itr.remove();
         onRemove(entry.getKey());
+      } else {
+        if (ttl < lowestTTL) {
+          lowestTTL = ttl;
+        }
+      }
+    }
+    final int ttl = (int) lowestTTL;
+    if (ttl < _minimumTTL) {
+      synchronized (this) {
+        if (ttl < _minimumTTL) {
+          _cleaner.reschedule(ttl);
+        }
       }
     }
   }

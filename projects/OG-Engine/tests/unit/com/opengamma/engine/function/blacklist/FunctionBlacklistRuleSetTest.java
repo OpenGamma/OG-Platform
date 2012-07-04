@@ -111,7 +111,7 @@ public class FunctionBlacklistRuleSetTest {
   public void testExpiry() throws Exception {
     final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     try {
-      final long timeout = Timeout.standardTimeoutSeconds();
+      final int timeout = (int) Timeout.standardTimeoutSeconds();
       final FunctionBlacklistRuleSet bl = new FunctionBlacklistRuleSet(executor, timeout);
       for (int i = 0; i < 10; i++) {
         final FunctionBlacklistRule rule = new FunctionBlacklistRule();

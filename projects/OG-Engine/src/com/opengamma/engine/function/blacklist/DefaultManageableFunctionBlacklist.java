@@ -9,11 +9,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Basic implementation of {@link ManageableFunctionBlacklist} using a {@link DefaultFunctionBlacklistQuery} and {@link FunctionBlacklistRuleSet} to maintain the data.
  */
 public class DefaultManageableFunctionBlacklist extends AbstractManageableFunctionBlacklist {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultManageableFunctionBlacklist.class);
   private static final int DEFAULT_TTL = 3600; // Blacklist for 1-hour
 
   private final FunctionBlacklistRuleSet _rules;
@@ -37,6 +41,7 @@ public class DefaultManageableFunctionBlacklist extends AbstractManageableFuncti
 
       @Override
       protected void onAdd(final FunctionBlacklistRule rule) {
+        s_logger.debug("{} added to {}", rule, DefaultManageableFunctionBlacklist.this);
         final boolean direct = beginUpdate();
         try {
           if (direct) {
@@ -58,6 +63,7 @@ public class DefaultManageableFunctionBlacklist extends AbstractManageableFuncti
 
       @Override
       protected void onRemove(final FunctionBlacklistRule rule) {
+        s_logger.debug("{} removed from {}", rule, DefaultManageableFunctionBlacklist.this);
         final boolean direct = beginUpdate();
         try {
           if (direct) {

@@ -259,7 +259,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     ArgumentChecker.notNull(query, "query");
     ArgumentChecker.notNull(query.getCalculationConfigurationName(), "calculationConfigurationName");
     ArgumentChecker.notNull(query.getValueSpecifications(), "valueSpecifications");
-
     ViewComputationCache cache = getComputationCache(query.getCalculationConfigurationName());
     if (cache == null) {
       throw new DataNotFoundException("No computation cache for calculation configuration '" + query.getCalculationConfigurationName()
@@ -267,7 +266,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
 
     Collection<Pair<ValueSpecification, Object>> result = cache.getValues(query.getValueSpecifications());
-
     ComputationCacheResponse response = new ComputationCacheResponse();
     response.setResults(result);
     return response;
@@ -310,11 +308,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
       for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-        DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
-
+        final DependencyGraph depGraph = createExecutableDependencyGraph(calcConfigurationName);
         s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-
-        Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
+        final Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
         futures.add(future);
       }
 
@@ -484,7 +480,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     InMemoryViewComputationResultModel deltaResultFragment = constructTemplateResultModel();
     for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
+      final DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
       ViewComputationCache cache = getComputationCache(calcConfigurationName);
       ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
       LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
@@ -540,14 +536,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private void populateResultModel() {
     getResultModel().setCalculationTime(Instant.now());
     getResultModel().setCalculationDuration(getDuration());
-    for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-      populateResultModel(calcConfigurationName, depGraph);
+    for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {
+      populateResultModel(depGraph);
     }
   }
 
-  private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
-    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+  private void populateResultModel(DependencyGraph depGraph) {
+    ViewComputationCache computationCache = getComputationCache(depGraph.getCalculationConfigurationName());
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
         continue;
@@ -555,7 +550,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       if (value.getValue() instanceof MissingInput) {
         continue;
       }
-      getResultModel().addValue(calcConfigurationName, new ComputedValue(value.getFirst(), value.getSecond()));
+      getResultModel().addValue(depGraph.getCalculationConfigurationName(), new ComputedValue(value.getFirst(), value.getSecond()));
     }
   }
 
@@ -637,16 +632,26 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return outputSpecifications;
   }
 
-  private DependencyGraph getDependencyGraph(String calcConfName) {
+  /**
+   * Returns the dependency graph used by this cycle for the given calculation configuration.
+   * 
+   * @param calcConfName calculation configuration name
+   * @return the dependency graph
+   */
+  protected DependencyGraph getDependencyGraph(String calcConfName) {
     return getCompiledViewDefinition().getDependencyGraph(calcConfName);
   }
 
   /**
+   * Creates a subset of the dependency graph for execution. This will only include nodes that do are not dummy ones to source market data, have been considered executed by a delta from the previous
+   * cycle, or are being suppressed by the execution blacklist. Note that this will update the cache with synthetic output values from suppressed nodes and alter the execution state of any nodes not
+   * in the resultant subgraph.
+   * 
    * @param calcConfName calculation configuration name
    * @return a dependency graph with any nodes which have already been satisfied filtered out, not null See {@link #computeDelta} and how it calls {@link #markExecuted}.
    */
-  protected DependencyGraph getExecutableDependencyGraph(String calcConfName) {
-    final FunctionBlacklistQuery blacklist = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getGraphBuildingBlacklist();
+  private DependencyGraph createExecutableDependencyGraph(final String calcConfName) {
+    final FunctionBlacklistQuery blacklist = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getGraphExecutionBlacklist();
     return getDependencyGraph(calcConfName).subGraph(new DependencyNodeFilter() {
       public boolean accept(final DependencyNode node) {
         // Market data functions must not be executed
@@ -661,6 +666,18 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         }
         if (blacklist.isBlacklisted(node)) {
           markSuppressed(node);
+          // If the node is suppressed, put values into the cache to indicate this
+          final Set<ValueSpecification> outputs = node.getOutputValues();
+          final ViewComputationCache cache = getComputationCache(calcConfName);
+          if (outputs.size() == 1) {
+            cache.putSharedValue(new ComputedValue(outputs.iterator().next(), NotCalculatedSentinel.SUPPRESSED));
+          } else {
+            final Collection<ComputedValue> errors = new ArrayList<ComputedValue>(outputs.size());
+            for (ValueSpecification output : outputs) {
+              errors.add(new ComputedValue(output, NotCalculatedSentinel.SUPPRESSED));
+            }
+            cache.putSharedValues(errors);
+          }
           return false;
         }
         return true;

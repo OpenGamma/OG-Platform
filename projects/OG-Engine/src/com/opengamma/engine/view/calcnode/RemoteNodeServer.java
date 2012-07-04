@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,10 +20,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.DefaultFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistMaintainer;
 import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistPolicy;
+import com.opengamma.engine.function.blacklist.FunctionBlacklistProvider;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
+import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklist;
+import com.opengamma.engine.function.blacklist.ManageableFunctionBlacklistProvider;
+import com.opengamma.engine.function.blacklist.MultipleFunctionBlacklistMaintainer;
+import com.opengamma.engine.function.blacklist.MultipleFunctionBlacklistQuery;
 import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.calcnode.msg.Init;
 import com.opengamma.engine.view.calcnode.msg.Ready;
@@ -55,6 +65,103 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
   }
   
   /**
+   * Implementation of {@link FunctionBlacklistMaintainerProvider} that always returns a fixed blacklist maintainer.
+   */
+  public static class StaticFunctionBlacklistMaintainerProvider implements FunctionBlacklistMaintainerProvider {
+
+    private final FunctionBlacklistMaintainer _maintainer;
+
+    public StaticFunctionBlacklistMaintainerProvider(final FunctionBlacklistMaintainer maintainer) {
+      _maintainer = maintainer;
+    }
+
+    @Override
+    public FunctionBlacklistMaintainer getUpdate(final String hostId) {
+      return _maintainer;
+    }
+
+  }
+
+  /**
+   * Implementation of {@link FunctionBlacklistMaintainerProvider} that updates a blacklist which is the host identifier prefixed with a fixed string. For example host "calc42" might use a blacklist
+   * called "REMOTE_NODE_calc42" if the bean is set with the default prefix of "REMOTE_NODE_".
+   */
+  public static class FunctionBlacklistMaintainerProviderBean implements FunctionBlacklistMaintainerProvider {
+
+    private ManageableFunctionBlacklistProvider _blacklistProvider;
+
+    private String _blacklistPrefix = "REMOTE_NODE_";
+
+    private FunctionBlacklistPolicy _policy;
+
+    public void setBlacklistProvider(final ManageableFunctionBlacklistProvider blacklistProvider) {
+      _blacklistProvider = blacklistProvider;
+    }
+
+    public ManageableFunctionBlacklistProvider getBlacklistProvider() {
+      return _blacklistProvider;
+    }
+
+    public void setBlacklistPrefix(final String prefix) {
+      _blacklistPrefix = prefix;
+    }
+
+    public String getBlacklistPrefix() {
+      return _blacklistPrefix;
+    }
+
+    public void setBlacklistPolicy(final FunctionBlacklistPolicy policy) {
+      _policy = policy;
+    }
+
+    public FunctionBlacklistPolicy getBlacklistPolicy() {
+      return _policy;
+    }
+
+    @Override
+    public FunctionBlacklistMaintainer getUpdate(final String hostId) {
+      if (_policy.isEmpty()) {
+        return null;
+      }
+      final ManageableFunctionBlacklist blacklist = getBlacklistProvider().getBlacklist(getBlacklistPrefix() + hostId);
+      if (blacklist == null) {
+        return null;
+      }
+      return new DefaultFunctionBlacklistMaintainer(_policy, blacklist);
+    }
+
+  }
+
+  /**
+   * Implementation of {@link FunctionBlacklistMaintainerProvider} that wraps multiple maintainers up to create a {@link MultipleFunctionBlacklistMaintainer} for the host.
+   */
+  public static class MultipleFunctionBlacklistMaintainerProvider implements FunctionBlacklistMaintainerProvider {
+
+    private final Collection<FunctionBlacklistMaintainerProvider> _providers;
+
+    public MultipleFunctionBlacklistMaintainerProvider(final Collection<FunctionBlacklistMaintainerProvider> providers) {
+      _providers = providers;
+    }
+
+    @Override
+    public FunctionBlacklistMaintainer getUpdate(final String hostId) {
+      final Collection<FunctionBlacklistMaintainer> maintainers = new ArrayList<FunctionBlacklistMaintainer>(_providers.size());
+      for (FunctionBlacklistMaintainerProvider provider : _providers) {
+        final FunctionBlacklistMaintainer maintainer = provider.getUpdate(hostId);
+        if (maintainer != null) {
+          maintainers.add(maintainer);
+        }
+      }
+      if (maintainers.isEmpty()) {
+        return null;
+      } else {
+        return new MultipleFunctionBlacklistMaintainer(maintainers);
+      }
+    }
+
+  }
+
+  /**
    * Callback interface for supplying a blacklist query to each host invoker.
    */
   public interface FunctionBlacklistQueryProvider {
@@ -67,6 +174,86 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
      */
     FunctionBlacklistQuery getQuery(String hostId);
     
+  }
+
+  /**
+   * Implementation of {@link FunctionBlacklistQueryProvider} that always returns a fixed blacklist query.
+   */
+  public static class StaticFunctionBlacklistQueryProvider implements FunctionBlacklistQueryProvider {
+
+    private final FunctionBlacklistQuery _query;
+
+    public StaticFunctionBlacklistQueryProvider(final FunctionBlacklistQuery query) {
+      _query = query;
+    }
+
+    @Override
+    public FunctionBlacklistQuery getQuery(final String hostId) {
+      return _query;
+    }
+
+  }
+
+  /**
+   * Implementation of {@link FunctionBlacklistQueryProvider} that queries a blacklist which is the host identifier prefixed with a fixed string. For example host "calc42" might use a blacklist called
+   * "REMOTE_NODE_calc42" if the bean is set with the default prefix of "REMOTE_NODE_".
+   */
+  public static class FunctionBlacklistQueryProviderBean implements FunctionBlacklistQueryProvider {
+
+    private FunctionBlacklistProvider _blacklistProvider;
+
+    private String _blacklistPrefix = "REMOTE_NODE_";
+
+    public void setBlacklistProvider(final FunctionBlacklistProvider blacklistProvider) {
+      _blacklistProvider = blacklistProvider;
+    }
+
+    public FunctionBlacklistProvider getBlacklistProvider() {
+      return _blacklistProvider;
+    }
+
+    public void setBlacklistPrefix(final String prefix) {
+      _blacklistPrefix = prefix;
+    }
+
+    public String getBlacklistPrefix() {
+      return _blacklistPrefix;
+    }
+
+    @Override
+    public FunctionBlacklistQuery getQuery(final String hostId) {
+      return new DefaultFunctionBlacklistQuery(getBlacklistProvider().getBlacklist(getBlacklistPrefix() + hostId));
+    }
+
+  }
+
+  /**
+   * Implementation of {@link FunctionBlacklistQueryProvider} that wraps multiple queries up to create a {@link MultipleFunctionBlacklistQuery} for the host.
+   */
+  public static class MultipleFunctionBlacklistQueryProvider implements FunctionBlacklistQueryProvider {
+
+    private final Collection<FunctionBlacklistQueryProvider> _providers;
+
+    public MultipleFunctionBlacklistQueryProvider(final Collection<FunctionBlacklistQueryProvider> providers) {
+      _providers = providers;
+    }
+
+    @Override
+    public FunctionBlacklistQuery getQuery(final String hostId) {
+      final Collection<FunctionBlacklistQuery> queries = new ArrayList<FunctionBlacklistQuery>(_providers.size());
+      for (FunctionBlacklistQueryProvider provider : _providers) {
+        final FunctionBlacklistQuery query = provider.getQuery(hostId);
+        if (query != null) {
+          queries.add(query);
+        }
+      }
+      if (queries.isEmpty()) {
+        return null;
+      } else {
+        return new MultipleFunctionBlacklistQuery(queries);
+      }
+    }
+
   }
 
   private final JobInvokerRegister _jobInvokerRegister;

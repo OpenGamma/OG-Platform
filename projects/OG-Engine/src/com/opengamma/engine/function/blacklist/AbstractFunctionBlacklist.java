@@ -113,4 +113,9 @@ public abstract class AbstractFunctionBlacklist implements FunctionBlacklist {
     _listeners.remove(listener);
   }
 
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getName() + "]";
+  }
+
 }

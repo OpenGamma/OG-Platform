@@ -350,9 +350,6 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   protected abstract void onNodeChange();
 
-  protected void onJobStart(final CalculationJob job) {
-  }
-
   protected void onJobExecutionComplete() {
   }
 
@@ -580,7 +577,6 @@ public abstract class SimpleCalculationNodeInvocationContainer {
     do {
       if (resumeJob == null) {
         s_logger.info("Executing job {} on {}", job.getExecution().getJobId(), node.getNodeId());
-        onJobStart(job.getJob());
       } else {
         job = resumeJob.getEntry();
         s_logger.info("Resuming job {} on {}", job.getExecution().getJobId(), node.getNodeId());
