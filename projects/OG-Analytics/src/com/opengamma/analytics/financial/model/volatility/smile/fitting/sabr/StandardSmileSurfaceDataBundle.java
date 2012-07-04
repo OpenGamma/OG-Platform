@@ -41,7 +41,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
       ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length,
           "implied volatilities for expiry {} not the same length as strikes; have {}, need {}", strikes[i].length, impliedVols[i].length);
     }
-    checkVolatilities(expiries, strikes, impliedVols);
+    // checkVolatilities(expiries, strikes, impliedVols); // Put this check in place, if desired, after construction.
     _expiries = expiries;
     _forwards = forwards;
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, forwardCurveInterpolator));
@@ -64,7 +64,7 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
           "implied volatilities for expiry {} not the same length as strikes; have {}, need {}", strikes[i].length, impliedVols[i].length);
       _forwards[i] = forwardCurve.getForward(expiries[i]);
     }
-    checkVolatilities(expiries, strikes, impliedVols);
+    // checkVolatilities(expiries, strikes, impliedVols); // Put this check in place, if desired, after construction.
     _expiries = expiries;
     _strikes = strikes;
     _impliedVols = impliedVols;

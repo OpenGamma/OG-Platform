@@ -111,6 +111,17 @@ public final class EquityIndexOptionBlackMethod {
   /** 
    * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The sensitivity of the present value wrt the discounting rate 
+   */
+  public double rho(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double ttm = derivative.getTimeToSettlement();
+    final double pv = presentValue(derivative, marketData);
+    return -ttm * pv;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The forward delta wrt the forward underlying, ie the sensitivity of the undiscounted price to the forward value of the underlying, d(PV/Z)/d(fwdUnderlying)
    */
   public double forwardDelta(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
@@ -152,6 +163,48 @@ public final class EquityIndexOptionBlackMethod {
   /** 
    * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The forward gamma wrt the forward underlying, ie the 2nd order sensitivity of the undiscounted price to the forward value of the underlying,
+   *          $\frac{\partial^2 (PV/Z)}{\partial F^2}$
+   */
+  public double forwardGamma(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double forwardGamma = BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
+    return forwardGamma;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The sensitivity of the forward delta wrt the forward value of the underlying, $\frac{\partial^2 (PV)}{\partial F^2}$ 
+   */
+  public double gammaWrtForward(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double forwardGamma = forwardGamma(derivative, marketData);
+    final double zeroBond = discountToSettlement(derivative, marketData);
+    return forwardGamma * zeroBond;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot gamma wrt the spot underlying, ie the 2nd order sensitivity of the present value to the spot value of the underlying,
+   *          $\frac{\partial^2 (PV)}{\partial S^2}$
+   */
+  public double gammaWrtSpot(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double gammaWrtForward = gammaWrtForward(derivative, marketData);
+    final double forwardUnderlying = forwardIndexValue(derivative, marketData);
+    final double spotUnderlying = marketData.getForwardCurve().getSpot();
+    final double dForwardDSpot = forwardUnderlying / spotUnderlying;
+    return gammaWrtForward * dForwardDSpot * dForwardDSpot;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The simple vega, d(PV)/d(blackVol) 
    */
   public double vega(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
@@ -178,6 +231,89 @@ public final class EquityIndexOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     return blackVol;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The forward Vomma, ie the 2nd order sensitivity of the undiscounted price to the implied vol,
+   *          $\frac{\partial^2 (PV/Z)}{\partial \sigma^2}$
+   */
+  public double forwardVomma(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double forwardVomma = BlackFormulaRepository.vomma(forward, strike, expiry, blackVol);
+    return forwardVomma;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot Vomma, ie the 2nd order sensitivity of the spot price to the implied vol,
+   *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
+   */
+  public double vomma(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double forwardVomma = forwardVomma(derivative, marketData);
+    final double zeroBond = discountToSettlement(derivative, marketData);
+    return forwardVomma * zeroBond;
+  }
+
+  /** 
+   * Synonym for Vomma
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot Volga, ie the 2nd order sensitivity of the spot price to the implied vol,
+   *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
+   */
+  public double spotVolga(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    return vomma(derivative, marketData);
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The forward vanna wrt the forward underlying, ie the 2nd order cross-sensitivity of the undiscounted price to the forward and implied vol,
+   *          $\frac{\partial^2 (PV/Z)}{\partial F \partial \sigma}$
+   */
+  public double forwardVanna(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    final double expiry = derivative.getTimeToExpiry();
+    final double strike = derivative.getStrike();
+    final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double forwardVanna = BlackFormulaRepository.vanna(forward, strike, expiry, blackVol);
+    return forwardVanna;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot vanna wrt the forward underlying, ie the 2nd order cross-sensitivity of the present value to the forward and implied vol,
+   *          $\frac{\partial^2 (PV)}{\partial F \partial \sigma}$
+   */
+  public double vannaWrtForward(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double forwardVanna = forwardVanna(derivative, marketData);
+    final double zeroBond = discountToSettlement(derivative, marketData);
+    return forwardVanna * zeroBond;
+  }
+
+  /** 
+   * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
+   * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The spot vanna wrt the spot underlying, ie the 2nd order cross-sensitivity of the present value to the spot and implied vol,
+   *          $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
+   */
+  public double vannaWrtSpot(final EquityIndexOption derivative, final EquityOptionDataBundle marketData) {
+    final double vannaWrtForward = vannaWrtForward(derivative, marketData);
+    final double forwardUnderlying = forwardIndexValue(derivative, marketData);
+    final double spotUnderlying = marketData.getForwardCurve().getSpot();
+    final double dForwardDSpot = forwardUnderlying / spotUnderlying;
+    return vannaWrtForward * dForwardDSpot;
   }
 
 }
