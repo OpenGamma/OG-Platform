@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentV
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFunction;
 
 /**
  *
