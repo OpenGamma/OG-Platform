@@ -25,8 +25,15 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
  */
 public class PrimitivesGridStructure extends MainGridStructure {
 
-  PrimitivesGridStructure(CompiledViewDefinition compiledViewDef) {
+  /* package */ PrimitivesGridStructure(CompiledViewDefinition compiledViewDef) {
     super(compiledViewDef, rows(compiledViewDef));
+  }
+
+  private PrimitivesGridStructure() {
+  }
+
+  /* package */ static PrimitivesGridStructure empty() {
+    return new PrimitivesGridStructure();
   }
 
   /* package */ List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
@@ -59,5 +66,4 @@ public class PrimitivesGridStructure extends MainGridStructure {
     }
     return rows;
   }
-
 }

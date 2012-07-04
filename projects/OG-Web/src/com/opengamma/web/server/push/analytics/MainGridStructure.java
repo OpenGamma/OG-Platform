@@ -7,7 +7,6 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioMapper;
-import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -46,7 +39,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
 
-  private MainGridStructure() {
+  /* package */ MainGridStructure() {
     _columnGroups = AnalyticsColumnGroups.empty();
     _rows = Collections.emptyList();
     _indexByRequirement = Collections.emptyMap();
@@ -70,7 +63,6 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
 
       List<RequirementBasedColumnKey> columnKeys = buildColumns(calcConfig);
-      //List<RequirementBasedColumnKey> columnKeys = columnBuilder.buildColumns(calcConfig);
       for (RequirementBasedColumnKey columnKey : columnKeys) {
         if (!indexMap.containsKey(columnKey)) {
           indexMap.put(columnKey, colIndex);
@@ -134,15 +126,6 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   @Override
   public int getColumnCount() {
     return _columnGroups.getColumnCount();
-  }
-
-  public static MainGridStructure empty() {
-    return new MainGridStructure() {
-      @Override
-      List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
-        return Collections.emptyList();
-      }
-    };
   }
 
   /* package */ static class Row {

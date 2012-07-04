@@ -34,6 +34,14 @@ public class PortfolioGridStructure extends MainGridStructure {
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
   }
 
+  private PortfolioGridStructure() {
+    _root = AnalyticsNode.emptyRoot();
+  }
+
+  /* package */ static PortfolioGridStructure empty() {
+    return new PortfolioGridStructure();
+  }
+
   protected List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig) {
     List<RequirementBasedColumnKey> columnKeys = Lists.newArrayList();
     for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {

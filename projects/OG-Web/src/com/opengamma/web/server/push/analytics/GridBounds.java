@@ -13,8 +13,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO rename TreeGridStructure? extract superclass with columnGroups and count? or not worth the complication?
- * this is only applicable to portfolio and dep graph grids. primitives is flat and doesn't need the root node
+ *
  */
 public interface GridBounds {
 

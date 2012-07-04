@@ -41,9 +41,12 @@ import com.opengamma.util.tuple.Pair;
     _gridStructure = gridStructure;
   }
 
-  // TODO does this actually need the grid type parameter? could hard code it as one or other and it probably wouldn't matter
-  /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType, String gridId) {
-    return new MainAnalyticsGrid(gridType, MainGridStructure.empty(), gridId);
+  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId);
+  }
+
+  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId);
   }
 
   /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
