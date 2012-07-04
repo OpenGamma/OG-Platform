@@ -183,11 +183,11 @@ import com.opengamma.util.tuple.Triple;
       public JobResultReceiver getResultReceiver(final CalculationJobResult job) {
         return _resultReceivers.remove(job.getSpecification());
       }
-      
+
       public synchronized void declareJobPending(final long jobId) {
         _jobs.put(jobId, new JobState());
       }
-      
+
       public synchronized List<BlockedJob> declareJobCompletion(final long jobId) {
         final JobState job = _jobs.remove(jobId);
         if (job._completed) {
@@ -238,7 +238,7 @@ import com.opengamma.util.tuple.Triple;
       _tail = job.getTail();
       context.declareJobPending(job.getSpecification().getJobId());
     }
-    
+
     @Override
     protected JobResultReceiver getResultReceiver(final CalculationJobResult result) {
       return this;
@@ -280,23 +280,28 @@ import com.opengamma.util.tuple.Triple;
     }
 
   }
-  
+
   private WatchedJob createWatchedJob() {
     if (getJob().getTail() == null) {
-      if (getJob().getJobItems().size() <= 1) {
-        // If this is a single item with no tail then we can report it immediately and abort
-        getDispatcher().getFunctionBlacklistMaintainer().failedJobItem(getJob().getJobItems().get(0));
-        return null;
-      } else {
-        // Job had no tails, so don't need to rewrite the caching
-        final JobResultReceiver receiver = _resultReceivers.remove(getJob().getSpecification());
-        if (receiver != null) {
-          s_logger.debug("Submitting watched job for {}", this);
-          return new WatchedJob.Whole(this, getJob(), receiver);
-        } else {
-          // No result receiver means we've already completed/aborted or are about to do so
+      final List<CalculationJobItem> items = getJob().getJobItems();
+      switch (items.size()) {
+        case 0:
+          // Daft case, but not prevented
           return null;
-        }
+        case 1:
+          // If this is a single item with no tail then we can report it immediately and abort
+          getDispatcher().getFunctionBlacklistMaintainer().failedJobItem(getJob().getJobItems().get(0));
+          return null;
+        default:
+          // Job had no tails, so don't need to rewrite the caching
+          final JobResultReceiver receiver = _resultReceivers.remove(getJob().getSpecification());
+          if (receiver != null) {
+            s_logger.debug("Submitting watched job for {}", this);
+            return new WatchedJob.Whole(this, getJob(), receiver);
+          } else {
+            // No result receiver means we've already completed/aborted or are about to do so
+            return null;
+          }
       }
     } else {
       // Rewrite the private/shared caching information and submit a watched job for the root. Any tail jobs will be submitted after their

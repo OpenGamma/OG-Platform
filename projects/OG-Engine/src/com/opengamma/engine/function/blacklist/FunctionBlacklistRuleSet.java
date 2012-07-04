@@ -186,7 +186,7 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
 
   public void add(final FunctionBlacklistRule rule, final int timeToLive) {
     ArgumentChecker.notNegativeOrZero(timeToLive, "timeToLive");
-    final long expiry = System.nanoTime() + timeToLive * 1000000000L;
+    final long expiry = System.nanoTime() + (long) timeToLive * 1000000000L;
     if (_rules.put(rule, expiry) == null) {
       onAdd(rule);
     }
@@ -205,7 +205,7 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
     final long time = System.nanoTime();
     _minimumTTL = MAX_TTL + 1;
     final Iterator<Map.Entry<FunctionBlacklistRule, Long>> itr = _rules.entrySet().iterator();
-    long lowestTTL = MAX_TTL;
+    long lowestTTL = (long) MAX_TTL * 1000000000L;
     while (itr.hasNext()) {
       final Map.Entry<FunctionBlacklistRule, Long> entry = itr.next();
       final long ttl = entry.getValue() - time;
@@ -218,7 +218,7 @@ public class FunctionBlacklistRuleSet implements Set<FunctionBlacklistRule> {
         }
       }
     }
-    final int ttl = (int) lowestTTL;
+    final int ttl = (int) ((lowestTTL + 999999999L) / 1000000000L);
     if (ttl < _minimumTTL) {
       synchronized (this) {
         if (ttl < _minimumTTL) {

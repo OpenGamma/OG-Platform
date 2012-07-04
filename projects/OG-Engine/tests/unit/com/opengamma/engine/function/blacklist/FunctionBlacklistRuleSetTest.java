@@ -116,10 +116,10 @@ public class FunctionBlacklistRuleSetTest {
       for (int i = 0; i < 10; i++) {
         final FunctionBlacklistRule rule = new FunctionBlacklistRule();
         rule.setFunctionIdentifier("F" + i);
-        bl.add(rule, timeout * i);
+        bl.add(rule, timeout * (i + 1));
       }
-      assertEquals(10, bl.size());
-      Thread.sleep(timeout * 2000);
+      assertEquals(bl.size(), 10);
+      Thread.sleep(timeout * 3000);
       final int size = bl.size();
       assertTrue(size < 10);
       assertTrue(size > 5);

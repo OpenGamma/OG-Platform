@@ -6,6 +6,7 @@
 package com.opengamma.engine.function.blacklist;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -25,7 +26,14 @@ public class FunctionBlacklistPolicyFactoryBeanTest {
   @Test(expectedExceptions = {IllegalArgumentException.class })
   public void testNoUniqueIdOrName() {
     final FunctionBlacklistPolicyFactoryBean bean = new FunctionBlacklistPolicyFactoryBean();
+    bean.setName(null);
     bean.afterPropertiesSet();
+  }
+
+  public void testDefaultName() {
+    final FunctionBlacklistPolicyFactoryBean bean = new FunctionBlacklistPolicyFactoryBean();
+    bean.afterPropertiesSet();
+    assertNotNull(bean.getName());
   }
 
   public void testNoName() {

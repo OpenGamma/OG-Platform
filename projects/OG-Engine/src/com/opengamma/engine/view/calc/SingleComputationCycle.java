@@ -490,7 +490,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       Collection<ValueSpecification> specsToCopy = new LinkedList<ValueSpecification>();
       Collection<ComputedValue> errors = new LinkedList<ComputedValue>();
       for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
-        final NodeStateFlag nodeState = getNodeState(unchangedNode);
+        final NodeStateFlag nodeState = previousCycle.getNodeState(unchangedNode);
         if (nodeState != null) {
           setNodeState(unchangedNode, nodeState);
           if (nodeState == NodeStateFlag.EXECUTED) {
