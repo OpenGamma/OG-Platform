@@ -66,7 +66,7 @@ public abstract class AbstractGridResource {
     String viewportId = Long.toString(s_nextId.getAndIncrement());
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();
-    String dataId = dataUri.toString();
+    String dataId = dataUri.getPath();
     createViewport(viewportId, dataId, viewportSpecification);
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, viewportUri).build();
   }
