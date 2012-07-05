@@ -8,6 +8,7 @@ package com.opengamma.web.server.push.analytics;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,20 @@ public class DependencyGraphStructureBuilder {
     _rowValueSpecs.add(valueSpec);
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
-    for (ValueSpecification input : targetNode.getInputValues()) {
-      ++_lastRow;
-      nodes.add(createNode(input, depGraph));
+    Set<ValueSpecification> inputValues = targetNode.getInputValues();
+    if (inputValues.isEmpty()) {
+      // don't create a node unless it has children
+      return null;
+    } else {
+      for (ValueSpecification input : inputValues) {
+        ++_lastRow;
+        AnalyticsNode newNode = createNode(input, depGraph);
+        if (newNode != null) {
+          nodes.add(newNode);
+        }
+      }
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
     }
-    return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
   }
 
   public DependencyGraphGridStructure getStructure() {

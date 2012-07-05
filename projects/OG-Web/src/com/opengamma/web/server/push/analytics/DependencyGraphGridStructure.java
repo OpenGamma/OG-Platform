@@ -66,7 +66,7 @@ public class DependencyGraphGridStructure implements GridBounds {
       case 3: // value
         return value; // TODO formatting
       case 4: // function name
-        return "TODO"; // TODO this comes from the node
+        return "TODO need function name"; // TODO this comes from the node
       case 5: // properties
         return getValuePropertiesForDisplay(valueSpec.getProperties());
       default: // should never happen

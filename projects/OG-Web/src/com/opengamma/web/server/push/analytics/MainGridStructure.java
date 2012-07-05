@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
- * TODO different subclasses for portfolio and primitives? portfolio has a tree, primitives is flat
+ *
  */
 /* package */ abstract class MainGridStructure implements GridBounds {
 
@@ -35,38 +35,51 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 
   private final List<Row> _rows;
   private final AnalyticsColumnGroups _columnGroups;
-  private final Map<RequirementBasedColumnKey, Integer> _indexByRequirement;
+  /** Column keys in column index order. */
+  private final List<RequirementBasedColumnKey> _columnKeys = Lists.newArrayList();
+  /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
+  private final Map<RequirementBasedColumnKey, Integer> _colIndexByRequirement;
   /** Mappings of specification to requirements, keyed by calculation config name. */
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
+  /** Mappings of requirements to specifications. */
+  private final Map<ValueRequirementKey, ValueSpecification> _reqsToSpecs;
 
   /* package */ MainGridStructure() {
     _columnGroups = AnalyticsColumnGroups.empty();
     _rows = Collections.emptyList();
-    _indexByRequirement = Collections.emptyMap();
+    _colIndexByRequirement = Collections.emptyMap();
     _specsToReqs = Collections.emptyMap();
+    _reqsToSpecs = Collections.emptyMap();
   }
 
   /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
-    // map of column index keyed by column key
-    Map<RequirementBasedColumnKey, Integer> indexMap = Maps.newHashMap();
+    _colIndexByRequirement = Maps.newHashMap();
     // column group for the label column
     AnalyticsColumnGroup labelGroup = new AnalyticsColumnGroup("", ImmutableList.of(new AnalyticsColumn("Label", "")));
     List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(labelGroup);
-    Map<String, Map<ValueSpecification, Set<ValueRequirement>>> specsToReqs = Maps.newHashMap();
+    _specsToReqs = Maps.newHashMap();
+    _reqsToSpecs = Maps.newHashMap();
     int colIndex = 1; // col 0 is the node name
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
       // store the mappings from outputs to requirements for each calc config
-      specsToReqs.put(configName, compiledConfig.getTerminalOutputSpecifications());
+      Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledConfig.getTerminalOutputSpecifications();
+      _specsToReqs.put(configName, terminalOutputs);
+      for (Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
+        for (ValueRequirement valueRequirement : entry.getValue()) {
+          _reqsToSpecs.put(new ValueRequirementKey(valueRequirement, configName), entry.getKey());
+        }
+      }
       List<AnalyticsColumn> configColumns = new ArrayList<AnalyticsColumn>();
 
       List<RequirementBasedColumnKey> columnKeys = buildColumns(calcConfig);
       for (RequirementBasedColumnKey columnKey : columnKeys) {
-        if (!indexMap.containsKey(columnKey)) {
-          indexMap.put(columnKey, colIndex);
+        if (!_colIndexByRequirement.containsKey(columnKey)) {
+          _colIndexByRequirement.put(columnKey, colIndex);
           colIndex++;
+          _columnKeys.add(columnKey);
           configColumns.add(AnalyticsColumn.forKey(columnKey));
         }
       }
@@ -74,11 +87,9 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     }
     _columnGroups = new AnalyticsColumnGroups(columnGroups);
     _rows = rows;
-    _indexByRequirement = indexMap;
-    _specsToReqs = specsToReqs;
   }
 
-  abstract List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
+  /* package */ abstract List<RequirementBasedColumnKey> buildColumns(ViewCalculationConfiguration calcConfig);
 
   /* package */ Row getRowAtIndex(int rowIndex) {
     return _rows.get(rowIndex);
@@ -87,7 +98,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   /* package */ int getColumnIndexForRequirement(String calcConfigName, ValueRequirement requirement) {
     RequirementBasedColumnKey key =
         new RequirementBasedColumnKey(calcConfigName, requirement.getValueName(), requirement.getConstraints());
-    return _indexByRequirement.get(key);
+    return _colIndexByRequirement.get(key);
   }
 
   /* package */ Set<ValueRequirement> getRequirementsForSpecification(String calcConfigName, ValueSpecification spec) {
@@ -104,14 +115,23 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 
   /**
    *
-   * @param row
-   * @param col
+   * @param rowIndex
+   * @param colIndex
    * @return Pair of value spec and calculation config name.
-   * TODO need to reverse the map of valueSpec->set(valueReq)
    * TODO need to specify this using a stable target ID to cope with dynamic reaggregation
    */
-  /* package */ Pair<ValueSpecification, String> getTargetForCell(int row, int col) {
-    throw new UnsupportedOperationException();
+  /* package */ Pair<ValueSpecification, String> getTargetForCell(int rowIndex, int colIndex) {
+    if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
+                                             ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
+    }
+    RequirementBasedColumnKey colKey = _columnKeys.get(colIndex);
+    Row row = _rows.get(rowIndex);
+     ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
+    String calcConfigName = colKey.getCalcConfigName();
+    ValueRequirementKey requirementKey = new ValueRequirementKey(valueReq, calcConfigName);
+    ValueSpecification valueSpec = _reqsToSpecs.get(requirementKey);
+    return Pair.of(valueSpec, calcConfigName);
   }
 
   public List<AnalyticsColumnGroup> getColumnGroups() {
@@ -151,6 +171,45 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     @Override
     public String toString() {
       return "Row [_target=" + _target + ", _name='" + _name + '\'' + "]";
+    }
+  }
+
+  /**
+   * Map key that consists of a {@link ValueRequirement} and corresponding calculation configuration name.
+   */
+  private static class ValueRequirementKey {
+
+    private final ValueRequirement _valueRequirement;
+    private final String _calcConfigName;
+
+    private ValueRequirementKey(ValueRequirement valueRequirement, String calcConfigName) {
+      ArgumentChecker.notNull(valueRequirement, "valueRequirement");
+      ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+      _valueRequirement = valueRequirement;
+      _calcConfigName = calcConfigName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      ValueRequirementKey that = (ValueRequirementKey) o;
+
+      if (!_calcConfigName.equals(that._calcConfigName)) {
+        return false;
+      }
+      return _valueRequirement.equals(that._valueRequirement);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = _valueRequirement.hashCode();
+      result = 31 * result + _calcConfigName.hashCode();
+      return result;
     }
   }
 }
