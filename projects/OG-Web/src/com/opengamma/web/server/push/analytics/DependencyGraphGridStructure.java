@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -46,7 +47,10 @@ public class DependencyGraphGridStructure implements GridBounds {
     return _gridValueSpecs.get(rowIndex);
   }
 
-  /* package */ List<Object> createResultsForRow(int rowIndex, SortedSet<Integer> cols, Object value) {
+  /* package */ List<Object> createResultsForRow(int rowIndex,
+                                                 SortedSet<Integer> cols,
+                                                 Map<ValueSpecification, Object> results) {
+    Object value = results.get(getTargetForRow(rowIndex));
     ValueSpecification valueSpec = _gridValueSpecs.get(rowIndex);
     List<Object> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
@@ -65,7 +69,7 @@ public class DependencyGraphGridStructure implements GridBounds {
       case 2: // value name
         return valueSpec.getValueName();
       case 3: // value
-        return value; // TODO formatting
+        return value.toString(); // TODO formatting
       case 4: // function name
         return "TODO need function name"; // TODO this comes from the node
       case 5: // properties

@@ -66,7 +66,9 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
     List<Pair<ValueSpecification, Object>> results = cacheResponse.getResults();
     for (Pair<ValueSpecification, Object> result : results) {
-      resultsMap.put(result.getFirst(), result.getSecond());
+      ValueSpecification valueSpec = result.getFirst();
+      Object value = result.getSecond();
+      resultsMap.put(valueSpec, value);
     }
     List<List<Object>> gridResults = Lists.newArrayList();
     for (Integer rowIndex : _viewportSpec.getRows()) {
