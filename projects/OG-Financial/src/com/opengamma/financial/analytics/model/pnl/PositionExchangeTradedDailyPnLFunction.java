@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.pnl;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
@@ -15,6 +16,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -27,7 +29,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
  */
 public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPositionPnLFunction {
 
-  private static final long MAX_DAYS_OLD = 70;
+  private static final int MAX_DAYS_OLD = 70;
   
   /**
    * @param resolutionKey the resolution key, not-null
@@ -66,13 +68,13 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
   }
 
   @Override
-  protected String getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
-    return "-P" + (MAX_DAYS_OLD + 1) + "D"; // yesterday - MAX_DAYS_OLD
+  protected DateConstraint getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
   }
 
   @Override
-  protected String getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
-    return "-P1D"; // yesterday
+  protected DateConstraint getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.VALUATION_TIME.yesterday();
   }
 
   @Override

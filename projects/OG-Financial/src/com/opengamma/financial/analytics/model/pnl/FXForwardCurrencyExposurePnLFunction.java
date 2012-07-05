@@ -38,7 +38,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -158,12 +159,8 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (timeSeries == null) {
       return null;
     }
-    final ValueRequirement marketValueRequirement = new ValueRequirement(
-        ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
-            .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriods.iterator().next())
-            .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-            .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
-            .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get());
+    final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
+        DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
     return ImmutableSet.of(fxCurrencyExposureRequirement, marketValueRequirement);
   }
 

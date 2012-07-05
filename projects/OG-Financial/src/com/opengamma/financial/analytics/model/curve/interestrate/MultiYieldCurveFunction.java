@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunctionHelper;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
@@ -121,6 +122,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
           .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties));
+      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
     }
     if (curveCalculationConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurveConfigs = curveCalculationConfig.getExogenousConfigData();
@@ -192,6 +194,16 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
     }
     final Map<ExternalId, Double> marketDataMap = YieldCurveFunctionHelper.buildMarketDataMap((SnapshotDataBundle) marketDataMapObject);
     return marketDataMap;
+  }
+
+  protected HistoricalTimeSeriesBundle getTimeSeriesBundle(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
+    final ValueRequirement timeSeriesRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, ValueProperties.with(
+        ValuePropertyNames.CURVE, curveName).get());
+    final Object timeSeriesObject = inputs.getValue(timeSeriesRequirement);
+    if (timeSeriesObject == null) {
+      throw new OpenGammaRuntimeException("Could not get conversion time series for requirement " + timeSeriesRequirement);
+    }
+    return (HistoricalTimeSeriesBundle) timeSeriesObject;
   }
 
   protected InterpolatedYieldCurveSpecificationWithSecurities getYieldCurveSpecification(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {

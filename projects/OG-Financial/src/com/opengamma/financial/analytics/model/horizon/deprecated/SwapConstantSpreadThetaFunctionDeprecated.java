@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -36,19 +36,20 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixingTimeSeriesVisitor;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.horizon.SwapConstantSpreadThetaFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -72,11 +73,9 @@ public class SwapConstantSpreadThetaFunctionDeprecated extends AbstractFunction.
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
@@ -86,7 +85,9 @@ public class SwapConstantSpreadThetaFunctionDeprecated extends AbstractFunction.
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final DoubleTimeSeries<ZonedDateTime>[] fixingSeries = security.accept(new FixingTimeSeriesVisitor(conventionSource, dataSource, now));
+    @SuppressWarnings("unchecked")
+    final DoubleTimeSeries<ZonedDateTime>[] fixingSeries = new DoubleTimeSeries[] {FixingTimeSeriesVisitor.convertTimeSeries(
+        (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES), now) };
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
@@ -110,9 +111,6 @@ public class SwapConstantSpreadThetaFunctionDeprecated extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     if (!(target.getSecurity() instanceof SwapSecurity)) {
       return false;
     }
@@ -151,6 +149,9 @@ public class SwapConstantSpreadThetaFunctionDeprecated extends AbstractFunction.
     }
     requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final ConventionBundleSource conventions = OpenGammaCompilationContext.getConventionBundleSource(context);
+    requirements.add(((FinancialSecurity) target.getSecurity()).accept(new FixingTimeSeriesVisitor(conventions, resolver, DateConstraint.VALUATION_TIME)));
     return requirements;
   }
 

@@ -32,8 +32,8 @@ import com.opengamma.analytics.financial.model.option.pricing.fourier.FourierPri
 import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -50,16 +50,18 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -87,19 +89,20 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     @SuppressWarnings("unchecked")
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {_fundingCurveName, _forwardCurveName }, timeSeries);
     final double price = irFutureOption.accept(new MyDerivativeVisitor(target, inputs));
     return Sets.newHashSet(new ComputedValue(getSpecification(target), price));
   }
@@ -127,6 +130,13 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
     }
     requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
     requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
+    final Trade trade = target.getTrade();
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade),
+        new String[] {_fundingCurveName, _forwardCurveName });
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 
@@ -221,7 +231,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
       }
       final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
       final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-      return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+      return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
     }
 
     private HestonCharacteristicExponent getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final double t, final double k) {

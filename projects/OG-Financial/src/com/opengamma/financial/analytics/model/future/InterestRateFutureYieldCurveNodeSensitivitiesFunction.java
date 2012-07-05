@@ -27,10 +27,10 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -56,11 +56,14 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -79,8 +82,9 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
@@ -94,7 +98,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -116,7 +120,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
       throw new OpenGammaRuntimeException("Could not get " + curveSpecRequirement);
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, curveNames, dataSource);
+    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, curveNames, timeSeries);
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     if (jacobianObject == null) {
@@ -167,7 +171,9 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final Trade trade = target.getTrade();
+    final Security security = trade.getSecurity();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
@@ -206,6 +212,12 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
+    Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade), curveNames);
+    if (timeSeriesRequirements == null) {
+      s_logger.error("Could not get time series for conversion of security {}", security);
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

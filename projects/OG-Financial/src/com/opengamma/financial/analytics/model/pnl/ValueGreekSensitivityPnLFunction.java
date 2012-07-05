@@ -49,6 +49,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -163,7 +164,8 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.getPosition()));
     final UnderlyingTimeSeriesProvider timeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
         context.getSecuritySource());
-    requirements.add(timeSeriesProvider.getSeriesRequirement(GREEK, (FinancialSecurity) target.getPosition().getSecurity(), "-" + samplingPeriodName.iterator().next(), null));
+    requirements.add(timeSeriesProvider.getSeriesRequirement(GREEK, (FinancialSecurity) target.getPosition().getSecurity(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName.iterator().next()),
+        DateConstraint.VALUATION_TIME));
     return requirements;
   }
 

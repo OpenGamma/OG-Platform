@@ -6,14 +6,14 @@
 package com.opengamma.financial.analytics.model.equity.futures;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.future.EquityFutureDataBundle;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
@@ -22,8 +22,6 @@ import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturePrice
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricer;
 import com.opengamma.analytics.financial.equity.future.pricing.EquityFuturesPricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -39,12 +37,17 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.EquityFutureConverter;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -52,6 +55,7 @@ import com.opengamma.util.money.Currency;
  * A trade may produce additional generic ones, e.g. date and number of contracts..  
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
 
   private final String _valueRequirementName;
@@ -99,20 +103,15 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
    * @param target The HbComputationTargetSpecification is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
-
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-
-    final Double lastMarginPrice = getLatestValueFromTimeSeries(MarketDataRequirementNames.MARKET_VALUE, executionContext, security.getExternalIdBundle(), now);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    final Double lastMarginPrice = timeSeries.get(security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
-
     // Build the analytic's version of the security - the derivative    
     final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade);
     final EquityFuture derivative = definition.toDerivative(valuationTime);
-
     // Build the DataBundle it requires
     final EquityFutureDataBundle dataBundle;
     switch (_pricingMethod) {
@@ -127,7 +126,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
-        Double dividendYield = getLatestValueFromTimeSeries(DIVIDEND_YIELD_FIELD, executionContext, ExternalIdBundle.of(security.getUnderlyingId()), now);
+        Double dividendYield = timeSeries.get(security.getUnderlyingId()).getTimeSeries().getLatestValue();
         dividendYield /= 100.0;
         YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
@@ -135,7 +134,6 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
       default:
         throw new OpenGammaRuntimeException("Unhandled pricingMethod");
     }
-
     // Call OG-Analytics
     return getComputedValue(derivative, dataBundle, trade);
   }
@@ -182,22 +180,35 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
-
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    ValueRequirement requirement = getMarketValueRequirement(context, security);
+    if (requirement == null) {
+      return null;
+    }
+    requirements.add(requirement);
     switch (_pricingMethod) {
       case MARK_TO_MARKET:
-        return Collections.singleton(getMarketPriceRequirement(security));
-
+        requirements.add(getMarketPriceRequirement(security));
+        break;
       case COST_OF_CARRY:
-        return Sets.newHashSet(getSpotAssetRequirement(security), getCostOfCarryRequirement(security));
-
+        requirements.add(getSpotAssetRequirement(security));
+        requirements.add(getCostOfCarryRequirement(security));
+        break;
       case DIVIDEND_YIELD:
-        return Sets.newHashSet(getSpotAssetRequirement(security), getDiscountCurveRequirement(security));
+        requirements.add(getSpotAssetRequirement(security));
+        requirements.add(getDiscountCurveRequirement(security));
+        requirement = getDividendYieldRequirement(context, security);
+        if (requirement == null) {
+          return null;
+        }
+        requirements.add(requirement);
+        break;
+      default:
+        throw new OpenGammaRuntimeException("Unhandled _pricingMethod=" + _pricingMethod);
     }
-
-    throw new OpenGammaRuntimeException("Unhandled _pricingMethod!");
+    return requirements;
   }
 
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
@@ -270,18 +281,24 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return (Double) marketPriceObject;
   }
 
-  /**
-   *  Returns the latest value of the historical time series keyed by idBundle and field. 
-   */
-  private Double getLatestValueFromTimeSeries(final String field, final FunctionExecutionContext executionContext, final ExternalIdBundle idBundle, final ZonedDateTime now) {
-    final ZonedDateTime startDate = now.minusDays(7);
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(field, idBundle, null, null, startDate.toLocalDate(), true, now.toLocalDate(), true);
-
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get " + field + " time series for " + idBundle.toString());
+  private ValueRequirement getMarketValueRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (timeSeries == null) {
+      return null;
     }
-    return ts.getTimeSeries().getLatestValue();
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
+        DateConstraint.VALUATION_TIME, true);
+  }
+
+  private ValueRequirement getDividendYieldRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(ExternalIdBundle.of(security.getUnderlyingId()), null, null, null, DIVIDEND_YIELD_FIELD, null);
+    if (timeSeries == null) {
+      return null;
+    }
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
+        DateConstraint.VALUATION_TIME, true);
   }
 
   @Override

@@ -46,6 +46,16 @@ public class HistoricalTimeSeriesBundle {
     return _data.get(id);
   }
 
+  public HistoricalTimeSeries get(final ExternalIdBundle ids) {
+    for (ExternalId id : ids) {
+      final HistoricalTimeSeries ts = get(id);
+      if (ts != null) {
+        return ts;
+      }
+    }
+    return null;
+  }
+
   public Collection<ExternalId> getAllExternalIds() {
     return _data.keySet();
   }

@@ -10,10 +10,9 @@ import com.opengamma.analytics.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -56,21 +55,17 @@ public class UnderlyingTimeSeriesProvider {
   }
 
   public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security) {
-    return getSeriesRequirement(greek, security, null, null);
+    return getSeriesRequirement(greek, security, DateConstraint.EARLIEST_START, DateConstraint.VALUATION_TIME);
   }
 
-  public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security, final String startDate, final String endDate) {
+  public ValueRequirement getSeriesRequirement(final Greek greek, final FinancialSecurity security, final DateConstraint startDate, final DateConstraint endDate) {
     final String fieldName = greek.accept(FIELD_VISITOR);
     final ExternalIdBundle underlyingId = security.accept(getSecurityVisitor());
     final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(underlyingId, null, null, null, fieldName, getResolutionKey());
     if (timeSeries == null) {
       throw new OpenGammaRuntimeException("Could not resolve time series for " + underlyingId + " for security " + security + " for " + getResolutionKey() + "/" + fieldName);
     }
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
-        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, (startDate == null) ? "" : startDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, (endDate == null) ? "" : endDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get());
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), startDate, true, endDate, true);
   }
 
   private static class FieldGreekVisitor extends AbstractGreekVisitor<String> {

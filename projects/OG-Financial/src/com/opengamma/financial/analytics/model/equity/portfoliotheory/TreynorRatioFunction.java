@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesSta
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,11 +33,16 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesIntersector;
 
@@ -62,16 +66,11 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
     final Period samplingPeriod = getSamplingPeriod(constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD));
     final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
-    if (riskFreeRateTSObject == null) {
-      throw new OpenGammaRuntimeException("Risk free rate series was null");
-    }
+    final HistoricalTimeSeries riskFreeRateTSObject = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L was null");
@@ -99,61 +98,67 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final Object positionOrNode = getTarget(target);
-      final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-      final ValueProperties constraints = desiredValue.getConstraints();
-      final Set<String> samplingPeriodNames = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
-      if (samplingPeriodNames == null || samplingPeriodNames.size() != 1) {
-        return null;
-      }
-      final Set<String> scheduleCalculatorNames = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
-      if (scheduleCalculatorNames == null || scheduleCalculatorNames.size() != 1) {
-        return null;
-      }
-      final Set<String> samplingFunctionNames = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
-      if (samplingFunctionNames == null || samplingFunctionNames.size() != 1) {
-        return null;
-      }
-      final Set<String> returnCalculatorNames = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
-      if (returnCalculatorNames == null || returnCalculatorNames.size() != 1) {
-        return null;
-      }
-      final Set<String> stdDevCalculatorNames = constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
-      if (stdDevCalculatorNames == null || stdDevCalculatorNames.size() != 1) {
-        return null;
-      }
-      final Set<String> covarianceCalculatorNames = constraints.getValues(ValuePropertyNames.COVARIANCE_CALCULATOR);
-      if (covarianceCalculatorNames == null || covarianceCalculatorNames.size() != 1) {
-        return null;
-      }
-      final Set<String> varianceCalculatorNames = constraints.getValues(ValuePropertyNames.VARIANCE_CALCULATOR);
-      if (varianceCalculatorNames == null || varianceCalculatorNames.size() != 1) {
-        return null;
-      }
-      final String samplingPeriodName = samplingPeriodNames.iterator().next();
-      final String scheduleCalculatorName = scheduleCalculatorNames.iterator().next();
-      final String samplingFunctionName = samplingFunctionNames.iterator().next();
-      final String returnCalculatorName = returnCalculatorNames.iterator().next();
-      final ValueProperties pnlSeriesProperties = ValueProperties.builder()
+    final Object positionOrNode = getTarget(target);
+    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> samplingPeriodNames = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if (samplingPeriodNames == null || samplingPeriodNames.size() != 1) {
+      return null;
+    }
+    final Set<String> scheduleCalculatorNames = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleCalculatorNames == null || scheduleCalculatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> samplingFunctionNames = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingFunctionNames == null || samplingFunctionNames.size() != 1) {
+      return null;
+    }
+    final Set<String> returnCalculatorNames = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    if (returnCalculatorNames == null || returnCalculatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> stdDevCalculatorNames = constraints.getValues(ValuePropertyNames.STD_DEV_CALCULATOR);
+    if (stdDevCalculatorNames == null || stdDevCalculatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> covarianceCalculatorNames = constraints.getValues(ValuePropertyNames.COVARIANCE_CALCULATOR);
+    if (covarianceCalculatorNames == null || covarianceCalculatorNames.size() != 1) {
+      return null;
+    }
+    final Set<String> varianceCalculatorNames = constraints.getValues(ValuePropertyNames.VARIANCE_CALCULATOR);
+    if (varianceCalculatorNames == null || varianceCalculatorNames.size() != 1) {
+      return null;
+    }
+    final String samplingPeriodName = samplingPeriodNames.iterator().next();
+    final String scheduleCalculatorName = scheduleCalculatorNames.iterator().next();
+    final String samplingFunctionName = samplingFunctionNames.iterator().next();
+    final String returnCalculatorName = returnCalculatorNames.iterator().next();
+    final ValueProperties pnlSeriesProperties = ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName).get();
-      final ValueProperties betaProperties = ValueProperties.builder()
+    final ValueProperties betaProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName)
         .with(ValuePropertyNames.COVARIANCE_CALCULATOR, covarianceCalculatorNames.iterator().next())
         .with(ValuePropertyNames.VARIANCE_CALCULATOR, varianceCalculatorNames.iterator().next()).get();
-      result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, pnlSeriesProperties));
-      result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-      result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode, betaProperties));
-      return result;
+    result.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, pnlSeriesProperties));
+    result.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    result.add(new ValueRequirement(ValueRequirementNames.CAPM_BETA, positionOrNode, betaProperties));
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM"));
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle.getCAPMMarket(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+    if (timeSeries == null) {
+      return null;
     }
-    return null;
+    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true,
+        DateConstraint.VALUATION_TIME, true));
+    return result;
   }
 
   @Override
@@ -166,43 +171,43 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
   }
 
   public abstract Object getTarget(ComputationTarget target);
-  
+
   private ValueProperties getResultProperties() {
     return createValueProperties()
-      .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-      .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-      .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-      .withAny(ValuePropertyNames.RETURN_CALCULATOR)
-      .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
-      .withAny(ValuePropertyNames.EXCESS_RETURN_CALCULATOR)
-      .withAny(ValuePropertyNames.COVARIANCE_CALCULATOR)
-      .withAny(ValuePropertyNames.VARIANCE_CALCULATOR).get();
+        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
+        .withAny(ValuePropertyNames.STD_DEV_CALCULATOR)
+        .withAny(ValuePropertyNames.EXCESS_RETURN_CALCULATOR)
+        .withAny(ValuePropertyNames.COVARIANCE_CALCULATOR)
+        .withAny(ValuePropertyNames.VARIANCE_CALCULATOR).get();
   }
-  
+
   private ValueProperties getResultProperties(final ValueRequirement desiredValue) {
     return createValueProperties()
-      .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
-      .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
-      .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-      .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR))
-      .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
-      .with(ValuePropertyNames.EXCESS_RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.EXCESS_RETURN_CALCULATOR))
-      .with(ValuePropertyNames.COVARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.COVARIANCE_CALCULATOR))
-      .with(ValuePropertyNames.VARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.VARIANCE_CALCULATOR)).get();
+        .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
+        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
+        .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR))
+        .with(ValuePropertyNames.STD_DEV_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.STD_DEV_CALCULATOR))
+        .with(ValuePropertyNames.EXCESS_RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.EXCESS_RETURN_CALCULATOR))
+        .with(ValuePropertyNames.COVARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.COVARIANCE_CALCULATOR))
+        .with(ValuePropertyNames.VARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.VARIANCE_CALCULATOR)).get();
   }
-  
+
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
     if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }  
+    }
     return Period.parse(samplingPeriodNames.iterator().next());
   }
-  
+
   private TreynorRatioCalculator getCalculator(final Set<String> excessReturnCalculatorNames) {
     if (excessReturnCalculatorNames == null || excessReturnCalculatorNames.isEmpty() || excessReturnCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique excess return calculator name: " + excessReturnCalculatorNames);
     }
-    final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(excessReturnCalculatorNames.iterator().next());      
+    final Function<double[], Double> expectedExcessReturnCalculator = StatisticsCalculatorFactory.getCalculator(excessReturnCalculatorNames.iterator().next());
     final DoubleTimeSeriesStatisticsCalculator excessReturnCalculator = new DoubleTimeSeriesStatisticsCalculator(expectedExcessReturnCalculator);
     return new TreynorRatioCalculator(excessReturnCalculator, excessReturnCalculator); //TODO check that they can both be the same
   }

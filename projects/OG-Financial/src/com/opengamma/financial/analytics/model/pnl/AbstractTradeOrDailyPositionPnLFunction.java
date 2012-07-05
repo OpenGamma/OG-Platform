@@ -34,7 +34,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -67,7 +68,6 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     ArgumentChecker.notNull(resolutionKey, "resolutionKey");
     ArgumentChecker.notNull(mark2MarketField, "mark data field");
     ArgumentChecker.notNull(costOfCarryField, "cost of carry data field");
-
     _resolutionKey = resolutionKey;
     _mark2MarketField = mark2MarketField;
     _costOfCarryField = costOfCarryField;
@@ -75,9 +75,9 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
   protected abstract LocalDate getPreferredTradeDate(Clock valuationClock, PositionOrTrade positionOrTrade);
 
-  protected abstract String getTimeSeriesStartDate(PositionOrTrade positionOrTrade);
+  protected abstract DateConstraint getTimeSeriesStartDate(PositionOrTrade positionOrTrade);
 
-  protected abstract String getTimeSeriesEndDate(PositionOrTrade positionOrTrade);
+  protected abstract DateConstraint getTimeSeriesEndDate(PositionOrTrade positionOrTrade);
 
   protected abstract LocalDate checkAvailableData(LocalDate originalTradeDate, HistoricalTimeSeries markToMarketSeries, Security security, String markDataField, String resolutionKey);
 
@@ -134,8 +134,8 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     final ValueRequirement securityValue = new ValueRequirement(ValueRequirementNames.VALUE, ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security));
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle bundle = security.getExternalIdBundle();
-    final String startDate = getTimeSeriesStartDate(positionOrTrade);
-    final String endDate = getTimeSeriesEndDate(positionOrTrade);
+    final DateConstraint startDate = getTimeSeriesStartDate(positionOrTrade);
+    final DateConstraint endDate = getTimeSeriesEndDate(positionOrTrade);
     final ValueRequirement markToMarketValue = getMarkToMarketSeriesRequirement(resolver, bundle, startDate, endDate);
     final ValueRequirement costOfCarryValue = getCostOfCarrySeriesRequirement(resolver, bundle, endDate);
     if ((markToMarketValue == null) || (costOfCarryValue == null)) {
@@ -153,32 +153,26 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     }
   }
 
-  private ValueRequirement getMarkToMarketSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final String startDate, final String endDate) {
+  private ValueRequirement getMarkToMarketSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint startDate, final DateConstraint endDate) {
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _mark2MarketField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
     final UniqueId uid = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid, ValueProperties
-        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, startDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, endDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .withOptional(".name").with(".name", "MarkToMarket").get());
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid,
+        HistoricalTimeSeriesFunctionUtils.createHTSRequirementProperties(startDate, true, endDate, true)
+            .withOptional(".name").with(".name", "MarkToMarket").get());
   }
 
-  private ValueRequirement getCostOfCarrySeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final String endDate) {
+  private ValueRequirement getCostOfCarrySeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint endDate) {
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _costOfCarryField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
     final UniqueId uid = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid, ValueProperties
-        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, endDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, endDate)
-        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .withOptional(".name").with(".name", "CostOfCarry").get());
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid,
+        HistoricalTimeSeriesFunctionUtils.createHTSRequirementProperties(endDate, true, endDate, true)
+            .withOptional(".name").with(".name", "CostOfCarry").get());
   }
 
   @Override

@@ -16,6 +16,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -65,13 +66,13 @@ public class TradeExchangeTradedPnLFunction extends AbstractTradeOrDailyPosition
   }
 
   @Override
-  protected String getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
-    return ((Trade) positionOrTrade).getTradeDate().toString();
+  protected DateConstraint getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.of(((Trade) positionOrTrade).getTradeDate());
   }
 
   @Override
-  protected String getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
-    return ((Trade) positionOrTrade).getTradeDate().toString();
+  protected DateConstraint getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
+    return DateConstraint.of(((Trade) positionOrTrade).getTradeDate());
   }
 
   @Override

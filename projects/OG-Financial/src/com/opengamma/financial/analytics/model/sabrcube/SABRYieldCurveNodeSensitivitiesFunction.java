@@ -25,7 +25,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -55,6 +54,8 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -64,6 +65,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -82,6 +84,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, swapConverter);
@@ -89,7 +92,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource, regionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
@@ -105,7 +108,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
     final String calculationMethod = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD).iterator().next();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
     if (curveSpecObject == null) {
@@ -127,7 +130,7 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final SABRInterestRateDataBundle data = getModelParameters(target, inputs, currency, dayCount, desiredValue);
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, timeSeries);
     final ValueProperties properties = getResultProperties(target, desiredValue);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
     if (calculationMethod.equals(InterpolatedDataProperties.CALCULATION_METHOD_NAME)) {
@@ -200,7 +203,8 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final String curveName = curveNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final String fittingMethod = fittingMethods.iterator().next();
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     final ValueRequirement fundingCurveRequirement = getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
@@ -215,6 +219,12 @@ public abstract class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFu
       final ValueRequirement couponSensitivitiesRequirement = getCouponSensitivitiesRequirement(currency, forwardCurveName, fundingCurveName);
       requirements.add(couponSensitivitiesRequirement);
     }
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor),
+        new String[] {fundingCurveName, forwardCurveName });
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

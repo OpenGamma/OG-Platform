@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
@@ -53,13 +52,14 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -83,7 +83,6 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -109,12 +108,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
-    final ExternalIdBundle id = security.getExternalIdBundle();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-    }
+    final HistoricalTimeSeries ts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
@@ -173,6 +167,14 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
+    final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(target.getTrade().getSecurity().getExternalIdBundle(), null,
+        null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (timeSeries == null) {
+      return null;
+    }
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1))
+        .previousWeekDay(),
+        true, DateConstraint.VALUATION_TIME, false));
     return requirements;
   }
 
@@ -204,4 +206,5 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
+
 }

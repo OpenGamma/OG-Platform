@@ -182,7 +182,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   protected void initFunctionExecutionContext(ComponentRepository repo, LinkedHashMap<String, String> configuration, OverrideOperationCompiler ooc) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
-    OpenGammaExecutionContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());

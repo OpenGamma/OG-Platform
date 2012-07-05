@@ -29,7 +29,6 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -41,6 +40,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -115,8 +115,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     // c. The Vol Surface
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName,
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext), security, volSurfaceName,
         smileInterpolator, fundingCurveName, security.getUnderlyingId()));
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");

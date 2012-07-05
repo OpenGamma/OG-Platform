@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -61,6 +60,8 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -70,6 +71,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -92,8 +94,9 @@ public class InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction ext
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
   @Override
@@ -108,7 +111,7 @@ public class InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction ext
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
     final String surfaceName = constraints.getValues(ValuePropertyNames.SURFACE).iterator().next();
     final String calculationMethod = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD).iterator().next();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(target, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
     if (curveSpecObject == null) {
@@ -121,7 +124,7 @@ public class InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction ext
     final FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
-    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
+    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName }, timeSeries);
     final String conventionName = currency.getCode() + "_IR_FUTURE";
     final ConventionBundle convention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
     if (convention == null) {
@@ -231,6 +234,13 @@ public class InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction ext
         requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
       }
     }
+    final Trade trade = target.getTrade();
+    final FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade), new String[] {fundingCurveName, forwardCurveName });
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

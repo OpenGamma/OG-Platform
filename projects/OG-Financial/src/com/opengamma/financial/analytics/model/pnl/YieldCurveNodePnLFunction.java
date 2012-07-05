@@ -55,8 +55,9 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.analytics.timeseries.YieldCurveHistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -345,14 +346,8 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   }
 
   private ValueRequirement getYCHTSRequirement(final Currency currency, final String yieldCurveName, final String samplingPeriod) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, currency, ValueProperties
-        .with(ValuePropertyNames.CURVE, yieldCurveName)
-        .with(YieldCurveHistoricalTimeSeriesFunction.DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE)
-        .with(YieldCurveHistoricalTimeSeriesFunction.RESOLUTION_KEY_PROPERTY, "")
-        .with(YieldCurveHistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriod)
-        .with(YieldCurveHistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, "Yes")
-        .with(YieldCurveHistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
-        .with(YieldCurveHistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, "Yes").get());
+    return HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, yieldCurveName, MarketDataRequirementNames.MARKET_VALUE, null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
+        DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String yieldCurveName) {

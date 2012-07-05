@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.time.calendar.Period;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -19,12 +21,12 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
@@ -60,11 +62,9 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, s_marketDataRequirementNamesMap.get(_requirementName),
         null);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties
-        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-P7D")
-        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
-        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "-P1D")
-        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get()));
+    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)),
+        true,
+        DateConstraint.VALUATION_TIME.yesterday(), true));
   }
 
   @Override

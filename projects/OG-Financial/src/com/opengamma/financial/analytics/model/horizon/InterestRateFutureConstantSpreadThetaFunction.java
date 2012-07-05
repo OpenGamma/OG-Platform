@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -21,10 +22,10 @@ import com.opengamma.analytics.financial.interestrate.ConstantSpreadHorizonTheta
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -46,10 +47,13 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -81,7 +85,6 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     final InterestRateFutureSecurity security = (InterestRateFutureSecurity) trade.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -99,9 +102,8 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ExternalIdBundle id = security.getExternalIdBundle();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
+    final HistoricalTimeSeries ts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -122,7 +124,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.TRADE && target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
+    return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
   @Override
@@ -150,7 +152,23 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
     }
-    return YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    final Set<ValueRequirement> requirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    ValueRequirement requirement = getTimeSeriesRequirement(context, target.getTrade().getSecurity());
+    if (requirement == null) {
+      return null;
+    }
+    requirements.add(requirement);
+    return requirements;
+  }
+
+  private ValueRequirement getTimeSeriesRequirement(final FunctionCompilationContext context, final Security security) {
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (timeSeries == null) {
+      return null;
+    }
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true,
+        DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueProperties.Builder getResultProperties(final String currency) {
