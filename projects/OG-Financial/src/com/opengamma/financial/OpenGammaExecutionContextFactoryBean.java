@@ -16,6 +16,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -24,6 +25,7 @@ import com.opengamma.util.SingletonFactoryBean;
 public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<FunctionExecutionContext> {
 
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+  private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private RegionSource _regionSource;
@@ -39,6 +41,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
 
   public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource source) {
     _historicalTimeSeriesSource = source;
+  }
+
+  public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
+    return _historicalTimeSeriesResolver;
+  }
+
+  public void setHistoricalTimeSeriesResolver(final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    _historicalTimeSeriesResolver = historicalTimeSeriesResolver;
   }
 
   public SecuritySource getSecuritySource() {
@@ -108,16 +118,31 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   @Override
   protected FunctionExecutionContext createObject() {
     FunctionExecutionContext context = new FunctionExecutionContext();
-    context.setSecuritySource(_securitySource);
-    context.setPortfolioStructure(new PortfolioStructure(_positionSource));
-    OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, _historicalTimeSeriesSource);
-    OpenGammaExecutionContext.setRegionSource(context, _regionSource);
-    OpenGammaExecutionContext.setExchangeSource(context, _exchangeSource);
-    OpenGammaExecutionContext.setHolidaySource(context, _holidaySource);
-    OpenGammaExecutionContext.setConventionBundleSource(context, _conventionBundleSource);
-    OpenGammaExecutionContext.setConfigSource(context, _configSource);
-    if (_overrideOperationCompiler != null) {
-      OpenGammaExecutionContext.setOverrideOperationCompiler(context, _overrideOperationCompiler);
+    context.setSecuritySource(getSecuritySource());
+    context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
+    if (getHistoricalTimeSeriesSource() != null) {
+      OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalTimeSeriesSource());
+    }
+    if (getHistoricalTimeSeriesResolver() != null) {
+      OpenGammaExecutionContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
+    }
+    if (getRegionSource() != null) {
+      OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
+    }
+    if (getExchangeSource() != null) {
+      OpenGammaExecutionContext.setExchangeSource(context, getExchangeSource());
+    }
+    if (getHolidaySource() != null) {
+      OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
+    }
+    if (getConventionBundleSource() != null) {
+      OpenGammaExecutionContext.setConventionBundleSource(context, getConventionBundleSource());
+    }
+    if (getConfigSource() != null) {
+      OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    }
+    if (getOverrideOperationCompiler() != null) {
+      OpenGammaExecutionContext.setOverrideOperationCompiler(context, getOverrideOperationCompiler());
     }
     return context;
   }

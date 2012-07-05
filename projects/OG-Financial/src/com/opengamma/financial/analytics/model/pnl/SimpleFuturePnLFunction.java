@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -40,7 +39,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -50,6 +50,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -74,7 +75,6 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final Currency currency = security.getCurrency();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -82,10 +82,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final ExternalIdBundle underlyingId = getUnderlyingIdentifier((FutureSecurity) position.getSecurity());
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingId, _resolutionKey, startDate, true, now, true);
-    if (dbTimeSeries == null) {
-      throw new OpenGammaRuntimeException("Could not get identifier / price series pair for id " + underlyingId + " for " + _resolutionKey + "/" + MarketDataRequirementNames.MARKET_VALUE);
-    }
+    final HistoricalTimeSeries dbTimeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final DoubleTimeSeries<?> ts = dbTimeSeries.getTimeSeries();
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price series for id " + underlyingId);
@@ -163,6 +160,16 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
         .with(ValuePropertyNames.CURRENCY, future.getCurrency().getCode())
         .with(ValuePropertyNames.CURVE, curveName).get();
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, future.getUniqueId(), pvProperties));
+    final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
+        getUnderlyingIdentifier(future), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+    if (timeSeries == null) {
+      return null;
+    }
+    requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
+        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriodName.iterator().next())
+        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
+        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
+        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get()));
     return requirements;
   }
 

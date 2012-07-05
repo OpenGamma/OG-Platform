@@ -70,11 +70,11 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     HistoricalTimeSeriesResolver resolver = initResolver();
+    repo.registerComponent(new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier()), resolver);
     HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
     if (getCacheManager() != null) {
       source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
-    
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     repo.registerComponent(info, source);
     if (isPublishRest()) {

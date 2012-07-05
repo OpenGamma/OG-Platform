@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -36,10 +35,13 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -63,18 +65,14 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     final Security security = target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final Set<String> samplingFunctionName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_FUNCTION);
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries tsPair = historicalSource.getHistoricalTimeSeries(_fieldName, security.getExternalIdBundle(), _resolutionKey, startDate, true, now, true);
-    if (tsPair == null) {
-      throw new OpenGammaRuntimeException("Could not get identifier / price series pair for security " + security + " for " + _resolutionKey + "/" + _fieldName);
-    }
-    final DoubleTimeSeries<?> ts = tsPair.getTimeSeries();
+    final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
+    final DoubleTimeSeries<?> ts = hts.getTimeSeries();
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price series for security " + security);
     }
@@ -98,9 +96,6 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     try {
       return FinancialSecurityUtils.getCurrency(target.getSecurity()) != null;
     } catch (final UnsupportedOperationException e) {
@@ -110,17 +105,30 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.<ValueRequirement>emptySet();
+    final Set<String> samplingPeriods = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if ((samplingPeriods == null) || (samplingPeriods.size() != 1)) {
+      return null;
+    }
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, _fieldName, _resolutionKey);
+    if (timeSeries == null) {
+      return null;
+    }
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
+        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriods.iterator().next())
+        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
+        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
+        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
     properties
-      .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-      .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-      .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), properties.get()), getUniqueId()));
   }
 

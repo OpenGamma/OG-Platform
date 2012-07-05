@@ -81,6 +81,10 @@ public final class ValueRequirementNames {
    * The market price of the underlying security in a compound security, such as an option
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
+  /**
+   * The historical time series of a quantity.
+   */
+  public static final String HISTORICAL_TIME_SERIES = "Historical Time Series";
 
   ///// Curves
 
@@ -121,6 +125,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
   /**
+   * The bundle of historical time series objects for instruments on a curve.
+   */
+  public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
+  /**
    * Curve calculation property metadata
    */
   public static final String CURVE_CALCULATION_CONFIG = "CurveCalculationConfig";
@@ -136,6 +144,7 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+
   ///// Surfaces
 
   /**

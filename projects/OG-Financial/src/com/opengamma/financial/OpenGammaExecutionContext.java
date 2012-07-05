@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.holiday.HolidayMaster;
 
 /**
@@ -26,6 +27,11 @@ public final class OpenGammaExecutionContext {
    * The name under which an instance of {@link HistoricalTimeSeriesSource} should be bound.
    */
   public static final String HISTORICAL_TIME_SERIES_SOURCE_NAME = "historicalTimeSeriesSource";
+
+  /**
+   * The name under which an instanceof {@link HistoricalTimeSeriesResolver} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_RESOLVER_NAME = "historicalTimeSeriesResolver";
 
   /**
    * The name under which an instance of {@link RegionSource} should be bound.
@@ -89,7 +95,14 @@ public final class OpenGammaExecutionContext {
     context.put(HISTORICAL_TIME_SERIES_SOURCE_NAME, source);
   }
 
-  //-------------------------------------------------------------------------
+  public static HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver(final FunctionExecutionContext context) {
+    return (HistoricalTimeSeriesResolver) context.get(HISTORICAL_TIME_SERIES_RESOLVER_NAME);
+  }
+
+  public static void setHistoricalTimeSeriesResolver(final FunctionExecutionContext context, final HistoricalTimeSeriesResolver resolver) {
+    context.put(HISTORICAL_TIME_SERIES_RESOLVER_NAME, resolver);
+  }
+
   /**
    * Gets a {@code SecuritySource} from the context.
    * 

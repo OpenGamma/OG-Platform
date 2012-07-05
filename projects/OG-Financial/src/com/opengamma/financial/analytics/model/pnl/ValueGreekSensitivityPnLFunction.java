@@ -32,9 +32,8 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -47,7 +46,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -90,23 +89,16 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       }
     }
     final Position position = target.getPosition();
-    final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final Set<String> samplingFunctionName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_FUNCTION);
     final Set<String> returnCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
-    final UnderlyingTimeSeriesProvider underlyingTimeSeriesProvider = new UnderlyingTimeSeriesProvider(historicalSource, _resolutionKey, securitySource);
+    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final SensitivityAndReturnDataBundle[] dataBundleArray = new SensitivityAndReturnDataBundle[1];
-    final Object valueObj = inputs.getValue(REQUIREMENT_NAME);
-    if (valueObj == null) {
-      throw new OpenGammaRuntimeException("Could not get delta for " + position);
-    }
-    final Double value = (Double) valueObj;
+    final Double value = (Double) inputs.getValue(REQUIREMENT_NAME);
     final ValueGreek valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(REQUIREMENT_NAME);
     final Sensitivity<?> sensitivity = new ValueGreekSensitivity(valueGreek, position.getUniqueId().toString());
     final Map<UnderlyingType, DoubleTimeSeries<?>> tsReturns = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
@@ -116,12 +108,11 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorName);
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
+    final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries.getTimeSeries(), schedule).toLocalDateDoubleTimeSeries();
     for (final UnderlyingType underlyingType : valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings()) {
       if (underlyingType != UnderlyingType.SPOT_PRICE) {
         throw new OpenGammaRuntimeException("Have hard-coded to only use delta; should not have anything with " + underlyingType + " as the underlying type");
       }
-      final LocalDateDoubleTimeSeries timeSeries = underlyingTimeSeriesProvider.getSeries(GREEK, security, startDate, now);
-      final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries, schedule).toLocalDateDoubleTimeSeries();
       tsReturns.put(underlyingType, returnCalculator.evaluate(sampledTS));
     }
     dataBundleArray[0] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);
@@ -143,7 +134,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity; //TODO need to widen this
+    return target.getPosition().getSecurity() instanceof EquityOptionSecurity; //TODO need to widen this
   }
 
   @Override
@@ -170,6 +161,9 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.getPosition()));
+    final UnderlyingTimeSeriesProvider timeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
+        context.getSecuritySource());
+    requirements.add(timeSeriesProvider.getSeriesRequirement(GREEK, (FinancialSecurity) target.getPosition().getSecurity(), "-" + samplingPeriodName.iterator().next(), null));
     return requirements;
   }
 

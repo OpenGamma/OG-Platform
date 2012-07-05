@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -41,15 +40,16 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FXFutureSecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -74,7 +74,6 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     final Currency currency = security.getCurrency();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -84,7 +83,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     final LocalDate startDate = now.minus(samplingPeriod);
     final Currency payCurrency = security.getNumerator();
     final Currency receiveCurrency = security.getDenominator();
-    final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingId, _resolutionKey, startDate, true, now, true);
+    final HistoricalTimeSeries dbTimeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     if (dbTimeSeries == null) {
       throw new OpenGammaRuntimeException("Could not get identifier / price series pair for id " + underlyingId + " for " + _resolutionKey + "/" + MarketDataRequirementNames.MARKET_VALUE);
     }
@@ -121,9 +120,6 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Position position = target.getPosition();
     final Security security = position.getSecurity();
     return security instanceof FXFutureSecurity;
@@ -167,13 +163,23 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
       return null;
     }
     final Position position = target.getPosition();
-    final FutureSecurity future = (FutureSecurity) position.getSecurity();
+    final FXFutureSecurity future = (FXFutureSecurity) position.getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties pvProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, future.getCurrency().getCode())
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName).get();
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, future.getUniqueId(), pvProperties));
+    final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
+        getUnderlyingIdentifier(future), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+    if (timeSeries == null) {
+      return null;
+    }
+    requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
+        .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriodName.iterator().next())
+        .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
+        .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
+        .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get()));
     return requirements;
   }
 

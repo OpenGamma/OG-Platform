@@ -9,7 +9,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -22,7 +21,6 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * 
@@ -42,6 +40,9 @@ public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPos
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    if (!super.canApplyTo(context, target)) {
+      return false;
+    }
     Security security = target.getTrade().getSecurity();
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
@@ -65,9 +66,13 @@ public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPos
   }
 
   @Override
-  protected HistoricalTimeSeries getMarkToMarketSeries(HistoricalTimeSeriesSource historicalSource, String fieldName, ExternalIdBundle bundle, String resolutionKey, LocalDate tradeDate) {
-    return historicalSource.getHistoricalTimeSeries(fieldName, bundle, resolutionKey,
-                                                    tradeDate.minusDays(MAX_DAYS_OLD), true, tradeDate, true);
+  protected String getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
+    return "-P" + (MAX_DAYS_OLD + 1) + "D"; // yesterday - MAX_DAYS_OLD
+  }
+
+  @Override
+  protected String getTimeSeriesEndDate(final PositionOrTrade positionOrTrade) {
+    return "-P1D"; // yesterday
   }
 
   @Override

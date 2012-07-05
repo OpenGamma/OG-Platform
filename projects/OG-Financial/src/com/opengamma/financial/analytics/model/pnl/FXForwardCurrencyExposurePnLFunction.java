@@ -12,8 +12,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -37,13 +36,15 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -59,7 +60,6 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
@@ -69,18 +69,15 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     final String samplingPeriod = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD);
     final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
-    final Object ccyExposureObject = inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    if (ccyExposureObject == null) {
-      throw new OpenGammaRuntimeException("Could not get currency exposure");
-    }
     final FXForwardSecurity security = (FXForwardSecurity) position.getSecurity();
-    final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) ccyExposureObject;
+    final MultipleCurrencyAmount mca = (MultipleCurrencyAmount) inputs.getValue(ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final LocalDate startDate = now.toLocalDate().minus(Period.parse(samplingPeriod));
     final Schedule schedule = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculator);
     final TimeSeriesSamplingFunction sampling = TimeSeriesSamplingFunctionFactory.getFunction(samplingFunction);
     final Currency currencyNonBase = FXUtils.nonBaseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The non-base currency
     final double exposure = mca.getAmount(currencyNonBase);
-    DoubleTimeSeries<?> result = getPnLSeries(tsSource, startDate, now.toLocalDate(), schedule, sampling, security);
+    DoubleTimeSeries<?> result = getPnLSeries(startDate, now.toLocalDate(), schedule, sampling, timeSeries);
     result = result.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
     final Currency currencyBase = FXUtils.baseCurrency(security.getPayCurrency(), security.getReceiveCurrency()); // The base currency
     final ValueProperties resultProperties = createValueProperties()
@@ -105,9 +102,6 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     return security instanceof FXForwardSecurity;
   }
@@ -149,27 +143,33 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction.NonCo
     if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
       return null;
     }
-    final String payCurveName = payCurveNames.iterator().next();
-    final String payCurveCalculationConfig = payCurveCalculationConfigs.iterator().next();
-    final String receiveCurveName = receiveCurveNames.iterator().next();
-    final String receiveCurveCalculationConfig = receiveCurveCalculationConfigs.iterator().next();
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
-        .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig).get();
-    final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), properties);
-    return Collections.singleton(requirement);
+    final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if (samplingPeriods == null || samplingPeriods.size() != 1) {
+      return null;
+    }
+    final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
+        ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.getPosition().getSecurity(), ValueProperties.builder()
+            .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+            .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, payCurveCalculationConfigs.iterator().next())
+            .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+            .with(FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
+    final HistoricalTimeSeriesResolutionResult timeSeries = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context).resolve(
+        ExternalIdBundle.of(FXUtils.getSpotIdentifier((FXForwardSecurity) target.getPosition().getSecurity())), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    if (timeSeries == null) {
+      return null;
+    }
+    final ValueRequirement marketValueRequirement = new ValueRequirement(
+        ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), ValueProperties.builder()
+            .with(HistoricalTimeSeriesFunction.START_DATE_PROPERTY, "-" + samplingPeriods.iterator().next())
+            .with(HistoricalTimeSeriesFunction.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE)
+            .with(HistoricalTimeSeriesFunction.END_DATE_PROPERTY, "")
+            .with(HistoricalTimeSeriesFunction.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunction.YES_VALUE).get());
+    return ImmutableSet.of(fxCurrencyExposureRequirement, marketValueRequirement);
   }
 
-  private DoubleTimeSeries<?> getPnLSeries(final HistoricalTimeSeriesSource historicalSource, final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
-      final TimeSeriesSamplingFunction samplingFunction, final FXForwardSecurity fxForward) {
+  private DoubleTimeSeries<?> getPnLSeries(final LocalDate startDate, final LocalDate now, final Schedule scheduleCalculator,
+      final TimeSeriesSamplingFunction samplingFunction, final HistoricalTimeSeries dbTimeSeries) {
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    final ExternalIdBundle id = ExternalIdBundle.of(FXUtils.getSpotIdentifier(fxForward));
-    final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, startDate, true, now, true);
-    if (dbTimeSeries == null) {
-      throw new OpenGammaRuntimeException("Could not get time series for id " + id);
-    }
     DoubleTimeSeries<?> result = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), dates);
     result = result.reciprocal(); // Implementation note: to obtain the P/L for one unit of non-base currency expressed in base currency.
     return DIFFERENCE.evaluate(result);

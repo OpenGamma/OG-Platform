@@ -124,11 +124,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
   @Override
   // TODO Review choice of target as BLOOMBERG_TICKER_WEAK~DJX. Seems arbitrary. Both are contained in the specification itself.
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != getTargetType()) {
-      return false;
-    }
     if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
       return false;
     }
     final String targetScheme = target.getUniqueId().getScheme();
