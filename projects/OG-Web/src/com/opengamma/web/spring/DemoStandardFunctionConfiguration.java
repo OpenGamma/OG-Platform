@@ -77,15 +77,13 @@ import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYi
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
-import com.opengamma.financial.analytics.model.equity.EquityIndexOptionFundingCurveSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaFunction;
-import com.opengamma.financial.analytics.model.equity.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionForwardValueFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionImpliedVolFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionRhoFunction;
@@ -93,6 +91,8 @@ import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOpt
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotGammaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotIndexFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotVannaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVommaFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPositionFunction;
