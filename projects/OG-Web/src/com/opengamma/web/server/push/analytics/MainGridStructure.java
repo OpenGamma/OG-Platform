@@ -61,6 +61,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     _specsToReqs = Maps.newHashMap();
     _reqsToSpecs = Maps.newHashMap();
     int colIndex = 1; // col 0 is the node name
+    _columnKeys.add(null); // there is no key for the row label column, stick null in there to get the indices right
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
       CompiledViewCalculationConfiguration compiledConfig = compiledViewDef.getCompiledCalculationConfiguration(configName);
@@ -126,6 +127,9 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
     }
     RequirementBasedColumnKey colKey = _columnKeys.get(colIndex);
+    if (colKey == null) {
+      return null;
+    }
     Row row = _rows.get(rowIndex);
      ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
     String calcConfigName = colKey.getCalcConfigName();

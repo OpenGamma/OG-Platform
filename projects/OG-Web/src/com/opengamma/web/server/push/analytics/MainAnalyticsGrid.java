@@ -79,6 +79,9 @@ import com.opengamma.util.tuple.Pair;
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
     Pair<ValueSpecification, String> targetForCell = _gridStructure.getTargetForCell(row, col);
+    if (targetForCell == null) {
+      throw new DataNotFoundException("No dependency graph is available for row " + row + ", col " + col);
+    }
     ValueSpecification valueSpec = targetForCell.getFirst();
     String calcConfigName = targetForCell.getSecond();
     DependencyGraphGrid grid =
