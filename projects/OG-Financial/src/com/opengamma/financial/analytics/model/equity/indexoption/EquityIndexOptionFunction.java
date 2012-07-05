@@ -241,6 +241,9 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     String bbgTicker;
     if (tsSource != null)  {
       HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+      if ( historicalTimeSeries == null) {
+        throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
+      }
       ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
       bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
     } else {
