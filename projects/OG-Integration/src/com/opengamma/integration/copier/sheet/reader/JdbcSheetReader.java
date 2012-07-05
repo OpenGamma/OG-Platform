@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -43,21 +43,21 @@ public class JdbcSheetReader extends SheetReader {
   private List<Map<String, String>> _results;
   private Iterator<Map<String, String>> _iterator;
   private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
-  
+
   public JdbcSheetReader(DataSource dataSource, String query) {
     init(dataSource, query, null);
   }
-  
+
   public JdbcSheetReader(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
-    ArgumentChecker.notNull(preparedStatementSetter, "prepared statement setter");
     init(dataSource, query, preparedStatementSetter);
   }
-  
+
   protected void init(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
     ArgumentChecker.notNull(dataSource, "dataSource");
-    
+    ArgumentChecker.notEmpty(query, "query");
+
     _jdbcTemplate = new JdbcTemplate(dataSource);
-     
+
     ResultSetExtractor<List<Map<String, String>>> extractor = new ResultSetExtractor<List<Map<String, String>>>() {
       @Override
       public List<Map<String, String>> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -95,7 +95,7 @@ public class JdbcSheetReader extends SheetReader {
     }
     _iterator = _results.iterator();
   }
-  
+
   private JdbcTemplate getJDBCTemplate() {
     return _jdbcTemplate;
   }
