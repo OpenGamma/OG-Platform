@@ -27,13 +27,13 @@ public class ParameterSensitivityCalculator {
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times.
    */
-  private final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> _curveSensitivityCalculator;
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> _curveSensitivityCalculator;
 
   /**
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public ParameterSensitivityCalculator(AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
