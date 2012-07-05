@@ -75,6 +75,7 @@
           <include>**/*.csv</include>
           <include>**/*.proto</include>
           <include>**/*.txt</include>
+          <include>**/*.xml</include>
         </includes>
       </resource>
     </resources>
@@ -84,6 +85,10 @@
         <directory>${project.build.testSourceDirectory}</directory>
         <includes>
           <include>**/*.properties</include>
+          <include>**/*.csv</include>
+          <include>**/*.proto</include>
+          <include>**/*.txt</include>
+          <include>**/*.xml</include>
         </includes>
       </testResource>
     </testResources>
