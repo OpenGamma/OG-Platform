@@ -25,14 +25,13 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift, final String newName) {
     Validate.notNull(curve, "curve");
     final int n = curve.getUnderlyingCurves().length;
-    final Curve<Double, Double>[] curves = new Curve[n + 1];
+    final DoublesCurve[] curves = new DoublesCurve[n + 1];
     int i = 0;
-    for (final Curve<Double, Double> c : curve.getUnderlyingCurves()) {
+    for (final DoublesCurve c : curve.getUnderlyingCurves()) {
       curves[i++] = c;
     }
     curves[n] = ConstantDoublesCurve.from(shift);

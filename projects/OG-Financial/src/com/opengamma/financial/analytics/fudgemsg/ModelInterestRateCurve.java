@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 
 /**
  * Holds Fudge builders for the interest rate curve model.
@@ -32,17 +33,24 @@ import com.opengamma.analytics.math.curve.Curve;
   @FudgeBuilderFor(YieldCurve.class)
   public static final class YieldCurveBuilder extends AbstractFudgeBuilder<YieldCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
+    private static final String NAME_FIELD_NAME = "name";
 
-    @SuppressWarnings("unchecked")
     @Override
     public YieldCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Curve<Double, Double> curve = deserializer.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
-      return new YieldCurve(curve);
+      final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD_NAME));
+      final String name;
+      if (message.hasField(NAME_FIELD_NAME)) {
+        name = message.getString(NAME_FIELD_NAME);
+      } else {
+        name = curve.getName();
+      }
+      return new YieldCurve(name, curve);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final YieldCurve object) {
-      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), DoublesCurve.class);
+      serializer.addToMessage(message, NAME_FIELD_NAME, null, object.getName());
     }
   }
 
@@ -52,17 +60,23 @@ import com.opengamma.analytics.math.curve.Curve;
   @FudgeBuilderFor(DiscountCurve.class)
   public static final class DiscountCurveBuilder extends AbstractFudgeBuilder<DiscountCurve> {
     private static final String CURVE_FIELD_NAME = "curve";
+    private static final String NAME_FIELD_NAME = "name";
 
-    @SuppressWarnings("unchecked")
     @Override
     public DiscountCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final Curve<Double, Double> curve = deserializer.fieldValueToObject(Curve.class, message.getByName(CURVE_FIELD_NAME));
-      return new DiscountCurve(curve);
+      final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD_NAME));
+      final String name;
+      if (message.hasField(NAME_FIELD_NAME)) {
+        name = message.getString(NAME_FIELD_NAME);
+      } else {
+        name = curve.getName();
+      }
+      return new DiscountCurve(name, curve);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final DiscountCurve object) {
-      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), Curve.class);
+      serializer.addToMessageWithClassHeaders(message, CURVE_FIELD_NAME, null, object.getCurve(), DoublesCurve.class);
     }
   }
 

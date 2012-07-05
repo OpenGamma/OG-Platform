@@ -42,7 +42,7 @@ public class FokkerPlankPDETest {
   //private static final double FORWARD;
   private static final double T = 5.0;
   private static final double RATE = 0.05;
-  private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
+  private static final YieldAndDiscountCurve YIELD_CURVE = YieldCurve.from(ConstantDoublesCurve.from(RATE));
   private static final double ATM_VOL = 0.20;
   private static final Function1D<Double, Double> INITAL_CONDITION = INITIAL_CONDITION_PROVIDER.getLogNormalDensity(SPOT, 0.001, ATM_VOL);
   private static final ConvectionDiffusionPDE1DFullCoefficients DATA;

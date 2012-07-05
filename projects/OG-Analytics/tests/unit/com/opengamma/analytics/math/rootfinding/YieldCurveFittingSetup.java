@@ -250,7 +250,7 @@ public abstract class YieldCurveFittingSetup {
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
-    return new YieldCurve(InterpolatedDoublesCurve.from(times, yields, interpolator));
+    return YieldCurve.from(InterpolatedDoublesCurve.from(times, yields, interpolator));
   }
 
   protected static MultipleYieldCurveFinderDataBundle updateInstruments(final MultipleYieldCurveFinderDataBundle old, final List<InstrumentDerivative> instruments, final double[] marketRates) {

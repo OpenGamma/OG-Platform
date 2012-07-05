@@ -32,7 +32,7 @@ public class CashOrNothingOptionDefinitionTest {
   private static final Expiry EXPIRY = new Expiry(DateUtils.getUTCDate(2010, 7, 1));
   private static final CashOrNothingOptionDefinition CALL = new CashOrNothingOptionDefinition(STRIKE, EXPIRY, true, PAYMENT);
   private static final CashOrNothingOptionDefinition PUT = new CashOrNothingOptionDefinition(STRIKE, EXPIRY, false, PAYMENT);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.05)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.05)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.2)), SPOT,
       DateUtils.getUTCDate(2010, 1, 1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)

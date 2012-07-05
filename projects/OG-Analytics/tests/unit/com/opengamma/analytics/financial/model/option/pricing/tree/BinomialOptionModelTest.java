@@ -90,7 +90,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testEuropeanCallTree() {
     final ZonedDateTime date = DateUtils.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
     final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(date, 1)), true);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getNodes();
@@ -111,7 +111,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testAmericanPutTree() {
     final ZonedDateTime date = DateUtils.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), 0., new VolatilitySurface(ConstantDoublesSurface.from(0.)), 100., date);
     final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtils.getDateOffsetWithYearFraction(date, 1)), false);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<DoublesPair>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final DoublesPair[][] result = f.evaluate(data).getNodes();

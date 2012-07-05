@@ -36,7 +36,7 @@ public class DoubleConverter implements ResultConverter<Object> {
   private static final DoubleValueFormatter DEFAULT_CONVERSION = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
   private static final Map<String, DoubleValueFormatter> VALUE_CONVERSION_MAP = new HashMap<String, DoubleValueFormatter>();
 
-  static {   
+  static {
     // General
     addConversion(ValueRequirementNames.DISCOUNT_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.YIELD_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -46,6 +46,7 @@ public class DoubleConverter implements ResultConverter<Object> {
 
     // Pricing
     addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PAR_RATE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     addConversion(ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
@@ -58,7 +59,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.UNDERLYING_MARKET_PRICE, DoubleValueSignificantFiguresFormatter.of(5, true));
     addConversion(ValueRequirementNames.UNDERLYING_MODEL_PRICE, DoubleValueSignificantFiguresFormatter.of(5, true));
     addConversion(ValueRequirementNames.DAILY_PRICE, DoubleValueSignificantFiguresFormatter.of(5, true));
-    
+
     // PnL
     addConversion(ValueRequirementNames.PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.DAILY_PNL, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -111,6 +112,8 @@ public class DoubleConverter implements ResultConverter<Object> {
     // VaR
     addConversion(ValueRequirementNames.HISTORICAL_VAR, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     addConversion(ValueRequirementNames.PARAMETRIC_VAR, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.HISTORICAL_VAR_STDDEV, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
 
     // Capital Asset Pricing
     addConversion(ValueRequirementNames.CAPM_BETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
@@ -151,32 +154,32 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.BOND_TENOR, DoubleValueDecimalPlaceFormatter.NON_CCY_2DP);
     addConversion(ValueRequirementNames.NS_BOND_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.NSS_BOND_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    
-    // Options 
+
+    // Options
     addConversion(ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    
+
     // FX
     addConversion(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
   }
 
-  private static void addBulkConversion(String valueRequirementFieldNamePattern,
-      DoubleValueFormatter conversionSettings) {
-    Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
-    for (Field field : ValueRequirementNames.class.getFields()) {
+  private static void addBulkConversion(final String valueRequirementFieldNamePattern,
+      final DoubleValueFormatter conversionSettings) {
+    final Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
+    for (final Field field : ValueRequirementNames.class.getFields()) {
       if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) == (Modifier.STATIC | Modifier.PUBLIC)
           && String.class.equals(field.getType()) && pattern.matcher(field.getName()).matches()) {
         String fieldValue;
         try {
           fieldValue = (String) field.get(null);
           addConversion(fieldValue, conversionSettings);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           // Ignore
         }
       }
     }
   }
 
-  private static void addConversion(String valueName, DoubleValueFormatter conversionSettings) {
+  private static void addConversion(final String valueName, final DoubleValueFormatter conversionSettings) {
     VALUE_CONVERSION_MAP.put(valueName, conversionSettings);
   }
 
@@ -184,11 +187,11 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
   @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, Object value, ConversionMode mode) {
+  public Object convertForDisplay(final ResultConverterCache context, final ValueSpecification valueSpec, final Object value, final ConversionMode mode) {
     String displayValue = null;
-    
-    Pair<Double, BigDecimal> processedValue = processValue(value);
-    Double doubleValue = processedValue.getFirst();
+
+    final Pair<Double, BigDecimal> processedValue = processValue(value);
+    final Double doubleValue = processedValue.getFirst();
     BigDecimal bigDecimalValue = processedValue.getSecond();
 
     if (doubleValue != null) {
@@ -198,20 +201,20 @@ public class DoubleConverter implements ResultConverter<Object> {
         bigDecimalValue = BigDecimal.valueOf(doubleValue);
       }
     }
-    
-    DoubleValueFormatter formatter = getFormatter(valueSpec);
-    
+
+    final DoubleValueFormatter formatter = getFormatter(valueSpec);
+
     if (displayValue == null) {
       assert bigDecimalValue != null;
       displayValue = formatter.format(bigDecimalValue);
     }
-    
+
     if (formatter.isCurrencyAmount()) {
       String ccy;
       if (value instanceof CurrencyAmount) {
         ccy = ((CurrencyAmount) value).getCurrency().getCode();
       } else {
-        Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
+        final Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
         if (currencyValues == null) {
           ccy = DISPLAY_UNKNOWN_CCY ? "?" : "";
         } else if (currencyValues.isEmpty()) {
@@ -227,30 +230,30 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   //TODO putting the conversion for CurrencyAmount into here right now, but this is probably not the place for it.
   @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
-    Pair<Double, BigDecimal> processedValue = processValue(value);
-    Double doubleValue = processedValue.getFirst();
+  public Object convertForHistory(final ResultConverterCache context, final ValueSpecification valueSpec, final Object value) {
+    final Pair<Double, BigDecimal> processedValue = processValue(value);
+    final Double doubleValue = processedValue.getFirst();
     BigDecimal bigDecimalValue = processedValue.getSecond();
-    
+
     if (doubleValue != null) {
       if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
         //REVIEW emcleod 7-6-2011 This is awful - 0 is a legitimate value to return, whereas NaN or infinity show an error in the calculation
-        bigDecimalValue = BigDecimal.ZERO; 
+        bigDecimalValue = BigDecimal.ZERO;
       } else {
         bigDecimalValue = BigDecimal.valueOf(doubleValue);
       }
     }
 
-    DoubleValueFormatter formatter = getFormatter(valueSpec);
+    final DoubleValueFormatter formatter = getFormatter(valueSpec);
     return formatter.getRoundedValue(bigDecimalValue);
   }
-  
-  private Pair<Double, BigDecimal> processValue(Object value) {
+
+  private Pair<Double, BigDecimal> processValue(final Object value) {
     if (value instanceof Double) {
       return Pair.of((Double) value, null);
     }
     if (value instanceof CurrencyAmount) {
-      CurrencyAmount currencyAmount = (CurrencyAmount) value;
+      final CurrencyAmount currencyAmount = (CurrencyAmount) value;
       return Pair.of((Double) currencyAmount.getAmount(), null);
     }
     if (value instanceof BigDecimal) {
@@ -259,7 +262,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
   }
 
-  private DoubleValueFormatter getFormatter(ValueSpecification valueSpec) {
+  private DoubleValueFormatter getFormatter(final ValueSpecification valueSpec) {
     DoubleValueFormatter conversion = null;
     if (valueSpec != null) {
       conversion = VALUE_CONVERSION_MAP.get(valueSpec.getValueName());
@@ -271,11 +274,11 @@ public class DoubleConverter implements ResultConverter<Object> {
   }
 
   @Override
-  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, Object value) {
+  public String convertToText(final ResultConverterCache context, final ValueSpecification valueSpec, final Object value) {
     // Full value
     return value.toString();
   }
-  
+
   @Override
   public String getFormatterName() {
     return "DOUBLE";

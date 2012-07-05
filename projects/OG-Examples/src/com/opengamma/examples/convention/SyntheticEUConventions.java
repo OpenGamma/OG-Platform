@@ -6,6 +6,7 @@
 package com.opengamma.examples.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import javax.time.calendar.Period;
 
@@ -18,6 +19,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 /**
@@ -30,13 +33,17 @@ public class SyntheticEUConventions {
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
+    final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     
     //TODO holiday associated with EUR swaps is TARGET
     final ExternalId eu = ExternalSchemes.financialRegionId("EU");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     //EURO LIBOR
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURLIBORP3M")), "EUR LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, eu);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURLIBORP6M")), "EUR LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, eu);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURLIBORP3M"), simpleNameSecurityId("EURIBOR 3m")), "EUR LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, eu);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURLIBORP6M"), simpleNameSecurityId("EURIBOR 6m")), "EUR LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURLIBORP12M")), "EUR LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, eu);    
 
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURCASHP1D")),
@@ -65,6 +72,19 @@ public class SyntheticEUConventions {
         "EURCASHP11M", act360, modified, Period.ofMonths(11), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EURCASHP12M")),
         "EURCASHP12M", act360, modified, Period.ofMonths(12), 2, false, eu);
+    
+    final DayCount swapFixedDayCount = thirty360;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = annual;
+    final DayCount euriborDayCount = act360;
+    
+    // IRS
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_SWAP")), "EUR_SWAP", swapFixedDayCount, swapFixedBusinessDay,
+        swapFixedPaymentFrequency, 2, eu, euriborDayCount, modified, semiAnnual, 2, simpleNameSecurityId("EURIBOR 6m"), eu, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_3M_SWAP")), "EUR_3M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
+        swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, simpleNameSecurityId("EURIBOR 3m"), eu, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_6M_SWAP")), "EUR_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
+        swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2, simpleNameSecurityId("EURIBOR 6m"), eu, true);
   }
 
 }

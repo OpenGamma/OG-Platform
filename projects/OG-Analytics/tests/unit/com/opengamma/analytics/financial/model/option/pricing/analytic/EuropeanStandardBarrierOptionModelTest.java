@@ -33,7 +33,7 @@ import com.opengamma.util.time.Expiry;
 public class EuropeanStandardBarrierOptionModelTest {
   private static final double SPOT = 100;
   private static final double REBATE = 3;
-  private static final YieldAndDiscountCurve R = new YieldCurve(ConstantDoublesCurve.from(0.08));
+  private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.08));
   private static final double B = 0.04;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 0.5));
@@ -54,7 +54,7 @@ public class EuropeanStandardBarrierOptionModelTest {
   @Test
   public void testZeroVol() {
     final double delta = 10;
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT, DATE);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.)), 0, new VolatilitySurface(ConstantDoublesSurface.from(0.)), SPOT, DATE);
     Barrier barrier = new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CONTINUOUS, 95);
     EuropeanStandardBarrierOptionDefinition option = new EuropeanStandardBarrierOptionDefinition(SPOT - delta, EXPIRY, true, barrier, REBATE);
     assertEquals(MODEL.getPricingFunction(option).evaluate(data), 10, 0);

@@ -73,12 +73,12 @@ public class PresentValueCalculatorTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
-    YieldAndDiscountCurve curve = new YieldCurve(ConstantDoublesCurve.from(0.05));
+    YieldAndDiscountCurve curve = YieldCurve.from(ConstantDoublesCurve.from(0.05));
     CURVES = new YieldCurveBundle();
     CURVES.setCurve(FIVE_PC_CURVE_NAME, curve);
-    curve = new YieldCurve(ConstantDoublesCurve.from(0.04));
+    curve = YieldCurve.from(ConstantDoublesCurve.from(0.04));
     CURVES.setCurve(FOUR_PC_CURVE_NAME, curve);
-    curve = new YieldCurve(ConstantDoublesCurve.from(0.0));
+    curve = YieldCurve.from(ConstantDoublesCurve.from(0.0));
     CURVES.setCurve(ZERO_PC_CURVE_NAME, curve);
   }
 

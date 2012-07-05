@@ -129,7 +129,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
             .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
             .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedDataProperties.CALCULATION_METHOD_NAME).get();
         final ValueSpecification result = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(result, new YieldCurve(curve)));
+        return Collections.singleton(new ComputedValue(result, YieldCurve.from(curve)));
       }
 
       @Override

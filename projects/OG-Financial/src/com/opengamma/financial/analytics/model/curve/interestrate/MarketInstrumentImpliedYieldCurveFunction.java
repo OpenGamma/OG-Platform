@@ -445,7 +445,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     }
     final YieldAndDiscountCurve curve;
     if (createSensitivities || createYieldCurve) {
-      curve = new YieldCurve(InterpolatedDoublesCurve.from(nodeTimes, yields, getInterpolator(specificationWithSecurities)));
+      curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes, yields, getInterpolator(specificationWithSecurities)));
     } else {
       curve = null;
     }
@@ -577,14 +577,14 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final YieldAndDiscountCurve fundingCurve;
     if (createSensitivities || createFundingYieldCurve) {
       final double[] fundingYields = Arrays.copyOfRange(yields, 0, fundingNodeTimes.length);
-      fundingCurve = new YieldCurve(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, getInterpolator(fundingCurveSpecificationWithSecurities)));
+      fundingCurve = YieldCurve.from(InterpolatedDoublesCurve.from(fundingNodeTimes, fundingYields, getInterpolator(fundingCurveSpecificationWithSecurities)));
     } else {
       fundingCurve = null;
     }
     final YieldAndDiscountCurve forwardCurve;
     if (createSensitivities || createForwardYieldCurve) {
       final double[] forwardYields = Arrays.copyOfRange(yields, fundingNodeTimes.length, yields.length);
-      forwardCurve = new YieldCurve(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, getInterpolator(forwardCurveSpecificationWithSecurities)));
+      forwardCurve = YieldCurve.from(InterpolatedDoublesCurve.from(forwardNodeTimes, forwardYields, getInterpolator(forwardCurveSpecificationWithSecurities)));
     } else {
       forwardCurve = null;
     }

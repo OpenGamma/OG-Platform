@@ -5,36 +5,73 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calc.ComputationCacheQuery;
+import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
 public class DependencyGraphViewport extends AnalyticsViewport {
 
-  DependencyGraphViewport(AnalyticsGridStructure gridStructure,
-                          ViewportSpecification viewportSpec,
+  private final String _calcConfigName;
+  private final DependencyGraphGridStructure _gridStructure;
+
+  /** {@link ValueSpecification}s for all rows visible in the viewport. */
+  private List<ValueSpecification> _viewportValueSpecs = Collections.emptyList();
+
+  DependencyGraphViewport(ViewportSpecification viewportSpec,
+                          String calcConfigName,
+                          DependencyGraphGridStructure gridStructure,
                           ViewCycle cycle,
                           AnalyticsHistory history,
                           String dataId) {
-    super(gridStructure, viewportSpec, history, dataId);
-    // TODO also need target?
+    super(dataId);
+    _calcConfigName = calcConfigName;
+    _gridStructure = gridStructure;
+    update(viewportSpec, cycle, history);
   }
 
-  /* package */ void updateResults(ViewCycle viewCycle, AnalyticsHistory history) {
-
-  }
-
-  /* package */ void update(ViewportSpecification viewportSpec, ViewCycle viewCycle, AnalyticsHistory history) {
+  /* package */ void update(ViewportSpecification viewportSpec, ViewCycle cycle, AnalyticsHistory history) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
-    ArgumentChecker.notNull(viewCycle, "viewCycle");
+    ArgumentChecker.notNull(cycle, "cycle");
     ArgumentChecker.notNull(history, "history");
     if (!viewportSpec.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
-    updateResults(viewCycle, history);
+    List<ValueSpecification> newValueSpecs = Lists.newArrayList();
+    for (Integer rowIndex : _viewportSpec.getRows()) {
+      newValueSpecs.add(_gridStructure.getTargetForRow(rowIndex));
+    }
+    _viewportValueSpecs = newValueSpecs;
+    updateResults(cycle, history);
+  }
+
+  /* package */ void updateResults(ViewCycle cycle, AnalyticsHistory history) {
+    ComputationCacheQuery query = new ComputationCacheQuery();
+    Map<ValueSpecification, Object> resultsMap = Maps.newHashMap();
+    query.setCalculationConfigurationName(_calcConfigName);
+    query.setValueSpecifications(_viewportValueSpecs);
+    ComputationCacheResponse cacheResponse = cycle.queryComputationCaches(query);
+    List<Pair<ValueSpecification, Object>> results = cacheResponse.getResults();
+    for (Pair<ValueSpecification, Object> result : results) {
+      resultsMap.put(result.getFirst(), result.getSecond());
+    }
+    List<List<Object>> gridResults = Lists.newArrayList();
+    for (Integer rowIndex : _viewportSpec.getRows()) {
+      gridResults.add(_gridStructure.createResultsForRow(rowIndex, _viewportSpec.getColumns(), resultsMap));
+    }
+    _latestResults = new ViewportResults(gridResults);
   }
 }

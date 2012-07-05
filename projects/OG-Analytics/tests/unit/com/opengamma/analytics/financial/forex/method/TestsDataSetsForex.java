@@ -41,10 +41,10 @@ public class TestsDataSetsForex {
    * @return The yield curve bundle.
    */
   public static YieldCurveBundle createCurvesForex() {
-    final YieldAndDiscountCurve CURVE_EUR = new YieldCurve(ConstantDoublesCurve.from(0.0250));
-    final YieldAndDiscountCurve CURVE_USD = new YieldCurve(ConstantDoublesCurve.from(0.0100));
-    final YieldAndDiscountCurve CURVE_GBP = new YieldCurve(ConstantDoublesCurve.from(0.0200));
-    final YieldAndDiscountCurve CURVE_KRW = new YieldCurve(ConstantDoublesCurve.from(0.0321));
+    final YieldAndDiscountCurve CURVE_EUR = YieldCurve.from(ConstantDoublesCurve.from(0.0250));
+    final YieldAndDiscountCurve CURVE_USD = YieldCurve.from(ConstantDoublesCurve.from(0.0100));
+    final YieldAndDiscountCurve CURVE_GBP = YieldCurve.from(ConstantDoublesCurve.from(0.0200));
+    final YieldAndDiscountCurve CURVE_KRW = YieldCurve.from(ConstantDoublesCurve.from(0.0321));
     YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(DISCOUNTING_EUR, CURVE_EUR);
     curves.setCurve(DISCOUNTING_USD, CURVE_USD);

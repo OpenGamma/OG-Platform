@@ -65,7 +65,7 @@ public class ExampleViewsPopulator extends AbstractExampleTool {
   @Override
   protected void doRun() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
-    storeViewDefinition(getCapFloorPortfolio(CAP_FLOOR_PORTFOLIO_NAME));
+//    storeViewDefinition(getCapFloorPortfolio(CAP_FLOOR_PORTFOLIO_NAME));
     storeViewDefinition(getMultiCurrencySwapViewDefinition(MULTI_CURRENCY_SWAP_PORTFOLIO_NAME));
     storeViewDefinition(getMultiAssetPortfolioViewDefinition(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME));
   }

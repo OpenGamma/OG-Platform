@@ -20,7 +20,7 @@ import javax.time.calendar.MonthOfYear;
  */
 public class NextExpiryAdjuster implements DateAdjuster {
 
-  /** An adjuster finding the 3rd Friday in a month. May be before or after date */
+  /** An adjuster finding the 3rd Wednesday in a month. May be before or after date */
   private static final DateAdjuster s_dayOfMonth = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
   /** An adjuster moving to the next quarter. */

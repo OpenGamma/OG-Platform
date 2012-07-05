@@ -138,7 +138,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
     // Cost of Carry TODO Dividend treatment
-    final YieldCurve zeroCostOfCarryCurve = new YieldCurve(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
+    final YieldCurve zeroCostOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
 
 
 

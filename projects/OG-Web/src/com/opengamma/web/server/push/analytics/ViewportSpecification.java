@@ -62,11 +62,10 @@ public class ViewportSpecification {
    * @param grid The structure of a grid
    * @return {@code true} if the viewport defined by this object fits within the grid.
    */
-  public boolean isValidFor(AnalyticsGridStructure grid) {
+  public boolean isValidFor(GridBounds grid) {
     if (!_rows.isEmpty()) {
       int maxRow = _rows.get(_rows.size() - 1);
-      AnalyticsNode root = grid.getRoot();
-      if (maxRow > root.getEndRow()) {
+      if (maxRow >= grid.getRowCount()) {
         return false;
       }
     }

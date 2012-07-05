@@ -34,7 +34,7 @@ public class TrinomialOptionModelTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), 0.03, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       100., DATE);
   private static final TrinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRINOMIAL = new MyTrinomialOptionModelDefinition();
 

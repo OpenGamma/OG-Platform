@@ -11,55 +11,58 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-/* package */ class MainAnalyticsGrid extends AnalyticsGrid {
+/* package */ class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
 
   private final AnalyticsView.GridType _gridType;
-  private final Map<String, AnalyticsGrid> _depGraphs = new HashMap<String, AnalyticsGrid>();
-  private final AnalyticsResultsMapper _resultsMapper;
+  private final Map<String, DependencyGraphGrid> _depGraphs = new HashMap<String, DependencyGraphGrid>();
+  private final MainGridStructure _gridStructure;
 
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
+  private AnalyticsHistory _history = new AnalyticsHistory();
+  private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
-  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                  AnalyticsResultsMapper resultsMapper,
-                                  AnalyticsGridStructure gridStructure,
-                                  String gridId) {
-    super(gridStructure, gridId);
+
+  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType, MainGridStructure gridStructure, String gridId) {
+    super(gridId);
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(resultsMapper, "resultsMapper");
+    ArgumentChecker.notNull(gridStructure, "gridStructure");
     _gridType = gridType;
-    _resultsMapper = resultsMapper;
+    _gridStructure = gridStructure;
   }
 
-  // TODO does this actually need the grid type parameter? could hard code it as one or other and it probably wouldn't matter
-  /* package */ static MainAnalyticsGrid empty(AnalyticsView.GridType gridType, String gridId) {
-    return new MainAnalyticsGrid(gridType, AnalyticsResultsMapper.empty(), AnalyticsGridStructure.empty(), gridId);
+  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId);
+  }
+
+  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId);
   }
 
   /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
-    AnalyticsResultsMapper resultsMapper = AnalyticsResultsMapper.portfolio(compiledViewDef);
-    AnalyticsGridStructure gridStructure = AnalyticsGridStructure.portoflio(compiledViewDef, resultsMapper.getColumnGroups());
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, resultsMapper,  gridStructure, gridId);
+    MainGridStructure gridStructure = new PortfolioGridStructure(compiledViewDef);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId);
   }
 
   /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef, String gridId) {
-    AnalyticsResultsMapper resultsMapper = AnalyticsResultsMapper.primitives(compiledViewDef);
-    AnalyticsGridStructure gridStructure = AnalyticsGridStructure.primitives(compiledViewDef, resultsMapper.getColumnGroups());
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, resultsMapper, gridStructure, gridId);
+    MainGridStructure gridStructure = new PrimitivesGridStructure(compiledViewDef);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId);
   }
 
   // -------- dependency graph grids --------
 
-  private AnalyticsGrid getDependencyGraph(String graphId) {
-    AnalyticsGrid grid = _depGraphs.get(graphId);
+  private DependencyGraphGrid getDependencyGraph(String graphId) {
+    DependencyGraphGrid grid = _depGraphs.get(graphId);
     if (grid == null) {
       throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
     }
@@ -67,36 +70,39 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   // TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
-  /* package */ void openDependencyGraph(String graphId, String gridId, int row, int col) {
+  /* package */ void openDependencyGraph(String graphId,
+                                         String gridId,
+                                         int row,
+                                         int col,
+                                         CompiledViewDefinition compiledViewDef) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    //_depGraphs.put(graphId, AnalyticsGrid.dependencyGraph(null/*TODO*/, gridId));
+    Pair<ValueSpecification, String> targetForCell = _gridStructure.getTargetForCell(row, col);
+    ValueSpecification valueSpec = targetForCell.getFirst();
+    String calcConfigName = targetForCell.getSecond();
+    DependencyGraphGrid grid =
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _history, gridId);
+    _depGraphs.put(graphId, grid);
   }
 
-  // TODO this is specific to the main grids
-  /* package */ void updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history) {
-    _latestResults = fullResult;
-    // TODO should the row and cols be looked up here and passed to the viewports?
-    // look up col index in _columns
-    // iterate over _targets, query results for each target
-    for (AnalyticsViewport viewport : _viewports.values()) {
-      // TODO don't like the cast, parameterize the grid type with the viewport type?
-      MainViewport mainViewport = (MainViewport) viewport;
-      mainViewport.updateResults(fullResult, history);
-    }
-  }
-
-  /* package */ void updateViewport(String viewportId,
-                                    ViewportSpecification viewportSpecification,
-                                    AnalyticsHistory history) {
-    ((MainViewport) getViewport(viewportId)).update(viewportSpecification, _latestResults, history);
+  /* package */ void updateViewport(String viewportId, ViewportSpecification viewportSpecification) {
+    getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
   }
 
   /* package */ void updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history, ViewCycle cycle) {
-    updateResults(fullResult, history);
-
-    // TODO update the depgraphs
+    _latestResults = fullResult;
+    _history = history;
+    _cycle = cycle;
+    // TODO should the row and cols be looked up here and passed to the viewports?
+    // look up col index in _columns
+    // iterate over _targets, query results for each target
+    for (MainGridViewport viewport : _viewports.values()) {
+      viewport.updateResults(fullResult, history);
+    }
+    for (DependencyGraphGrid grid : _depGraphs.values()) {
+      grid.updateResults(cycle, history);
+    }
   }
 
   /* package */ void closeDependencyGraph(String graphId) {
@@ -106,24 +112,21 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  /* package */ AnalyticsGridStructure getGridStructure(String graphId) {
-    return getDependencyGraph(graphId)._gridStructure;
+  /* package */ DependencyGraphGridStructure getGridStructure(String graphId) {
+    return getDependencyGraph(graphId).getGridStructure();
   }
 
-  /* package */ String createViewport(String graphId,
-                                      String viewportId,
-                                      String dataId,
-                                      ViewportSpecification viewportSpecification,
-                                      AnalyticsHistory history) {
-    return getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpecification, history);
+  /* package */ void createViewport(String graphId,
+                                    String viewportId,
+                                    String dataId,
+                                    ViewportSpecification viewportSpecification) {
+    getDependencyGraph(graphId).createViewport(viewportId, dataId, viewportSpecification);
   }
 
   /* package */ void updateViewport(String graphId,
                                     String viewportId,
-                                    ViewportSpecification viewportSpec,
-                                    AnalyticsHistory history) {
-    // TODO fix this once the depgraph viewport API is done
-    //getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, history);
+                                    ViewportSpecification viewportSpec) {
+    getDependencyGraph(graphId).updateViewport(viewportId, viewportSpec, _cycle, _history);
   }
 
   /* package */ void deleteViewport(String graphId, String viewportId) {
@@ -144,21 +147,19 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ List<String> getDependencyGraphViewportDataIds() {
     List<String> dataIds = new ArrayList<String>();
-    for (AnalyticsGrid grid : _depGraphs.values()) {
+    for (DependencyGraphGrid grid : _depGraphs.values()) {
       dataIds.addAll(grid.getViewportDataIds());
     }
     return dataIds;
   }
 
-  /* package */ boolean dependencyGraphVisible() {
-    return !_depGraphs.isEmpty();
+  @Override
+  public Object getGridStructure() {
+    return _gridStructure;
   }
 
   @Override
-  protected AnalyticsViewport createViewport(AnalyticsGridStructure gridStructure,
-                                             ViewportSpecification viewportSpecification,
-                                             AnalyticsHistory history,
-                                             String dataId) {
-    return new MainViewport(viewportSpecification, _gridStructure, _resultsMapper, dataId, _latestResults, history);
+  protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
+    return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _history);
   }
 }

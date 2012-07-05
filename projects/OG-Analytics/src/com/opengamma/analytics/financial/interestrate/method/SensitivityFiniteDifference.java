@@ -50,7 +50,7 @@ public class SensitivityFiniteDifference {
     for (int loopnode = 0; loopnode < nbNode; loopnode++) {
       yields[loopnode + 1] = curveToBump.getInterestRate(nodeTimesExtended[loopnode + 1]);
     }
-    final YieldAndDiscountCurve curveNode = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve curveNode = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimesExtended, yields, new LinearInterpolator1D()));
     if (!curves.containsName(curveBumpedName)) {
       curves.setCurve(curveBumpedName, curveToBump);
     }
@@ -115,8 +115,8 @@ public class SensitivityFiniteDifference {
    * @param method The method to compute the present value sensitivity.
    * @return The array of sensitivity with respect the to the given node times.
    */
-  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes,
-      double deltaShift, PricingMethod method) {
+  public static double[] curveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves, String curveToBumpName, String curveBumpedName, double[] nodeTimes, double deltaShift,
+      PricingMethod method) {
     return curveSensitivity(instrument, curves, 0.0, curveToBumpName, curveBumpedName, nodeTimes, deltaShift, method, FiniteDifferenceType.CENTRAL);
   }
 

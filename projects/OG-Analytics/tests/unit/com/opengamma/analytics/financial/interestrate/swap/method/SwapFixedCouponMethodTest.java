@@ -110,7 +110,7 @@ public class SwapFixedCouponMethodTest {
       nodeTimes[i + 1] = SWAP_PAYER.getFixedLeg().getNthPayment(i).getPaymentTime();
       yieldsFunding[i + 1] = curveFunding.getInterestRate(nodeTimes[i + 1]);
     }
-    final YieldAndDiscountCurve tempCurveFunding = new YieldCurve(InterpolatedDoublesCurve.fromSorted(nodeTimes, yieldsFunding, new LinearInterpolator1D()));
+    final YieldAndDiscountCurve tempCurveFunding = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(nodeTimes, yieldsFunding, new LinearInterpolator1D()));
     final YieldCurveBundle curvesNotBumped = new YieldCurveBundle();
     curvesNotBumped.addAll(CURVES);
     curvesNotBumped.setCurve("Bumped Curve", tempCurveFunding);

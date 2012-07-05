@@ -36,7 +36,7 @@ public class EuropeanMonteCarloOptionModelTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.06)), 0.02, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.06)), 0.02, new VolatilitySurface(ConstantDoublesSurface.from(0.2)),
       100., DATE);
   private static final OptionDefinition CALL1 = new EuropeanVanillaOptionDefinition(110, EXPIRY, true);
   private static final OptionDefinition PUT1 = new EuropeanVanillaOptionDefinition(110, EXPIRY, false);

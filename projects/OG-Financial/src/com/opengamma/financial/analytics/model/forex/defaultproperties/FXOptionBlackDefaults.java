@@ -38,6 +38,7 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_GAMMA,

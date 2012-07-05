@@ -31,13 +31,13 @@ import com.opengamma.util.money.Currency;
  * Provides the market price for the security of a position as a value on the position
  */
 public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   private static MarketSecurityVisitor s_judgeOfMarketSecurities = new MarketSecurityVisitor();
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    double marketValue = (Double) inputs.getValue(getRequirement(target));
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final double marketValue = (Double) inputs.getValue(getRequirement(target));
     return Collections.singleton(new ComputedValue(getSpecification(target), marketValue));
   }
 
@@ -47,28 +47,30 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != getTargetType()) {
       return false;
     }
+    if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
+      return false;
+    }
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
-    
     return security.accept(s_judgeOfMarketSecurities);
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    ValueRequirement valueRequirement = getRequirement(target);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueRequirement valueRequirement = getRequirement(target);
     return Collections.singleton(valueRequirement);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ValueSpecification spec = getSpecification(target);
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueSpecification spec = getSpecification(target);
     return Collections.singleton(spec);
   }
 
-  private ValueSpecification getSpecification(ComputationTarget target) {
+  private ValueSpecification getSpecification(final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
@@ -79,11 +81,11 @@ public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInv
     return new ValueSpecification(new ValueRequirement(ValueRequirementNames.SECURITY_MARKET_PRICE,
         target.getPosition(), valueProperties), getUniqueId());
   }
-  
-  private ValueRequirement getRequirement(ComputationTarget target) {
+
+  private ValueRequirement getRequirement(final ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.getPosition().getSecurity());
     // TESTING: The following will use BLOOMBERG_TICKER_WEAK, hence will not put a strain on the amount of data requested from BBG in a day
-    // ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, 
+    // ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
     //     ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, target.getPosition().getSecurity().getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER)));
   }
 

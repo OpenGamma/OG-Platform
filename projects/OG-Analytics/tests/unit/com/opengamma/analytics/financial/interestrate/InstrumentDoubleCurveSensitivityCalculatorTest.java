@@ -21,19 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCouponSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -86,7 +75,8 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
   private static final List<String> CURVE_NAMES = Arrays.asList("Funding", "Libor 3m");
   private static final Map<String, Map<String, double[]>> MATURITIES = getDoubleCurveMaturities();
   private static final Map<String, Map<String, double[]>> MARKET_DATA = getDoubleCurveMarketData(MATURITIES);
-  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
+  private static final YieldCurveFittingTestDataBundle PV_DATA = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES,
+      MARKET_DATA,
       true);
   private static final YieldCurveFittingTestDataBundle PAR_RATE_DATA = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), MATURITIES, MARKET_DATA,
       false);
@@ -185,7 +175,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
       }
     }
   }
- 
+
   @Test
   public void testBumpedData() {
     final double notional = 10394850;
@@ -194,7 +184,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final InstrumentDerivative libor = makeSingleCurrencyIRD("libor", 1.5, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.04, notional);
     testBumpedDataParRateMethod(libor, eps);
     testBumpedDataPVMethod(libor, eps);
-    InstrumentDerivative swap = makeSingleCurrencyIRD("swap", 13,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.048, notional);
+    InstrumentDerivative swap = makeSingleCurrencyIRD("swap", 13, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.048, notional);
     testBumpedDataParRateMethod(swap, eps);
     testBumpedDataPVMethod(swap, eps);
     final InstrumentDerivative fra = makeSingleCurrencyIRD("fra", 0.6666, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.02, notional);
@@ -203,10 +193,10 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final InstrumentDerivative future = makeSingleCurrencyIRD("fra", 2, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.03, notional);
     testBumpedDataParRateMethod(future, eps);
     testBumpedDataPVMethod(future, eps);
-    swap = makeSingleCurrencyIRD("swap", 19,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.05, notional);
+    swap = makeSingleCurrencyIRD("swap", 19, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.05, notional);
     testBumpedDataParRateMethod(swap, eps);
     testBumpedDataPVMethod(swap, eps);
-    final InstrumentDerivative basisSwap = makeSingleCurrencyIRD("basisSwap", 12,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.005, notional);
+    final InstrumentDerivative basisSwap = makeSingleCurrencyIRD("basisSwap", 12, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.005, notional);
     testBumpedDataParRateMethod(basisSwap, eps);
     testBumpedDataPVMethod(basisSwap, eps);
   }
@@ -216,7 +206,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PAR_RATE_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
-      final int firstCurveSize = PAR_RATE_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
+      final int firstCurveSize = ((YieldCurve) PAR_RATE_CURVES.getCurve(CURVE_NAMES.get(0))).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
       final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(ParRateCalculator.getInstance(), ParRateCurveSensitivityCalculator.getInstance(), MATURITIES,
@@ -242,7 +232,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pv1 = calculator.visit(ird, PV_ALL_CURVES);
     for (int i = 0; i < sensitivities.getNumberOfElements(); i++) {
-      final int firstCurveSize = PV_CURVES.getCurve(CURVE_NAMES.get(0)).getCurve().size();
+      final int firstCurveSize = ((YieldCurve) PV_CURVES.getCurve(CURVE_NAMES.get(0))).getCurve().size();
       final String curveName = i < firstCurveSize ? CURVE_NAMES.get(0) : CURVE_NAMES.get(1);
       final int indexToBump = i < firstCurveSize ? i : i - firstCurveSize;
       final YieldCurveFittingTestDataBundle bumpedData = getDoubleCurveSetup(PresentValueCalculator.getInstance(), PresentValueCurveSensitivityCalculator.getInstance(), MATURITIES,
@@ -369,7 +359,7 @@ public class InstrumentDoubleCurveSensitivityCalculatorTest extends YieldCurveFi
         final double[] marketValuesForInstrument = marketValuesForCurve.get(instrumentType);
         int i = 0;
         for (final double t : maturities.get(curveName).get(instrumentType)) {
-          ird = makeSingleCurrencyIRD(instrumentType, t,FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
+          ird = makeSingleCurrencyIRD(instrumentType, t, FRQ, CURVE_NAMES.get(0), CURVE_NAMES.get(1), 0.0, 1);
           instruments.add(REPLACE_RATE.visit(ird, marketValuesForInstrument[i]));
           if (isPV) {
             marketValuesArray[index] = 0;

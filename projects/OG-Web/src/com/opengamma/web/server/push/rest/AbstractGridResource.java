@@ -7,10 +7,8 @@ package com.opengamma.web.server.push.rest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,7 +22,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsGridStructure;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
@@ -58,7 +55,7 @@ public abstract class AbstractGridResource {
   @GET
   @Path("grid")
   @Produces(MediaType.APPLICATION_JSON)
-  public abstract AnalyticsGridStructure getGridStructure();
+  public abstract Object getGridStructure();
 
   @POST
   @Path("viewports")

@@ -11,8 +11,6 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -68,10 +66,7 @@ public class ConstantDoublesCurveTest {
     final double[] x = new double[] {0, 1, 2};
     final double[] y = new double[] {Y1, Y1, Y1};
     final LinearInterpolator1D interpolator = new LinearInterpolator1D();
-    DoublesCurve other = CURVE.toNodalDoublesCurve(x);
-    assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
-    assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
-    other = CURVE.toInterpolatedDoublesCurve(x, interpolator);
+    InterpolatedDoublesCurve other = CURVE.toInterpolatedDoublesCurve(x, interpolator);
     assertArrayEquals(other.getXDataAsPrimitive(), x, eps);
     assertArrayEquals(other.getYDataAsPrimitive(), y, eps);
   }

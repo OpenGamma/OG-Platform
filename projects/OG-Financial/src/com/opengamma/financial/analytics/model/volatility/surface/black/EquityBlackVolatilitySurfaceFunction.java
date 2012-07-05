@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
@@ -43,7 +43,7 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteT
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 
 /**
- * New BlackVolSurfaceFunction BETA - Assumes SABR as interpolation scheme.
+ * New BlackVolSurfaceFunction BETA - Assumes Spline as interpolation scheme.
  * Note: This is a different route of Vol Interpolation than: Raw > Standard > Interpolated as used in IRFutureOptionBlackFunction
  */
 public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {

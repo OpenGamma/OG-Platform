@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial;
 
+import static org.testng.Assert.assertFalse;
+
 import org.testng.AssertJUnit;
-import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -49,15 +50,14 @@ public class InMemoryConventionBundleMasterTest {
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getName());
     AssertJUnit.assertEquals("US0003M Index", conventions2.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER));
     AssertJUnit.assertEquals("USD LIBOR 3m", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME));
-    AssertJUnit.assertEquals("USDLIBORP3M", conventions2.getIdentifiers().getValue(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER));
     final UniqueId uid3M = conventions2.getUniqueId ();
     AssertJUnit.assertEquals(InMemoryConventionBundleMaster.IN_MEMORY_UNIQUE_SCHEME.getName(), uid3M.getScheme ());
     AssertJUnit.assertEquals(actact, conventions2.getDayCount());
     AssertJUnit.assertEquals(modified, conventions2.getBusinessDayConvention());
     AssertJUnit.assertEquals(2, conventions2.getSettlementDays());
-    
+
     assertFalse(uidON.equals (uid3M));
-    
+
   }
-  
+
 }

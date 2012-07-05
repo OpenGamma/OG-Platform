@@ -64,7 +64,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod implements
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
-    resultMapDisc.put(market.getCurve(coupon.getCurrency()).getCurve().getName(), listDiscounting);
+    resultMapDisc.put(market.getCurve(coupon.getCurrency()).getName(), listDiscounting);
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listPrice = new ArrayList<DoublesPair>();
     listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexBar));

@@ -30,7 +30,7 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ComplexChooserOptionModelTest {
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.1));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final double B = 0.05;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.35));
   private static final double SPOT = 50;

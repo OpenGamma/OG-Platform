@@ -15,12 +15,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
-import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.analytics.math.curve.CurveSpreadFunction;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
-import com.opengamma.analytics.math.curve.SubtractCurveSpreadFunction;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
@@ -28,9 +22,9 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
  */
 @SuppressWarnings("unchecked")
 public class SpreadDoublesCurveTest {
-  private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18 };
-  private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1 };
+  private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
+  private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.from(X, Y1, new LinearInterpolator1D(), "a");
   private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.from(X, Y2, new LinearInterpolator1D(), "b");
   private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
@@ -38,22 +32,22 @@ public class SpreadDoublesCurveTest {
   private static final String NAME1 = "X";
   private static final String NAME2 = "Y";
   private static final String NAME3 = "Z";
-  private static final Curve<Double, Double>[] CURVES1 = new Curve[] {INTERPOLATED1, INTERPOLATED2 };
+  private static final DoublesCurve[] CURVES1 = new DoublesCurve[] {INTERPOLATED1, INTERPOLATED2};
   private static final SpreadDoublesCurve SPREAD1 = SpreadDoublesCurve.from(ADD, NAME1, CURVES1);
-  private static final Curve<Double, Double>[] CURVES2 = new Curve[] {SPREAD1, INTERPOLATED1 };
+  private static final DoublesCurve[] CURVES2 = new DoublesCurve[] {SPREAD1, INTERPOLATED1};
   private static final SpreadDoublesCurve SPREAD2 = SpreadDoublesCurve.from(SUBTRACT, NAME2, CURVES2);
-  private static final Curve<Double, Double>[] CURVES3 = new Curve[] {INTERPOLATED1, INTERPOLATED1, INTERPOLATED1 };
+  private static final DoublesCurve[] CURVES3 = new DoublesCurve[] {INTERPOLATED1, INTERPOLATED1, INTERPOLATED1};
   private static final SpreadDoublesCurve SPREAD3 = SpreadDoublesCurve.from(ADD, NAME3, CURVES3);
 
   @SuppressWarnings("rawtypes")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves1() {
-    new SpreadDoublesCurve(ADD, (Curve) null);
+    new SpreadDoublesCurve(ADD, (DoublesCurve) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooFewCurves1() {
-    new SpreadDoublesCurve(ADD, new Curve[] {INTERPOLATED1 });
+    new SpreadDoublesCurve(ADD, new DoublesCurve[] {INTERPOLATED1});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -63,12 +57,12 @@ public class SpreadDoublesCurveTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurves2() {
-    new SpreadDoublesCurve(ADD, NAME1, (Curve<Double, Double>) null);
+    new SpreadDoublesCurve(ADD, NAME1, (DoublesCurve) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTooFewCurves2() {
-    new SpreadDoublesCurve(ADD, NAME1, new Curve[] {INTERPOLATED1 });
+    new SpreadDoublesCurve(ADD, NAME1, new DoublesCurve[] {INTERPOLATED1});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

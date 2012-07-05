@@ -38,7 +38,7 @@ public class ExtremeSpreadOptionDefinitionTest {
       DateUtils.getUTCDate(2010, 9, 1), DateUtils.getUTCDate(2010, 10, 1), DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2010, 12, 1), DateUtils.getUTCDate(2011, 1, 1),
       DateUtils.getUTCDate(2011, 2, 1), DateUtils.getUTCDate(2011, 3, 1), DateUtils.getUTCDate(2011, 4, 1), DateUtils.getUTCDate(2011, 5, 1), DateUtils.getUTCDate(2011, 6, 1)}, new double[] {1, 2, 0, 1,
       4, 15, 4, 4, 0, 4, 4, 4});
-  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(new YieldCurve(ConstantDoublesCurve.from(0.)), 0,
+  private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(YieldCurve.from(ConstantDoublesCurve.from(0.)), 0,
       new VolatilitySurface(ConstantDoublesSurface.from(0)), 2, DATE, SPOT_SERIES);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

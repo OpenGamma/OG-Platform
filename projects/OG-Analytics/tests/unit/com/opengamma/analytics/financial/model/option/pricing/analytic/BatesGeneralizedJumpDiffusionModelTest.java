@@ -32,7 +32,7 @@ import com.opengamma.util.time.Expiry;
 public class BatesGeneralizedJumpDiffusionModelTest {
   private static final AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelDataBundle> MODEL = new BatesGeneralizedJumpDiffusionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final YieldAndDiscountCurve CURVE = new YieldCurve(ConstantDoublesCurve.from(0.08));
+  private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.08));
   private static final double B = 0.08;
   private static final VolatilitySurface SURFACE = new VolatilitySurface(ConstantDoublesSurface.from(0.25));
   private static final double SPOT = 100;
