@@ -250,7 +250,7 @@
   </build>
 
   <!-- ==================================================================== -->
-  <!-- The OpenGamma repository is at http://ivyrepos.opengamma.com/og-maven/ -->
+  <!-- The OpenGamma repository is at http://ivyrepos.opengamma.com/og-maven/public/ -->
 
   <!-- define versions here, so sub-projects do not have to -->
   <dependencyManagement>
