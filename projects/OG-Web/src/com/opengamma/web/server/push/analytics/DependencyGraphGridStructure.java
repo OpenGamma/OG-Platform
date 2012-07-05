@@ -23,14 +23,15 @@ public class DependencyGraphGridStructure implements GridBounds {
 
   private final AnalyticsNode _root;
 
-  public static final List<AnalyticsColumnGroup> COLUMN_GROUPS = ImmutableList.of(
+  public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
-          column("Target"),
+          column("Target"))),
+      new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
           column("Type"),
           column("Value Name"),
           column("Value"),
           column("Function"),
-          column("Properties"))));
+          column("Properties")))));
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _gridValueSpecs;
@@ -133,7 +134,7 @@ public class DependencyGraphGridStructure implements GridBounds {
 
   @Override
   public int getColumnCount() {
-    return COLUMN_GROUPS.size();
+    return COLUMN_GROUPS.getColumnCount();
   }
 
   public AnalyticsNode getRoot() {
