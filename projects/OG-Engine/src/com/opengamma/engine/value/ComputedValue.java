@@ -49,12 +49,12 @@ public class ComputedValue implements Serializable {
   // above) and duplicates the information that was returned by the job execution messages rather than through the value cache. A
   // subclass that contains this extra data might be a better idea.
 
-  private InvocationResult _result = null;
-  private String _exceptionClass = null;
-  private String _exceptionMsg = null;
-  private String _stackTrace = null;
-  private Set<ValueSpecification> _missingInputs = null;
-  private Set<ValueRequirement> _originalRequirements = null;
+  private InvocationResult _result;
+  private String _exceptionClass;
+  private String _exceptionMsg;
+  private String _stackTrace;
+  private Set<ValueSpecification> _missingInputs;
+  private Set<ValueRequirement> _originalRequirements;
   private String _nodeId;
 
   /**
@@ -67,7 +67,6 @@ public class ComputedValue implements Serializable {
    */
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.notNull(specification, "value specification");
-    // ArgumentChecker.notNull(value, "actual value");
     if (value instanceof ComputedValue) {
       throw new IllegalArgumentException("Value must not be a ComputedValue instance");
     }
