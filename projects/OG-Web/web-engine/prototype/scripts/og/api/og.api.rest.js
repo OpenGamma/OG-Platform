@@ -578,7 +578,20 @@ $.register_module({
                     }
                 },
                 primitives: {
-                    grid: {},
+                    grid: {
+                        root: 'views/{{id}}/primitives/grid',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['id']}]
+                            });
+                            return request(((method[1] = str(config.id)), method), {data: data, meta: meta});
+                        },
+                        put: not_available.partial('put'),
+                        del: not_available.partial('del')
+                    },
                     viewports: {}
                 }
             }

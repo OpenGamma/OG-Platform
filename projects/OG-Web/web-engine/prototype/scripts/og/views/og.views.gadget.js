@@ -16,6 +16,7 @@ $.register_module({
                 grid = new og.analytics.Grid({
                     selector: content,
                     source: {
+                        view: 0,
                         type: 'portfolio',
                         depgraph: false,
                         viewdefinition: 'DbCfg~2195066~1729',

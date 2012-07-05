@@ -6,14 +6,13 @@ $.register_module({
     name: 'og.analytics.Data',
     dependencies: ['og.analytics.connection'],
     obj: function () {
-        var module = this, counter = 1;
+        var module = this, counter = 1, api = og.api.rest;
         return function (config) {
             var data = this, events = {init: [], data: []}, id = 'data_' + counter++, meta,
-                viewport = null, root = 'rootNode';
-            var fire = function (type) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
-            };
+                viewport = null, view_id = config.view,
+                ROOT = 'rootNode', SETS = 'columnSets', ROWS = 'rowCount',
+                grid_type = config.type, depgraph = !!config.depgraph,
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
                 if (!events.data.length) return; // if a tree falls, etc.
                 var matrix = [], rows = data.meta.rows,
@@ -32,33 +31,31 @@ $.register_module({
                 fire('data', matrix.reverse());
                 setTimeout(data_handler, 1000);
             };
-            var initialize = function () {
-                (config.view ? og.api.rest.views.portfolio.grid.get({id: config.view})
+            var data_setup = function () {};
+            var fire = function (type) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
+            };
+            var meta_handler = function (result) {
+                if (result.error) return og.dev.warn(result.message); else if (!result.data[SETS].length) return;
+                meta.rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
+                meta.columns = {
+                    fixed: [{
+                        name: fixed_set[grid_type], columns: result.data[SETS][0].columns
+                            .map(function (col) {return (col.width = 150), col;})
+                    }],
+                    scroll: result.data[SETS].slice(1).map(function (set) {
+                        return set.columns.forEach(function (col) {return (col.width = 150), col;}), set;
+                    })
+                };
+                fire('init', meta);
+                data_handler();
+            };
+            var meta_setup = function () {
+                (view_id ? og.api.rest.views[grid_type].grid.get({id: config.view, update: meta_setup})
                     : og.api.rest.views.put(config).pipe(function (result) {
-                        return og.api.rest.views.portfolio.grid.get({id: result.meta.id});
-                })).pipe(function (result) {
-                    var data = result.data;
-                    if (result.error) return og.dev.warn(result.message);
-                    meta.rows = data[root] ? data[root][1] + 1 : 10000;
-                    meta.columns = {
-                        fixed: [
-                            {
-                                name: 'Portfolio View',
-                                columns: data.columns[0].columns.map(function (col) {return (col.width = 100), col;})
-                            }
-                        ],
-                        scroll: data.columns.slice(1).map(function (set) {
-                            return {
-                                name: set.name,
-                                columns: set.columns.map(function (col) {
-                                    return (col.width = 225), col;
-                                })
-                            };
-                        })
-                    };
-                    fire('init', meta);
-                    data_handler();
-                });
+                        return api.views[grid_type].grid.get({id: view_id = result.meta.id, update: meta_setup});
+                })).pipe(meta_handler);
             };
             data.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
@@ -74,7 +71,7 @@ $.register_module({
                 viewport = new_viewport;
                 if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
             };
-            setTimeout(initialize, 50);
+            grid_setup();
         };
     }
 });
