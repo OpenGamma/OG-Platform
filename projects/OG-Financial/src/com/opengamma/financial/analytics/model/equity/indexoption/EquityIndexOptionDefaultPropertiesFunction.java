@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
@@ -27,6 +28,7 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
 
   private final String _volSurfaceName;
   private final String _fundingCurveName;
+  private final String _smileInterpolator;
 
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
@@ -43,12 +45,13 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     ValueRequirementNames.VALUE_RHO
   };
 
-  public EquityIndexOptionDefaultPropertiesFunction(final String volSurface, final String fundingCurve) {
+  public EquityIndexOptionDefaultPropertiesFunction(final String volSurface, final String fundingCurve, final String smileInterpolator) {
     super(ComputationTargetType.SECURITY, true);
     Validate.notNull(volSurface, "No volSurface name was provided to use as default value.");
     Validate.notNull(fundingCurve, "No fundingCurve name was provided to use as default value.");
     _volSurfaceName = volSurface;
     _fundingCurveName = fundingCurve;
+    _smileInterpolator = smileInterpolator;
   }
 
   @Override
@@ -56,6 +59,7 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(valueName, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
     }
   }
 
@@ -65,6 +69,8 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
       return Collections.singleton(_fundingCurveName);
     } else if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_volSurfaceName);
+    } else if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
+      return Collections.singleton(_smileInterpolator);
     }
     return null;
   }

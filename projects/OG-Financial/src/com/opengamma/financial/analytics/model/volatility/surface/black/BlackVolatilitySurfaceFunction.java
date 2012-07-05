@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
@@ -76,15 +75,12 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveNames = constraints.getValues(CURVE);
-    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
-      return null;
-    }
+
     final Set<String> surfaceNames = constraints.getValues(SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    
+
     final String surfaceName = surfaceNames.iterator().next();
     final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(target, surfaceName, getInstrumentType(), getSurfaceQuoteType(), getSurfaceQuoteUnits());
