@@ -67,9 +67,33 @@ public class ParameterSensitivityCalculator {
    */
   public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves) {
     final List<Double> result = new ArrayList<Double>();
+    //    Integer index = 0;
+    //    LinkedHashMap<String, Integer> curveNum = new LinkedHashMap<String, Integer>();
+    //    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
+    //      curveNum.put(name, index++);
+    //    }
+    //    index = 0;
+    //    int[] nbNewParameters = new int[sensitivityCurves.size()];
+    //    int[] startParameter =  new int[sensitivityCurves.size()];
+    //    int currentStart = 0;
+    //    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
+    //      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
+    //      List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
+    //      startParameter[index] = currentStart;
+    //      nbNewParameters[index] = curve.getNumberOfParameters();
+    //      for (String u : underlyingCurveNames) {
+    //        Integer i = curveNum.get(u);
+    //        if (i != null) {
+    //          nbNewParameters[index] -= nbNewParameters[curveNum.get(u)];
+    //        }
+    //      }
+    //      currentStart = 
+    //
+    //    }
     for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
       final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-      result.addAll(pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve));
+      List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
+      result.addAll(oneCurveSensitivity);
     }
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }

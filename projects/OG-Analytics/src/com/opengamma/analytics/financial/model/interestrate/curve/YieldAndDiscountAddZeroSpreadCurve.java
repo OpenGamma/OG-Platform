@@ -75,6 +75,15 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
     return result;
   }
 
+  @Override
+  public List<String> getUnderlyingCurvesNames() {
+    List<String> names = new ArrayList<String>();
+    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
+      names.add(_curves[loopcurve].getName());
+    }
+    return names;
+  }
+
   public YieldAndDiscountCurve[] getCurves() {
     return _curves;
   }
