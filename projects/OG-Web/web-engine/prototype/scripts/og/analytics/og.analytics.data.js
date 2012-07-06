@@ -71,7 +71,7 @@ $.register_module({
                 viewport = new_viewport;
                 if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
             };
-            grid_setup();
+            meta_setup();
         };
     }
 });

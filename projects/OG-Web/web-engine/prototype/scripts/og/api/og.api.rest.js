@@ -572,8 +572,32 @@ $.register_module({
                     },
                     viewports: {
                         root: 'views/{{id}}/portfolio/viewports',
-                        get: not_available.partial('get'),
-                        put: not_available.partial('put'),
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['view_id', 'viewport_id']}]
+                            });
+                            method[1] = config.view_id;
+                            method.push(config.viewport_id, 'data');
+                            return request(method, {data: data, meta: meta});
+                        },
+                        put: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta,
+                                fields = ['id', 'rows', 'columns'],
+                            meta = check({
+                                bundle: {method: root + '#put', config: config},
+                                required: [{all_of: fields}]
+                            });
+                            meta.type = 'POST';
+                            fields.forEach(function (val, idx) {data[fields[idx]] = config[val];});
+                            data['clientId'] = api.id;
+                            delete data.id;
+                            method[1] = config.id;
+                            return request(method, {data: data, meta: meta});
+                        },
                         del: not_available.partial('del')
                     }
                 },
