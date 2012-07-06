@@ -121,8 +121,8 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testConstantDoublesDeltaSurface() {
     final BlackVolatilitySurfaceDelta constVolSurf = new BlackVolatilitySurfaceDelta(ConstantDoublesSurface.from(TEST_VOL), FORWARD_CURVE);
-    final double testVar = PRICER.impliedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
-    final double testVar2 = PRICER.impliedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar = PRICER.expectedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar2 = PRICER.expectedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double targetVar = TEST_VOL * TEST_VOL;
 
     assertEquals(targetVar, testVar, TEST_TOL);
@@ -135,8 +135,8 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testConstantDoublesStrikeSurface() {
     final BlackVolatilitySurfaceStrike constVolSurf = new BlackVolatilitySurfaceStrike(ConstantDoublesSurface.from(TEST_VOL));
-    final double testVar = PRICER.impliedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
-    final double testVar2 = PRICER.impliedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar = PRICER.expectedVariance(swap1, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
+    final double testVar2 = PRICER.expectedVariance(swap10, new EquityOptionDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double targetVar = TEST_VOL * TEST_VOL;
     assertEquals(targetVar, testVar, TEST_TOL);
     assertEquals(targetVar, testVar2, TEST_TOL);
@@ -151,7 +151,7 @@ public class VarianceSwapStaticReplicationTest {
     final Interpolator2D interp2D = new GridInterpolator2D(INTERPOLATOR_1D_EXPIRY, interpOnlyStrike);
     final InterpolatedDoublesSurface surface = new InterpolatedDoublesSurface(EXPIRIES, STRIKES, VOLS, interp2D);
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(surface);
-    PRICER.impliedVariance(swap1, new EquityOptionDataBundle(volSurface, DISCOUNT, FORWARD_CURVE));
+    PRICER.expectedVariance(swap1, new EquityOptionDataBundle(volSurface, DISCOUNT, FORWARD_CURVE));
   }
 
   /**
@@ -160,8 +160,8 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testFlatSurfaceOnStrikeAndDelta() {
 
-    final double testDeltaVar = PRICER.impliedVariance(swap6M, MARKET_W_CALLDELTASURF, DELTA_CUTOFF);
-    final double testStrikeVar = PRICER.impliedVariance(swap6M, MARKET_W_STRIKESURF, STRIKE_CUTOFF);
+    final double testDeltaVar = PRICER.expectedVariance(swap6M, MARKET_W_CALLDELTASURF, DELTA_CUTOFF);
+    final double testStrikeVar = PRICER.expectedVariance(swap6M, MARKET_W_STRIKESURF, STRIKE_CUTOFF);
     final double targetVar = 0.28 * 0.28;
     assertEquals(targetVar, testDeltaVar, 1e-9);
     assertEquals(targetVar, testStrikeVar, 1e-9);
@@ -172,7 +172,7 @@ public class VarianceSwapStaticReplicationTest {
    */
   @Test
   public void testExpiredSwap() {
-    final double noMoreVariance = PRICER.impliedVariance(swap0, MARKET_W_STRIKESURF);
+    final double noMoreVariance = PRICER.expectedVariance(swap0, MARKET_W_STRIKESURF);
     assertEquals(0.0, noMoreVariance, 1e-9);
   }
 
@@ -201,10 +201,10 @@ public class VarianceSwapStaticReplicationTest {
     final EquityOptionDataBundle marketMoneyness = new EquityOptionDataBundle(surfaceMoneyness, DISCOUNT, FORWARD_CURVE);
     final EquityOptionDataBundle marketDelta = new EquityOptionDataBundle(surfaceDelta, DISCOUNT, FORWARD_CURVE);
 
-    final double totalVarStrike = PRICER.impliedVariance(swap1, marketStrike);
-    final double totalVarLogMoneyness = PRICER.impliedVariance(swap1, marketLogMoneyness);
-    final double totalVarMoneyness = PRICER.impliedVariance(swap1, marketMoneyness);
-    final double totalVarDelta = PRICER.impliedVariance(swap1, marketDelta);
+    final double totalVarStrike = PRICER.expectedVariance(swap1, marketStrike);
+    final double totalVarLogMoneyness = PRICER.expectedVariance(swap1, marketLogMoneyness);
+    final double totalVarMoneyness = PRICER.expectedVariance(swap1, marketMoneyness);
+    final double totalVarDelta = PRICER.expectedVariance(swap1, marketDelta);
     assertEquals(totalVarStrike, totalVarDelta, 1e-7); //TODO why is integral over delta not as good?
     assertEquals(totalVarStrike, totalVarLogMoneyness, TEST_TOL);
     assertEquals(totalVarStrike, totalVarMoneyness, TEST_TOL);
@@ -236,14 +236,14 @@ public class VarianceSwapStaticReplicationTest {
     final BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
     final EquityOptionDataBundle marketStrike = new EquityOptionDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
-    final double compVar = PRICER.impliedVariance(swap1, marketStrike);
-    final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
+    final double compVar = PRICER.expectedVariance(swap1, marketStrike);
+    final double compVarLimits = PRICER.expectedVariance(swap1, marketStrike, STRIKE_CUTOFF);
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, compVar, TEST_TOL);
     assertEquals(expected, compVarLimits, 2e-4); //The substitution of shifted log-normal below the cutoff introduced some error 
 
     //test a forward start
-    final double compVar2 = PRICER.impliedVariance(swap5x10, marketStrike);
+    final double compVar2 = PRICER.expectedVariance(swap5x10, marketStrike);
     assertEquals(expected, compVar2, 10 * TEST_TOL);
   }
 
@@ -289,7 +289,7 @@ public class VarianceSwapStaticReplicationTest {
 
     final EquityOptionDataBundle marketStrike = new EquityOptionDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
-    final double compVar = PRICER.impliedVariance(swap2, marketStrike);
+    final double compVar = PRICER.expectedVariance(swap2, marketStrike);
 
     double expected = 0;
     for (int i = 0; i < n; i++) {
@@ -303,7 +303,7 @@ public class VarianceSwapStaticReplicationTest {
 
   @Test
   public void testImpliedVolatility() {
-    final double sigmaSquared = PRICER.impliedVariance(swap5, MARKET_W_STRIKESURF);
+    final double sigmaSquared = PRICER.expectedVariance(swap5, MARKET_W_STRIKESURF);
     final double sigma = PRICER.impliedVolatility(swap5, MARKET_W_STRIKESURF);
 
     assertEquals(sigmaSquared, sigma * sigma, 1e-9);

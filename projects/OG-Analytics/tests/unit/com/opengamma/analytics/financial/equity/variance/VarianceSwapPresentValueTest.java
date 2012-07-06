@@ -105,7 +105,7 @@ public class VarianceSwapPresentValueTest {
   public void onFirstObsDateWithOneObs() {
 
     final double pv = PRICER.presentValue(swapStartsNow, MARKET);
-    final double variance = PRICER.impliedVariance(swapStartsNow, MARKET);
+    final double variance = PRICER.expectedVariance(swapStartsNow, MARKET);
     final double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(expiry5);
     assertEquals(pv, pvOfHedge, TOLERATED);
   }

@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * A root is assumed to be bracketed if $f(x_1)f(x_2) < 0$. If this condition is not satisfied, then either
  * $|f(x_1)| < |f(x_2)|$, in which case the lower value $x_1$ is shifted in the negative $x$ direction, or
  * the upper value $x_2$ is shifted in the positive $x$ direction. The amount by which to shift is the difference between
- * the two $x$ values multiplied by a constant ratio (1.5). If a root is not bracketed after 50 attempts, an exception is thrown.
+ * the two $x$ values multiplied by a constant ratio (1.6). If a root is not bracketed after 50 attempts, an exception is thrown.
  */
 public class BracketRoot {
   private static final double RATIO = 1.6;
@@ -36,16 +36,31 @@ public class BracketRoot {
     double x2 = xUpper;
     double f1 = 0;
     double f2 = 0;
+    f1 = f.evaluate(x1);
+    f2 = f.evaluate(x2);
+    if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+      throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
+    }
+    if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+      throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
+    }
+
     for (int count = 0; count < MAX_STEPS; count++) {
-      f1 = f.evaluate(x1);
-      f2 = f.evaluate(x2);
       if (f1 * f2 < 0) {
         return new double[] {x1, x2 };
       }
       if (Math.abs(f1) < Math.abs(f2)) {
         x1 += RATIO * (x1 - x2);
+        f1 = f.evaluate(x1);
+        if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+          throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
+        }
       } else {
         x2 += RATIO * (x2 - x1);
+        f2 = f.evaluate(x2);
+        if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+          throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
+        }
       }
     }
     throw new MathException("Failed to bracket root");
@@ -59,21 +74,43 @@ public class BracketRoot {
     double x2 = xUpper;
     double f1 = 0;
     double f2 = 0;
+    boolean lowerLimitReached = false;
+    boolean upperLimitReached = false;
+    f1 = f.evaluate(x1);
+    f2 = f.evaluate(x2);
+    if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+      throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
+    }
+    if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+      throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
+    }
     for (int count = 0; count < MAX_STEPS; count++) {
-      f1 = f.evaluate(x1);
-      f2 = f.evaluate(x2);
       if (f1 * f2 <= 0) {
         return new double[] {x1, x2 };
       }
-      if (x1 == minX && x2 == maxX) {
-        throw new MathException("Failed to bracket root: no root between minX and maxX");
+      if (lowerLimitReached && upperLimitReached) {
+        throw new MathException("Failed to bracket root: no root found between minX and maxX");
       }
-      if (Math.abs(f1) < Math.abs(f2)) {
+      if (Math.abs(f1) < Math.abs(f2) && !lowerLimitReached) {
         x1 += RATIO * (x1 - x2);
-        x1 = Math.max(minX, x1);
+        if (x1 < minX) {
+          x1 = minX;
+          lowerLimitReached = true;
+        }
+        f1 = f.evaluate(x1);
+        if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+          throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
+        }
       } else {
         x2 += RATIO * (x2 - x1);
-        x2 = Math.min(maxX, x2);
+        if (x2 > maxX) {
+          x2 = maxX;
+          upperLimitReached = true;
+        }
+        f2 = f.evaluate(x2);
+        if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+          throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
+        }
       }
     }
     throw new MathException("Failed to bracket root: max iterations");

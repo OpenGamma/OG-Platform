@@ -102,28 +102,6 @@ public class EquityVarianceSwapStaticReplication {
     return new double[] {rvCorrDivs, rvUncorrDivs };
   }
 
-  //  public double[][] debug(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends, final double expiry,
-  //      final double pureVol) {
-  //    final double rootTwoPi = Math.sqrt(2 * Math.PI);
-  //    final double logNoDivFwd = Math.log(spot) + discountCurve.getInterestRate(expiry) * expiry;
-  //    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(spot, discountCurve, dividends);
-  //    final PureImpliedVolatilitySurface pureVolSurface = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(pureVol));
-  //    final int n = dividends.getNumberOfDividends();
-  //    final double[][] res = new double[n + 1][2];
-  //    int index = 0;
-  //    while (n > 0 && index < n && dividends.getTau(index) <= expiry) {
-  //      double f = divCurves.getF(dividends.getTau(index));
-  //      res[index][0] = integrate(getUncorrectedDividendAdjustmentIntegrand(index, pureVolSurface, divCurves, dividends)) + getUncorrectedDividendAdjustment(f, index, dividends);
-  //      res[index][1] = INTEGRATOR.integrate(getDebugGIntegrand(index, pureVol, divCurves, dividends), -8.0, 8.0) / rootTwoPi;
-  //      index++;
-  //    }
-  //    final double terminalFwd = divCurves.getF(expiry);
-  //
-  //    res[n][0] = logNoDivFwd - integrate(getLogPayoffIntegrand(expiry, pureVolSurface, divCurves)) - Math.log(terminalFwd);
-  //    res[n][1] = logNoDivFwd - INTEGRATOR.integrate(getDebugLogIntegrand(expiry, pureVol, divCurves), -8.0, 8.0) / rootTwoPi;
-  //    return res;
-  //  }
-
   private double integrate(Function1D<Double, Double> func) {
     final double put = INTEGRATOR.integrate(func, 0.0, 1.0);
     final double call = INTEGRATOR.integrate(func, 1.0, 50.0); //TODO set upper limit from tolerance 

@@ -95,7 +95,7 @@ public class VarianceSwapStaticReplication {
     // Compute contribution from past realizations
     final double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
     // Compute contribution from future realizations
-    final double remainingVar = impliedVariance(deriv, market, cutoff); // Remaining variance implied by option prices
+    final double remainingVar = expectedVariance(deriv, market, cutoff); // Remaining variance implied by option prices
 
     // Compute weighting
     final double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
@@ -123,8 +123,8 @@ public class VarianceSwapStaticReplication {
    * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market) {
-    return impliedVariance(deriv, market, null);
+  public double expectedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market) {
+    return expectedVariance(deriv, market, null);
   }
 
   /**
@@ -136,7 +136,7 @@ public class VarianceSwapStaticReplication {
    * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market, final DoublesPair cutoff) {
+  public double expectedVariance(final VarianceSwap deriv, final EquityOptionDataBundle market, final DoublesPair cutoff) {
 
     validateData(deriv, market);
 
@@ -148,14 +148,14 @@ public class VarianceSwapStaticReplication {
     final double timeToFirstObs = deriv.getTimeToObsStart();
 
     // Compute Variance from spot until last observation
-    final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market, cutoff);
+    final double varianceSpotEnd = expectedVarianceFromSpot(timeToLastObs, market, cutoff);
 
     // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
     final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
     if (!forwardStarting) {
       return varianceSpotEnd;
     }
-    final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market, cutoff);
+    final double varianceSpotStart = expectedVarianceFromSpot(timeToFirstObs, market, cutoff);
     return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
@@ -178,8 +178,8 @@ public class VarianceSwapStaticReplication {
    * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected double impliedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market) {
-    return impliedVarianceFromSpot(expiry, market, null);
+  protected double expectedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market) {
+    return expectedVarianceFromSpot(expiry, market, null);
   }
 
   /**
@@ -191,7 +191,7 @@ public class VarianceSwapStaticReplication {
    * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected double impliedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market, final DoublesPair cutoff) {
+  protected double expectedVarianceFromSpot(final double expiry, final EquityOptionDataBundle market, final DoublesPair cutoff) {
     // 1. Unpack Market data
     final double fwd = market.getForwardCurve().getForward(expiry);
     final BlackVolatilitySurface<?> volSurf = market.getVolatilitySurface();
@@ -233,21 +233,6 @@ public class VarianceSwapStaticReplication {
       }
     };
 
-    //    final DisplacedDiffusionModel leftExtrapolator = new DisplacedDiffusionModel(fwd, expiry, ks[0], vols[0], ks[1], vols[1]);
-    //
-    //    // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
-    //    // What we do is to find the strike, k_min, at which f(k) = p(k)/k^2 begins to blow up, by finding the minimum of this function, k_min
-    //    // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
-    //    final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
-    //      @Override
-    //      public Double evaluate(final Double strike) {
-    //        return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
-    //      }
-    //    };
-    //    final double kMin = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, ks[0]);
-    //    final double fMin = shiftedLnIntegrand.evaluate(kMin);
-    //    double res = fMin * kMin; //the (hopefully) very small rectangular bit between zero and kMin
-
     double res = _integrator.integrate(shiftedLnIntegrand, 0.0, ks[0]);
     return res;
   }
@@ -261,7 +246,7 @@ public class VarianceSwapStaticReplication {
    * @return presentValue of the *remaining* variance in the swap.
    */
   public double impliedVolatility(final VarianceSwap deriv, final EquityOptionDataBundle market) {
-    final double sigmaSquared = impliedVariance(deriv, market);
+    final double sigmaSquared = expectedVariance(deriv, market);
     return Math.sqrt(sigmaSquared);
   }
 
@@ -366,6 +351,7 @@ public class VarianceSwapStaticReplication {
     private final double _residual;
     private final double _lowStrikeCutoff;
     private final boolean _addResidual;
+    private final ExpectedVarianceCalculator _cal;
 
     public VarianceCalculator(final double forward, final double expiry) {
       _f = forward;
@@ -373,6 +359,7 @@ public class VarianceSwapStaticReplication {
       _addResidual = false;
       _lowStrikeCutoff = 0.0;
       _residual = 0.0;
+      _cal = new ExpectedVarianceCalculator(_tol);
     }
 
     public VarianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
@@ -381,6 +368,7 @@ public class VarianceSwapStaticReplication {
       _addResidual = true;
       _lowStrikeCutoff = lowStrikeCutoff;
       _residual = residual;
+      _cal = new ExpectedVarianceCalculator(_tol);
     }
 
     public double getVariance(final BlackVolatilitySurface<?> surf) {
