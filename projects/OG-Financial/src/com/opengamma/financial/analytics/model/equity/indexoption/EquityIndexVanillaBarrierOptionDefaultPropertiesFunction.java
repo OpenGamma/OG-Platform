@@ -16,20 +16,18 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+
 
 /**
- *
+ * Default properties to define the choices of overhedge (shift of strike)
+ * and smoothing (width of ramp created by pricing binary as call or put spread)
  */
-public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class EquityIndexVanillaBarrierOptionDefaultPropertiesFunction extends DefaultPropertyFunction {
 
-  private final String _volSurfaceName;
-  private final String _fundingCurveName;
-  private final String _smileInterpolator;
+  private final String _callSpreadFullWidth;
+  private final String _barrierOverhedge;
 
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
@@ -46,32 +44,29 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     ValueRequirementNames.VALUE_RHO
   };
 
-  public EquityIndexOptionDefaultPropertiesFunction(final String volSurface, final String fundingCurve, final String smileInterpolator) {
+  public EquityIndexVanillaBarrierOptionDefaultPropertiesFunction(final String barrierOverhedge, final String callSpreadFullWidth) {
     super(ComputationTargetType.SECURITY, true);
-    Validate.notNull(volSurface, "No volSurface name was provided to use as default value.");
-    Validate.notNull(fundingCurve, "No fundingCurve name was provided to use as default value.");
-    _volSurfaceName = volSurface;
-    _fundingCurveName = fundingCurve;
-    _smileInterpolator = smileInterpolator;
+    Validate.notNull(barrierOverhedge, "No barrierOverhedge name was provided to use as default value.");
+    Validate.notNull(callSpreadFullWidth, "No callSpreadFullWidth name was provided to use as default value.");
+    _barrierOverhedge = barrierOverhedge;
+    _callSpreadFullWidth = callSpreadFullWidth;
   }
 
+
   @Override
-  protected void getDefaults(final PropertyDefaults defaults) {
+  protected void getDefaults(PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueName, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.BINARY_OVERHEDGE);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
-    if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
-      return Collections.singleton(_fundingCurveName);
-    } else if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_volSurfaceName);
-    } else if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_smileInterpolator);
+    if (ValuePropertyNames.BINARY_OVERHEDGE.equals(propertyName)) {
+      return Collections.singleton(_barrierOverhedge);
+    } else if (ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH.equals(propertyName)) {
+      return Collections.singleton(_callSpreadFullWidth);
     }
     return null;
   }
@@ -81,8 +76,7 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-
-    return (target.getSecurity() instanceof EquityIndexOptionSecurity) ||
-      target.getSecurity() instanceof EquityBarrierOptionSecurity;
+    return (target.getSecurity() instanceof EquityBarrierOptionSecurity);
   }
+
 }

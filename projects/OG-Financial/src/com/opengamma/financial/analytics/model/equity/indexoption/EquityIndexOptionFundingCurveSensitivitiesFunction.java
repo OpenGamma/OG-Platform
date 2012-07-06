@@ -92,7 +92,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
     // a. The Spot Index
-    final Object spotObject = inputs.getValue(getSpotRequirement(security));
+    final Object spotObject = inputs.getValue(getSpotRequirement(security.getUnderlyingId()));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
     }
@@ -115,8 +115,9 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     // c. The Vol Surface
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName, smileInterpolator, fundingCurveName));
+    final HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName,
+        smileInterpolator, fundingCurveName, security.getUnderlyingId()));
     if (volSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
