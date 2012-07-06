@@ -17,10 +17,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.examples.generator.PortfolioGeneratorTool;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
+import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
-import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
@@ -44,8 +44,8 @@ import com.opengamma.util.time.Tenor;
  */
 @Scriptable
 public class ExampleDatabasePopulator extends AbstractExampleTool {
-  
-  
+
+
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
   /**
    * The name of the multi-currency swap portfolio.
@@ -59,11 +59,14 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * The name of Cap/Floor portfolio
    */
   public static final String CAP_FLOOR_PORTFOLIO_NAME = "Cap/Floor Portfolio";
-
+  /**
+   * The name of the AUD swap portfolio
+   */
+  public static final String AUD_SWAP_PORFOLIO_NAME = "AUD Swap Portfolio";
   /**
    * The currencies.
    */
-  private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD);
+  private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.CAD);
 
   //-------------------------------------------------------------------------
   /**
@@ -71,10 +74,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * 
    * @param args the arguments, unused
    */
-  public static void main(String[] args) { // CSIGNORE
+  public static void main(final String[] args) { // CSIGNORE
     try {
       new ExampleDatabasePopulator().initAndRun(args);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       e.printStackTrace();
     }
   }
@@ -84,44 +87,50 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   protected void doRun() {
 
     loadCurveAndSurfaceDefinitions();
+    loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
     loadTimeSeriesRating();
-//    loadYieldCurves();
+    loadYieldCurves();
     loadSimulatedHistoricalData();
+    loadMultiCurrencySwapPortfolio();
+    loadAUDSwapPortfolio();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
-    loadMultiCurrencySwapPortfolio();
-    loadForwardSwapPortfolio();
-//    loadSwaptionPortfolio();
     loadBondPortfolio();
     loadCapFloorCMSSpreadPortfolio();
     loadCapFloorPortfolio();
     loadCashPortfolio();
     loadFRAPortfolio();
     loadLiborRawSecurities();
-    loadMixedFXPortfolio();
-//    loadMixedPortfolio();
+    //loadMixedFXPortfolio();
     loadMultiAssetPortfolio();
     loadViews();
   }
 
   private void loadCurveAndSurfaceDefinitions() {
-    ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
+    final ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
     s_logger.info("Creating curve and surface definitions");
     curveLoader.run(getToolContext());
     s_logger.info("Finished");
   }
 
+  private void loadCurveCalculationConfigurations() {
+    final ExampleCurveConfigurationLoader curveConfigLoader = new ExampleCurveConfigurationLoader();
+    s_logger.info("Creating curve calculation configurations");
+    curveConfigLoader.run(getToolContext());
+    s_logger.info("Finished");
+  }
+
   private void loadDefaultVolatilityCubeDefinition() {
-    ToolContext toolContext = getToolContext();
-    ConfigMaster configMaster = toolContext.getConfigMaster();
-    
-    ConfigDocument<VolatilityCubeDefinition> doc = new ConfigDocument<VolatilityCubeDefinition>(VolatilityCubeDefinition.class);
+    final ToolContext toolContext = getToolContext();
+    final ConfigMaster configMaster = toolContext.getConfigMaster();
+
+    final ConfigDocument<VolatilityCubeDefinition> doc = new ConfigDocument<VolatilityCubeDefinition>(VolatilityCubeDefinition.class);
     doc.setName("SECONDARY_USD");
     doc.setValue(createDefaultDefinition());
     s_logger.info("Populating vol cube defn " + doc.getName());
     ConfigMasterUtils.storeByName(configMaster, doc);
-    
+
     VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
   }
 
@@ -148,10 +157,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadMultiAssetPortfolio() {
     final Log log = new Log("Creating example multi asset portfolio");
     try {
-      ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
+      final ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
       mixedPortfolioLoader.run(getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -159,10 +168,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadTimeSeriesRating() {
     final Log log = new Log("Creating Timeseries configuration");
     try {
-      ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
+      final ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
       timeSeriesRatingLoader.run(getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -170,9 +179,9 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadYieldCurves() {
     final Log log = new Log("Creating yield curve definitions");
     try {
-      YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
+      YieldCurveConfigPopulator.populateSyntheticCurveConfigMaster(getToolContext().getConfigMaster());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -183,7 +192,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       final ExampleHistoricalDataGeneratorTool historicalDataGenerator = new ExampleHistoricalDataGeneratorTool();
       historicalDataGenerator.run(getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -194,7 +203,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       final ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
       equityLoader.run(getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -210,7 +219,17 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), MULTI_CURRENCY_SWAP_PORTFOLIO_NAME, "Swap", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadAUDSwapPortfolio() {
+    final Log log = new Log("Creating example AUD swap portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), AUD_SWAP_PORFOLIO_NAME, "AUDSwap", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -220,7 +239,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), FORWARD_SWAP_PORTFOLION_NAME, "ForwardSwap", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -230,7 +249,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), "Swaption Portfolio", "Swaption", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -240,7 +259,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       // TODO: load from CSV file
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -250,7 +269,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -260,7 +279,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), CAP_FLOOR_PORTFOLIO_NAME, "CapFloor", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -270,7 +289,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), "Cash Portfolio", "Cash", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -280,7 +299,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       // TODO: load from CSV file
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -290,7 +309,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), "FRA Portfolio", "FRA", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -300,17 +319,17 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       portfolioGeneratorTool().run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
-  
+
   private void loadMixedPortfolio() {
     final Log log = new Log("Creating mixed portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), "Mixed Portfolio", "Mixed", true, null);
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -320,7 +339,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     try {
       PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -331,7 +350,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
       log.done();
-    } catch (RuntimeException t) {
+    } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
@@ -339,26 +358,26 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private static Set<Currency> getAllCurrencies() {
     return s_currencies;
   }
-  
+
   private static VolatilityCubeDefinition createDefaultDefinition() {
-    
-    VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
+
+    final VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
     volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2),
         Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30)));
     volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6),
         Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15),
         Tenor.ofYears(20)));
-    
-    int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
-    List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
-    for (int value : values) {
+
+    final int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
+    final List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
+    for (final int value : values) {
       relativeStrikes.add(Double.valueOf(value));
       if (value != 0) {
         relativeStrikes.add(Double.valueOf(-value));
       }
     }
     Collections.sort(relativeStrikes);
-    
+
     volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
     return volatilityCubeDefinition;
   }

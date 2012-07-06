@@ -41,12 +41,25 @@ public class SyntheticCHConventions {
     final ExternalId ch = ExternalSchemes.financialRegionId("CH");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
-    
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP6M"), simpleNameSecurityId("CHF LIBOR 6m")), "CHF LIBOR 6m", 
+
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP7D"), simpleNameSecurityId("CHF LIBOR 7d")), "CHF LIBOR 7d",
+        act360, following, Period.ofDays(7), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP14D"), simpleNameSecurityId("CHF LIBOR 14d")), "CHF LIBOR 14d",
+        act360, following, Period.ofDays(14), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP1M"), simpleNameSecurityId("CHF LIBOR 1m")), "CHF LIBOR 1m",
+        act360, following, Period.ofMonths(1), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP2M"), simpleNameSecurityId("CHF LIBOR 2m")), "CHF LIBOR 2m",
+        act360, following, Period.ofMonths(2), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP3M"), simpleNameSecurityId("CHF LIBOR 3m")), "CHF LIBOR 3m",
+        act360, following, Period.ofMonths(3), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP6M"), simpleNameSecurityId("CHF LIBOR 6m")), "CHF LIBOR 6m",
         act360, following, Period.ofMonths(6), 2, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFLIBORP12M"), simpleNameSecurityId("CHF LIBOR 12m")), "CHF LIBOR 6m",
+        act360, following, Period.ofMonths(12), 2, false, ch);
 
     //Identifiers for external data
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP1D")), "CHFCASHP1D", act360, following, Period.ofDays(1), 0, false, ch);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP2D")), "CHFCASHP2D", act360, following, Period.ofDays(2), 0, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP1M")), "CHFCASHP1M", act360, modified, Period.ofMonths(1), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP2M")), "CHFCASHP2M", act360, modified, Period.ofMonths(2), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP3M")), "CHFCASHP3M", act360, modified, Period.ofMonths(3), 2, false, ch);
@@ -59,12 +72,24 @@ public class SyntheticCHConventions {
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP10M")), "CHFCASHP10M", act360, modified, Period.ofMonths(10), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP11M")), "CHFCASHP11M", act360, modified, Period.ofMonths(11), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CHFCASHP12M")), "CHFCASHP12M", act360, modified, Period.ofMonths(12), 2, false, ch);
-    
+
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360,
         modified, semiAnnual, 2, simpleNameSecurityId("CHF LIBOR 6m"), ch, true);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_3M_SWAP")), "CHF_3M_SWAP", thirty360, modified, annual, 2, ch,
         act360, modified, quarterly, 2, simpleNameSecurityId("CHF LIBOR 3m"), ch, true);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_6M_SWAP")), "CHF_6M_SWAP", thirty360, modified, annual, 2, ch,
         act360, modified, semiAnnual, 2, simpleNameSecurityId("CHF LIBOR 6m"), ch, true);
+
+    final Integer publicationLagON = 0;
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("TOISTOIS"), simpleNameSecurityId("CHF TOISTOIS")), "CHF TOISTOIS", act360,
+        following, Period.ofDays(1), 2, false, ch, publicationLagON);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_OIS_SWAP")), "CHF_OIS_SWAP", act360, modified, annual, 2, ch,
+        act360, modified, annual, 2, simpleNameSecurityId("CHF TOISTOIS"), ch, true, publicationLagON);
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_3M_FRA")), "CHF_3M_FRA", thirty360, modified, annual, 2, ch, act360,
+        modified, quarterly, 2, simpleNameSecurityId("CHF LIBOR 3m"), ch, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_6M_FRA")), "CHF_6M_FRA", thirty360, modified, annual, 2, ch, act360,
+        modified, semiAnnual, 2, simpleNameSecurityId("CHF LIBOR 6m"), ch, true);
+
   }
 }

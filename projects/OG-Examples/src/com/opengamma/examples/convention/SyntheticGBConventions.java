@@ -25,7 +25,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * Instrument 
+ * Instrument
  * 
  */
 public class SyntheticGBConventions {
@@ -43,11 +43,16 @@ public class SyntheticGBConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
 
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP7D")), "GBP LIBOR 7d", act365, modified, Period.ofDays(7), 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP14D")), "GBP LIBOR 14d", act365, modified, Period.ofDays(14), 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP1M")), "GBP LIBOR 1m", act365, modified, Period.ofMonths(1), 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP2M")), "GBP LIBOR 2m", act365, modified, Period.ofMonths(2), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP3M")), "GBP LIBOR 3m", act365, modified, Period.ofMonths(3), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP6M"), simpleNameSecurityId("GBP LIBOR 6m")), "GBP LIBOR 6m", act365, modified, Period.ofMonths(6), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPLIBORP12M")), "GBP LIBOR 12m", act365, modified, Period.ofMonths(12), 0, false, gb);
 
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP1D")), "GBPCASHP1D", act365, following, Period.ofDays(1), 0, false, gb);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP2D")), "GBPCASHP2D", act365, following, Period.ofDays(2), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP1M")), "GBPCASHP1M", act365, modified, Period.ofMonths(1), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP2M")), "GBPCASHP2M", act365, modified, Period.ofMonths(2), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP3M")), "GBPCASHP3M", act365, modified, Period.ofMonths(3), 0, false, gb);
@@ -60,7 +65,7 @@ public class SyntheticGBConventions {
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP10M")), "GBPCASHP10M", act365, modified, Period.ofMonths(10), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP11M")), "GBPCASHP11M", act365, modified, Period.ofMonths(11), 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("GBPCASHP12M")), "GBPCASHP12M", act365, modified, Period.ofMonths(12), 0, false, gb);
-    
+
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365,
         modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
 
@@ -68,7 +73,18 @@ public class SyntheticGBConventions {
         modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_SWAP")), "GBP_6M_SWAP", act365, modified, semiAnnual, 0, gb,
         act365, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
-    
+
+    final Integer publicationLagON = 0;
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("SONIO"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", act365,
+        following, Period.ofDays(1), 0, false, gb, publicationLagON);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_OIS_SWAP")), "GBP_OIS_SWAP", act365, modified, annual, 2, gb,
+        act365, modified, annual, 2, simpleNameSecurityId("GBP SONIO/N"), gb, true, publicationLagON);
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_FRA")), "GBP_3M_FRA", act365, modified, annual, 0, gb, act365,
+        modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_FRA")), "GBP_6M_FRA", act365, modified, semiAnnual, 0, gb,
+        act365, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
+
   }
-  
+
 }
