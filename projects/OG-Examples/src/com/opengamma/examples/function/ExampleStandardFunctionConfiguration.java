@@ -75,6 +75,7 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityIndexDividendFutureYieldCurveNodeSensitivityFunction;
@@ -1030,8 +1031,8 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01FunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    //functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PAR_RATE_STRING));
-    //functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PRESENT_VALUE_STRING));
+    functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PAR_RATE_STRING));
+    functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, PRESENT_VALUE_STRING));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR",
         "GBP", "JPY", "NZD", USD));
   }
