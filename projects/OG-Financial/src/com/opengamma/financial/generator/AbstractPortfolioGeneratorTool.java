@@ -71,7 +71,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     return createPortfolioGenerator(new StaticNameGenerator(portfolioName)).createPortfolio();
   }
 
-  public PortfolioNodeGenerator createPortfolioNodeGenerator(int portfolioSize) {
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int portfolioSize) {
     throw new UnsupportedOperationException();
   }
 
@@ -95,7 +95,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     return _currencies;
   }
 
-  public void setCurrencies(Currency[] currencies) {
+  public void setCurrencies(final Currency[] currencies) {
     _currencies = currencies;
   }
 
@@ -200,7 +200,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     }
     try {
       final String className;
-      int i = security.indexOf('.');
+      final int i = security.indexOf('.');
       if (i < 0) {
         className = clazz.getPackage().getName() + "." + security + "PortfolioGeneratorTool";
       } else {
@@ -210,14 +210,14 @@ public abstract class AbstractPortfolioGeneratorTool {
       try {
         s_logger.debug("Trying class {}", className);
         instanceClass = Class.forName(className);
-      } catch (ClassNotFoundException e) {
+      } catch (final ClassNotFoundException e) {
         return getInstance(clazz.getSuperclass(), security);
       }
       s_logger.info("Loading {}", className);
       final AbstractPortfolioGeneratorTool tool = (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
       tool.setContext(getClassContext(), this);
       return tool;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
     }
   }
@@ -276,15 +276,15 @@ public abstract class AbstractPortfolioGeneratorTool {
 
   private ManageablePortfolioNode createPortfolioNode(final PositionMaster positionMaster, final PortfolioNode node) {
     final ManageablePortfolioNode newNode = new ManageablePortfolioNode(node.getName());
-    for (PortfolioNode child : node.getChildNodes()) {
+    for (final PortfolioNode child : node.getChildNodes()) {
       newNode.addChildNode(createPortfolioNode(positionMaster, child));
     }
-    for (Position position : node.getPositions()) {
+    for (final Position position : node.getPositions()) {
       final ManageablePosition newPosition = new ManageablePosition();
       newPosition.setAttributes(position.getAttributes());
       newPosition.setQuantity(position.getQuantity());
       newPosition.setSecurityLink(new ManageableSecurityLink(position.getSecurityLink()));
-      for (Trade trade : position.getTrades()) {
+      for (final Trade trade : position.getTrades()) {
         newPosition.addTrade(new ManageableTrade(trade));
       }
       newNode.addPosition(positionMaster.add(new PositionDocument(newPosition)).getUniqueId());
@@ -294,10 +294,10 @@ public abstract class AbstractPortfolioGeneratorTool {
 
   private void writePortfolio(final SecuritySource securitySource, final PortfolioNode node, final String indent) {
     s_logger.debug("{}+{}", indent, node.getName());
-    for (PortfolioNode childNode : node.getChildNodes()) {
+    for (final PortfolioNode childNode : node.getChildNodes()) {
       writePortfolio(securitySource, childNode, indent + "  ");
     }
-    for (Position position : node.getPositions()) {
+    for (final Position position : node.getPositions()) {
       final Security security = position.getSecurityLink().resolve(securitySource);
       s_logger.debug("{} {} x {}", new Object[] {indent, position.getQuantity(), security });
     }
@@ -315,18 +315,18 @@ public abstract class AbstractPortfolioGeneratorTool {
     options.addOption(new Option("w", WRITE_OPT, false, "writes the portfolio and securities to the masters"));
     options.addOption(new Option("cp", COUNTER_PARTY_OPT, true, "sets the name of the counter party"));
     options.addOption(OptionBuilder.hasArgs()
-                                   .withArgName("Currency")
-                                   .withDescription("Specify the currencies of the securities to be generated")
-                                   .withLongOpt(CURRENCIES_OPT)
-                                   .create("ccy"));
+        .withArgName("Currency")
+        .withDescription("Specify the currencies of the securities to be generated")
+        .withLongOpt(CURRENCIES_OPT)
+        .create("ccy"));
   }
 
-  private Currency[] parseCurrencies(CommandLine commandLine) {
+  private Currency[] parseCurrencies(final CommandLine commandLine) {
     if (commandLine.hasOption(CURRENCIES_OPT)) {
-      String[] currencies = commandLine.getOptionValues(CURRENCIES_OPT);
-      Currency[] ccys = new Currency[currencies.length];
+      final String[] currencies = commandLine.getOptionValues(CURRENCIES_OPT);
+      final Currency[] ccys = new Currency[currencies.length];
       int i = 0;
-      for (String ccyStr : currencies) {
+      for (final String ccyStr : currencies) {
         ccys[i++] = Currency.of(ccyStr.trim());
       }
       return ccys;

@@ -22,12 +22,25 @@ public class YieldCurveConfigPopulator {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveConfigPopulator.class);
 
   public YieldCurveConfigPopulator(final ConfigMaster cfgMaster) {
-    populateCurveConfigMaster(cfgMaster);
+    this(cfgMaster, false);
+  }
+
+  public YieldCurveConfigPopulator(final ConfigMaster cfgMaster, final boolean syntheticOnly) {
+    populateSyntheticCurveConfigMaster(cfgMaster);
+    if (!syntheticOnly) {
+      populateCurveConfigMaster(cfgMaster);
+    }
   }
 
   public static ConfigMaster populateCurveConfigMaster(final ConfigMaster cfgMaster) {
     populateCurveDefinitionConfigMaster(cfgMaster);
     populateCurveSpecificationBuilderConfigMaster(cfgMaster);
+    return cfgMaster;
+  }
+
+  public static ConfigMaster populateSyntheticCurveConfigMaster(final ConfigMaster cfgMaster) {
+    populateCurveDefinitionConfigMaster(cfgMaster);
+    populateSyntheticCurveSpecificationBuilderConfigMaster(cfgMaster);
     return cfgMaster;
   }
 
@@ -42,24 +55,35 @@ public class YieldCurveConfigPopulator {
   }
 
   public static void populateCurveDefinitionConfigMaster(final ConfigMaster configMaster) {
-    final Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications
-        .buildStandardCurveDefinitions();
+    final Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildOldCurveDefinitions();
     for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
       final String curveName = entry.getKey();
       final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
       for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
         final Currency ccy = currencyEntry.getKey();
         final YieldCurveDefinition definition = currencyEntry.getValue();
-        final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(
-            YieldCurveDefinition.class);
+        final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
         document.setName(curveName + "_" + ccy.getCode());
         document.setValue(definition);
         ConfigMasterUtils.storeByName(configMaster, document);
         dumpDefinition(definition);
       }
     }
-    final Map<String, Map<Currency, YieldCurveDefinition>> secondaryCurveDefinitions = SecondaryCurveDefinitionAndSpecifications
-        .buildSecondaryCurveDefintions();
+    final Map<String, Map<Currency, YieldCurveDefinition>> newCurveDefinitions = CurveDefinitionAndSpecifications.buildNewCurveDefinitions();
+    for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : newCurveDefinitions.entrySet()) {
+      final String curveName = entry.getKey();
+      final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
+      for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
+        final Currency ccy = currencyEntry.getKey();
+        final YieldCurveDefinition definition = currencyEntry.getValue();
+        final ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+        document.setName(curveName + "_" + ccy.getCode());
+        document.setValue(definition);
+        ConfigMasterUtils.storeByName(configMaster, document);
+        dumpDefinition(definition);
+      }
+    }
+    final Map<String, Map<Currency, YieldCurveDefinition>> secondaryCurveDefinitions = SecondaryCurveDefinitionAndSpecifications.buildSecondaryCurveDefinitions();
     for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : secondaryCurveDefinitions.entrySet()) {
       final String curveName = entry.getKey();
       final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
@@ -74,26 +98,12 @@ public class YieldCurveConfigPopulator {
         dumpDefinition(definition);
       }
     }
-    final ConfigDocument<YieldCurveDefinition> swapOnlyUSD = new ConfigDocument<YieldCurveDefinition>(
-        YieldCurveDefinition.class);
-    swapOnlyUSD.setName("SWAP_ONLY_USD");
-    swapOnlyUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyCurveDefinition());
-    ConfigMasterUtils.storeByName(configMaster, swapOnlyUSD);
-    final ConfigDocument<YieldCurveDefinition> swapOnlyNo3YrUSD = new ConfigDocument<YieldCurveDefinition>(
-        YieldCurveDefinition.class);
-    swapOnlyNo3YrUSD.setName("SWAP_ONLY_NO3YR_USD");
-    swapOnlyNo3YrUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnlyNo3YrCurveDefinition());
-    ConfigMasterUtils.storeByName(configMaster, swapOnlyNo3YrUSD);
-    final ConfigDocument<YieldCurveDefinition> swapOnly3YrUSD = new ConfigDocument<YieldCurveDefinition>(
-        YieldCurveDefinition.class);
-    swapOnly3YrUSD.setName("SWAP_ONLY_3YR_USD");
-    swapOnly3YrUSD.setValue(CurveDefinitionAndSpecifications.buildUSDSwapOnly3YrCurveDefinition());
-    ConfigMasterUtils.storeByName(configMaster, swapOnly3YrUSD);
+    //TODO fix me
+    CurveDefinitionAndSpecifications.buildSecondaryDiscountingAUDCurveDefinition();
   }
 
   public static void populateCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {
-    final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications
-        .buildStandardCurveSpecificationBuilderConfigurations();
+    final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = CurveDefinitionAndSpecifications.buildStandardCurveSpecificationBuilderConfigurations();
     for (final Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : configurations.entrySet()) {
       final ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(
           CurveSpecificationBuilderConfiguration.class);
@@ -101,8 +111,10 @@ public class YieldCurveConfigPopulator {
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
-    final Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = SecondaryCurveDefinitionAndSpecifications
-        .buildSyntheticCurveSpecificationBuilderConfigurations();
+  }
+
+  public static void populateSyntheticCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {
+    final Map<Currency, CurveSpecificationBuilderConfiguration> syntheticConfigurations = CurveDefinitionAndSpecifications.buildSyntheticCurveSpecificationBuilderConfigurations();
     for (final Map.Entry<Currency, CurveSpecificationBuilderConfiguration> entry : syntheticConfigurations.entrySet()) {
       final ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(
           CurveSpecificationBuilderConfiguration.class);
@@ -110,10 +122,6 @@ public class YieldCurveConfigPopulator {
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
-
-    //    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
-    //    doc.setName("DEFAULT_USD");
-    //    doc.setValue(CurveDefinitionAndSpecifications.buildUSDCurveSpecificationBuilderConfiguration());
 
   }
 

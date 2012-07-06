@@ -118,7 +118,7 @@ public class SecondaryCurveDefinitionAndSpecifications {
     return results.toArray(new Tenor[] {});
   }
 
-  public static Map<String, Map<Currency, YieldCurveDefinition>> buildSecondaryCurveDefintions() {
+  public static Map<String, Map<Currency, YieldCurveDefinition>> buildSecondaryCurveDefinitions() {
     final Map<Currency, YieldCurveDefinition> singleDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     final Currency usd = Currency.USD;
     final ExternalId usdRegion = ExternalSchemes.countryRegionId(Country.US);
