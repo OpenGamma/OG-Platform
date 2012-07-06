@@ -37,15 +37,21 @@ public class AnalyticsViewManager {
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
   private final ComputationTargetResolver _targetResolver;
+  private final ResultsFormatter _formatter;
+
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               MarketDataSnapshotMaster snapshotMaster,
-                              ComputationTargetResolver targetResolver) {
-    _targetResolver = targetResolver;
+                              ComputationTargetResolver targetResolver,
+                              ResultsFormatter formatter) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(formatter, "formatter");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    _targetResolver = targetResolver;
+    _formatter = formatter;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;
     _snapshotMaster = snapshotMaster;
@@ -61,7 +67,7 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId, _targetResolver);
+    SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId, _targetResolver, _formatter);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,

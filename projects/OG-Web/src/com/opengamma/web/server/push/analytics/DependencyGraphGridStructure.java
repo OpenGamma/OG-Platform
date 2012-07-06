@@ -27,9 +27,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DependencyGraphGridStructure implements GridBounds {
 
-  /** Maximum string length for values that are sent to the grid. */
-  private static final int MAX_VALUE_LENGTH = 100;
-
   private final AnalyticsNode _root;
 
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
@@ -48,16 +45,18 @@ public class DependencyGraphGridStructure implements GridBounds {
   private final List<Row> _rows;
 
   private final ComputationTargetResolver _computationTargetResolver;
+  private final ResultsFormatter _formatter;
 
-
-  // TODO gridValueSpecs should be a List<Row>
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              List<Row> rows,
-                                             ComputationTargetResolver targetResolver) {
+                                             ComputationTargetResolver targetResolver,
+                                             ResultsFormatter formatter) {
     _rows = rows;
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(formatter, "formatter");
+    _formatter = formatter;
     _root = root;
     _computationTargetResolver = targetResolver;
   }
@@ -103,27 +102,13 @@ public class DependencyGraphGridStructure implements GridBounds {
       case 2: // value name
         return valueSpec.getValueName();
       case 3: // value
-        return trim(value.toString()); // TODO formatting
+        return _formatter.formatValueForDisplay(value, valueSpec);
       case 4: // function name
         return row.getFunctionName();
       case 5: // properties
         return getValuePropertiesForDisplay(valueSpec.getProperties());
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
-    }
-  }
-
-  /**
-   * If a string is shorter than {@link #MAX_VALUE_LENGTH} it is returned, otherwise it is trimmed and
-   * "..." is appended.
-   * @param str The string to be trimmed.
-   * @return The trimmed string.
-   */
-  private static String trim(String str) {
-    if (str.length() < MAX_VALUE_LENGTH) {
-      return str;
-    } else {
-      return str.substring(0, MAX_VALUE_LENGTH) + "...";
     }
   }
 

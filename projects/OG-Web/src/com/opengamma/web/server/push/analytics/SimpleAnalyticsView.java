@@ -27,23 +27,27 @@ import com.opengamma.util.ArgumentChecker;
   private final AnalyticsHistory _history = new AnalyticsHistory();
   private final AnalyticsViewListener _listener;
   private final ComputationTargetResolver _targetResolver;
+  private final ResultsFormatter _formatter;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
 
 
+
   public SimpleAnalyticsView(AnalyticsViewListener listener,
                              String portoflioGridId,
                              String primitivesGridId,
-                             ComputationTargetResolver targetResolver) {
+                             ComputationTargetResolver targetResolver,
+                             ResultsFormatter formatter) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(portoflioGridId, "portoflioGridId");
     ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    _formatter = formatter;
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, _targetResolver, _formatter);
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, targetResolver, _formatter);
     _listener = listener;
   }
 
@@ -51,8 +55,14 @@ import com.opengamma.util.ArgumentChecker;
   public void updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getGridId(), _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getGridId(), _targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition,
+                                                 _portfolioGrid.getGridId(),
+                                                 _targetResolver,
+                                                 _formatter);
+    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition,
+                                                   _primitivesGrid.getGridId(),
+                                                   _targetResolver,
+                                                   _formatter);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getGridId());
     gridIds.add(_primitivesGrid.getGridId());

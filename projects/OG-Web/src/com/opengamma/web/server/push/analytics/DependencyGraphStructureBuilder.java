@@ -39,7 +39,8 @@ public class DependencyGraphStructureBuilder {
   public DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                          ValueSpecification root,
                                          String calcConfigName,
-                                         ComputationTargetResolver targetResolver) {
+                                         ComputationTargetResolver targetResolver,
+                                         ResultsFormatter formatter) {
     // TODO see [PLAT-XXXX] this is a bit nasty but should work as long as the engine and web are running in the same process
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
@@ -47,13 +48,14 @@ public class DependencyGraphStructureBuilder {
       // TODO create empty() factory method
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
                                                     Collections.<DependencyGraphGridStructure.Row>emptyList(),
-                                                    targetResolver);
+                                                    targetResolver,
+                                                    formatter);
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _rows, targetResolver);
+      _structure = new DependencyGraphGridStructure(node, _rows, targetResolver, formatter);
     }
   }
 
