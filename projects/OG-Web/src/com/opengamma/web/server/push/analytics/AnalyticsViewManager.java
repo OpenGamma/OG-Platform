@@ -68,10 +68,11 @@ public class AnalyticsViewManager {
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
     SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId, _targetResolver, _formatter);
+    LockingAnalyticsView lockingView = new LockingAnalyticsView(view);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  viewClient,
-                                                                                 view,
+                                                                                 lockingView,
                                                                                  marketDataSpecRepo,
                                                                                  _aggregatedViewDefManager,
                                                                                  _snapshotMaster);

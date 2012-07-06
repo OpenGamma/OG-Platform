@@ -128,9 +128,6 @@ import com.opengamma.util.tuple.Pair;
     _latestResults = fullResult;
     _history = history;
     _cycle = cycle;
-    // TODO should the row and cols be looked up here and passed to the viewports?
-    // look up col index in _columns
-    // iterate over _targets, query results for each target
     for (MainGridViewport viewport : _viewports.values()) {
       viewport.updateResults(fullResult, history);
     }
