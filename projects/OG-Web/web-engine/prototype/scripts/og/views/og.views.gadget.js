@@ -19,7 +19,7 @@ $.register_module({
                         view: 0,
                         type: 'portfolio',
                         depgraph: false,
-                        viewdefinition: 'DbCfg~2195066~1729',
+                        viewdefinition: 'DbCfg~2194997',
                         live: true,
                         provider: 'Live market data (Bloomberg, Activ)'
                     }

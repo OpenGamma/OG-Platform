@@ -127,7 +127,7 @@ $.register_module({
                 return data.reduce(function (acc, row, idx) {
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     acc.rows.push({
-                        top: (idx + meta.viewport.rows[0]) * row_height,
+                        top: (idx + meta.viewport.abs_rows[0]) * row_height,
                         cells: slice.reduce(function (acc, val, idx) {
                             return val === null ? acc
                                 : acc.concat({column: fixed ? idx : fixed_length + idx, value: val});
@@ -199,19 +199,24 @@ $.register_module({
         var set_viewport = function (grid, handler) {
             var top_position = grid.elements.scroll_body.scrollTop(),
                 left_position = grid.elements.scroll_head.scrollLeft(),
-                row_start, scroll_position = left_position + grid.meta.viewport.width,
+                fixed_len = grid.meta.fixed_length, lcv = 0,
+                row_start, row_end, row_len, scroll_position = left_position + grid.meta.viewport.width,
                 scroll_cols = grid.meta.columns.scroll
                     .reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            grid.meta.viewport.rows = [
+            grid.meta.viewport.abs_rows = [
                 row_start = Math.floor((top_position / grid.meta.viewport.height) * grid.meta.rows),
-                row_start + grid.meta.visible_rows
+                row_len = row_start + grid.meta.visible_rows
             ];
-            grid.meta.viewport.cols = scroll_cols.reduce(function (acc, col, idx) {
+            (grid.meta.viewport.rows = []), (lcv = row_start), (row_end = row_start + row_len);
+            while (lcv < row_end) grid.meta.viewport.rows.push(lcv++);
+            (grid.meta.viewport.cols = []), (lcv = 0);
+            while (lcv < fixed_len) grid.meta.viewport.cols.push(lcv++);
+            grid.meta.viewport.cols = grid.meta.viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 if (!('scan' in acc)) return acc;
-                if ((acc.scan += col.width) >= left_position) acc.cols.push(idx + grid.meta.fixed_length);
+                if ((acc.scan += col.width) >= left_position) acc.cols.push(idx + fixed_len);
                 if (acc.scan > scroll_position) delete acc.scan;
                 return acc;
-            }, {scan: 0, cols: []}).cols;
+            }, {scan: 0, cols: []}).cols);
             grid.dataman.viewport(grid.meta.viewport);
             if (handler) handler();
         };
