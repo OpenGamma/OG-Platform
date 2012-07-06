@@ -158,15 +158,10 @@ $.register_module({
                 };
                 return create_mesh(str);
             };
-            surface.vertex_sphere = function () {
-                var sphere = new THREE.Mesh(
-                    new THREE.SphereGeometry(1.5, 10, 10),
-                    new THREE.MeshLambertMaterial({color: 0xff0000, shading: THREE.FlatShading})
-                );
-                sphere.visible = false;
-                return sphere;
-            };
             surface.alive = function () {return true};
+            /**
+             * Rotate the group on mouse drag
+             */
             surface.animate = function () {
                 var mousedown = false, sx = 0, sy = 0;
                 $selector
@@ -294,6 +289,10 @@ $.register_module({
                 interactive_meshs.push(group.children[0]);
                 return group;
             };
+            /**
+             * On mouse move determin the mouse position in 3D space,
+             * snap vertex_sphere to a vertex if its withing settings.snap_distance
+             */
             surface.interactive = function () {
                 var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
                 $selector.on('mousemove.surface.interactive', function (event) {
@@ -368,6 +367,14 @@ $.register_module({
                 return surface;
             };
             surface.resize = function () {surface.load();};
+            surface.vertex_sphere = function () {
+                var sphere = new THREE.Mesh(
+                    new THREE.SphereGeometry(1.5, 10, 10),
+                    new THREE.MeshLambertMaterial({color: 0xff0000, shading: THREE.FlatShading})
+                );
+                sphere.visible = false;
+                return sphere;
+            };
             if (!config.child) og.common.gadgets.manager.register(surface);
             surface.load().animate().interactive();
         }
