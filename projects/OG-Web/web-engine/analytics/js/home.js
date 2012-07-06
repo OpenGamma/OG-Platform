@@ -149,11 +149,12 @@
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
     var $backingAggregatorsList = $("<select id='aggregatorslist'></select>");
     var $backingSnapshotList = $("<select id='snapshotlist'></select>");
-
-    updateViewDefinitions($backingViewList, initData.viewDefinitions);
+    // check the URL of the iframe for an ID to preload
+    updateViewDefinitions($backingViewList, initData.viewDefinitions, window.location.search.substring(1));
     $backingViewList.combobox({
       change: function(item) {
         populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, $(item).val());
+        window.parent.location.hash = '/' + $(item).val(); // set the parent window's hash to have ID for preloading
       }
     });
     getInput($backingViewList).width(200);
@@ -307,8 +308,8 @@
     return hours + ":" + minutes + ":" + seconds;
   }
   
-  function updateViewDefinitions($backingList, contents) {
-    var existingSelection = $backingList.val();
+  function updateViewDefinitions($backingList, contents, selection) {
+    var existingSelection = selection || $backingList.val(); // if a preloaded value has been given, favor that
     $backingList.empty();
     $('<option value=""></option>').appendTo($backingList);
     $.each(contents, function(idx, viewDef) {
@@ -316,6 +317,7 @@
       $opt.appendTo($backingList);
     });
     $backingList.val(existingSelection);
+    if (selection) setTimeout(initializeView, 200); // if a preloaded value was given, launch the viewer immediately
   }
   
   function populateAggregators($aggregatorsSelect, aggregators) {

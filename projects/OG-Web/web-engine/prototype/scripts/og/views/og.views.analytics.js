@@ -10,11 +10,13 @@ $.register_module({
             layout = og.views.common.layout, masthead = og.common.masthead,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name);
-        module.rules = {load: {route: '/', method: module.name + '.load'}};
+        module.rules = {load: {route: '/:id?', method: module.name + '.load'}};
         return view = {
             load: function (args) {
+                if ($('#temp_analytics_frame').length) return; // do not reload page
+                var id = args.id ? '?' + args.id : '';
                 masthead.menu.set_tab(page_name);
-                $('.ui-layout-center').html('<iframe id="temp_analytics_frame" src="/analytics/"\
+                $('.ui-layout-center').html('<iframe id="temp_analytics_frame" src="/analytics/' + id + '"\
                     style="position: absolute; top: 3px; height: 99%; width: 100%;"></iframe>');
             },
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},

@@ -28,6 +28,8 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -112,7 +114,12 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (!(security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity)) {
+    final boolean isFXOption = (security instanceof FXOptionSecurity
+        || target.getSecurity() instanceof FXBarrierOptionSecurity
+        || target.getSecurity() instanceof FXDigitalOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXOptionSecurity
+        || target.getSecurity() instanceof NonDeliverableFXDigitalOptionSecurity);
+    if (!isFXOption) {
       return false;
     }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();

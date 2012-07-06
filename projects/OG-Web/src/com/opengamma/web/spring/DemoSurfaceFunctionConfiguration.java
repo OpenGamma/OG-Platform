@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -49,7 +46,6 @@ import com.opengamma.util.SingletonFactoryBean;
  * Note [PLAT-1094] - the functions should really be built by scanning the surfaces and currencies available.
  */
 public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoSurfaceFunctionConfiguration.class);
 
   private ConfigMaster _configMaster;
   private ConfigDBVolatilitySurfaceDefinitionSource _volSurfaceDefinitionSource;
