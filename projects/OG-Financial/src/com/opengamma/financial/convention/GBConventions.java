@@ -123,13 +123,21 @@ public class GBConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BPDR5 Curncy"), simpleNameSecurityId("GBP DEPOSIT 5y")), "GBP DEPOSIT 5y", act365,
         following, Period.ofYears(5), 2, false, gb);
 
+    final DayCount swapFixedDayCount = act365;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = semiAnnual;
+    final Frequency swapFixedPaymentFrequency1Y = annual;
+    final DayCount liborDayCount = act365;
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final int publicationLagON = 0;
+
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365,
         modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
 
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_SWAP")), "GBP_3M_SWAP", act365, modified, annual, 0, gb, act365,
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_SWAP")), "GBP_3M_SWAP", swapFixedDayCount, modified, annual, 0, gb, act365,
         modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_SWAP")), "GBP_6M_SWAP", act365, modified, semiAnnual, 0, gb,
-        act365, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_6M_SWAP")), "GBP_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, gb,
+        liborDayCount, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"), gb, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_3M_FRA")), "GBP_3M_FRA", act365, modified, annual, 0, gb, act365,
         modified, quarterly, 0, simpleNameSecurityId("GBP LIBOR 3m"), gb, true);
@@ -140,9 +148,6 @@ public class GBConventions {
         null, 0, false, gb);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", act365, modified,
         null, 0, false, gb);
-
-    // Overnight Index Swap Convention have additional flag, publicationLag
-    final Integer publicationLagON = 0;
     // SONIA
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SONIO/N Index"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", act365,
         following, Period.ofDays(1), 0, false, gb, publicationLagON);
@@ -155,6 +160,22 @@ public class GBConventions {
 
     //TODO sort out the swap names so that they are consistent
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_IBOR_INDEX")), "GBP_IBOR_INDEX", act365, modified, 0, false);
+
+    final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    // ISDA fixing Libor 11:00am London
+    utils.addConventionBundle(
+        ExternalIdBundle.of(simpleNameSecurityId("GBP_ISDAFIX_GBPLIBOR11_1Y"), ExternalSchemes.ricSecurityId("GBPSFIX1Y="),
+            bloombergTickerSecurityId("BPISDB01 Index")), "GBP_ISDAFIX_GBPLIBOR11_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency1Y, 0, gb, liborDayCount, modified,
+        quarterly, 2, simpleNameSecurityId("GBP LIBOR 3m"), gb, true, Period.ofYears(1));
+    for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
+      final String tenorString = isdaFixTenor[looptenor] + "Y";
+      final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
+      utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_ISDAFIX_GBPLIBOR11_" + tenorString),
+          ExternalSchemes.ricSecurityId("GBPSFIX" + tenorString + "="), bloombergTickerSecurityId("BPISDB" + tenorStringBbg + " Index")), "GBP_ISDAFIX_GBPLIBOR11_" + tenorString,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, gb, liborDayCount, modified, semiAnnual, 0, simpleNameSecurityId("GBP LIBOR 6m"),
+          gb, true, Period.ofYears(isdaFixTenor[looptenor]));
+    }
+  
   }
 
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
