@@ -182,7 +182,7 @@ $.register_module({
             meta.columns.scan.all = meta.columns.scan.fixed
                 .concat(meta.columns.scan.scroll.map(function (val) {return val + meta.columns.width.fixed;}));
             meta.viewport = {height: meta.rows * row_height, width: width - meta.columns.width.fixed};
-            meta.visible_rows = Math.ceil((height - header_height) / row_height);
+            meta.visible_rows = Math.min(Math.ceil((height - header_height) / row_height), meta.rows);
             css = templates.css({
                 id: id, viewport_width: meta.viewport.width,
                 fixed_bg: background(columns.fixed, meta.columns.width.fixed, 'ecf5fa'),

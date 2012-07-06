@@ -14,9 +14,9 @@ $.register_module({
                 grid_type = config.type, depgraph = !!config.depgraph,
                 fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'};
             var data_handler = function (result) {
-                console.log('data_handler:\n', result);
                 if (!events.data.length) return; // if a tree falls, etc.
-                // fire('data', matrix.reverse());
+                if (result.error) return og.dev.warn(result.message);
+                fire('data', result.data);
             };
             var data_setup = function () {
                 if (!viewport) return;
@@ -42,7 +42,7 @@ $.register_module({
                             .map(function (col) {return (col.width = 150), col;})
                     }],
                     scroll: result.data[SETS].slice(1).map(function (set) {
-                        return set.columns.forEach(function (col) {return (col.width = 150), col;}), set;
+                        return set.columns.forEach(function (col) {return (col.width = 175), col;}), set;
                     })
                 };
                 fire('init', meta);

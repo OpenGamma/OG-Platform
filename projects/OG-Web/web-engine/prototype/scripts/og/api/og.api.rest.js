@@ -8,6 +8,7 @@ $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.common.routes'],
     obj: function () {
+        jQuery.ajaxSettings.traditional = true; // instead of arr[]=1&arr[]=2 we want arr=1&arr=2
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = window['encodeURIComponent'],
