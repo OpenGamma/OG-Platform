@@ -6,7 +6,12 @@ $.register_module({
     name: 'og.common.gadgets.surface',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var webgl = Detector.webgl ? true : false, util = {}, tmp_data;
+        var webgl = Detector.webgl ? true : false, util = {}, tmp_data,
+            settings = {
+                font_size: 40,
+                font_face: 'Arial',
+                snap_distance: 3
+            };
         tmp_data = {
             1: {
                 vol: [
@@ -73,9 +78,11 @@ $.register_module({
          */
         util.log = function (arr) {return arr.map(function (val) {return Math.log(val) / Math.LN10});};
         /**
-         * Remove every nth item in Array keeping the first and last, also spesificaly remove the second last
+         * Remove every nth item in Array keeping the first and last,
+         * also spesificaly remove the second last (as we want to keep the last)
          * @param {Array} arr
          * @param {Number} nth
+         * @returns {Array}
          */
         util.thin = function (arr, nth) {
             if (!nth || nth === 1) return arr;
@@ -87,6 +94,10 @@ $.register_module({
             result.push(arr[len - 1]); // add last
             return result;
         };
+        /**
+         * Creates a surface
+         * @param {Object} config
+         */
         return function (config) {
             /* Temp: map fake data to config */
             config.vol = tmp_data[config.id].vol;
@@ -96,12 +107,18 @@ $.register_module({
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
-            var surface = this, selector = config.selector, $selector = $(selector), group,
-                x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, /* surface segments */
+            var surface = this, selector = config.selector, $selector = $(selector),
+                group, width, height, vertex_sphere,
+                x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
                 renderer, camera, scene, backlight, keylight, filllight,
+                projector, interactive_meshs = [], // interaction helpers
                 adjusted_vol = util.scale(config.vol, 0, 50),
                 adjusted_xs = util.scale(util.log(config.xs), -50, 50),
                 adjusted_zs = util.scale(util.log(config.zs), -50, 50);
+            /**
+             * Constructor for plane with correct x / z vertex positions
+             * @returns {THREE.PlaneGeometry}
+             */
             var Plane = function () {
                 var plane = new THREE.PlaneGeometry(100, 100, x_segments, y_segments), vertex, i, k;
                 for (i = 0, k = 0; i < adjusted_vol.length; i++, k++) {
@@ -112,19 +129,25 @@ $.register_module({
                 }
                 return plane;
             };
-            var Text = function (text) {
-                var create_texture_map = function (text) {
-                    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), size = 40;
-                    ctx.font = (size + 'px Arial');
-                    canvas.width = ctx.measureText(text).width;
+            /**
+             * Constructor for 2d text on a 3d mesh. Creates a canvas texture, applies to mesh
+             * @param {String} str String you want to create
+             * @returns {THREE.Mesh}
+             */
+            var Text = function (str) {
+                var create_texture_map = function (str) {
+                    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'),
+                        size = settings.font_size;
+                    ctx.font = (size + 'px ' + settings.font_face);
+                    canvas.width = ctx.measureText(str).width;
                     canvas.height = Math.ceil(size * 1.25);
-                    ctx.font = (size + 'px Arial');
+                    ctx.font = (size + 'px ' + settings.font_face);
                     ctx.fillStyle = 'black';
-                    ctx.fillText(text, 0, size);
+                    ctx.fillText(str, 0, size);
                     return canvas;
                 },
-                create_mesh = function (text) {
-                    var map = create_texture_map(text),
+                create_mesh = function (str) {
+                    var map = create_texture_map(str),
                         plane = new THREE.PlaneGeometry(map.width, map.height),
                         texture = new THREE.Texture(map),
                         material = new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true}),
@@ -133,7 +156,15 @@ $.register_module({
                     mesh.doubleSided = true;
                     return mesh;
                 };
-                return create_mesh(text);
+                return create_mesh(str);
+            };
+            surface.vertex_sphere = function () {
+                var sphere = new THREE.Mesh(
+                    new THREE.SphereGeometry(1.5, 10, 10),
+                    new THREE.MeshLambertMaterial({color: 0xff0000, shading: THREE.FlatShading})
+                );
+                sphere.visible = false;
+                return sphere;
             };
             surface.alive = function () {return true};
             surface.animate = function () {
@@ -141,9 +172,12 @@ $.register_module({
                 $selector
                     .on('mousedown', function (event) {
                         mousedown = true, sx = event.clientX, sy = event.clientY;
-                        $(document).on('mouseup.surface', function () {mousedown = false});
+                        $(document).on('mouseup.surface.animate', function () {
+                            mousedown = false;
+                            $(document).off('mouseup.surface.animate');
+                        });
                     })
-                    .on('mousemove', function (event) {
+                    .on('mousemove.surface.animate', function (event) {
                         if (!mousedown) return;
                         var dx = event.clientX - sx, dy = event.clientY - sy;
                         group.rotation.y += dx * 0.01;
@@ -230,8 +264,11 @@ $.register_module({
                         new THREE.MeshLambertMaterial({color: 0xcccccc, shading: THREE.FlatShading}),
                         new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
                     ];
+                plane.verticesNeedUpdate = true;
                 materials = webgl ? weblg_materials : canvas_materials;
-                for (i = 0; i < adjusted_vol.length; i++) plane.vertices[i].y = adjusted_vol[i]; // extrude
+                for (i = 0; i < adjusted_vol.length; i++) {plane.vertices[i].y = adjusted_vol[i];} // extrude
+                plane.computeCentroids();
+                plane.computeFaceNormals();
                 (function () { // apply heatmap
                     if (!webgl) return;
                     var faces = 'abcd', face, color, vertex, index, i, k,
@@ -254,10 +291,45 @@ $.register_module({
                 group = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
                 group.children.forEach(function (mesh) {mesh.doubleSided = true;});
                 group.position.y = 10; // move up a little to prevent canvas renderer from dropping lines
+                interactive_meshs.push(group.children[0]);
                 return group;
             };
+            surface.interactive = function () {
+                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
+                $selector.on('mousemove.surface.interactive', function (event) {
+                    event.preventDefault();
+                    var vector, ray, intersects, offset = $selector.offset(),
+                        object, point, faces = 'abcd', i, index, vertex;
+                    mouse.x = ((event.clientX - offset.left) / width) * 2 - 1;
+                    mouse.y = -((event.clientY - offset.top) / height) * 2 + 1;
+                    vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                    projector.unprojectVector(vector, camera);
+                    ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
+                    intersects = ray.intersectObjects(interactive_meshs);
+                    if (intersects.length > 0) { // intersecting at least one object
+                        point = intersects[0].point, object = intersects[0].object;
+                        for (i = 0; i < 4; i++) {
+                            index = intersects[0].face[faces.charAt(i)];
+                            // get vertex and convert to world position
+                            vertex = object.matrixWorld.multiplyVector3(object.geometry.vertices[index].clone());
+                            if (vertex.distanceTo(point) < settings.snap_distance)
+                                vertex_sphere.position.copy(vertex), vertex_sphere.visible = true;
+                        }
+                        // if (intersected != object) // mouse enter
+                    } else { // not intersecting
+                        if (intersected) vertex_sphere.visible = false; // mouse out
+                        intersected = null;
+                        vertex_sphere.visible = false;
+                    }
+                    renderer.render(scene, camera);
+                });
+                return surface;
+            };
             surface.load = function () {
-                var width = $selector.width(), height = $selector.height();
+                width = $selector.width(), height = $selector.height();
+                // interaction
+                projector = new THREE.Projector();
+                vertex_sphere = surface.vertex_sphere();
                 // create lights
                 backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 300);
                 backlight.position.set(-150, 150, -200).normalize();
@@ -283,6 +355,7 @@ $.register_module({
                 scene.add(keylight);
                 scene.add(filllight);
                 scene.add(camera);
+                scene.add(vertex_sphere);
                 camera.position.x = 0;
                 camera.position.y = 125;
                 camera.position.z = 150;
@@ -296,7 +369,7 @@ $.register_module({
             };
             surface.resize = function () {surface.load();};
             if (!config.child) og.common.gadgets.manager.register(surface);
-            surface.load().animate();
+            surface.load().animate().interactive();
         }
     }
 });
