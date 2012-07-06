@@ -183,7 +183,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         getPortfolioAggregationFunctions().getMappedFunctions());
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
-                                                                         getMarketDataSnapshotMaster());
+                                                                         getMarketDataSnapshotMaster(),
+                                                                         getComputationTargetResolver());
 
     repo.getRestComponents().publishResource(viewportsResource);
     repo.getRestComponents().publishResource(viewDefinitionResource);

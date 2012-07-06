@@ -12,21 +12,31 @@ import java.util.SortedSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 public class DependencyGraphGridStructure implements GridBounds {
 
+  /** Maximum string length for values that are sent to the grid. */
+  private static final int MAX_VALUE_LENGTH = 100;
+
   private final AnalyticsNode _root;
 
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
+      // fixed column group with one column for the row label
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
           column("Target"))),
+      // non-fixed columns
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
           column("Type"),
           column("Value Name"),
@@ -34,48 +44,86 @@ public class DependencyGraphGridStructure implements GridBounds {
           column("Function"),
           column("Properties")))));
 
-  /** {@link ValueSpecification}s for all rows in the grid in row index order. */
-  private final List<ValueSpecification> _gridValueSpecs;
+  /** {@link ValueSpecification}s and function names for all rows in the grid in row index order. */
+  private final List<Row> _rows;
+
+  private final ComputationTargetResolver _computationTargetResolver;
+
 
   // TODO gridValueSpecs should be a List<Row>
-  /* package */ DependencyGraphGridStructure(AnalyticsNode root, List<ValueSpecification> gridValueSpecs) {
+  /* package */ DependencyGraphGridStructure(AnalyticsNode root,
+                                             List<Row> rows,
+                                             ComputationTargetResolver targetResolver) {
+    _rows = rows;
+    ArgumentChecker.notNull(root, "root");
+    ArgumentChecker.notNull(rows, "rows");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
     _root = root;
-    _gridValueSpecs = gridValueSpecs;
+    _computationTargetResolver = targetResolver;
   }
 
-  /* package */ ValueSpecification getTargetForRow(Integer rowIndex) {
-    return _gridValueSpecs.get(rowIndex);
+  /* package */ List<ValueSpecification> getValueSpecificationsForRows(List<Integer> rows) {
+    List<ValueSpecification> valueSpecs = Lists.newArrayList();
+    for (Integer rowIndex : rows) {
+      valueSpecs.add(getTargetForRow(rowIndex));
+    }
+    return valueSpecs;
   }
 
-  /* package */ List<Object> createResultsForRow(int rowIndex,
-                                                 SortedSet<Integer> cols,
-                                                 Map<ValueSpecification, Object> results) {
+  private ValueSpecification getTargetForRow(Integer rowIndex) {
+    return _rows.get(rowIndex).getValueSpec();
+  }
+
+  /* package */ List<List<Object>> createResultsForViewport(ViewportSpecification viewportSpec,
+                                                            Map<ValueSpecification, Object> results) {
+    List<List<Object>> resultsList = Lists.newArrayList();
+    for (Integer rowIndex : viewportSpec.getRows()) {
+      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results));
+    }
+    return resultsList;
+  }
+
+  private List<Object> createResultsForRow(int rowIndex, SortedSet<Integer> cols, Map<ValueSpecification, Object> results) {
     Object value = results.get(getTargetForRow(rowIndex));
-    ValueSpecification valueSpec = _gridValueSpecs.get(rowIndex);
+    Row row = _rows.get(rowIndex);
     List<Object> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(getValueForColumn(colIndex, valueSpec, value));
+      rowResults.add(getValueForColumn(colIndex, row, value));
     }
     return rowResults;
   }
 
-  // TODO should the fn name and target name be built into the grid structure? mapper?
-  /* package */ static Object getValueForColumn(int colIndex, ValueSpecification valueSpec, Object value) {
+  /* package */ Object getValueForColumn(int colIndex, Row row, Object value) {
+    ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
-        return "TODO need a ComputationTargetResolver";
+        return getTargetName(valueSpec.getTargetSpecification());
       case 1: // target type
         return getTargetTypeName(valueSpec.getTargetSpecification().getType());
       case 2: // value name
         return valueSpec.getValueName();
       case 3: // value
-        return value.toString(); // TODO formatting
+        return trim(value.toString()); // TODO formatting
       case 4: // function name
-        return "TODO need function name"; // TODO this comes from the node
+        return row.getFunctionName();
       case 5: // properties
         return getValuePropertiesForDisplay(valueSpec.getProperties());
-      default: // should never happen
-        return null;
+      default: // never happen
+        throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
+    }
+  }
+
+  /**
+   * If a string is shorter than {@link #MAX_VALUE_LENGTH} it is returned, otherwise it is trimmed and
+   * "..." is appended.
+   * @param str The string to be trimmed.
+   * @return The trimmed string.
+   */
+  private static String trim(String str) {
+    if (str.length() < MAX_VALUE_LENGTH) {
+      return str;
+    } else {
+      return str.substring(0, MAX_VALUE_LENGTH) + "...";
     }
   }
 
@@ -95,6 +143,21 @@ public class DependencyGraphGridStructure implements GridBounds {
         return null;
     }
   }
+
+  private String getTargetName(final ComputationTargetSpecification targetSpec) {
+    ComputationTarget target = _computationTargetResolver.resolve(targetSpec);
+    if (target != null) {
+      return target.getName();
+    } else {
+      UniqueId uid = targetSpec.getUniqueId();
+      if (uid != null) {
+        return uid.toString();
+      } else {
+        return targetSpec.getType().toString();
+      }
+    }
+  }
+
 
   /* package */ static String getValuePropertiesForDisplay(ValueProperties properties) {
     StringBuilder sb = new StringBuilder();
@@ -133,7 +196,7 @@ public class DependencyGraphGridStructure implements GridBounds {
 
   @Override
   public int getRowCount() {
-    return _gridValueSpecs.size();
+    return _rows.size();
   }
 
   @Override
@@ -145,27 +208,24 @@ public class DependencyGraphGridStructure implements GridBounds {
     return _root;
   }
 
+  // TODO do I really want to do this up front for all rows? these grids are big
   /* package */ static class Row {
 
     private final ValueSpecification _valueSpec;
-    private final String _targetName;
     private final String _functionName;
 
-    Row(ValueSpecification valueSpec, String targetName, String functionName) {
+    Row(ValueSpecification valueSpec, String functionName) {
+      ArgumentChecker.notNull(valueSpec, "valueSpec");
+      ArgumentChecker.notNull(functionName, "functionName");
       _valueSpec = valueSpec;
-      _targetName = targetName;
       _functionName = functionName;
     }
 
-    public ValueSpecification getValueSpecification() {
+    /* package */ ValueSpecification getValueSpec() {
       return _valueSpec;
     }
 
-    public String getTargetName() {
-      return _targetName;
-    }
-
-    public String getFunctionName() {
+    /* package */ String getFunctionName() {
       return _functionName;
     }
   }

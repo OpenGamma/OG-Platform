@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -29,7 +30,7 @@ public class DependencyGraphStructureBuilder {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 
   // TODO could this be used for both grid types?
-  private final List<ValueSpecification> _rowValueSpecs = Lists.newArrayList();
+  private final List<DependencyGraphGridStructure.Row> _rows = Lists.newArrayList();
   private final DependencyGraphGridStructure _structure;
 
   /* Keeps track of the index of the last row */
@@ -37,25 +38,29 @@ public class DependencyGraphStructureBuilder {
 
   public DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                          ValueSpecification root,
-                                         String calcConfigName) {
+                                         String calcConfigName,
+                                         ComputationTargetResolver targetResolver) {
     // TODO see [PLAT-XXXX] this is a bit nasty but should work as long as the engine and web are running in the same process
     if (!(compiledViewDef instanceof CompiledViewDefinitionWithGraphs)) {
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       // TODO create empty() factory method
-      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(), Collections.<ValueSpecification>emptyList());
+      _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
+                                                    Collections.<DependencyGraphGridStructure.Row>emptyList(),
+                                                    targetResolver);
     } else {
       CompiledViewDefinitionWithGraphs viewDef = (CompiledViewDefinitionWithGraphs) compiledViewDef;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _rowValueSpecs);
+      _structure = new DependencyGraphGridStructure(node, _rows, targetResolver);
     }
   }
 
   private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph) {
     DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
-    _rowValueSpecs.add(valueSpec);
+    String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
+    _rows.add(new DependencyGraphGridStructure.Row(valueSpec, fnName));
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();

@@ -11,6 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -25,17 +26,24 @@ import com.opengamma.util.ArgumentChecker;
 
   private final AnalyticsHistory _history = new AnalyticsHistory();
   private final AnalyticsViewListener _listener;
+  private final ComputationTargetResolver _targetResolver;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
 
-  public SimpleAnalyticsView(AnalyticsViewListener listener, String portoflioGridId, String primitivesGridId) {
+
+  public SimpleAnalyticsView(AnalyticsViewListener listener,
+                             String portoflioGridId,
+                             String primitivesGridId,
+                             ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(portoflioGridId, "portoflioGridId");
     ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId);
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    _targetResolver = targetResolver;
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, _targetResolver);
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, targetResolver);
     _listener = listener;
   }
 
@@ -43,8 +51,8 @@ import com.opengamma.util.ArgumentChecker;
   public void updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getGridId());
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getGridId());
+    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getGridId(), _targetResolver);
+    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getGridId(), _targetResolver);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getGridId());
     gridIds.add(_primitivesGrid.getGridId());

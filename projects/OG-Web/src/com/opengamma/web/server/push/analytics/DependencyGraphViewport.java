@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ComputationCacheQuery;
@@ -50,11 +49,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
-    List<ValueSpecification> newValueSpecs = Lists.newArrayList();
-    for (Integer rowIndex : _viewportSpec.getRows()) {
-      newValueSpecs.add(_gridStructure.getTargetForRow(rowIndex));
-    }
-    _viewportValueSpecs = newValueSpecs;
+    _viewportValueSpecs = _gridStructure.getValueSpecificationsForRows(_viewportSpec.getRows());
     updateResults(cycle, history);
   }
 
@@ -70,10 +65,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
       Object value = result.getSecond();
       resultsMap.put(valueSpec, value);
     }
-    List<List<Object>> gridResults = Lists.newArrayList();
-    for (Integer rowIndex : _viewportSpec.getRows()) {
-      gridResults.add(_gridStructure.createResultsForRow(rowIndex, _viewportSpec.getColumns(), resultsMap));
-    }
+    List<List<Object>> gridResults = _gridStructure.createResultsForViewport(_viewportSpec, resultsMap);
     _latestResults = new ViewportResults(gridResults);
   }
 }

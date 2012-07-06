@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -27,36 +28,47 @@ import com.opengamma.util.tuple.Pair;
   private final AnalyticsView.GridType _gridType;
   private final Map<String, DependencyGraphGrid> _depGraphs = new HashMap<String, DependencyGraphGrid>();
   private final MainGridStructure _gridStructure;
+  private final ComputationTargetResolver _targetResolver;
 
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
   private AnalyticsHistory _history = new AnalyticsHistory();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
 
-  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType, MainGridStructure gridStructure, String gridId) {
+  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
+                                  MainGridStructure gridStructure,
+                                  String gridId,
+                                  ComputationTargetResolver targetResolver) {
     super(gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
     _gridType = gridType;
     _gridStructure = gridStructure;
+    _targetResolver = targetResolver;
   }
 
-  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId);
+  /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId, ComputationTargetResolver targetResolver) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, PortfolioGridStructure.empty(), gridId, targetResolver);
   }
 
-  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId) {
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId);
+  /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId, ComputationTargetResolver targetResolver) {
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, PrimitivesGridStructure.empty(), gridId, targetResolver);
   }
 
-  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef, String gridId) {
+  /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef,
+                                                   String gridId,
+                                                   ComputationTargetResolver targetResolver) {
     MainGridStructure gridStructure = new PortfolioGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver);
   }
 
-  /* package */ static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef, String gridId) {
+  /* package */
+  static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef,
+                                      String gridId,
+                                      ComputationTargetResolver targetResolver) {
     MainGridStructure gridStructure = new PrimitivesGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver);
   }
 
   // -------- dependency graph grids --------
@@ -85,7 +97,7 @@ import com.opengamma.util.tuple.Pair;
     ValueSpecification valueSpec = targetForCell.getFirst();
     String calcConfigName = targetForCell.getSecond();
     DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _history, gridId);
+        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, _history, gridId, _targetResolver);
     _depGraphs.put(graphId, grid);
   }
 
