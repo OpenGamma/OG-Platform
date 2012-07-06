@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.convention;
 
+import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
+
 import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
@@ -19,9 +22,6 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-
-import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
-import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 /**
  * 
@@ -61,7 +61,7 @@ public class CHConventions {
         following, Period.ofMonths(4), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0005M Index"), simpleNameSecurityId("CHF LIBOR 5m")), "CHF LIBOR 5m", act360,
         following, Period.ofMonths(5), 2, false, ch);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0006M Index"), simpleNameSecurityId("CHF LIBOR 6m")), "CHF LIBOR 6m", act360, 
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0006M Index"), simpleNameSecurityId("CHF LIBOR 6m")), "CHF LIBOR 6m", act360,
         following, Period.ofMonths(6), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0007M Index"), simpleNameSecurityId("CHF LIBOR 7m")), "CHF LIBOR 7m", act360,
         following, Period.ofMonths(7), 2, false, ch);
@@ -149,7 +149,7 @@ public class CHConventions {
     // Overnight Index Swap Convention have additional flag, publicationLag
     final Integer publicationLagON = 0; // TODO CASE PublicationLag CHF - Confirm 0
     // CHF Overnight Index
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("TOISTOIS Index"), simpleNameSecurityId("CHF TOISTOIS")), "CHF TOIS TOIS", act360,
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("TOISTOIS Index"), simpleNameSecurityId("CHF TOISTOIS")), "CHF TOISTOIS", act360,
         following, Period.ofDays(1), 2, false, ch, publicationLagON);
     // OIS
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_OIS_SWAP")), "CHF_OIS_SWAP", act360, modified, annual, 2, ch,

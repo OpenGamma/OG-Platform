@@ -44,6 +44,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -90,18 +91,12 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     // 2. Build up the market data bundle
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
-
-    // a. The Vol Surface
-
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName));
-    if (volSurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
+    // a. The Spot Index
+    final Object spotObject = inputs.getValue(getSpotRequirement(security));
+    if (spotObject == null) {
+      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
     }
-    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    //TODO no choice of other surfaces
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
+    final double spot = (Double) spotObject;
 
     // b. The Funding Curve
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
@@ -113,20 +108,27 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     // Put curve into a bundle
     YieldCurveBundle curveBundle = new YieldCurveBundle();
     curveBundle.setCurve(fundingCurveName, fundingCurve);
-
-    // c. The Spot Index
-    final Object spotObject = inputs.getValue(getSpotRequirement(security));
-    if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
-    }
-    final double spot = (Double) spotObject;
     if (!(fundingCurve instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
+
+    // c. The Vol Surface
+    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+    HistoricalTimeSeriesSource tsSource = getTimeSeriesSource(executionContext);
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName, smileInterpolator, fundingCurveName));
+    if (volSurfaceObject == null) {
+      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
+    }
+    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
+    //TODO no choice of other surfaces
+    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface()); // TODO This doesn't need to be like this anymore
+
+    // d. Forward Curve
     final ForwardCurve forwardCurve = new ForwardCurve(spot, ((YieldCurve) fundingCurve).getCurve());
-    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
 
     // 3. Perform the calculation - what we came here to do
+    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     final DoubleMatrix1D sensVector;
 
     if (((YieldCurve) fundingCurve).getCurve() instanceof InterpolatedDoublesCurve) {
@@ -156,7 +158,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
 
-    ValueProperties resultProps = getValueProperties(fundingCurveName, volSurfaceName);
+    ValueProperties resultProps = getValueProperties(fundingCurveName, volSurfaceName, smileInterpolator);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), resultProps);
 
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);

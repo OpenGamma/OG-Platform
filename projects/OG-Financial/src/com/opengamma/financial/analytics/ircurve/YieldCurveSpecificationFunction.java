@@ -14,9 +14,6 @@ import javax.time.InstantProvider;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -30,11 +27,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
@@ -52,8 +45,6 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
 
   private ValueSpecification _resultSpec;
   private YieldCurveDefinition _curveDefinition;
-  private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
-  private FixedIncomeConverterDataProvider _definitionConverter;
   private CombinedInterpolatorExtrapolator _interpolator;
 
   public YieldCurveSpecificationFunction(final String currency, final String curveDefinitionName) {
@@ -86,14 +77,6 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
     return _curveDefinition;
   }
 
-  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter() {
-    return _securityConverter;
-  }
-
-  protected FixedIncomeConverterDataProvider getDefinitionConverter() {
-    return _definitionConverter;
-  }
-
   protected CombinedInterpolatorExtrapolator getInterpolator() {
     return _interpolator;
   }
@@ -101,13 +84,7 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _curveDefinition = _helper.init(context, this);
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_curveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
     _resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, getTargetSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, getCurveName()).get());
   }
 

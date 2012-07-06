@@ -275,6 +275,12 @@
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.8.3</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>commons-codec</groupId>
@@ -301,7 +307,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-java</artifactId>
-        <version>0.3.9.1</version>
+        <version>0.3.9.2</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -312,7 +318,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.1</version>
+        <version>0.3.9.2</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.external.threeten</groupId>

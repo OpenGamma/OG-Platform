@@ -17,6 +17,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -61,8 +62,9 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-      String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+      //Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      // we could use a historical time series source to look up the bundle at this point.
+      String identifier = security.getUnderlyingId().getValue();
       return identifier != null ? identifier : NOT_APPLICABLE;
     }
   };
@@ -71,9 +73,28 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
       Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-      String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
-      return identifier != null ? identifier : NOT_APPLICABLE;    
+      if (underlying != null) {
+        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      } else {
+        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      }
     }    
+  };
+  
+  private FinancialSecurityVisitor<String> _equityBarrierOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+      Security underlying = _secSource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+      if (underlying != null) {
+        String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      } else {
+        String identifier = security.getUnderlyingId() != null ? security.getUnderlyingId().getValue() : null;
+        return identifier != null ? identifier : NOT_APPLICABLE;
+      }
+    }
   };
   
   private FinancialSecurityVisitor<String> _fxOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
@@ -122,6 +143,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
       FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
                                                                                               .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
                                                                                               .equityOptionVisitor(_equityOptionSecurityVisitor)
+                                                                                              .equityBarrierOptionVisitor(_equityBarrierOptionSecurityVisitor)
                                                                                               .fxOptionVisitor(_fxOptionSecurityVisitor)
                                                                                               .fxBarrierOptionVisitor(_fxBarrierOptionSecurityVisitor)
                                                                                               .irfutureOptionVisitor(_irFutureOptionSecurityVisitor)

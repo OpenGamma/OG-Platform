@@ -110,8 +110,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     List<Object> rowStructure = new ArrayList<Object>();
     addRowIdAssociation(0, output, rowIdMap);
     rowStructure.add(getJsonRowStructure(depGraph.getNodeProducing(output), output, -1, 0, 0));
-    int nextRowId = addInputRowStructures(depGraph, depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
-    System.out.println(nextRowId);
+    addInputRowStructures(depGraph, depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
     return rowStructure;
   }
   

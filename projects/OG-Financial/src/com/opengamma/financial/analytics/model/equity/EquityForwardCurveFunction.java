@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity;
@@ -46,7 +46,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .withAny(ValuePropertyNames.CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties));
@@ -91,12 +90,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     // Spot Requirement
     requirements.add(getSpotRequirement(target));
 
-    // Check for forwardCurveName for efficiency, though it isn't used until execute method
-    final Set<String> forwardCurveName = constraints.getValues(ValuePropertyNames.CURVE);
-    if (forwardCurveName == null || forwardCurveName.size() != 1) {
-      return null;
-    }
-
     // Funding Curve Currency
     final Set<String> ccyConstraint = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
     if (ccyConstraint == null || ccyConstraint.size() != 1) {
@@ -120,10 +113,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
     // desiredValues is defined by getResults. In our case, a singleton
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String forwardCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String ccyName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
-    final Currency currency = Currency.of(ccyName);
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
 
     // Spot
     final Double spot = (Double) inputs.getValue(getSpotRequirement(target));
@@ -131,22 +120,27 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
       throw new OpenGammaRuntimeException("Failed to get spot value requirement");
     }
 
+    // Curve Currency
+    final String ccyName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
+    if (ccyName == null) {
+      throw new OpenGammaRuntimeException("Failed to find " + ValuePropertyNames.CURVE_CURRENCY);
+    }
+    final Currency currency = Currency.of(ccyName);
+
     // Funding
+    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final Object fundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, null, null));
     if (fundingCurveObject == null) {
       throw new OpenGammaRuntimeException("Failed to get funding curve requirement");
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingCurveObject;
-    // Cost of Carry TODO Dividend treatment
+    // Cost of Carry TODO Dividend treatment - may be able to get this from BORROWING_COST_MID
     final YieldCurve zeroCostOfCarryCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0, "CostOfCarry"));
-
-
 
     // Compute ForwardCurve
     final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, zeroCostOfCarryCurve);
 
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccyName)

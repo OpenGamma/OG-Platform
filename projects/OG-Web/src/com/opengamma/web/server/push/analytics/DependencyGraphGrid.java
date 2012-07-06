@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -43,8 +44,14 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                     String calcConfigName,
                                     ViewCycle cycle,
                                     AnalyticsHistory history,
-                                    String gridId) {
-    DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName);
+                                    String gridId,
+                                    ComputationTargetResolver targetResolver,
+                                    ResultsFormatter formatter) {
+    DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
+                                                                                  target,
+                                                                                  calcConfigName,
+                                                                                  targetResolver,
+                                                                                  formatter);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, gridId, cycle, history);
   }
 

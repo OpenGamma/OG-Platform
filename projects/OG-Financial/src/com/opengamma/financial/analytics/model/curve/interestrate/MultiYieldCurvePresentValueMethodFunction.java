@@ -102,16 +102,6 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.addAll(super.getResults(context, target));
-    final ValueProperties properties = getProperties();
-    final ValueSpecification couponSensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, target.toSpecification(), properties);
-    results.add(couponSensitivities);
-    return results;
-  }
-
-  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
@@ -206,6 +196,46 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
       couponSensitivities[i++] = PV_COUPON_SENSITIVITY_CALCULATOR.visit(derivative, curveBundle);
     }
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties), new DoubleMatrix1D(couponSensitivities)));
+    return results;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    results.addAll(super.getResults(context, target));
+    final ValueProperties properties = getProperties();
+    final ValueSpecification couponSensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, target.toSpecification(), properties);
+    results.add(couponSensitivities);
+    return results;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    String curveCalculationConfigName = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueRequirement value = entry.getValue();
+      if (value.getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
+        if (curveCalculationConfigName == null) {
+          curveCalculationConfigName = value.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+        } else {
+          if (!value.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG).equals(curveCalculationConfigName)) {
+            throw new OpenGammaRuntimeException("Had different curve calculation configuration names; should never happen");
+          }
+        }
+        final String curveName = value.getConstraint(ValuePropertyNames.CURVE);
+        final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName);
+        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, curveProperties);
+        results.add(spec);
+      }
+    }
+    assert curveCalculationConfigName != null;
+    final ValueProperties properties = getProperties(curveCalculationConfigName);
+    final ValueSpecification jacobian = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties);
+    final ValueSpecification sensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties);
+    results.add(jacobian);
+    results.add(sensitivities);
     return results;
   }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.examples.function;
 
+import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
@@ -25,6 +28,9 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurveParRateMethodFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePresentValueMethodFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -35,7 +41,7 @@ import com.opengamma.util.SingletonFactoryBean;
 /**
  * Creates function repository configuration for curve supplying functions.
  * 
- * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available. 
+ * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available.
  */
 public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
 
@@ -63,7 +69,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
       searchRequest.setType(YieldCurveDefinition.class);
 
       final ConfigSearchResult<YieldCurveDefinition> searchResult = _configMaster.search(searchRequest);
-      for (ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
+      for (final ConfigDocument<YieldCurveDefinition> configDocument : searchResult.getDocuments()) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
         if (underscore <= 0) {
@@ -71,17 +77,26 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
         }
         final String curveName = documentName.substring(0, underscore);
         final String currencyISO = documentName.substring(underscore + 1);
-        s_logger.debug("Found {} curve for {}", curveName, currencyISO);
+        s_logger.info("Found {} curve for {}", curveName, currencyISO);
         addYieldCurveFunction(configs, currencyISO, curveName);
       }
-    } 
+    }
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
 
     addFXForwardCurveFunction(configs);
     s_logger.info("Added FX forward curve to repository configuration");
     addFutureCurveFunction(configs);
     s_logger.info("Added future curve to repository configuration");
+    addYieldCurveFunctionConfigs(configs);
+    s_logger.info("Added yield curves to repository configuration");
     return new RepositoryConfiguration(configs);
+  }
+
+  private void addYieldCurveFunctionConfigs(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(MultiYieldCurvePresentValueMethodFunction.class));
+    functionConfigs.add(functionConfiguration(MultiYieldCurveParRateMethodFunction.class));
+    functionConfigs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD",
+        "EUR", "GBP", "JPY", "CHF"));
   }
 
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {
@@ -90,15 +105,15 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
     configs.add(new ParameterizedFunctionConfiguration(YieldCurveSpecificationFunction.class.getName(), Arrays.asList(currency, curveName)));
   }
 
-  private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
+  private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY", "SECONDARY")));
   }
-  
+
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
   }
-  
+
   //-------------------------------------------------------------------------
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());

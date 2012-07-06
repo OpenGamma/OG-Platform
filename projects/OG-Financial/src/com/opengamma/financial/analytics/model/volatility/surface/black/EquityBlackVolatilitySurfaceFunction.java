@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
@@ -25,16 +24,19 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
@@ -138,12 +140,10 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
   @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
-    final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String forwardCurveCcyName = desiredValue.getConstraint(CURVE_CURRENCY);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     final ValueProperties properties = ValueProperties.builder()
         .with(CURVE_CALCULATION_METHOD, curveCalculationMethodName)
-        .with(CURVE, forwardCurveName)
         .with(CURVE_CURRENCY, forwardCurveCcyName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .get();
@@ -229,5 +229,14 @@ public class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurface
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullSurfaceName, getInstrumentType());
     return specification;
+  }
+
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionExecutionContext context) {
+    return OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
+  }
+
+  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
+    HistoricalTimeSeriesSource tss =  OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
+    return tss;
   }
 }

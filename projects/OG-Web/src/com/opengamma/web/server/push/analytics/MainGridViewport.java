@@ -25,14 +25,18 @@ import com.opengamma.util.ArgumentChecker;
 public class MainGridViewport extends AnalyticsViewport {
 
   private final MainGridStructure _gridStructure;
+  private final ResultsFormatter _formatter;
 
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
                    String dataId,
                    ViewComputationResultModel latestResults,
-                   AnalyticsHistory history) {
+                   AnalyticsHistory history,
+                   ResultsFormatter formatter) {
     super(dataId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(formatter, "formatter");
+    _formatter = formatter;
     _gridStructure = gridStructure;
     update(viewportSpec, latestResults, history);
   }
@@ -54,7 +58,8 @@ public class MainGridViewport extends AnalyticsViewport {
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
               if (_viewportSpec.getColumns().contains(colIndex)) {
-                rowResultsMap.put(colIndex, value.getValue());
+                Object formattedValue = _formatter.formatValueForDisplay(value.getValue(), valueSpec);
+                rowResultsMap.put(colIndex, formattedValue);
               }
             }
           }
