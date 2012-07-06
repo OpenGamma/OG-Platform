@@ -30,6 +30,7 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -78,17 +79,35 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
-      // REVIEW: jim 6-Feb-2012 -- take account of NDF!
       return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong);
     }
     final double fxRate = putAmount / callAmount;
     underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
-    // REVIEW: jim 6-Feb-2012 -- take account of NDF!
     return new ForexOptionDigitalDefinition(underlying, expiry, true, isLong);
   }
 
   @Override
   public InstrumentDefinition<?> visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
+    Validate.notNull(fxOptionSecurity, "fx option security");
+    final Currency putCurrency = fxOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxOptionSecurity.getCallCurrency();
+    final double putAmount = fxOptionSecurity.getPutAmount();
+    final double callAmount = fxOptionSecurity.getCallAmount();
+    final ZonedDateTime expiry = fxOptionSecurity.getExpiry().getExpiry();
+    final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
+    final boolean isLong = fxOptionSecurity.isLong();
+    ForexDefinition underlying;
+    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency); // To get Base/quote in market standard order.
+    if (order) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+    } else {
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+    }
+    return new ForexOptionVanillaDefinition(underlying, expiry, !order, isLong);
+  }
+
+  @Override
+  public InstrumentDefinition<?> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
     Validate.notNull(fxOptionSecurity, "fx option security");
     final Currency putCurrency = fxOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxOptionSecurity.getCallCurrency();
