@@ -48,6 +48,7 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.STEP_FLOATER);
     store(SimpleYieldConvention.JAPAN_SIMPLE);
     store(SimpleYieldConvention.BANK_OF_CANADA, "BANK OF CANADA YLD");
+    store(SimpleYieldConvention.CANADA_COMPND_METH, "CANADA:COMPND METH");
   }
 
   /**

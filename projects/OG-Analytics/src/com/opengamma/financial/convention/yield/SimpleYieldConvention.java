@@ -80,6 +80,11 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Bank of Canada 
    */
   public static final YieldConvention BANK_OF_CANADA = new SimpleYieldConvention("BANK OF CANADA YLD");
+  /**
+   * Canada Compound Meth(odology?) presumably not crystal.
+   */
+  public static final YieldConvention CANADA_COMPND_METH = new SimpleYieldConvention("CANADA:COMPND METH");  
+  
   
 
   /**
