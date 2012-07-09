@@ -23,6 +23,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -104,7 +105,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecate
     if ((fundingCurveNames == null) || (fundingCurveNames.size() != 1)) {
       return null;
     }
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), desiredValue.getConstraints()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), ValueProperties.with(ValuePropertyNames.CURVE, curveNames).get()));
   }
 
   @Override
