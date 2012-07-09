@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate;
+package com.opengamma.analytics.financial.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,10 @@ import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -18,11 +22,10 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
- * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
- * The return format is a vector (DoubleMatrix1D) with length equal to the total number of parameters in all the curves, 
- * and ordered as the parameters to the different curves themselves in increasing order. 
+ * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way 
+ * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  */
-public class ParameterSensitivityCalculator {
+public abstract class AbstractParameterSensitivityCalculator {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times.
@@ -33,7 +36,7 @@ public class ParameterSensitivityCalculator {
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public ParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public AbstractParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
@@ -65,38 +68,7 @@ public class ParameterSensitivityCalculator {
    * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves) {
-    final List<Double> result = new ArrayList<Double>();
-    //    Integer index = 0;
-    //    LinkedHashMap<String, Integer> curveNum = new LinkedHashMap<String, Integer>();
-    //    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-    //      curveNum.put(name, index++);
-    //    }
-    //    index = 0;
-    //    int[] nbNewParameters = new int[sensitivityCurves.size()];
-    //    int[] startParameter =  new int[sensitivityCurves.size()];
-    //    int currentStart = 0;
-    //    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-    //      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-    //      List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
-    //      startParameter[index] = currentStart;
-    //      nbNewParameters[index] = curve.getNumberOfParameters();
-    //      for (String u : underlyingCurveNames) {
-    //        Integer i = curveNum.get(u);
-    //        if (i != null) {
-    //          nbNewParameters[index] -= nbNewParameters[curveNum.get(u)];
-    //        }
-    //      }
-    //      currentStart = 
-    //
-    //    }
-    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-      List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
-      result.addAll(oneCurveSensitivity);
-    }
-    return new DoubleMatrix1D(result.toArray(new Double[0]));
-  }
+  public abstract DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves);
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.
@@ -104,7 +76,7 @@ public class ParameterSensitivityCalculator {
    * @param curve The curve.
    * @return The sensitivity (as a list of doubles).
    */
-  private List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
+  protected List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
     final List<Double> result = new ArrayList<Double>();
     if (sensitivity != null && sensitivity.size() > 0) {
       final double[][] sensitivityYP = new double[sensitivity.size()][];
@@ -148,7 +120,7 @@ public class ParameterSensitivityCalculator {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    ParameterSensitivityCalculator other = (ParameterSensitivityCalculator) obj;
+    AbstractParameterSensitivityCalculator other = (AbstractParameterSensitivityCalculator) obj;
     return ObjectUtils.equals(_curveSensitivityCalculator, other._curveSensitivityCalculator);
   }
 

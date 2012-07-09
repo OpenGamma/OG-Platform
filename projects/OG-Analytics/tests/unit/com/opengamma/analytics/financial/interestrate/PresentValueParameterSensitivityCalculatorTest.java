@@ -10,6 +10,7 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 public class PresentValueParameterSensitivityCalculatorTest extends ParameterSensitivityCalculatorTest {

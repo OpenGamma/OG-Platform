@@ -6,9 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.curve;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -20,11 +17,11 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  */
 public class MultipleYieldCurveFinderGeneratorJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
 
-  private final ParameterSensitivityCalculator _parameterSensitivityCalculator;
+  private final AbstractParameterSensitivityCalculator _parameterSensitivityCalculator;
   private final MultipleYieldCurveFinderGeneratorDataBundle _data;
 
-  public MultipleYieldCurveFinderGeneratorJacobian(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> calculator, MultipleYieldCurveFinderGeneratorDataBundle data) {
-    _parameterSensitivityCalculator = new ParameterSensitivityCalculator(calculator);
+  public MultipleYieldCurveFinderGeneratorJacobian(final AbstractParameterSensitivityCalculator parameterSensitivityCalculator, MultipleYieldCurveFinderGeneratorDataBundle data) {
+    _parameterSensitivityCalculator = parameterSensitivityCalculator;
     _data = data;
   }
 

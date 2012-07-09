@@ -13,15 +13,28 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is the sum (or difference) of the curves produced by the array of generators. 
+ * Store the details and generate the required curve. The curve is the sum (or difference) of the curves 
+ * (operation on the continuously-compounded zero-coupon rates)  produced by the array of generators. 
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
 public class GeneratorCurveAddYield implements GeneratorCurve {
 
+  /**
+   * The array of generators describing the different parts of the spread curve.
+   */
   private final GeneratorCurve[] _generators;
+  /**
+   * If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
+   */
   private final boolean _substract;
-  private final int _nbParameters;
+  /**
+   * The number of generators.
+   */
   private final int _nbGenerators;
+  /**
+   * The total number of parameters for the generated spread curve.
+   */
+  private final int _nbParameters;
 
   /**
    * Constructor.
@@ -29,6 +42,7 @@ public class GeneratorCurveAddYield implements GeneratorCurve {
    * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    */
   public GeneratorCurveAddYield(GeneratorCurve[] generators, boolean substract) {
+    ArgumentChecker.notNull(generators, "Generators");
     _generators = generators;
     _nbGenerators = generators.length;
     _substract = substract;
@@ -52,7 +66,7 @@ public class GeneratorCurveAddYield implements GeneratorCurve {
     for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
       double[] paramCurve = Arrays.copyOfRange(x, index, index + _generators[loopgen].getNumberOfParameter());
       index += _generators[loopgen].getNumberOfParameter();
-      underlyingCurves[loopgen] = _generators[loopgen].generateCurve("", paramCurve);
+      underlyingCurves[loopgen] = _generators[loopgen].generateCurve(name + "-" + loopgen, paramCurve);
     }
     return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, underlyingCurves);
   }

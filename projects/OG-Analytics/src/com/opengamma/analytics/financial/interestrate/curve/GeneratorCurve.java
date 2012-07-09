@@ -28,14 +28,12 @@ public interface GeneratorCurve {
   YieldAndDiscountCurve generateCurve(final String name, final double[] parameters);
 
   /**
-   * Generate a curve using the parameters of a vector and an existing bundle.
+   * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
    * @param name The curve name.
    * @param bundle The bundle of existing curves.
    * @param parameters The parameters.
    * @return The curve.
    */
   YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters);
-
-  // TODO: Should we have a generate with the name?
 
 }

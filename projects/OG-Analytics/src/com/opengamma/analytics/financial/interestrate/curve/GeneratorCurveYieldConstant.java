@@ -24,7 +24,7 @@ public class GeneratorCurveYieldConstant implements GeneratorCurve {
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] x) {
     ArgumentChecker.isTrue(x.length == 1, "Constant curve should have one parameter");
-    return new YieldCurve(name, new ConstantDoublesCurve(x[0]));
+    return new YieldCurve(name, new ConstantDoublesCurve(x[0], name));
   }
 
   @Override
