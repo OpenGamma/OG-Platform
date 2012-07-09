@@ -83,6 +83,7 @@
  *   /jax/views/{viewId}                                                             POST to pause and resume, DELETE to close
  *
  *   /jax/views/{viewId}/portfolio/grid                                              GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/columns                                           GET column structure, notification on structure change
  *   /jax/views/{viewId}/portfolio/viewports                                         POST to create viewport
  *   /jax/views/{viewId}/portfolio/viewports/{viewportId}                            POST to update, DELETE to close
  *   /jax/views/{viewId}/portfolio/viewports/{viewportId}/data                       GET data, notification when new data is available
@@ -90,11 +91,13 @@
  *   /jax/views/{viewId}/portfolio/depgraphs                                         POST to create dependency graph grid
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}                               DELETE to close
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/grid                          GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/columns                       GET column structure, notification on structure change
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports                     POST to create viewport
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}        POST to update, DELETE to close
  *   /jax/views/{viewId}/portfolio/depgraphs/{graphId}/viewports/{viewportId}/data   GET data, notification when new data is available
  *
  *   /jax/views/{viewId}/primitives/grid                                             GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/columns                                          GET column structure, notification on structure change
  *   /jax/views/{viewId}/primitives/viewports                                        POST to create viewport
  *   /jax/views/{viewId}/primitives/viewports/{viewportId}                           POST to update, DELETE to close
  *   /jax/views/{viewId}/primitives/viewports/{viewportId}/data                      GET data, notification when new data is available
@@ -102,6 +105,7 @@
  *   /jax/views/{viewId}/primitives/depgraphs                                        POST to create dependency graph grid
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}                              DELETE to close
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/grid                         GET column and row structure, notification on structure change
+ *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/columns                      GET column structure, notification on structure change
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports                    POST to create viewport
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}       POST to update, DELETE to close
  *   /jax/views/{viewId}/primitives/depgraphs/{graphId}/viewports/{viewportId}/data  GET data, notification when new data is available
