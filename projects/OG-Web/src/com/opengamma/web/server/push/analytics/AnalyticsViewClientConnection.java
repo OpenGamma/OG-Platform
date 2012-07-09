@@ -65,6 +65,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
   @Override
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+    // TODO use deltaResult and be more intelligent about viewport updates?
     EngineResourceReference<? extends ViewCycle> cycleReference = _viewClient.createCycleReference(fullResult.getViewCycleId());
     if (cycleReference == null) {
       // this shouldn't happen if everything in the engine is working as it should

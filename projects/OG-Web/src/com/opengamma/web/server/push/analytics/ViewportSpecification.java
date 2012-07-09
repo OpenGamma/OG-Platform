@@ -23,8 +23,14 @@ public class ViewportSpecification {
 
   private final List<Integer> _rows;
   private final SortedSet<Integer> _columns;
+  private final boolean _expanded;
 
-  public ViewportSpecification(List<Integer> rows, List<Integer> columns) {
+  /**
+   * @param rows The rows visible in the viewport
+   * @param columns The columns visible in the viewport
+   * @param expanded Whether the data values should be a single summary value or a full object
+   */
+  public ViewportSpecification(List<Integer> rows, List<Integer> columns, boolean expanded) {
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(columns, "columns");
     SortedSet<Integer> sortedColumns = new TreeSet<Integer>(columns);
@@ -43,10 +49,11 @@ public class ViewportSpecification {
     }
     _rows = ImmutableList.copyOf(sortedRows);
     _columns = ImmutableSortedSet.copyOf(sortedColumns);
+    _expanded = expanded;
   }
 
   public static ViewportSpecification empty() {
-    return new ViewportSpecification(Collections.<Integer>emptyList(), Collections.<Integer>emptyList());
+    return new ViewportSpecification(Collections.<Integer>emptyList(), Collections.<Integer>emptyList(), false);
   }
 
   public List<Integer> getRows() {
@@ -78,8 +85,12 @@ public class ViewportSpecification {
     return true;
   }
 
+  public boolean isExpanded() {
+    return _expanded;
+  }
+
   @Override
   public String toString() {
-    return "ViewportSpecification [_rows=" + _rows + ", _columns=" + _columns + "]";
+    return "ViewportSpecification [_rows=" + _rows + ", _columns=" + _columns + ", _expanded=" + _expanded + "]";
   }
 }

@@ -53,7 +53,7 @@ import com.opengamma.web.server.push.MasterChangeManager;
 import com.opengamma.web.server.push.WebPushServletContextUtils;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
-import com.opengamma.web.server.push.analytics.ResultsFormatter;
+import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
@@ -175,13 +175,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         getUserPositionMaster(),
         getPortfolioAggregationFunctions().getMappedFunctions());
     ResultConverterCache resultConverterCache = new ResultConverterCache(getFudgeContext());
-    ResultsFormatter resultsFormatter = new ResultsFormatter(resultConverterCache);
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
                                                                          getMarketDataSnapshotMaster(),
-                                                                         getComputationTargetResolver(),
-                                                                         resultsFormatter);
+                                                                         getComputationTargetResolver());
     AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultConverterCache);
+    ResultsFormatter resultsFormatter = new ResultsFormatter();
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
@@ -190,7 +189,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new AnalyticsColumnGroupsMessageBodyWriter(columnWriter));
-    repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(resultsFormatter));
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {

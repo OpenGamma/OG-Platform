@@ -46,18 +46,14 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final List<Row> _rows;
 
   private final ComputationTargetResolver _computationTargetResolver;
-  private final ResultsFormatter _formatter;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              List<Row> rows,
-                                             ComputationTargetResolver targetResolver,
-                                             ResultsFormatter formatter) {
+                                             ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
-    ArgumentChecker.notNull(formatter, "formatter");
     _rows = rows;
-    _formatter = formatter;
     _root = root;
     _computationTargetResolver = targetResolver;
   }
@@ -74,41 +70,45 @@ public class DependencyGraphGridStructure implements GridStructure {
     return _rows.get(rowIndex).getValueSpec();
   }
 
-  /* package */ List<List<Object>> createResultsForViewport(ViewportSpecification viewportSpec,
-                                                            Map<ValueSpecification, Object> results) {
-    List<List<Object>> resultsList = Lists.newArrayList();
+  /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
+                                                                          Map<ValueSpecification, Object> results,
+                                                                          AnalyticsHistory history) {
+    List<List<ViewportResults.Cell>> resultsList = Lists.newArrayList();
     for (Integer rowIndex : viewportSpec.getRows()) {
-      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results));
+      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, history));
     }
     return resultsList;
   }
 
-  private List<Object> createResultsForRow(int rowIndex, SortedSet<Integer> cols, Map<ValueSpecification, Object> results) {
+  private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
+                                                         SortedSet<Integer> cols,
+                                                         Map<ValueSpecification, Object> results,
+                                                         AnalyticsHistory history) {
     Object value = results.get(getTargetForRow(rowIndex));
     Row row = _rows.get(rowIndex);
-    List<Object> rowResults = Lists.newArrayListWithCapacity(cols.size());
+    List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(getValueForColumn(colIndex, row, value));
+      Object cellHistory = null; // TODO get from history
+      rowResults.add(getValueForColumn(colIndex, row, value, cellHistory));
     }
     return rowResults;
   }
 
-  /* package */ Object getValueForColumn(int colIndex, Row row, Object value) {
+  /* package */ ViewportResults.Cell getValueForColumn(int colIndex, Row row, Object value, Object history) {
     ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
-        return getTargetName(valueSpec.getTargetSpecification());
+        return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()));
       case 1: // target type
-        return getTargetTypeName(valueSpec.getTargetSpecification().getType());
+        return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()));
       case 2: // value name
-        return valueSpec.getValueName();
+        return ViewportResults.stringCell(valueSpec.getValueName());
       case 3: // value
-        // TODO include type. it's not the same for every row
-        return _formatter.formatValueForDisplay(value, valueSpec);
+        return ViewportResults.valueCell(value, valueSpec, history);
       case 4: // function name
-        return row.getFunctionName();
+        return ViewportResults.stringCell(row.getFunctionName());
       case 5: // properties
-        return getValuePropertiesForDisplay(valueSpec.getProperties());
+        return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()));
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
     }

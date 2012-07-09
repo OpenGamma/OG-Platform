@@ -37,21 +37,16 @@ public class AnalyticsViewManager {
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
   private final ComputationTargetResolver _targetResolver;
-  private final ResultsFormatter _formatter;
-
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               MarketDataSnapshotMaster snapshotMaster,
-                              ComputationTargetResolver targetResolver,
-                              ResultsFormatter formatter) {
+                              ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(formatter, "formatter");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _formatter = formatter;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;
     _snapshotMaster = snapshotMaster;
@@ -74,8 +69,7 @@ public class AnalyticsViewManager {
                                                        portoflioColumnsId,
                                                        primitivesGridId,
                                                        primitivesColumnsId,
-                                                       _targetResolver,
-                                                       _formatter);
+                                                       _targetResolver);
     LockingAnalyticsView lockingView = new LockingAnalyticsView(view);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
