@@ -11,6 +11,8 @@ $.register_module({
                 font_size: 40,
                 font_face: 'Arial',
                 snap_distance: 3,
+                surface_x: 100,
+                surface_z: 100,
                 interactive_color: '0xff0000',
                 floating_height: 10 // how high does the top surface float over the bottom grid
             };
@@ -117,14 +119,15 @@ $.register_module({
                 renderer, camera, scene, backlight, keylight, filllight,
                 projector, interactive_meshs = [], // interaction helpers
                 adjusted_vol = util.scale(config.vol, 0, 50),
-                adjusted_xs = util.scale(util.log(config.xs), -50, 50),
-                adjusted_zs = util.scale(util.log(config.zs), -50, 50);
+                adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2),
+                adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
             /**
              * Constructor for plane with correct x / z vertex positions
              * @returns {THREE.PlaneGeometry}
              */
             var Plane = function () {
-                var plane = new THREE.PlaneGeometry(100, 100, x_segments, y_segments), vertex, i, k;
+                var plane = new THREE.PlaneGeometry(settings.surface_x, settings.surface_z, x_segments, y_segments),
+                    vertex, i, k;
                 for (i = 0, k = 0; i < adjusted_vol.length; i++, k++) {
                     vertex = plane.vertices[i];
                     if (!adjusted_xs[k]) k = 0;
@@ -204,7 +207,9 @@ $.register_module({
              */
             surface.create_axis = function (config) {
                 var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6), scale = '0.1',
-                    lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth);
+                    lbl_arr = util.thin(config.labels, nth), pos_arr = util.thin(config.spacing, nth),
+                    axis_len = settings['surface_' + config.axis],
+                    other_axis_len = config.axis === 'x' ? settings['surface_z'] : settings['surface_x'];
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
@@ -212,40 +217,39 @@ $.register_module({
                         value.scale.set(scale, scale, scale);
                         value.position.x = pos_arr[i];
                         value.position.y = 1;
-                        value.position.z = 58;
+                        value.position.z = (other_axis_len / 2) + 8;
                         mesh.add(value);
                     }
                 }());
                 (function () { // axis label
                     var label = new Text(config.label);
                     label.scale.set(scale, scale, scale);
-                    label.position.x = -47;
+                    label.position.x = -(axis_len / 2) + 4;
                     label.position.y = 1;
-                    label.position.z = 63;
+                    label.position.z = (other_axis_len / 2) + 13;
                     mesh.add(label);
                 }());
                 (function () { // axis ticks
                     var canvas = document.createElement('canvas'),
                         ctx = canvas.getContext('2d'),
-                        plane = new THREE.PlaneGeometry(100, 5, 0, 0),
+                        plane = new THREE.PlaneGeometry(axis_len, 5, 0, 0),
                         texture = new THREE.Texture(canvas),
                         material = new THREE.MeshBasicMaterial({map: texture, transparent: true}),
                         axis = new THREE.Mesh(plane, material),
-                        labels = util.thin(config.spacing.map(function (val) {return (val + 50) * 5}), nth);
-                    canvas.width = 500;
+                        labels = util.thin(config.spacing.map(function (val) {return (val + (axis_len / 2)) * 5}), nth);
+                    canvas.width = axis_len * 5;
                     canvas.height = 50;
                     ctx.beginPath();
                     ctx.lineWidth = 2;
-                    for (i = 0; i < labels.length; i++)
-                        ctx.moveTo(labels[i] + 0.5, 25), ctx.lineTo(labels[i] + 0.5, 0);
+                    for (i = 0; i < labels.length; i++) ctx.moveTo(labels[i] + 0.5, 25), ctx.lineTo(labels[i] + 0.5, 0);
                     ctx.moveTo(0.5, 25.5);
                     ctx.lineTo(0.5, 0.5);
-                    ctx.lineTo(499.5, 0.5);
-                    ctx.lineTo(499.5, 25.5);
+                    ctx.lineTo(canvas.width - .5, 0.5);
+                    ctx.lineTo(canvas.width - .5, 25.5);
                     ctx.stroke();
                     axis.material.map.needsUpdate = true;
                     axis.doubleSided = true;
-                    axis.position.z = 55;
+                    axis.position.z = other_axis_len / 2 + 5;
                     mesh.add(axis);
                 }());
                 if (config.axis === 'z') mesh.rotation.y = -1.57;
@@ -267,8 +271,9 @@ $.register_module({
              */
             surface.create_line = function (points) {
                 var path = new THREE.SplineCurve3(points),
-                    tube = new THREE.TubeGeometry(path, 20, 0.2, 10, false, true); // path, segments, radius, segmentsRadius, closed, debug
-                return new THREE.Mesh(tube, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: false}));
+                    tube = new THREE.TubeGeometry(path, points.length, 0.2, 10, false, false);
+                return new THREE.Mesh(tube,
+                    new THREE.MeshBasicMaterial({color: settings.interactive_color, wireframe: false}));
             };
             surface.create_surface = function () {
                 var plane = new Plane(), group, materials, i,
@@ -312,7 +317,7 @@ $.register_module({
             };
             /**
              * On mouse move determin the mouse position in 3D space,
-             * snap vertex_sphere to a vertex if its withing settings.snap_distance
+             * snap vertex_sphere to a vertex if its within settings.snap_distance
              */
             surface.interactive = function () {
                 var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector(), xlines, zlines;
@@ -338,14 +343,20 @@ $.register_module({
                                 if (xlines) surface_top_group.remove(xlines);
                                 if (zlines) surface_top_group.remove(zlines);
                                 (function () { // create vertex arrays for lines
-                                    var x, xfrom = index - (index % 20), xto = xfrom + 20, xvertices = [],
-                                        z, zfrom = index % 20, zto = 400 - (19 - zfrom), zvertices = [];
+                                    // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
+                                    var x,
+                                        xfrom       = index - (index % (x_segments + 1)),
+                                        xto         = xfrom + x_segments + 1,
+                                        xvertices   = [],
+                                        z,
+                                        zfrom       = index % (x_segments + 1),
+                                        zto         = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom),
+                                        zvertices   = [];
                                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
-                                    for (z = zfrom; z < zto; z += 20) zvertices.push(object.geometry.vertices[z]);
-                                    xlines = surface.create_line(xvertices);
-                                    zlines = surface.create_line(zvertices);
-                                    surface_top_group.add(xlines);
-                                    surface_top_group.add(zlines);
+                                    for (z = zfrom; z < zto; z += x_segments + 1)
+                                        zvertices.push(object.geometry.vertices[z]);
+                                    surface_top_group.add(xlines = surface.create_line(xvertices));
+                                    surface_top_group.add(zlines = surface.create_line(zvertices));
                                 }());
                             }
                         }
