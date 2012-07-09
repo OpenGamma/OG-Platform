@@ -14,6 +14,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   /** Maximum string length for values that are sent to the grid. */
   private static final int MAX_VALUE_LENGTH = 100;
+  private static final String NAME = "PRIMITIVE";
 
   @Override
   public String formatForDisplay(Object value, ValueSpecification valueSpec) {
@@ -28,6 +29,11 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public Object formatForHistory(Object value, ValueSpecification valueSpec) {
     return trim(value.toString());
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 
   /**

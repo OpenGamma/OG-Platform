@@ -46,7 +46,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
-import com.opengamma.web.server.conversion.ResultConverterCache;
 import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
 import com.opengamma.web.server.push.MasterChangeManager;
@@ -174,13 +173,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         getUserPortfolioMaster(),
         getUserPositionMaster(),
         getPortfolioAggregationFunctions().getMappedFunctions());
-    ResultConverterCache resultConverterCache = new ResultConverterCache(getFudgeContext());
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
                                                                          getMarketDataSnapshotMaster(),
                                                                          getComputationTargetResolver());
-    AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultConverterCache);
     ResultsFormatter resultsFormatter = new ResultsFormatter();
+    AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultsFormatter);
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);

@@ -8,6 +8,8 @@ package com.opengamma.web.server.push.analytics.formatting;
 import java.math.BigDecimal;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -20,7 +22,6 @@ public class ResultsFormatter {
   private final Formatter _defaultFormatter = new DefaultFormatter();
   private final ClassMap<Formatter<?>> _formatters = new ClassMap<Formatter<?>>();
 
-
   public ResultsFormatter() {
     BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
@@ -29,13 +30,20 @@ public class ResultsFormatter {
     _formatters.put(BigDecimal.class, bigDecimalFormatter);
     _formatters.put(Double.class, doubleFormatter);
     _formatters.put(CurrencyAmount.class, currencyAmountFormatter);
+    _formatters.put(LabelledMatrix1D.class, new LabelledMatrix1DFormatter());
+    _formatters.put(LabelledMatrix2D.class, new LabelledMatrix2DFormatter());
   }
 
   private <T> Formatter getFormatter(Object value) {
     if (value == null) {
       return _nullFormatter;
+    } else {
+      return getFormatterForType(value.getClass());
     }
-    Formatter formatter = _formatters.get(value.getClass());
+  }
+
+  private Formatter getFormatterForType(Class<?> type) {
+    Formatter formatter = _formatters.get(type);
     if (formatter == null) {
       return _defaultFormatter;
     } else {
@@ -63,5 +71,9 @@ public class ResultsFormatter {
   @SuppressWarnings("unchecked")
   public Object formatForHistory(Object value, ValueSpecification valueSpec) {
     return getFormatter(value).formatForHistory(value, valueSpec);
+  }
+
+  public String getFormatName(Class<?> type) {
+    return getFormatterForType(type).getName();
   }
 }

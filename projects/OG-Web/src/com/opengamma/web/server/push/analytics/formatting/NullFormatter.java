@@ -12,6 +12,8 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 /* package */ class NullFormatter implements Formatter {
 
+  private static final String NAME = "PRIMITIVE";
+
   @Override
   public String formatForDisplay(Object value, ValueSpecification valueSpec) {
     return null;
@@ -25,5 +27,10 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public Object formatForHistory(Object value, ValueSpecification valueSpec) {
     return null;
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 }

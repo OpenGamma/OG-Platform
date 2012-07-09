@@ -16,6 +16,8 @@ import com.opengamma.util.money.CurrencyAmount;
  */
 /* package */ class CurrencyAmountFormatter implements Formatter<CurrencyAmount> {
 
+  private static final String NAME = "DOUBLE";
+
   private final BigDecimalFormatter _bigDecimalFormatter;
 
   /* package */ CurrencyAmountFormatter(BigDecimalFormatter bigDecimalFormatter) {
@@ -60,6 +62,11 @@ import com.opengamma.util.money.CurrencyAmount;
     } else {
       return _bigDecimalFormatter.formatForHistory(bigDecimal, valueSpec);
     }
+  }
+
+  @Override
+  public String getName() {
+    return NAME;
   }
 
   /**

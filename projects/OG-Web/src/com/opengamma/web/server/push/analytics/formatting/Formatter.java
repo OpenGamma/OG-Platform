@@ -18,4 +18,6 @@ public interface Formatter<T> {
 
   Object formatForHistory(T value, ValueSpecification valueSpec);
 
+  String getName();
+
 }
