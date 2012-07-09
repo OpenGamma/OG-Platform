@@ -10,61 +10,50 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.AnalyticsColumnGroups;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
-import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
-import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
 
 /**
- * Writes an instance of {@link PortfolioGridStructure} to JSON.
+ *
  */
-@Provider
-@Produces(MediaType.APPLICATION_JSON)
-public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWriter<PortfolioGridStructure> {
+/* package */ public class AnalyticsColumnGroupsMessageBodyWriter implements MessageBodyWriter<AnalyticsColumnGroups> {
 
   private final AnalyticsColumnsJsonWriter _writer;
 
-  public PortfolioGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public AnalyticsColumnGroupsMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(PortfolioGridStructure.class);
+    return type.equals(AnalyticsColumnGroups.class);
   }
 
   @Override
-  public long getSize(PortfolioGridStructure gridStructure,
+  public long getSize(AnalyticsColumnGroups analyticsColumnGroups,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
                       MediaType mediaType) {
-    // TODO this means unknown size. is it worth encoding it twice to find out the size?
     return -1;
   }
 
   @Override
-  public void writeTo(PortfolioGridStructure gridStructure,
+  public void writeTo(AnalyticsColumnGroups analyticsColumnGroups,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    entityStream.write(("{\"columnSets\":" + columnsJson(gridStructure) + "," +
-        "\"rootNode\":" + rootNodeJson + "}").getBytes());
-  }
-
-  private String columnsJson(PortfolioGridStructure gridStructure) {
-    return _writer.getJson(gridStructure.getColumnStructure().getGroups());
+    String json = _writer.getJson(analyticsColumnGroups.getGroups());
+    entityStream.write(json.getBytes());
   }
 }

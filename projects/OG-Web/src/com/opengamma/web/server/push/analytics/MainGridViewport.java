@@ -41,9 +41,9 @@ public class MainGridViewport extends AnalyticsViewport {
     update(viewportSpec, latestResults, history);
   }
 
-  // TODO this is specific to the main grids, need separate subclasses for depgraphs?
-  /* package */ void updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
+  /* package */ boolean updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     List<List<Object>> allResults = new ArrayList<List<Object>>();
+    boolean columnsUpdated = false;
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
@@ -57,6 +57,9 @@ public class MainGridViewport extends AnalyticsViewport {
                 _gridStructure.getRequirementsForSpecification(calcConfigName, valueSpec);
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
+              // TODO something needs to flag if the structure has changed (i.e. if the type wasn't known before)
+              boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, value.getClass());
+              columnsUpdated = columnsUpdated || columnUpdated;
               if (_viewportSpec.getColumns().contains(colIndex)) {
                 Object formattedValue = _formatter.formatValueForDisplay(value.getValue(), valueSpec);
                 rowResultsMap.put(colIndex, formattedValue);
@@ -78,6 +81,7 @@ public class MainGridViewport extends AnalyticsViewport {
       allResults.add(rowResults);
     }
     _latestResults = new ViewportResults(allResults);
+    return columnsUpdated;
   }
 
   public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
@@ -90,7 +94,5 @@ public class MainGridViewport extends AnalyticsViewport {
     }
     _viewportSpec = viewportSpec;
     updateResults(results, history);
-    // TODO fire an update here so the client knows to get some updated results?
   }
-
 }

@@ -29,17 +29,18 @@ import com.opengamma.util.tuple.Pair;
   private final Map<String, DependencyGraphGrid> _depGraphs = new HashMap<String, DependencyGraphGrid>();
   private final MainGridStructure _gridStructure;
   private final ComputationTargetResolver _targetResolver;
+  // TODO get rid of this, move to JSON converters
   private final ResultsFormatter _formatter;
+  private final String _columnsId;
 
   private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
   private AnalyticsHistory _history = new AnalyticsHistory();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
-
-
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
                                   MainGridStructure gridStructure,
                                   String gridId,
+                                  String columnsId,
                                   ComputationTargetResolver targetResolver,
                                   ResultsFormatter formatter) {
     super(gridId);
@@ -47,47 +48,65 @@ import com.opengamma.util.tuple.Pair;
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(formatter, "formatter");
+    ArgumentChecker.notNull(columnsId, "columnsId");
     _formatter = formatter;
     _gridType = gridType;
+    _columnsId = columnsId;
     _gridStructure = gridStructure;
     _targetResolver = targetResolver;
   }
 
   /* package */ static MainAnalyticsGrid emptyPortfolio(String gridId,
+                                                        String columnsId,
                                                         ComputationTargetResolver targetResolver,
                                                         ResultsFormatter formatter) {
     return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO,
                                  PortfolioGridStructure.empty(),
                                  gridId,
+                                 columnsId,
                                  targetResolver,
                                  formatter);
   }
 
   /* package */ static MainAnalyticsGrid emptyPrimitives(String gridId,
+                                                         String columnsId,
                                                          ComputationTargetResolver targetResolver,
                                                          ResultsFormatter formatter) {
     return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES,
                                  PrimitivesGridStructure.empty(),
                                  gridId,
+                                 columnsId,
                                  targetResolver,
                                  formatter);
   }
 
   /* package */ static MainAnalyticsGrid portfolio(CompiledViewDefinition compiledViewDef,
                                                    String gridId,
+                                                   String columnsId,
                                                    ComputationTargetResolver targetResolver,
                                                    ResultsFormatter formatter) {
     MainGridStructure gridStructure = new PortfolioGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, formatter);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PORTFORLIO,
+                                 gridStructure,
+                                 gridId,
+                                 columnsId,
+                                 targetResolver,
+                                 formatter);
   }
 
   /* package */
   static MainAnalyticsGrid primitives(CompiledViewDefinition compiledViewDef,
                                       String gridId,
+                                      String columnsId,
                                       ComputationTargetResolver targetResolver,
                                       ResultsFormatter formatter) {
     MainGridStructure gridStructure = new PrimitivesGridStructure(compiledViewDef);
-    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver, formatter);
+    return new MainAnalyticsGrid(AnalyticsView.GridType.PRIMITIVES,
+                                 gridStructure,
+                                 gridId,
+                                 columnsId,
+                                 targetResolver,
+                                 formatter);
   }
 
   // -------- dependency graph grids --------
@@ -124,16 +143,19 @@ import com.opengamma.util.tuple.Pair;
     getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
   }
 
-  /* package */ void updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history, ViewCycle cycle) {
+  /* package */ boolean updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history, ViewCycle cycle) {
     _latestResults = fullResult;
     _history = history;
     _cycle = cycle;
+    boolean columnsUpdated = false;
     for (MainGridViewport viewport : _viewports.values()) {
-      viewport.updateResults(fullResult, history);
+      boolean viewportColumnsUpdated = viewport.updateResults(fullResult, history);
+      columnsUpdated = columnsUpdated || viewportColumnsUpdated;
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
       grid.updateResults(cycle, history);
     }
+    return columnsUpdated;
   }
 
   /* package */ void closeDependencyGraph(String graphId) {
@@ -185,12 +207,16 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public Object getGridStructure() {
+  public GridStructure getGridStructure() {
     return _gridStructure;
   }
 
   @Override
   protected MainGridViewport createViewport(ViewportSpecification viewportSpecification, String dataId) {
     return new MainGridViewport(viewportSpecification, _gridStructure, dataId, _latestResults, _history, _formatter);
+  }
+
+  public String getColumnsId() {
+    return _columnsId;
   }
 }

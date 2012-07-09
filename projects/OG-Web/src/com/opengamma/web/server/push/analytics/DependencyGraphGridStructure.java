@@ -25,10 +25,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class DependencyGraphGridStructure implements GridBounds {
+public class DependencyGraphGridStructure implements GridStructure {
 
   private final AnalyticsNode _root;
 
+  // TODO can set the column types, they're fixed apart from value which can change for each row
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
       // fixed column group with one column for the row label
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
@@ -51,11 +52,11 @@ public class DependencyGraphGridStructure implements GridBounds {
                                              List<Row> rows,
                                              ComputationTargetResolver targetResolver,
                                              ResultsFormatter formatter) {
-    _rows = rows;
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(formatter, "formatter");
+    _rows = rows;
     _formatter = formatter;
     _root = root;
     _computationTargetResolver = targetResolver;
@@ -102,6 +103,7 @@ public class DependencyGraphGridStructure implements GridBounds {
       case 2: // value name
         return valueSpec.getValueName();
       case 3: // value
+        // TODO include type. it's not the same for every row
         return _formatter.formatValueForDisplay(value, valueSpec);
       case 4: // function name
         return row.getFunctionName();
@@ -187,6 +189,11 @@ public class DependencyGraphGridStructure implements GridBounds {
   @Override
   public int getColumnCount() {
     return COLUMN_GROUPS.getColumnCount();
+  }
+
+  @Override
+  public AnalyticsColumnGroups getColumnStructure() {
+    return COLUMN_GROUPS;
   }
 
   public AnalyticsNode getRoot() {

@@ -47,7 +47,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public Object getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType) {
     try {
       _lock.readLock().lock();
       return _delegate.getGridStructure(gridType);
@@ -117,7 +117,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public Object getGridStructure(GridType gridType, String graphId) {
+  public GridStructure getGridStructure(GridType gridType, String graphId) {
     try {
       _lock.readLock().lock();
       return _delegate.getGridStructure(gridType, graphId);

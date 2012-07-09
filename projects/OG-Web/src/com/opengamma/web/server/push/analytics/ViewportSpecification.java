@@ -62,7 +62,7 @@ public class ViewportSpecification {
    * @param grid The structure of a grid
    * @return {@code true} if the viewport defined by this object fits within the grid.
    */
-  public boolean isValidFor(GridBounds grid) {
+  public boolean isValidFor(GridStructure grid) {
     if (!_rows.isEmpty()) {
       int maxRow = _rows.get(_rows.size() - 1);
       if (maxRow >= grid.getRowCount()) {

@@ -51,12 +51,14 @@ import com.opengamma.web.server.push.ConnectionManagerImpl;
 import com.opengamma.web.server.push.LongPollingConnectionManager;
 import com.opengamma.web.server.push.MasterChangeManager;
 import com.opengamma.web.server.push.WebPushServletContextUtils;
+import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsViewManager;
 import com.opengamma.web.server.push.analytics.ResultsFormatter;
 import com.opengamma.web.server.push.rest.AggregatorNamesResource;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
 import com.opengamma.web.server.push.rest.ViewsResource;
+import com.opengamma.web.server.push.rest.json.AnalyticsColumnGroupsMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.DependencyGraphGridStructureMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.server.push.rest.json.PrimitivesGridStructureMessageBodyWriter;
@@ -179,13 +181,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getMarketDataSnapshotMaster(),
                                                                          getComputationTargetResolver(),
                                                                          resultsFormatter);
+    AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultConverterCache);
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
-    repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter());
-    repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new AnalyticsColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components

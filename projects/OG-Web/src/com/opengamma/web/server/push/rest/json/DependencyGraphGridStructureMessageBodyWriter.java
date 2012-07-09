@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.server.push.analytics.DependencyGraphGridStructure;
@@ -28,6 +29,13 @@ import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class DependencyGraphGridStructureMessageBodyWriter implements MessageBodyWriter<DependencyGraphGridStructure> {
+
+  private final AnalyticsColumnsJsonWriter _writer;
+
+  public DependencyGraphGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+    ArgumentChecker.notNull(writer, "writer");
+    _writer = writer;
+  }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -53,7 +61,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
     String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    String columnsJson = AnalyticsColumnsJsonWriter.getJson(DependencyGraphGridStructure.COLUMN_GROUPS.getGroups());
+    String columnsJson = _writer.getJson(DependencyGraphGridStructure.COLUMN_GROUPS.getGroups());
     entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 }

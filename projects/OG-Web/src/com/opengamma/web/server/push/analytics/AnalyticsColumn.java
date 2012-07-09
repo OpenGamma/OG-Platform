@@ -7,8 +7,10 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.Set;
 
+import com.google.common.base.Objects;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
@@ -19,13 +21,15 @@ public class AnalyticsColumn {
   private final String _header;
   private final String _description;
 
+  private Class<?> _type;
+
   public AnalyticsColumn(String header, String description) {
     _header = header;
     _description = description;
   }
 
   public static AnalyticsColumn forKey(RequirementBasedColumnKey key) {
-    return new AnalyticsColumn(getHeader(key), getDescription(key.getValueProperties()));
+    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()));
   }
 
   /* package */ String getHeader() {
@@ -36,7 +40,25 @@ public class AnalyticsColumn {
     return _description;
   }
 
-  private static String getHeader(RequirementBasedColumnKey columnKey) {
+  public Class<?> getType() {
+    return _type;
+  }
+
+  /**
+   * Sets the type of this column's data. This is necessary because the type of data produced for a requirement isn't
+   * known when the view compiles and the initial grid structure is built. The type can only be inferred from the type
+   * of the values in the first set of results.
+   * @param type The type of the column's data, not null
+   * @return {@code true} if the type was updated
+   */
+  public boolean setType(Class<?> type) {
+    ArgumentChecker.notNull(type, "type");
+    boolean updated = !Objects.equal(_type, type);
+    _type = type;
+    return updated;
+  }
+
+  private static String createHeader(RequirementBasedColumnKey columnKey) {
     String header;
     String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
     if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {
@@ -47,7 +69,7 @@ public class AnalyticsColumn {
     return header;
   }
 
-  private static String getDescription(ValueProperties constraints) {
+  private static String createDescription(ValueProperties constraints) {
     if (constraints.isEmpty()) {
       return "No constraints";
     }

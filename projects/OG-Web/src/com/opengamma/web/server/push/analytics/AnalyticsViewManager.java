@@ -62,12 +62,20 @@ public class AnalyticsViewManager {
                          AnalyticsViewListener listener,
                          String viewId,
                          String portfolioGridId,
-                         String primitivesGridId) {
+                         String portoflioColumnsId,
+                         String primitivesGridId,
+                         String primitivesColumnsId) {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     ViewClient viewClient = _viewProcessor.createViewClient(user);
-    SimpleAnalyticsView view = new SimpleAnalyticsView(listener, portfolioGridId, primitivesGridId, _targetResolver, _formatter);
+    SimpleAnalyticsView view = new SimpleAnalyticsView(listener,
+                                                       portfolioGridId,
+                                                       portoflioColumnsId,
+                                                       primitivesGridId,
+                                                       primitivesColumnsId,
+                                                       _targetResolver,
+                                                       _formatter);
     LockingAnalyticsView lockingView = new LockingAnalyticsView(view);
     NamedMarketDataSpecificationRepository marketDataSpecRepo = _viewProcessor.getNamedMarketDataSpecificationRepository();
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
