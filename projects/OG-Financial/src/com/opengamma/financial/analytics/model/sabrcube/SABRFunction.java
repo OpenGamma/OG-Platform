@@ -181,10 +181,10 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   protected ValueRequirement getCubeRequirement(final String cubeName, final Currency currency, final String fittingMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()) // TODO should be 'currency.getCode()' when non-USD currencies supported
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, Currency.USD, properties); // TODO should be 'currency' when non-USD currencies supported
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {

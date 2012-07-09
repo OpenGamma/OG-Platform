@@ -45,14 +45,12 @@ public class JdbcSheetReader extends SheetReader {
   private static final Logger s_logger = LoggerFactory.getLogger(JdbcSheetReader.class);
 
   public JdbcSheetReader(DataSource dataSource, String query) {
-    init(dataSource, query, null);
+    init(dataSource, query);
   }
 
-  public JdbcSheetReader(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
-    init(dataSource, query, preparedStatementSetter);
-  }
 
-  protected void init(DataSource dataSource, String query, PreparedStatementSetter preparedStatementSetter) {
+
+  protected void init(DataSource dataSource, String query) {
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notEmpty(query, "query");
 
@@ -88,11 +86,7 @@ public class JdbcSheetReader extends SheetReader {
         return entries;
       }
     };
-    if (preparedStatementSetter != null) {
-      _results = getJDBCTemplate().query(query, preparedStatementSetter, extractor);
-    } else {
-      _results = getJDBCTemplate().query(query, extractor);
-    }
+    _results = getJDBCTemplate().query(query, extractor);
     _iterator = _results.iterator();
   }
 

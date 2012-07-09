@@ -1264,12 +1264,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationPresentValueSABRNodeSensitivityFunction.Rho.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "USD"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "0.07", "10.0", "USD"));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "USD", "EUR", "GBP"));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue", "0.07", "10.0", "USD", "EUR", "GBP"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue",
-        "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
+        "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD", "EUR", "GBP"));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, "FORWARD_3M", "FUNDING", "BLOOMBERG", "NonLinearLeastSquares", "PresentValue",
-        "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD"));
+        "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", "USD", "EUR", "GBP"));
   }
 
   private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
