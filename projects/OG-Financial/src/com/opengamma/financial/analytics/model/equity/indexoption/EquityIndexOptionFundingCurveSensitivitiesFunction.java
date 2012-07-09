@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
@@ -79,7 +79,6 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
-
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
@@ -128,7 +127,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     final ForwardCurve forwardCurve = new ForwardCurve(spot, ((YieldCurve) fundingCurve).getCurve());
 
     // 3. Perform the calculation - what we came here to do
-    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
+    final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     final DoubleMatrix1D sensVector;
 
     if (((YieldCurve) fundingCurve).getCurve() instanceof InterpolatedDoublesCurve) {
@@ -164,7 +163,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
     return null;
   }
 

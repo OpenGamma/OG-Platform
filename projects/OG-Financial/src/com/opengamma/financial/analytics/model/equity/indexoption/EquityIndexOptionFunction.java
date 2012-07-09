@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -94,7 +94,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
 
     // 2. Build up the market data bundle
-    final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
+    final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 3. The Calculation - what we came here to do
     final Object results = computeValues(derivative, market);
@@ -106,7 +106,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   }
 
   // This is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
-  protected EquityOptionDataBundle buildMarketBundle(final ExternalId underlyingId, FunctionExecutionContext executionContext,
+  protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, FunctionExecutionContext executionContext,
       FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -142,11 +142,11 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // d. Forward Curve
     final ForwardCurve forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve());
 
-    final EquityOptionDataBundle market = new EquityOptionDataBundle(blackVolSurf, fundingCurve, forwardCurve);
+    final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     return market;
   }
 
-  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market);
+  protected abstract Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market);
 
   @Override
   public ComputationTargetType getTargetType() {

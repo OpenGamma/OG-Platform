@@ -8,11 +8,11 @@ package com.opengamma.analytics.financial.equity;
 /**
  * 
  */
-public interface EquityDerivative {
+public interface Derivative {
 
-  <S, T> T accept(EquityDerivativeVisitor<S, T> visitor, S data);
+  <S, T> T accept(DerivativeVisitor<S, T> visitor, S data);
 
-  <T> T accept(EquityDerivativeVisitor<?, T> visitor);
+  <T> T accept(DerivativeVisitor<?, T> visitor);
 
   /**
    * @return

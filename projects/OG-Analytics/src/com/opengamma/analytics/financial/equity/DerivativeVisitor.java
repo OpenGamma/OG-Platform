@@ -15,11 +15,11 @@ import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap
  * @param <S> The type of the data
  * @param <T> The return type of the calculation
  */
-public interface EquityDerivativeVisitor<S, T> {
+public interface DerivativeVisitor<S, T> {
 
-  T visit(EquityDerivative derivative, S data);
+  T visit(Derivative derivative, S data);
 
-  T visit(EquityDerivative derivative);
+  T visit(Derivative derivative);
 
   T visitEquityFuture(EquityFuture equityFuture, S data);
 

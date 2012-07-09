@@ -16,12 +16,12 @@ import org.apache.commons.lang.Validate;
  * @param <S> The type of the data
  * @param <T> The return type of the calculation
  */
-public abstract class AbstractEquityDerivativeVisitor<S, T> implements EquityDerivativeVisitor<S, T> {
+public abstract class AbstractDerivativeVisitor<S, T> implements DerivativeVisitor<S, T> {
 
   @Override
   // Note: If you have built a class that extends this one and ended up here by accident,
   // copy this method into your class.
-  public T visit(final EquityDerivative derivative, final S data) {
+  public T visit(final Derivative derivative, final S data) {
     Validate.notNull(derivative, "derivative");
     Validate.notNull(data, "data");
     return derivative.accept(this, data);

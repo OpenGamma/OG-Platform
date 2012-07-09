@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
-import com.opengamma.analytics.financial.equity.AbstractEquityDerivativeVisitor;
-import com.opengamma.analytics.financial.equity.EquityDerivative;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.AbstractDerivativeVisitor;
+import com.opengamma.analytics.financial.equity.Derivative;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.variance.derivative.VarianceSwap;
@@ -17,7 +17,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public final class EquityIndexOptionPresentValueCalculator extends AbstractEquityDerivativeVisitor<EquityOptionDataBundle, Double> {
+public final class EquityIndexOptionPresentValueCalculator extends AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> {
 
   private static final EquityIndexOptionPresentValueCalculator s_instance = new EquityIndexOptionPresentValueCalculator();
   private static final EquityIndexOptionBlackMethod PRICER = EquityIndexOptionBlackMethod.getInstance();
@@ -35,21 +35,21 @@ public final class EquityIndexOptionPresentValueCalculator extends AbstractEquit
    * @param market The market curve bundle includes BlackVolatilitySurface, Forward Equity Curve, and Funding Curve
    * @return The fair value of the option
    */
-  public Double visitEquityIndexOption(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  public Double visitEquityIndexOption(EquityIndexOption derivative, StaticReplicationDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
     return PRICER.presentValue(derivative, market);
   }
 
   @Override
-  public Double visit(final EquityDerivative derivative, final EquityOptionDataBundle data) {
+  public Double visit(final Derivative derivative, final StaticReplicationDataBundle data) {
     Validate.notNull(derivative, "derivative");
     Validate.notNull(data, "data");
     return derivative.accept(this, data);
   }
 
   @Override
-  public Double visit(EquityDerivative derivative) {
+  public Double visit(Derivative derivative) {
     if (derivative instanceof EquityIndexOption) {
       return visitEquityIndexOption((EquityIndexOption) derivative);
     }
