@@ -130,7 +130,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       if (result == null) {
         result = pnLSeries;
       } else {
-        result = result.add(result);
+        result = result.add(pnLSeries);
       }
     }
     if (result == null) {
