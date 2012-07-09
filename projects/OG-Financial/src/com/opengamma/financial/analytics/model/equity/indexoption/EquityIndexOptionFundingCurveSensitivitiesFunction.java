@@ -84,7 +84,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
-    final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
+    final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
     final EquityIndexOptionDefinition defn = getConverter().visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
 
@@ -158,14 +158,13 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
 
-    ValueProperties resultProps = getValueProperties(fundingCurveName, volSurfaceName, smileInterpolator);
-    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), resultProps);
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints());
 
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     return null;
   }
 

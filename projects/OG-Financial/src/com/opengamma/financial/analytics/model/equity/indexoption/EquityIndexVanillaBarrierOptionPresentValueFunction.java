@@ -10,9 +10,10 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Computes the PV of a European Barrier Option by breaking it into a linear and a binary vanilla option,
@@ -26,12 +27,17 @@ public class EquityIndexVanillaBarrierOptionPresentValueFunction extends EquityI
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final EquityOptionDataBundle market) {
     double pv = 0.0;
     for (EquityIndexOption derivative : vanillaOptions) {
       pv += s_calculator.visitEquityIndexOption(derivative, market);
     }
-    return CurrencyAmount.of(currency, pv);
+    return pv;
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityBarrierOptionSecurity(target).getCurrency().getCode());
   }
 
 }

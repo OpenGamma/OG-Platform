@@ -57,7 +57,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -89,8 +88,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
-    final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
-    final Currency currency = security.getCurrency();
+    final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
     final ExternalId underlyingId = security.getUnderlyingId();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
@@ -99,15 +97,11 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 3. The Calculation - what we came here to do
-    final Object results = computeValues(derivative, market, currency);
+    final Object results = computeValues(derivative, market);
 
     // 4. Create Result's Specification that matches the properties promised and Return
-    ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    ValueProperties resultProps = getValueProperties(fundingCurveName, volSurfaceName, smileInterpolator);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), resultProps);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     return Collections.singleton(new ComputedValue(spec, results));
   }
 
@@ -152,7 +146,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return market;
   }
 
-  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market, Currency currency);
+  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -161,38 +155,24 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     return target.getSecurity() instanceof EquityIndexOptionSecurity;
+  }
+
+  protected EquityIndexOptionSecurity getEquityIndexOptionSecurity(final ComputationTarget target) {
+    return (EquityIndexOptionSecurity) target.getSecurity();
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = getValueProperties(target);
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
   }
 
-  /**
-   * @param target For Equity Index Options, the ComputationTarget is the Index name
-   * @return The properties (ValueRequirements) that the Function promises to deliver
-   */
-  protected ValueProperties getValueProperties(ComputationTarget target) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.SURFACE)
-        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-        .get();
-  }
-
-  protected ValueProperties getValueProperties(String fundingCurveName, String volSurfaceName, String smileInterpolator) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.SURFACE, volSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
-        .get();
+        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
   }
 
   @Override
@@ -278,7 +258,6 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
   }
 
-  // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
   protected ValueRequirement getDiscountCurveRequirement(final Security security, final String fundingCurveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);

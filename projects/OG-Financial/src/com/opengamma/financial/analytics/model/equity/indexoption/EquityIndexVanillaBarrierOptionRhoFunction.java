@@ -10,8 +10,10 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -23,7 +25,7 @@ public class EquityIndexVanillaBarrierOptionRhoFunction extends EquityIndexVanil
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final EquityOptionDataBundle market) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     double rho = 0.0;
     for (EquityIndexOption derivative : vanillaOptions) {
@@ -31,4 +33,10 @@ public class EquityIndexVanillaBarrierOptionRhoFunction extends EquityIndexVanil
     }
     return rho;
   }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityBarrierOptionSecurity(target).getCurrency().getCode());
+  }
+
 }

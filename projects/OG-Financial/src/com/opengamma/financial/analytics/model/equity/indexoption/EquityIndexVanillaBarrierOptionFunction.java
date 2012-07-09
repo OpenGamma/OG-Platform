@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -29,12 +28,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.id.ExternalId;
@@ -58,19 +56,17 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * This method is defined by extending Functions
    * @param vanillaOptions Set of EquityIndexOptions that European Barrier is composed of. Binaries are modelled as spreads
    * @param market EquityOptionDataBundle
-   * @param currency TODO
    * @return  ComputedValue typically
    */
-  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency);
+  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market);
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
-    final EquityBarrierOptionSecurity barrierSec = (EquityBarrierOptionSecurity) target.getSecurity();
+    final EquityBarrierOptionSecurity barrierSec = getEquityBarrierOptionSecurity(target);
     final ExternalId underlyingId = barrierSec.getUnderlyingId();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Currency currency = barrierSec.getCurrency();
 
     // 1. Get parameters for the smoothing of binary payoffs into put spreads
     final String strOH = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
@@ -86,35 +82,32 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final Double smoothing = Double.parseDouble(strSmooth);
 
     // 2. Break the barrier security into it's vanilla analytic derivatives
-    final EquityBarrierOptionSecurity security = (EquityBarrierOptionSecurity) target.getSecurity();
-    Set<EquityIndexOption> vanillas = vanillaDecomposition(now, security, smoothing, overhedge);
+    Set<EquityIndexOption> vanillas = vanillaDecomposition(now, barrierSec, smoothing, overhedge);
 
     // 3. Build up the market data bundle
     final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 4. Compute Values
-    final Object results = computeValues(vanillas, market, currency);
+    final Object results = computeValues(vanillas, market);
 
     // 5. Properties of what's required of this function
-    final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    ValueProperties eioProperties = getValueProperties(fundingCurveName, volSurfaceName, smileInterpolator);
-    ValueProperties barrierProperties = eioProperties.copy()
-                  .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, strSmooth)
-                  .with(ValuePropertyNames.BINARY_OVERHEDGE, strOH)
-                  .get();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), barrierProperties);
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     // 6. Return result
     return Collections.singleton(new ComputedValue(spec, results));
 
   }
 
   @Override
+  protected EquityIndexOptionSecurity getEquityIndexOptionSecurity(final ComputationTarget target) {
+    throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
+  }
+
+  protected EquityBarrierOptionSecurity getEquityBarrierOptionSecurity(final ComputationTarget target) {
+    return (EquityBarrierOptionSecurity) target.getSecurity();
+  }
+
+  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     Security security = target.getSecurity();
     if (!(security instanceof EquityBarrierOptionSecurity)) {
       return false;
@@ -151,8 +144,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = getValueProperties(target);
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
   }
 
   /**
@@ -160,13 +152,10 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * @return The properties (ValueRequirements) that the Function promises to deliver
    */
   @Override
-  protected ValueProperties getValueProperties(ComputationTarget target) {
-    ValueProperties commonProps = super.getValueProperties(target);
-    ValueProperties barrierProps = commonProps.copy()
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return super.createValueProperties(target)
       .withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH)
-      .get();
-    return barrierProps;
+      .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
   }
 
   private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
@@ -247,11 +236,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
-
-
 
 }
 

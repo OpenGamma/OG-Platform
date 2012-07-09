@@ -9,7 +9,6 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -24,7 +23,7 @@ public class EquityIndexOptionImpliedVolFunction extends EquityIndexOptionFuncti
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return model.impliedVol(derivative, market);
   }

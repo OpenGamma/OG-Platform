@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentV
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -30,7 +29,7 @@ public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFuncti
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
+  protected Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();
