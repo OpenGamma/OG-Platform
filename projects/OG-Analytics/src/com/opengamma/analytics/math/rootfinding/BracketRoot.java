@@ -38,10 +38,10 @@ public class BracketRoot {
     double f2 = 0;
     f1 = f.evaluate(x1);
     f2 = f.evaluate(x2);
-    if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+    if (Double.isNaN(f1)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
     }
-    if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+    if (Double.isNaN(f2)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
     }
 
@@ -52,13 +52,13 @@ public class BracketRoot {
       if (Math.abs(f1) < Math.abs(f2)) {
         x1 += RATIO * (x1 - x2);
         f1 = f.evaluate(x1);
-        if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+        if (Double.isNaN(f1)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
         }
       } else {
         x2 += RATIO * (x2 - x1);
         f2 = f.evaluate(x2);
-        if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+        if (Double.isNaN(f2)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
         }
       }
@@ -78,10 +78,10 @@ public class BracketRoot {
     boolean upperLimitReached = false;
     f1 = f.evaluate(x1);
     f2 = f.evaluate(x2);
-    if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+    if (Double.isNaN(f1)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
     }
-    if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+    if (Double.isNaN(f2)) {
       throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
     }
     for (int count = 0; count < MAX_STEPS; count++) {
@@ -98,7 +98,7 @@ public class BracketRoot {
           lowerLimitReached = true;
         }
         f1 = f.evaluate(x1);
-        if (Double.isInfinite(f1) || Double.isNaN(f1)) {
+        if (Double.isNaN(f1)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x1 + " f(x) = " + f1);
         }
       } else {
@@ -108,7 +108,7 @@ public class BracketRoot {
           upperLimitReached = true;
         }
         f2 = f.evaluate(x2);
-        if (Double.isInfinite(f2) || Double.isNaN(f2)) {
+        if (Double.isNaN(f2)) {
           throw new MathException("Failed to bracket root: function invalid at x = " + x2 + " f(x) = " + f2);
         }
       }

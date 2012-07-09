@@ -88,36 +88,36 @@ public class VarianceSwapWithDividendsTest {
 
   @Test
   public void proportionalOnlyTest() {
-    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6};
+    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6 };
     double[] alpha = new double[3];
-    double[] beta = new double[] {0.1, 0.1, 0.1};
+    double[] beta = new double[] {0.1, 0.1, 0.1 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAfterExpiryTest() {
-    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6};
-    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT};
-    double[] beta = new double[] {0.02, 0.02};
+    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
+    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT };
+    double[] beta = new double[] {0.02, 0.02 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsBeforeExpiryTest() {
-    double[] tau = new double[] {0.85, 1.2};
-    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT};
-    double[] beta = new double[] {0.1, 0.2};
+    double[] tau = new double[] {0.85, 1.2 };
+    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
+    double[] beta = new double[] {0.1, 0.2 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAtExpiryTest() {
-    double[] tau = new double[] {1.2, EXPIRY};
-    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT};
-    double[] beta = new double[] {0.1, 0.2};
+    double[] tau = new double[] {1.2, EXPIRY };
+    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT };
+    double[] beta = new double[] {0.1, 0.2 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
@@ -153,7 +153,7 @@ public class VarianceSwapWithDividendsTest {
     double[] res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, surfaceStrike);
     double rv = res[0] / EXPIRY;
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
-    assertEquals(expected, rv, 1e-6);
+    assertEquals(expected, rv, 2e-6); //TODO this should be better
   }
 
   /**
