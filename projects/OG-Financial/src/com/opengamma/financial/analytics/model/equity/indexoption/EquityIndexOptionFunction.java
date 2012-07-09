@@ -57,6 +57,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -91,6 +92,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
+    final Currency currency = security.getCurrency();
     final ExternalId underlyingId = security.getUnderlyingId();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
@@ -99,7 +101,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 3. The Calculation - what we came here to do
-    final Object results = computeValues(derivative, market);
+    final Object results = computeValues(derivative, market, currency);
 
     // 4. Create Result's Specification that matches the properties promised and Return
     ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -152,7 +154,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return market;
   }
 
-  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market);
+  protected abstract Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market, Currency currency);
 
   @Override
   public ComputationTargetType getTargetType() {

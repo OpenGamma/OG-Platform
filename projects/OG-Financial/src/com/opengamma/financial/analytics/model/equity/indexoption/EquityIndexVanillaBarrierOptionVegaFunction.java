@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -22,7 +23,7 @@ public class EquityIndexVanillaBarrierOptionVegaFunction extends EquityIndexVani
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market) {
+  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     double sum = 0.0;
     for (EquityIndexOption derivative : vanillaOptions) {

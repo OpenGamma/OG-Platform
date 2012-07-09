@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Computes the PV of a European Barrier Option by breaking it into a linear and a binary vanilla option,
@@ -24,12 +26,12 @@ public class EquityIndexVanillaBarrierOptionPresentValueFunction extends EquityI
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market) {
+  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency) {
     double pv = 0.0;
     for (EquityIndexOption derivative : vanillaOptions) {
       pv += s_calculator.visitEquityIndexOption(derivative, market);
     }
-    return pv;
+    return CurrencyAmount.of(currency, pv);
   }
 
 }

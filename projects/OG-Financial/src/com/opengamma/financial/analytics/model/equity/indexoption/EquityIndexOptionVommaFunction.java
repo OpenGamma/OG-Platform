@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
 
 /**
  * Returns the spot Vomma, ie the 2nd order sensitivity of the spot price to the implied vol,
@@ -24,7 +25,7 @@ public class EquityIndexOptionVommaFunction extends EquityIndexOptionFunction {
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return model.vomma(derivative, market);
   }

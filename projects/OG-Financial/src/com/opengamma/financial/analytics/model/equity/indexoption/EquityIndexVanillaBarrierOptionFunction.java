@@ -58,9 +58,10 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * This method is defined by extending Functions
    * @param vanillaOptions Set of EquityIndexOptions that European Barrier is composed of. Binaries are modelled as spreads
    * @param market EquityOptionDataBundle
+   * @param currency TODO
    * @return  ComputedValue typically
    */
-  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market);
+  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, EquityOptionDataBundle market, Currency currency);
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
@@ -69,7 +70,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final EquityBarrierOptionSecurity barrierSec = (EquityBarrierOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = barrierSec.getUnderlyingId();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-
+    final Currency currency = barrierSec.getCurrency();
 
     // 1. Get parameters for the smoothing of binary payoffs into put spreads
     final String strOH = desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE);
@@ -92,7 +93,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final EquityOptionDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 4. Compute Values
-    final Object results = computeValues(vanillas, market);
+    final Object results = computeValues(vanillas, market, currency);
 
     // 5. Properties of what's required of this function
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
@@ -246,7 +247,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
 

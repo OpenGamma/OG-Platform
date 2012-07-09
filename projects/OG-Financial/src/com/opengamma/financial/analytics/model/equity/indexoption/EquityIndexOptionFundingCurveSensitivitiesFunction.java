@@ -166,7 +166,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     return null;
   }
 

@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  *
@@ -20,8 +22,8 @@ public class EquityIndexOptionVegaFunction extends EquityIndexOptionFunction {
     super(ValueRequirementNames.VALUE_VEGA);
   }
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
-    return MODEL.vega(derivative, market);
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
+    return CurrencyAmount.of(currency, MODEL.vega(derivative, market));
   }
 
 }

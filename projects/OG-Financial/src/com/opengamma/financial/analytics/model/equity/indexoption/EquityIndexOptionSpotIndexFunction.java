@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Produces the current value of the underlying index, according to the market data
@@ -20,9 +22,9 @@ public class EquityIndexOptionSpotIndexFunction extends EquityIndexOptionFunctio
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return model.spotIndexValue(market);
+    return CurrencyAmount.of(currency, model.spotIndexValue(market));
   }
 
 }

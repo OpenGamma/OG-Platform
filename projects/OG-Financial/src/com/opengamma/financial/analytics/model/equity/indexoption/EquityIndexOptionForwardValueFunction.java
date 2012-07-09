@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The <b>forward</b> value of the index, ie the fair strike of a forward agreement paying the index value at maturity,
@@ -21,9 +23,9 @@ public class EquityIndexOptionForwardValueFunction extends EquityIndexOptionFunc
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return model.forwardIndexValue(derivative, market);
+    return CurrencyAmount.of(currency, model.forwardIndexValue(derivative, market));
   }
 
 }

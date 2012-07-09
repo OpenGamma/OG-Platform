@@ -9,6 +9,8 @@ import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  *
@@ -21,9 +23,9 @@ public class EquityIndexOptionPresentValueFunction extends EquityIndexOptionFunc
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market, Currency currency) {
     final double pv = s_calculator.visitEquityIndexOption(derivative, market);
-    return pv;
+    return CurrencyAmount.of(currency, pv);
   }
 
 }
