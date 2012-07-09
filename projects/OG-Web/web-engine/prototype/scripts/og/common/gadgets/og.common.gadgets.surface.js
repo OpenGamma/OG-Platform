@@ -10,7 +10,9 @@ $.register_module({
             settings = {
                 font_size: 40,
                 font_face: 'Arial',
-                snap_distance: 3
+                snap_distance: 3,
+                interactive_color: '0xff0000',
+                floating_height: 10 // how high does the top surface float over the bottom grid
             };
         tmp_data = {
             1: {
@@ -108,7 +110,9 @@ $.register_module({
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
             var surface = this, selector = config.selector, $selector = $(selector),
-                group, width, height, vertex_sphere,
+                animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
+                surface_top_group = new THREE.Object3D(), surface_bottom_group = new THREE.Object3D(),
+                width, height, vertex_sphere,
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
                 renderer, camera, scene, backlight, keylight, filllight,
                 projector, interactive_meshs = [], // interaction helpers
@@ -175,12 +179,20 @@ $.register_module({
                     .on('mousemove.surface.animate', function (event) {
                         if (!mousedown) return;
                         var dx = event.clientX - sx, dy = event.clientY - sy;
-                        group.rotation.y += dx * 0.01;
-                        group.rotation.x += dy * 0.01;
+                        animation_group.rotation.y += dx * 0.01;
+                        animation_group.rotation.x += dy * 0.01;
                         renderer.render(scene, camera);
                         sx += dx, sy += dy;
                     });
                 return surface;
+            };
+            surface.create_axes = function () {
+                var group = new THREE.Object3D,
+                    x = {axis: 'x', spacing: adjusted_xs, labels: config.xs_labels || config.xs, label: config.xs_label},
+                    z = {axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label};
+                group.add(surface.create_axis(x));
+                group.add(surface.create_axis(z));
+                return group;
             };
             /**
              * Creates an Axis with labels for the bottom grid
@@ -248,6 +260,16 @@ $.register_module({
                 mesh.overdraw = true;
                 return mesh;
             };
+            /**
+             * Creates a line from an Array of points
+             * @param {Array} points Array of Vector3's
+             * @return {THREE.Mesh}
+             */
+            surface.create_line = function (points) {
+                var path = new THREE.SplineCurve3(points),
+                    tube = new THREE.TubeGeometry(path, 20, 0.2, 10, false, true); // path, segments, radius, segmentsRadius, closed, debug
+                return new THREE.Mesh(tube, new THREE.MeshBasicMaterial({color: 0xff0000, wireframe: false}));
+            };
             surface.create_surface = function () {
                 var plane = new Plane(), group, materials, i,
                     weblg_materials = [
@@ -285,7 +307,6 @@ $.register_module({
                 // actualy duplicates the geometry and adds each material separatyle, returns the group
                 group = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
                 group.children.forEach(function (mesh) {mesh.doubleSided = true;});
-                group.position.y = 10; // move up a little to prevent canvas renderer from dropping lines
                 interactive_meshs.push(group.children[0]);
                 return group;
             };
@@ -294,11 +315,11 @@ $.register_module({
              * snap vertex_sphere to a vertex if its withing settings.snap_distance
              */
             surface.interactive = function () {
-                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
+                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector(), xlines, zlines;
                 $selector.on('mousemove.surface.interactive', function (event) {
                     event.preventDefault();
                     var vector, ray, intersects, offset = $selector.offset(),
-                        object, point, faces = 'abcd', i, index, vertex;
+                        object, point, faces = 'abcd', i, index, vertex, vertex_world_position;
                     mouse.x = ((event.clientX - offset.left) / width) * 2 - 1;
                     mouse.y = -((event.clientY - offset.top) / height) * 2 + 1;
                     vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
@@ -307,18 +328,32 @@ $.register_module({
                     intersects = ray.intersectObjects(interactive_meshs);
                     if (intersects.length > 0) { // intersecting at least one object
                         point = intersects[0].point, object = intersects[0].object;
-                        for (i = 0; i < 4; i++) {
+                        for (i = 0; i < 4; i++) { // loop through vertices
                             index = intersects[0].face[faces.charAt(i)];
-                            // get vertex and convert to world position
-                            vertex = object.matrixWorld.multiplyVector3(object.geometry.vertices[index].clone());
-                            if (vertex.distanceTo(point) < settings.snap_distance)
-                                vertex_sphere.position.copy(vertex), vertex_sphere.visible = true;
+                            vertex = object.geometry.vertices[index];
+                            vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
+                            if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
+                                vertex_sphere.position.copy(vertex);
+                                vertex_sphere.visible = true;
+                                if (xlines) surface_top_group.remove(xlines);
+                                if (zlines) surface_top_group.remove(zlines);
+                                (function () { // create vertex arrays for lines
+                                    var x, xfrom = index - (index % 20), xto = xfrom + 20, xvertices = [],
+                                        z, zfrom = index % 20, zto = 400 - (19 - zfrom), zvertices = [];
+                                    for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
+                                    for (z = zfrom; z < zto; z += 20) zvertices.push(object.geometry.vertices[z]);
+                                    xlines = surface.create_line(xvertices);
+                                    zlines = surface.create_line(zvertices);
+                                    surface_top_group.add(xlines);
+                                    surface_top_group.add(zlines);
+                                }());
+                            }
                         }
-                        // if (intersected != object) // mouse enter
                     } else { // not intersecting
-                        if (intersected) vertex_sphere.visible = false; // mouse out
-                        intersected = null;
+                        if (xlines) surface_top_group.remove(xlines);
+                        if (zlines) surface_top_group.remove(zlines);
                         vertex_sphere.visible = false;
+                        intersected = null;
                     }
                     renderer.render(scene, camera);
                 });
@@ -336,25 +371,23 @@ $.register_module({
                 keylight.position.set(-150, 150, 150).normalize();
                 filllight = new THREE.DirectionalLight(0xfffdf8, 0.6, 500);
                 filllight.position.set(150, 200, 150).normalize();
-                // setup actors & create scene
+                // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
-                group = new THREE.Object3D();
-                group.add(surface.create_surface());
-                group.add(surface.create_bottom_grid());
-                if (webgl) group.add(surface.create_axis({
-                    axis: 'x', spacing: adjusted_xs, labels: config.xs_labels || config.xs, label: config.xs_label
-                }));
-                if (webgl) group.add(surface.create_axis({
-                    axis: 'z', spacing: adjusted_zs, labels: config.zs_labels || config.zs, label: config.zs_label
-                }));
-                group.rotation.y = 0.7;
+                surface_top_group.add(surface.create_surface());
+                surface_top_group.add(vertex_sphere);
+                surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_bottom_group.add(surface.create_axes());
+                animation_group.add(surface_top_group);
+                animation_group.add(surface_bottom_group);
                 scene = new THREE.Scene();
-                scene.add(group);
+                scene.add(animation_group);
                 scene.add(backlight);
                 scene.add(keylight);
                 scene.add(filllight);
                 scene.add(camera);
-                scene.add(vertex_sphere);
+                // positions & rotations
+                surface_top_group.position.y = settings.floating_height;
+                animation_group.rotation.y = 0.7;
                 camera.position.x = 0;
                 camera.position.y = 125;
                 camera.position.z = 150;
@@ -370,7 +403,7 @@ $.register_module({
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
                     new THREE.SphereGeometry(1.5, 10, 10),
-                    new THREE.MeshLambertMaterial({color: 0xff0000, shading: THREE.FlatShading})
+                    new THREE.MeshLambertMaterial({color: settings.interactive_color, shading: THREE.FlatShading})
                 );
                 sphere.visible = false;
                 return sphere;
