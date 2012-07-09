@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.*;
@@ -43,7 +44,12 @@ public final class UnderlyingIdentifierCollector {
       public Void visitGovernmentBondSecurity(GovernmentBondSecurity security) {
         return null;
       }
-      
+
+      @Override
+      public Void visitCorporateBondSecurity(CorporateBondSecurity security) {
+        return null;
+      }
+
       @Override
       public Void visitAgricultureFutureSecurity(AgricultureFutureSecurity security) {
         return null;

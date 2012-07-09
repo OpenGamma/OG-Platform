@@ -56,7 +56,7 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
   protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbPositionMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
     _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
   }

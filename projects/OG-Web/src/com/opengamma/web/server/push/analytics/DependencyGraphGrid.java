@@ -46,13 +46,11 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                     ViewCycle cycle,
                                     AnalyticsHistory history,
                                     String gridId,
-                                    ComputationTargetResolver targetResolver,
-                                    ResultsFormatter formatter) {
+                                    ComputationTargetResolver targetResolver) {
     DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
                                                                                   target,
                                                                                   calcConfigName,
-                                                                                  targetResolver,
-                                                                                  formatter);
+                                                                                  targetResolver);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, gridId, cycle, history);
   }
 

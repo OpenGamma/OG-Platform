@@ -30,12 +30,11 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
 
   /**
    * @param databaseType
-   * @param databaseVersion
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public DbSecurityMasterDetailProviderRandomTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.info("running test for database={} version={}", databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+    s_logger.info("running test for database={}", databaseType);
   }
 
   /**

@@ -65,12 +65,11 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
   /**
    * @param databaseType
-   * @param databaseVersion
    */
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public BloombergSecurityLoaderTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.info("running testcases for {} version {}", databaseType, databaseVersion);
+    super(databaseType, databaseVersion, databaseVersion);
+    s_logger.info("running testcases for {}", databaseType);
   }
 
   @Override

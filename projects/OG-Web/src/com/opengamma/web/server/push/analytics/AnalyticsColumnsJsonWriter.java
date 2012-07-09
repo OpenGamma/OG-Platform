@@ -13,25 +13,24 @@ import org.json.JSONArray;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.conversion.ResultConverter;
-import com.opengamma.web.server.conversion.ResultConverterCache;
+import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 
 /**
  *
  */
 public class AnalyticsColumnsJsonWriter {
 
-  private final ResultConverterCache _converters;
+  private final ResultsFormatter _formatter;
 
-  public AnalyticsColumnsJsonWriter(ResultConverterCache converters) {
-    ArgumentChecker.notNull(converters, "converters");
-    _converters = converters;
+  public AnalyticsColumnsJsonWriter(ResultsFormatter formatter) {
+    ArgumentChecker.notNull(formatter, "converters");
+    _formatter = formatter;
   }
 
   /**
    * [{name: groupName, columns: [header: colHeader, description: colDescription]}, ...]
-   * @param columns Column groups to render to JSON.
-   * @return
+   * @param groups Column groups to render to JSON.
+   * @return groups as JSON
    */
   public String getJson(List<AnalyticsColumnGroup> groups) {
     List<Map<String, Object>> groupList = Lists.newArrayList();
@@ -45,10 +44,8 @@ public class AnalyticsColumnsJsonWriter {
         columnMap.put("description", column.getDescription());
         Class<?> columnType = column.getType();
         if (columnType != null) {
-          ResultConverter<?> converter = _converters.getConverterForType(columnType);
-          if (converter != null) {
-            columnMap.put("type", converter.getFormatterName());
-          }
+          String type = _formatter.getFormatName(columnType);
+          columnMap.put("type", type);
         }
         columnList.add(columnMap);
       }

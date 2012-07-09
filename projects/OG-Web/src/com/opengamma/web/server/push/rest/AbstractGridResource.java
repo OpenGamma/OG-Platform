@@ -66,8 +66,9 @@ public abstract class AbstractGridResource {
   @Path("viewports")
   public Response createViewport(@Context UriInfo uriInfo,
                                  @FormParam("rows") List<Integer> rows,
-                                 @FormParam("columns") List<Integer> columns) {
-    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns);
+                                 @FormParam("columns") List<Integer> columns,
+                                 @FormParam("expanded") boolean expanded) {
+    ViewportSpecification viewportSpecification = new ViewportSpecification(rows, columns, expanded);
     String viewportId = Long.toString(s_nextId.getAndIncrement());
     URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportId).build();
     URI dataUri = uriInfo.getAbsolutePathBuilder().path(viewportId).path(AbstractViewportResource.class, "getData").build();

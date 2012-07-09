@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,29 +26,25 @@ import com.opengamma.util.ArgumentChecker;
 public class MainGridViewport extends AnalyticsViewport {
 
   private final MainGridStructure _gridStructure;
-  private final ResultsFormatter _formatter;
 
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
                    String dataId,
                    ViewComputationResultModel latestResults,
-                   AnalyticsHistory history,
-                   ResultsFormatter formatter) {
+                   AnalyticsHistory history) {
     super(dataId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
-    ArgumentChecker.notNull(formatter, "formatter");
-    _formatter = formatter;
     _gridStructure = gridStructure;
     update(viewportSpec, latestResults, history);
   }
 
   /* package */ boolean updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
-    List<List<Object>> allResults = new ArrayList<List<Object>>();
+    List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
     boolean columnsUpdated = false;
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
-      Map<Integer, Object> rowResultsMap = new TreeMap<Integer, Object>();
+      Map<Integer, ViewportResults.Cell> rowResultsMap = new TreeMap<Integer, ViewportResults.Cell>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
       if (targetResult != null) {
         for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
@@ -57,21 +54,21 @@ public class MainGridViewport extends AnalyticsViewport {
                 _gridStructure.getRequirementsForSpecification(calcConfigName, valueSpec);
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
-              // TODO something needs to flag if the structure has changed (i.e. if the type wasn't known before)
               boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, value.getClass());
               columnsUpdated = columnsUpdated || columnUpdated;
               if (_viewportSpec.getColumns().contains(colIndex)) {
-                Object formattedValue = _formatter.formatValueForDisplay(value.getValue(), valueSpec);
-                rowResultsMap.put(colIndex, formattedValue);
+                Object valueHistory = history.getHistory(valueSpec);
+                ViewportResults.Cell cell = ViewportResults.valueCell(value.getValue(), valueSpec, valueHistory);
+                rowResultsMap.put(colIndex, cell);
               }
             }
           }
         }
       }
       String rowName = row.getName();
-      List<Object> rowResults = new ArrayList<Object>(_viewportSpec.getColumns().size() + 1);
+      List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
       // row label always goes in the first column
-      rowResults.add(rowName);
+      rowResults.add(ViewportResults.stringCell(rowName));
       for (int colIndex = 1; colIndex < _gridStructure.getColumnCount(); colIndex++) {
         if (_viewportSpec.getColumns().contains(colIndex)) {
           // this intentionally inserts null into the results if there is no value for a given column
@@ -80,7 +77,7 @@ public class MainGridViewport extends AnalyticsViewport {
       }
       allResults.add(rowResults);
     }
-    _latestResults = new ViewportResults(allResults);
+    _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
     return columnsUpdated;
   }
 
