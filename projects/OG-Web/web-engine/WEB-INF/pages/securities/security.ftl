@@ -83,7 +83,7 @@
         <@rowout label="Trading exchange">${security.tradingExchange}</@rowout>
         <@rowout label="Settlement exchange">${security.settlementExchange}</@rowout>
         <@rowout label="Redemption value">${security.currency}</@rowout>
-        
+        <@rowout label="Unit Amount">${security.unitAmount}</@rowout>
         <#if futureSecurityType == "BondFuture">
             <@rowout label="First delivery date">${security.firstDeliveryDate}</@rowout>
             <@rowout label="Last delivery date">${security.lastDeliveryDate}</@rowout>

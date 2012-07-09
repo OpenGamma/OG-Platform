@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
@@ -80,6 +81,8 @@ public class EquityIndexOptionDefaultPropertiesFunction extends DefaultPropertyF
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return (target.getSecurity() instanceof EquityIndexOptionSecurity);
+
+    return (target.getSecurity() instanceof EquityIndexOptionSecurity) ||
+      target.getSecurity() instanceof EquityBarrierOptionSecurity;
   }
 }

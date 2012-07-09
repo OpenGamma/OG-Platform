@@ -84,6 +84,14 @@ public class ViewsResource {
         .path(viewId)
         .path(ViewResource.class, "getPrimitivesGrid")
         .path(AbstractGridResource.class, "getGridStructure").build();
+    URI portfolioColumnsUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPortfolioGrid")
+        .path(AbstractGridResource.class, "getColumnStructure").build();
+    URI primitivesColumnsUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPrimitivesGrid")
+        .path(AbstractGridResource.class, "getColumnStructure").build();
     // TODO this is very obviously wrong - where can I get the user?
     UserPrincipal user = UserPrincipal.getTestUser();
     String userName = null;
@@ -94,7 +102,9 @@ public class ViewsResource {
                             listener,
                             viewId,
                             portfolioGridUri.getPath(),
-                            primitivesGridUri.getPath());
+                            portfolioColumnsUri.getPath(),
+                            primitivesGridUri.getPath(),
+                            primitivesColumnsUri.getPath());
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     return Response.status(Response.Status.CREATED).header(HttpHeaders.LOCATION, uri).build();
   }

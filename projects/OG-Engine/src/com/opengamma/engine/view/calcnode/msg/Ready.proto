@@ -14,6 +14,12 @@ namespace com.opengamma.engine.view.calcnode.msg {
      * without waiting for earlier ones to complete.
      */
     required int capacity;
+    
+    /**
+     * Handshake address of the remote host process. This is to allow host specific blacklists to
+     * be applied and meaningful diagnostic messages. 
+     */
+    required string hostId;
   
     binding Java {
       body "public void accept (RemoteCalcNodeMessageVisitor visitor) { visitor.visitReadyMessage (this); }";

@@ -11,7 +11,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.UniformInterface;
 
 /**
  * Abstract base class for remote clients that communicate over REST.
@@ -73,7 +73,7 @@ public abstract class AbstractRemoteClient {
    * @param uri  the URI to call, not null
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
-  protected Builder accessRemote(URI uri) {
+  protected UniformInterface accessRemote(URI uri) {
     return getRestClient().accessFudge(uri);
   }
 

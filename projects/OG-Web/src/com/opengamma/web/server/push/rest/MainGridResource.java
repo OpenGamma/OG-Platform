@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -24,7 +25,7 @@ public class MainGridResource extends AbstractGridResource implements Dependency
   }
 
   @Override
-  public Object getGridStructure() {
+  public GridStructure getGridStructure() {
     return _view.getGridStructure(_gridType);
   }
 

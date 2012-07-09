@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.equity.variance.pricing.ShiftedLognormalVolModel;
+import com.opengamma.analytics.financial.equity.variance.pricing.DisplacedDiffusionModel;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -34,7 +34,7 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 /**
  * 
  */
-public class ShiftedLognormalVolModelTest {
+public class DisplacedDiffusionModelTest {
 
   // -------------------------------- SETUP ------------------------------------------
 
@@ -99,7 +99,7 @@ public class ShiftedLognormalVolModelTest {
     final double delta2 = 0.5;
     final double vol2 = DELTA_VOLSURFACE.getVolatility(expiry1, delta2);
     final double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
-    final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry1, strike1, vol1, strike2, vol2);
+    final DisplacedDiffusionModel logBlack = new DisplacedDiffusionModel(forward, expiry1, strike1, vol1, strike2, vol2);
 
     assertEquals(logBlack.getVol(), 0.25, 1e-9);
     assertEquals(logBlack.getShift(), 0.0, 1e-9);
@@ -115,7 +115,7 @@ public class ShiftedLognormalVolModelTest {
     final double delta2 = 0.5;
     final double vol2 = constVolSurf.getVolatility(expiry1, delta2);
     final double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
-    final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry1, strike1, vol1, strike2, vol2);
+    final DisplacedDiffusionModel logBlack = new DisplacedDiffusionModel(forward, expiry1, strike1, vol1, strike2, vol2);
 
     assertEquals(logBlack.getVol(), 0.25, 1e-9);
     assertEquals(logBlack.getShift(), 0.0, 1e-9);
@@ -127,13 +127,13 @@ public class ShiftedLognormalVolModelTest {
     final VectorRootFinder testSolver = new BroydenVectorRootFinder(1.0e-6, 1.0e-6, 50000);
     final double vol1 = STRIKE_VOLSURFACE.getVolatility(expiry5, 40);
     final double vol2 = STRIKE_VOLSURFACE.getVolatility(expiry5, 41);
-    final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry5, 40, vol1, 41, vol2, 0.26, 0.01, testSolver);
+    final DisplacedDiffusionModel logBlack = new DisplacedDiffusionModel(forward, expiry5, 40, vol1, 41, vol2, 0.26, 0.01, testSolver);
 
     //TODO really - more magic numbers
     assertEquals(0.21148605807417542, logBlack.getVol(), 1e-8);
     assertEquals(8.183093915461424, logBlack.getShift(), 1e-8);
 
-    final ShiftedLognormalVolModel logBlackDef = new ShiftedLognormalVolModel(forward, expiry5, 40, vol1, 41, vol2);
+    final DisplacedDiffusionModel logBlackDef = new DisplacedDiffusionModel(forward, expiry5, 40, vol1, 41, vol2);
     assertEquals(logBlackDef.getVol(), logBlack.getVol(), 1e-8);
     assertEquals(logBlackDef.getShift(), logBlack.getShift(), 1e-8);
 
@@ -160,7 +160,7 @@ public class ShiftedLognormalVolModelTest {
     final double forward = FORWARD_CURVE.getForward(expiry5);
     final double vol1 = volSurface.getVolatility(expiry5, 40);
     final double vol2 = volSurface.getVolatility(expiry5, 41);
-    final ShiftedLognormalVolModel logBlackDef = new ShiftedLognormalVolModel(forward, expiry5, 40, vol1, 41, vol2);
+    final DisplacedDiffusionModel logBlackDef = new DisplacedDiffusionModel(forward, expiry5, 40, vol1, 41, vol2);
     assertEquals(sigma, logBlackDef.getVol(), 1e-8);
     assertEquals(displacement, logBlackDef.getShift(), 1e-6);
   }

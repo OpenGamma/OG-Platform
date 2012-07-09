@@ -43,9 +43,9 @@ public abstract class AbstractJobInvoker implements JobInvoker {
   }
 
   /**
-   * Default implementation that does nothing.
+   * Default implementation that does nothing
    * 
-   * @param jobs  the jobs to cancel, not null
+   * @param jobs the jobs to cancel, ignored
    */
   @Override
   public void cancel(final Collection<CalculationJobSpecification> jobs) {
@@ -53,13 +53,34 @@ public abstract class AbstractJobInvoker implements JobInvoker {
   }
 
   /**
-   * Default implementation of alive always returning true.
+   * Default implementation that does nothing.
    * 
-   * @param jobs  the jobs to query, ignored
+   * @param job the jobs to cancel, ignored
+   */
+  @Override
+  public void cancel(CalculationJobSpecification job) {
+    // do nothing
+  }
+
+  /**
+   * Default implementation that always returns true.
+   * 
+   * @param jobs the jobs to query, ignored
    * @return true always
    */
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
+    return true;
+  }
+
+  /**
+   * Defaults implementation that always returns true.
+   * 
+   * @param job the job to query, ignored
+   * @return true always
+   */
+  @Override
+  public boolean isAlive(final CalculationJobSpecification job) {
     return true;
   }
 

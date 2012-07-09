@@ -22,7 +22,11 @@ import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
 public final class CalculationJobResultItem implements IdentifierEncodedValueSpecifications {
 
   private static final String MISSING_INPUTS_FAILURE_CLASS = "com.opengamma.engine.view.calcnode.MissingInputException";
+  private static final String EXECUTION_SUPPRESSED_CLASS = "com.opengamma.engine.view.calcnode.ExecutionSuppressedException";
+
   private static final CalculationJobResultItem SUCCESS = new CalculationJobResultItem(null, null, null, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
+  private static final CalculationJobResultItem SUPPRESSED = new CalculationJobResultItem(EXECUTION_SUPPRESSED_CLASS, "Unable to execute because of function blacklisting entry", null,
+      Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet());
 
   private final String _exceptionClass;
   private final String _exceptionMsg;
@@ -62,6 +66,10 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
         Collections.<ValueSpecification>emptySet());
   }
 
+  public static CalculationJobResultItem suppressed() {
+    return SUPPRESSED;
+  }
+
   public static CalculationJobResultItem partialInputs(final Set<ValueSpecification> missingInputs) {
     return new CalculationJobResultItem(null, null, null, missingInputs, Collections.<ValueSpecification>emptySet());
   }
@@ -94,7 +102,7 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     _missingOutputIdentifiers = missingOutputIdentifiers;
   }
 
-  public boolean failed() {
+  public boolean isFailed() {
     return _exceptionClass != null;
   }
 
@@ -102,6 +110,8 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     if (_exceptionClass != null) {
       if (MISSING_INPUTS_FAILURE_CLASS.equals(_exceptionClass)) {
         return InvocationResult.MISSING_INPUTS;
+      } else if (EXECUTION_SUPPRESSED_CLASS.equals(_exceptionClass)) {
+        return InvocationResult.SUPPRESSED;
       } else {
         return InvocationResult.FUNCTION_THREW_EXCEPTION;
       }

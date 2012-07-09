@@ -29,7 +29,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
 /**
  *
  */
-/* package */ abstract class MainGridStructure implements GridBounds {
+/* package */ abstract class MainGridStructure implements GridStructure {
 
   private static final Set<ValueRequirement> NO_MAPPINGS = ImmutableSet.of();
 
@@ -115,6 +115,18 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   }
 
   /**
+   * This is nasty but necessary. The type of the columns isn't known when the view compiles as engine functions
+   * don't declare what type they produce. The only way to find out is to wait for the first set of results to
+   * arrive and then lazily initialize the column types.
+   * @param colIndex Column index
+   * @param type Type of the values displayed in the column
+   * @return {@code true} if the type was updated
+   */
+  /* package */ boolean setTypeForColumn(int colIndex, Class<?> type) {
+    return _columnGroups.getColumn(colIndex).setType(type);
+  }
+
+  /**
    *
    * @param rowIndex
    * @param colIndex
@@ -138,8 +150,9 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     return Pair.of(valueSpec, calcConfigName);
   }
 
-  public List<AnalyticsColumnGroup> getColumnGroups() {
-    return _columnGroups.getGroups();
+  @Override
+  public AnalyticsColumnGroups getColumnStructure() {
+    return _columnGroups;
   }
 
   @Override

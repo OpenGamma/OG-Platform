@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
 import com.opengamma.web.server.push.analytics.PrimitivesGridStructure;
@@ -27,6 +28,13 @@ import com.opengamma.web.server.push.analytics.PrimitivesGridStructure;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class PrimitivesGridStructureMessageBodyWriter implements MessageBodyWriter<PrimitivesGridStructure> {
+
+  private final AnalyticsColumnsJsonWriter _writer;
+
+  public PrimitivesGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+    ArgumentChecker.notNull(writer, "writer");
+    _writer = writer;
+  }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -51,7 +59,7 @@ public class PrimitivesGridStructureMessageBodyWriter implements MessageBodyWrit
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String columnsJson = AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumnGroups());
+    String columnsJson = _writer.getJson(gridStructure.getColumnStructure().getGroups());
     entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rowCount\":" + gridStructure.getRowCount() + "}").getBytes());
   }
 }

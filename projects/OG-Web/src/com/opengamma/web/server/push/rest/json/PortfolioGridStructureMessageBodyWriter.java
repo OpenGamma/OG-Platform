@@ -17,6 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.server.push.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
@@ -27,6 +28,13 @@ import com.opengamma.web.server.push.analytics.PortfolioGridStructure;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWriter<PortfolioGridStructure> {
+
+  private final AnalyticsColumnsJsonWriter _writer;
+
+  public PortfolioGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+    ArgumentChecker.notNull(writer, "writer");
+    _writer = writer;
+  }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -56,7 +64,7 @@ public class PortfolioGridStructureMessageBodyWriter implements MessageBodyWrite
         "\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 
-  private static String columnsJson(PortfolioGridStructure gridStructure) {
-    return AnalyticsColumnsJsonWriter.getJson(gridStructure.getColumnGroups());
+  private String columnsJson(PortfolioGridStructure gridStructure) {
+    return _writer.getJson(gridStructure.getColumnStructure().getGroups());
   }
 }

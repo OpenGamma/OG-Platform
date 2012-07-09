@@ -9,21 +9,20 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 public class AnalyticsColumnGroups {
 
-  private final int _columnCount;
+  private final List<AnalyticsColumn> _columns = Lists.newArrayList();
   private final List<AnalyticsColumnGroup> _columnGroups;
 
   /* package */ AnalyticsColumnGroups(List<AnalyticsColumnGroup> columnGroups) {
     ArgumentChecker.notNull(columnGroups, "columnGroups");
     ArgumentChecker.notNull(columnGroups, "columnGroups");
-    int columnCount = 0;
     for (AnalyticsColumnGroup group : columnGroups) {
-      columnCount += group.getColumnCount();
+      _columns.addAll(group.getColumns());
     }
-    _columnCount = columnCount;
     _columnGroups = ImmutableList.copyOf(columnGroups);
   }
 
@@ -33,7 +32,11 @@ public class AnalyticsColumnGroups {
   }
 
   /* package */ int getColumnCount() {
-    return _columnCount;
+    return _columns.size();
+  }
+
+  /* package */ AnalyticsColumn getColumn(int index) {
+    return _columns.get(index);
   }
 
   public List<AnalyticsColumnGroup> getGroups() {

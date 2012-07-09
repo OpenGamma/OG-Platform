@@ -29,7 +29,7 @@ public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFuncti
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, EquityOptionDataBundle market) {
+  protected Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();

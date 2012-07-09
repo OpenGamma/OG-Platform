@@ -15,7 +15,10 @@ import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- *
+ * TODO the converters are JSON-specific. that's a bit ugly seeing as none of the other code cares about JSON
+ * conversion is handled at the last minute by Jersey. it would be nice if this class were used there rather than
+ * in the heart of the system. viewportResults would have to include the value, valueSpec and history. valueSpec
+ * is required by the converters
  */
 public class ResultsFormatter {
 

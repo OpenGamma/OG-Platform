@@ -17,9 +17,10 @@ import com.opengamma.util.ArgumentChecker;
 public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> {
 
   private final String _calcConfigName;
+  private final DependencyGraphGridStructure _gridStructure;
+
   private ViewCycle _latestCycle;
   private AnalyticsHistory _history;
-  private final DependencyGraphGridStructure _gridStructure;
 
   protected DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
                                 String calcConfigName,

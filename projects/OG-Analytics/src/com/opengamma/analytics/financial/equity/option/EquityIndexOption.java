@@ -10,7 +10,6 @@ import com.opengamma.analytics.financial.equity.EquityDerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * OG-Analytics derivative of the exchange traded Equity Index Option
@@ -30,7 +29,7 @@ public class EquityIndexOption implements EquityDerivative {
    * @param strike         Set strike price at trade time. Note that we may handle margin by resetting this at the end of each trading day
    * @param isCall         True if the option is a Call, false if it is a Put.
    * @param currency       The reporting currency of the future
-   *  @param unitAmount    The unit value per tick, in given currency  
+   *  @param unitAmount    The unit value per tick, in given currency. A negative value may represent a short position  
    */
   public EquityIndexOption(final double timeToExpiry,
                         final double timeToSettlement,
@@ -38,7 +37,6 @@ public class EquityIndexOption implements EquityDerivative {
                         final boolean isCall,
                         final Currency currency,
                         final double unitAmount) {
-    Validate.isTrue(unitAmount > 0, "point value must be positive");
     _timeToExpiry = timeToExpiry;
     _timeToSettlement = timeToSettlement;
     _strike = strike;

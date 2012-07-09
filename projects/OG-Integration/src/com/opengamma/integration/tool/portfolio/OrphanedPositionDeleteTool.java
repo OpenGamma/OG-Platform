@@ -11,10 +11,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.component.factory.tool.RemoteComponentFactoryToolContextAdapter;
 import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.util.generate.scripts.Scriptable;
 
 /**
  * Tool to delete positions that are not currently in a portfolio
  */
+@Scriptable
 public class OrphanedPositionDeleteTool extends AbstractComponentTool {
   
   private static final Logger s_logger = LoggerFactory.getLogger(OrphanedPositionDeleteTool.class);

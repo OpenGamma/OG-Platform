@@ -17,7 +17,7 @@ import com.opengamma.id.UniqueId;
  * Providers of jobs pass over a full {@link CalculationJob}, and the
  * specification of that job is returned by the Calculation Node.
  */
-public class CalculationJobSpecification {
+public final class CalculationJobSpecification {
   
   /**
    * The cycle identifier.
@@ -36,7 +36,7 @@ public class CalculationJobSpecification {
    */
   private final long _jobId;
   
-  public CalculationJobSpecification(UniqueId viewCycleId, String calcConfigName, Instant valuationTime, long jobId) {
+  public CalculationJobSpecification(final UniqueId viewCycleId, final String calcConfigName, final Instant valuationTime, final long jobId) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _viewCycleId = viewCycleId;
     _calcConfigName = calcConfigName;
@@ -44,6 +44,10 @@ public class CalculationJobSpecification {
     _jobId = jobId;
   }
   
+  public CalculationJobSpecification withJobId(final long jobId) {
+    return new CalculationJobSpecification(getViewCycleId(), getCalcConfigName(), getValuationTime(), jobId);
+  }
+
   /**
    * @return the unique identifier of the view cycle
    */

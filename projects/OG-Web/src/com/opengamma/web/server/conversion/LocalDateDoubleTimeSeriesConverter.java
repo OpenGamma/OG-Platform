@@ -20,8 +20,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries
  */
 public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<LocalDateDoubleTimeSeries> {
 
-  @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries value, ConversionMode mode) {
+  /* package */static Object convertForDisplayImpl(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries value, ConversionMode mode) {
     Map<String, Object> result = new HashMap<String, Object>();
     Map<String, Object> summary = ImmutableMap.<String, Object>of(
         "from", value.getEarliestTime().toLocalDate().toString(),
@@ -45,6 +44,11 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
       result.put("ts", ts);
     }
     return result;
+  }
+
+  @Override
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, LocalDateDoubleTimeSeries value, ConversionMode mode) {
+    return convertForDisplayImpl(context, valueSpec, value, mode);
   }
 
   @Override

@@ -69,6 +69,8 @@ public interface JobInvoker {
    */
   void cancel(Collection<CalculationJobSpecification> jobs);
 
+  void cancel(CalculationJobSpecification job);
+
   /**
    * Queries the status of jobs on the invoker.
    * <p>
@@ -83,5 +85,7 @@ public interface JobInvoker {
    * asynchronously.
    */
   boolean isAlive(Collection<CalculationJobSpecification> jobs);
+
+  boolean isAlive(CalculationJobSpecification job);
 
 }

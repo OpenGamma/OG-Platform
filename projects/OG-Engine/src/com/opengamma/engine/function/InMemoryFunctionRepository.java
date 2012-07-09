@@ -7,8 +7,11 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.time.InstantProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,32 +29,81 @@ public class InMemoryFunctionRepository implements FunctionRepository {
 
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryFunctionRepository.class);
 
-  private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
+  private final Map<String, FunctionDefinition> _functions = new HashMap<String, FunctionDefinition>();
+  private final AtomicInteger _nextIdentifier = new AtomicInteger();
 
   public InMemoryFunctionRepository() {
   }
 
-  public synchronized void addFunction(AbstractFunction function) {
-    ArgumentChecker.notNull(function, "Function definition");
-    if (function.getUniqueId() == null) {
-      function.setUniqueId(Integer.toString(_functions.size() + 1) + " (" + function.getShortName() + ")");
+  private static final class IdentifiedFunction implements FunctionDefinition {
+
+    private final FunctionDefinition _underlying;
+    private final String _id;
+
+    public IdentifiedFunction(final FunctionDefinition underlying, final String id) {
+      _underlying = underlying;
+      _id = id;
     }
-    _functions.add(function);
+
+    @Override
+    public void init(final FunctionCompilationContext context) {
+      _underlying.init(context);
+    }
+
+    @Override
+    public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+      return _underlying.compile(context, atInstant);
+    }
+
+    @Override
+    public String getUniqueId() {
+      return _id;
+    }
+
+    @Override
+    public String getShortName() {
+      return _underlying.getShortName();
+    }
+
+    @Override
+    public FunctionParameters getDefaultParameters() {
+      return _underlying.getDefaultParameters();
+    }
+
   }
 
-  public synchronized void replaceFunction(FunctionDefinition searchFor, AbstractFunction replaceWith) {
-    ArgumentChecker.notNull(searchFor, "searchFor");
-    ArgumentChecker.notNull(replaceWith, "replaceWith");
-    _functions.remove(searchFor);
-    if (replaceWith.getUniqueId() == null) {
-      replaceWith.setUniqueId(searchFor.getUniqueId());
+  private String createId(final String shortName) {
+    String id;
+    do {
+      id = new StringBuilder().append(_nextIdentifier.getAndIncrement()).append(" (").append(shortName).append(")").toString();
+    } while (_functions.containsKey(id));
+    return id;
+  }
+
+  public synchronized void addFunction(FunctionDefinition function) {
+    ArgumentChecker.notNull(function, "Function definition");
+    if (function.getUniqueId() == null) {
+      if (function instanceof AbstractFunction) {
+        ((AbstractFunction) function).setUniqueId(createId(function.getShortName()));
+      } else {
+        function = new IdentifiedFunction(function, createId(function.getShortName()));
+      }
+    } else if (_functions.containsKey(function.getUniqueId())) {
+      function = new IdentifiedFunction(function, createId(function.getShortName()));
     }
-    _functions.add(replaceWith);
+    _functions.put(function.getUniqueId(), function);
+  }
+
+  public synchronized void replaceFunction(String functionIdentifier, FunctionDefinition function) {
+    ArgumentChecker.notNull(functionIdentifier, "functionIdentifier");
+    ArgumentChecker.notNull(function, "function");
+    _functions.remove(functionIdentifier);
+    addFunction(function);
   }
 
   @Override
   public Collection<FunctionDefinition> getAllFunctions() {
-    return Collections.unmodifiableCollection(_functions);
+    return Collections.unmodifiableCollection(_functions.values());
   }
 
   /**
@@ -62,7 +114,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    */
   public void initFunctions(FunctionCompilationContext compilationContext) {
     compilationContext.setFunctionReinitializer(new DummyFunctionReinitializer());
-    for (FunctionDefinition function : _functions) {
+    for (FunctionDefinition function : _functions.values()) {
       try {
         function.init(compilationContext);
       } catch (Throwable t) {

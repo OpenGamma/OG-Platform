@@ -5,19 +5,14 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.Collections;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.util.ArgumentChecker;
-
 /**
  *
  */
-public interface GridBounds {
+public interface GridStructure {
 
   int getRowCount();
 
   int getColumnCount();
+
+  AnalyticsColumnGroups getColumnStructure();
 }

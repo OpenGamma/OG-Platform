@@ -115,14 +115,14 @@ public class LocalNodeJobInvoker extends SimpleCalculationNodeInvocationContaine
   @Override
   public void cancel(final Collection<CalculationJobSpecification> jobs) {
     for (CalculationJobSpecification job : jobs) {
-      cancelJob(job);
+      cancel(job);
     }
   }
 
   @Override
   public boolean isAlive(final Collection<CalculationJobSpecification> jobs) {
     for (CalculationJobSpecification job : jobs) {
-      if (!isJobAlive(job)) {
+      if (!isAlive(job)) {
         return false;
       }
     }

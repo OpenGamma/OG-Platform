@@ -81,6 +81,14 @@ public final class ValueRequirementNames {
    * The market price of the underlying security in a compound security, such as an option
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
+  /**
+   * The historical time series of a quantity.
+   */
+  public static final String HISTORICAL_TIME_SERIES = "Historical Time Series";
+  /**
+   * The latest point from a historical time series of a quantity.
+   */
+  public static final String HISTORICAL_TIME_SERIES_LATEST = "Historical Time Series (latest value)";
 
   ///// Curves
 
@@ -100,6 +108,14 @@ public final class ValueRequirementNames {
    * Curve containing (time, rate) pairs.
    */
   public static final String YIELD_CURVE = "YieldCurve";
+  /**
+   * The bundle of historical time series objects for instruments on a curve.
+   */
+  public static final String YIELD_CURVE_HISTORICAL_TIME_SERIES = "Yield Curve Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
+   */
+  public static final String YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Instrument Conversion Historical Time Series";
   /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (ie no settlement day corrections, ignoring the type of instrument etc).
    */
@@ -136,6 +152,7 @@ public final class ValueRequirementNames {
    * FX forward curve property metadata
    */
   public static final String FX_FORWARD_CURVE_SPEC = "FXForwardCurveSpec";
+
   ///// Surfaces
 
   /**

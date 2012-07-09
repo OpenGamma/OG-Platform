@@ -158,6 +158,11 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(getFittedDataRequirement(ccy, surfaceName));
+    final Set<ValueRequirement> timeSeriesRequirements = getTimeSeriesRequirements(target, fundingCurveName, forwardCurveName);
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

@@ -14,15 +14,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.push.analytics.AnalyticsColumnGroups;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
+import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -54,8 +54,13 @@ public abstract class AbstractGridResource {
    */
   @GET
   @Path("grid")
-  @Produces(MediaType.APPLICATION_JSON)
-  public abstract Object getGridStructure();
+  public abstract GridStructure getGridStructure();
+
+  @GET
+  @Path("columns")
+  public AnalyticsColumnGroups getColumnStructure() {
+    return getGridStructure().getColumnStructure();
+  }
 
   @POST
   @Path("viewports")

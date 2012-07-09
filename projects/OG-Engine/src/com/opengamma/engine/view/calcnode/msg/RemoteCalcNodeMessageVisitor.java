@@ -13,10 +13,6 @@ public abstract class RemoteCalcNodeMessageVisitor {
 
   protected abstract void visitUnexpectedMessage(RemoteCalcNodeMessage message);
 
-  protected void visitBusyMessage(Busy message) {
-    visitUnexpectedMessage(message);
-  }
-
   protected void visitCancelMessage(Cancel message) {
     visitUnexpectedMessage(message);
   }

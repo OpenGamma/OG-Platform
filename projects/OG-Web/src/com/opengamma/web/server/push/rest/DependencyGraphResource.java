@@ -8,7 +8,7 @@ package com.opengamma.web.server.push.rest;
 import javax.ws.rs.DELETE;
 
 import com.opengamma.web.server.push.analytics.AnalyticsView;
-import com.opengamma.web.server.push.analytics.DependencyGraphGridStructure;
+import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
 
 /**
@@ -29,7 +29,7 @@ public class DependencyGraphResource extends AbstractGridResource {
   }
 
   @Override
-  public Object getGridStructure() {
+  public GridStructure getGridStructure() {
     return _view.getGridStructure(_gridType, _graphId);
   }
 

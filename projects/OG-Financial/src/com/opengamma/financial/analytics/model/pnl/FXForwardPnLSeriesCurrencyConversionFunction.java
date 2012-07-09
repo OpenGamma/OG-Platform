@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -30,7 +29,7 @@ public class FXForwardPnLSeriesCurrencyConversionFunction extends PnlSeriesCurre
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION && target.getPositionOrTrade().getSecurity() instanceof FXForwardSecurity;
+    return super.canApplyTo(context, target) && (target.getPositionOrTrade().getSecurity() instanceof FXForwardSecurity);
   }
 
   @Override

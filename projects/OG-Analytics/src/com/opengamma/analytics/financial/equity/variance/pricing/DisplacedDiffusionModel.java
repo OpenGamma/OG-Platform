@@ -12,16 +12,18 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
-import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.rootfinding.VectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.CompareUtils;
 
 /**
- * 
+ * This is a model where the SDE for the forward are $\frac{df}{f+\alpha}=\sigma_{\alpha} dW$, that is, the forward, $f$, plus some displacement, $\alpha$, follow a geometric 
+ * Brownian motion (GBM). European option can be priced using the Black formula with forward $f \rightarrow f +\alpha$ and strike $k \rightarrow k + \alpha$ <p>
+ * <b> This should not be confused with Shifted Log-Normal</b> (see ShiftedLogNormalTailExtrapolation)
  */
-public class ShiftedLognormalVolModel {
+public class DisplacedDiffusionModel {
   private double _forward;
   private double _expiry;
   private double _vol;
@@ -42,7 +44,7 @@ public class ShiftedLognormalVolModel {
    * @param lognormalVol annual lognormal (black) vol
    * @param shift absolute level of the shift applied to the forward and strike. A positive value shifts distribution left.
    */
-  public ShiftedLognormalVolModel(final double forward, final double expiry, final double lognormalVol, final double shift) {
+  public DisplacedDiffusionModel(final double forward, final double expiry, final double lognormalVol, final double shift) {
 
     _forward = forward;
     _expiry = expiry;
@@ -63,7 +65,7 @@ public class ShiftedLognormalVolModel {
    * @param shiftGuess initial guess for the model's shift, as absolute level
    * @param solver VectorRootFinder
    */
-  public ShiftedLognormalVolModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2,
+  public DisplacedDiffusionModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2,
       final double volGuess, final double shiftGuess, final VectorRootFinder solver) {
 
     _forward = forward;
@@ -79,12 +81,12 @@ public class ShiftedLognormalVolModel {
 
   }
 
-  public ShiftedLognormalVolModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
+  public DisplacedDiffusionModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
     this(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
-  public ShiftedLognormalVolModel from(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
-    return new ShiftedLognormalVolModel(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
+  public DisplacedDiffusionModel from(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2) {
+    return new DisplacedDiffusionModel(forward, expiry, targetStrike1, targetVol1, targetStrike2, targetVol2, DEF_GUESS_VOL, DEF_GUESS_SHIFT, DEF_SOLVER);
   }
 
   private DoubleMatrix1D fitShiftedLnParams(
@@ -257,10 +259,10 @@ public class ShiftedLognormalVolModel {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof ShiftedLognormalVolModel)) {
+    if (!(obj instanceof DisplacedDiffusionModel)) {
       return false;
     }
-    final ShiftedLognormalVolModel other = (ShiftedLognormalVolModel) obj;
+    final DisplacedDiffusionModel other = (DisplacedDiffusionModel) obj;
 
     if (Double.doubleToLongBits(_expiry) != Double.doubleToLongBits(other._expiry)) {
       return false;

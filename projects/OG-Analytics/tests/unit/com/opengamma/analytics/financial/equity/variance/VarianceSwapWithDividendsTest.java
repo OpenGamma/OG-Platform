@@ -16,15 +16,19 @@ import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceS
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapMonteCarloCalculator;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapPureMonteCarloCalculator;
 import com.opengamma.analytics.financial.equity.variance.pricing.VolatilitySurfaceConverter;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.local.PureLocalVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
  * 
@@ -84,38 +88,72 @@ public class VarianceSwapWithDividendsTest {
 
   @Test
   public void proportionalOnlyTest() {
-    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6};
+    double[] tau = new double[] {EXPIRY - 0.5, EXPIRY + 0.1, EXPIRY + 0.6 };
     double[] alpha = new double[3];
-    double[] beta = new double[] {0.1, 0.1, 0.1};
+    double[] beta = new double[] {0.1, 0.1, 0.1 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAfterExpiryTest() {
-    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6};
-    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT};
-    double[] beta = new double[] {0.02, 0.02};
+    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
+    double[] alpha = new double[] {0.02 * SPOT, 0.02 * SPOT };
+    double[] beta = new double[] {0.02, 0.02 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsBeforeExpiryTest() {
-    double[] tau = new double[] {0.85, 1.2};
-    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT};
-    double[] beta = new double[] {0.1, 0.2};
+    double[] tau = new double[] {0.85, 1.2 };
+    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
+    double[] beta = new double[] {0.1, 0.2 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
   }
 
   @Test
   public void dividendsAtExpiryTest() {
-    double[] tau = new double[] {1.2, EXPIRY};
-    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT};
-    double[] beta = new double[] {0.1, 0.2};
+    double[] tau = new double[] {1.2, EXPIRY };
+    double[] alpha = new double[] {0.2 * SPOT, 0.1 * SPOT };
+    double[] beta = new double[] {0.1, 0.2 };
     AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
+  }
+
+  @Test
+  public void testMixedLogNormalVolSurface() {
+
+    double[] tau = new double[0];
+    double[] alpha = new double[0];
+    double[] beta = new double[0];
+    AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final ForwardCurve fwdCurve = new ForwardCurve(SPOT, DRIFT);
+
+    final double sigma1 = 0.2;
+    final double sigma2 = 1.0;
+    final double w = 0.9;
+
+    final Function<Double, Double> surf = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        final double k = x[1];
+        @SuppressWarnings("synthetic-access")
+        final double fwd = fwdCurve.getForward(t);
+        final boolean isCall = k > fwd;
+        final double price = w * BlackFormulaRepository.price(fwd, k, t, sigma1, isCall) + (1 - w) * BlackFormulaRepository.price(fwd, k, t, sigma2, isCall);
+        return BlackFormulaRepository.impliedVolatility(price, fwd, k, t, isCall);
+      }
+    };
+
+    final BlackVolatilitySurfaceStrike surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+
+    double[] res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, surfaceStrike);
+    double rv = res[0] / EXPIRY;
+    final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
+    assertEquals(expected, rv, 2e-6); //TODO this should be better
   }
 
   /**

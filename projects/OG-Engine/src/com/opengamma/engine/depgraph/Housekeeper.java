@@ -37,11 +37,6 @@ public final class Housekeeper {
 
   }
 
-  static {
-    s_executor.setKeepAliveTime(30, TimeUnit.SECONDS);
-    s_executor.allowCoreThreadTimeOut(true);
-  }
-
   private final WeakReference<DependencyGraphBuilder> _builder;
   private final Callback<Object> _callback;
   private final Object _data;

@@ -8,10 +8,6 @@ package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -33,11 +29,17 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.timeseries.DateConstraint;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -58,40 +60,32 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
+    final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    DoubleTimeSeries<?> assetPnL = null;
+    double assetFairValue = 0;
+    final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle ();
+    for (ComputedValue input : inputs.getAllValues()) {
+      if (ValueRequirementNames.PNL_SERIES.equals(input.getSpecification().getValueName())) {
+        assetPnL = (DoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.PNL_SERIES); //TODO replace with return series when portfolio weights are in
+      } else if (ValueRequirementNames.FAIR_VALUE.equals(input.getSpecification().getValueName())) {
+        assetFairValue = (Double) inputs.getValue(ValueRequirementNames.FAIR_VALUE);
+      } else if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
+        final HistoricalTimeSeries ts = (HistoricalTimeSeries) input.getValue();
+        timeSeries.add(timeSeriesSource.getExternalIdBundle(ts.getUniqueId()), ts);
+      }
+    }
     final Object positionOrNode = getTarget(target);
-    final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
-    if (assetPnLObject == null) {
-      throw new OpenGammaRuntimeException("Could not get asset P&L series");
-    }
-    final Object assetFairValueObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-    if (assetFairValueObject == null) {
-      throw new OpenGammaRuntimeException("Could not get asset fair value");
-    }
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO 
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
-    final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Period samplingPeriod = getSamplingPeriod(constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD));
-    final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
-    if (marketTSObject == null) {
-      throw new OpenGammaRuntimeException("Could not get market time series");
-    }
-    final HistoricalTimeSeries riskFreeTSObject = historicalSource.getHistoricalTimeSeries(
-        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate(), _resolutionKey, startDate, true, now, true);
-    if (riskFreeTSObject == null) {
-      throw new OpenGammaRuntimeException("Could not get risk-free time series");
-    }    
-    final double fairValue = (Double) assetFairValueObject;
+    final HistoricalTimeSeries marketTimeSeries = timeSeries.get(bundle.getCAPMMarket());
+    final HistoricalTimeSeries riskFreeTimeSeries = timeSeries.get(bundle.getCAPMRiskFreeRate());
     final TimeSeriesReturnCalculator returnCalculator = getReturnCalculator(constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR));
-    DoubleTimeSeries<?> marketReturn = returnCalculator.evaluate(marketTSObject.getTimeSeries());
-    final DoubleTimeSeries<?> riskFreeTS = riskFreeTSObject.getTimeSeries().divide(100 * DAYS_IN_YEAR);
+    DoubleTimeSeries<?> marketReturn = returnCalculator.evaluate(marketTimeSeries.getTimeSeries());
+    final DoubleTimeSeries<?> riskFreeTS = riskFreeTimeSeries.getTimeSeries().divide(100 * DAYS_IN_YEAR);
     marketReturn = marketReturn.subtract(riskFreeTS);
-    DoubleTimeSeries<?> assetReturn = ((DoubleTimeSeries<?>) assetPnLObject).divide(fairValue);
+    DoubleTimeSeries<?> assetReturn = assetPnL.divide(assetFairValue);
     assetReturn = assetReturn.subtract(riskFreeTS);
     assetReturn = assetReturn.intersectionFirstValue(marketReturn);
     marketReturn = marketReturn.intersectionFirstValue(assetReturn);
@@ -135,37 +129,49 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final ValueProperties constraints = desiredValue.getConstraints();
-      final Set<String> samplingPeriodName = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
-      if (samplingPeriodName == null || samplingPeriodName.size() != 1) {
-        return null;
-      }
-      final Set<String> scheduleCalculatorName = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
-      if (scheduleCalculatorName == null || scheduleCalculatorName.size() != 1) {
-        return null;
-      }
-      final Set<String> samplingFunctionName = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
-      if (samplingFunctionName == null || samplingFunctionName.size() != 1) {
-        return null;
-      }
-      final Set<String> returnCalculatorName = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
-      if (returnCalculatorName == null || returnCalculatorName.size() != 1) {
-        return null;
-      }
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final Object positionOrNode = getTarget(target);
-      final ValueProperties pnlSeriesProperties = ValueProperties.builder()
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> samplingPeriods = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
+    if (samplingPeriods == null || samplingPeriods.size() != 1) {
+      return null;
+    }
+    final String samplingPeriod = samplingPeriods.iterator().next();
+    final Set<String> scheduleCalculatorName = constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
+    if (scheduleCalculatorName == null || scheduleCalculatorName.size() != 1) {
+      return null;
+    }
+    final Set<String> samplingFunctionName = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
+    if (samplingFunctionName == null || samplingFunctionName.size() != 1) {
+      return null;
+    }
+    final Set<String> returnCalculatorName = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    if (returnCalculatorName == null || returnCalculatorName.size() != 1) {
+      return null;
+    }
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Object positionOrNode = getTarget(target);
+    requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
+        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriod)
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next()).get();
-      requirements.add(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode, pnlSeriesProperties));
-      requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
-      return requirements;
+        .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next()).get()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, positionOrNode));
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO 
+    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    final HistoricalTimeSeriesResolutionResult marketTimeSeries = resolver.resolve(bundle.getCAPMMarket(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+    if (marketTimeSeries == null) {
+      return null;
     }
-    return null;
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(marketTimeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
+        DateConstraint.VALUATION_TIME, true));
+    final HistoricalTimeSeriesResolutionResult riskFreeTimeSeries = resolver.resolve(bundle.getCAPMRiskFreeRate(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
+    if (riskFreeTimeSeries == null) {
+      return null;
+    }
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(riskFreeTimeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
+        DateConstraint.VALUATION_TIME, true));
+    return requirements;
   }
 
   @Override
@@ -209,13 +215,6 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
       .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
       .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
       .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR)).get();
-  }
-  
-  private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
-    if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }  
-    return Period.parse(samplingPeriodNames.iterator().next());
   }
   
   private TimeSeriesReturnCalculator getReturnCalculator(final Set<String> returnCalculatorNames) {

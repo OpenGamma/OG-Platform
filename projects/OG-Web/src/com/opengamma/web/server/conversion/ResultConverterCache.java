@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityS
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
@@ -71,6 +72,7 @@ public class ResultConverterCache {
     registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
     registerConverter(DoublesCurve.class, new CurveConverter());
     registerConverter(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesConverter());
+    registerConverter(HistoricalTimeSeries.class, new HistoricalTimeSeriesConverter());
     registerConverter(double[][].class, new DoubleArrayConverter());
     registerConverter(Double[][].class, new DoubleObjectArrayConverter());
     registerConverter(List.class, new ListDoubleArrayConverter());

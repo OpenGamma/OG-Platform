@@ -47,10 +47,11 @@ public final class EquityIndexOptionBlackMethod {
     Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
+    final double notional = derivative.getUnitAmount();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdPrice = BlackFormulaRepository.price(forward, strike, expiry, blackVol, derivative.isCall());
-    return fwdPrice;
+    return notional * fwdPrice;
   }
 
   /** 
@@ -131,8 +132,9 @@ public final class EquityIndexOptionBlackMethod {
     final double strike = derivative.getStrike();
     final boolean isCall = derivative.isCall();
     final double forward = marketData.getForwardCurve().getForward(expiry);
+    final double notional = derivative.getUnitAmount();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double undiscountDelta = BlackFormulaRepository.delta(forward, strike, expiry, blackVol, isCall);
+    final double undiscountDelta = notional * BlackFormulaRepository.delta(forward, strike, expiry, blackVol, isCall);
     return undiscountDelta;
   }
 
@@ -173,7 +175,8 @@ public final class EquityIndexOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double forwardGamma = BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
+    final double notional = derivative.getUnitAmount();
+    final double forwardGamma = notional * BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
     return forwardGamma;
   }
 
@@ -216,7 +219,8 @@ public final class EquityIndexOptionBlackMethod {
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdVega = BlackFormulaRepository.vega(forward, strike, expiry, blackVol);
     final double df = discountToSettlement(derivative, marketData);
-    return df * fwdVega;
+    final double notional = derivative.getUnitAmount();
+    return df * fwdVega * notional;
   }
 
   /** 
@@ -246,8 +250,9 @@ public final class EquityIndexOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
+    final double notional = derivative.getUnitAmount();
     final double forwardVomma = BlackFormulaRepository.vomma(forward, strike, expiry, blackVol);
-    return forwardVomma;
+    return notional * forwardVomma;
   }
 
   /** 
@@ -287,7 +292,8 @@ public final class EquityIndexOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double forwardVanna = BlackFormulaRepository.vanna(forward, strike, expiry, blackVol);
-    return forwardVanna;
+    final double notional = derivative.getUnitAmount();
+    return notional * forwardVanna;
   }
 
   /** 
