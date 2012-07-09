@@ -11,7 +11,7 @@ import javax.time.calendar.ZonedDateTime;
  * 
  * @param <T> Type of the EquityDerivative that the definition returns
  */
-public interface EquityInstrumentDefinition<T extends EquityDerivative> {
+public interface EquityInstrumentDefinition<T extends Derivative> {
 
   T toDerivative(ZonedDateTime date, String... yieldCurveNames);
 

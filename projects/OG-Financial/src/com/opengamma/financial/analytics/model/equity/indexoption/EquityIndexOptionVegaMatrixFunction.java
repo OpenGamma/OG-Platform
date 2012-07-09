@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.DerivativeSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
@@ -22,14 +22,14 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
  */
 public class EquityIndexOptionVegaMatrixFunction extends EquityIndexOptionFunction {
   private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance();
-  private static final EquityDerivativeSensitivityCalculator CALCULATOR = new EquityDerivativeSensitivityCalculator(PVC);
+  private static final DerivativeSensitivityCalculator CALCULATOR = new DerivativeSensitivityCalculator(PVC);
 
   public EquityIndexOptionVegaMatrixFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
   @Override
-  protected Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market) {
+  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();

@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.future.derivative;
 
-import com.opengamma.analytics.financial.equity.EquityDerivative;
-import com.opengamma.analytics.financial.equity.EquityDerivativeVisitor;
+import com.opengamma.analytics.financial.equity.Derivative;
+import com.opengamma.analytics.financial.equity.DerivativeVisitor;
 import com.opengamma.util.money.Currency;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -15,7 +15,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class EquityFuture implements EquityDerivative {
+public class EquityFuture implements Derivative {
   private final double _timeToExpiry;
   private final double _timeToSettlement;
   private final double _strike;
@@ -79,13 +79,13 @@ public class EquityFuture implements EquityDerivative {
 
   @Override
   /// @export "accept-visitor"
-  public <S, T> T accept(final EquityDerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final DerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitEquityFuture(this, data);
   }
 
   /// @end
   @Override
-  public <T> T accept(final EquityDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final DerivativeVisitor<?, T> visitor) {
     return visitor.visitEquityFuture(this);
   }
 

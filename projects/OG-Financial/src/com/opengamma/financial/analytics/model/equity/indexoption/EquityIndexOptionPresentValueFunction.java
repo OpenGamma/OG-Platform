@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
-import com.opengamma.analytics.financial.equity.EquityOptionDataBundle;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.ComputationTarget;
@@ -24,7 +24,7 @@ public class EquityIndexOptionPresentValueFunction extends EquityIndexOptionFunc
   }
 
   @Override
-  protected Object computeValues(final EquityIndexOption derivative, final EquityOptionDataBundle market) {
+  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
     final double pv = s_calculator.visitEquityIndexOption(derivative, market);
     return pv;
   }
