@@ -52,7 +52,6 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
-import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -128,7 +127,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivities;
-    if (curveCalculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
+    if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       final Object couponSensitivityObject = inputs.getValue(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
