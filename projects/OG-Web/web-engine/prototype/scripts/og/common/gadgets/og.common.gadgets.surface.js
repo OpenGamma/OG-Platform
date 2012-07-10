@@ -342,20 +342,26 @@ $.register_module({
                 hover_group = new THREE.Object3D();
                 vertex_sphere.position.copy(vertex);
                 vertex_sphere.visible = true;
-                (function () { // create vertex arrays for lines
+                (function () {
                     // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
-                    var x,
-                        xfrom       = index - (index % (x_segments + 1)),
-                        xto         = xfrom + x_segments + 1,
-                        xvertices   = [],
-                        z,
-                        zfrom       = index % (x_segments + 1),
-                        zto         = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom),
-                        zvertices   = [];
+                    var x, xvertices = [], xvertices_bottom = [], z, zvertices = [], zvertices_bottom = [],
+                        xfrom = index - (index % (x_segments + 1)),
+                        xto   = xfrom + x_segments + 1,
+                        zfrom = index % (x_segments + 1),
+                        zto   = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom);
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
+                    // top lines
                     hover_group.add(surface.create_tube(xvertices));
                     hover_group.add(surface.create_tube(zvertices));
+                    // bottom lines
+                    xvertices_bottom.push(xvertices[0].clone(), xvertices[xvertices.length-1].clone());
+                    xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
+                    zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
+                    zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
+                    hover_group.add(surface.create_tube(xvertices_bottom));
+                    hover_group.add(surface.create_tube(zvertices_bottom));
+                    // add
                     surface_top_group.add(hover_group);
                 }());
             };
