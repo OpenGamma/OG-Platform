@@ -33,6 +33,7 @@ public class HistoricalTimeSeriesAdjustmentTest {
     assertTrue(HistoricalTimeSeriesAdjustment.parse("") instanceof HistoricalTimeSeriesAdjustment.NoOp);
     final HistoricalTimeSeries hts = noop.adjust(createTestSeries());
     assertEquals(hts.getTimeSeries().getLatestValue(), 100d);
+    assertEquals(noop.adjust(100d), 100d);
   }
 
   public void testDivideBy() {
@@ -42,6 +43,7 @@ public class HistoricalTimeSeriesAdjustmentTest {
     assertEquals(((HistoricalTimeSeriesAdjustment.DivideBy) dec).getAmountToDivideBy(), 100d);
     final HistoricalTimeSeries hts = dec.adjust(createTestSeries());
     assertEquals(hts.getTimeSeries().getLatestValue(), 1d);
+    assertEquals(dec.adjust(100d), 1d);
   }
 
   public void testSubtractFrom() {
@@ -51,6 +53,7 @@ public class HistoricalTimeSeriesAdjustmentTest {
     assertEquals(((HistoricalTimeSeriesAdjustment.Subtract) dec).getAmountToSubtract(), 1d);
     final HistoricalTimeSeries hts = dec.adjust(createTestSeries());
     assertEquals(hts.getTimeSeries().getLatestValue(), 99d);
+    assertEquals(dec.adjust(100d), 99d);
   }
 
   public void testSequence() {
@@ -63,6 +66,7 @@ public class HistoricalTimeSeriesAdjustmentTest {
     assertTrue(((HistoricalTimeSeriesAdjustment.Sequence) dec).getSecond() instanceof HistoricalTimeSeriesAdjustment.Sequence);
     final HistoricalTimeSeries hts = dec.adjust(createTestSeries());
     assertEquals(hts.getTimeSeries().getLatestValue(), 0.4);
+    assertEquals(dec.adjust(100d), 0.4);
   }
 
 }

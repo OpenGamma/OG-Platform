@@ -48,9 +48,7 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(desiredValue.getTargetSpecification().getUniqueId(), startDate, includeStart, endDate, includeEnd);
     final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
-    if (adjusterString != null) {
-      hts = HistoricalTimeSeriesAdjustment.parse(adjusterString).adjust(hts);
-    }
+    hts = HistoricalTimeSeriesAdjustment.parse(adjusterString).adjust(hts);
     return hts;
   }
 
@@ -90,7 +88,14 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     ValueProperties.Builder constraints = null;
-    Set<String> values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+    Set<String> values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      constraints = desiredValue.getConstraints().copy().withoutAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY).with(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY, "");
+    } else if (values.size() > 1) {
+      constraints = desiredValue.getConstraints().copy().withoutAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY)
+          .with(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY, values.iterator().next());
+    }
+    values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if ((values == null) || values.isEmpty()) {
       if (constraints == null) {
         constraints = desiredValue.getConstraints().copy();

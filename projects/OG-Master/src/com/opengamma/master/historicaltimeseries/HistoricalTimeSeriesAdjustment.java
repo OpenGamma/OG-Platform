@@ -21,7 +21,9 @@ public abstract class HistoricalTimeSeriesAdjustment {
   protected HistoricalTimeSeriesAdjustment() {
   }
 
-  protected abstract LocalDateDoubleTimeSeries adjust(LocalDateDoubleTimeSeries timeSeries);
+  public abstract LocalDateDoubleTimeSeries adjust(LocalDateDoubleTimeSeries timeSeries);
+
+  public abstract double adjust(double value);
 
   public HistoricalTimeSeries adjust(final HistoricalTimeSeries timeSeries) {
     return new SimpleHistoricalTimeSeries(timeSeries.getUniqueId(), adjust(timeSeries.getTimeSeries()));
@@ -45,6 +47,11 @@ public abstract class HistoricalTimeSeriesAdjustment {
     @Override
     public LocalDateDoubleTimeSeries adjust(final LocalDateDoubleTimeSeries timeSeries) {
       return (LocalDateDoubleTimeSeries) timeSeries.divide(getAmountToDivideBy());
+    }
+
+    @Override
+    public double adjust(final double value) {
+      return value / getAmountToDivideBy();
     }
 
     @Override
@@ -72,6 +79,11 @@ public abstract class HistoricalTimeSeriesAdjustment {
     @Override
     public LocalDateDoubleTimeSeries adjust(final LocalDateDoubleTimeSeries timeSeries) {
       return (LocalDateDoubleTimeSeries) timeSeries.subtract(getAmountToSubtract());
+    }
+
+    @Override
+    public double adjust(final double value) {
+      return value - getAmountToSubtract();
     }
 
     @Override
@@ -108,6 +120,11 @@ public abstract class HistoricalTimeSeriesAdjustment {
     }
 
     @Override
+    public double adjust(final double value) {
+      return getSecond().adjust(getFirst().adjust(value));
+    }
+
+    @Override
     public String toString() {
       return getFirst().toString() + " " + getSecond().toString();
     }
@@ -135,6 +152,11 @@ public abstract class HistoricalTimeSeriesAdjustment {
     @Override
     public HistoricalTimeSeries adjust(final HistoricalTimeSeries timeSeries) {
       return timeSeries;
+    }
+
+    @Override
+    public double adjust(final double value) {
+      return value;
     }
 
     @Override
