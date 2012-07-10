@@ -47,14 +47,20 @@ import com.opengamma.util.async.Cancelable;
     }
 
     public synchronized void removeCallback(final DispatchableJob job) {
-      DispatchableJob[] jobs = new DispatchableJob[_jobs.length - 1];
-      int i = 0;
-      for (DispatchableJob oldJob : _jobs) {
-        if (job != oldJob) {
-          jobs[i++] = oldJob;
+      final DispatchableJob[] oldJobs = _jobs;
+      for (int i = 0; i < oldJobs.length; i++) {
+        if (job == oldJobs[i]) {
+          final DispatchableJob[] newJobs = new DispatchableJob[oldJobs.length - 1];
+          if (i > 0) {
+            System.arraycopy(oldJobs, 0, newJobs, 0, i);
+          }
+          if (i < oldJobs.length - 1) {
+            System.arraycopy(oldJobs, i + 1, newJobs, i, oldJobs.length - (i + 1));
+          }
+          _jobs = newJobs;
+          break;
         }
       }
-      _jobs = jobs;
     }
 
     @Override

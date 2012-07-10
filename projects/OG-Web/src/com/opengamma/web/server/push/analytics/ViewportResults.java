@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.opengamma.engine.value.ValueSpecification;
@@ -43,7 +44,7 @@ public class ViewportResults {
     return new Cell(value, null, null);
   }
 
-  public static Cell valueCell(Object value, ValueSpecification valueSpecification, List<Object> history) {
+  public static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
     return new Cell(value, valueSpecification, history);
   }
 
@@ -51,9 +52,9 @@ public class ViewportResults {
 
     private final Object _value;
     private final ValueSpecification _valueSpecification;
-    private final List<Object> _history; // TODO what type should this be?
+    private final Collection<Object> _history; // TODO what type should this be?
 
-    private Cell(Object value, ValueSpecification valueSpecification, List<Object> history) {
+    private Cell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
       ArgumentChecker.notNull(value, "value");
       _value = value;
       _valueSpecification = valueSpecification;
@@ -68,7 +69,7 @@ public class ViewportResults {
       return _valueSpecification;
     }
 
-    public List<Object> getHistory() {
+    public Collection<Object> getHistory() {
       return _history;
     }
   }

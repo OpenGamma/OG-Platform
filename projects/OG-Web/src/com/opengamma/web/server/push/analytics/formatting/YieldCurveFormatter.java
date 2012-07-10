@@ -21,12 +21,12 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
 /**
  *
  */
-/* package */ class YieldCurveFormatter implements Formatter<YieldCurve> {
+/* package */ class YieldCurveFormatter extends NoHistoryFormatter<YieldCurve> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFormatter.class);
 
   @Override
-  public Object formatForDisplay(YieldCurve value, ValueSpecification valueSpec) {
+  public List<Double[]> formatForDisplay(YieldCurve value, ValueSpecification valueSpec) {
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
       List<Double[]> data = new ArrayList<Double[]>();
@@ -74,11 +74,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
       detailedData.add(new Double[]{xs[i], ys[i]});
     }
     return detailedData;
-  }
-
-  @Override
-  public Object formatForHistory(YieldCurve history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

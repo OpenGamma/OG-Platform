@@ -12,6 +12,8 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface Formatter<T> {
 
+  public static final String FORMATTING_ERROR = "Formatting Error";
+
   enum FormatType {
     PRIMITIVE,
     DOUBLE,

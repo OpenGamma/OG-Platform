@@ -28,6 +28,14 @@
     </constructor-arg>
     <constructor-arg ref="cacheManager" />
   </bean>
+  <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
+  <bean id="historicalTimeSeriesResolver" class="com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver">
+    <constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/historicalTimeSeriesResolver" />
+      </bean>
+    </constructor-arg>
+  </bean>
 
   <!-- Security Source -->
   <bean id="securitySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
@@ -230,18 +238,20 @@
   
   <!-- Functions -->
   <bean id="functionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
+    <property name="computationTargetResolver" ref="targetResolver" />
     <property name="configSource" ref="configSource" />
     <property name="conventionBundleSource" ref="conventionBundleSource"/>
     <property name="currencyMatrixSource" ref="currencyMatrixSource" />
     <property name="exchangeSource" ref="exchangeSource" />
     <property name="holidaySource" ref="holidaySource" />
+    <property name="historicalTimeSeriesSource" ref="historicalTimeSeriesSource" />
+    <property name="historicalTimeSeriesResolver" ref="historicalTimeSeriesResolver" />
     <property name="interpolatedYieldCurveDefinitionSource" ref="interpolatedYieldCurveDefinitionSource" />
     <property name="interpolatedYieldCurveSpecificationBuilder" ref="interpolatedYieldCurveSpecificationBuilder" />
-    <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
     <property name="positionSource" ref="positionSource" />
     <property name="regionSource" ref="regionSource"/>
     <property name="securitySource" ref="securitySource" />
-    <property name="computationTargetResolver" ref="targetResolver" />
+    <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
   </bean>
   <bean id="functionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
     <property name="configSource" ref="configSource" />

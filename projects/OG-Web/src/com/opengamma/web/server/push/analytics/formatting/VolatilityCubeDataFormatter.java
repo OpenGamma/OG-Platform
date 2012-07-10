@@ -11,10 +11,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class VolatilityCubeDataFormatter implements Formatter<VolatilityCubeData> {
+/* package */ class VolatilityCubeDataFormatter extends NoHistoryFormatter<VolatilityCubeData> {
 
   @Override
-  public Object formatForDisplay(VolatilityCubeData value, ValueSpecification valueSpec) {
+  public String formatForDisplay(VolatilityCubeData value, ValueSpecification valueSpec) {
     return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
         + " strikes, " + value.getOtherData().getDataPoints().size() + " other data points " + ")";
   }
@@ -22,11 +22,6 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public Object formatForExpandedDisplay(VolatilityCubeData value, ValueSpecification valueSpec) {
     return formatForDisplay(value, valueSpec);
-  }
-
-  @Override
-  public Object formatForHistory(VolatilityCubeData history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

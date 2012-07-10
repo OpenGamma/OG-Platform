@@ -11,10 +11,10 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class VolatilitySurfaceDataFormatter implements Formatter<VolatilitySurfaceData> {
+/* package */ class VolatilitySurfaceDataFormatter extends NoHistoryFormatter<VolatilitySurfaceData> {
 
   @Override
-  public Object formatForDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
+  public String formatForDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
     return "Volatility Surface (" + value.getXs().length + " x " + value.getYs().length + ")";
   }
 
@@ -22,11 +22,6 @@ import com.opengamma.engine.value.ValueSpecification;
   public Object formatForExpandedDisplay(VolatilitySurfaceData value, ValueSpecification valueSpec) {
     // TODO find out what the UI needs to render the surface
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Object formatForHistory(VolatilitySurfaceData history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override
