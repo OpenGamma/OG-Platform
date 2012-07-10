@@ -30,9 +30,11 @@ import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSerie
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
+import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesResolverResource;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Component factory for the historical time-series source.
@@ -69,16 +71,18 @@ public class HistoricalTimeSeriesSourceComponentFactory extends AbstractComponen
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    HistoricalTimeSeriesResolver resolver = initResolver();
-    repo.registerComponent(new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier()), resolver);
+    final HistoricalTimeSeriesResolver resolver = initResolver();
+    final ComponentInfo infoResolver = new ComponentInfo(HistoricalTimeSeriesResolver.class, getClassifier());
+    repo.registerComponent(infoResolver, resolver);
     HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
     if (getCacheManager() != null) {
       source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
-    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
-    repo.registerComponent(info, source);
+    final ComponentInfo infoSource = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
+    repo.registerComponent(infoSource, source);
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesSourceResource(source));
+      repo.getRestComponents().publish(infoResolver, new DataHistoricalTimeSeriesResolverResource(resolver, OpenGammaFudgeContext.getInstance()));
+      repo.getRestComponents().publish(infoSource, new DataHistoricalTimeSeriesSourceResource(source));
     }
   }
 
