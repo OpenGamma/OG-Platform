@@ -6,7 +6,9 @@
 package com.opengamma.web.server.push.analytics.formatting;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -64,7 +66,10 @@ public class ResultsFormatter {
     _formatters.put(DoublesCurve.class, new DoublesCurveFormatter());
     _formatters.put(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesFormatter());
     _formatters.put(HistoricalTimeSeries.class, new HistoricalTimeSeriesFormatter());
-    //_formatters.put(, );
+    _formatters.put(double[][].class, new DoubleArrayFormatter());
+    _formatters.put(Double[][].class, new DoubleObjectArrayFormatter());
+    _formatters.put(List.class, new ListDoubleArrayFormatter());
+    _formatters.put(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueForexBlackVolatilitySensitivityFormatter());
   }
 
   private Formatter getFormatter(Object value) {
