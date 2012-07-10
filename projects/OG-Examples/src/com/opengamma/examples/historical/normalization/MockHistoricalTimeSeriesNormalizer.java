@@ -9,6 +9,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -21,6 +22,11 @@ public class MockHistoricalTimeSeriesNormalizer implements HistoricalTimeSeriesA
    */
   private Integer _normalizationFactor = 1;
 
+  /**
+   * The normalization operation;
+   */
+  private HistoricalTimeSeriesAdjustment _adjustment = HistoricalTimeSeriesAdjustment.NoOp.INSTANCE;
+
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries adjust(ExternalIdBundle securityIdBundle, HistoricalTimeSeries timeSeries) {
@@ -29,6 +35,11 @@ public class MockHistoricalTimeSeriesNormalizer implements HistoricalTimeSeriesA
     }
     LocalDateDoubleTimeSeries normalizedTimeSeries = (LocalDateDoubleTimeSeries) timeSeries.getTimeSeries().divide(getNormalizationFactor());
     return new SimpleHistoricalTimeSeries(timeSeries.getUniqueId(), normalizedTimeSeries);
+  }
+
+  @Override
+  public HistoricalTimeSeriesAdjustment getAdjustment(final ExternalIdBundle securityIdBundle) {
+    return _adjustment;
   }
 
   /**
@@ -43,10 +54,15 @@ public class MockHistoricalTimeSeriesNormalizer implements HistoricalTimeSeriesA
   /**
    * Sets the normalization factor.
    * 
-   * @param normalizationFactor  the normalization factor
+   * @param normalizationFactor the normalization factor
    */
   public void setNormalizationFactor(Integer normalizationFactor) {
     _normalizationFactor = normalizationFactor;
+    if (normalizationFactor == 1) {
+      _adjustment = HistoricalTimeSeriesAdjustment.NoOp.INSTANCE;
+    } else {
+      _adjustment = new HistoricalTimeSeriesAdjustment.DivideBy(_normalizationFactor);
+    }
   }
 
 }

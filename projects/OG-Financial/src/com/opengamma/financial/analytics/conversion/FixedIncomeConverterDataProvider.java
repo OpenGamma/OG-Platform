@@ -194,8 +194,8 @@ public class FixedIncomeConverterDataProvider {
       if (timeSeries == null) {
         return null;
       }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7))
-          .previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @Override
@@ -207,7 +207,7 @@ public class FixedIncomeConverterDataProvider {
         throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
       }
       final ExternalIdBundle indexIdBundle = indexConvention.getIdentifiers();
-      final HistoricalTimeSeries ts = timeSeries.get(indexIdBundle);
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
       }
@@ -231,15 +231,15 @@ public class FixedIncomeConverterDataProvider {
       if (timeSeries == null) {
         return null;
       }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7))
-          .previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @Override
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorIborDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final HistoricalTimeSeries ts = timeSeries.get(security.getUnderlyingId());
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + id);
       }
@@ -286,15 +286,14 @@ public class FixedIncomeConverterDataProvider {
       if (timeSeries == null) {
         return null;
       }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1))
-          .previousWeekDay(), true,
-          DateConstraint.VALUATION_TIME, true));
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
     }
 
     @Override
     public InstrumentDerivative convert(final InterestRateFutureSecurity security, final InterestRateFutureDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(security.getExternalIdBundle());
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + security);
       }
@@ -316,15 +315,15 @@ public class FixedIncomeConverterDataProvider {
       if (timeSeries == null) {
         return null;
       }
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1))
-          .previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     }
 
     @Override
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
-      final HistoricalTimeSeries ts = timeSeries.get(security.getExternalIdBundle());
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + security);
       }
@@ -470,7 +469,8 @@ public class FixedIncomeConverterDataProvider {
       if (ts == null) {
         return null;
       }
-      return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
+      return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts, MarketDataRequirementNames.MARKET_VALUE,
+          DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
     }
     return null;
   }
@@ -484,7 +484,7 @@ public class FixedIncomeConverterDataProvider {
       if (now.isBefore(swapEffectiveDate)) { // TODO: review if this is the correct condition
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
-      final HistoricalTimeSeries ts = timeSeries.get(id);
+      final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
       }
@@ -526,7 +526,8 @@ public class FixedIncomeConverterDataProvider {
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.of(startDate), true, DateConstraint.VALUATION_TIME, true);
   }
 
   /**
@@ -539,7 +540,7 @@ public class FixedIncomeConverterDataProvider {
    * @return The time series.
    */
   private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final ExternalIdBundle id, final TimeZone timeZone, final HistoricalTimeSeriesBundle timeSeries) {
-    final HistoricalTimeSeries ts = timeSeries.get(id);
+    final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
     // Implementation note: the normalization take place in the getHistoricalTimeSeries
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString());

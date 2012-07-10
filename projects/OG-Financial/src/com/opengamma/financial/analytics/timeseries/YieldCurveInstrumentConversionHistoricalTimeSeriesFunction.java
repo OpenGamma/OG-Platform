@@ -130,7 +130,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       if (hts == null) {
         throw new OpenGammaRuntimeException("Can't get time series for " + timeSeriesRequirement);
       }
-      timeSeries.add(timeSeriesSource.getExternalIdBundle(hts.getUniqueId()), hts);
+      timeSeries.add(timeSeriesRequirement.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY), timeSeriesSource.getExternalIdBundle(hts.getUniqueId()), hts);
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), desiredValue
         .getConstraints()), timeSeries));

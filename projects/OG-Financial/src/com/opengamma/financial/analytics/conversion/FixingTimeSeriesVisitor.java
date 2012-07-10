@@ -73,7 +73,7 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.of(startDate), true, now, includeEndDate);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.of(startDate), true, now, includeEndDate);
   }
 
   public static DoubleTimeSeries<ZonedDateTime> convertTimeSeries(final HistoricalTimeSeries ts, final ZonedDateTime now) {

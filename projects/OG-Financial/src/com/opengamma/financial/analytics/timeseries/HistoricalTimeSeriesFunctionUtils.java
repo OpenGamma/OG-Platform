@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.timeseries;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -15,7 +16,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,6 +30,11 @@ public final class HistoricalTimeSeriesFunctionUtils {
    * Property describing the "data field" used to resolve the time series for each instrument.
    */
   public static final String DATA_FIELD_PROPERTY = "DataField";
+
+  /**
+   * Property describing the "adjuster" that will apply normalization and/or any other rules to the underlying time series.
+   */
+  public static final String ADJUST_PROPERTY = "Adjust";
 
   /**
    * Property describing the "resolution key" used to resolve the time series for each instrument.
@@ -66,34 +74,31 @@ public final class HistoricalTimeSeriesFunctionUtils {
   private HistoricalTimeSeriesFunctionUtils() {
   }
 
-  public static ValueRequirement createHTSRequirement(final UniqueId timeSeries, final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries, createHTSRequirementProperties(startDate, includeStart, endDate, includeEnd).get());
-  }
-
-  public static ValueProperties.Builder createHTSRequirementProperties(final DateConstraint startDate, final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return ValueProperties.builder()
-        .with(START_DATE_PROPERTY, startDate.toString())
-        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-        .with(END_DATE_PROPERTY, endDate.toString())
-        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE);
+  public static ValueRequirement createHTSRequirement(final HistoricalTimeSeriesResolutionResult timeSeries, final String dataField, final DateConstraint startDate, final boolean includeStart,
+      final DateConstraint endDate, final boolean includeEnd) {
+    final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
+    final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
+        ValueProperties.builder()
+            .with(DATA_FIELD_PROPERTY, dataField)
+            .with(ADJUST_PROPERTY, adjustment)
+            .with(START_DATE_PROPERTY, startDate.toString())
+            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+            .with(END_DATE_PROPERTY, endDate.toString())
+            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
   public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
       final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, currency, createYCHTSRequirementProperties(curveName, dataField, resolutionKey, startDate, includeStart,
-        endDate, includeEnd).get());
-  }
-
-  public static ValueProperties.Builder createYCHTSRequirementProperties(final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,
-      final boolean includeStart, final DateConstraint endDate, final boolean includeEnd) {
-    return ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, dataField)
-        .with(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
-        .with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, startDate.toString())
-        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, includeStart ? HistoricalTimeSeriesFunctionUtils.YES_VALUE : HistoricalTimeSeriesFunctionUtils.NO_VALUE)
-        .with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, endDate.toString())
-        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, includeEnd ? HistoricalTimeSeriesFunctionUtils.YES_VALUE : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, currency,
+        ValueProperties.builder()
+            .with(ValuePropertyNames.CURVE, curveName)
+            .with(DATA_FIELD_PROPERTY, dataField)
+            .with(RESOLUTION_KEY_PROPERTY, (resolutionKey != null) ? resolutionKey : "")
+            .with(START_DATE_PROPERTY, startDate.toString())
+            .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
+            .with(END_DATE_PROPERTY, endDate.toString())
+            .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
   }
 
   /**
@@ -108,8 +113,15 @@ public final class HistoricalTimeSeriesFunctionUtils {
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     for (ComputedValue input : inputs.getAllValues()) {
       if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
+        final String fieldName = input.getSpecification().getProperty(DATA_FIELD_PROPERTY);
         final HistoricalTimeSeries hts = (HistoricalTimeSeries) input.getValue();
-        bundle.add(timeSeriesSource.getExternalIdBundle(hts.getUniqueId()), hts);
+        final ExternalIdBundle ids = timeSeriesSource.getExternalIdBundle(hts.getUniqueId());
+        if (fieldName == null) {
+          // Default to MARKET_VALUE in the bundle; this is not probably correct but this shouldn't happen for well written functions
+          bundle.add(MarketDataRequirementNames.MARKET_VALUE, ids, hts);
+        } else {
+          bundle.add(fieldName, ids, hts);
+        }
       }
     }
     return bundle;

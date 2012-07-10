@@ -107,8 +107,7 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
     if (timeSeries == null) {
       return null;
     }
-    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.of(_startDate), true,
-        DateConstraint.VALUATION_TIME, true));
+    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _field, DateConstraint.of(_startDate), true, DateConstraint.VALUATION_TIME, true));
   }
 
   @Override

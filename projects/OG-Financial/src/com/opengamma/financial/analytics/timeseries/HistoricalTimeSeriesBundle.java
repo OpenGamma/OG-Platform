@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,74 +19,157 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.functional.Function3;
 
 /**
- * A collection of historical time series objects.
+ * A collection of historical time series objects. The time series are keyed by the originally requested data field name and the external ids associated with them. The original field is not generally
+ * necessary but is to allow override operations to identify the nature of the data points in the time series they are being applied to.
  */
-public class HistoricalTimeSeriesBundle {
+public final class HistoricalTimeSeriesBundle {
 
-  private final Map<ExternalId, HistoricalTimeSeries> _data = new HashMap<ExternalId, HistoricalTimeSeries>();
+  private static final class Entry {
 
-  public void add(final ExternalId id, final HistoricalTimeSeries timeSeries) {
-    ArgumentChecker.notNull(id, "id");
-    ArgumentChecker.notNull(timeSeries, "timeSeries");
-    _data.put(id, timeSeries);
-  }
+    private final Map<ExternalIdBundle, HistoricalTimeSeries> _timeSeries = new HashMap<ExternalIdBundle, HistoricalTimeSeries>();
+    private Map<ExternalId, HistoricalTimeSeries> _lookup;
 
-  public void add(final ExternalIdBundle ids, final HistoricalTimeSeries timeSeries) {
-    ArgumentChecker.notNull(ids, "ids");
-    ArgumentChecker.notNull(timeSeries, "timeSeries");
-    for (ExternalId id : ids) {
-      _data.put(id, timeSeries);
+    private HistoricalTimeSeries getImpl(final ExternalId id) {
+      return _lookup.get(id);
     }
-  }
 
-  public HistoricalTimeSeries get(final ExternalId id) {
-    return _data.get(id);
-  }
+    private void addImpl(final ExternalId id, final HistoricalTimeSeries hts) {
+      _lookup.put(id, hts);
+    }
 
-  public HistoricalTimeSeries get(final ExternalIdBundle ids) {
-    for (ExternalId id : ids) {
-      final HistoricalTimeSeries ts = get(id);
-      if (ts != null) {
-        return ts;
+    private void addImpl(final ExternalIdBundle ids, final HistoricalTimeSeries hts) {
+      for (ExternalId id : ids) {
+        addImpl(id, hts);
       }
     }
-    return null;
+
+    private void lookup() {
+      if (_lookup != null) {
+        return;
+      }
+      _lookup = new HashMap<ExternalId, HistoricalTimeSeries>();
+      for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> e : _timeSeries.entrySet()) {
+        addImpl(e.getKey(), e.getValue());
+      }
+    }
+
+    public HistoricalTimeSeries get(final ExternalIdBundle bundle) {
+      lookup();
+      for (ExternalId id : bundle) {
+        final HistoricalTimeSeries hts = getImpl(id);
+        if (hts != null) {
+          return hts;
+        }
+      }
+      return null;
+    }
+
+    public HistoricalTimeSeries get(final ExternalId id) {
+      lookup();
+      return getImpl(id);
+    }
+
+    public void add(final ExternalIdBundle bundle, final HistoricalTimeSeries timeSeries) {
+      _timeSeries.put(bundle, timeSeries);
+      if (_lookup != null) {
+        addImpl(bundle, timeSeries);
+      }
+    }
+
+    public MutableFudgeMsg toFudgeMsg(final FudgeSerializer context) {
+      final MutableFudgeMsg msg = context.newMessage();
+      for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> data : _timeSeries.entrySet()) {
+        context.addToMessageWithClassHeaders(msg, null, 1, data.getKey(), ExternalIdBundle.class);
+        context.addToMessageWithClassHeaders(msg, null, 2, data.getValue(), HistoricalTimeSeries.class);
+      }
+      return msg;
+    }
+
+    public static Entry fromFudgeMsg(final FudgeDeserializer context, final FudgeMsg msg) {
+      final Entry e = new Entry();
+      final Iterator<FudgeField> keys = msg.getAllByOrdinal(1).iterator();
+      final Iterator<FudgeField> values = msg.getAllByOrdinal(2).iterator();
+      while (keys.hasNext() && values.hasNext()) {
+        final FudgeField key = keys.next();
+        final FudgeField value = values.next();
+        e.add(context.fieldValueToObject(ExternalIdBundle.class, key), context.fieldValueToObject(HistoricalTimeSeries.class, value));
+      }
+      return e;
+    }
+
+    @Override
+    public String toString() {
+      return _timeSeries.keySet().toString();
+    }
+
   }
 
-  public Collection<ExternalId> getAllExternalIds() {
-    return _data.keySet();
+  private final Map<String, Entry> _data = new HashMap<String, Entry>();
+
+  public void add(final String field, final ExternalIdBundle idBundle, final HistoricalTimeSeries timeSeries) {
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(idBundle, "idBundle");
+    ArgumentChecker.notNull(timeSeries, "timeSeries");
+    Entry e = _data.get(field);
+    if (e == null) {
+      e = new Entry();
+      _data.put(field, e);
+    }
+    e.add(idBundle, timeSeries);
   }
 
-  public Collection<HistoricalTimeSeries> getAllTimeSeries() {
-    return _data.values();
+  public HistoricalTimeSeries get(final String field, final ExternalId id) {
+    final Entry e = _data.get(field);
+    if (e == null) {
+      return null;
+    }
+    return e.get(id);
+  }
+
+  public HistoricalTimeSeries get(final String field, final ExternalIdBundle ids) {
+    final Entry e = _data.get(field);
+    if (e == null) {
+      return null;
+    }
+    return e.get(ids);
+  }
+
+  protected HistoricalTimeSeriesBundle apply(final Function3<String, ExternalIdBundle, HistoricalTimeSeries, HistoricalTimeSeries> function) {
+    final HistoricalTimeSeriesBundle result = new HistoricalTimeSeriesBundle();
+    for (Map.Entry<String, Entry> fieldTimeSeries : _data.entrySet()) {
+      final Entry newEntry = new Entry();
+      for (Map.Entry<ExternalIdBundle, HistoricalTimeSeries> timeSeries : fieldTimeSeries.getValue()._timeSeries.entrySet()) {
+        newEntry._timeSeries.put(timeSeries.getKey(), function.execute(fieldTimeSeries.getKey(), timeSeries.getKey(), timeSeries.getValue()));
+      }
+      result._data.put(fieldTimeSeries.getKey(), newEntry);
+    }
+    return result;
   }
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer context) {
     final MutableFudgeMsg msg = context.newMessage();
-    for (Map.Entry<ExternalId, HistoricalTimeSeries> data : _data.entrySet()) {
-      context.addToMessageWithClassHeaders(msg, null, 1, data.getKey(), ExternalId.class);
-      context.addToMessageWithClassHeaders(msg, null, 2, data.getValue(), HistoricalTimeSeries.class);
+    for (Map.Entry<String, Entry> entry : _data.entrySet()) {
+      msg.add(entry.getKey(), entry.getValue().toFudgeMsg(context));
     }
     return msg;
   }
 
   public static HistoricalTimeSeriesBundle fromFudgeMsg(final FudgeDeserializer context, final FudgeMsg msg) {
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    final Iterator<FudgeField> keys = msg.getAllByOrdinal(1).iterator();
-    final Iterator<FudgeField> values = msg.getAllByOrdinal(2).iterator();
-    while (keys.hasNext() && values.hasNext()) {
-      final FudgeField key = keys.next();
-      final FudgeField value = values.next();
-      bundle.add(context.fieldValueToObject(ExternalId.class, key), context.fieldValueToObject(HistoricalTimeSeries.class, value));
+    for (FudgeField field : msg) {
+      if (field.getValue() instanceof FudgeMsg) {
+        bundle._data.put(field.getName(), Entry.fromFudgeMsg(context, (FudgeMsg) field.getValue()));
+      }
     }
     return bundle;
   }
 
   @Override
   public String toString() {
-    return "HistoricalTimeSeriesBundle" + _data.keySet();
+    return "HistoricalTimeSeriesBundle" + _data;
   }
 
 }

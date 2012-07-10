@@ -86,27 +86,28 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final UniqueId uidMarkToMarket = UniqueId.parse(desiredValue.getConstraint("MarkToMarket"));
-    final UniqueId uidCostOfCarry = UniqueId.parse(desiredValue.getConstraint("CostOfCarry"));
     Double tradeValue = null;
-    HistoricalTimeSeries tssMarkToMarket = null;
-    HistoricalTimeSeries tssCostOfCarry = null;
+    HistoricalTimeSeries htsMarkToMarket = null;
+    HistoricalTimeSeries htsCostOfCarry = null;
     for (ComputedValue input : inputs.getAllValues()) {
       if (ValueRequirementNames.VALUE.equals(input.getSpecification().getValueName())) {
         tradeValue = (Double) input.getValue();
-      } else if (uidMarkToMarket.equals(input.getSpecification().getTargetSpecification().getUniqueId())) {
-        tssMarkToMarket = (HistoricalTimeSeries) input.getValue();
-      } else if (uidCostOfCarry.equals(input.getSpecification().getTargetSpecification().getUniqueId())) {
-        tssCostOfCarry = (HistoricalTimeSeries) input.getValue();
+      } else if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
+        final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
+        if (_costOfCarryField.equals(field)) {
+          htsCostOfCarry = (HistoricalTimeSeries) input.getValue();
+        } else if (_mark2MarketField.equals(field)) {
+          htsMarkToMarket = (HistoricalTimeSeries) input.getValue();
+        }
       }
     }
     final PositionOrTrade trade = target.getPositionOrTrade();
     final Security security = trade.getSecurity();
     LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
-    tradeDate = checkAvailableData(tradeDate, tssMarkToMarket, security, _mark2MarketField, _resolutionKey);
+    tradeDate = checkAvailableData(tradeDate, htsMarkToMarket, security, _mark2MarketField, _resolutionKey);
     final ValueSpecification valueSpecification = new ValueSpecification(getResultValueRequirementName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints());
-    double costOfCarry = getCostOfCarry(security, tradeDate, tssCostOfCarry);
-    Double markToMarket = tssMarkToMarket.getTimeSeries().getValue(tradeDate);
+    double costOfCarry = getCostOfCarry(security, tradeDate, htsCostOfCarry);
+    Double markToMarket = htsMarkToMarket.getTimeSeries().getValue(tradeDate);
     if (security instanceof FutureSecurity) {
       FutureSecurity futureSecurity = (FutureSecurity) security;
       markToMarket = markToMarket * futureSecurity.getUnitAmount();
@@ -158,10 +159,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     if (timeSeries == null) {
       return null;
     }
-    final UniqueId uid = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid,
-        HistoricalTimeSeriesFunctionUtils.createHTSRequirementProperties(startDate, true, endDate, true)
-            .withOptional(".name").with(".name", "MarkToMarket").get());
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _mark2MarketField, startDate, true, endDate, true);
   }
 
   private ValueRequirement getCostOfCarrySeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint endDate) {
@@ -169,10 +167,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     if (timeSeries == null) {
       return null;
     }
-    final UniqueId uid = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, uid,
-        HistoricalTimeSeriesFunctionUtils.createHTSRequirementProperties(endDate, true, endDate, true)
-            .withOptional(".name").with(".name", "CostOfCarry").get());
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _costOfCarryField, endDate, true, endDate, true);
   }
 
   @Override

@@ -115,8 +115,8 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     if (timeSeries == null) {
       return null;
     }
-    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-        DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true));
+    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
+        _fieldName, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true));
   }
 
   @Override

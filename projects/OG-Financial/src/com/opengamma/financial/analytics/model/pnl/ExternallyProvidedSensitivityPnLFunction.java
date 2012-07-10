@@ -170,7 +170,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     DoubleTimeSeries<?> pnlSeries = null;
     final List<FactorExposureData> factors = RawSecurityUtils.decodeFactorExposureData(secSource, security);
     for (final FactorExposureData factor : factors) {
-      final HistoricalTimeSeries dbNodeTimeSeries = timeSeries.get(factor.getFactorExternalId());
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeries.get("PX_LAST", factor.getFactorExternalId());
       if (dbNodeTimeSeries == null || dbNodeTimeSeries.getTimeSeries().size() == 0) {
         //s_logger.warn("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
         //throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
@@ -229,8 +229,8 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
   }
 
   protected ValueRequirement getTimeSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final String samplingPeriod) {
-    final UniqueId uid = resolver.resolve(bundle, null, null, null, "PX_LAST", _resolutionKey).getHistoricalTimeSeriesInfo().getUniqueId();
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(uid, DateConstraint.of(MAGIC_DATE.minus(Period.parse(samplingPeriod))), true, DateConstraint.of(MAGIC_DATE), true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(resolver.resolve(bundle, null, null, null, "PX_LAST", _resolutionKey), "PX_LAST",
+        DateConstraint.of(MAGIC_DATE.minus(Period.parse(samplingPeriod))), true, DateConstraint.of(MAGIC_DATE), true);
   }
 
 }

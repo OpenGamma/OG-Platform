@@ -209,8 +209,8 @@ public class FXDigitalCallSpreadBlackDeltaPnLFunction extends AbstractFunction.N
     if (timeSeries == null) {
       return null;
     }
-    final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-        DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
+    final ValueRequirement marketValueRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
+        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriods.iterator().next()), true, DateConstraint.VALUATION_TIME, true);
     return ImmutableSet.of(fxCurrencyExposureRequirement, marketValueRequirement);
   }
 

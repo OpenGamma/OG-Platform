@@ -27,6 +27,8 @@ import com.opengamma.financial.OpenGammaExecutionContext;
  */
 public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.NonCompiledInvoker {
 
+  // TODO: support adjustment
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -50,7 +52,8 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), createValueProperties().get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, target.toSpecification(), createValueProperties().withAny(
+        HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY).get()));
   }
 
   @Override

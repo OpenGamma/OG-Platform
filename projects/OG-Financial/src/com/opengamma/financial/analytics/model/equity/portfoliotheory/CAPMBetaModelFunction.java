@@ -7,8 +7,6 @@ package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.ImmutableSet;
@@ -113,8 +111,8 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     if (timeSeries == null) {
       return null;
     }
-    final ValueRequirement timeSeriesRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-        DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true, DateConstraint.VALUATION_TIME, true);
+    final ValueRequirement timeSeriesRequirement = HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries,
+        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true, DateConstraint.VALUATION_TIME, true);
     return ImmutableSet.of(pnlSeriesRequirement, fairValueRequirement, timeSeriesRequirement);
   }
 
@@ -146,13 +144,6 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR))
         .with(ValuePropertyNames.COVARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.COVARIANCE_CALCULATOR))
         .with(ValuePropertyNames.VARIANCE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.VARIANCE_CALCULATOR)).get();
-  }
-
-  private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
-    if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }
-    return Period.parse(samplingPeriodNames.iterator().next());
   }
 
   private TimeSeriesReturnCalculator getReturnCalculator(final Set<String> returnCalculatorNames) {

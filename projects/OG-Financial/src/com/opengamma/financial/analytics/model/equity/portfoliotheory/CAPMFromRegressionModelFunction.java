@@ -63,7 +63,7 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     DoubleTimeSeries<?> assetPnL = null;
     double assetFairValue = 0;
-    final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle ();
+    final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     for (ComputedValue input : inputs.getAllValues()) {
       if (ValueRequirementNames.PNL_SERIES.equals(input.getSpecification().getValueName())) {
         assetPnL = (DoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.PNL_SERIES); //TODO replace with return series when portfolio weights are in
@@ -71,7 +71,7 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
         assetFairValue = (Double) inputs.getValue(ValueRequirementNames.FAIR_VALUE);
       } else if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         final HistoricalTimeSeries ts = (HistoricalTimeSeries) input.getValue();
-        timeSeries.add(timeSeriesSource.getExternalIdBundle(ts.getUniqueId()), ts);
+        timeSeries.add(input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY), timeSeriesSource.getExternalIdBundle(ts.getUniqueId()), ts);
       }
     }
     final Object positionOrNode = getTarget(target);
@@ -79,8 +79,8 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     final ConventionBundle bundle = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_CAPM")); //TODO 
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
-    final HistoricalTimeSeries marketTimeSeries = timeSeries.get(bundle.getCAPMMarket());
-    final HistoricalTimeSeries riskFreeTimeSeries = timeSeries.get(bundle.getCAPMRiskFreeRate());
+    final HistoricalTimeSeries marketTimeSeries = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    final HistoricalTimeSeries riskFreeTimeSeries = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
     final TimeSeriesReturnCalculator returnCalculator = getReturnCalculator(constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR));
     DoubleTimeSeries<?> marketReturn = returnCalculator.evaluate(marketTimeSeries.getTimeSeries());
     final DoubleTimeSeries<?> riskFreeTS = riskFreeTimeSeries.getTimeSeries().divide(100 * DAYS_IN_YEAR);
@@ -163,14 +163,14 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
     if (marketTimeSeries == null) {
       return null;
     }
-    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(marketTimeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
-        DateConstraint.VALUATION_TIME, true));
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(marketTimeSeries,
+        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true));
     final HistoricalTimeSeriesResolutionResult riskFreeTimeSeries = resolver.resolve(bundle.getCAPMRiskFreeRate(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
     if (riskFreeTimeSeries == null) {
       return null;
     }
-    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(riskFreeTimeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
-        DateConstraint.VALUATION_TIME, true));
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(riskFreeTimeSeries,
+        MarketDataRequirementNames.MARKET_VALUE, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true));
     return requirements;
   }
 
@@ -200,23 +200,23 @@ public abstract class CAPMFromRegressionModelFunction extends AbstractFunction.N
   }
 
   public abstract Object getTarget(ComputationTarget target);
-  
+
   private ValueProperties getResultProperties() {
     return createValueProperties()
-      .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-      .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-      .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-      .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
+        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR).get();
   }
-  
+
   private ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-    return createValueProperties()    
-      .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
-      .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
-      .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-      .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR)).get();
+    return createValueProperties()
+        .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
+        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
+        .with(ValuePropertyNames.RETURN_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.RETURN_CALCULATOR)).get();
   }
-  
+
   private TimeSeriesReturnCalculator getReturnCalculator(final Set<String> returnCalculatorNames) {
     if (returnCalculatorNames == null || returnCalculatorNames.isEmpty() || returnCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique return calculator name: " + returnCalculatorNames);

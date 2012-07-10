@@ -21,5 +21,13 @@ public interface HistoricalTimeSeriesAdjuster {
    * @return  the adjusted time-series, not null
    */
   HistoricalTimeSeries adjust(ExternalIdBundle securityIdBundle, HistoricalTimeSeries timeSeries);
-  
+
+  /**
+   * Produces the adjustment operation for a given time series.
+   * 
+   * @param securityIdBundle the security identifiers associated with the time-series, not null
+   * @return the adjustment operation, not null
+   */
+  HistoricalTimeSeriesAdjustment getAdjustment(ExternalIdBundle securityIdBundle);
+
 }

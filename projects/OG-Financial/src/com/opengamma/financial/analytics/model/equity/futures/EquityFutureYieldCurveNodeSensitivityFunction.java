@@ -59,7 +59,7 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
   private static final EquityFuturesRatesSensitivityCalculator CALCULATOR = EquityFuturesRatesSensitivityCalculator.getInstance();
   private final String _fundingCurveName;
   private EquityFutureConverter _converter;
-  
+
   public EquityFutureYieldCurveNodeSensitivityFunction(final String fundingCurveName) {
     Validate.notNull(fundingCurveName);
     _fundingCurveName = fundingCurveName;
@@ -69,21 +69,21 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
   public void init(final FunctionCompilationContext context) {
     _converter = new EquityFutureConverter();
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final Double lastMarginPrice = timeSeries.get(security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+    final Double lastMarginPrice = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
     final EquityFutureDefinition definition = _converter.visitEquityFutureTrade(trade);
     final EquityFuture derivative = definition.toDerivative(valuationTime);
     final YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
     final Double spot = getSpot(security, inputs);
     final Double marketPrice = getMarketPrice(security, inputs);
-    double dividendYield = timeSeries.get(security.getUnderlyingId()).getTimeSeries().getLatestValue();
+    double dividendYield = timeSeries.get(DIVIDEND_YIELD_FIELD, security.getUnderlyingId()).getTimeSeries().getLatestValue();
     dividendYield /= 100.0;
     final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, new EquityFutureDataBundle(fundingCurve, marketPrice, spot, dividendYield, null));
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(security.getCurrency()));
@@ -134,29 +134,29 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(getValueSpecification(target));
   }
-  
+
   private ValueRequirement getSpotAssetRequirement(EquityFutureSecurity security) {
     ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
     return req;
   }
-  
+
   private ValueRequirement getMarketPriceRequirement(EquityFutureSecurity security) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
   }
-  
+
   private ValueRequirement getCurveSpecRequirement(final Currency currency) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
-  
+
   private ValueRequirement getMarketValueRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(security.getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueRequirement getDividendYieldRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
@@ -165,8 +165,8 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, DIVIDEND_YIELD_FIELD, DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)),
+        true, DateConstraint.VALUATION_TIME, true);
   }
 
   private Double getSpot(EquityFutureSecurity security, FunctionInputs inputs) {
@@ -186,7 +186,7 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
     }
     return (Double) marketPriceObject;
   }
-  
+
   private YieldAndDiscountCurve getYieldCurve(EquityFutureSecurity security, FunctionInputs inputs) {
     final ValueRequirement curveRequirement = getDiscountCurveRequirement(security);
     final Object curveObject = inputs.getValue(curveRequirement);
@@ -195,12 +195,12 @@ public class EquityFutureYieldCurveNodeSensitivityFunction extends AbstractFunct
     }
     return (YieldAndDiscountCurve) curveObject;
   }
-  
+
   private ValueRequirement getDiscountCurveRequirement(EquityFutureSecurity security) {
     ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, _fundingCurveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
-  
+
   private ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityFutureSecurity security = (EquityFutureSecurity) target.getTrade().getSecurity();
     final ValueProperties properties = createValueProperties()
