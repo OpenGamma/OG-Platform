@@ -13,7 +13,8 @@ $.register_module({
                 snap_distance: 3,
                 surface_x: 100,
                 surface_z: 100,
-                interactive_color: '0xff0000',
+                interactive_color_nix: '0xff0000',
+                interactive_color_css: '#f00',
                 vertex_shading_hue_min: 180,
                 vertex_shading_hue_max: 0,
                 floating_height: 10 // how high does the top surface float over the bottom grid
@@ -145,7 +146,7 @@ $.register_module({
              * @param {String} str String you want to create
              * @returns {THREE.Mesh}
              */
-            var Text = function (str) {
+            var Text = function (str, color) {
                 var create_texture_map = function (str) {
                     var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'),
                         size = settings.font_size;
@@ -153,7 +154,7 @@ $.register_module({
                     canvas.width = ctx.measureText(str).width;
                     canvas.height = Math.ceil(size * 1.25);
                     ctx.font = (size + 'px ' + settings.font_face);
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = color || '#000';
                     ctx.fillText(str, 0, size);
                     return canvas;
                 },
@@ -289,7 +290,7 @@ $.register_module({
                  * So we create separate tubes and add them to an object
                  */
                 var mesh = new THREE.Object3D(), i = points.length - 1, line, tube,
-                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color, wireframe: false});
+                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color_nix, wireframe: false});
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
                     tube = new THREE.TubeGeometry(line, 1, 0.2, 10, false, false);
@@ -361,9 +362,29 @@ $.register_module({
                     zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
                     hover_group.add(surface.create_tube(xvertices_bottom));
                     hover_group.add(surface.create_tube(zvertices_bottom));
-                    // add
-                    surface_top_group.add(hover_group);
+                    // labels
+                    ['x', 'z'].forEach(function (val) {
+                        var lbl_arr = config[val + 's_labels'] || config[val + 's'],
+                            txt = val === 'x'
+                                ? lbl_arr[index % (x_segments + 1)]
+                                : lbl_arr[~~(index / (x_segments + 1))],
+                            lbl = new Text(txt, settings.interactive_color_css),
+                            vertices = val === 'x' ? zvertices : xvertices;
+                        lbl.scale.set(0.2, 0.2, 0.2);
+                        lbl.position.y = -settings.floating_height + 1.1;
+                        if (val === 'x') {
+                            lbl.position.x = vertices[0][val];
+                            lbl.position.z = (settings.surface_z / 2) + 13;
+                        }
+                        if (val === 'z') {
+                            lbl.position.x = -((settings.surface_x / 2) + 13);
+                            lbl.position.z = vertices[0][val];
+                            lbl.rotation.y = -1.57;
+                        }
+                        hover_group.add(lbl);
+                    });
                 }());
+                surface_top_group.add(hover_group);
             };
             /**
              * On mouse move determin the mouse position in 3D space,
@@ -444,7 +465,7 @@ $.register_module({
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
                     new THREE.SphereGeometry(1.5, 10, 10),
-                    new THREE.MeshLambertMaterial({color: settings.interactive_color, shading: THREE.FlatShading})
+                    new THREE.MeshLambertMaterial({color: settings.interactive_color_nix, shading: THREE.FlatShading})
                 );
                 sphere.visible = false;
                 return sphere;
