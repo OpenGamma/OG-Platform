@@ -65,15 +65,16 @@ public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     final FixedInterestRateLeg receiveLeg3 = new FixedInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, 0.0365);
     final SwapSecurity swap3 = new SwapSecurity(TRADE_DATE, TRADE_DATE, MATURITY, COUNTERPARTY, payLeg3, receiveLeg3);
     swap3.setName("Swap: receive 3.65% fixed ACT/365 vs 3m Bank Bill");
-    final FloatingInterestRateLeg payLeg4 = new FloatingInterestRateLeg(ACT_360, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, AUD_LIBOR_3M, FloatingRateType.IBOR);
-    final FixedInterestRateLeg receiveLeg4 = new FixedInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, 0.036);
+    final FloatingInterestRateLeg receiveLeg4 = new FloatingInterestRateLeg(ACT_365, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, AUD_LIBOR_3M, FloatingRateType.IBOR);
+    final FixedInterestRateLeg payLeg4 = new FixedInterestRateLeg(ACT_360, QUARTERLY, REGION, FOLLOWING, NOTIONAL, true, 0.036);
     final SwapSecurity swap4 = new SwapSecurity(TRADE_DATE, TRADE_DATE, MATURITY, COUNTERPARTY, payLeg4, receiveLeg4);
-    swap4.setName("Swap: receive 3.60% fixed ACT/365 vs 3m Bank Bill");
+    swap4.setName("Swap: receive 3.60% fixed ACT/360 vs 3m Bank Bill");
     SWAPS[0] = swap1;
     SWAPS[1] = swap2;
     SWAPS[2] = swap3;
     SWAPS[3] = swap4;
   }
+
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
     final SecurityGenerator<SwapSecurity> securities = createSwapSecurityGenerator();

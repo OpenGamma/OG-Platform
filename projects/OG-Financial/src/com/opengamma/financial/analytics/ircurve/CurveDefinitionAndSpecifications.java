@@ -405,6 +405,30 @@ public class CurveDefinitionAndSpecifications {
     return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "Discounting", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
+  public static YieldCurveDefinition buildSecondaryForward3MBasisAUDCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.THREE_MONTHS, "SECONDARY"));
+    for (final int i : new int [] {1, 2, 3}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "SECONDARY_3M"));
+    }
+    for (final int i : new int[] {4, 5}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.ofYears(i), Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, IndexType.BBSW, IndexType.BBSW, "SECONDARY_3M"));
+    }
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "ForwardBasis3M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+  }
+
+  public static YieldCurveDefinition buildSecondaryForward6MBasisAUDCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.SIX_MONTHS, "SECONDARY"));
+    for (final int i : new int [] {4, 5, 10}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "SECONDARY_6M"));
+    }
+    for (final int i : new int[] {1, 2, 3}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.ofYears(i), Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, IndexType.BBSW, IndexType.BBSW, "SECONDARY_6M"));
+    }
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "ForwardBasis6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+  }
+
   public static Map<String, Map<Currency, YieldCurveDefinition>> buildNewCurveDefinitions() {
     final Map<Currency, YieldCurveDefinition> forward3MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
     final Map<Currency, YieldCurveDefinition> forward6MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
@@ -533,6 +557,38 @@ public class CurveDefinitionAndSpecifications {
     return configurations;
   }
 
+  public static CurveSpecificationBuilderConfiguration buildSyntheticAUD3MCurveSpecification() {
+    final ExternalScheme scheme = ExternalSchemes.OG_SYNTHETIC_TICKER;
+    final Tenor[] tenors = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9),
+        Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50), Tenor.ofYears(80)};
+    final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    for (final Tenor tenor : tenors) {
+      fraInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.FRA_3M, scheme));
+      swapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.SWAP_3M, scheme));
+      basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.BASIS_SWAP, scheme));
+    }
+    return new CurveSpecificationBuilderConfiguration(null, fraInstrumentProviders, null, null, null, null, null, null, null, null,
+        swapInstrumentProviders, basisSwapInstrumentProviders, null, null, null, null, null);
+  }
+
+  public static CurveSpecificationBuilderConfiguration buildSyntheticAUD6MCurveSpecification() {
+    final ExternalScheme scheme = ExternalSchemes.OG_SYNTHETIC_TICKER;
+    final Tenor[] tenors = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9),
+        Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50), Tenor.ofYears(80)};
+    final Map<Tenor, CurveInstrumentProvider> fraInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> swapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
+    for (final Tenor tenor : tenors) {
+      fraInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.FRA_6M, scheme));
+      swapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.SWAP_6M, scheme));
+      basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.BASIS_SWAP, scheme));
+    }
+    return new CurveSpecificationBuilderConfiguration(null, null, fraInstrumentProviders, null, null, null, null, null, null,
+        swapInstrumentProviders, null, basisSwapInstrumentProviders, null, null, null, null, null);
+  }
+
   private static CurveSpecificationBuilderConfiguration buildSyntheticCurveSpecificationBuilderConfiguration(final Currency ccy, final ExternalScheme scheme) {
     final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
@@ -549,12 +605,10 @@ public class CurveDefinitionAndSpecifications {
     final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
     final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders = new HashMap<Tenor, CurveInstrumentProvider>();
 
-    final Tenor[] tenors = new Tenor[] {
-        Tenor.DAY, Tenor.TWO_DAYS, Tenor.THREE_DAYS, Tenor.ONE_WEEK, Tenor.TWO_WEEKS, Tenor.THREE_WEEKS,
-        Tenor.ONE_MONTH, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS,
-        Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS, Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6),
-        Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30),
-        Tenor.ofYears(40), Tenor.ofYears(50), Tenor.ofYears(80)};
+    final Tenor[] tenors = new Tenor[] {Tenor.DAY, Tenor.TWO_DAYS, Tenor.THREE_DAYS, Tenor.ONE_WEEK, Tenor.TWO_WEEKS, Tenor.THREE_WEEKS, Tenor.ONE_MONTH, Tenor.TWO_MONTHS,
+        Tenor.THREE_MONTHS, Tenor.FOUR_MONTHS, Tenor.FIVE_MONTHS, Tenor.SIX_MONTHS, Tenor.SEVEN_MONTHS, Tenor.EIGHT_MONTHS, Tenor.NINE_MONTHS, Tenor.TEN_MONTHS, Tenor.ELEVEN_MONTHS,
+        Tenor.TWELVE_MONTHS, Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FOUR_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(6), Tenor.ofYears(7), Tenor.ofYears(8), Tenor.ofYears(9),
+        Tenor.ofYears(10), Tenor.ofYears(11), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(25), Tenor.ofYears(30), Tenor.ofYears(40), Tenor.ofYears(50), Tenor.ofYears(80)};
 
     for (final Tenor tenor : tenors) {
       cashInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(ccy, StripInstrumentType.CASH, scheme));

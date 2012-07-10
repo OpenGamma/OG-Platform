@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -47,6 +46,7 @@ public class MultiCurveCalculationConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultEURConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultJPYConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultCHFConfig));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDThreeCurveConfig()));
   }
 
   private static ConfigDocument<MultiCurveCalculationConfig> makeConfigDocument(final MultiCurveCalculationConfig curveConfig) {
@@ -148,7 +148,7 @@ public class MultiCurveCalculationConfigPopulator {
 
   private static MultiCurveCalculationConfig getAUDThreeCurveConfig() {
     final String[] yieldCurveNames = new String[] {"Discounting", "ForwardBasis3M", "ForwardBasis6M"};
-    final UniqueId uniqueId = Currency.AUD.getUniqueId();
+    final Currency uniqueId = Currency.AUD;
     final String calculationMethod = MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
     final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments = new LinkedHashMap<String, CurveInstrumentConfig>();
     final Map<StripInstrumentType, String[]> discountingConfig = new HashMap<StripInstrumentType, String[]>();
@@ -159,9 +159,9 @@ public class MultiCurveCalculationConfigPopulator {
     forwardBasis3MConfig.put(StripInstrumentType.SWAP_3M, new String[] {"Discounting", "ForwardBasis3M"});
     forwardBasis3MConfig.put(StripInstrumentType.LIBOR, new String[] {"ForwardBasis3M"});
     final Map<StripInstrumentType, String[]> forwardBasis6MConfig = new HashMap<StripInstrumentType, String[]>();
-    forwardBasis3MConfig.put(StripInstrumentType.BASIS_SWAP, new String[] {"Discounting", "ForwardBasis3M", "ForwardBasis6M"});
-    forwardBasis3MConfig.put(StripInstrumentType.SWAP_6M, new String[] {"Discounting", "ForwardBasis6M"});
-    forwardBasis3MConfig.put(StripInstrumentType.FRA_6M, new String[] {"Discounting", "ForwardBasis3M"});
+    forwardBasis6MConfig.put(StripInstrumentType.BASIS_SWAP, new String[] {"Discounting", "ForwardBasis3M", "ForwardBasis6M"});
+    forwardBasis6MConfig.put(StripInstrumentType.SWAP_6M, new String[] {"Discounting", "ForwardBasis6M"});
+    forwardBasis6MConfig.put(StripInstrumentType.LIBOR, new String[] {"ForwardBasis6M"});
     curveExposuresForInstruments.put("Discounting", new CurveInstrumentConfig(discountingConfig));
     curveExposuresForInstruments.put("ForwardBasis3M", new CurveInstrumentConfig(forwardBasis3MConfig));
     curveExposuresForInstruments.put("ForwardBasis6M", new CurveInstrumentConfig(forwardBasis6MConfig));

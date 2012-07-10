@@ -98,8 +98,25 @@ public class YieldCurveConfigPopulator {
         dumpDefinition(definition);
       }
     }
-    //TODO fix me
-    CurveDefinitionAndSpecifications.buildSecondaryDiscountingAUDCurveDefinition();
+    final YieldCurveDefinition audDiscounting = CurveDefinitionAndSpecifications.buildSecondaryDiscountingAUDCurveDefinition();
+    final YieldCurveDefinition audForwardBasis3M = CurveDefinitionAndSpecifications.buildSecondaryForward3MBasisAUDCurveDefinition();
+    final YieldCurveDefinition audForwardBasis6M = CurveDefinitionAndSpecifications.buildSecondaryForward6MBasisAUDCurveDefinition();
+    final Currency ccy = Currency.AUD;
+    ConfigDocument<YieldCurveDefinition> document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    document.setName("Discounting_" + ccy.getCode());
+    document.setValue(audDiscounting);
+    ConfigMasterUtils.storeByName(configMaster, document);
+    dumpDefinition(audDiscounting);
+    document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    document.setName("ForwardBasis3M_" + ccy.getCode());
+    document.setValue(audForwardBasis3M);
+    ConfigMasterUtils.storeByName(configMaster, document);
+    dumpDefinition(audForwardBasis3M);
+    document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    document.setName("ForwardBasis6M_" + ccy.getCode());
+    document.setValue(audForwardBasis6M);
+    ConfigMasterUtils.storeByName(configMaster, document);
+    dumpDefinition(audForwardBasis6M);
   }
 
   public static void populateCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {
@@ -122,7 +139,17 @@ public class YieldCurveConfigPopulator {
       doc.setValue(entry.getValue());
       ConfigMasterUtils.storeByName(configMaster, doc);
     }
-
+    final Currency ccy = Currency.AUD;
+    final CurveSpecificationBuilderConfiguration audCurveSpec3M = CurveDefinitionAndSpecifications.buildSyntheticAUD3MCurveSpecification();
+    final CurveSpecificationBuilderConfiguration audCurveSpec6M = CurveDefinitionAndSpecifications.buildSyntheticAUD6MCurveSpecification();
+    ConfigDocument<CurveSpecificationBuilderConfiguration> doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
+    doc.setName("SECONDARY_3M_" + ccy.getCode());
+    doc.setValue(audCurveSpec3M);
+    ConfigMasterUtils.storeByName(configMaster, doc);
+    doc = new ConfigDocument<CurveSpecificationBuilderConfiguration>(CurveSpecificationBuilderConfiguration.class);
+    doc.setName("SECONDARY_6M_" + ccy.getCode());
+    doc.setValue(audCurveSpec6M);
+    ConfigMasterUtils.storeByName(configMaster, doc);
   }
 
 }

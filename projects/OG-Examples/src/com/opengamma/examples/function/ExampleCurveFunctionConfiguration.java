@@ -96,7 +96,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(MultiYieldCurvePresentValueMethodFunction.class));
     functionConfigs.add(functionConfiguration(MultiYieldCurveParRateMethodFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD",
-        "EUR", "GBP", "JPY", "CHF"));
+        "EUR", "GBP", "JPY", "CHF", "AUD"));
   }
 
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {

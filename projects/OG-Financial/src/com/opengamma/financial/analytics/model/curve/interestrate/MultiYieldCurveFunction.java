@@ -120,9 +120,11 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       final ValueProperties properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, curveName)
           .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withOptional(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+      final ValueProperties curveProperties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties));
-      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties));
+      //requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, curveProperties));
     }
     if (curveCalculationConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurveConfigs = curveCalculationConfig.getExogenousConfigData();

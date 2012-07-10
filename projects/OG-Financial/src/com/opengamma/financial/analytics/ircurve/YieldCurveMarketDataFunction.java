@@ -76,6 +76,16 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
+    public boolean canHandleMissingInputs() {
+      return true;
+    }
+
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+
+    @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
         final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final SnapshotDataBundle map = buildMarketDataMap(inputs);
@@ -105,7 +115,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _helper.canApplyTo(target);
     }
-
   }
 
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification,

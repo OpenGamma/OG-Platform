@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.config.ConfigSource;
@@ -24,6 +25,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -65,6 +67,16 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
   }
 
   @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+
+  @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
@@ -90,8 +102,9 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), createValueProperties()
-        .withAny(ValuePropertyNames.CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
+        createValueProperties()
+        .withAny(ValuePropertyNames.CURVE).get()));
   }
 
   @Override
@@ -104,7 +117,8 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     if ((curveCalculations == null) || (curveCalculations.size() != 1)) {
       return null;
     }
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), desiredValue.getConstraints()));
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, Iterables.getOnlyElement(curveNames)).get();
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), properties));
   }
 
   @Override
@@ -125,15 +139,16 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     }
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    for (ValueRequirement timeSeriesRequirement : timeSeriesRequirements) {
+    for (final ValueRequirement timeSeriesRequirement : timeSeriesRequirements) {
       final HistoricalTimeSeries hts = HistoricalTimeSeriesFunction.executeImpl(executionContext, timeSeriesSource, timeSeriesRequirement);
       if (hts == null) {
         throw new OpenGammaRuntimeException("Can't get time series for " + timeSeriesRequirement);
       }
       timeSeries.add(timeSeriesRequirement.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY), timeSeriesSource.getExternalIdBundle(hts.getUniqueId()), hts);
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), desiredValue
-        .getConstraints()), timeSeries));
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
+        target.toSpecification(), properties), timeSeries));
   }
 
 }
