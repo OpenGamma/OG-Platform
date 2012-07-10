@@ -277,7 +277,7 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (marketSector.equals(MARKET_SECTOR_GOVT)) {
+      if (marketSector.equals(MARKET_SECTOR_GOVT) || marketSector.equals(MARKET_SECTOR_CORP)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
@@ -285,6 +285,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+        /**
       } else if (marketSector.equals(MARKET_SECTOR_CORP)) {
         bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -293,6 +294,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+        */
       } else if (marketSector.equals(MARKET_SECTOR_MUNI)) {
         bondSecurity = new MunicipalBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
