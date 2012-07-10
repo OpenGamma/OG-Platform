@@ -297,7 +297,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivity *= -1;
       }
-      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(id);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }
@@ -319,7 +319,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     final double[] values = curveSensitivities.getValues();
     for (int i = 0; i < labels.length; i++) {
       final ExternalId id = (ExternalId) labels[i];
-      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(id);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (dbNodeTimeSeries == null) {
         throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id);
       }

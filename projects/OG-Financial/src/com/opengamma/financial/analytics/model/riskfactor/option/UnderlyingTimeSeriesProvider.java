@@ -65,7 +65,7 @@ public class UnderlyingTimeSeriesProvider {
     if (timeSeries == null) {
       throw new OpenGammaRuntimeException("Could not resolve time series for " + underlyingId + " for security " + security + " for " + getResolutionKey() + "/" + fieldName);
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), startDate, true, endDate, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName, startDate, true, endDate, true);
   }
 
   private static class FieldGreekVisitor extends AbstractGreekVisitor<String> {

@@ -118,8 +118,8 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     if (timeSeries == null) {
       return null;
     }
-    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true,
-        DateConstraint.VALUATION_TIME, true));
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true, DateConstraint.VALUATION_TIME, true));
     return requirements;
   }
 

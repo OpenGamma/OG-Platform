@@ -51,8 +51,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * This function will produce all valueRequirements that the EquityFutureSecurity offers.
- * A trade may produce additional generic ones, e.g. date and number of contracts..  
+ * This function will produce all valueRequirements that the EquityFutureSecurity offers. A trade may produce additional generic ones, e.g. date and number of contracts..
  */
 public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -66,10 +65,10 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   private final String _pricingMethodName;
 
   /**
-  * @param valueRequirementName String describes the value requested 
-  * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD}
-  * @param fundingCurveName The name of the curve that will be used for discounting 
-  */
+   * @param valueRequirementName String describes the value requested
+   * @param pricingMethodName String corresponding to enum EquityFuturesPricingMethod {MARK_TO_MARKET or COST_OF_CARRY, DIVIDEND_YIELD}
+   * @param fundingCurveName The name of the curve that will be used for discounting
+   */
   public EquityFuturesFunction(final String valueRequirementName, final String pricingMethodName, final String fundingCurveName) {
     Validate.notNull(valueRequirementName, "value requirement name");
     Validate.notNull(pricingMethodName, "pricing method name");
@@ -107,7 +106,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     final EquityFutureSecurity security = (EquityFutureSecurity) trade.getSecurity();
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final Double lastMarginPrice = timeSeries.get(security.getExternalIdBundle()).getTimeSeries().getLatestValue();
+    final Double lastMarginPrice = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
     // Build the analytic's version of the security - the derivative    
     final EquityFutureDefinition definition = _financialToAnalyticConverter.visitEquityFutureTrade(trade);
@@ -126,7 +125,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
         break;
       case DIVIDEND_YIELD:
         Double spot = getSpot(security, inputs);
-        Double dividendYield = timeSeries.get(security.getUnderlyingId()).getTimeSeries().getLatestValue();
+        Double dividendYield = timeSeries.get(DIVIDEND_YIELD_FIELD, security.getUnderlyingId()).getTimeSeries().getLatestValue();
         dividendYield /= 100.0;
         YieldAndDiscountCurve fundingCurve = getYieldCurve(security, inputs);
         dataBundle = new EquityFutureDataBundle(fundingCurve, null, spot, dividendYield, null);
@@ -139,7 +138,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
   }
 
   /**
-   * Given _valueRequirement and _pricingMethod supplied, this calls to OG-Analytics. 
+   * Given _valueRequirement and _pricingMethod supplied, this calls to OG-Analytics.
+   * 
    * @return Call to the Analytics to get the value required
    */
   private Set<ComputedValue> getComputedValue(EquityFuture derivative, EquityFutureDataBundle bundle, SimpleTrade trade) {
@@ -287,8 +287,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueRequirement getDividendYieldRequirement(final FunctionCompilationContext context, final EquityFutureSecurity security) {
@@ -297,8 +297,8 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, DIVIDEND_YIELD_FIELD,
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
   @Override
@@ -306,8 +306,10 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
     return Collections.singleton(getValueSpecification(_valueRequirementName, target.getTrade().getSecurity()));
   }
 
-  /** Create a ValueSpecification, the meta data for the value itself.
-   * @param equityFuture 
+  /**
+   * Create a ValueSpecification, the meta data for the value itself.
+   * 
+   * @param equityFuture
    * @param equityFutureSecurity The OG_Financial Security
    */
   private ValueSpecification getValueSpecification(final String valueRequirementName, final Security equityFutureSecurity) {

@@ -60,11 +60,10 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, s_marketDataRequirementNamesMap.get(_requirementName),
-        null);
-    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)),
-        true,
-        DateConstraint.VALUATION_TIME.yesterday(), true));
+    final String fieldName = s_marketDataRequirementNamesMap.get(_requirementName);
+    final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(target.getSecurity().getExternalIdBundle(), null, null, null, fieldName, null);
+    return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName,
+        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME.yesterday(), true));
   }
 
   @Override

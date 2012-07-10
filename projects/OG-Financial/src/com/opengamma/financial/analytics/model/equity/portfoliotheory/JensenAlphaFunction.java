@@ -66,8 +66,8 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueProperties constraints = desiredValue.getConstraints();
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-    final HistoricalTimeSeries marketTS = timeSeries.get(bundle.getCAPMMarket());
-    final HistoricalTimeSeries riskFreeRateTS = timeSeries.get(bundle.getCAPMRiskFreeRate());
+    final HistoricalTimeSeries marketTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket());
+    final HistoricalTimeSeries riskFreeRateTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate());
     final Object assetPnLObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PNL_SERIES, positionOrNode)); //TODO replace with return series when portfolio weights are in
     if (assetPnLObject == null) {
       throw new OpenGammaRuntimeException("Asset P&L was null");
@@ -157,12 +157,14 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
     if (timeSeries == null) {
       return null;
     }
-    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), startDate, true, DateConstraint.VALUATION_TIME, true));
+    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, startDate, true,
+        DateConstraint.VALUATION_TIME, true));
     timeSeries = resolver.resolve(bundle.getCAPMRiskFreeRate(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
-    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), startDate, true, DateConstraint.VALUATION_TIME, true));
+    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, startDate, true,
+        DateConstraint.VALUATION_TIME, true));
     return result;
   }
 

@@ -78,6 +78,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
 
+  /**
+   * The default property used to manipulate all root market data prior to cycle execution.
+   */
+  public static final String MARKET_DATA_SHIFT_PROPERTY = "MARKET_DATA_SHIFT";
+
   private enum NodeStateFlag {
     /**
      * Node was executed successfully.
@@ -364,7 +369,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
     final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
     for (ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
-      final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues("MARKET_DATA_SHIFT");
+      final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
       OverrideOperation operation = null;
       if (marketDataShift != null) {
         if (marketDataShift.size() != 1) {

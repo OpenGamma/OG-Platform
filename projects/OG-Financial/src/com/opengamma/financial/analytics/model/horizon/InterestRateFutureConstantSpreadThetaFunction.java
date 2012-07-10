@@ -99,7 +99,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0]} : curveNames;
+    final String[] yieldCurveNames = curveNames.length == 1 ? new String[] {curveNames[0], curveNames[0] } : curveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
@@ -167,8 +167,8 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     if (timeSeries == null) {
       return null;
     }
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true);
   }
 
   private ValueProperties.Builder getResultProperties(final String currency) {

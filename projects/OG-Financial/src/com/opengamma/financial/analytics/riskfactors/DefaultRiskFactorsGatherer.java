@@ -267,7 +267,10 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
 
   @Override
   public Set<Pair<String, ValueProperties>> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
-    throw new NotImplementedException();
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .addAll(getSabrSensitivities())
+        .add(getPresentValue(ValueProperties.builder()))
+        .add(getVegaMatrix(ValueProperties.builder())).build();
   }
 
   @Override

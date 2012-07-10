@@ -270,7 +270,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     for (int i = 0; i < n; i++) {
       final ExternalId id = (ExternalId) labels[i];
       final double sensitivity = values[i];
-      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(id);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {
@@ -289,7 +289,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final double[] values = curveSensitivities.getValues();
     for (int i = 0; i < labels.length; i++) {
       final ExternalId id = (ExternalId) labels[i];
-      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(id);
+      final HistoricalTimeSeries dbNodeTimeSeries = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, id);
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = DIFFERENCE.evaluate(nodeTimeSeries);
       if (pnlSeries == null) {

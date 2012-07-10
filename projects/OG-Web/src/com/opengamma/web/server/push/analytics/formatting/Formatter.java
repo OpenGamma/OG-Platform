@@ -12,11 +12,11 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface Formatter<T> {
 
-  String formatForDisplay(T value, ValueSpecification valueSpec);
+  Object formatForDisplay(T value, ValueSpecification valueSpec);
 
   Object formatForExpandedDisplay(T value, ValueSpecification valueSpec);
 
-  Object formatForHistory(T value, ValueSpecification valueSpec);
+  Object formatForHistory(T history, ValueSpecification valueSpec);
 
   String getName();
 

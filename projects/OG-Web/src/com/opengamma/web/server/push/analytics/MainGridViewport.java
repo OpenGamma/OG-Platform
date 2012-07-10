@@ -57,7 +57,7 @@ public class MainGridViewport extends AnalyticsViewport {
               boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, value.getClass());
               columnsUpdated = columnsUpdated || columnUpdated;
               if (_viewportSpec.getColumns().contains(colIndex)) {
-                Object valueHistory = history.getHistory(valueSpec);
+                List<Object> valueHistory = history.getHistory(valueSpec, value.getValue());
                 ViewportResults.Cell cell = ViewportResults.valueCell(value.getValue(), valueSpec, valueHistory);
                 rowResultsMap.put(colIndex, cell);
               }

@@ -43,7 +43,7 @@ public class ViewportResults {
     return new Cell(value, null, null);
   }
 
-  public static Cell valueCell(Object value, ValueSpecification valueSpecification, Object history) {
+  public static Cell valueCell(Object value, ValueSpecification valueSpecification, List<Object> history) {
     return new Cell(value, valueSpecification, history);
   }
 
@@ -51,9 +51,9 @@ public class ViewportResults {
 
     private final Object _value;
     private final ValueSpecification _valueSpecification;
-    private final Object _history; // TODO what type should this be?
+    private final List<Object> _history; // TODO what type should this be?
 
-    private Cell(Object value, ValueSpecification valueSpecification, Object history) {
+    private Cell(Object value, ValueSpecification valueSpecification, List<Object> history) {
       ArgumentChecker.notNull(value, "value");
       _value = value;
       _valueSpecification = valueSpecification;
@@ -68,7 +68,7 @@ public class ViewportResults {
       return _valueSpecification;
     }
 
-    public Object getHistory() {
+    public List<Object> getHistory() {
       return _history;
     }
   }

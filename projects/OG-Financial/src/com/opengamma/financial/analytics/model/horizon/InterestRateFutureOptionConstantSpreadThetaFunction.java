@@ -172,9 +172,8 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     if (timeSeries == null) {
       return null;
     }
-    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1))
-        .previousWeekDay(),
-        true, DateConstraint.VALUATION_TIME, false));
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, false));
     return requirements;
   }
 

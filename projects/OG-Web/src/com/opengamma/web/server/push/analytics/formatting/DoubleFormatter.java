@@ -46,13 +46,13 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Returns the value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
-   * @param value The value, not null
+   * @param history The value, not null
    * @param valueSpec The specification that produced the value
    * @return The value as a {@link BigDecimal} or {@code null} if it is infinite or not a number.
    */
   @Override
-  public BigDecimal formatForHistory(Double value, ValueSpecification valueSpec) {
-    BigDecimal bigDecimal = convertToBigDecimal(value);
+  public BigDecimal formatForHistory(Double history, ValueSpecification valueSpec) {
+    BigDecimal bigDecimal = convertToBigDecimal(history);
     if (bigDecimal == null) {
       return null;
     } else {

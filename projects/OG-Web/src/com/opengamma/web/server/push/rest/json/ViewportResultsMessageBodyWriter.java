@@ -76,9 +76,12 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
             formattedValue = _formatter.formatForDisplay(cell.getValue(), cell.getValueSpecification());
           }
         }
-        Object history = cell == null ? null : cell.getHistory();
+        List<Object> history = cell == null ? null : cell.getHistory();
         if (history != null) {
-          Object formattedHistory = _formatter.formatForHistory(history, cell.getValueSpecification());
+          List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
+          for (Object historyValue : history) {
+            formattedHistory.add(_formatter.formatForHistory(historyValue, cell.getValueSpecification()));
+          }
           Object[] valueWithHistory = {formattedValue, formattedHistory};
           rowResults.add(valueWithHistory);
         } else {

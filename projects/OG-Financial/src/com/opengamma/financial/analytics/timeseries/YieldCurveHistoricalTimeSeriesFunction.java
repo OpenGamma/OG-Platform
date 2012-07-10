@@ -71,7 +71,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
       final ExternalIdBundle id = ExternalIdBundle.of(strip.getSecurityIdentifier());
       final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeries != null) {
-        bundle.add(strip.getSecurityIdentifier(), timeSeries);
+        bundle.add(dataField, id, timeSeries);
       } else {
         s_logger.warn("Couldn't get time series for {}", id);
       }

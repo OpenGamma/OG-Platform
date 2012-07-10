@@ -202,8 +202,8 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
         return null;
       }
       // TODO: this is not great, but we don't know the range of the underlying time series when the graph is built
-      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-          DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true));
+      return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true,
+          DateConstraint.VALUATION_TIME, true));
     }
 
     @Override

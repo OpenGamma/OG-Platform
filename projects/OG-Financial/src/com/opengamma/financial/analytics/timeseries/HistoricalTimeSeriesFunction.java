@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
 
 /**
  * Function to source time series data from a {@link HistoricalTimeSeriesSource} attached to the execution context.
@@ -45,7 +46,10 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
       endDate = executionContext.getValuationClock().today();
     }
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
-    return timeSeriesSource.getHistoricalTimeSeries(desiredValue.getTargetSpecification().getUniqueId(), startDate, includeStart, endDate, includeEnd);
+    HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(desiredValue.getTargetSpecification().getUniqueId(), startDate, includeStart, endDate, includeEnd);
+    final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
+    hts = HistoricalTimeSeriesAdjustment.parse(adjusterString).adjust(hts);
+    return hts;
   }
 
   @Override
@@ -73,6 +77,8 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), createValueProperties()
+        .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
+        .withAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
         .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
@@ -82,7 +88,14 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     ValueProperties.Builder constraints = null;
-    Set<String> values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+    Set<String> values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
+    if ((values == null) || values.isEmpty()) {
+      constraints = desiredValue.getConstraints().copy().withoutAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY).with(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY, "");
+    } else if (values.size() > 1) {
+      constraints = desiredValue.getConstraints().copy().withoutAny(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY)
+          .with(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY, values.iterator().next());
+    }
+    values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if ((values == null) || values.isEmpty()) {
       if (constraints == null) {
         constraints = desiredValue.getConstraints().copy();

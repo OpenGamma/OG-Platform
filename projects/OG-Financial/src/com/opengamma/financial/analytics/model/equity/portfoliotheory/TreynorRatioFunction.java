@@ -156,8 +156,8 @@ public abstract class TreynorRatioFunction extends AbstractFunction.NonCompiledI
     if (timeSeries == null) {
       return null;
     }
-    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true,
-        DateConstraint.VALUATION_TIME, true));
+    result.add(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
+        DateConstraint.VALUATION_TIME.minus(samplingPeriodName), true, DateConstraint.VALUATION_TIME, true));
     return result;
   }
 
