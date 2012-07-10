@@ -11,12 +11,11 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-/* package */ class MultipleCurrencyAmountFormatter implements Formatter<MultipleCurrencyAmount> {
+/* package */ class MultipleCurrencyAmountFormatter extends NoHistoryFormatter<MultipleCurrencyAmount> {
 
   @Override
-  public Object formatForDisplay(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
-    // TODO implement formatForDisplay()
-    throw new UnsupportedOperationException("formatForDisplay not implemented");
+  public String formatForDisplay(MultipleCurrencyAmount value, ValueSpecification valueSpec) {
+    return "Vectors (" + value.size() + ")";
   }
 
   @Override
@@ -26,14 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
   }
 
   @Override
-  public Object formatForHistory(MultipleCurrencyAmount history, ValueSpecification valueSpec) {
-    // TODO implement formatForHistory()
-    throw new UnsupportedOperationException("formatForHistory not implemented");
-  }
-
-  @Override
   public FormatType getFormatType() {
-    // TODO implement getFormatType()
-    throw new UnsupportedOperationException("getFormatType not implemented");
+    return FormatType.LABELLED_MATRIX_1D;
   }
 }

@@ -19,12 +19,12 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class VolatilitySurfaceFormatter implements Formatter<VolatilitySurface> {
+/* package */ class VolatilitySurfaceFormatter extends NoHistoryFormatter<VolatilitySurface> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceFormatter.class);
 
   @Override
-  public Object formatForDisplay(VolatilitySurface value, ValueSpecification valueSpec) {
+  public String formatForDisplay(VolatilitySurface value, ValueSpecification valueSpec) {
     Surface<Double, Double, Double> inputSurface = value.getSurface();
     if (inputSurface instanceof DoublesSurface) {
       Set<Double> uniqueXValues = Sets.newHashSet(inputSurface.getXData());
@@ -40,11 +40,6 @@ import com.opengamma.engine.value.ValueSpecification;
   public Object formatForExpandedDisplay(VolatilitySurface value, ValueSpecification valueSpec) {
     // TODO implement formatForExpandedDisplay()
     throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
-  }
-
-  @Override
-  public Object formatForHistory(VolatilitySurface history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

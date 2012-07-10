@@ -34,6 +34,9 @@ import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
 @Produces(MediaType.APPLICATION_JSON)
 public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<ViewportResults> {
 
+  private static final String VALUE_KEY = "v";
+  private static final String HISTORY_KEY = "h";
+
   private final ResultsFormatter _formatter;
 
   public ViewportResultsMessageBodyWriter(ResultsFormatter formatter) {
@@ -84,7 +87,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
           for (Object historyValue : history) {
             formattedHistory.add(_formatter.formatForHistory(historyValue, cell.getValueSpecification()));
           }
-          Map<String, Object> valueWithHistory = ImmutableMap.of("v", formattedValue, "h", formattedHistory);
+          Map<String, Object> valueWithHistory = ImmutableMap.of(VALUE_KEY, formattedValue, HISTORY_KEY, formattedHistory);
           rowResults.add(valueWithHistory);
         } else {
           rowResults.add(formattedValue);

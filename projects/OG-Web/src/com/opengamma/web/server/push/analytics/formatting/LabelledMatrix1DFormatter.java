@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class LabelledMatrix1DFormatter implements Formatter<LabelledMatrix1D> {
+/* package */ class LabelledMatrix1DFormatter extends NoHistoryFormatter<LabelledMatrix1D> {
 
   private final DoubleFormatter _doubleFormatter;
 
@@ -44,11 +44,6 @@ import com.opengamma.util.ArgumentChecker;
       results.add(rowResults);
     }
     return results;
-  }
-
-  @Override
-  public Object formatForHistory(LabelledMatrix1D history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

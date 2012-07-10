@@ -13,7 +13,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-/* package */ class TenorFormatter implements Formatter<Tenor> {
+/* package */ class TenorFormatter extends NoHistoryFormatter<Tenor> {
 
   @Override
   public Period formatForDisplay(Tenor tenor, ValueSpecification valueSpec) {
@@ -23,11 +23,6 @@ import com.opengamma.util.time.Tenor;
   @Override
   public Period formatForExpandedDisplay(Tenor tenor, ValueSpecification valueSpec) {
     return tenor.getPeriod();
-  }
-
-  @Override
-  public Object formatForHistory(Tenor history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

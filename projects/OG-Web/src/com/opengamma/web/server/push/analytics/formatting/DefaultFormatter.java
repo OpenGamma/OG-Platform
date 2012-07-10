@@ -10,7 +10,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-/* package */ class DefaultFormatter implements Formatter<Object> {
+/* package */ class DefaultFormatter extends NoHistoryFormatter<Object> {
 
   /** Maximum string length for values that are sent to the grid. */
   private static final int MAX_VALUE_LENGTH = 100;
@@ -23,11 +23,6 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
     return trim(value.toString());
-  }
-
-  @Override
-  public Object formatForHistory(Object history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

@@ -7,11 +7,18 @@ package com.opengamma.web.server.push.analytics.formatting;
 
 import java.math.BigDecimal;
 
+import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
@@ -19,6 +26,7 @@ import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  *
@@ -48,6 +56,14 @@ public class ResultsFormatter {
     _formatters.put(LabelledMatrix3D.class, new LabelledMatrix3DFormatter());
     _formatters.put(Tenor.class, new TenorFormatter());
     _formatters.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountFormatter());
+    _formatters.put(MissingMarketDataSentinel.class, new FixedStringFormatter("Missing market data"));
+    _formatters.put(ForwardCurve.class, new ForwardCurveFormatter());
+    _formatters.put(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessFormatter());
+    _formatters.put(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessFormatter());
+    _formatters.put(BucketedGreekResultCollection.class, new BucketedGreekResultCollectionFormatter());
+    _formatters.put(DoublesCurve.class, new DoublesCurveFormatter());
+    _formatters.put(LocalDateDoubleTimeSeries.class, new LocalDateDoubleTimeSeriesFormatter());
+    _formatters.put(HistoricalTimeSeries.class, new HistoricalTimeSeriesFormatter());
     //_formatters.put(, );
   }
 

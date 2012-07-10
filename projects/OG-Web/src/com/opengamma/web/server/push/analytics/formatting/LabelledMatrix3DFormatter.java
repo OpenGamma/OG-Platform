@@ -11,10 +11,10 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
 /**
  *
  */
-/* package */ class LabelledMatrix3DFormatter implements Formatter<LabelledMatrix3D> {
+/* package */ class LabelledMatrix3DFormatter extends NoHistoryFormatter<LabelledMatrix3D> {
 
   @Override
-  public Object formatForDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
+  public String formatForDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + " x " + value.getZKeys().length + ")";
   }
 
@@ -22,11 +22,6 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   public Object formatForExpandedDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
     // TODO implement formatForExpandedDisplay()
     throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
-  }
-
-  @Override
-  public Object formatForHistory(LabelledMatrix3D history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override

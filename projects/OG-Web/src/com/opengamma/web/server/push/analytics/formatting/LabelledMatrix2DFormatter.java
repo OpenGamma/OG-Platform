@@ -14,7 +14,7 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
 /**
  *
  */
-/* package */ class LabelledMatrix2DFormatter implements Formatter<LabelledMatrix2D> {
+/* package */ class LabelledMatrix2DFormatter extends NoHistoryFormatter<LabelledMatrix2D> {
 
   @Override
   public String formatForDisplay(LabelledMatrix2D value, ValueSpecification valueSpec) {
@@ -38,11 +38,6 @@ import com.opengamma.financial.analytics.LabelledMatrix2D;
     results.put("yLabels", yLabels);
     results.put("matrix", value.getValues());
     return results;
-  }
-
-  @Override
-  public Object formatForHistory(LabelledMatrix2D history, ValueSpecification valueSpec) {
-    return null;
   }
 
   @Override
