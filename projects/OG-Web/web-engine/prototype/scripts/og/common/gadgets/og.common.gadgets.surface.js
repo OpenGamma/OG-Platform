@@ -14,6 +14,8 @@ $.register_module({
                 surface_x: 100,
                 surface_z: 100,
                 interactive_color: '0xff0000',
+                vertex_shading_hue_min: 180,
+                vertex_shading_hue_max: 0,
                 floating_height: 10 // how high does the top surface float over the bottom grid
             };
         tmp_data = {
@@ -114,10 +116,12 @@ $.register_module({
             var surface = this, selector = config.selector, $selector = $(selector),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
                 surface_top_group = new THREE.Object3D(), surface_bottom_group = new THREE.Object3D(),
-                width, height, vertex_sphere,
+                hover_group, // THREE.Object3D that gets created on hover and destroyed afterward
+                width, height, // selector / canvas width and height
+                vertex_sphere, // the sphere displayed on vertex hover
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
                 renderer, camera, scene, backlight, keylight, filllight,
-                projector, interactive_meshs = [], // interaction helpers
+                projector, interactive_meshs = [], // interaction
                 adjusted_vol = util.scale(config.vol, 0, 50),
                 adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2),
                 adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
@@ -189,6 +193,10 @@ $.register_module({
                     });
                 return surface;
             };
+            /**
+             * Creates both axes
+             * @return {THREE.Object3D}
+             */
             surface.create_axes = function () {
                 var group = new THREE.Object3D,
                     x = {axis: 'x', spacing: adjusted_xs, labels: config.xs_labels || config.xs, label: config.xs_label},
@@ -204,6 +212,7 @@ $.register_module({
              * config.spacing {Array} Array of numbers adjusted to fit units of mesh
              * config.labels {Array} Array of lables
              * config.label {String} Axis label
+             * @return {THREE.Object3D}
              */
             surface.create_axis = function (config) {
                 var mesh = new THREE.Object3D(), i, nth = Math.ceil(config.spacing.length / 6), scale = '0.1',
@@ -255,6 +264,10 @@ $.register_module({
                 if (config.axis === 'z') mesh.rotation.y = -1.57;
                 return mesh;
             };
+            /**
+             * Creates bottom grid with materials
+             * @return {THREE.Mesh}
+             */
             surface.create_bottom_grid = function () {
                 var mesh, material,
                     weblg_material = new THREE.MeshBasicMaterial({color: 0x999999, wireframe: true}),
@@ -265,15 +278,24 @@ $.register_module({
                 return mesh;
             };
             /**
-             * Creates a line from an Array of points
+             * Creates a tube from an Array of points
              * @param {Array} points Array of Vector3's
-             * @return {THREE.Mesh}
+             * @return {THREE.Object3D}
              */
-            surface.create_line = function (points) {
-                var path = new THREE.SplineCurve3(points),
-                    tube = new THREE.TubeGeometry(path, points.length, 0.2, 10, false, false);
-                return new THREE.Mesh(tube,
-                    new THREE.MeshBasicMaterial({color: settings.interactive_color, wireframe: false}));
+            surface.create_tube = function (points) {
+                /**
+                 * THREE doesnt currently support creating a tube with a line as a path,
+                 * (Spline is supported, but we dont want that)
+                 * So we create separate tubes and add them to an object
+                 */
+                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube,
+                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color, wireframe: false});
+                while (i--) {
+                    line = new THREE.LineCurve3(points[i], points[i+1]);
+                    tube = new THREE.TubeGeometry(line, 1, 0.2, 10, false, false);
+                    mesh.add(new THREE.Mesh(tube, mat));
+                }
+                return mesh;
             };
             surface.create_surface = function () {
                 var plane = new Plane(), group, materials, i,
@@ -295,14 +317,14 @@ $.register_module({
                     if (!webgl) return;
                     var faces = 'abcd', face, color, vertex, index, i, k,
                         min = Math.min.apply(null, adjusted_vol), max = Math.max.apply(null, adjusted_vol),
-                        color_min = 180, color_max = 0, hue;
+                        hue_min = settings.vertex_shading_hue_min, hue_max = settings.vertex_shading_hue_max, hue;
                     for (i = 0; i < plane.faces.length; i ++) {
                         face = plane.faces[i];
                         for (k = 0; k < 4; k++) {
                             index = face[faces.charAt(k)];
                             vertex = plane.vertices[index];
                             color = new THREE.Color(0xffffff);
-                            hue = ~~((vertex.y - min) / (max - min) * (color_max - color_min) + color_min) / 360;
+                            hue = ~~((vertex.y - min) / (max - min) * (hue_max - hue_min) + hue_min) / 360;
                             color.setHSV(hue, 1, 1);
                             face.vertexColors[k] = color;
                         }
@@ -315,12 +337,34 @@ $.register_module({
                 interactive_meshs.push(group.children[0]);
                 return group;
             };
+            surface.hover = function (vertex, index, object) {
+                if (hover_group) surface_top_group.remove(hover_group);
+                hover_group = new THREE.Object3D();
+                vertex_sphere.position.copy(vertex);
+                vertex_sphere.visible = true;
+                (function () { // create vertex arrays for lines
+                    // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
+                    var x,
+                        xfrom       = index - (index % (x_segments + 1)),
+                        xto         = xfrom + x_segments + 1,
+                        xvertices   = [],
+                        z,
+                        zfrom       = index % (x_segments + 1),
+                        zto         = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom),
+                        zvertices   = [];
+                    for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
+                    for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
+                    hover_group.add(surface.create_tube(xvertices));
+                    hover_group.add(surface.create_tube(zvertices));
+                    surface_top_group.add(hover_group);
+                }());
+            };
             /**
              * On mouse move determin the mouse position in 3D space,
              * snap vertex_sphere to a vertex if its within settings.snap_distance
              */
             surface.interactive = function () {
-                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector(), xlines, zlines;
+                var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
                 $selector.on('mousemove.surface.interactive', function (event) {
                     event.preventDefault();
                     var vector, ray, intersects, offset = $selector.offset(),
@@ -338,31 +382,11 @@ $.register_module({
                             vertex = object.geometry.vertices[index];
                             vertex_world_position = object.matrixWorld.multiplyVector3(vertex.clone());
                             if (vertex_world_position.distanceTo(point) < settings.snap_distance) {
-                                vertex_sphere.position.copy(vertex);
-                                vertex_sphere.visible = true;
-                                if (xlines) surface_top_group.remove(xlines);
-                                if (zlines) surface_top_group.remove(zlines);
-                                (function () { // create vertex arrays for lines
-                                    // [xz]from & [xz]to are the start and end vertex indexes for a vertex row or column
-                                    var x,
-                                        xfrom       = index - (index % (x_segments + 1)),
-                                        xto         = xfrom + x_segments + 1,
-                                        xvertices   = [],
-                                        z,
-                                        zfrom       = index % (x_segments + 1),
-                                        zto         = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom),
-                                        zvertices   = [];
-                                    for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
-                                    for (z = zfrom; z < zto; z += x_segments + 1)
-                                        zvertices.push(object.geometry.vertices[z]);
-                                    surface_top_group.add(xlines = surface.create_line(xvertices));
-                                    surface_top_group.add(zlines = surface.create_line(zvertices));
-                                }());
+                                surface.hover(vertex, index, object);
                             }
                         }
                     } else { // not intersecting
-                        if (xlines) surface_top_group.remove(xlines);
-                        if (zlines) surface_top_group.remove(zlines);
+                        if (hover_group) surface_top_group.remove(hover_group);
                         vertex_sphere.visible = false;
                         intersected = null;
                     }
