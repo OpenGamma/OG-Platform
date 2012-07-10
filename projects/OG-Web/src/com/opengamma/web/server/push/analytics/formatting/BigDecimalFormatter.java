@@ -216,8 +216,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
 
   @Override
   public BigDecimal formatForHistory(BigDecimal value, ValueSpecification valueSpec) {
-    DoubleValueFormatter formatter = getFormatter(valueSpec);
-    return formatter.getRoundedValue(value);
+    return getFormatter(valueSpec).getRoundedValue(value);
   }
 
   @Override

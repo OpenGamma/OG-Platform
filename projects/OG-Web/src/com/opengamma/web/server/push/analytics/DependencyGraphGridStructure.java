@@ -88,13 +88,12 @@ public class DependencyGraphGridStructure implements GridStructure {
     Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      Object cellHistory = null; // TODO get from history
-      rowResults.add(getValueForColumn(colIndex, row, value, cellHistory));
+      rowResults.add(getValueForColumn(colIndex, row, value, history));
     }
     return rowResults;
   }
 
-  /* package */ ViewportResults.Cell getValueForColumn(int colIndex, Row row, Object value, Object history) {
+  /* package */ ViewportResults.Cell getValueForColumn(int colIndex, Row row, Object value, AnalyticsHistory history) {
     ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
@@ -104,7 +103,8 @@ public class DependencyGraphGridStructure implements GridStructure {
       case 2: // value name
         return ViewportResults.stringCell(valueSpec.getValueName());
       case 3: // value
-        return ViewportResults.valueCell(value, valueSpec, history);
+        List<Object> cellHistory = history.getHistory(valueSpec, value);
+        return ViewportResults.valueCell(value, valueSpec, cellHistory);
       case 4: // function name
         return ViewportResults.stringCell(row.getFunctionName());
       case 5: // properties

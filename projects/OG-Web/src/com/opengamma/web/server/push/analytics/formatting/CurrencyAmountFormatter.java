@@ -49,13 +49,16 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /**
    * Returns the value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
-   * @param value The currency value, not null
+   *
+   *
+   *
+   * @param history The currency value, not null
    * @param valueSpec The specification that produced the value
    * @return The value's amount as a {@link BigDecimal} or {@code null} if the amount is infinite or not a number.
    */
   @Override
-  public BigDecimal formatForHistory(CurrencyAmount value, ValueSpecification valueSpec) {
-    double amount = value.getAmount();
+  public BigDecimal formatForHistory(CurrencyAmount history, ValueSpecification valueSpec) {
+    double amount = history.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
     if (bigDecimal == null) {
       return null;

@@ -7,9 +7,12 @@ package com.opengamma.web.server.push.analytics.formatting;
 
 import java.math.BigDecimal;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
+import com.opengamma.financial.analytics.LabelledMatrix3D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -27,14 +30,20 @@ public class ResultsFormatter {
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
 
-    _formatters.put(BigDecimal.class, bigDecimalFormatter);
+    _formatters.put(Boolean.class, _defaultFormatter);
+    _formatters.put(String.class, _defaultFormatter);
     _formatters.put(Double.class, doubleFormatter);
+    _formatters.put(BigDecimal.class, bigDecimalFormatter);
     _formatters.put(CurrencyAmount.class, currencyAmountFormatter);
+    _formatters.put(YieldCurve.class, new YieldCurveFormatter());
+    _formatters.put(VolatilityCubeData.class, new VolatilityCubeDataFormatter());
+
     _formatters.put(LabelledMatrix1D.class, new LabelledMatrix1DFormatter());
     _formatters.put(LabelledMatrix2D.class, new LabelledMatrix2DFormatter());
+    _formatters.put(LabelledMatrix3D.class, new LabelledMatrix3DFormatter());
   }
 
-  private <T> Formatter getFormatter(Object value) {
+  private Formatter getFormatter(Object value) {
     if (value == null) {
       return _nullFormatter;
     } else {
@@ -59,7 +68,7 @@ public class ResultsFormatter {
    * for display in the UI.
    */
   @SuppressWarnings("unchecked")
-  public String formatForDisplay(Object value, ValueSpecification valueSpec) {
+  public Object formatForDisplay(Object value, ValueSpecification valueSpec) {
     return getFormatter(value).formatForDisplay(value, valueSpec);
   }
 

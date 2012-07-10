@@ -27,9 +27,8 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
   }
 
   @Override
-  public Object formatForHistory(LabelledMatrix1D value, ValueSpecification valueSpec) {
-    // TODO implement formatForHistory()
-    throw new UnsupportedOperationException("formatForHistory not implemented");
+  public Object formatForHistory(LabelledMatrix1D history, ValueSpecification valueSpec) {
+    return null;
   }
 
   @Override

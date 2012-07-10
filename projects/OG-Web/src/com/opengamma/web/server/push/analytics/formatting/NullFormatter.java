@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public Object formatForHistory(Object value, ValueSpecification valueSpec) {
+  public Object formatForHistory(Object history, ValueSpecification valueSpec) {
     return null;
   }
 
