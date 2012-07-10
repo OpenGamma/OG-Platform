@@ -15,8 +15,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class DoubleFormatter implements Formatter<Double> {
 
-  private static final String NAME = "DOUBLE";
-
   private final BigDecimalFormatter _bigDecimalFormatter;
 
   DoubleFormatter(BigDecimalFormatter bigDecimalFormatter) {
@@ -61,8 +59,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String getName() {
-    return NAME;
+  public FormatType getFormatType() {
+    return FormatType.DOUBLE;
   }
 
   private static BigDecimal convertToBigDecimal(Double value) {

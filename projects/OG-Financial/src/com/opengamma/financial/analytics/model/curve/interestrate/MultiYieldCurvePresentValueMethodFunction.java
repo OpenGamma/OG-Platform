@@ -127,11 +127,11 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
+    final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
       int nInstruments = 0;
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
       final Map<ExternalId, Double> marketDataMap = getMarketData(inputs, targetSpec, curveName);
-      final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {
         final Double marketValue = marketDataMap.get(strip.getSecurityIdentifier());

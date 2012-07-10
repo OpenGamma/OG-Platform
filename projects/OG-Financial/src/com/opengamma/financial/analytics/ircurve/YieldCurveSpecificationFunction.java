@@ -11,9 +11,6 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -44,8 +41,6 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
   private final ComputationTargetSpecification _targetSpec;
 
   private ValueSpecification _resultSpec;
-  private YieldCurveDefinition _curveDefinition;
-  private CombinedInterpolatorExtrapolator _interpolator;
 
   public YieldCurveSpecificationFunction(final String currency, final String curveDefinitionName) {
     this(Currency.of(currency), curveDefinitionName);
@@ -73,18 +68,9 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
     return _resultSpec;
   }
 
-  protected YieldCurveDefinition getCurveDefinition() {
-    return _curveDefinition;
-  }
-
-  protected CombinedInterpolatorExtrapolator getInterpolator() {
-    return _interpolator;
-  }
-
   @Override
   public void init(final FunctionCompilationContext context) {
-    _curveDefinition = _helper.init(context, this);
-    _interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_curveDefinition.getInterpolatorName(), Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    _helper.init(context, this);
     _resultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SPEC, getTargetSpecification(), createValueProperties().with(ValuePropertyNames.CURVE, getCurveName()).get());
   }
 

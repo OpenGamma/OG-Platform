@@ -105,7 +105,6 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       return _helper.canApplyTo(target);
     }
-
   }
 
   public static Set<ValueRequirement> buildRequirements(final InterpolatedYieldCurveSpecification specification,

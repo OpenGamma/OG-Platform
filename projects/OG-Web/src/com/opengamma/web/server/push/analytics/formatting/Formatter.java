@@ -12,12 +12,23 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface Formatter<T> {
 
+  enum FormatType {
+    PRIMITIVE,
+    DOUBLE,
+    CURVE,
+    SURFACE_DATA,
+    LABELLED_MATRIX_1D,
+    LABELLED_MATRIX_2D,
+    LABELLED_MATRIX_3D,
+    TIME_SERIES,
+    TENOR
+  }
+
   Object formatForDisplay(T value, ValueSpecification valueSpec);
 
   Object formatForExpandedDisplay(T value, ValueSpecification valueSpec);
 
   Object formatForHistory(T history, ValueSpecification valueSpec);
 
-  String getName();
-
+  FormatType getFormatType();
 }

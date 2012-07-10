@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -20,6 +21,7 @@ import javax.ws.rs.ext.Provider;
 
 import org.json.JSONArray;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.ViewportResults;
@@ -82,7 +84,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
           for (Object historyValue : history) {
             formattedHistory.add(_formatter.formatForHistory(historyValue, cell.getValueSpecification()));
           }
-          Object[] valueWithHistory = {formattedValue, formattedHistory};
+          Map<String, Object> valueWithHistory = ImmutableMap.of("v", formattedValue, "h", formattedHistory);
           rowResults.add(valueWithHistory);
         } else {
           rowResults.add(formattedValue);

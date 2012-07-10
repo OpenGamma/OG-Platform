@@ -5,15 +5,25 @@
  */
 package com.opengamma.web.server.push.analytics.formatting;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 /* package */ class LabelledMatrix1DFormatter implements Formatter<LabelledMatrix1D> {
 
-  private static final String NAME = "LABELLED_MATRIX_1D";
+  private final DoubleFormatter _doubleFormatter;
+
+  LabelledMatrix1DFormatter(DoubleFormatter doubleFormatter) {
+    ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
+    _doubleFormatter = doubleFormatter;
+  }
 
   @Override
   public String formatForDisplay(LabelledMatrix1D value, ValueSpecification valueSpec) {
@@ -21,9 +31,19 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
   }
 
   @Override
-  public Object formatForExpandedDisplay(LabelledMatrix1D value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+  public List<List<String>> formatForExpandedDisplay(LabelledMatrix1D value, ValueSpecification valueSpec) {
+    int length = value.getKeys().length;
+    List<List<String>> results = Lists.newArrayListWithCapacity(length);
+    for (int i = 0; i < length; i++) {
+      Object labelObject = value.getLabels()[i];
+      String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString();
+      String formattedValue = _doubleFormatter.formatForDisplay(value.getValues()[i], valueSpec);
+      List<String> rowResults = Lists.newArrayListWithCapacity(2);
+      rowResults.add(label);
+      rowResults.add(formattedValue);
+      results.add(rowResults);
+    }
+    return results;
   }
 
   @Override
@@ -32,7 +52,7 @@ import com.opengamma.financial.analytics.LabelledMatrix1D;
   }
 
   @Override
-  public String getName() {
-    return NAME;
+  public FormatType getFormatType() {
+    return FormatType.LABELLED_MATRIX_1D;
   }
 }
