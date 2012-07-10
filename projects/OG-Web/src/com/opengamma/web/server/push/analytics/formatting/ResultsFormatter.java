@@ -8,13 +8,17 @@ package com.opengamma.web.server.push.analytics.formatting;
 import java.math.BigDecimal;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
@@ -37,10 +41,14 @@ public class ResultsFormatter {
     _formatters.put(CurrencyAmount.class, currencyAmountFormatter);
     _formatters.put(YieldCurve.class, new YieldCurveFormatter());
     _formatters.put(VolatilityCubeData.class, new VolatilityCubeDataFormatter());
-
-    _formatters.put(LabelledMatrix1D.class, new LabelledMatrix1DFormatter());
+    _formatters.put(VolatilitySurfaceData.class, new VolatilitySurfaceDataFormatter());
+    _formatters.put(VolatilitySurface.class, new VolatilitySurfaceFormatter());
+    _formatters.put(LabelledMatrix1D.class, new LabelledMatrix1DFormatter(doubleFormatter));
     _formatters.put(LabelledMatrix2D.class, new LabelledMatrix2DFormatter());
     _formatters.put(LabelledMatrix3D.class, new LabelledMatrix3DFormatter());
+    _formatters.put(Tenor.class, new TenorFormatter());
+    _formatters.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountFormatter());
+    //_formatters.put(, );
   }
 
   private Formatter getFormatter(Object value) {
@@ -83,6 +91,6 @@ public class ResultsFormatter {
   }
 
   public String getFormatName(Class<?> type) {
-    return getFormatterForType(type).getName();
+    return getFormatterForType(type).getFormatType().name();
   }
 }

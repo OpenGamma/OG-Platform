@@ -38,6 +38,8 @@ public class MainGridViewport extends AnalyticsViewport {
     update(viewportSpec, latestResults, history);
   }
 
+  // TODO support delta results, return flag or ID if viewport was updated by delta results
+  // TODO but what about the column update flag?
   /* package */ boolean updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
     boolean columnsUpdated = false;
@@ -77,6 +79,7 @@ public class MainGridViewport extends AnalyticsViewport {
       }
       allResults.add(rowResults);
     }
+    // TODO support delta results, merge new results with existing
     _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
     return columnsUpdated;
   }

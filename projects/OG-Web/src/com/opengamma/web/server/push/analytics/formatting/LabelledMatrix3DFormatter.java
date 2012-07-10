@@ -13,8 +13,6 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
  */
 /* package */ class LabelledMatrix3DFormatter implements Formatter<LabelledMatrix3D> {
 
-  private static final String NAME = "LABELLED_MATRIX_3D";
-
   @Override
   public Object formatForDisplay(LabelledMatrix3D value, ValueSpecification valueSpec) {
     return "Matrix (" + value.getYKeys().length + " x " + value.getXKeys().length + " x " + value.getZKeys().length + ")";
@@ -32,7 +30,7 @@ import com.opengamma.financial.analytics.LabelledMatrix3D;
   }
 
   @Override
-  public String getName() {
-    return NAME;
+  public FormatType getFormatType() {
+    return FormatType.LABELLED_MATRIX_3D;
   }
 }

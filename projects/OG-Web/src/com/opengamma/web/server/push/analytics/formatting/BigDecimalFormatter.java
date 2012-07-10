@@ -32,7 +32,6 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   private static final Logger s_logger = LoggerFactory.getLogger(BigDecimalFormatter.class);
   private static final Map<String, DoubleValueFormatter> s_formatters = Maps.newHashMap();
   private static final DoubleValueFormatter s_defaultFormatter = DoubleValueSignificantFiguresFormatter.NON_CCY_5SF;
-  private static final String NAME = "DOUBLE";
 
   static {
     // General
@@ -220,7 +219,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   }
 
   @Override
-  public String getName() {
-    return NAME;
+  public FormatType getFormatType() {
+    return FormatType.DOUBLE;
   }
 }

@@ -24,7 +24,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
 /* package */ class YieldCurveFormatter implements Formatter<YieldCurve> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFormatter.class);
-  private static final String NAME = "CURVE";
 
   @Override
   public Object formatForDisplay(YieldCurve value, ValueSpecification valueSpec) {
@@ -83,7 +82,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
   }
 
   @Override
-  public String getName() {
-    return NAME;
+  public FormatType getFormatType() {
+    return FormatType.CURVE;
   }
 }

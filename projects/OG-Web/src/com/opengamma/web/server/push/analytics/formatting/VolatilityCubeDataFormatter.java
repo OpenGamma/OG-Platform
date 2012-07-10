@@ -15,14 +15,13 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public Object formatForDisplay(VolatilityCubeData value, ValueSpecification valueSpec) {
-    // TODO implement formatForDisplay()
-    throw new UnsupportedOperationException("formatForDisplay not implemented");
+    return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
+        + " strikes, " + value.getOtherData().getDataPoints().size() + " other data points " + ")";
   }
 
   @Override
   public Object formatForExpandedDisplay(VolatilityCubeData value, ValueSpecification valueSpec) {
-    // TODO implement formatForExpandedDisplay()
-    throw new UnsupportedOperationException("formatForExpandedDisplay not implemented");
+    return formatForDisplay(value, valueSpec);
   }
 
   @Override
@@ -31,8 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   @Override
-  public String getName() {
-    // TODO implement getName()
-    throw new UnsupportedOperationException("getName not implemented");
+  public FormatType getFormatType() {
+    return FormatType.PRIMITIVE;
   }
 }
