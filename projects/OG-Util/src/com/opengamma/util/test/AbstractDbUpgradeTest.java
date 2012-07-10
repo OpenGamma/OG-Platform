@@ -7,7 +7,6 @@ package com.opengamma.util.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
