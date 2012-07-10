@@ -97,10 +97,6 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention TOGGLE_PIK_NOTES = new SimpleYieldConvention("TOGGLE PIK NOTES");
   /**
-   * ISMA-30/360
-   */
-  public static final YieldConvention ISMA_30_360 = new SimpleYieldConvention("ISMA-30/360");
-  /**
    * Interest at Maturity
    */
   public static final YieldConvention INTEREST_AT_MATURITY = new SimpleYieldConvention("INTEREST AT MTY");
