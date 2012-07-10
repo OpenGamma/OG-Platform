@@ -65,7 +65,8 @@ public class DependencyGraphViewport extends AnalyticsViewport {
       Object value = result.getSecond();
       resultsMap.put(valueSpec, value);
     }
-    List<List<ViewportResults.Cell>> gridResults = _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, history);
+    List<List<ViewportResults.Cell>> gridResults =
+        _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, history, _calcConfigName);
     _latestResults = new ViewportResults(gridResults, _viewportSpec.isExpanded());
   }
 }

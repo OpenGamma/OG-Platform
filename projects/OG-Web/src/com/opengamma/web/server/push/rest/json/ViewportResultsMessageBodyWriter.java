@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +82,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
             formattedValue = _formatter.formatForDisplay(cell.getValue(), cell.getValueSpecification());
           }
         }
-        List<Object> history = cell == null ? null : cell.getHistory();
+        Collection<Object> history = cell == null ? null : cell.getHistory();
         if (history != null) {
           List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
           for (Object historyValue : history) {

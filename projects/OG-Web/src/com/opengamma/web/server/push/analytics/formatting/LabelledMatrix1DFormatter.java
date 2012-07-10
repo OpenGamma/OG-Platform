@@ -7,6 +7,7 @@ package com.opengamma.web.server.push.analytics.formatting;
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
@@ -38,9 +39,7 @@ import com.opengamma.util.ArgumentChecker;
       Object labelObject = value.getLabels()[i];
       String label = labelObject instanceof ExternalId ? ((ExternalId) labelObject).getValue() : labelObject.toString();
       String formattedValue = _doubleFormatter.formatForDisplay(value.getValues()[i], valueSpec);
-      List<String> rowResults = Lists.newArrayListWithCapacity(2);
-      rowResults.add(label);
-      rowResults.add(formattedValue);
+      List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);
     }
     return results;

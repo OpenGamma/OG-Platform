@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,10 +73,11 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
                                                                           Map<ValueSpecification, Object> results,
-                                                                          AnalyticsHistory history) {
+                                                                          AnalyticsHistory history,
+                                                                          String calcConfigName) {
     List<List<ViewportResults.Cell>> resultsList = Lists.newArrayList();
     for (Integer rowIndex : viewportSpec.getRows()) {
-      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, history));
+      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, history, calcConfigName));
     }
     return resultsList;
   }
@@ -83,17 +85,21 @@ public class DependencyGraphGridStructure implements GridStructure {
   private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
                                                          SortedSet<Integer> cols,
                                                          Map<ValueSpecification, Object> results,
-                                                         AnalyticsHistory history) {
+                                                         AnalyticsHistory history, String calcConfigName) {
     Object value = results.get(getTargetForRow(rowIndex));
     Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(getValueForColumn(colIndex, row, value, history));
+      rowResults.add(getValueForColumn(colIndex, row, value, history, calcConfigName));
     }
     return rowResults;
   }
 
-  /* package */ ViewportResults.Cell getValueForColumn(int colIndex, Row row, Object value, AnalyticsHistory history) {
+  /* package */ ViewportResults.Cell getValueForColumn(int colIndex,
+                                                       Row row,
+                                                       Object value,
+                                                       AnalyticsHistory history,
+                                                       String calcConfigName) {
     ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
       case 0: // target
@@ -103,7 +109,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       case 2: // value name
         return ViewportResults.stringCell(valueSpec.getValueName());
       case 3: // value
-        List<Object> cellHistory = history.getHistory(valueSpec, value);
+        Collection<Object> cellHistory = history.getHistory(calcConfigName, valueSpec, value);
         return ViewportResults.valueCell(value, valueSpec, cellHistory);
       case 4: // function name
         return ViewportResults.stringCell(row.getFunctionName());

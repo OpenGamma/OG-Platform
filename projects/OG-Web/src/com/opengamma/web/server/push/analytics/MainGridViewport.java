@@ -6,6 +6,7 @@
 package com.opengamma.web.server.push.analytics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +60,7 @@ public class MainGridViewport extends AnalyticsViewport {
               boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, value.getClass());
               columnsUpdated = columnsUpdated || columnUpdated;
               if (_viewportSpec.getColumns().contains(colIndex)) {
-                List<Object> valueHistory = history.getHistory(valueSpec, value.getValue());
+                Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, value.getValue());
                 ViewportResults.Cell cell = ViewportResults.valueCell(value.getValue(), valueSpec, valueHistory);
                 rowResultsMap.put(colIndex, cell);
               }
