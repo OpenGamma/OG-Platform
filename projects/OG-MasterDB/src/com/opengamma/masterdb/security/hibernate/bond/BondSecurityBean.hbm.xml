@@ -33,14 +33,14 @@
 			<property name="zone" column="interestaccrual_zone" type="string" not-null="true" />
 		</component>
 		<component name="settlementDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-			<property name="date" column="settlement_date" type="timestamp" not-null="true" />
-			<property name="zone" column="settlement_zone" type="string" not-null="true" />
+			<property name="date" column="settlement_date" type="timestamp" />
+			<property name="zone" column="settlement_zone" type="string" />
 		</component>
 		<component name="firstCouponDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
 			<property name="date" column="firstcoupon_date" type="timestamp" not-null="true" />
 			<property name="zone" column="firstcoupon_zone" type="string" not-null="true" />
 		</component>
-		<property name="issuancePrice" column="issuanceprice" type="double" not-null="true" />
+		<property name="issuancePrice" column="issuanceprice" type="double" />
 		<property name="totalAmountIssued" column="totalamountissued" type="double" not-null="true" />
 		<property name="minimumAmount" column="minimumamount" type="double" not-null="true" />
 		<property name="minimumIncrement" column="minimumincrement" type="double" not-null="true" />

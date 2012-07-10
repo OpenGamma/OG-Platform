@@ -112,7 +112,7 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       Converters.validateBusinessDayConvention(security.getBusinessDayConvention().getConventionName());
       bond.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
     }
-    bond.setAnnouncementDate(security.getAnnouncementDate() != null ? dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()) : null);
+    bond.setAnnouncementDate(dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()));
     bond.setInterestAccrualDate(dateTimeWithZoneToZonedDateTimeBean(security.getInterestAccrualDate()));
     bond.setSettlementDate(dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bond.setFirstCouponDate(dateTimeWithZoneToZonedDateTimeBean(security.getFirstCouponDate()));
