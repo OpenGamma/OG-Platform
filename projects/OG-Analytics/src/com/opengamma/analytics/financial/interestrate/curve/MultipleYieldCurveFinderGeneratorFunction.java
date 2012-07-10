@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function computing the error of valuation produce by a array representing the curve parameters. 
@@ -16,10 +17,23 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
  */
 public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
+  /**
+   * The instrument value calculator.
+   */
   private final InstrumentDerivativeVisitor<YieldCurveBundle, Double> _calculator;
+  /**
+   * The data required for curve building.
+   */
   private final MultipleYieldCurveFinderGeneratorDataBundle _data;
 
+  /**
+   * Constructor. 
+   * @param calculator The instrument value calculator.
+   * @param data The data required for curve building.
+   */
   public MultipleYieldCurveFinderGeneratorFunction(InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, MultipleYieldCurveFinderGeneratorDataBundle data) {
+    ArgumentChecker.notNull(calculator, "Calculator");
+    ArgumentChecker.notNull(data, "Data");
     _calculator = calculator;
     _data = data;
   }

@@ -87,11 +87,6 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for FunctionalDoublesCurve");
   }
 
-  @Override
-  public int getNumberOfParameters() {
-    throw new UnsupportedOperationException("Number of Parameter not supported yet for FunctionalDoublesCurve");
-  }
-
   /**
    * @return Not supported
    * @throws UnsupportedOperationException

@@ -13,12 +13,16 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundleBuildingFunction;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Yield curve bundle building function based on an array of curve generators.
+ * Yield curve bundle building function based on an map of curve generators.
  */
 public class GeneratorCurveBuildingFunction extends YieldCurveBundleBuildingFunction {
 
+  /**
+   * The map with the curve names and the related generators.
+   */
   private final LinkedHashMap<String, GeneratorCurve> _curveGenerators;
 
   /**
@@ -26,6 +30,7 @@ public class GeneratorCurveBuildingFunction extends YieldCurveBundleBuildingFunc
    * @param curveGenerators The curve constructor. The order is important.
    */
   public GeneratorCurveBuildingFunction(LinkedHashMap<String, GeneratorCurve> curveGenerators) {
+    ArgumentChecker.notNull(curveGenerators, "Curve generator map");
     _curveGenerators = curveGenerators;
   }
 

@@ -57,7 +57,7 @@ public class YieldCurve extends YieldAndDiscountCurve {
 
   @Override
   public int getNumberOfParameters() {
-    return _curve.getNumberOfParameters();
+    return _curve.size();
   }
 
   @Override

@@ -10,21 +10,33 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Data bundle with the data required to build curves in the Multiple Yield Curve framework. The data is based on generators.
  */
 public class MultipleYieldCurveFinderGeneratorDataBundle {
 
+  /**
+   * The list of instruments. Not null.
+   */
   private final List<InstrumentDerivative> _instruments;
+  /**
+   * The bundle with the already build curves. May be null.
+   */
   private final YieldCurveBundle _knownCurves;
+  /**
+   * The generator based function to build yield curve bundle from parameters.
+   */
   private final GeneratorCurveBuildingFunction _buildingFunction;
+  /**
+   * The number of instruments. The size of _instruments.
+   */
   private final int _nbInstruments;
 
-  //  private final List<String> _names;
-  //  private final boolean _useFiniteDifferenceByDefault;
-
   public MultipleYieldCurveFinderGeneratorDataBundle(List<InstrumentDerivative> instruments, YieldCurveBundle knownCurves, LinkedHashMap<String, GeneratorCurve> curveGenerators) {
+    ArgumentChecker.notNull(instruments, "Instruments");
+    ArgumentChecker.notNull(curveGenerators, "Curve generators");
     _instruments = instruments;
     _knownCurves = knownCurves;
     _buildingFunction = new GeneratorCurveBuildingFunction(curveGenerators);

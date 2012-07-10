@@ -56,11 +56,6 @@ public class CurveShiftFunctionFactoryTest {
       return null;
     }
 
-    @Override
-    public int getNumberOfParameters() {
-      return 0;
-    }
-
   };
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -87,6 +87,10 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   public abstract int getNumberOfParameters();
 
+  /**
+   * The list of underlying curves (up to one level).
+   * @return The list.
+   */
   public abstract List<String> getUnderlyingCurvesNames();
 
   /**

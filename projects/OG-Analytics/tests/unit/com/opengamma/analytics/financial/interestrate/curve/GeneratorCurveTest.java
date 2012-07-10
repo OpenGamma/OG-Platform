@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.DoublesCurveNelsonSiegel;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -36,6 +37,13 @@ public class GeneratorCurveTest {
   private static final GeneratorCurveAddYield GENERATOR_SPREAD = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED, GENERATOR_YIELD_CONSTANT}, false);
 
   private static final GeneratorCurveAddYieldExisiting GENERATOR_EXISTING = new GeneratorCurveAddYieldExisiting(GENERATOR_YIELD_CONSTANT, true, CURVE_NAME_1);
+
+  private static final double BETA0 = 0.03;
+  private static final double BETA1 = -0.02;
+  private static final double BETA2 = 0.06;
+  private static final double LAMBDA = 2.0;
+  private static final double[] PARAMETERS_NS = new double[] {BETA0, BETA1, BETA2, LAMBDA};
+  private static final GeneratorCurveYieldNelsonSiegel GENERATOR_NS = new GeneratorCurveYieldNelsonSiegel();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldNodes() {
@@ -69,24 +77,24 @@ public class GeneratorCurveTest {
 
   @Test
   public void generateCurveYieldInterpolated() {
-    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_INTERPOLATED.generateCurve("EUR Discounting", YIELD);
+    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_INTERPOLATED.generateCurve(CURVE_NAME_1, YIELD);
     YieldAndDiscountCurve curveExpected = new YieldCurve(CURVE_NAME_1, new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1));
     assertEquals("GeneratorCurveYieldInterpolated: generate curve", curveExpected, curveGenerated);
   }
 
   @Test
   public void generateCurveYieldConstant() {
-    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_CONSTANT.generateCurve("EUR Discounting", new double[] {CST});
+    YieldAndDiscountCurve curveGenerated = GENERATOR_YIELD_CONSTANT.generateCurve(CURVE_NAME_1, new double[] {CST});
     YieldAndDiscountCurve curveExpected = new YieldCurve(CURVE_NAME_1, new ConstantDoublesCurve(CST, CURVE_NAME_1));
     assertEquals("GeneratorCurveYieldConstant: generate curve", curveExpected, curveGenerated);
   }
 
   @Test
-  public void generateCurveYieldSpread() {
+  public void generateCurveYieldSpread1() {
     double[] x = new double[YIELD.length + 1];
     System.arraycopy(YIELD, 0, x, 0, YIELD.length);
     x[YIELD.length] = CST;
-    YieldAndDiscountCurve curveGenerated = GENERATOR_SPREAD.generateCurve("EUR Discounting", x);
+    YieldAndDiscountCurve curveGenerated = GENERATOR_SPREAD.generateCurve(CURVE_NAME_1, x);
     YieldAndDiscountCurve curveExpected0 = new YieldCurve(CURVE_NAME_1 + "-0", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-0"));
     YieldAndDiscountCurve curveExpected1 = new YieldCurve(CURVE_NAME_1 + "-1", new ConstantDoublesCurve(CST, CURVE_NAME_1 + "-1"));
     YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME_1, false, curveExpected0, curveExpected1);
@@ -104,12 +112,25 @@ public class GeneratorCurveTest {
     System.arraycopy(YIELD, 0, x, 0, YIELD.length);
     x[YIELD.length] = CST;
     x[YIELD.length + 1] = CST;
-    YieldAndDiscountCurve curveGenerated = generatorSpread2.generateCurve("EUR Discounting", x);
+    YieldAndDiscountCurve curveGenerated = generatorSpread2.generateCurve(CURVE_NAME_1, x);
     YieldAndDiscountCurve curveExpected00 = new YieldCurve(CURVE_NAME_1 + "-0-0", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-0-0"));
     YieldAndDiscountCurve curveExpected01 = new YieldCurve(CURVE_NAME_1 + "-0-1", new ConstantDoublesCurve(CST, CURVE_NAME_1 + "-0-1"));
     YieldAndDiscountCurve curveExpected0 = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME_1 + "-0", false, curveExpected00, curveExpected01);
     YieldAndDiscountCurve curveExpected1 = new YieldCurve(CURVE_NAME_1 + "-1", new ConstantDoublesCurve(CST, CURVE_NAME_1 + "-1"));
     YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME_1, false, curveExpected0, curveExpected1);
+    assertEquals("GeneratorCurveYieldConstant: generate curve", curveExpected, curveGenerated);
+  }
+
+  @Test
+  public void generateCurveYieldSpread3() {
+    double[] x = new double[2 * YIELD.length];
+    System.arraycopy(YIELD, 0, x, 0, YIELD.length);
+    System.arraycopy(YIELD, 0, x, YIELD.length, YIELD.length);
+    GeneratorCurveAddYield generatorIntMinusInt = new GeneratorCurveAddYield(new GeneratorCurve[] {GENERATOR_YIELD_INTERPOLATED, GENERATOR_YIELD_INTERPOLATED}, true);
+    YieldAndDiscountCurve curveGenerated = generatorIntMinusInt.generateCurve(CURVE_NAME_1, x);
+    YieldAndDiscountCurve curveExpected0 = new YieldCurve(CURVE_NAME_1 + "-0", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-0"));
+    YieldAndDiscountCurve curveExpected1 = new YieldCurve(CURVE_NAME_1 + "-1", new InterpolatedDoublesCurve(NODES, YIELD, LINEAR_FLAT, true, CURVE_NAME_1 + "-1"));
+    YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME_1, true, curveExpected0, curveExpected1);
     assertEquals("GeneratorCurveYieldConstant: generate curve", curveExpected, curveGenerated);
   }
 
@@ -122,6 +143,14 @@ public class GeneratorCurveTest {
     YieldAndDiscountCurve curveExpected0 = new YieldCurve(CURVE_NAME_2 + "-0", new ConstantDoublesCurve(CST, CURVE_NAME_2 + "-0"));
     YieldAndDiscountCurve curveExpected = new YieldAndDiscountAddZeroSpreadCurve(CURVE_NAME_2, true, curveExisting, curveExpected0);
     assertEquals("GeneratorCurveYieldConstant: generate curve", curveExpected, curveGenerated);
+  }
+
+  @Test
+  public void generateCurveYieldNelsonSiegel() {
+    YieldAndDiscountCurve curveGenerated = GENERATOR_NS.generateCurve(CURVE_NAME_1, PARAMETERS_NS);
+    YieldAndDiscountCurve curveExpected = new YieldCurve(CURVE_NAME_1, new DoublesCurveNelsonSiegel(CURVE_NAME_1, PARAMETERS_NS));
+    assertEquals("GeneratorCurveYieldNelsonSiegel: generate curve", curveExpected, curveGenerated);
+
   }
 
 }

@@ -155,18 +155,13 @@ public class SpreadDoublesCurve extends DoublesCurve {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
   }
 
-  @Override
-  public int getNumberOfParameters() {
-    throw new UnsupportedOperationException("Number of Parameter not supported yet for SpreadDoublesCurve");
-  }
-
   /**
    * @return Not supported
    * @throws UnsupportedOperationException
    */
   @Override
   public int size() {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Size not supported yet for SpreadDoublesCurve");
   }
 
   @Override
