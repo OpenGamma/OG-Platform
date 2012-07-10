@@ -168,6 +168,13 @@ public class BondLoader extends SecurityLoader {
     }
     return fieldData.getDouble(fieldName);
   }
+  
+  private Double validateAndGetNullableDoubleField(FudgeMsg fieldData, String fieldName) {
+    if (!isValidField(fieldData.getString(fieldName))) {
+      return null;
+    }
+    return fieldData.getDouble(fieldName);
+  }
 
   private Integer validateAndGetIntegerField(FudgeMsg fieldData, String fieldName) {
     if (!isValidField(fieldData.getString(fieldName))) {
@@ -245,7 +252,7 @@ public class BondLoader extends SecurityLoader {
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
       ZonedDateTime interestAccrualDate = validateAndGetDateField(fieldData, FIELD_INT_ACC_DT);
-      ZonedDateTime settlementDate = validateAndGetDateField(fieldData, FIELD_SETTLE_DT);
+      ZonedDateTime settlementDate = validateAndGetNullableDateField(fieldData, FIELD_SETTLE_DT);
       ZonedDateTime firstCouponDate = validateAndGetDateField(fieldData, FIELD_FIRST_CPN_DT);
       if (currencyStr.equals("GBP")) {
         if (announcementDate.toLocalDate().isAfter(LocalDate.of(1998, 11, 1)) && dayCountString.equals("ACT/ACT")) {
@@ -258,7 +265,7 @@ public class BondLoader extends SecurityLoader {
       if (dayCount == null) {
         throw new OpenGammaRuntimeException("Could not find day count convention " + dayCountString);
       }
-      Double issuancePrice = validateAndGetDoubleField(fieldData, FIELD_ISSUE_PX);
+      Double issuancePrice = validateAndGetNullableDoubleField(fieldData, FIELD_ISSUE_PX);
       Double totalAmountIssued = validateAndGetDoubleField(fieldData, FIELD_AMT_ISSUED);
       Double minimumAmount = validateAndGetDoubleField(fieldData, FIELD_MIN_PIECE);
       Double minimumIncrement = validateAndGetDoubleField(fieldData, FIELD_MIN_INCREMENT);
@@ -270,7 +277,7 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (marketSector.equals(MARKET_SECTOR_GOVT)) {
+      if (marketSector.equals(MARKET_SECTOR_GOVT) || marketSector.equals(MARKET_SECTOR_CORP)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
@@ -278,6 +285,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+        /**
       } else if (marketSector.equals(MARKET_SECTOR_CORP)) {
         bondSecurity = new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
@@ -286,6 +294,7 @@ public class BondLoader extends SecurityLoader {
             redemptionValue);
         ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
         ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+        */
       } else if (marketSector.equals(MARKET_SECTOR_MUNI)) {
         bondSecurity = new MunicipalBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,

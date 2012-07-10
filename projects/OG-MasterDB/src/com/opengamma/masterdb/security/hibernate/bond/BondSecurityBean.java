@@ -68,7 +68,7 @@ public class BondSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ZonedDateTimeBean _firstCouponDate;
   @PropertyDefinition
-  private double _issuancePrice;
+  private Double _issuancePrice;
   @PropertyDefinition
   private double _totalAmountIssued;
   @PropertyDefinition
@@ -753,7 +753,7 @@ public class BondSecurityBean extends SecurityBean {
    * Gets the issuancePrice.
    * @return the value of the property
    */
-  public double getIssuancePrice() {
+  public Double getIssuancePrice() {
     return _issuancePrice;
   }
 
@@ -761,7 +761,7 @@ public class BondSecurityBean extends SecurityBean {
    * Sets the issuancePrice.
    * @param issuancePrice  the new value of the property
    */
-  public void setIssuancePrice(double issuancePrice) {
+  public void setIssuancePrice(Double issuancePrice) {
     this._issuancePrice = issuancePrice;
   }
 
@@ -1002,7 +1002,7 @@ public class BondSecurityBean extends SecurityBean {
      * The meta-property for the {@code issuancePrice} property.
      */
     private final MetaProperty<Double> _issuancePrice = DirectMetaProperty.ofReadWrite(
-        this, "issuancePrice", BondSecurityBean.class, Double.TYPE);
+        this, "issuancePrice", BondSecurityBean.class, Double.class);
     /**
      * The meta-property for the {@code totalAmountIssued} property.
      */

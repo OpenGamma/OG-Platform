@@ -52,7 +52,6 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.PAY_IN_KIND);
     store(SimpleYieldConvention.FLOAT_RATE_NOTE);
     store(SimpleYieldConvention.TOGGLE_PIK_NOTES);
-    store(SimpleYieldConvention.ISMA_30_360);
     store(SimpleYieldConvention.INTEREST_AT_MATURITY);
     store(SimpleYieldConvention.FRANCE_COMPOUND_METHOD);
     store(SimpleYieldConvention.SPAIN_GOVERNMENT_BONDS);

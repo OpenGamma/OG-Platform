@@ -60,10 +60,14 @@
             "date": "${security.interestAccrualDate.toLocalDate()}",
             "zone": "${security.interestAccrualDate.zone}"
         },
-        "settlementDate": {
-            "date": "${security.settlementDate.toLocalDate()}",
-            "zone": "${security.settlementDate.zone}"
-        },
+        <#if security.settlementDate?has_content>
+          "settlementDate": {
+              "date": "${security.settlementDate.toLocalDate()}",
+              "zone": "${security.settlementDate.zone}"
+          },
+        <#else>
+          "settlementDate": "null",
+        </#if>
         "firstCouponDate": {
             "date": "${security.firstCouponDate.toLocalDate()}",
             "zone": "${security.firstCouponDate.zone}"

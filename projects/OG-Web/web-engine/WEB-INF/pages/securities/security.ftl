@@ -68,9 +68,13 @@
           <@rowout label="Announcement date">${security.announcementDate}</@rowout>
         </#if>  
         <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
-        <@rowout label="Settlement date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
+        <#if security.settlementDate?has_content>
+          <@rowout label="Settlement date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
+        </#if>
         <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
-        <@rowout label="Issuance price">${security.issuancePrice}</@rowout>
+        <#if security.issuancePrice?has_content>
+          <@rowout label="Issuance price">${security.issuancePrice}</@rowout>
+        </#if>
         <@rowout label="Total amount issued">${security.totalAmountIssued}</@rowout>
         <@rowout label="Minimum amount">${security.minimumAmount}</@rowout>
         <@rowout label="Minimum increment">${security.minimumIncrement}</@rowout>
