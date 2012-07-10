@@ -104,9 +104,8 @@ import com.opengamma.engine.view.calc.JobIdSource;
           for (String nodeId : nodeIdSet) {
             if (nodeIdString.length() != 0) {
               nodeIdString.append(", ");
-            } else {
-              nodeIdString.append(nodeId);
             }
+            nodeIdString.append(nodeId);
           }
           _underlying.resultReceived(new CalculationJobResult(spec, _duration, _items, nodeIdString.toString()));
         }
@@ -152,7 +151,7 @@ import com.opengamma.engine.view.calc.JobIdSource;
    * @param job the job to split, not null and with at least 2 items
    * @param receiver the receiver to notify when the second job completes, not null
    */
-  /* package */static DispatchableJob splitJob(final WatchedJob creator, final CalculationJob job) {
+  private static DispatchableJob splitJob(final WatchedJob creator, final CalculationJob job) {
     final List<CalculationJobItem> items = job.getJobItems();
     s_logger.debug("Splitting {} for resubmission ", job);
     final CacheSelectHint hint = job.getCacheSelectHint();

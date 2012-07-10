@@ -120,14 +120,14 @@ public class RemoteNodeServer implements FudgeConnectionReceiver {
 
     @Override
     public FunctionBlacklistMaintainer getUpdate(final String hostId) {
-      if (_policy.isEmpty()) {
+      if (getBlacklistPolicy().isEmpty()) {
         return null;
       }
       final ManageableFunctionBlacklist blacklist = getBlacklistProvider().getBlacklist(getBlacklistPrefix() + hostId);
       if (blacklist == null) {
         return null;
       }
-      return new DefaultFunctionBlacklistMaintainer(_policy, blacklist);
+      return new DefaultFunctionBlacklistMaintainer(getBlacklistPolicy(), blacklist);
     }
 
   }

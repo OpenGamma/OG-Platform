@@ -12,6 +12,8 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import java.util.Collections;
 import java.util.Set;
 
+import org.springframework.util.ObjectUtils;
+
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
@@ -219,6 +221,33 @@ public final class CalculationJobResultItem implements IdentifierEncodedValueSpe
     final StringBuilder sb = new StringBuilder();
     sb.append("CalculationJobResultItem-").append(getResult());
     return sb.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    int hc = 1;
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_exceptionClass);
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_exceptionMsg);
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_stackTrace);
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_missingOutputs);
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_missingInputs);
+    return hc;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof CalculationJobResultItem)) {
+      return false;
+    }
+    final CalculationJobResultItem other = (CalculationJobResultItem) o;
+    return ObjectUtils.nullSafeEquals(other._exceptionClass, _exceptionClass)
+        && ObjectUtils.nullSafeEquals(other._exceptionMsg, _exceptionMsg)
+        && ObjectUtils.nullSafeEquals(other._stackTrace, _stackTrace)
+        && ObjectUtils.nullSafeEquals(other._missingOutputs, _missingOutputs)
+        && ObjectUtils.nullSafeEquals(other._missingInputs, _missingInputs);
   }
 
 }

@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ObjectUtils;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
@@ -109,5 +110,31 @@ public class CalculationJobResult implements IdentifierEncodedValueSpecification
   @Override
   public String toString() {
     return "CalculationJobResult with " + _specification.toString();
-  } 
+  }
+
+  @Override
+  public int hashCode() {
+    int hc = 1;
+    hc += (hc << 4) + _specification.hashCode();
+    hc += (hc << 4) + _resultItems.hashCode();
+    hc += (hc << 4) + ((int) (_durationNanos >>> 32) ^ (int) _durationNanos);
+    hc += (hc << 4) + ObjectUtils.nullSafeHashCode(_nodeId);
+    return hc;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof CalculationJobResult)) {
+      return false;
+    }
+    final CalculationJobResult other = (CalculationJobResult) o;
+    return _specification.equals(other._specification)
+        && _resultItems.equals(other._resultItems)
+        && (_durationNanos == other._durationNanos)
+        && ObjectUtils.nullSafeEquals(_nodeId, other._nodeId);
+  }
+
 }

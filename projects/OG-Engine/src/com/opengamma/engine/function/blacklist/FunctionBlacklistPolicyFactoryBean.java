@@ -212,7 +212,7 @@ public class FunctionBlacklistPolicyFactoryBean extends SingletonFactoryBean<Fun
     if (getName() == null) {
       setName(getUniqueId().getValue());
     }
-    return new DefaultFunctionBlacklistPolicy(getUniqueId(), getDefaultEntryActivationPeriod(), createEntries());
+    return new DefaultFunctionBlacklistPolicy(getUniqueId(), getName(), getDefaultEntryActivationPeriod(), createEntries());
   }
 
 }
