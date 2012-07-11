@@ -66,7 +66,6 @@ public class JdbcSheetReader extends SheetReader {
         setColumns(columns);
         List<Map<String, String>> entries = new ArrayList<Map<String, String>>();
         while (rs.next()) {
-          s_logger.info("Read a row");
           String[] rawRow = new String[rs.getMetaData().getColumnCount()];
           for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
             rawRow[i] = rs.getString(i + 1);
@@ -97,7 +96,6 @@ public class JdbcSheetReader extends SheetReader {
   @Override
   public Map<String, String> loadNextRow() {
     if (_iterator.hasNext()) {
-      s_logger.info("Returned a row");
       return _iterator.next();
     } else {
       return null;
