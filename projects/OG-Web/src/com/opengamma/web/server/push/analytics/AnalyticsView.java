@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
@@ -21,7 +21,7 @@ public interface AnalyticsView {
 
   void updateStructure(CompiledViewDefinition compiledViewDefinition);
 
-  void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle);
+  void updateResults(ViewResultModel results, ViewCycle viewCycle);
 
 // -------- main grid --------
 

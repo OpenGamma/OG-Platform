@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -71,10 +71,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle) {
-    _history.addResults(fullResult);
-    boolean portfolioColumnsUpdated = _portfolioGrid.updateResults(fullResult, _history, viewCycle);
-    boolean primitivesColumnsUpdated = _primitivesGrid.updateResults(fullResult, _history, viewCycle);
+  public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
+    _history.addResults(results);
+    boolean portfolioColumnsUpdated = _portfolioGrid.updateResults(results, _history, viewCycle);
+    boolean primitivesColumnsUpdated = _primitivesGrid.updateResults(results, _history, viewCycle);
     List<String> updatedIds = new ArrayList<String>();
     if (portfolioColumnsUpdated) {
       updatedIds.add(_portfolioGrid.getColumnsId());

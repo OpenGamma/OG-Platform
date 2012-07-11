@@ -52,7 +52,7 @@ public class ViewportResults {
 
     private final Object _value;
     private final ValueSpecification _valueSpecification;
-    private final Collection<Object> _history; // TODO what type should this be?
+    private final Collection<Object> _history;
 
     private Cell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
       ArgumentChecker.notNull(value, "value");
