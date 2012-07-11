@@ -21,11 +21,6 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
-import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
-import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithFXBundle;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
@@ -53,7 +48,7 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final double USD_KRW = 1111.11;
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
-  private static final YieldCurveWithFXBundle CURVESFX = new YieldCurveWithFXBundle(FX_MATRIX, CURVE_CURRENCY, CURVES);
+  private static final YieldCurveBundle CURVESFX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
 
   private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
   private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3]});

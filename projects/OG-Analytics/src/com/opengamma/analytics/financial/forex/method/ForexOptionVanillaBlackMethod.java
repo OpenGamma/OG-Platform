@@ -289,7 +289,7 @@ public final class ForexOptionVanillaBlackMethod implements ForexPricingMethod {
    * @param curves The curve and fx data.
    * @return The forward rate.
    */
-  public double forwardForexRate(final ForexOptionVanilla optionForex, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
     ForexDiscountingMethod methodForex = ForexDiscountingMethod.getInstance();
     return methodForex.forwardForexRate(optionForex.getUnderlyingForex(), curves);
   }

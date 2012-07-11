@@ -78,7 +78,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @param curves The curve bundle (with FX rates).
    * @return The forward rate.
    */
-  public double forwardForexRate(final Forex fx, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final Forex fx, final YieldCurveBundle curves) {
     final double dfDomestic = curves.getCurve(fx.getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
     final double dfForeign = curves.getCurve(fx.getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(fx.getPaymentTime());
     final double spot = curves.getFxRate(fx.getCurrency1(), fx.getCurrency2());

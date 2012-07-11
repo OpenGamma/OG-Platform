@@ -13,13 +13,13 @@ import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackMethod;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithFXBundle;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the forward Forex rate for Forex derivatives.
  */
-public class ForwardRateForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveWithFXBundle, Double> {
+public class ForwardRateForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -49,22 +49,22 @@ public class ForwardRateForexCalculator extends AbstractInstrumentDerivativeVisi
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
 
   @Override
-  public Double visitForex(final Forex derivative, final YieldCurveWithFXBundle data) {
+  public Double visitForex(final Forex derivative, final YieldCurveBundle data) {
     return METHOD_FOREX.forwardForexRate(derivative, data);
   }
 
   @Override
-  public Double visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final YieldCurveWithFXBundle data) {
+  public Double visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final YieldCurveBundle data) {
     return METHOD_NDF.forwardForexRate(derivative, data);
   }
 
   @Override
-  public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveWithFXBundle data) {
+  public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
     return METHOD_FXOPTION.forwardForexRate(derivative, data);
   }
 
   @Override
-  public Double visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveWithFXBundle data) {
+  public Double visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveBundle data) {
     return METHOD_NDO.forwardForexRate(derivative, data);
   }
 
