@@ -30,8 +30,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRRightExtrapolationVegaDefaults
  */
+@Deprecated
 public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropertyFunction {
   private final String _forwardCurveName;
   private final String _fundingCurveName;
@@ -48,9 +50,9 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
   private final String _yRightExtrapolator;
   private final String[] _applicableCurrencies;
 
-  public SABRRightExtrapolationVegaDefaultsDeprecated(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod, final String curveCalculationMethod,
-      final String cutoff, final String mu, final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator,
-      final String yLeftExtrapolator, final String yRightExtrapolator, final String... applicableCurrencies) {
+  public SABRRightExtrapolationVegaDefaultsDeprecated(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod,
+      final String curveCalculationMethod, final String cutoff, final String mu, final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator,
+      final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");

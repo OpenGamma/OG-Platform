@@ -29,8 +29,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding and forward curves
+ * @see SABRNoExtrapolationDefaults
  */
+@Deprecated
 public class SABRNoExtrapolationDefaultsDeprecated extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,

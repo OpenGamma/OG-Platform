@@ -16,11 +16,9 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated Use the version that does not refer to funding or forward curves
- * @see SABRNoExtrapolationVegaDefaults
+ * 
  */
-@Deprecated
-public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolationDefaultsDeprecated {
+public class SABRNoExtrapolationVegaDefaults extends SABRNoExtrapolationDefaults {
   private final String _xInterpolator;
   private final String _xLeftExtrapolator;
   private final String _xRightExtrapolator;
@@ -28,10 +26,10 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public SABRNoExtrapolationVegaDefaultsDeprecated(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod, final String curveCalculationMethod,
-      final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
-      final String yRightExtrapolator, final String... applicableCurrencies) {
-    super(forwardCurveName, fundingCurveName, cubeName, fittingMethod, curveCalculationMethod, applicableCurrencies);
+  public SABRNoExtrapolationVegaDefaults(final String priority, final String fittingMethod, final String xInterpolator, final String xLeftExtrapolator,
+      final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator,
+      final String... currencyCurveConfigAndCubeNames) {
+    super(priority, fittingMethod, currencyCurveConfigAndCubeNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");
@@ -59,10 +57,6 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> properties = super.getDefaultValue(context, target, desiredValue, propertyName);
-    if (properties != null) {
-      return properties;
-    }
     if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_xLeftExtrapolator);
     }
@@ -80,6 +74,10 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
     }
     if (InterpolatedDataProperties.Y_INTERPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_yInterpolator);
+    }
+    final Set<String> properties = super.getDefaultValue(context, target, desiredValue, propertyName);
+    if (properties != null) {
+      return properties;
     }
     return null;
   }

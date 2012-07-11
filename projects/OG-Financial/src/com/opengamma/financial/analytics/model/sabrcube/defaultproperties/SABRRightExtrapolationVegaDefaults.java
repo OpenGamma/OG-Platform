@@ -8,19 +8,20 @@ package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated Use the version that does not refer to funding or forward curves
- * @see SABRNoExtrapolationVegaDefaults
+ * 
  */
-@Deprecated
-public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolationDefaultsDeprecated {
+public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDefaults {
   private final String _xInterpolator;
   private final String _xLeftExtrapolator;
   private final String _xRightExtrapolator;
@@ -28,10 +29,10 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public SABRNoExtrapolationVegaDefaultsDeprecated(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod, final String curveCalculationMethod,
+  public SABRRightExtrapolationVegaDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
       final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
-      final String yRightExtrapolator, final String... applicableCurrencies) {
-    super(forwardCurveName, fundingCurveName, cubeName, fittingMethod, curveCalculationMethod, applicableCurrencies);
+      final String yRightExtrapolator, final String... currencyCurveConfigAndCubeNames) {
+    super(priority, fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");
@@ -47,6 +48,18 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
+    final Security security = target.getSecurity();
+    if (security instanceof CapFloorCMSSpreadSecurity) {
+      return false;
+    }
+    return super.canApplyTo(context, target);
+  }
+
+  @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -59,10 +72,6 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> properties = super.getDefaultValue(context, target, desiredValue, propertyName);
-    if (properties != null) {
-      return properties;
-    }
     if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_xLeftExtrapolator);
     }
@@ -80,6 +89,10 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
     }
     if (InterpolatedDataProperties.Y_INTERPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_yInterpolator);
+    }
+    final Set<String> properties = super.getDefaultValue(context, target, desiredValue, propertyName);
+    if (properties != null) {
+      return properties;
     }
     return null;
   }
