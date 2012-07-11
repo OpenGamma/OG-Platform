@@ -61,7 +61,7 @@ public class SyntheticUSConventions {
     final Frequency swapFloatPaymentFrequency = quarterly;
     final Frequency annual = PeriodFrequency.ANNUAL;
 
-    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30 };
+    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30};
     // ISDA fixing 11.00 New-York
     for (final int element : isdaFixTenor) {
       final String tenorString = element + "Y";

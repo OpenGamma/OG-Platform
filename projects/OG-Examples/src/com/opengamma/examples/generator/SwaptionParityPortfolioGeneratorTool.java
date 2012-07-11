@@ -21,8 +21,6 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
-import com.opengamma.financial.generator.NameGenerator;
-import com.opengamma.financial.generator.PortfolioGenerator;
 import com.opengamma.financial.generator.PortfolioNodeGenerator;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.generator.SimplePositionGenerator;
@@ -46,7 +44,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  */
-public class SwaptionParityTestPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   private static final Currency CURRENCY = Currency.USD;
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
@@ -57,11 +55,6 @@ public class SwaptionParityTestPortfolioGeneratorTool extends AbstractPortfolioG
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
   private static final ExternalId LIBOR_3M = ExternalSchemes.syntheticSecurityId("USDLIBORP3M");
   private static final String COUNTERPARTY = "Cpty";
-
-  @Override
-  public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    return new PortfolioGenerator(createPortfolioNodeGenerator(PORTFOLIO_SIZE), portfolioNameGenerator);
-  }
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {

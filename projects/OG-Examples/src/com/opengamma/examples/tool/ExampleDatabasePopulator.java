@@ -20,7 +20,6 @@ import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
-import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
@@ -64,6 +63,14 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    */
   public static final String SWAPTION_PORTFOLIO_NAME = "Swap / Swaption Portfolio";
   /**
+   * The name of the mixed CMS portfolio
+   */
+  public static final String MIXED_CMS_PORTFOLIO_NAME = "Mixed CM Portfolio";
+  /**
+   * The name of a vanilla FX option portfolio
+   */
+  public static final String VANILLA_FX_OPTION_PORTFOLIO_NAME = "Vanilla FX Option Portfolio";
+  /**
    * The currencies.
    */
   private static final Set<Currency> s_currencies = Sets.newHashSet(Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.CAD);
@@ -95,16 +102,12 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadMultiCurrencySwapPortfolio();
     loadAUDSwapPortfolio();
     loadSwaptionParityPortfolio();
+    loadMixedCMPortfolio();
+    loadVanillaFXOptionPortfolio();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
     loadBondPortfolio();
-    loadCapFloorCMSSpreadPortfolio();
-    loadCapFloorPortfolio();
-    loadCashPortfolio();
-    loadFRAPortfolio();
     loadLiborRawSecurities();
-    //loadMixedFXPortfolio();
-    loadMultiAssetPortfolio();
     loadViews();
   }
 
@@ -153,17 +156,6 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
       throw e;
     }
 
-  }
-
-  private void loadMultiAssetPortfolio() {
-    final Log log = new Log("Creating example multi asset portfolio");
-    try {
-      final ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
-      mixedPortfolioLoader.run(getToolContext());
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
   }
 
   private void loadTimeSeriesRating() {
@@ -238,7 +230,27 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   private void loadSwaptionParityPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), SWAPTION_PORTFOLIO_NAME, "SwaptionParityTest", true, null);
+      portfolioGeneratorTool().run(getToolContext(), SWAPTION_PORTFOLIO_NAME, "SwaptionParity", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadMixedCMPortfolio() {
+    final Log log = new Log("Creating example mixed CM portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), MIXED_CMS_PORTFOLIO_NAME, "MixedCM", true, null);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadVanillaFXOptionPortfolio() {
+    final Log log = new Log("Creating example vanilla FX option portfolio");
+    try {
+      portfolioGeneratorTool().run(getToolContext(), VANILLA_FX_OPTION_PORTFOLIO_NAME, "VanillaFXOption", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -255,70 +267,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
-  private void loadCapFloorCMSSpreadPortfolio() {
-    final Log log = new Log("Creating example cap/floor CMS spread portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), "Cap/Floor CMS Spread Portfolio", "CapFloorCMSSpread", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadCapFloorPortfolio() {
-    final Log log = new Log("Creating example cap/floor portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), CAP_FLOOR_PORTFOLIO_NAME, "CapFloor", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadCashPortfolio() {
-    final Log log = new Log("Creating example cash portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), "Cash Portfolio", "Cash", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Creating example equity option portfolio");
     try {
       // TODO: load from CSV file
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadFRAPortfolio() {
-    final Log log = new Log("Creating example FRA portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), "FRA Portfolio", "FRA", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadMixedFXPortfolio() {
-    final Log log = new Log("Creating mixed FX portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), "Mixed FX Portfolio", "MixedFX", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadMixedPortfolio() {
-    final Log log = new Log("Creating mixed portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), "Mixed Portfolio", "Mixed", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
