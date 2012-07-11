@@ -28,8 +28,10 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadNoExtrapolationVegaFunction
  */
+@Deprecated
 public class SABRCMSSpreadNoExtrapolationVegaFunctionDeprecated extends SABRVegaFunctionDeprecated {
 
   @Override

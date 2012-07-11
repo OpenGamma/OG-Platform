@@ -12,8 +12,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRRightExtrapolationPVCurveSensitivityFunction
  */
+@Deprecated
 public class SABRRightExtrapolationPVCurveSensitivityFunctionDeprecated extends SABRRightExtrapolationFunctionDeprecated {
 
   @Override

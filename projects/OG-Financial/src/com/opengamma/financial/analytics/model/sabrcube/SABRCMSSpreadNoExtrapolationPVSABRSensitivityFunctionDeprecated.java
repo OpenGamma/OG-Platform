@@ -14,8 +14,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction
  */
+@Deprecated
 public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated extends SABRCMSSpreadNoExtrapolationFunctionDeprecated {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 

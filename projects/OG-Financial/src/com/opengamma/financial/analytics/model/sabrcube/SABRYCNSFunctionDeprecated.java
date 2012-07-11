@@ -69,8 +69,10 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRYCNSFunction
  */
+@Deprecated
 public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRYCNSFunctionDeprecated.class);
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();

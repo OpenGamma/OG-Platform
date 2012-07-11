@@ -57,8 +57,10 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRFunction
  */
+@Deprecated
 public abstract class SABRFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   /** String labelling the type of SABR calculation (with right extrapolation) */
   public static final String SABR_RIGHT_EXTRAPOLATION = "SABRRightExtrapolation";

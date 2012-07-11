@@ -28,8 +28,10 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadRightExtrapolationFunction
  */
+@Deprecated
 public abstract class SABRCMSSpreadRightExtrapolationFunctionDeprecated extends SABRFunctionDeprecated {
   /** Property name for the cutoff strike after which extrapolation is used */
   public static final String PROPERTY_CUTOFF_STRIKE = "SABRExtrapolationCutoffStrike";

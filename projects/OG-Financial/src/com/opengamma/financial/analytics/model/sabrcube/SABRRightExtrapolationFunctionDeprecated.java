@@ -32,8 +32,10 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRRightExtrapolationFunction
  */
+@Deprecated
 public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunctionDeprecated {
   /** Property name for the cutoff strike after which extrapolation is used */
   public static final String PROPERTY_CUTOFF_STRIKE = "SABRExtrapolationCutoffStrike";
@@ -48,8 +50,8 @@ public abstract class SABRRightExtrapolationFunctionDeprecated extends SABRFunct
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
   }
 

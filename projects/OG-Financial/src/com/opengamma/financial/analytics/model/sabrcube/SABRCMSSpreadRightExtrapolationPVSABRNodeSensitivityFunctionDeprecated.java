@@ -15,8 +15,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadRightExtrapolationPVSABRNodeSensitivityFunction
  */
+@Deprecated
 public abstract class SABRCMSSpreadRightExtrapolationPVSABRNodeSensitivityFunctionDeprecated extends SABRCMSSpreadRightExtrapolationFunctionDeprecated {
 
   @Override

@@ -48,8 +48,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRVegaFunction
  */
+@Deprecated
 public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated {
 
   @Override

@@ -83,4 +83,9 @@ public class SABRNoExtrapolationVegaDefaultsDeprecated extends SABRNoExtrapolati
     }
     return null;
   }
+
+  @Override
+  public PriorityClass getPriority() {
+    return PriorityClass.NORMAL;
+  }
 }

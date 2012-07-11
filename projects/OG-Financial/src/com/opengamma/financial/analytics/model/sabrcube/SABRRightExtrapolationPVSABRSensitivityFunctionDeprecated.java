@@ -22,8 +22,10 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRRightExtrapolationPVSABRNodeSensitivityFunction
  */
+@Deprecated
 public abstract class SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated extends SABRRightExtrapolationFunctionDeprecated {
 
   @Override
