@@ -16,12 +16,11 @@ $.register_module({
                 grid = new og.analytics.Grid({
                     selector: content,
                     source: {
-                        view: 0,
                         type: 'portfolio',
                         depgraph: false,
                         viewdefinition: 'DbCfg~2194997',
                         live: true,
-                        provider: 'Live market data (Bloomberg, Activ)'
+                        provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
                     }
                 });
             },
