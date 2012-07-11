@@ -12,6 +12,8 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
@@ -20,6 +22,8 @@ import com.opengamma.util.tuple.Pair;
  * A decorator for a ReferenceDataProvider that allows you to override the results from the underlying provider e.g. if you have extra information from another source.
  */
 public class PatchableReferenceDataProvider implements ReferenceDataProvider {
+  private static final Logger s_logger = LoggerFactory.getLogger(PatchableReferenceDataProvider.class);
+  
   private Map<Pair<String, String>, Object> _patches = new HashMap<Pair<String, String>, Object>();
   private Set<String> _securities = new HashSet<String>();
   private ReferenceDataProvider _underlying;
@@ -62,10 +66,12 @@ public class PatchableReferenceDataProvider implements ReferenceDataProvider {
             }
           }
         }
+        s_logger.info("Patching {} with {}", new Object[] {fieldData, alteredFieldData });
         result.setFieldData(alteredFieldData);
       }
+      rawResult.addResult(result); // actually does a put into the map.
     }
-    return null;
+    return rawResult;
   }
 
 }
