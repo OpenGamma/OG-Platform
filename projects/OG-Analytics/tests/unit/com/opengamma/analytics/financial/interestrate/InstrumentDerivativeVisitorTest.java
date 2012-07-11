@@ -68,7 +68,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
@@ -522,11 +521,6 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public Class<?> visitOISSwap(OISSwap swap, Object data) {
-      return null;
-    }
-
-    @Override
     public Class<?> visitCrossCurrencySwap(CrossCurrencySwap ccs, Object data) {
       return null;
     }
@@ -548,11 +542,6 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitForexForward(ForexForward fx) {
-      return null;
-    }
-
-    @Override
-    public Class<?> visitOISSwap(OISSwap swap) {
       return null;
     }
 

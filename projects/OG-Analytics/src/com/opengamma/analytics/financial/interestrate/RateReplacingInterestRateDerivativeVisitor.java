@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 
@@ -85,11 +84,6 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
   @Override
   public FixedFloatSwap visitFixedFloatSwap(final FixedFloatSwap swap, final Double rate) {
     return new FixedFloatSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
-  }
-
-  @Override
-  public OISSwap visitOISSwap(final OISSwap swap, final Double rate) {
-    return new OISSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
   @Override

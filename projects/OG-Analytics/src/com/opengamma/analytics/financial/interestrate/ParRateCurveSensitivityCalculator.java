@@ -38,7 +38,6 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
@@ -174,11 +173,6 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
         .getNthPayment(0).getNotional()));
     InterestRateCurveSensitivity result = pvSecondDr.multiply(1.0 / pvbp).plus(pvbpDr.multiply(-pvSecond / (pvbp * pvbp)));
     return result.getSensitivities();
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitOISSwap(final OISSwap ois, final YieldCurveBundle curves) {
-    return visitFixedCouponSwap(ois, curves);
   }
 
   @Override

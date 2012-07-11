@@ -46,7 +46,6 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
@@ -152,13 +151,6 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
 
   @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Double visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
     return visitSwap(swap, curves);

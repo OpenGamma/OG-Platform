@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeCrossCurrencySwap;
 import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeForexForward;
-import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeOISSwap;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -267,21 +265,6 @@ public class PresentValueCalculatorTest {
     final double pvReceiver = PVC.visit(swapReceiver, CURVES);
     assertEquals(0.0, pvPayer + pvReceiver, 1e-12);
 
-  }
-
-  @Test
-  public void testOISSwap() {
-    double notional = 1e8;
-    double maturity = 10.0;
-    double rate = Math.exp(0.05) - 1;
-
-    OISSwap swap = makeOISSwap(maturity, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
-    double pv = PVC.visit(swap, CURVES);
-    assertEquals(0.0, pv, 1e-7); //NB the notional is 100M
-
-    swap = makeOISSwap(maturity, FOUR_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
-    pv = PVC.visit(swap, CURVES);
-    assertEquals(0.0, pv, 1e-7);
   }
 
   @Test
