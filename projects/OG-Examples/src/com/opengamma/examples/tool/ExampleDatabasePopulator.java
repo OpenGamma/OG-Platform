@@ -50,11 +50,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
-  /**
-   * The name of Forward Swap Portfolio
-   */
-  public static final String FORWARD_SWAP_PORTFOLION_NAME = "Forward Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
   /**
    * The name of Cap/Floor portfolio
    */
@@ -63,6 +59,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
    * The name of the AUD swap portfolio
    */
   public static final String AUD_SWAP_PORFOLIO_NAME = "AUD Swap Portfolio";
+  /**
+   * The name of the swaption portfolio
+   */
+  public static final String SWAPTION_PORTFOLIO_NAME = "Swap / Swaption Portfolio";
   /**
    * The currencies.
    */
@@ -94,6 +94,7 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     loadSimulatedHistoricalData();
     loadMultiCurrencySwapPortfolio();
     loadAUDSwapPortfolio();
+    loadSwaptionParityPortfolio();
     loadEquityPortfolio();
     loadEquityOptionPortfolio();
     loadBondPortfolio();
@@ -234,20 +235,10 @@ public class ExampleDatabasePopulator extends AbstractExampleTool {
     }
   }
 
-  private void loadForwardSwapPortfolio() {
-    final Log log = new Log("Creating example forward swap portfolio");
-    try {
-      portfolioGeneratorTool().run(getToolContext(), FORWARD_SWAP_PORTFOLION_NAME, "ForwardSwap", true, null);
-      log.done();
-    } catch (final RuntimeException t) {
-      log.fail(t);
-    }
-  }
-
-  private void loadSwaptionPortfolio() {
+  private void loadSwaptionParityPortfolio() {
     final Log log = new Log("Creating example swaption portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), "Swaption Portfolio", "Swaption", true, null);
+      portfolioGeneratorTool().run(getToolContext(), SWAPTION_PORTFOLIO_NAME, "SwaptionParityTest", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
