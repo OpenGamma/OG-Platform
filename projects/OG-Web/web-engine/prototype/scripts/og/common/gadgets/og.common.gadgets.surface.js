@@ -9,10 +9,13 @@ $.register_module({
         var webgl = Detector.webgl ? true : false, util = {}, tmp_data,
             settings = {
                 font_size: 40,
+                font_size_axis_labels: 100,
+                font_size_interactive_labels: 70,
                 font_face: 'Arial',
                 snap_distance: 3,
                 surface_x: 100,
                 surface_z: 100,
+                surface_y: 35,
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
                 vertex_shading_hue_min: 180,
@@ -123,7 +126,7 @@ $.register_module({
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
                 renderer, camera, scene, backlight, keylight, filllight,
                 projector, interactive_meshs = [], // interaction
-                adjusted_vol = util.scale(config.vol, 0, 50),
+                adjusted_vol = util.scale(config.vol, 0, settings.surface_y),
                 adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2),
                 adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
             /**
@@ -146,10 +149,10 @@ $.register_module({
              * @param {String} str String you want to create
              * @returns {THREE.Mesh}
              */
-            var Text = function (str, color) {
+            var Text = function (str, color, size) {
                 var create_texture_map = function (str) {
-                    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'),
-                        size = settings.font_size;
+                    var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+                    size = size || 50;
                     ctx.font = (size + 'px ' + settings.font_face);
                     canvas.width = ctx.measureText(str).width;
                     canvas.height = Math.ceil(size * 1.25);
@@ -223,7 +226,7 @@ $.register_module({
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
-                        value = new Text(lbl_arr[i]);
+                        value = new Text(lbl_arr[i], null, settings.font_size);
                         value.scale.set(scale, scale, scale);
                         value.position.x = pos_arr[i];
                         value.position.y = 1;
@@ -232,11 +235,11 @@ $.register_module({
                     }
                 }());
                 (function () { // axis label
-                    var label = new Text(config.label);
+                    var label = new Text(config.label, '#ccc', settings.font_size_axis_labels);
                     label.scale.set(scale, scale, scale);
-                    label.position.x = -(axis_len / 2) + 4;
+                    label.position.x = -(axis_len / 2) + 8;
                     label.position.y = 1;
-                    label.position.z = (other_axis_len / 2) + 13;
+                    label.position.z = (other_axis_len / 2) + 16;
                     mesh.add(label);
                 }());
                 (function () { // axis ticks
@@ -293,7 +296,7 @@ $.register_module({
                     mat = new THREE.MeshBasicMaterial({color: settings.interactive_color_nix, wireframe: false});
                 while (i--) {
                     line = new THREE.LineCurve3(points[i], points[i+1]);
-                    tube = new THREE.TubeGeometry(line, 1, 0.2, 10, false, false);
+                    tube = new THREE.TubeGeometry(line, 1, 0.2, 5, false, false);
                     mesh.add(new THREE.Mesh(tube, mat));
                 }
                 return mesh;
@@ -368,9 +371,9 @@ $.register_module({
                             txt = val === 'x'
                                 ? lbl_arr[index % (x_segments + 1)]
                                 : lbl_arr[~~(index / (x_segments + 1))],
-                            lbl = new Text(txt, settings.interactive_color_css),
+                            lbl = new Text(txt, settings.interactive_color_css, settings.font_size_interactive_labels),
                             vertices = val === 'x' ? zvertices : xvertices;
-                        lbl.scale.set(0.2, 0.2, 0.2);
+                        lbl.scale.set(0.1, 0.1, 0.1);
                         lbl.position.y = -settings.floating_height + 1.1;
                         if (val === 'x') {
                             lbl.position.x = vertices[0][val];
@@ -452,7 +455,7 @@ $.register_module({
                 animation_group.rotation.y = 0.7;
                 camera.position.x = 0;
                 camera.position.y = 125;
-                camera.position.z = 150;
+                camera.position.z = 160;
                 camera.lookAt({x: 0, y: 0, z: 0});
                 // render scene
                 renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
