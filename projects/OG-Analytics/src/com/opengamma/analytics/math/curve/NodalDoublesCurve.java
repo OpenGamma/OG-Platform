@@ -455,9 +455,4 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for NodalDoublesCurve");
   }
 
-  @Override
-  public int getNumberOfParameters() {
-    return getYData().length;
-  }
-
 }

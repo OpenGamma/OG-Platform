@@ -59,7 +59,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
@@ -103,8 +102,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(SwapFixedCoupon<?> swap, S data);
 
   T visitFixedFloatSwap(FixedFloatSwap swap, S data);
-
-  T visitOISSwap(OISSwap swap, S data);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption, S data);
 
@@ -173,8 +170,6 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitFixedCouponSwap(SwapFixedCoupon<?> swap);
 
   T visitFixedFloatSwap(FixedFloatSwap swap);
-
-  T visitOISSwap(OISSwap swap);
 
   T visitSwaptionCashFixedIbor(SwaptionCashFixedIbor swaption);
 

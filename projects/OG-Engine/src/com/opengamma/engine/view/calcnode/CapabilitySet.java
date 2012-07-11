@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapabilitySet {
 
-  private final Map<String, Capability> _capabilitiesById = new ConcurrentSkipListMap<String, Capability>();
+  private final Map<String, Capability> _capabilitiesById = new ConcurrentHashMap<String, Capability>();
   private final AtomicInteger _changeId = new AtomicInteger();
   private volatile Wrapper _wrapper;
 
@@ -115,10 +115,17 @@ public class CapabilitySet {
     return _capabilitiesById;
   }
 
+  /**
+   * Adds (or updates) a capability within the set. If there is an existing capability with the same identifier it will be replaced.
+   * 
+   * @param capability the new capability, not null
+   */
   public void addCapability(final Capability capability) {
     ArgumentChecker.notNull(capability, "capability");
-    getCapabilitiesById().put(capability.getIdentifier(), capability);
-    _changeId.incrementAndGet();
+    final Capability previous = getCapabilitiesById().put(capability.getIdentifier(), capability);
+    if (!capability.equals(previous)) {
+      _changeId.incrementAndGet();
+    }
   }
 
   public void setCapability(final Capability capability) {

@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Basic implementation of {@link ManageableFunctionBlacklist} using a {@link DefaultFunctionBlacklistQuery} and {@link FunctionBlacklistRuleSet} to maintain the data.
+ * Basic implementation of {@link ManageableFunctionBlacklist} using a {@link FunctionBlacklistRuleSet} to maintain the data.
  */
 public class DefaultManageableFunctionBlacklist extends AbstractManageableFunctionBlacklist {
 

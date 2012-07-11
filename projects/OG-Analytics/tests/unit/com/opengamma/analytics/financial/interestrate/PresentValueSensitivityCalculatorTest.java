@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate;
 
 import static com.opengamma.analytics.financial.interestrate.FDCurveSensitivityCalculator.curveSensitvityFDCalculator;
 import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.clean;
-import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeOISSwap;
 import static com.opengamma.analytics.financial.interestrate.TestUtils.assertSensitivityEquals;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -40,7 +39,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -491,42 +489,6 @@ public class PresentValueSensitivityCalculatorTest {
 
     assertSensitivityEquals(fdFundSense, sense.get(FUNDING_CURVE_NAME), eps * NOTIONAL);
     assertSensitivityEquals(fdFwdSense, sense.get(FORWARD_CURVE_NAME), eps * NOTIONAL);
-  }
-
-  @Test
-  final void testOISSwap() {
-    final double eps = 1e-9;
-    final double notional = 1e8;
-    final double relTol = eps;
-    final double absTol = notional * eps;
-    final double maturity = 10.0;
-    final double rate = Math.exp(0.05) - 1;
-
-    final double[] nodeTimes = new double[10];
-    for (int i = 0; i < 10; i++) {
-      nodeTimes[i] = 1.0 * (i + 1);
-    }
-
-    OISSwap swap = makeOISSwap(maturity, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
-    Map<String, List<DoublesPair>> sense = PVSC.visit(swap, CURVES);
-
-    //1. single curve sense
-    List<DoublesPair> senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), relTol, absTol);
-    List<DoublesPair> senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, absTol);
-    assertSensitivityEquals(senseFD, senseAnal, absTol);
-
-    swap = makeOISSwap(maturity, ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, rate, notional);
-    sense = PVSC.visit(swap, CURVES);
-
-    //    //2. index curve sense
-    senseAnal = clean(sense.get(FIVE_PC_CURVE_NAME), relTol, absTol);
-    senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, FIVE_PC_CURVE_NAME, nodeTimes, absTol);
-    assertSensitivityEquals(senseFD, senseAnal, absTol);
-
-    //    //2. funding curve sense
-    senseAnal = clean(sense.get(ZERO_PC_CURVE_NAME), relTol, absTol);
-    senseFD = curveSensitvityFDCalculator(swap, PVC, CURVES, ZERO_PC_CURVE_NAME, nodeTimes, absTol);
-    assertSensitivityEquals(senseFD, senseAnal, absTol);
   }
 
 }

@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.generator.GeneratorSwapTestsMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;

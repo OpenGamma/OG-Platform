@@ -100,11 +100,6 @@ public class ConstantDoublesCurve extends DoublesCurve {
     return InterpolatedDoublesCurve.from(x, y, interpolator);
   }
 
-  @Override
-  public int getNumberOfParameters() {
-    return 1;
-  }
-
   /**
    * @return The size of the curve is one
    */

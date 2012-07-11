@@ -518,11 +518,6 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     return ArrayUtils.toObject(_interpolator.getNodeSensitivitiesForValue(_dataBundle, x));
   }
 
-  @Override
-  public int getNumberOfParameters() {
-    return _dataBundle.size();
-  }
-
   public Interpolator1D getInterpolator() {
     return _interpolator;
   }

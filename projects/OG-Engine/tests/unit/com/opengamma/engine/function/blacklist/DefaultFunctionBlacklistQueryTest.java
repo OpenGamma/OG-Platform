@@ -8,6 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
@@ -56,6 +57,7 @@ public class DefaultFunctionBlacklistQueryTest {
 
   public void testEmpty() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
+    assertTrue(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_target1));
     assertFalse(bl.isBlacklisted(_function1, _target1));
@@ -65,6 +67,7 @@ public class DefaultFunctionBlacklistQueryTest {
   public void testSingleEntry_wildcard() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
     bl.addRule(new FunctionBlacklistRule());
+    assertFalse(bl.isEmpty());
     assertTrue(bl.isBlacklisted(_function1));
     assertTrue(bl.isBlacklisted(_target1));
     assertTrue(bl.isBlacklisted(_function1, _target1));
@@ -74,6 +77,7 @@ public class DefaultFunctionBlacklistQueryTest {
   public void testSingleEntry_function() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
     bl.addRule(new FunctionBlacklistRule(_function1));
+    assertFalse(bl.isEmpty());
     assertTrue(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_function2));
     assertFalse(bl.isBlacklisted(_function3));
@@ -90,6 +94,7 @@ public class DefaultFunctionBlacklistQueryTest {
     final FunctionBlacklistRule rule = new FunctionBlacklistRule();
     rule.setFunctionIdentifier("F1");
     bl.addRule(rule);
+    assertFalse(bl.isEmpty());
     assertTrue(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_function2));
     assertTrue(bl.isBlacklisted(_function3));
@@ -110,6 +115,7 @@ public class DefaultFunctionBlacklistQueryTest {
     final FunctionBlacklistRule rule = new FunctionBlacklistRule();
     rule.setFunctionParameters(new EmptyFunctionParameters());
     bl.addRule(rule);
+    assertFalse(bl.isEmpty());
     assertTrue(bl.isBlacklisted(_function1));
     assertTrue(bl.isBlacklisted(_function2));
     assertFalse(bl.isBlacklisted(_function3));
@@ -128,6 +134,7 @@ public class DefaultFunctionBlacklistQueryTest {
   public void testSingleEntry_target() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
     bl.addRule(new FunctionBlacklistRule(_target1));
+    assertFalse(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertTrue(bl.isBlacklisted(_target1));
     assertFalse(bl.isBlacklisted(_target2));
@@ -140,6 +147,7 @@ public class DefaultFunctionBlacklistQueryTest {
   public void testSingleEntry_functionTarget() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
     bl.addRule(new FunctionBlacklistRule(_function1, _target1));
+    assertFalse(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_function2));
     assertFalse(bl.isBlacklisted(_target1));
@@ -159,6 +167,7 @@ public class DefaultFunctionBlacklistQueryTest {
     final FunctionBlacklistRule rule = new FunctionBlacklistRule();
     rule.setInputs(_inputs1);
     bl.addRule(rule);
+    assertFalse(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_target1));
     assertFalse(bl.isBlacklisted(_function1, _target1));
@@ -171,6 +180,7 @@ public class DefaultFunctionBlacklistQueryTest {
     final FunctionBlacklistRule rule = new FunctionBlacklistRule();
     rule.setOutputs(_outputs1);
     bl.addRule(rule);
+    assertFalse(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_target1));
     assertFalse(bl.isBlacklisted(_function1, _target1));
@@ -181,6 +191,7 @@ public class DefaultFunctionBlacklistQueryTest {
   public void testSingleEntry_full() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
     bl.addRule(new FunctionBlacklistRule(_function1, _target1, _inputs1, _outputs1));
+    assertFalse(bl.isEmpty());
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_target1));
     assertFalse(bl.isBlacklisted(_function1, _target1));
@@ -193,10 +204,10 @@ public class DefaultFunctionBlacklistQueryTest {
 
   public void testMultipleEntries() {
     final DefaultFunctionBlacklistQuery bl = new DefaultFunctionBlacklistQuery(new EmptyFunctionBlacklist());
-    bl.addRule(new FunctionBlacklistRule(_function1));
-    bl.addRule(new FunctionBlacklistRule(_target1));
-    bl.addRule(new FunctionBlacklistRule(_function2, _target2));
-    bl.addRule(new FunctionBlacklistRule(_function3, _target2, _inputs1, _outputs1));
+    bl.addRules(Arrays.asList(
+        new FunctionBlacklistRule(_function1), new FunctionBlacklistRule(_target1),
+        new FunctionBlacklistRule(_function2, _target2), new FunctionBlacklistRule(_function3, _target2, _inputs1, _outputs1)));
+    assertFalse(bl.isEmpty());
     assertTrue(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_function2));
     assertTrue(bl.isBlacklisted(_target1));
@@ -270,8 +281,7 @@ public class DefaultFunctionBlacklistQueryTest {
     assertFalse(bl.isBlacklisted(_function3, _target1, _inputs2, _outputs2)); // changed
     assertFalse(bl.isBlacklisted(_function3, _target2, _inputs1, _outputs1));
     assertFalse(bl.isBlacklisted(_function3, _target2, _inputs2, _outputs2));
-    bl.removeRule(new FunctionBlacklistRule(_function1));
-    bl.removeRule(new FunctionBlacklistRule(_function2, _target2));
+    bl.removeRules(Arrays.asList(new FunctionBlacklistRule(_function1), new FunctionBlacklistRule(_function2, _target2)));
     // No rules left
     assertFalse(bl.isBlacklisted(_function1));
     assertFalse(bl.isBlacklisted(_function2));
@@ -294,6 +304,7 @@ public class DefaultFunctionBlacklistQueryTest {
     assertFalse(bl.isBlacklisted(_function3, _target1, _inputs2, _outputs2));
     assertFalse(bl.isBlacklisted(_function3, _target2, _inputs1, _outputs1));
     assertFalse(bl.isBlacklisted(_function3, _target2, _inputs2, _outputs2));
+    assertTrue(bl.isEmpty());
   }
-  
+
 }

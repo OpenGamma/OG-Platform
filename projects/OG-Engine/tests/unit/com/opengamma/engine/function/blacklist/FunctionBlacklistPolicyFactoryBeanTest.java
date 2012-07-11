@@ -6,6 +6,7 @@
 package com.opengamma.engine.function.blacklist;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -39,6 +40,7 @@ public class FunctionBlacklistPolicyFactoryBeanTest {
   public void testNoName() {
     final FunctionBlacklistPolicyFactoryBean bean = new FunctionBlacklistPolicyFactoryBean();
     bean.setUniqueId(UniqueId.of("Test", "Foo"));
+    bean.setName(null);
     bean.afterPropertiesSet();
     final FunctionBlacklistPolicy policy = bean.getObject();
     assertEquals(policy.getUniqueId(), UniqueId.of("Test", "Foo"));
@@ -61,12 +63,17 @@ public class FunctionBlacklistPolicyFactoryBeanTest {
     bean.setName("Foo");
     bean.setDefaultEntryActivationPeriod(60);
     bean.setWildcard(true);
+    assertTrue(bean.isWildcard());
     bean.setFunction(false);
-    bean.setParameterizedFunction(true);
+    assertFalse(bean.isFunction());
     bean.setParameterizedFunctionActivationPeriod(1000);
+    assertTrue(bean.isParameterizedFunction());
     bean.setPartialNode(false);
+    assertFalse(bean.isPartialNode());
     bean.setBuildNode(true);
+    assertTrue(bean.isBuildNode());
     bean.setExecutionNode(false);
+    assertFalse(bean.isExecutionNode());
     bean.afterPropertiesSet();
     final FunctionBlacklistPolicy policy = bean.getObject();
     assertEquals(policy.getDefaultEntryActivationPeriod(), 60);

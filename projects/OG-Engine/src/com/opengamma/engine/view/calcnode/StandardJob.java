@@ -151,7 +151,7 @@ import com.opengamma.util.tuple.Triple;
   /**
    * A watched job instance that corresponds to one of the original jobs. The job may have a tail. When it completes, new watched job instances will be submitted for each tail job.
    */
-  private static final class WholeWatchedJob extends WatchedJob implements JobResultReceiver {
+  /* package */static final class WholeWatchedJob extends WatchedJob implements JobResultReceiver {
 
     private static final class BlockedJob {
 
@@ -232,7 +232,7 @@ import com.opengamma.util.tuple.Triple;
     private final Context _context;
     private final Collection<CalculationJob> _tail;
 
-    public WholeWatchedJob(final DispatchableJob creator, final CalculationJob job, final Context context) {
+    private WholeWatchedJob(final DispatchableJob creator, final CalculationJob job, final Context context) {
       super(creator, new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), null, job.getJobItems(), job.getCacheSelectHint()));
       _context = context;
       _tail = job.getTail();
@@ -281,7 +281,11 @@ import com.opengamma.util.tuple.Triple;
 
   }
 
-  private WatchedJob createWatchedJob() {
+  /* package */WholeWatchedJob createWholeWatchedJob(final CalculationJob job) {
+    return new WholeWatchedJob(this, job, new WholeWatchedJob.Context(_resultReceivers));
+  }
+
+  /* package */WatchedJob createWatchedJob() {
     if (getJob().getTail() == null) {
       final List<CalculationJobItem> items = getJob().getJobItems();
       switch (items.size()) {
@@ -308,7 +312,7 @@ import com.opengamma.util.tuple.Triple;
       // parent jobs complete
       final CalculationJob job = adjustCacheHints(getJob(), new HashMap<ValueSpecification, Triple<CalculationJob, ? extends Set<ValueSpecification>, ? extends Set<ValueSpecification>>>());
       s_logger.debug("Submitting adjusted watched job for {}", this);
-      return new WholeWatchedJob(this, job, new WholeWatchedJob.Context(_resultReceivers));
+      return createWholeWatchedJob(job);
     }
   }
 

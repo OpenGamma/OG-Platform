@@ -17,9 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueYieldCurveNodeSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueMarketQuoteSensitivityForexCalculator;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.curve.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -56,7 +58,8 @@ import com.opengamma.util.tuple.DoublesPair;
 @Deprecated
 public class FXForwardYCNSFunctionDeprecated extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardYCNSFunctionDeprecated.class);
-  private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
+  private static final PresentValueMarketQuoteSensitivityForexCalculator CALCULATOR = 
+    new PresentValueMarketQuoteSensitivityForexCalculator(new ParameterSensitivityCalculator(PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {

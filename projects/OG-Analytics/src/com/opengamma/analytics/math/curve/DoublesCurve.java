@@ -32,10 +32,4 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
    */
   public abstract Double[] getYValueParameterSensitivity(Double x);
 
-  /**
-   * Returns the number of parameters defining the curve.
-   * @return The number of parameters.
-   */
-  public abstract int getNumberOfParameters();
-
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
@@ -54,7 +57,12 @@ public class YieldCurve extends YieldAndDiscountCurve {
 
   @Override
   public int getNumberOfParameters() {
-    return _curve.getNumberOfParameters();
+    return _curve.size();
+  }
+
+  @Override
+  public List<String> getUnderlyingCurvesNames() {
+    return new ArrayList<String>();
   }
 
   /**

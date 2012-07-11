@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -75,8 +76,49 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
     return result;
   }
 
+  @Override
+  public List<String> getUnderlyingCurvesNames() {
+    List<String> names = new ArrayList<String>();
+    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
+      names.add(_curves[loopcurve].getName());
+    }
+    return names;
+  }
+
   public YieldAndDiscountCurve[] getCurves() {
     return _curves;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_curves);
+    long temp;
+    temp = Double.doubleToLongBits(_sign);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    YieldAndDiscountAddZeroSpreadCurve other = (YieldAndDiscountAddZeroSpreadCurve) obj;
+    if (!Arrays.equals(_curves, other._curves)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_sign) != Double.doubleToLongBits(other._sign)) {
+      return false;
+    }
+    return true;
   }
 
 }

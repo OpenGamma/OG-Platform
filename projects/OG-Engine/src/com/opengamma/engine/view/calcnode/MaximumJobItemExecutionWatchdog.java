@@ -121,22 +121,22 @@ public class MaximumJobItemExecutionWatchdog {
       final Iterator<Map.Entry<Thread, ThreadInfo>> itr = _state.entrySet().iterator();
       while (itr.hasNext()) {
         final Map.Entry<Thread, ThreadInfo> thread = itr.next();
-        if (thread.getValue().getJobItem() == null) {
-          if (thread.getKey().isAlive()) {
+        if (thread.getKey().isAlive()) {
+          if (thread.getValue().getJobItem() == null) {
             s_logger.debug("Thread {} alive but not executing any job items", thread.getKey());
           } else {
-            s_logger.info("Removed terminated thread {} from watchlist", thread.getKey());
-            itr.remove();
+            final long elapsed = thread.getValue().getElapsed(time);
+            if (elapsed > limit) {
+              s_logger.warn("Thread {} has been executing {} for {}ms", new Object[] {thread.getKey(), thread.getValue().getJobItem(), (double) elapsed / 1e6 });
+              thread.getValue().incrementFault();
+              getTimeoutAction().jobItemExecutionLimitExceeded(thread.getValue().getJobItem(), thread.getKey());
+            } else {
+              s_logger.debug("Thread {} within job limit", thread.getKey());
+            }
           }
         } else {
-          final long elapsed = thread.getValue().getElapsed(time);
-          if (elapsed > limit) {
-            s_logger.warn("Thread {} has been executing {} for {}ms", new Object[] {thread.getKey(), thread.getValue().getJobItem(), (double) elapsed / 1e6 });
-            thread.getValue().incrementFault();
-            getTimeoutAction().jobItemExecutionLimitExceeded(thread.getValue().getJobItem(), thread.getKey());
-          } else {
-            s_logger.debug("Thread {} within job limit", thread.getKey());
-          }
+          s_logger.info("Removed terminated thread {} from watchlist", thread.getKey());
+          itr.remove();
         }
       }
       synchronized (this) {
@@ -165,8 +165,8 @@ public class MaximumJobItemExecutionWatchdog {
         if (_task == null) {
           synchronized (this) {
             if (_task == null) {
-              if (_scheduler == null) {
-                _scheduler = Executors.newSingleThreadScheduledExecutor();
+              if (getScheduler() == null) {
+                setScheduler(Executors.newSingleThreadScheduledExecutor());
               }
               _task = getScheduler().scheduleWithFixedDelay(new CheckThreads(), getMaxJobItemExecutionTime(), getMaxJobItemExecutionTime(), TimeUnit.MILLISECONDS);
             }

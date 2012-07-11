@@ -53,7 +53,6 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISD
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
@@ -174,11 +173,6 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
 
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
-    return visitSwap(swap, curves);
-  }
-
-  @Override
-  public Map<String, List<DoublesPair>> visitOISSwap(final OISSwap swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
 

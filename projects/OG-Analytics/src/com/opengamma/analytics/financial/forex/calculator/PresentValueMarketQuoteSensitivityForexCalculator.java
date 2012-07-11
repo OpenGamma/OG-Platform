@@ -10,8 +10,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.curve.AbstractParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -19,26 +19,41 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Calculator of the sensitivity to the market quotes of instruments used to build the curves.
  */
-public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
+public final class PresentValueMarketQuoteSensitivityForexCalculator {
 
+  /**
+   * The matrix algebra used for matrix inversion.
+   */
   private static final MatrixAlgebra MATRIX_ALGEBRA = new CommonsMatrixAlgebra(); //TODO make this a parameter
-  private static final PresentValueYieldCurveNodeSensitivityForexCalculator INSTANCE = new PresentValueYieldCurveNodeSensitivityForexCalculator();
-  private static final PresentValueNodeSensitivityCalculator NODE_SENSITIVITY_CALCULATOR = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+  /**
+   * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
+   */
+  private final AbstractParameterSensitivityCalculator _parameterSensitivityCalculator;
 
-  public static PresentValueYieldCurveNodeSensitivityForexCalculator getInstance() {
-    return INSTANCE;
+  /**
+   * The constructor.
+   * @param parameterSensitivityCalculator The parameter sensitivity calculator.
+   */
+  public PresentValueMarketQuoteSensitivityForexCalculator(final AbstractParameterSensitivityCalculator parameterSensitivityCalculator) {
+    _parameterSensitivityCalculator = parameterSensitivityCalculator;
   }
 
-  private PresentValueYieldCurveNodeSensitivityForexCalculator() {
-  }
-
-  public DoubleMatrix1D calculateFromPresentValue(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves,
-      final DoubleMatrix1D couponSensitivity, final DoubleMatrix2D jacobian) {
+  /**
+   * Calculate the instrument sensitivity from the yield sensitivity, the jacobian matrix and the coupon sensitivity.
+   * @param curveSensitivities The sensitivity to points of the yield curve.
+   * @param curves The curve bundle.
+   * @param couponSensitivity The sensitivity 
+   * @param jacobian The present value coupon sensitivity.
+   * @return The instrument quote/rate sensitivity.
+   */
+  public DoubleMatrix1D calculateFromPresentValue(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle curves, final DoubleMatrix1D couponSensitivity,
+      final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
-    for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = NODE_SENSITIVITY_CALCULATOR.curveToNodeSensitivities(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+    for (final String curveName : curves.getAllNames()) {
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
+          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), curves.getCurve(curveName))).toArray(new Double[0]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -52,11 +67,11 @@ public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
 
-  public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves,
-      final DoubleMatrix2D jacobian) {
+  public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = NODE_SENSITIVITY_CALCULATOR.curveToNodeSensitivities(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
+          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
       final int n = nodeSensitivity.getNumberOfElements();
       final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
       for (int i = 0; i < n; i++) {
@@ -73,7 +88,8 @@ public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
   public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
-      final DoubleMatrix1D nodeSensitivity = NODE_SENSITIVITY_CALCULATOR.curveToNodeSensitivities(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName));
+      final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(
+          (_parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curveName), interpolatedCurves.getCurve(curveName))).toArray(new Double[0]));
       final int n = nodeSensitivity.getNumberOfElements();
       for (int i = 0; i < n; i++) {
         double sum = 0;
@@ -85,4 +101,5 @@ public final class PresentValueYieldCurveNodeSensitivityForexCalculator {
     }
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
+
 }

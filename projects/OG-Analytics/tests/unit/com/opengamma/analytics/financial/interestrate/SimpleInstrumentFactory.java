@@ -15,7 +15,6 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborSpread;
@@ -23,13 +22,10 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.CrossCurrencySwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FixedFloatSwap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.FloatingRateNote;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.OISSwap;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -92,39 +88,39 @@ public abstract class SimpleInstrumentFactory {
     return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N", fundCurveName, indexCurveName);
   }
 
-  public static OISSwap makeOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
-
-    if (time < 1.0) {
-      return makeSinglePaymentOISSwap(time, fundingCurveName, indexCurveName, rate, notional);
-    }
-
-    final SimpleFrequency paymentFreq = SimpleFrequency.ANNUAL;
-
-    final int index = (int) (time * paymentFreq.getPeriodsPerYear());
-    final double[] paymentTimes = new double[index];
-    final double tau = 1. / paymentFreq.getPeriodsPerYear();
-
-    final CouponOIS[] oisCoupons = new CouponOIS[index];
-    for (int i = 0; i < index; i++) {
-      paymentTimes[i] = tau * (i + 1);
-      oisCoupons[i] = new CouponOIS(DUMMY_CUR, paymentTimes[i], fundingCurveName, tau, notional, DUMMY_OIS_INDEX, paymentTimes[i] - tau, paymentTimes[i], tau, notional, indexCurveName);
-    }
-
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, paymentTimes, notional, rate, fundingCurveName, true);
-    final Annuity<CouponOIS> payLeg = new Annuity<CouponOIS>(oisCoupons);
-
-    return new OISSwap(fixedLeg, payLeg);
-  }
-
-  private static OISSwap makeSinglePaymentOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
-
-    final CouponOIS oisCoupon = new CouponOIS(DUMMY_CUR, time, fundingCurveName, time, notional, DUMMY_OIS_INDEX, 0, time, time, notional, indexCurveName);
-
-    final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
-
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
-    return new OISSwap(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
-  }
+  //  public static OISSwap makeOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
+  //
+  //    if (time < 1.0) {
+  //      return makeSinglePaymentOISSwap(time, fundingCurveName, indexCurveName, rate, notional);
+  //    }
+  //
+  //    final SimpleFrequency paymentFreq = SimpleFrequency.ANNUAL;
+  //
+  //    final int index = (int) (time * paymentFreq.getPeriodsPerYear());
+  //    final double[] paymentTimes = new double[index];
+  //    final double tau = 1. / paymentFreq.getPeriodsPerYear();
+  //
+  //    final CouponOIS[] oisCoupons = new CouponOIS[index];
+  //    for (int i = 0; i < index; i++) {
+  //      paymentTimes[i] = tau * (i + 1);
+  //      oisCoupons[i] = new CouponOIS(DUMMY_CUR, paymentTimes[i], fundingCurveName, tau, notional, DUMMY_OIS_INDEX, paymentTimes[i] - tau, paymentTimes[i], tau, notional, indexCurveName);
+  //    }
+  //
+  //    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(DUMMY_CUR, paymentTimes, notional, rate, fundingCurveName, true);
+  //    final Annuity<CouponOIS> payLeg = new Annuity<CouponOIS>(oisCoupons);
+  //
+  //    return new OISSwap(fixedLeg, payLeg);
+  //  }
+  //
+  //  private static OISSwap makeSinglePaymentOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
+  //
+  //    final CouponOIS oisCoupon = new CouponOIS(DUMMY_CUR, time, fundingCurveName, time, notional, DUMMY_OIS_INDEX, 0, time, time, notional, indexCurveName);
+  //
+  //    final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
+  //
+  //    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
+  //    return new OISSwap(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
+  //  }
 
   protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
 
