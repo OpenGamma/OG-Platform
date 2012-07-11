@@ -76,7 +76,7 @@ public abstract class AbstractParameterSensitivityCalculator {
    * @param curve The curve.
    * @return The sensitivity (as a list of doubles).
    */
-  protected List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
+  public List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
     final List<Double> result = new ArrayList<Double>();
     if (sensitivity != null && sensitivity.size() > 0) {
       final double[][] sensitivityYP = new double[sensitivity.size()][];
