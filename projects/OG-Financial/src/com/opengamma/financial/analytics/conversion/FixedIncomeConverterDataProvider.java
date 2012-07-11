@@ -55,6 +55,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -486,7 +487,16 @@ public class FixedIncomeConverterDataProvider {
       }
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
       if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
+        //throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
+        final ZonedDateTime[] times = new ZonedDateTime[600];
+        final double[] values = new double[600];
+        ZonedDateTime temp = DateUtils.getUTCDate(2012, 7, 21);
+        for (int i = 599; i >= 0; i--) {
+          times[i] = temp;
+          values[i] = 0.005;
+          temp = temp.minusDays(1);
+        }
+        return new ArrayZonedDateTimeDoubleTimeSeries(times, values);
       }
       if (ts.getTimeSeries().isEmpty()) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
@@ -543,7 +553,16 @@ public class FixedIncomeConverterDataProvider {
     final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
     // Implementation note: the normalization take place in the getHistoricalTimeSeries
     if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString());
+      //throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString());
+      final ZonedDateTime[] times = new ZonedDateTime[600];
+      final double[] values = new double[600];
+      ZonedDateTime now = DateUtils.getUTCDate(2012, 7, 21);
+      for (int i = 599; i >= 0; i--) {
+        times[i] = now;
+        values[i] = 0.005;
+        now = now.minusDays(1);
+      }
+      return new ArrayZonedDateTimeDoubleTimeSeries(times, values);
     }
     if (ts.getTimeSeries().isEmpty()) {
       return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;

@@ -31,8 +31,9 @@ public abstract class SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDe
   protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);
 
   /**
-   * Function to get the sensitivity to the alpha parameter
+   * @deprecated Function to get the sensitivity to the alpha parameter
    */
+  @Deprecated
   public static class Alpha extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
@@ -48,8 +49,9 @@ public abstract class SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDe
   }
 
   /**
-   * Function to get the sensitivity to the rho parameter
+   * @deprecated Function to get the sensitivity to the rho parameter
    */
+  @Deprecated
   public static class Rho extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
@@ -65,8 +67,9 @@ public abstract class SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDe
   }
 
   /**
-   * Function to get the sensitivity to the nu parameter
+   * @deprecated Function to get the sensitivity to the nu parameter
    */
+  @Deprecated
   public static class Nu extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override

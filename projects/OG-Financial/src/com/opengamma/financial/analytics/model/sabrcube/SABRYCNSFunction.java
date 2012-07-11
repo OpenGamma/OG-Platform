@@ -153,7 +153,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivities;
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
-      final Object couponSensitivityObject = inputs.getValue(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
+      final Object couponSensitivityObject = inputs.getValue(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
@@ -249,7 +249,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
         .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency.getCode(), properties);
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
   protected abstract ValueProperties getResultProperties(final Currency currency);

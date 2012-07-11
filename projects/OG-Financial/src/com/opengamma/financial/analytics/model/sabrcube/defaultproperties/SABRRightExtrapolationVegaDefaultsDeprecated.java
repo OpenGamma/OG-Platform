@@ -168,7 +168,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.SABR_FITTING_DEFAULTS;
+    return OpenGammaFunctionExclusions.DEPRECATED_SABR_FITTING_DEFAULTS;
   }
 
   @Override
