@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithCcyBundle;
-import com.opengamma.analytics.financial.forex.method.YieldCurveWithFXBundle;
 import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -57,19 +55,19 @@ public class PresentValueCurveSensitivityConvertedForexCalculator extends Abstra
   public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(derivative, "derivative");
-    ArgumentChecker.isTrue(curves instanceof YieldCurveWithCcyBundle, "FX Conversion can be operated only when the curve currency is indicated.");
-    final YieldCurveWithCcyBundle curvesCcy = (YieldCurveWithCcyBundle) curves;
-    final MultipleCurrencyInterestRateCurveSensitivity pvcsMulti = _pvcsc.visit(derivative, curvesCcy);
+    //    ArgumentChecker.isTrue(curves instanceof YieldCurveWithCcyBundle, "FX Conversion can be operated only when the curve currency is indicated.");
+    //    final YieldCurveWithCcyBundle curvesCcy = (YieldCurveWithCcyBundle) curves;
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMulti = _pvcsc.visit(derivative, curves);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     for (final Currency ccy : pvcsMulti.getCurrencies()) {
       final InterestRateCurveSensitivity pvcs = pvcsMulti.getSensitivity(ccy);
       for (final String curve : pvcs.getCurves()) {
-        if (curvesCcy.getCcyMap().get(curve).equals(ccy)) { // Identical currencies: no changes
+        if (curves.getCcyMap().get(curve).equals(ccy)) { // Identical currencies: no changes
           result = result.plus(curve, pvcs.getSensitivities().get(curve));
         } else { // Different currencies: exchange rate multiplication.
-          ArgumentChecker.isTrue(curves instanceof YieldCurveWithFXBundle, "FX Conversion can be operated only if exchange rates are available.");
-          final YieldCurveWithFXBundle curveFx = (YieldCurveWithFXBundle) curvesCcy;
-          final double fxRate = curveFx.getFxRate(curvesCcy.getCcyMap().get(curve), ccy);
+        //          ArgumentChecker.isTrue(curves instanceof YieldCurveWithFXBundle, "FX Conversion can be operated only if exchange rates are available.");
+        //          final YieldCurveWithFXBundle curveFx = (YieldCurveWithFXBundle) curvesCcy;
+          final double fxRate = curves.getFxRate(curves.getCcyMap().get(curve), ccy);
           result = result.plus(curve, InterestRateCurveSensitivityUtils.multiplySensitivity(pvcs.getSensitivities().get(curve), fxRate));
         }
       }
