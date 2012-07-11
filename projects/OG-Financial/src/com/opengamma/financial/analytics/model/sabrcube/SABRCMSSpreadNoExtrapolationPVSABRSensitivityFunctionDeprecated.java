@@ -7,25 +7,23 @@ package com.opengamma.financial.analytics.model.sabrcube;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRRightExtrapolationCalculator;
-import com.opengamma.analytics.financial.interestrate.SABRSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction
  */
-public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
+@Deprecated
+public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated extends SABRCMSSpreadNoExtrapolationFunctionDeprecated {
+  private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
-    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
-    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
-    final PresentValueSABRSensitivitySABRRightExtrapolationCalculator calculator = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(cutoff, mu);
-    final PresentValueSABRSensitivityDataBundle result = calculator.visit(derivative, data);
-    return getResultAsMatrix(SABRSensitivityNodeCalculator.calculateNodeSensitivities(result, data.getSABRParameter()));
+    return getResultAsMatrix(CALCULATOR.visit(derivative, data));
   }
 
   protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);
@@ -33,11 +31,11 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensiti
   /**
    * Function to get the sensitivity to the alpha parameter
    */
-  public static class Alpha extends SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensitivityFunction {
+  public static class Alpha extends SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
-      return ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
+      return ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY;
     }
 
     @Override
@@ -50,11 +48,11 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensiti
   /**
    * Function to get the sensitivity to the rho parameter
    */
-  public static class Rho extends SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensitivityFunction {
+  public static class Rho extends SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
-      return ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY;
+      return ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY;
     }
 
     @Override
@@ -67,11 +65,11 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensiti
   /**
    * Function to get the sensitivity to the nu parameter
    */
-  public static class Nu extends SABRCMSSpreadRightExtrapolationPresentValueSABRNodeSensitivityFunction {
+  public static class Nu extends SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
-      return ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY;
+      return ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY;
     }
 
     @Override

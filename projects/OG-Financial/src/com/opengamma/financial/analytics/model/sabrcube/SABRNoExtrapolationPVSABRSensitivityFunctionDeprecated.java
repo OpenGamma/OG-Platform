@@ -14,9 +14,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRNoExtrapolationPVSABRSensitivityFunction
  */
-public abstract class SABRNoExtrapolationPresentValueSABRSensitivityFunction extends SABRNoExtrapolationFunction {
+@Deprecated
+public abstract class SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated extends SABRNoExtrapolationFunctionDeprecated {
 
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
@@ -28,9 +30,10 @@ public abstract class SABRNoExtrapolationPresentValueSABRSensitivityFunction ext
   protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);
 
   /**
-   * Function to get the sensitivity to the alpha parameter
+   * @deprecated Function to get the sensitivity to the alpha parameter
    */
-  public static class Alpha extends SABRNoExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Alpha extends SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
@@ -45,9 +48,10 @@ public abstract class SABRNoExtrapolationPresentValueSABRSensitivityFunction ext
   }
 
   /**
-   * Function to get the sensitivity to the rho parameter
+   * @deprecated Function to get the sensitivity to the rho parameter
    */
-  public static class Rho extends SABRNoExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Rho extends SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
@@ -62,9 +66,10 @@ public abstract class SABRNoExtrapolationPresentValueSABRSensitivityFunction ext
   }
 
   /**
-   * Function to get the sensitivity to the nu parameter
+   * @deprecated Function to get the sensitivity to the nu parameter
    */
-  public static class Nu extends SABRNoExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Nu extends SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {

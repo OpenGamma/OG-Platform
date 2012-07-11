@@ -155,6 +155,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();

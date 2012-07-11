@@ -12,9 +12,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadRightExtrapolationPVCurveSensitivityFunction
  */
-public class SABRCMSSpreadRightExtrapolationPresentValueCurveSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
+@Deprecated
+public class SABRCMSSpreadRightExtrapolationPVCurveSensitivityFunctionDeprecated extends SABRCMSSpreadRightExtrapolationFunctionDeprecated {
 
   @Override
   protected String getValueRequirement() {
@@ -23,8 +25,8 @@ public class SABRCMSSpreadRightExtrapolationPresentValueCurveSensitivityFunction
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
-    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
-    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
+    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_CUTOFF_STRIKE));
+    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_TAIL_THICKNESS_PARAMETER));
     final PresentValueCurveSensitivitySABRExtrapolationCalculator calculator = new PresentValueCurveSensitivitySABRExtrapolationCalculator(cutoff, mu);
     return calculator.visit(derivative, data);
   }

@@ -8,7 +8,7 @@ package com.opengamma.web.server.push.analytics;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -37,10 +37,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void updateResults(ViewComputationResultModel fullResult, ViewCycle viewCycle) {
+  public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
     try {
       _lock.writeLock().lock();
-      _delegate.updateResults(fullResult, viewCycle);
+      _delegate.updateResults(results, viewCycle);
     } finally {
       _lock.writeLock().unlock();
     }

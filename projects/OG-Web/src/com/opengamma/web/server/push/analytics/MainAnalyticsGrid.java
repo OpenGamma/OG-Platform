@@ -14,7 +14,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.Pair;
   private final ComputationTargetResolver _targetResolver;
   private final String _columnsId;
 
-  private ViewComputationResultModel _latestResults = new InMemoryViewComputationResultModel();
+  private ViewResultModel _latestResults = new InMemoryViewComputationResultModel();
   private AnalyticsHistory _history = new AnalyticsHistory();
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
@@ -130,19 +130,16 @@ import com.opengamma.util.tuple.Pair;
     getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
   }
 
-  /* package */ boolean updateResults(ViewComputationResultModel fullResult, AnalyticsHistory history, ViewCycle cycle) {
-    _latestResults = fullResult;
+  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
+    _latestResults = results;
     _history = history;
     _cycle = cycle;
-    boolean columnsUpdated = false;
     for (MainGridViewport viewport : _viewports.values()) {
-      boolean viewportColumnsUpdated = viewport.updateResults(fullResult, history);
-      columnsUpdated = columnsUpdated || viewportColumnsUpdated;
+      viewport.updateResults(results, history);
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
       grid.updateResults(cycle, history);
     }
-    return columnsUpdated;
   }
 
   /* package */ void closeDependencyGraph(String graphId) {
@@ -205,5 +202,9 @@ import com.opengamma.util.tuple.Pair;
 
   public String getColumnsId() {
     return _columnsId;
+  }
+
+  /* package */ boolean setColumnTypes(ViewResultModel results) {
+    return _gridStructure.setColumnTypes(results);
   }
 }

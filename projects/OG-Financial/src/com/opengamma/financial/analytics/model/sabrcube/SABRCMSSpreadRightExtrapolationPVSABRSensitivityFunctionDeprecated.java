@@ -14,14 +14,16 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
- *
+ * @deprecated Use the version that does not refer to funding or forward curves
+ * @see SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunction
  */
-public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction extends SABRCMSSpreadRightExtrapolationFunction {
+@Deprecated
+public abstract class SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated extends SABRCMSSpreadRightExtrapolationFunctionDeprecated {
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
-    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE));
-    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER));
+    final Double cutoff = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_CUTOFF_STRIKE));
+    final Double mu = Double.parseDouble(desiredValue.getConstraint(SABRRightExtrapolationFunctionDeprecated.PROPERTY_TAIL_THICKNESS_PARAMETER));
     final PresentValueSABRSensitivitySABRRightExtrapolationCalculator calculator = new PresentValueSABRSensitivitySABRRightExtrapolationCalculator(cutoff, mu);
     return getResultAsMatrix(calculator.visit(derivative, data));
   }
@@ -29,9 +31,10 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivity
   protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);
 
   /**
-   * Function to get the sensitivity to the alpha parameter
+   * @deprecated Function to get the sensitivity to the alpha parameter
    */
-  public static class Alpha extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Alpha extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
@@ -46,9 +49,10 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivity
   }
 
   /**
-   * Function to get the sensitivity to the rho parameter
+   * @deprecated Function to get the sensitivity to the rho parameter
    */
-  public static class Rho extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Rho extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {
@@ -63,9 +67,10 @@ public abstract class SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivity
   }
 
   /**
-   * Function to get the sensitivity to the nu parameter
+   * @deprecated Function to get the sensitivity to the nu parameter
    */
-  public static class Nu extends SABRCMSSpreadRightExtrapolationPresentValueSABRSensitivityFunction {
+  @Deprecated
+  public static class Nu extends SABRCMSSpreadRightExtrapolationPVSABRSensitivityFunctionDeprecated {
 
     @Override
     protected String getValueRequirement() {

@@ -46,9 +46,10 @@ public class SyntheticUSConventions {
 
     //LIBOR
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP7D"), simpleNameSecurityId("USD LIBOR 7d")), "USD LIBOR 7d", act360, modified, Period.ofDays(7), 2, false, us);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP14D"), simpleNameSecurityId("USD LIBOR 3m")), "USD LIBOR 3m", act360, modified, Period.ofDays(14), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP14D"), simpleNameSecurityId("USD LIBOR 14d")), "USD LIBOR 14d", act360, modified, Period.ofDays(14), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP1M"), simpleNameSecurityId("USD LIBOR 1m")), "USD LIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP2M"), simpleNameSecurityId("USD LIBOR 2m")), "USD LIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, us);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP3M"), simpleNameSecurityId("USD LIBOR 3m")), "USD LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP6M"), simpleNameSecurityId("USD LIBOR 6m")), "USD LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDLIBORP12M")), "USD LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, us);
 
@@ -60,7 +61,6 @@ public class SyntheticUSConventions {
     final Frequency swapFloatPaymentFrequency = quarterly;
     final Frequency annual = PeriodFrequency.ANNUAL;
 
-    // TODO: Add all ISDA fixing
     final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30 };
     // ISDA fixing 11.00 New-York
     for (final int element : isdaFixTenor) {

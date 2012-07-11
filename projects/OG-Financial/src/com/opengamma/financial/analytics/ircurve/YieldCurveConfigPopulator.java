@@ -117,6 +117,13 @@ public class YieldCurveConfigPopulator {
     document.setValue(audForwardBasis6M);
     ConfigMasterUtils.storeByName(configMaster, document);
     dumpDefinition(audForwardBasis6M);
+    final YieldCurveDefinition audSingle = CurveDefinitionAndSpecifications.buildSecondarySingleAUDCurveDefinition();
+    document = new ConfigDocument<YieldCurveDefinition>(YieldCurveDefinition.class);
+    document.setName("Single_" + ccy.getCode());
+    document.setValue(audSingle);
+    ConfigMasterUtils.storeByName(configMaster, document);
+    dumpDefinition(audSingle);
+
   }
 
   public static void populateCurveSpecificationBuilderConfigMaster(final ConfigMaster configMaster) {

@@ -76,6 +76,14 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+    @Override
+    public boolean canHandleMissingInputs() {
+      return true;
+    }
+    @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
         final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final SnapshotDataBundle map = buildMarketDataMap(inputs);

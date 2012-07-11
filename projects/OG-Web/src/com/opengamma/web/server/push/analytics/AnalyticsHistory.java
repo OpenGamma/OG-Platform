@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
@@ -36,7 +36,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
   private final Map<ResultKey, CircularFifoBuffer> _history = Maps.newHashMap();
 
-  /* package */ void addResults(ViewComputationResultModel results) {
+  /* package */ void addResults(ViewResultModel results) {
     List<ViewResultEntry> allResults = results.getAllResults();
     for (ViewResultEntry result : allResults) {
       ComputedValue computedValue = result.getComputedValue();

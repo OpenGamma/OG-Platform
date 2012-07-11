@@ -17,7 +17,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.ViewTargetResultModel;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,7 +31,7 @@ public class MainGridViewport extends AnalyticsViewport {
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
                    String dataId,
-                   ViewComputationResultModel latestResults,
+                   ViewResultModel latestResults, // TODO these need to be full results
                    AnalyticsHistory history) {
     super(dataId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
@@ -39,39 +39,42 @@ public class MainGridViewport extends AnalyticsViewport {
     update(viewportSpec, latestResults, history);
   }
 
-  // TODO support delta results, return flag or ID if viewport was updated by delta results
-  // TODO but what about the column update flag?
-  /* package */ boolean updateResults(ViewComputationResultModel results, AnalyticsHistory history) {
+  // TODO this method makes my head hurt. REFACTOR
+  // TODO these need to be delta results
+  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history) {
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
-    boolean columnsUpdated = false;
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
+      // results for one row in the viewport, keyed by column index
       Map<Integer, ViewportResults.Cell> rowResultsMap = new TreeMap<Integer, ViewportResults.Cell>();
       ViewTargetResultModel targetResult = results.getTargetResult(target);
       if (targetResult != null) {
         for (String calcConfigName : targetResult.getCalculationConfigurationNames()) {
-          for (ComputedValue value : targetResult.getAllValues(calcConfigName)) {
-            ValueSpecification valueSpec = value.getSpecification();
+          for (ComputedValue result : targetResult.getAllValues(calcConfigName)) {
+            ValueSpecification valueSpec = result.getSpecification();
             Set<ValueRequirement> valueReqs =
                 _gridStructure.getRequirementsForSpecification(calcConfigName, valueSpec);
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
-              boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, value.getClass());
-              columnsUpdated = columnsUpdated || columnUpdated;
+              Object resultValue = result.getValue();
+              // TODO this stinks - column types are known when the first results arrive but aren't updated without a viewport
               if (_viewportSpec.getColumns().contains(colIndex)) {
-                Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, value.getValue());
-                ViewportResults.Cell cell = ViewportResults.valueCell(value.getValue(), valueSpec, valueHistory);
+                Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, resultValue);
+                ViewportResults.Cell cell = ViewportResults.valueCell(resultValue, valueSpec, valueHistory);
+                // TODO set a flag to say something has changed in the viewport?
                 rowResultsMap.put(colIndex, cell);
               }
             }
           }
         }
       }
+      // create a list for each row of results, reusing the previous results if there was no new value for a cell
       String rowName = row.getName();
       List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
       // row label always goes in the first column
       rowResults.add(ViewportResults.stringCell(rowName));
+      // iterate over all columns in the viewport, updating the result for the row
       for (int colIndex = 1; colIndex < _gridStructure.getColumnCount(); colIndex++) {
         if (_viewportSpec.getColumns().contains(colIndex)) {
           // this intentionally inserts null into the results if there is no value for a given column
@@ -82,10 +85,9 @@ public class MainGridViewport extends AnalyticsViewport {
     }
     // TODO support delta results, merge new results with existing
     _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
-    return columnsUpdated;
   }
 
-  public void update(ViewportSpecification viewportSpec, ViewComputationResultModel results, AnalyticsHistory history) {
+  public void update(ViewportSpecification viewportSpec, ViewResultModel results, AnalyticsHistory history) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(results, "results");
     ArgumentChecker.notNull(history, "history");

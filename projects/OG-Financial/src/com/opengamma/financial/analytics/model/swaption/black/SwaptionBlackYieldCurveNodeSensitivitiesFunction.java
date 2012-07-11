@@ -181,6 +181,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBl
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (!currency.equals(curveCalculationConfig.getUniqueId())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+      return null;
     }
     final String[] configCurveNames = curveCalculationConfig.getYieldCurveNames();
     if (Arrays.binarySearch(configCurveNames, curveName) < 0) {
