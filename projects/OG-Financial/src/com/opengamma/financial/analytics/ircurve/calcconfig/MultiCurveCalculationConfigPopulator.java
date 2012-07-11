@@ -47,6 +47,9 @@ public class MultiCurveCalculationConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultJPYConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(defaultCHFConfig));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDThreeCurveConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDDiscountingCurveConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getAUDForwardCurvesConfig()));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(getSingleAUDCurveConfig()));
   }
 
   private static ConfigDocument<MultiCurveCalculationConfig> makeConfigDocument(final MultiCurveCalculationConfig curveConfig) {
@@ -166,5 +169,53 @@ public class MultiCurveCalculationConfigPopulator {
     curveExposuresForInstruments.put("ForwardBasis3M", new CurveInstrumentConfig(forwardBasis3MConfig));
     curveExposuresForInstruments.put("ForwardBasis6M", new CurveInstrumentConfig(forwardBasis6MConfig));
     return new MultiCurveCalculationConfig("DefaultThreeCurveAUDConfig", yieldCurveNames, uniqueId, calculationMethod, curveExposuresForInstruments);
+  }
+
+  private static MultiCurveCalculationConfig getAUDDiscountingCurveConfig() {
+    final String[] yieldCurveNames = new String[] {"Discounting"};
+    final Currency uniqueId = Currency.AUD;
+    final String calculationMethod = MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
+    final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments = new LinkedHashMap<String, CurveInstrumentConfig>();
+    final Map<StripInstrumentType, String[]> discountingConfig = new HashMap<StripInstrumentType, String[]>();
+    discountingConfig.put(StripInstrumentType.CASH, new String[] {"Discounting"});
+    discountingConfig.put(StripInstrumentType.OIS_SWAP, new String[] {"Discounting", "Discounting"});
+    curveExposuresForInstruments.put("Discounting", new CurveInstrumentConfig(discountingConfig));
+    return new MultiCurveCalculationConfig("DiscountingAUDConfig", yieldCurveNames, uniqueId, calculationMethod, curveExposuresForInstruments);
+  }
+
+  private static MultiCurveCalculationConfig getAUDForwardCurvesConfig() {
+    final String[] yieldCurveNames = new String[] {"ForwardBasis3M", "ForwardBasis6M"};
+    final Currency uniqueId = Currency.AUD;
+    final String calculationMethod = MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
+    final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments = new LinkedHashMap<String, CurveInstrumentConfig>();
+    final Map<StripInstrumentType, String[]> forwardBasis3MConfig = new HashMap<StripInstrumentType, String[]>();
+    forwardBasis3MConfig.put(StripInstrumentType.BASIS_SWAP, new String[] {"Discounting", "ForwardBasis3M", "ForwardBasis6M"});
+    forwardBasis3MConfig.put(StripInstrumentType.SWAP_3M, new String[] {"Discounting", "ForwardBasis3M"});
+    forwardBasis3MConfig.put(StripInstrumentType.LIBOR, new String[] {"ForwardBasis3M"});
+    final Map<StripInstrumentType, String[]> forwardBasis6MConfig = new HashMap<StripInstrumentType, String[]>();
+    forwardBasis6MConfig.put(StripInstrumentType.BASIS_SWAP, new String[] {"Discounting", "ForwardBasis3M", "ForwardBasis6M"});
+    forwardBasis6MConfig.put(StripInstrumentType.SWAP_6M, new String[] {"Discounting", "ForwardBasis6M"});
+    forwardBasis6MConfig.put(StripInstrumentType.LIBOR, new String[] {"ForwardBasis6M"});
+    curveExposuresForInstruments.put("ForwardBasis3M", new CurveInstrumentConfig(forwardBasis3MConfig));
+    curveExposuresForInstruments.put("ForwardBasis6M", new CurveInstrumentConfig(forwardBasis6MConfig));
+    final LinkedHashMap<String, String[]> exogenousConfigAndCurveNames = new LinkedHashMap<String, String[]>();
+    exogenousConfigAndCurveNames.put("DiscountingAUDConfig", new String[] {"Discounting"});
+    return new MultiCurveCalculationConfig("ForwardFromDiscountingAUDConfig", yieldCurveNames, uniqueId, calculationMethod, curveExposuresForInstruments,
+        exogenousConfigAndCurveNames);
+  }
+
+  private static MultiCurveCalculationConfig getSingleAUDCurveConfig() {
+    final String[] yieldCurveNames = new String[] {"Single"};
+    final String[] twoCurveNames = new String[] {"Single", "Single"};
+    final Currency uniqueId = Currency.AUD;
+    final String calculationMethod = MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
+    final LinkedHashMap<String, CurveInstrumentConfig> curveExposuresForInstruments = new LinkedHashMap<String, CurveInstrumentConfig>();
+    final Map<StripInstrumentType, String[]> singleConfig = new HashMap<StripInstrumentType, String[]>();
+    singleConfig.put(StripInstrumentType.FUTURE, twoCurveNames);
+    singleConfig.put(StripInstrumentType.CASH, yieldCurveNames);
+    singleConfig.put(StripInstrumentType.SWAP_3M, twoCurveNames);
+    singleConfig.put(StripInstrumentType.SWAP_6M, twoCurveNames);
+    curveExposuresForInstruments.put("Single", new CurveInstrumentConfig(singleConfig));
+    return new MultiCurveCalculationConfig("SingleAUDConfig", yieldCurveNames, uniqueId, calculationMethod, curveExposuresForInstruments);
   }
 }

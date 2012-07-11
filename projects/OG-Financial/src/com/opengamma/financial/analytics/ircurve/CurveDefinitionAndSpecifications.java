@@ -396,7 +396,7 @@ public class CurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildSecondaryDiscountingAUDCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_DAY, "SECONDARY"));
-    for (final int i : new int [] {1, 3, 6, 9}) {
+    for (final int i : new int[] {1, 3, 6, 9}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.OIS_SWAP, Tenor.ofMonths(i), "SECONDARY"));
     }
     for (final int i : new int[] {1, 2, 3, 4, 5}) {
@@ -408,7 +408,7 @@ public class CurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildSecondaryForward3MBasisAUDCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.THREE_MONTHS, "SECONDARY"));
-    for (final int i : new int [] {1, 2, 3}) {
+    for (final int i : new int[] {1, 2, 3}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "SECONDARY_3M"));
     }
     for (final int i : new int[] {4, 5}) {
@@ -420,13 +420,29 @@ public class CurveDefinitionAndSpecifications {
   public static YieldCurveDefinition buildSecondaryForward6MBasisAUDCurveDefinition() {
     final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
     strips.add(new FixedIncomeStrip(StripInstrumentType.LIBOR, Tenor.SIX_MONTHS, "SECONDARY"));
-    for (final int i : new int [] {4, 5, 10}) {
+    for (final int i : new int[] {4, 5, 10}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "SECONDARY_6M"));
     }
     for (final int i : new int[] {1, 2, 3}) {
       strips.add(new FixedIncomeStrip(StripInstrumentType.BASIS_SWAP, Tenor.ofYears(i), Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, IndexType.BBSW, IndexType.BBSW, "SECONDARY_6M"));
     }
     return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "ForwardBasis6M", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
+  }
+
+  public static YieldCurveDefinition buildSecondarySingleAUDCurveDefinition() {
+    final Collection<FixedIncomeStrip> strips = new ArrayList<FixedIncomeStrip>();
+    strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ONE_DAY, "SECONDARY"));
+    for (final int i : new int[] {1, 2, 3}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.CASH, Tenor.ofMonths(i), "SECONDARY"));
+    }
+    for (final int i : new int[] {1, 2, 3}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(i), "SECONDARY_3M"));
+    }
+    strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.ofYears(3), "SECONDARY_3M"));
+    for (final int i : new int[] {4, 5}) {
+      strips.add(new FixedIncomeStrip(StripInstrumentType.SWAP_6M, Tenor.ofYears(i), "SECONDARY_6M"));
+    }
+    return new YieldCurveDefinition(Currency.AUD, ExternalSchemes.countryRegionId(Country.AU), "Single", Interpolator1DFactory.DOUBLE_QUADRATIC, strips);
   }
 
   public static Map<String, Map<Currency, YieldCurveDefinition>> buildNewCurveDefinitions() {
