@@ -73,15 +73,15 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
     _history.addResults(results);
-    boolean portfolioColumnsUpdated = _portfolioGrid.updateResults(results, _history, viewCycle);
-    boolean primitivesColumnsUpdated = _primitivesGrid.updateResults(results, _history, viewCycle);
     List<String> updatedIds = new ArrayList<String>();
-    if (portfolioColumnsUpdated) {
+    if (_portfolioGrid.setColumnTypes(results)) {
       updatedIds.add(_portfolioGrid.getColumnsId());
     }
-    if (primitivesColumnsUpdated) {
+    if (_primitivesGrid.setColumnTypes(results)) {
       updatedIds.add(_primitivesGrid.getColumnsId());
     }
+    _portfolioGrid.updateResults(results, _history, viewCycle);
+    _primitivesGrid.updateResults(results, _history, viewCycle);
     updatedIds.addAll(_portfolioGrid.getViewportDataIds());
     updatedIds.addAll(_portfolioGrid.getDependencyGraphViewportDataIds());
     updatedIds.addAll(_primitivesGrid.getViewportDataIds());

@@ -130,19 +130,16 @@ import com.opengamma.util.tuple.Pair;
     getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
   }
 
-  /* package */ boolean updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
+  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
     _latestResults = results;
     _history = history;
     _cycle = cycle;
-    boolean columnsUpdated = false;
     for (MainGridViewport viewport : _viewports.values()) {
-      boolean viewportColumnsUpdated = viewport.updateResults(results, history);
-      columnsUpdated = columnsUpdated || viewportColumnsUpdated;
+      viewport.updateResults(results, history);
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
       grid.updateResults(cycle, history);
     }
-    return columnsUpdated;
   }
 
   /* package */ void closeDependencyGraph(String graphId) {
@@ -205,5 +202,9 @@ import com.opengamma.util.tuple.Pair;
 
   public String getColumnsId() {
     return _columnsId;
+  }
+
+  /* package */ boolean setColumnTypes(ViewResultModel results) {
+    return _gridStructure.setColumnTypes(results);
   }
 }

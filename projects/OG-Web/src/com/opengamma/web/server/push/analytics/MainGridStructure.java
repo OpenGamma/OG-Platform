@@ -16,10 +16,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -43,6 +47,8 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   private final Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _specsToReqs;
   /** Mappings of requirements to specifications. */
   private final Map<ValueRequirementKey, ValueSpecification> _reqsToSpecs;
+
+  private boolean _columnTypesSet;
 
   /* package */ MainGridStructure() {
     _columnGroups = AnalyticsColumnGroups.empty();
@@ -115,18 +121,6 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   }
 
   /**
-   * This is nasty but necessary. The type of the columns isn't known when the view compiles as engine functions
-   * don't declare what type they produce. The only way to find out is to wait for the first set of results to
-   * arrive and then lazily initialize the column types.
-   * @param colIndex Column index
-   * @param type Type of the values displayed in the column
-   * @return {@code true} if the type was updated
-   */
-  /* package */ boolean setTypeForColumn(int colIndex, Class<?> type) {
-    return _columnGroups.getColumn(colIndex).setType(type);
-  }
-
-  /**
    *
    * @param rowIndex
    * @param colIndex
@@ -163,6 +157,47 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   @Override
   public int getColumnCount() {
     return _columnGroups.getColumnCount();
+  }
+
+  /**
+   * This is nasty but necessary. The type of the columns isn't known when the view compiles as engine functions
+   * don't declare what type they produce. The only way to find out is to wait for the first set of results to
+   * arrive and then lazily initialize the column types.
+   * @param results Some calculation results
+   * @return {@code true} if the type of any column was updated
+   */
+  public boolean setColumnTypes(ViewResultModel results) {
+    if (_rows.isEmpty() || _columnTypesSet) {
+      return false;
+    }
+    boolean updated = false;
+    // TODO this is nasty. is it really necesary to do the whole set of results?
+    for (Row row : _rows) {
+      for (int i = 1; i < _columnKeys.size(); i++) {
+        RequirementBasedColumnKey columnKey = _columnKeys.get(i);
+        ViewCalculationResultModel calcResult = results.getCalculationResult(columnKey.getCalcConfigName());
+        if (calcResult == null) {
+          continue;
+        }
+        Map<Pair<String, ValueProperties>, ComputedValue> values = calcResult.getValues(row.getTarget());
+        if (values == null) {
+          continue;
+        }
+        ValueRequirement valueRequirement = new ValueRequirement(columnKey.getValueName(), row.getTarget(), columnKey.getValueProperties());
+        ValueRequirementKey valueKey = new ValueRequirementKey(valueRequirement, columnKey.getCalcConfigName());
+        ValueSpecification valueSpec = _reqsToSpecs.get(valueKey);
+        if (valueSpec == null) {
+          continue;
+        }
+        ComputedValue computedValue = values.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
+        if (computedValue != null) {
+          boolean columnUpdated = _columnGroups.getColumn(i).setType(computedValue.getValue().getClass());
+          updated = updated || columnUpdated;
+        }
+      }
+    }
+    _columnTypesSet = true;
+    return updated;
   }
 
   /* package */ static class Row {

@@ -39,13 +39,10 @@ public class MainGridViewport extends AnalyticsViewport {
     update(viewportSpec, latestResults, history);
   }
 
-  // TODO support delta results, return flag or ID if viewport was updated by delta results
-  // TODO but what about the column update flag? return an object with 2 fields? dataId and columnId? List<String> of IDs?
   // TODO this method makes my head hurt. REFACTOR
   // TODO these need to be delta results
-  /* package */ boolean updateResults(ViewResultModel results, AnalyticsHistory history) {
+  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history) {
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
-    boolean columnsUpdated = false;
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
@@ -62,8 +59,6 @@ public class MainGridViewport extends AnalyticsViewport {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
               Object resultValue = result.getValue();
               // TODO this stinks - column types are known when the first results arrive but aren't updated without a viewport
-              boolean columnUpdated = _gridStructure.setTypeForColumn(colIndex, resultValue.getClass());
-              columnsUpdated = columnsUpdated || columnUpdated;
               if (_viewportSpec.getColumns().contains(colIndex)) {
                 Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, resultValue);
                 ViewportResults.Cell cell = ViewportResults.valueCell(resultValue, valueSpec, valueHistory);
@@ -90,7 +85,6 @@ public class MainGridViewport extends AnalyticsViewport {
     }
     // TODO support delta results, merge new results with existing
     _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
-    return columnsUpdated;
   }
 
   public void update(ViewportSpecification viewportSpec, ViewResultModel results, AnalyticsHistory history) {
