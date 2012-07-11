@@ -485,6 +485,17 @@
           </#list>
         ],
       <#break>
+      <#case "UNSUPPORTED">
+        <#if securityAttributes??>
+          "attributes":{
+            <#list securityAttributes?keys as key>
+              <#assign value = securityAttributes[key]>
+                "${key}" : "${value}"
+              <#if key_has_next>,</#if>
+            </#list>
+          },
+        </#if>
+      <#break>
     </#switch>
     "name": "${security.name}",
     "object_id": "${security.uniqueId.objectId}",

@@ -100,7 +100,8 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);      defaults.addValuePropertyName(valueRequirement, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
+      defaults.addValuePropertyName(valueRequirement, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
       defaults.addValuePropertyName(valueRequirement, SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE);
       defaults.addValuePropertyName(valueRequirement, SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
     }

@@ -70,7 +70,6 @@ static SERVICE_TABLE_ENTRY *_CreateDispatchTable () {
 /// @param[in] argv parameters
 int _tmain (int argc, _TCHAR* argv[]) {
 #ifndef _DEBUG
-	fclose (stderr);
 	FreeConsole ();
 #endif /*ifndef _DEBUG */
 	_mainStart ();

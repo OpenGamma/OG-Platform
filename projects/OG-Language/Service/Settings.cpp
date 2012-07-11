@@ -178,8 +178,8 @@ private:
 	static TCHAR *SearchRegistry () {
 		TCHAR *pszPath;
 		do {
-			if ((pszPath = SearchRegistry (TEXT ("JavaSoft"))) != NULL) break;
 			if ((pszPath = SearchRegistry (TEXT ("OpenGammaLtd"))) != NULL) break;
+			if ((pszPath = SearchRegistry (TEXT ("JavaSoft"))) != NULL) break;
 			LOGWARN (TEXT ("No default JVM or OpenGamma bundled JVM found in the registry"));
 		} while (false);
 		return pszPath;
