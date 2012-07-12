@@ -17,6 +17,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.livedata.server.LastKnownValueStore;
+import com.opengamma.livedata.server.LastKnownValueStoreProvider;
 import com.opengamma.livedata.server.MapLastKnownValueStore;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
@@ -48,7 +49,7 @@ public class MarketDataDistributor {
    * this store provides a current snapshot of the entire state of the 
    * market data line.   
    */
-  private final LastKnownValueStore _lastKnownValues = new MapLastKnownValueStore();
+  private final LastKnownValueStore _lastKnownValues;
   /** 
    * A history store to be used by the FieldHistoryUpdater normalization rule.
    * Fields stored in this history could either be completely unnormalized, 
@@ -83,15 +84,18 @@ public class MarketDataDistributor {
    * @param distributionSpec  What data should be distributed, how and where.
    * @param subscription  Which subscription this distributor belongs to.
    * @param marketDataSenderFactory  Used to create listener(s) that actually publish the data
-   * @param persistent  Whether this distributor is persistent. 
+   * @param persistent  Whether this distributor is persistent.
+   * @param lkvStoreProvider The factory for LastKnownValue stores. 
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
       MarketDataSenderFactory marketDataSenderFactory,
-      boolean persistent) {
+      boolean persistent,
+      LastKnownValueStoreProvider lkvStoreProvider) {
     ArgumentChecker.notNull(distributionSpec, "Distribution spec");
     ArgumentChecker.notNull(subscription, "Subscription");
     ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
+    ArgumentChecker.notNull(lkvStoreProvider, "LKV Store Provider");
     
     _distributionSpec = distributionSpec;
     _subscription = subscription;
@@ -100,6 +104,8 @@ public class MarketDataDistributor {
       throw new IllegalStateException("Null returned by " + marketDataSenderFactory);
     }
     setPersistent(persistent);
+    
+    _lastKnownValues = lkvStoreProvider.newInstance(distributionSpec.getMarketDataId(), distributionSpec.getNormalizationRuleSet().getId());
     
     // Initialize history with last known values.
     // This does nothing in the default state (where the LKV is empty) but

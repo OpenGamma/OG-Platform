@@ -62,19 +62,23 @@ public class Subscription {
    * The creation instant.
    */
   private final Date _creationTime;
+  private final LastKnownValueStoreProvider _lkvStoreProvider;
 
   /**
    * Creates an instance.
    * 
    * @param securityUniqueId  the security unique ID, specific to the market data provider, not null
    * @param marketDataSenderFactory  the factory that will create market data distributors for this subscription
+   * @param lkvStoreProvider factory for LastKnownValue stores.
    */
-  public Subscription(String securityUniqueId, MarketDataSenderFactory marketDataSenderFactory) {
+  public Subscription(String securityUniqueId, MarketDataSenderFactory marketDataSenderFactory, LastKnownValueStoreProvider lkvStoreProvider) {
     ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
     ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
+    ArgumentChecker.notNull(lkvStoreProvider, "LastKnownValue store provider");
     _securityUniqueId = securityUniqueId;
     _marketDataSenderFactory = marketDataSenderFactory;
     _creationTime = new Date();
+    _lkvStoreProvider = lkvStoreProvider;
   }
 
   //-------------------------------------------------------------------------
@@ -167,6 +171,14 @@ public class Subscription {
     return null;
   }
 
+  /**
+   * Gets the lkvStoreProvider.
+   * @return the lkvStoreProvider
+   */
+  public LastKnownValueStoreProvider getLkvStoreProvider() {
+    return _lkvStoreProvider;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Tells this subscription to start distributing market data in the given format.
@@ -179,7 +191,7 @@ public class Subscription {
   /*package*/ MarketDataDistributor createDistributor(DistributionSpecification spec, boolean persistent) {
     MarketDataDistributor distributor = getMarketDataDistributor(spec);
     if (distributor == null) {
-      distributor = new MarketDataDistributor(spec, this, getMarketDataSenderFactory(), persistent);
+      distributor = new MarketDataDistributor(spec, this, getMarketDataSenderFactory(), persistent, getLkvStoreProvider());
       MarketDataDistributor previous = _distributors.putIfAbsent(spec, distributor);
       if (previous == null) {
         s_logger.info("Added {} to {}", distributor, this);
