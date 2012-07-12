@@ -35,6 +35,9 @@ public class RawSecurity extends ManageableSecurity {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /** Standard name for an unsupported security type; not all RawSecurities need to be of this type */
+  public static final String UNSUPPORTED_SECURITY_TYPE = "UNSUPPORTED";
+
   /**
    * The raw data of the security, simply expressed as a byte array.
    * The array is not cloned on get or set, so treat with care.
