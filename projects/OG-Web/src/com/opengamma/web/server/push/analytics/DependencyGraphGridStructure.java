@@ -184,7 +184,8 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   private static AnalyticsColumn column(String header) {
-    return new AnalyticsColumn(header, header);
+    // TODO this isn't quite right, the value column can be any type
+    return new AnalyticsColumn(header, header, String.class);
   }
 
   @Override

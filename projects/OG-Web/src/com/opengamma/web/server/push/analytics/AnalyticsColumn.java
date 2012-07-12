@@ -7,10 +7,8 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.Set;
 
-import com.google.common.base.Objects;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
@@ -20,16 +18,16 @@ public class AnalyticsColumn {
 
   private final String _header;
   private final String _description;
+  private final Class<?> _type;
 
-  private Class<?> _type;
-
-  public AnalyticsColumn(String header, String description) {
+  public AnalyticsColumn(String header, String description, Class<?> type) {
     _header = header;
     _description = description;
+    _type = type;
   }
 
-  public static AnalyticsColumn forKey(RequirementBasedColumnKey key) {
-    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()));
+  public static AnalyticsColumn forKey(RequirementBasedColumnKey key, Class<?> columnType) {
+    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType);
   }
 
   /* package */ String getHeader() {
@@ -52,10 +50,11 @@ public class AnalyticsColumn {
    * @return {@code true} if the type was updated
    */
   public boolean setType(Class<?> type) {
-    ArgumentChecker.notNull(type, "type");
+    throw new UnsupportedOperationException();
+    /*ArgumentChecker.notNull(type, "type");
     boolean updated = !Objects.equal(_type, type);
     _type = type;
-    return updated;
+    return updated;*/
   }
 
   private static String createHeader(RequirementBasedColumnKey columnKey) {

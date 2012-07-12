@@ -20,7 +20,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.push.analytics.AnalyticsColumnGroups;
 import com.opengamma.web.server.push.analytics.AnalyticsView;
 import com.opengamma.web.server.push.analytics.GridStructure;
 import com.opengamma.web.server.push.analytics.ViewportSpecification;
@@ -55,12 +54,6 @@ public abstract class AbstractGridResource {
   @GET
   @Path("grid")
   public abstract GridStructure getGridStructure();
-
-  @GET
-  @Path("columns")
-  public AnalyticsColumnGroups getColumnStructure() {
-    return getGridStructure().getColumnStructure();
-  }
 
   @POST
   @Path("viewports")
