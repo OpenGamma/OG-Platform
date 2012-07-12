@@ -167,7 +167,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
    * @return {@code true} if the type of any column was updated
    */
   public boolean setColumnTypes(ViewResultModel results) {
-    if (_rows.isEmpty() || _columnTypesSet) {
+    if (_rows.isEmpty() /*|| _columnTypesSet*/) {
       return false;
     }
     boolean updated = false;
