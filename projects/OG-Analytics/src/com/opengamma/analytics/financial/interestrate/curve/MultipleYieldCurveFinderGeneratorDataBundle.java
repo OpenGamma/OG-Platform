@@ -7,10 +7,13 @@ package com.opengamma.analytics.financial.interestrate.curve;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Data bundle with the data required to build curves in the Multiple Yield Curve framework. The data is based on generators.
@@ -34,12 +37,36 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
    */
   private final int _nbInstruments;
 
+  /**
+   * Constructor without FX Matrix and Currency map (used for one currency yield curve bundle.).
+   * @param instruments The list of instruments.
+   * @param knownCurves The known curves.
+   * @param curveGenerators The map of String/Curve generators.
+   */
   public MultipleYieldCurveFinderGeneratorDataBundle(List<InstrumentDerivative> instruments, YieldCurveBundle knownCurves, LinkedHashMap<String, GeneratorCurve> curveGenerators) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(curveGenerators, "Curve generators");
     _instruments = instruments;
     _knownCurves = knownCurves;
     _buildingFunction = new GeneratorCurveBuildingFunction(curveGenerators);
+    _nbInstruments = instruments.size();
+  }
+
+  /**
+   * Constructor.
+   * @param instruments The list of instruments.
+   * @param knownCurves The known curves.
+   * @param curveGenerators The map of String/Curve generators.
+   * @param fxMatrix The exchange rates.
+   * @param curveCurrency The map of String/Currencies.
+   */
+  public MultipleYieldCurveFinderGeneratorDataBundle(List<InstrumentDerivative> instruments, YieldCurveBundle knownCurves, LinkedHashMap<String, GeneratorCurve> curveGenerators,
+      final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency) {
+    ArgumentChecker.notNull(instruments, "Instruments");
+    ArgumentChecker.notNull(curveGenerators, "Curve generators");
+    _instruments = instruments;
+    _knownCurves = knownCurves;
+    _buildingFunction = new GeneratorCurveBuildingFunction(curveGenerators, fxMatrix, curveCurrency);
     _nbInstruments = instruments.size();
   }
 

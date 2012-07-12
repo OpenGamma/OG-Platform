@@ -17,6 +17,8 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * A bundle of curves and forex exchange rates used for pricing. The curves are stored as a map <String, YieldAndDiscountCurve>.
@@ -43,6 +45,17 @@ public class YieldCurveBundle {
     _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     _curveCurrency = new HashMap<String, Currency>();
     _fxMatrix = new FXMatrix();
+  }
+
+  /**
+   * Constructor from existing currency map and existing fxMatrix. A new curve map is created. The currency map and FXMatrix are directly used.
+   * @param fxMatrix The FXMatrix.
+   * @param curveCurrency The map of currencies.
+   */
+  public YieldCurveBundle(final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency) {
+    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    _curveCurrency = curveCurrency;
+    _fxMatrix = fxMatrix;
   }
 
   /**
@@ -233,6 +246,16 @@ public class YieldCurveBundle {
    */
   public FXMatrix getFxRates() {
     return _fxMatrix;
+  }
+
+  /**
+   * Convert a multiple currency amount into a amount in a given currency.
+   * @param amount The multiple currency amount.
+   * @param ccy The currency for the conversion.
+   * @return The amount.
+   */
+  public CurrencyAmount convert(final MultipleCurrencyAmount amount, final Currency ccy) {
+    return _fxMatrix.convert(amount, ccy);
   }
 
   @Override

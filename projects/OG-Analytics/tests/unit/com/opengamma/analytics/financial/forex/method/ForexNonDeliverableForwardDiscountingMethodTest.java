@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
@@ -56,7 +56,7 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
 
-  private static final PresentValueForexCalculator PVC_FX = PresentValueForexCalculator.getInstance();
+  private static final PresentValueMCACalculator PVC_FX = PresentValueMCACalculator.getInstance();
   private static final CurrencyExposureForexCalculator CE_FX = CurrencyExposureForexCalculator.getInstance();
 
   @Test

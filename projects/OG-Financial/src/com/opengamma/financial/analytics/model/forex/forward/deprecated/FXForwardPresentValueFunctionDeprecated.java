@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -24,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 @Deprecated
 public class FXForwardPresentValueFunctionDeprecated extends FXForwardMultiValuedFunctionDeprecated {
-  private static final PresentValueForexCalculator CALCULATOR = PresentValueForexCalculator.getInstance();
+  private static final PresentValueMCACalculator CALCULATOR = PresentValueMCACalculator.getInstance();
 
   public FXForwardPresentValueFunctionDeprecated() {
     super(ValueRequirementNames.FX_PRESENT_VALUE);
