@@ -29,7 +29,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.position.ManageablePosition;
 
 /**
- * Function to source the latest historical time-series data point for a security.
+ * Function to source the latest historical time-series data point for a position.
  */
 public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends AbstractFunction.NonCompiledInvoker {
   
