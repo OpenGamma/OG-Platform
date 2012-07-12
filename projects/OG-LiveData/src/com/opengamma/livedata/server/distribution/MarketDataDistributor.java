@@ -16,6 +16,8 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.livedata.server.LastKnownValueStore;
+import com.opengamma.livedata.server.MapLastKnownValueStore;
 import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 
@@ -46,7 +48,7 @@ public class MarketDataDistributor {
    * this store provides a current snapshot of the entire state of the 
    * market data line.   
    */
-  private FieldHistoryStore _lastKnownValues;
+  private final LastKnownValueStore _lastKnownValues = new MapLastKnownValueStore();
   /** 
    * A history store to be used by the FieldHistoryUpdater normalization rule.
    * Fields stored in this history could either be completely unnormalized, 
@@ -98,6 +100,12 @@ public class MarketDataDistributor {
       throw new IllegalStateException("Null returned by " + marketDataSenderFactory);
     }
     setPersistent(persistent);
+    
+    // Initialize history with last known values.
+    // This does nothing in the default state (where the LKV is empty) but
+    // in case where the LKV is backed by a persistent store will prep the
+    // current state based on the persistent version.
+    _history.liveDataReceived(_lastKnownValues.getFields());
   }
 
   //-------------------------------------------------------------------------
@@ -144,27 +152,27 @@ public class MarketDataDistributor {
    * @return the latest value, not null
    */
   public LiveDataValueUpdateBean getSnapshot() {
-    if (getLastKnownValues() == null) {
+    FudgeMsg lastKnownValues = getLastKnownValues();
+    if (lastKnownValues == null) {
       return null;
     }
     return new LiveDataValueUpdateBean(
         getNumMessagesSent(), // 0-based as it should be 
         getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
-        getLastKnownValues());
+        lastKnownValues);
   }
 
   private synchronized FudgeMsg getLastKnownValues() {
-    if (_lastKnownValues == null) {
+    // NOTE kirk 2012-07-12 -- I have to assume the sentinel is important
+    // so I'm preserving it even though _lastKnownValues will never be null now.
+    if (_lastKnownValues.isEmpty()) {
       return null;
     }
-    return _lastKnownValues.getLastKnownValues();
+    return _lastKnownValues.getFields();
   }
   
   private synchronized void updateLastKnownValues(FudgeMsg lastKnownValue) {
-    if (_lastKnownValues == null) {
-      _lastKnownValues = new FieldHistoryStore();
-    }
-    _lastKnownValues.liveDataReceived(lastKnownValue);
+    _lastKnownValues.updateFields(lastKnownValue);
   }
 
   //-------------------------------------------------------------------------
