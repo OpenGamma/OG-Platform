@@ -6,7 +6,6 @@
 package com.opengamma.livedata.server;
 
 import java.util.Set;
-
 import com.opengamma.id.ExternalId;
 
 /**

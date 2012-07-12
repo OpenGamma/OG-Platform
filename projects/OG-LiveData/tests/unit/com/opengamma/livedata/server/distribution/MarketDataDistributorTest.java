@@ -24,7 +24,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 @Test(groups = "unit")
 public class MarketDataDistributorTest {
-  
   public static MarketDataDistributor getTestDistributor(MarketDataSenderFactory factory) {
     MapLastKnownValueStoreProvider lkvStoreProvider = new MapLastKnownValueStoreProvider();
     return new MarketDataDistributor(new DistributionSpecification(
