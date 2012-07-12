@@ -33,20 +33,20 @@ public class PresentValueCurveSensitivityConvertedForexCalculator extends Abstra
     return INSTANCE;
   }
 
-  private final PresentValueCurveSensitivityForexCalculator _pvcsc;
+  private final PresentValueCurveSensitivityMCSCalculator _pvcsc;
 
   /**
    * Constructor.
    */
   PresentValueCurveSensitivityConvertedForexCalculator() {
-    _pvcsc = PresentValueCurveSensitivityForexCalculator.getInstance();
+    _pvcsc = PresentValueCurveSensitivityMCSCalculator.getInstance();
   }
 
   /**
    * Constructor.
    * @param pvcsc The present value curve sensitivity calculator (not converted). Not null.
    */
-  public PresentValueCurveSensitivityConvertedForexCalculator(final PresentValueCurveSensitivityForexCalculator pvcsc) {
+  public PresentValueCurveSensitivityConvertedForexCalculator(final PresentValueCurveSensitivityMCSCalculator pvcsc) {
     ArgumentChecker.notNull(pvcsc, "present value curve sensitivity calculator");
     _pvcsc = pvcsc;
   }

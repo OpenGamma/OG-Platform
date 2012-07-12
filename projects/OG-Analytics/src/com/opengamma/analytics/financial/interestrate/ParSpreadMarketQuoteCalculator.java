@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
@@ -53,6 +55,7 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -113,6 +116,17 @@ public final class ParSpreadMarketQuoteCalculator extends AbstractInstrumentDeri
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
+  }
+
+  /**
+   * The par spread is the spread that should be added to the forex forward points to have a zero value.
+   * @param fx The forex swap.
+   * @param curves The yield curve bundle with the relevant exchange rates.
+   * @return The spread.
+   */
+  @Override
+  public Double visitForexSwap(final ForexSwap fx, final YieldCurveBundle curves) {
+    return METHOD_FX_SWAP.parSpread(fx, curves);
   }
 
 }

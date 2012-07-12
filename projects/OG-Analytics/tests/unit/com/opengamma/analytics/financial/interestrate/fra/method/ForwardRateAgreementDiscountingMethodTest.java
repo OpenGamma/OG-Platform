@@ -270,8 +270,10 @@ public class ForwardRateAgreementDiscountingMethodTest {
     assertEquals("FRA discounting: present value calculator vs method", pvcsCalculator, pvcsMethod.getSensitivities());
   }
 
+  @Test
   public void parSpread() {
-    final double parSpread = FRA_METHOD.parSpread(FRA, CURVES_2);
+    ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    final double parSpread = FRA_METHOD.parSpread(fra2, CURVES_2);
     ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
         FRA_RATE + parSpread);
     ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
@@ -279,9 +281,11 @@ public class ForwardRateAgreementDiscountingMethodTest {
     assertEquals("FRA discounting: par spread", pv0, 0, TOLERANCE_PV);
   }
 
+  @Test
   public void parSpreadMethodVsCalculator() {
-    final double parSpreadMethod = FRA_METHOD.parSpread(FRA, CURVES_2);
-    final double parSpreadCalculator = PSC.visit(FRA, CURVES_2);
+    ForwardRateAgreement fra2 = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_2);
+    final double parSpreadMethod = FRA_METHOD.parSpread(fra2, CURVES_2);
+    final double parSpreadCalculator = PSC.visit(fra2, CURVES_2);
     assertEquals("FRA discounting: par spread", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 

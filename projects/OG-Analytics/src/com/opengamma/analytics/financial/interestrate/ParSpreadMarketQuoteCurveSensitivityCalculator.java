@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
@@ -55,6 +57,7 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
   @Override
   public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -100,6 +103,11 @@ public final class ParSpreadMarketQuoteCurveSensitivityCalculator extends Abstra
   @Override
   public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
     return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves);
+  }
+
+  @Override
+  public InterestRateCurveSensitivity visitForexSwap(final ForexSwap fx, final YieldCurveBundle curves) {
+    return METHOD_FX_SWAP.parSpreadCurveSensitivity(fx, curves);
   }
 
 }

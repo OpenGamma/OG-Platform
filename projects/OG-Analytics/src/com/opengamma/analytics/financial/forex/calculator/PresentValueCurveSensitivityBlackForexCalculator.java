@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
  * Calculator of the present value for Forex derivatives in the Black (Garman-Kohlhagen) world. The volatilities are given by delta-smile descriptions.
  * To compute the curve sensitivity, the Black volatility is kept constant; the volatility is not recomputed for curve and forward changes.
  */
-public class PresentValueCurveSensitivityBlackForexCalculator extends PresentValueCurveSensitivityForexCalculator {
+public class PresentValueCurveSensitivityBlackForexCalculator extends PresentValueCurveSensitivityMCSCalculator {
 
   /**
    * The unique instance of the calculator.

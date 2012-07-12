@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.forex.forward.deprecated;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -23,7 +23,7 @@ import com.opengamma.financial.analytics.model.forex.forward.FXForwardPresentVal
  */
 @Deprecated
 public class FXForwardPresentValueCurveSensitivityFunctionDeprecated extends FXForwardMultiValuedFunctionDeprecated {
-  private static final PresentValueCurveSensitivityForexCalculator CALCULATOR = PresentValueCurveSensitivityForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMCSCalculator CALCULATOR = PresentValueCurveSensitivityMCSCalculator.getInstance();
 
   public FXForwardPresentValueCurveSensitivityFunctionDeprecated() {
     super(ValueRequirementNames.FX_CURVE_SENSITIVITIES);

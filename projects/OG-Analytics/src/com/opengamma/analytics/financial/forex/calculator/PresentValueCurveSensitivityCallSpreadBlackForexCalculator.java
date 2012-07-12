@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
  * Calculator of the present value curve sensitivity for Forex digital options using vanilla call spread with Black formula for underlying vanilla.
  * To compute the curve sensitivity, the Black volatility is kept constant; the volatility is not recomputed for curve and forward changes.
  */
-public class PresentValueCurveSensitivityCallSpreadBlackForexCalculator extends PresentValueCurveSensitivityForexCalculator {
+public class PresentValueCurveSensitivityCallSpreadBlackForexCalculator extends PresentValueCurveSensitivityMCSCalculator {
 
   /**
    * The methods used by the different instruments.

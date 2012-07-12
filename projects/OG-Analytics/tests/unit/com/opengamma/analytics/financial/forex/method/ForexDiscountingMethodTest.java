@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
 import com.opengamma.analytics.financial.forex.calculator.ForwardRateForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityMCSCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadYieldCurveBundleRolldownFunction;
@@ -56,11 +56,11 @@ public class ForexDiscountingMethodTest {
 
   private static final ForexDiscountingMethod METHOD = ForexDiscountingMethod.getInstance();
   private static final com.opengamma.analytics.financial.interestrate.PresentValueCalculator PVC_IR = com.opengamma.analytics.financial.interestrate.PresentValueCalculator.getInstance();
-  private static final com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator PVC_FX = com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator
+  private static final com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator PVC_FX = com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator
       .getInstance();
   private static final PresentValueCurveSensitivityCalculator PVSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final CurrencyExposureForexCalculator CEC_FX = CurrencyExposureForexCalculator.getInstance();
-  private static final PresentValueCurveSensitivityForexCalculator PVCSC_FX = PresentValueCurveSensitivityForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityMCSCalculator PVCSC_FX = PresentValueCurveSensitivityMCSCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();

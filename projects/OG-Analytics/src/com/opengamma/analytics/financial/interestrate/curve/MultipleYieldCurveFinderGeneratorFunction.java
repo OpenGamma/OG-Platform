@@ -42,6 +42,7 @@ public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<Double
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
     YieldCurveBundle curves = _data.getBuildingFunction().evaluate(x);
     final YieldCurveBundle knownCurves = _data.getKnownCurves();
+    // REVIEW: Should we do the opposite: get a KnownBundle and at the new curves to it (to keep the structure of the KnownBundle (FX, HW, ...))?
     if (knownCurves != null) {
       curves.addAll(knownCurves);
     }

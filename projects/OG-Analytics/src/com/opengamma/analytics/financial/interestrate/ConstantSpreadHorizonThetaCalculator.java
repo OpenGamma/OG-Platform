@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackForexCalculator;
-import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -218,7 +218,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
-    final PresentValueForexCalculator pvCalculator = PresentValueForexCalculator.getInstance();
+    final PresentValueMCACalculator pvCalculator = PresentValueMCACalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data)).plus(paymentToday);
   }
 
@@ -236,7 +236,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final ForexOptionDigitalDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final SmileDeltaTermStructureDataBundle data,
-      final PresentValueForexCalculator pvCalculator, final int daysForward) {
+      final PresentValueMCACalculator pvCalculator, final int daysForward) {
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
