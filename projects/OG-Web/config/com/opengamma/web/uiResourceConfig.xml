@@ -95,6 +95,9 @@
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
   </bundle>
+  <bundle id="common.gadgets.css">
+    <fragment>/styles/common/gadgets/og.common.gadgets.OG-gadget-surface-hud.css</fragment>
+  </bundle>
   <bundle id="common.forms.css">
     <fragment>/styles/common/forms/og.common.forms.OG-grid-box.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.css</fragment>
@@ -153,6 +156,7 @@
     <bundle idref="common.classes.css" />
     <bundle idref="common.search.css" />
     <bundle idref="common.details.css"/>
+    <bundle idref="common.gadgets.css"/>
     <bundle idref="common.forms.css"/>
     <bundle idref="views.css"/>
     <bundle idref="libs.css" />
@@ -340,6 +344,7 @@
   </bundle>
   <bundle id="og_analytics2.js">
       <bundle idref="lib.js" />
+      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <bundle idref="core.js" />
       <bundle idref="api.js" />
       <bundle idref="util.js" />
