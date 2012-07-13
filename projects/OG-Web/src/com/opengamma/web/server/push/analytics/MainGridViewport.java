@@ -31,7 +31,7 @@ public class MainGridViewport extends AnalyticsViewport {
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
                    String dataId,
-                   ViewResultModel latestResults, // TODO these need to be full results
+                   ViewResultModel latestResults,
                    AnalyticsHistory history) {
     super(dataId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
@@ -41,6 +41,7 @@ public class MainGridViewport extends AnalyticsViewport {
 
   // TODO this method makes my head hurt. REFACTOR
   // TODO these need to be delta results
+  // TODO results cache built from successive deltas. so new viewports have data without waiting for the cycle to finish
   /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history) {
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
     for (Integer rowIndex : _viewportSpec.getRows()) {
@@ -58,7 +59,6 @@ public class MainGridViewport extends AnalyticsViewport {
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
               Object resultValue = result.getValue();
-              // TODO this stinks - column types are known when the first results arrive but aren't updated without a viewport
               if (_viewportSpec.getColumns().contains(colIndex)) {
                 Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, resultValue);
                 ViewportResults.Cell cell = ViewportResults.valueCell(resultValue, valueSpec, valueHistory);
@@ -78,13 +78,17 @@ public class MainGridViewport extends AnalyticsViewport {
       for (int colIndex = 1; colIndex < _gridStructure.getColumnCount(); colIndex++) {
         if (_viewportSpec.getColumns().contains(colIndex)) {
           // this intentionally inserts null into the results if there is no value for a given column
-          rowResults.add(rowResultsMap.get(colIndex));
+          ViewportResults.Cell cell = rowResultsMap.get(colIndex);
+          if (cell != null) {
+            rowResults.add(cell);
+          } else {
+            rowResults.add(ViewportResults.emptyCell());
+          }
         }
       }
       allResults.add(rowResults);
     }
-    // TODO support delta results, merge new results with existing
-    _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
+    _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure());
   }
 
   public void update(ViewportSpecification viewportSpec, ViewResultModel results, AnalyticsHistory history) {

@@ -29,6 +29,7 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.web.server.push.analytics.ValueTypes;
 
 /**
  *
@@ -73,11 +74,14 @@ public class ResultsFormatter {
     _formatters.put(PresentValueForexBlackVolatilitySensitivity.class, new PresentValueForexBlackVolatilitySensitivityFormatter());
   }
 
-  private Formatter getFormatter(Object value) {
+  private Formatter getFormatter(Object value, ValueSpecification valueSpec) {
     if (value == null) {
       return _nullFormatter;
-    } else {
+    } else if (valueSpec == null) {
       return getFormatterForType(value.getClass());
+    } else {
+      Class<?> type = ValueTypes.getTypeForValueName(valueSpec.getValueName());
+      return getFormatterForType(type);
     }
   }
 
@@ -102,20 +106,20 @@ public class ResultsFormatter {
    */
   @SuppressWarnings("unchecked")
   public Object formatForDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value).formatForDisplay(value, valueSpec);
+    return getFormatter(value, valueSpec).formatForDisplay(value, valueSpec);
   }
 
   @SuppressWarnings("unchecked")
   public Object formatForExpandedDisplay(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value).formatForExpandedDisplay(value, valueSpec);
+    return getFormatter(value, valueSpec).formatForExpandedDisplay(value, valueSpec);
   }
 
   @SuppressWarnings("unchecked")
   public Object formatForHistory(Object value, ValueSpecification valueSpec) {
-    return getFormatter(value).formatForHistory(value, valueSpec);
+    return getFormatter(value, valueSpec).formatForHistory(value, valueSpec);
   }
 
-  public String getFormatName(Class<?> type) {
-    return getFormatterForType(type).getFormatType().name();
+  public Formatter.FormatType getFormatType(Class<?> type) {
+    return getFormatterForType(type).getFormatType();
   }
 }

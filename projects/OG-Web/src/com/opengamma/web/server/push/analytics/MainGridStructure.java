@@ -52,6 +52,8 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
     _reqsToSpecs = Collections.emptyMap();
   }
 
+  // TODO is there structure in here that could be shared between the portfolio and primitives grids?
+  // if so is it expensive enough to worry about sharing?
   /* package */ MainGridStructure(CompiledViewDefinition compiledViewDef, List<Row> rows) {
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     _colIndexByRequirement = Maps.newHashMap();
@@ -82,7 +84,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
           colIndex++;
           _columnKeys.add(columnKey);
           String valueName = columnKey.getValueName();
-          Class<?> columnType = ValueRequirementTypes.getTypeForValueName(valueName);
+          Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
           configColumns.add(AnalyticsColumn.forKey(columnKey, columnType));
         }
       }
