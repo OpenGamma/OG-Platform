@@ -2,7 +2,14 @@
 <#setting number_format="0.#####">
 {
     "template_data": {
-    <#switch security.securityType>
+     <#if securityAttributes??>
+      "attributes": {
+      <#list securityAttributes?keys as key>
+        <#assign value = securityAttributes[key]> "${key}" : "${value}"<#if key_has_next>,</#if>
+      </#list>
+      },
+    </#if>
+   <#switch security.securityType>
       <#case "FRA">
         "amount":"${security.amount}",
         "currency":"${security.currency}",
@@ -151,15 +158,6 @@
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
-        <#if securityAttributes??>
-        "attributes":{
-          <#list securityAttributes?keys as key>
-            <#assign value = securityAttributes[key]>
-              "${key}" : "${value}"
-            <#if key_has_next>,</#if>
-          </#list>
-        },
-        </#if>
         "payLeg":{
           "dayCount":"${security.payLeg.dayCount.conventionName}",
 	        "frequency":"${security.payLeg.frequency.conventionName}",
@@ -430,15 +428,6 @@
         "currency":"${securityEntryData.currency}",
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
-        <#if securityAttributes??>
-          "attributes":{
-            <#list securityAttributes?keys as key>
-              <#assign value = securityAttributes[key]>
-                "${key}" : "${value}"
-              <#if key_has_next>,</#if>
-            </#list>
-          },
-        </#if>
         <#if factorExposuresList??>
           "factors":[
             <#list factorExposuresList as factorExposure>
@@ -459,15 +448,6 @@
         </#if>
       <#break>
       <#case "EXTERNAL_SENSITIVITY_RISK_FACTORS">
-        <#if securityAttributes??>
-          "attributes":{
-            <#list securityAttributes?keys as key>
-              <#assign value = securityAttributes[key]>
-                "${key}" : "${value}"
-              <#if key_has_next>,</#if>
-            </#list>
-          },
-        </#if>
         "factors":[
           <#list factorExposuresList as factorExposure>
             {
@@ -484,17 +464,6 @@
             <#if factorExposure_has_next>,</#if>
           </#list>
         ],
-      <#break>
-      <#case "UNSUPPORTED">
-        <#if securityAttributes??>
-          "attributes":{
-            <#list securityAttributes?keys as key>
-              <#assign value = securityAttributes[key]>
-                "${key}" : "${value}"
-              <#if key_has_next>,</#if>
-            </#list>
-          },
-        </#if>
       <#break>
     </#switch>
     "name": "${security.name}",
