@@ -67,6 +67,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
+    // TODO move this to a JSON writer class
     List<List<ViewportResults.Cell>> viewportCells = results.getResults();
     List<List<Object>> allResults = Lists.newArrayListWithCapacity(viewportCells.size());
     for (List<ViewportResults.Cell> rowCells : viewportCells) {
