@@ -4,20 +4,25 @@
  */
 $.register_module({
     name: 'og.common.gadgets.surface',
-    dependencies: ['og.common.gadgets.manager'],
+    dependencies: ['og.common.gadgets.manager', 'og.api.text'],
     obj: function () {
         var webgl = Detector.webgl ? true : false, util = {}, tmp_data,
             settings = {
-                font_size: 40,
-                font_size_axis_labels: 100,
-                font_size_interactive_labels: 70,
                 font_face: 'Arial',
+                font_size: 40,
+                font_size_axis_labels: 70,
+                font_size_interactive_labels: 40,
+                font_height: 2,
+                font_height_axis_labels: 4,
+                font_height_interactive_labels: 5,
+                font_color_axis_labels: '0xffffff',
+                interactive_color_nix: '0xff0000',
+                interactive_color_css: '#f00',
+                precision: 3, // floating point presions for vol display
                 snap_distance: 3,
                 surface_x: 100,
                 surface_z: 100,
-                surface_y: 35,
-                interactive_color_nix: '0xff0000',
-                interactive_color_css: '#f00',
+                surface_y: 35, // the height range of the surface
                 vertex_shading_hue_min: 180,
                 vertex_shading_hue_max: 0,
                 floating_height: 10 // how high does the top surface float over the bottom grid
@@ -47,9 +52,9 @@ $.register_module({
                     42.45738031081145, 38.85913433449903, 25.094146490034564, 13.520447631949908, 16.35244060217202, 12.543160233896385, 13.151659641249115, 14.867596343136109, 16.627712492400654, 18.843342975875473, 18.76513063298974, 18.863971441873908, 19.356227076517516, 19.67335504409258, 19.673973024969282, 19.713974690152785, 19.846710760859818, 20.321422820973726, 22.40608988405136, 25.010207673279478
                 ],
                 xs: ['0.1', '0.25', '0.5', '0.75', '1', '1.5', '2', '2.5', '3', '4', '5', '6', '7', '8', '9', '10', '12', '15', '20', '30'],
-                xs_label: 'Term',
+                xs_label: 'Term (years)',
                 zs: ['0.55', '0.6', '0.65', '0.7', '0.75', '0.8', '0.85', '0.9', '0.95', '1', '1.05', '1.1', '1.15', '1.2', '1.25', '1.3', '1.35', '1.4', '1.45', '1.5'],
-                zs_label: 'Strike'
+                zs_label: 'Strike (GBP)'
             },
             2: {
                 vol: [
@@ -105,7 +110,7 @@ $.register_module({
             return result;
         };
         /**
-         * Creates a surface
+         * Creates a surface gadget
          * @param {Object} config
          */
         return function (config) {
@@ -117,10 +122,11 @@ $.register_module({
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
-            var surface = this, selector = config.selector, $selector = $(selector),
+            var surface = this, hud = {}, selector = config.selector, $selector = $(selector),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
-                surface_top_group = new THREE.Object3D(), surface_bottom_group = new THREE.Object3D(),
-                hover_group, // THREE.Object3D that gets created on hover and destroyed afterward
+                surface_top_group = new THREE.Object3D(), // actual surface and anything that needs to be at that y pos
+                surface_bottom_group = new THREE.Object3D(), // the bottom grid, axis etc
+                hover_group,   // THREE.Object3D that gets created on hover and destroyed afterward
                 width, height, // selector / canvas width and height
                 vertex_sphere, // the sphere displayed on vertex hover
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
@@ -145,11 +151,25 @@ $.register_module({
                 return plane;
             };
             /**
+             * Constructor for 3D text
+             * @param {String} str String you want to create
+             * @returns {THREE.TextGeometry}
+             */
+            var Text3D = function (str, color, size, height) {
+                var text = new THREE.TextGeometry(str, {
+                    size: size, height: height || 10, font: 'helvetiker', weight: 'normal', style: 'normal'
+                }),
+                material = new THREE.MeshPhongMaterial({color: color, shading: THREE.SmoothShading});
+                return new THREE.Mesh(text, material);
+            };
+            /**
              * Constructor for 2d text on a 3d mesh. Creates a canvas texture, applies to mesh
              * @param {String} str String you want to create
+             * @param {String} color CSS hex value
+             * @param {Number} size Font size in px (NOTE: when used as a texture, is relative to its usage)
              * @returns {THREE.Mesh}
              */
-            var Text = function (str, color, size) {
+            var Text2D = function (str, color, size) {
                 var create_texture_map = function (str) {
                     var canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
                     size = size || 50;
@@ -172,6 +192,62 @@ $.register_module({
                     return mesh;
                 };
                 return create_mesh(str);
+            };
+            /**
+             * Constructor for a tube.
+             * THREE doesnt currently support creating a tube with a line as a path
+             * (Spline is supported, but we dont want that), So we create separate tubes and add them to an object
+             * @param {Array} points Array of Vector3's
+             * @return {THREE.Object3D}
+             */
+            var Tube = function (points) {
+                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube,
+                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color_nix, wireframe: false});
+                while (i--) {
+                    line = new THREE.LineCurve3(points[i], points[i+1]);
+                    tube = new THREE.TubeGeometry(line, 1, 0.2, 5, false, false);
+                    mesh.add(new THREE.Mesh(tube, mat));
+                }
+                return mesh;
+            };
+            /**
+             * Loads 2D overlay display with options
+             */
+            hud.load = function () {
+                $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
+                    var html = (Handlebars.compile(tmpl))({min: hud.min, max: hud.max});
+                    hud.volatility($(html).appendTo($selector).find('canvas')[0]);
+                });
+            };
+            hud.max = (Math.max.apply(null, config.vol)).toFixed(settings.precision);
+            hud.min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
+            hud.options = function () {};
+            hud.set_volatility = function (value) {
+                var top = (util.scale([hud.min, value, hud.max], hud.vol_canvas_height, 0))[1],
+                    css = {top: top + 'px', color: settings.interactive_color_css},
+                    $vol = $selector.find('.og-val-vol');
+                value
+                    ? $vol.html(value.toFixed(settings.precision)).css(css).show()
+                    : $vol.empty().hide();
+            };
+            hud.vol_canvas_height = null;
+            hud.volatility = function (canvas) {
+                var ctx = canvas.getContext('2d'), gradient,
+                    min_hue = settings.vertex_shading_hue_min, max_hue = settings.vertex_shading_hue_max,
+                    steps = Math.abs(max_hue - min_hue) / 60, stop;
+                hud.vol_canvas_height = height / 2;
+                gradient = ctx.createLinearGradient(0, 0, 0, hud.vol_canvas_height);
+                canvas.width = 10;
+                canvas.height = hud.vol_canvas_height;
+                gradient.addColorStop(0, 'hsl(' + max_hue + ', 100%, 50%)');
+                while (steps--) { // 60 is the number hue increaments before one color starts fading in and another out
+                    stop = (steps * 60 / (min_hue / 100)) / 100;
+                    gradient.addColorStop(stop, 'hsl(' + steps * 60 + ', 100%, 50%)');
+                    gradient.addColorStop(stop, 'hsl(' + steps * 60 + ', 100%, 50%)');
+                }
+                gradient.addColorStop(1, 'hsl(' + min_hue + ', 100%, 50%)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
             };
             surface.alive = function () {return true};
             /**
@@ -226,20 +302,23 @@ $.register_module({
                 (function () { // axis values
                     var value;
                     for (i = 0; i < lbl_arr.length; i++) {
-                        value = new Text(lbl_arr[i], null, settings.font_size);
+                        value = new Text3D(lbl_arr[i], '0x555555', settings.font_size, settings.font_height);
                         value.scale.set(scale, scale, scale);
-                        value.position.x = pos_arr[i];
+                        value.rotation.x = -Math.PI * .5;
+                        value.position.x = pos_arr[i] - 2 - ((THREE.FontUtils.drawText(lbl_arr[i]).offset * 0.1) / 2);
                         value.position.y = 1;
-                        value.position.z = (other_axis_len / 2) + 8;
+                        value.position.z = (other_axis_len / 2) + 12;
                         mesh.add(value);
                     }
                 }());
                 (function () { // axis label
-                    var label = new Text(config.label, '#ccc', settings.font_size_axis_labels);
+                    var label = new Text3D(config.label, settings.font_color_axis_labels,
+                        settings.font_size_axis_labels, settings.font_height_axis_labels);
                     label.scale.set(scale, scale, scale);
-                    label.position.x = -(axis_len / 2) + 8;
+                    label.rotation.x = -Math.PI * .5;
+                    label.position.x = -(axis_len / 2) -3;
                     label.position.y = 1;
-                    label.position.z = (other_axis_len / 2) + 16;
+                    label.position.z = (other_axis_len / 2) + 25;
                     mesh.add(label);
                 }());
                 (function () { // axis ticks
@@ -265,7 +344,7 @@ $.register_module({
                     axis.position.z = other_axis_len / 2 + 5;
                     mesh.add(axis);
                 }());
-                if (config.axis === 'z') mesh.rotation.y = -1.57;
+                if (config.axis === 'z') mesh.rotation.y = -Math.PI * .5;
                 return mesh;
             };
             /**
@@ -282,25 +361,25 @@ $.register_module({
                 return mesh;
             };
             /**
-             * Creates a tube from an Array of points
-             * @param {Array} points Array of Vector3's
+             * Creates floor
              * @return {THREE.Object3D}
              */
-            surface.create_tube = function (points) {
-                /**
-                 * THREE doesnt currently support creating a tube with a line as a path,
-                 * (Spline is supported, but we dont want that)
-                 * So we create separate tubes and add them to an object
-                 */
-                var mesh = new THREE.Object3D(), i = points.length - 1, line, tube,
-                    mat = new THREE.MeshBasicMaterial({color: settings.interactive_color_nix, wireframe: false});
-                while (i--) {
-                    line = new THREE.LineCurve3(points[i], points[i+1]);
-                    tube = new THREE.TubeGeometry(line, 1, 0.2, 5, false, false);
-                    mesh.add(new THREE.Mesh(tube, mat));
-                }
-                return mesh;
+            surface.create_floor = function () {
+                var plane = new THREE.PlaneGeometry(1000, 1000, 10, 10), floor,
+                    materials = [
+                        new THREE.MeshPhongMaterial({
+                            color: 0xffffff, specular: 0xeeeeee, shininess: 0.5, ambient: 0xffff00
+                        }),
+                        new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
+                    ];
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
+                floor.position.y = -0.01;
+                return floor;
             };
+            /**
+             * Create the actual surface
+             * @return {THREE.Object3D}
+             */
             surface.create_surface = function () {
                 var plane = new Plane(), group, materials, i,
                     weblg_materials = [
@@ -341,6 +420,13 @@ $.register_module({
                 interactive_meshs.push(group.children[0]);
                 return group;
             };
+            /**
+             * Implements any valid hover interaction with the surface.
+             * Adds vertex_sphere, lines (tubes), active axis labels
+             * @param {THREE.Vector3} vertex The vertex within settings.snap_distance of the mouse
+             * @param {Number} index The index of the vertex
+             * @param {THREE.Mesh} object The closest object to the camera that THREE.Ray returned
+             */
             surface.hover = function (vertex, index, object) {
                 if (hover_group) surface_top_group.remove(hover_group);
                 hover_group = new THREE.Object3D();
@@ -355,43 +441,69 @@ $.register_module({
                         zto   = ((x_segments + 1) * (y_segments + 1)) - (x_segments - zfrom);
                     for (x = xfrom; x < xto; x++) xvertices.push(object.geometry.vertices[x]);
                     for (z = zfrom; z < zto; z += x_segments + 1) zvertices.push(object.geometry.vertices[z]);
+                    hud.set_volatility(config.vol[index]);
                     // top lines
-                    hover_group.add(surface.create_tube(xvertices));
-                    hover_group.add(surface.create_tube(zvertices));
+                    hover_group.add(new Tube(xvertices));
+                    hover_group.add(new Tube(zvertices));
                     // bottom lines
                     xvertices_bottom.push(xvertices[0].clone(), xvertices[xvertices.length-1].clone());
                     xvertices_bottom[0].y = xvertices_bottom[1].y = -settings.floating_height;
                     zvertices_bottom.push(zvertices[0].clone(), zvertices[zvertices.length-1].clone());
                     zvertices_bottom[0].y = zvertices_bottom[1].y = -settings.floating_height;
-                    hover_group.add(surface.create_tube(xvertices_bottom));
-                    hover_group.add(surface.create_tube(zvertices_bottom));
+                    hover_group.add(new Tube(xvertices_bottom));
+                    hover_group.add(new Tube(zvertices_bottom));
                     // labels
                     ['x', 'z'].forEach(function (val) {
                         var lbl_arr = config[val + 's_labels'] || config[val + 's'],
                             txt = val === 'x'
                                 ? lbl_arr[index % (x_segments + 1)]
                                 : lbl_arr[~~(index / (x_segments + 1))],
-                            lbl = new Text(txt, settings.interactive_color_css, settings.font_size_interactive_labels),
-                            vertices = val === 'x' ? zvertices : xvertices;
-                        lbl.scale.set(0.1, 0.1, 0.1);
-                        lbl.position.y = -settings.floating_height + 1.1;
+                            scale = '0.1', group = new THREE.Object3D(),
+                            width = THREE.FontUtils.drawText(txt).offset,
+                            offset, lbl, vertices;
+                        // create label
+                        offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
+                        lbl = new Text3D(txt, settings.interactive_color_nix,
+                            settings.font_size_interactive_labels, settings.font_height_interactive_labels);
+                        vertices = val === 'x' ? zvertices : xvertices;
+                        group.add(lbl);
+                        // create box
+                        (function () {
+                            var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
+                                box_width = txt_width * 3,
+                                box = new THREE.CubeGeometry(box_width, height, 4, 4, 1, 1),
+                                material = new THREE.MeshPhongMaterial({color: 0xffffff, shading: THREE.SmoothShading}),
+                                mesh = new THREE.Mesh(box, material);
+                            mesh.position.x = (box_width / 2) - (txt_width / 2);
+                            mesh.position.y = 20;
+                            // create the tail by moving the 2 center vertices closes to the surface
+                            mesh.geometry.vertices.filter(function (val) {
+                                return (val.x === 0 && val.y === height / 2)
+                            }).forEach(function (vertex) {vertex.y = height});
+                            group.add(mesh);
+                        }());
+                        // position / rotation
+                        group.scale.set(scale, scale, scale);
+                        group.position.y = -settings.floating_height + 1.1;
+                        group.rotation.x = -Math.PI * .5;
                         if (val === 'x') {
-                            lbl.position.x = vertices[0][val];
-                            lbl.position.z = (settings.surface_z / 2) + 13;
+                            group.position.x = vertices[0][val] - offset;
+                            group.position.z = (settings.surface_z / 2) + 13;
                         }
                         if (val === 'z') {
-                            lbl.position.x = -((settings.surface_x / 2) + 13);
-                            lbl.position.z = vertices[0][val];
-                            lbl.rotation.y = -1.57;
+                            group.position.x = -((settings.surface_x / 2) + 12);
+                            group.position.z = vertices[0][val] - offset;
+                            group.rotation.z = -Math.PI * .5;
                         }
-                        hover_group.add(lbl);
+                        hover_group.add(group);
                     });
                 }());
                 surface_top_group.add(hover_group);
             };
             /**
-             * On mouse move determin the mouse position in 3D space,
-             * snap vertex_sphere to a vertex if its within settings.snap_distance
+             * On mouse move determin if the mouse position, translated to 3D space, is within settings.snap_distance
+             * from any vertex on the surface, if so, call surface.hover, otherwise remove the hover group
+             * @return {THREE.Object3D} return the surface to allow method chaining
              */
             surface.interactive = function () {
                 var mouse = {x: 0, y: 0}, intersected, projector = new THREE.Projector();
@@ -419,6 +531,7 @@ $.register_module({
                         if (hover_group) surface_top_group.remove(hover_group);
                         vertex_sphere.visible = false;
                         intersected = null;
+                        hud.set_volatility();
                     }
                     renderer.render(scene, camera);
                 });
@@ -430,7 +543,7 @@ $.register_module({
                 projector = new THREE.Projector();
                 vertex_sphere = surface.vertex_sphere();
                 // create lights
-                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 300);
+                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
                 backlight.position.set(-150, 150, -200).normalize();
                 keylight = new THREE.DirectionalLight(0xfffaf2, 0.6, 300);
                 keylight.position.set(-150, 150, 150).normalize();
@@ -441,14 +554,15 @@ $.register_module({
                 surface_top_group.add(surface.create_surface());
                 surface_top_group.add(vertex_sphere);
                 surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_bottom_group.add(surface.create_floor());
                 if (webgl) surface_bottom_group.add(surface.create_axes());
                 animation_group.add(surface_top_group);
                 animation_group.add(surface_bottom_group);
+                animation_group.add(backlight);
+                animation_group.add(filllight);
+                animation_group.add(keylight);
                 scene = new THREE.Scene();
                 scene.add(animation_group);
-                scene.add(backlight);
-                scene.add(keylight);
-                scene.add(filllight);
                 scene.add(camera);
                 // positions & rotations
                 surface_top_group.position.y = settings.floating_height;
@@ -462,9 +576,18 @@ $.register_module({
                 renderer.setSize(width, height);
                 renderer.render(scene, camera);
                 $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
+                hud.load();
                 return surface;
             };
-            surface.resize = function () {surface.load();};
+            surface.resize = function () {
+                width = $selector.width();
+                height = $selector.height();
+                $selector.find('> canvas').css({width: width, height: height});
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+                renderer.render(scene, camera);
+            };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
                     new THREE.SphereGeometry(1.5, 10, 10),
