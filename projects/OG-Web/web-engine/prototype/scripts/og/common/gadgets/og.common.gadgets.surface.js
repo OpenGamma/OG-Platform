@@ -104,13 +104,10 @@ $.register_module({
          */
         util.thin = function (arr, nth) {
             if (!nth || nth === 1) return arr;
-            var i, result = [], len = arr.length;
-            result.push(arr[0]); // add first
-            for (i = 0; i < len; i+=nth) // add every nth letter (except the first one and the last two)
-                if (!(i === 0 || i === len -1 ||  i === len -2))
-                    result.push(arr[i]);
-            result.push(arr[len - 1]); // add last
-            return result;
+            var len = arr.length;
+            return arr.filter(function (val, i) {
+                return ((i === 0) || !(i % nth) || (i === (len -1))) || (i === (len -2)) && false
+            });
         };
         /**
          * Creates a surface gadget
