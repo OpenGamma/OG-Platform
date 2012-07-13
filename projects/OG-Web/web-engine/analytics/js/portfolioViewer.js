@@ -43,11 +43,11 @@
             id : "quantity",
             name : "Quantity",
             field : "quantity",
-            width : 60,
+            width : 80,
             formatter : formatQuantity
           }
         ];
-      var gridColumns = SlickGridHelper.makeGridColumns(self, leadingColumns, _portfolioDetails.columns, 110, _userConfig);
+      var gridColumns = SlickGridHelper.makeGridColumns(self, leadingColumns, _portfolioDetails.columns, 120, _userConfig);
       
       var gridOptions = {
           enableAddRow: false,
