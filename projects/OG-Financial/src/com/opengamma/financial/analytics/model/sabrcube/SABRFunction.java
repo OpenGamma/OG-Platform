@@ -173,6 +173,13 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getCubeRequirement(cubeName, currency, fittingMethod));
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Set<ValueRequirement> timeSeriesRequirements = getConverter()
+        .getConversionTimeSeriesRequirements(security, security.accept(getVisitor()), curveCalculationConfig.getYieldCurveNames()); //TODO
+    if (timeSeriesRequirements == null) {
+      return null;
+    }
+    requirements.addAll(timeSeriesRequirements);
     return requirements;
   }
 

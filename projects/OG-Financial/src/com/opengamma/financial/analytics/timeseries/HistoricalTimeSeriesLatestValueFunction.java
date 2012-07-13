@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -23,12 +25,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function to source the latest time series data point from a {@link HistoricalTimeSeriesSource} attached to the execution context.
  */
 public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.NonCompiledInvoker {
 
+  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -39,7 +43,7 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
-      value = htsa.adjust((Double) value);
+      value = htsa.adjust(((Pair<LocalDate, Double>) value).getValue());
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), value));
   }

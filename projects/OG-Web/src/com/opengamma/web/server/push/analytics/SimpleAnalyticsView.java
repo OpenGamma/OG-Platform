@@ -36,17 +36,15 @@ import com.opengamma.util.ArgumentChecker;
 
   public SimpleAnalyticsView(AnalyticsViewListener listener,
                              String portoflioGridId,
-                             String portoflioColumnsId,
                              String primitivesGridId,
-                             String primitivesColumnsId,
                              ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(portoflioGridId, "portoflioGridId");
     ArgumentChecker.notNull(primitivesGridId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _targetResolver = targetResolver;
-    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, portoflioColumnsId, _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, primitivesColumnsId, targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.emptyPortfolio(portoflioGridId, _targetResolver);
+    _primitivesGrid = MainAnalyticsGrid.emptyPrimitives(primitivesGridId, targetResolver);
     _listener = listener;
   }
 
@@ -54,14 +52,8 @@ import com.opengamma.util.ArgumentChecker;
   public void updateStructure(CompiledViewDefinition compiledViewDefinition) {
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
-    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition,
-                                                 _portfolioGrid.getGridId(),
-                                                 _portfolioGrid.getColumnsId(),
-                                                 _targetResolver);
-    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition,
-                                                   _primitivesGrid.getGridId(),
-                                                   _portfolioGrid.getColumnsId(),
-                                                   _targetResolver);
+    _portfolioGrid = MainAnalyticsGrid.portfolio(_compiledViewDefinition, _portfolioGrid.getGridId(), _targetResolver);
+    _primitivesGrid = MainAnalyticsGrid.primitives(_compiledViewDefinition, _primitivesGrid.getGridId(), _targetResolver);
     List<String> gridIds = new ArrayList<String>();
     gridIds.add(_portfolioGrid.getGridId());
     gridIds.add(_primitivesGrid.getGridId());
@@ -74,12 +66,6 @@ import com.opengamma.util.ArgumentChecker;
   public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
     _history.addResults(results);
     List<String> updatedIds = new ArrayList<String>();
-    if (_portfolioGrid.setColumnTypes(results)) {
-      updatedIds.add(_portfolioGrid.getColumnsId());
-    }
-    if (_primitivesGrid.setColumnTypes(results)) {
-      updatedIds.add(_primitivesGrid.getColumnsId());
-    }
     _portfolioGrid.updateResults(results, _history, viewCycle);
     _primitivesGrid.updateResults(results, _history, viewCycle);
     updatedIds.addAll(_portfolioGrid.getViewportDataIds());

@@ -107,7 +107,8 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY", "SECONDARY")));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(),
+        Arrays.asList("Discounting-Discounting", "Discounting", "Discounting")));
   }
 
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {

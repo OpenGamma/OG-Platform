@@ -50,7 +50,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
 
   private CurrencyMatrix _currencyMatrix;
 
-  public PnlSeriesCurrencyConversionFunction(String currencyMatrixName) {
+  public PnlSeriesCurrencyConversionFunction(final String currencyMatrixName) {
     _currencyMatrixName = currencyMatrixName;
   }
 
@@ -67,9 +67,9 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   }
 
   @Override
-  public void init(FunctionCompilationContext context) {
+  public void init(final FunctionCompilationContext context) {
     super.init(context);
-    CurrencyMatrix matrix = OpenGammaCompilationContext.getCurrencyMatrixSource(context).getCurrencyMatrix(getCurrencyMatrixName());
+    final CurrencyMatrix matrix = OpenGammaCompilationContext.getCurrencyMatrixSource(context).getCurrencyMatrix(getCurrencyMatrixName());
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
@@ -79,15 +79,15 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputedValue originalPnlSeriesComputedValue = inputs.getComputedValue(ValueRequirementNames.PNL_SERIES);
     final HistoricalTimeSeries conversionTS = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    LocalDateDoubleTimeSeries originalPnlSeries = (LocalDateDoubleTimeSeries) originalPnlSeriesComputedValue.getValue();
-    Currency originalCurrency = Currency.of(originalPnlSeriesComputedValue.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
-    ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    String desiredCurrencyCode = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
-    Currency desiredCurrency = Currency.of(desiredCurrencyCode);
-    LocalDateDoubleTimeSeries fxSeries = convertSeries(originalPnlSeries, conversionTS, originalCurrency, desiredCurrency);
+    final LocalDateDoubleTimeSeries originalPnlSeries = (LocalDateDoubleTimeSeries) originalPnlSeriesComputedValue.getValue();
+    final Currency originalCurrency = Currency.of(originalPnlSeriesComputedValue.getSpecification().getProperty(ValuePropertyNames.CURRENCY));
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+    final String desiredCurrencyCode = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
+    final Currency desiredCurrency = Currency.of(desiredCurrencyCode);
+    final LocalDateDoubleTimeSeries fxSeries = convertSeries(originalPnlSeries, conversionTS, originalCurrency, desiredCurrency);
     return ImmutableSet.of(new ComputedValue(getValueSpec(originalPnlSeriesComputedValue.getSpecification(), desiredCurrencyCode), fxSeries));
   }
 
@@ -97,17 +97,17 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return getCurrencyMatrix() != null;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.size() != 1) {
       return null;
     }
-    ValueProperties constraints = desiredValue.getConstraints().copy()
+    final ValueProperties constraints = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.CURRENCY).withAny(ValuePropertyNames.CURRENCY)
         .with(CONVERSION_CCY_PROPERTY, Iterables.getOnlyElement(desiredCurrencyValues))
         .withOptional(CONVERSION_CCY_PROPERTY).get();
@@ -115,9 +115,9 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-    ValueRequirement inputRequirement = Iterables.getOnlyElement(inputs.values());
-    ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueRequirement inputRequirement = Iterables.getOnlyElement(inputs.values());
+    final ValueSpecification inputSpec = Iterables.getOnlyElement(inputs.keySet());
     return ImmutableSet.of(getValueSpec(inputSpec, inputRequirement.getConstraint(CONVERSION_CCY_PROPERTY)));
   }
 
@@ -134,8 +134,8 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
 
   protected abstract ValueSpecification getValueSpec(ValueSpecification inputSpec, String currencyCode);
 
-  private LocalDateDoubleTimeSeries convertSeries(LocalDateDoubleTimeSeries sourceTs, HistoricalTimeSeries conversionTS, Currency sourceCurrency, Currency targetCurrency) {
-    CurrencyMatrixValue fxConversion = getCurrencyMatrix().getConversion(sourceCurrency, targetCurrency);
+  private LocalDateDoubleTimeSeries convertSeries(final LocalDateDoubleTimeSeries sourceTs, final HistoricalTimeSeries conversionTS, final Currency sourceCurrency, final Currency targetCurrency) {
+    final CurrencyMatrixValue fxConversion = getCurrencyMatrix().getConversion(sourceCurrency, targetCurrency);
     return fxConversion.accept(new TimeSeriesCurrencyConverter(sourceTs, conversionTS));
   }
 
@@ -145,7 +145,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     private final LocalDateDoubleTimeSeries _baseTs;
     private final HistoricalTimeSeries _conversionTS;
 
-    public TimeSeriesCurrencyConverter(LocalDateDoubleTimeSeries baseTs, HistoricalTimeSeries conversionTS) {
+    public TimeSeriesCurrencyConverter(final LocalDateDoubleTimeSeries baseTs, final HistoricalTimeSeries conversionTS) {
       _baseTs = baseTs;
       _conversionTS = conversionTS;
     }
@@ -159,17 +159,17 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     }
 
     @Override
-    public LocalDateDoubleTimeSeries visitFixed(CurrencyMatrixFixed fixedValue) {
-      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(fixedValue.getFixedValue());
+    public LocalDateDoubleTimeSeries visitFixed(final CurrencyMatrixFixed fixedValue) {
+      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().divide(fixedValue.getFixedValue());
     }
 
     @Override
-    public LocalDateDoubleTimeSeries visitValueRequirement(CurrencyMatrixValueRequirement uniqueId) {
-      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().multiply(getConversionTimeSeries().getTimeSeries());
+    public LocalDateDoubleTimeSeries visitValueRequirement(final CurrencyMatrixValueRequirement uniqueId) {
+      return (LocalDateDoubleTimeSeries) getBaseTimeSeries().divide(getConversionTimeSeries().getTimeSeries());
     }
 
     @Override
-    public LocalDateDoubleTimeSeries visitCross(CurrencyMatrixCross cross) {
+    public LocalDateDoubleTimeSeries visitCross(final CurrencyMatrixCross cross) {
       // TODO
       throw new UnsupportedOperationException();
     }
@@ -180,7 +180,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
 
     private final HistoricalTimeSeriesResolver _timeSeriesResolver;
 
-    public TimeSeriesCurrencyConversionRequirements(HistoricalTimeSeriesResolver timeSeriesResolver) {
+    public TimeSeriesCurrencyConversionRequirements(final HistoricalTimeSeriesResolver timeSeriesResolver) {
       _timeSeriesResolver = timeSeriesResolver;
     }
 
@@ -189,14 +189,14 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     }
 
     @Override
-    public Set<ValueRequirement> visitFixed(CurrencyMatrixFixed fixedValue) {
+    public Set<ValueRequirement> visitFixed(final CurrencyMatrixFixed fixedValue) {
       return Collections.emptySet();
     }
 
     @Override
-    public Set<ValueRequirement> visitValueRequirement(CurrencyMatrixValueRequirement uniqueId) {
-      ValueRequirement requirement = uniqueId.getValueRequirement();
-      ExternalId targetId = requirement.getTargetSpecification().getIdentifier();
+    public Set<ValueRequirement> visitValueRequirement(final CurrencyMatrixValueRequirement uniqueId) {
+      final ValueRequirement requirement = uniqueId.getValueRequirement();
+      final ExternalId targetId = requirement.getTargetSpecification().getIdentifier();
       final HistoricalTimeSeriesResolutionResult timeSeries = getTimeSeriesResolver().resolve(targetId.toBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         return null;
@@ -207,7 +207,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     }
 
     @Override
-    public Set<ValueRequirement> visitCross(CurrencyMatrixCross cross) {
+    public Set<ValueRequirement> visitCross(final CurrencyMatrixCross cross) {
       // TODO
       throw new UnsupportedOperationException();
     }

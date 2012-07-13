@@ -7,7 +7,6 @@ package com.opengamma.web.server.push.analytics;
 
 import java.util.Set;
 
-import com.google.common.base.Objects;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.util.ArgumentChecker;
@@ -20,16 +19,21 @@ public class AnalyticsColumn {
 
   private final String _header;
   private final String _description;
+  private final Class<?> _type;
 
-  private Class<?> _type;
-
-  public AnalyticsColumn(String header, String description) {
+  public AnalyticsColumn(String header, String description, Class<?> type) {
+    ArgumentChecker.notNull(header, "header");
     _header = header;
-    _description = description;
+    if (description != null) {
+      _description = description;
+    } else {
+      _description = header;
+    }
+    _type = type;
   }
 
-  public static AnalyticsColumn forKey(RequirementBasedColumnKey key) {
-    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()));
+  public static AnalyticsColumn forKey(RequirementBasedColumnKey key, Class<?> columnType) {
+    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType);
   }
 
   /* package */ String getHeader() {
@@ -42,20 +46,6 @@ public class AnalyticsColumn {
 
   public Class<?> getType() {
     return _type;
-  }
-
-  /**
-   * Sets the type of this column's data. This is necessary because the type of data produced for a requirement isn't
-   * known when the view compiles and the initial grid structure is built. The type can only be inferred from the type
-   * of the values in the first set of results.
-   * @param type The type of the column's data, not null
-   * @return {@code true} if the type was updated
-   */
-  public boolean setType(Class<?> type) {
-    ArgumentChecker.notNull(type, "type");
-    boolean updated = !Objects.equal(_type, type);
-    _type = type;
-    return updated;
   }
 
   private static String createHeader(RequirementBasedColumnKey columnKey) {

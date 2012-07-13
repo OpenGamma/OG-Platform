@@ -15,7 +15,6 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
@@ -30,11 +29,7 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security,
       final ComputationTarget target, final String curveCalculationConfigName, final String currency) {
-    Double presentValue = CALCULATOR.visit(derivative, bundle);
-    if (security instanceof BondSecurity) {
-      final BondSecurity bondSec = (BondSecurity) security;
-      presentValue *= bondSec.getParAmount();
-    }
+    final Double presentValue = CALCULATOR.visit(derivative, bundle);
     return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency), presentValue));
   }
 

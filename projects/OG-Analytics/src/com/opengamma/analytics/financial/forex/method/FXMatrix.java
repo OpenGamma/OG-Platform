@@ -5,11 +5,14 @@
  */
 package com.opengamma.analytics.financial.forex.method;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -29,16 +32,32 @@ public class FXMatrix {
    * (the rate _fxRate[1][0] will be computed from _fxRate[0][1] when the object is constructed or updated).
    * All the element of the matrix are meaningful and coherent (the matrix is always completed in a coherent way when a currency is added or a rate updated).
    */
-  private double[][] _fxrates;
+  private double[][] _fxRates;
+  /**
+   * The number of currencies.
+   */
   private int _nbCurrencies;
 
   /**
-   * Constructor. The FXMatrix constructed has no currency and no fx rates.
+   * Constructor with no currency. The FXMatrix constructed has no currency and no fx rates.
    */
   public FXMatrix() {
     _currencies = new HashMap<Currency, Integer>();
-    _fxrates = new double[0][0];
+    _fxRates = new double[0][0];
     _nbCurrencies = 0;
+  }
+
+  /**
+   * Constructor with one currency. The FXMatrix has one currency with a 1.0 exchange rate to itself.
+   * @param ccy The currency.
+   */
+  public FXMatrix(final Currency ccy) {
+    ArgumentChecker.notNull(ccy, "Currency");
+    _currencies = new HashMap<Currency, Integer>();
+    _currencies.put(ccy, 0);
+    _fxRates = new double[1][1];
+    _fxRates[0][0] = 1.0;
+    _nbCurrencies = 1;
   }
 
   /**
@@ -49,8 +68,22 @@ public class FXMatrix {
    */
   public FXMatrix(final Currency ccy1, final Currency ccy2, final double fxRate) {
     _currencies = new HashMap<Currency, Integer>();
-    _fxrates = new double[0][0];
+    _fxRates = new double[0][0];
     this.addCurrency(ccy1, ccy2, fxRate);
+  }
+
+  /**
+   * Constructor from an existing FXMatrix. A new map and array are created. 
+   * @param fxMatrix The FXMatrix.
+   */
+  public FXMatrix(final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(fxMatrix, "FXMatrix");
+    _nbCurrencies = fxMatrix._nbCurrencies;
+    _currencies = new HashMap<Currency, Integer>(fxMatrix._currencies);
+    _fxRates = new double[_nbCurrencies][];
+    for (int loopc = 0; loopc < _nbCurrencies; loopc++) {
+      _fxRates[loopc] = fxMatrix._fxRates[loopc].clone();
+    }
   }
 
   /**
@@ -68,11 +101,11 @@ public class FXMatrix {
     if (_nbCurrencies == 0) { // FX Matrix is empty. 
       _currencies.put(ccyReference, 0);
       _currencies.put(ccyToAdd, 1);
-      _fxrates = new double[2][2];
-      _fxrates[0][0] = 1.0;
-      _fxrates[1][1] = 1.0;
-      _fxrates[1][0] = fxRate;
-      _fxrates[0][1] = 1.0 / fxRate;
+      _fxRates = new double[2][2];
+      _fxRates[0][0] = 1.0;
+      _fxRates[1][1] = 1.0;
+      _fxRates[1][0] = fxRate;
+      _fxRates[0][1] = 1.0 / fxRate;
       _nbCurrencies = 2;
     } else {
       Validate.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
@@ -82,15 +115,15 @@ public class FXMatrix {
       double[][] fxRatesNew = new double[_nbCurrencies][_nbCurrencies];
       // Copy the previous matrix
       for (int loopccy = 0; loopccy < _nbCurrencies - 1; loopccy++) {
-        System.arraycopy(_fxrates[loopccy], 0, fxRatesNew[loopccy], 0, _nbCurrencies - 1);
+        System.arraycopy(_fxRates[loopccy], 0, fxRatesNew[loopccy], 0, _nbCurrencies - 1);
       }
       fxRatesNew[_nbCurrencies - 1][_nbCurrencies - 1] = 1.0;
       int indexRef = _currencies.get(ccyReference);
       for (int loopccy = 0; loopccy < _nbCurrencies - 1; loopccy++) {
-        fxRatesNew[_nbCurrencies - 1][loopccy] = fxRate * _fxrates[indexRef][loopccy];
+        fxRatesNew[_nbCurrencies - 1][loopccy] = fxRate * _fxRates[indexRef][loopccy];
         fxRatesNew[loopccy][_nbCurrencies - 1] = 1.0 / fxRatesNew[_nbCurrencies - 1][loopccy];
       }
-      _fxrates = fxRatesNew;
+      _fxRates = fxRatesNew;
     }
   }
 
@@ -105,7 +138,7 @@ public class FXMatrix {
     Integer index2 = _currencies.get(ccy2);
     Validate.notNull(index1, "Currency 1 not in the FX Matrix.");
     Validate.notNull(index2, "Currency 2 not in the FX Matrix.");
-    return _fxrates[index1][index2];
+    return _fxRates[index1][index2];
   }
 
   /**
@@ -136,10 +169,44 @@ public class FXMatrix {
     int indexUpdate = _currencies.get(ccyToUpdate);
     int indexRef = _currencies.get(ccyReference);
     for (int loopccy = 0; loopccy < _nbCurrencies; loopccy++) {
-      _fxrates[indexUpdate][loopccy] = fxRate * _fxrates[indexRef][loopccy];
-      _fxrates[loopccy][indexUpdate] = 1.0 / _fxrates[indexUpdate][loopccy];
+      _fxRates[indexUpdate][loopccy] = fxRate * _fxRates[indexRef][loopccy];
+      _fxRates[loopccy][indexUpdate] = 1.0 / _fxRates[indexUpdate][loopccy];
     }
-    _fxrates[indexUpdate][indexUpdate] = 1.0;
+    _fxRates[indexUpdate][indexUpdate] = 1.0;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _currencies.hashCode();
+    result = prime * result + Arrays.hashCode(_fxRates);
+    result = prime * result + _nbCurrencies;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    FXMatrix other = (FXMatrix) obj;
+    if (!ObjectUtils.equals(_currencies, other._currencies)) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_fxRates, other._fxRates)) {
+      return false;
+    }
+    if (_nbCurrencies != other._nbCurrencies) {
+      return false;
+    }
+    return true;
   }
 
 }

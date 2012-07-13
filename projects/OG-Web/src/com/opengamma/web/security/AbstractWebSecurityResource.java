@@ -186,6 +186,9 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       }
 
     }
+    if (security.getSecurityType().equals(RawSecurity.UNSUPPORTED_SECURITY_TYPE)) {
+      out.put("securityAttributes", security.getAttributes());
+    }
     if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
       RawSecurity rawSecurity = (RawSecurity) security;
       FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());

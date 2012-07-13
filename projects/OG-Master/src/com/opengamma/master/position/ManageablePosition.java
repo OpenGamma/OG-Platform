@@ -271,6 +271,12 @@ public class ManageablePosition extends DirectBean
     sp.setSecurityLink(this.getSecurityLink());
     sp.getTrades().addAll(getTrades());
     sp.setAttributes(this.getAttributes());
+    
+    // Workaround for PLAT-2371 until PLAT-2286
+    if (this.getProviderId() != null) {
+      sp.addAttribute(this.providerId().name(), this.getProviderId().toString());
+    }
+    
     return sp;
   }
 

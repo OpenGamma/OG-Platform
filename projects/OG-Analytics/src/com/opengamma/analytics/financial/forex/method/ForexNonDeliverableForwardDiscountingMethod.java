@@ -52,7 +52,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
    * @param curves The curve bundle (with FX rates).
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final ForexNonDeliverableForward ndf, final YieldCurveWithFXBundle curves) {
+  public MultipleCurrencyAmount presentValue(final ForexNonDeliverableForward ndf, final YieldCurveBundle curves) {
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
     double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
@@ -63,8 +63,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
   @Override
   public MultipleCurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Derivative should be ForexNonDeliverableForward");
-    Validate.isTrue(curves instanceof YieldCurveWithFXBundle, "Bundle should contain FX rate");
-    return presentValue((ForexNonDeliverableForward) instrument, (YieldCurveWithFXBundle) curves);
+    return presentValue((ForexNonDeliverableForward) instrument, curves);
   }
 
   /**
@@ -96,7 +95,7 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
    * @param curves The curve bundle (with FX rates).
    * @return The forward rate.
    */
-  public double forwardForexRate(final ForexNonDeliverableForward ndf, final YieldCurveWithFXBundle curves) {
+  public double forwardForexRate(final ForexNonDeliverableForward ndf, final YieldCurveBundle curves) {
     final double dfDelivery = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     final double dfNonDelivery = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
     final double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
@@ -110,11 +109,11 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
    * @return The present value currency exposure.
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexNonDeliverableForward ndf, final YieldCurveBundle curves) {
-    Validate.isTrue(curves instanceof YieldCurveWithFXBundle, "Bundle should contain FX rate");
-    YieldCurveWithFXBundle curvesFX = (YieldCurveWithFXBundle) curves;
+    //    Validate.isTrue(curves instanceof YieldCurveWithFXBundle, "Bundle should contain FX rate");
+    //    YieldCurveWithFXBundle curvesFX = (YieldCurveWithFXBundle) curves;
     double df2 = curves.getCurve(ndf.getDiscountingCurve2Name()).getDiscountFactor(ndf.getPaymentTime());
     double df1 = curves.getCurve(ndf.getDiscountingCurve1Name()).getDiscountFactor(ndf.getPaymentTime());
-    double spot = curvesFX.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
+    double spot = curves.getFxRate(ndf.getCurrency2(), ndf.getCurrency1());
     // Backward sweep
     double pvBar = 1.0;
     double df1Bar = -ndf.getNotionalCurrency2() * ndf.getExchangeRate() / spot * pvBar;

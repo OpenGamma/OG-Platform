@@ -354,6 +354,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineInterpolatorDefaults;
 import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestSecurityValueFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesLatestValueFunction;
 import com.opengamma.financial.analytics.timeseries.YieldCurveHistoricalTimeSeriesFunction;
 import com.opengamma.financial.analytics.timeseries.YieldCurveInstrumentConversionHistoricalTimeSeriesFunction;
@@ -525,6 +526,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addHistoricalDataFunctions(functionConfigs, ValueRequirementNames.DAILY_PRICE);
     functionConfigs.add(functionConfiguration(HistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestValueFunction.class));
+    functionConfigs.add(functionConfiguration(HistoricalTimeSeriesLatestSecurityValueFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
