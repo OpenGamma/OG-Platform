@@ -108,6 +108,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
             }
             valueMap.put(HISTORY_KEY, formattedHistory);
           }
+          rowResults.add(valueMap);
         } else {
           rowResults.add(formattedValue);
         }

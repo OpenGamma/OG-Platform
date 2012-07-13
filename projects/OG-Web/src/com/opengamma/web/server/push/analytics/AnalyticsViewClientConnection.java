@@ -79,6 +79,8 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /* package */ void start() {
     _viewClient.setResultListener(this);
     _viewClient.setViewCycleAccessSupported(true);
+    // TODO enable this when a full cache exists that can continuously apply the deltas
+    //_viewClient.setFragmentResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
       _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
     } catch (Exception e) {
