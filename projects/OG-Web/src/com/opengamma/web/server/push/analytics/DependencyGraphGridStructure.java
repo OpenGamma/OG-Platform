@@ -30,7 +30,6 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   private final AnalyticsNode _root;
 
-  // TODO can set the column types, they're fixed apart from value which can change for each row
   public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
       // fixed column group with one column for the row label
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
