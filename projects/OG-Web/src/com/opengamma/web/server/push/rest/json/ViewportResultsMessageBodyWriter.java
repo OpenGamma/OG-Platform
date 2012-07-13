@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +23,9 @@ import javax.ws.rs.ext.Provider;
 
 import org.json.JSONArray;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.analytics.ViewportResults;
 import com.opengamma.web.server.push.analytics.formatting.ResultsFormatter;
@@ -37,6 +39,7 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
 
   private static final String VALUE_KEY = "v";
   private static final String HISTORY_KEY = "h";
+  private static final String TYPE_KEY = "t";
 
   private final ResultsFormatter _formatter;
 
@@ -72,25 +75,39 @@ public class ViewportResultsMessageBodyWriter implements MessageBodyWriter<Viewp
     List<List<Object>> allResults = Lists.newArrayListWithCapacity(viewportCells.size());
     for (List<ViewportResults.Cell> rowCells : viewportCells) {
       List<Object> rowResults = Lists.newArrayListWithCapacity(rowCells.size());
+      // iterator of column indicies that are in the viewport. will always have the same number of elements as
+      // each row of the results
+      Iterator<Integer> viewportColIterator = results.getViewportSpec().getColumns().iterator();
       for (ViewportResults.Cell cell : rowCells) {
         Object formattedValue;
-        if (cell == null) {
-          formattedValue = "";
+        Object cellValue = cell.getValue();
+        ValueSpecification cellValueSpec = cell.getValueSpecification();
+        if (results.isExpanded()) {
+          formattedValue = _formatter.formatForExpandedDisplay(cellValue, cellValueSpec);
         } else {
-          if (results.isExpanded()) {
-            formattedValue = _formatter.formatForExpandedDisplay(cell.getValue(), cell.getValueSpecification());
-          } else {
-            formattedValue = _formatter.formatForDisplay(cell.getValue(), cell.getValueSpecification());
-          }
+          formattedValue = _formatter.formatForDisplay(cellValue, cellValueSpec);
         }
-        Collection<Object> history = cell == null ? null : cell.getHistory();
-        if (history != null) {
-          List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
-          for (Object historyValue : history) {
-            formattedHistory.add(_formatter.formatForHistory(historyValue, cell.getValueSpecification()));
+        Collection<Object> history = cell.getHistory();
+        // absolute column index in the grid
+        Integer columnIndex = viewportColIterator.next();
+        Class<?> columnType = results.getColumns().getColumn(columnIndex).getType();
+
+        if (columnType == null || history != null) {
+          // if there is history or we need to send type info then we need to send an object, not just the value
+          Map<String, Object> valueMap = Maps.newHashMap();
+          valueMap.put(VALUE_KEY, formattedValue);
+          // if the the column type isn't known then send the type with the value
+          if (columnType == null) {
+            Class<?> cellValueClass = cellValue == null ? null : cellValue.getClass();
+            valueMap.put(TYPE_KEY, _formatter.getFormatType(cellValueClass).name());
           }
-          Map<String, Object> valueWithHistory = ImmutableMap.of(VALUE_KEY, formattedValue, HISTORY_KEY, formattedHistory);
-          rowResults.add(valueWithHistory);
+          if (history != null) {
+            List<Object> formattedHistory = Lists.newArrayListWithCapacity(history.size());
+            for (Object historyValue : history) {
+              formattedHistory.add(_formatter.formatForHistory(historyValue, cellValueSpec));
+            }
+            valueMap.put(HISTORY_KEY, formattedHistory);
+          }
         } else {
           rowResults.add(formattedValue);
         }

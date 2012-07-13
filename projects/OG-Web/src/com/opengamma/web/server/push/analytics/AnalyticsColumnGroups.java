@@ -35,7 +35,7 @@ public class AnalyticsColumnGroups {
     return _columns.size();
   }
 
-  /* package */ AnalyticsColumn getColumn(int index) {
+  public AnalyticsColumn getColumn(int index) {
     return _columns.get(index);
   }
 

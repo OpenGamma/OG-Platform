@@ -22,15 +22,15 @@ import com.google.common.collect.Maps;
  * Maps value names to their types.
  * TODO this is very much a work in progress
  */
-/* package */ class ValueRequirementTypes {
+public class ValueTypes {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ValueRequirementTypes.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ValueTypes.class);
   private static final Map<String, Class<?>> s_valueNameToType = Maps.newHashMap();
 
   static {
     BufferedReader reader = null;
     try {
-      reader = new BufferedReader(new InputStreamReader(ValueRequirementTypes.class.getResourceAsStream(
+      reader = new BufferedReader(new InputStreamReader(ValueTypes.class.getResourceAsStream(
           "ValueRequirementTypes.txt")));
       String line;
       Pattern pattern = Pattern.compile("'(.*)' (.*)");
@@ -90,7 +90,7 @@ import com.google.common.collect.Maps;
     }
   }*/
 
-  /* package */ static Class<?> getTypeForValueName(String valueName) {
+  public static Class<?> getTypeForValueName(String valueName) {
     return s_valueNameToType.get(valueName);
   }
 }

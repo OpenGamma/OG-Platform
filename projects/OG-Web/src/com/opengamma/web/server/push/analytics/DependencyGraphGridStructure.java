@@ -39,7 +39,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
           column("Type"),
           column("Value Name"),
-          column("Value"),
+          column("Value", null),
           column("Function"),
           column("Properties")))));
 
@@ -184,8 +184,11 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   private static AnalyticsColumn column(String header) {
-    // TODO this isn't quite right, the value column can be any type
-    return new AnalyticsColumn(header, header, String.class);
+    return column(header, String.class);
+  }
+
+  private static AnalyticsColumn column(String header, Class<?> type) {
+    return new AnalyticsColumn(header, header, type);
   }
 
   @Override
