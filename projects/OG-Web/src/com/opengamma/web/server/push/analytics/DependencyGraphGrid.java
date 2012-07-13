@@ -5,6 +5,11 @@
  */
 package com.opengamma.web.server.push.analytics;
 
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -64,12 +69,14 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
     return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _history, dataId);
   }
 
-  public void updateResults(ViewCycle cycle, AnalyticsHistory history) {
+  public List<String> updateResults(ViewCycle cycle, AnalyticsHistory history) {
     _latestCycle = cycle;
     _history = history;
+    List<String> updatedIds = Lists.newArrayList();
     for (DependencyGraphViewport viewport : _viewports.values()) {
-      viewport.updateResults(cycle, history);
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cycle, history));
     }
+    return updatedIds;
   }
 
   public void updateViewport(String viewportId,

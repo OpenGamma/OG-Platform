@@ -16,5 +16,7 @@ public interface AnalyticsViewListener {
 
   // TODO columnStructureChanged? rowStructureChanged?
 
+  void gridDataChanged(String dataId);
+
   void gridDataChanged(List<String> dataIds);
 }
