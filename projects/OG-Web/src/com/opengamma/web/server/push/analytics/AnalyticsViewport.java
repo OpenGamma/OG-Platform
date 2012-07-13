@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ abstract class AnalyticsViewport {
 
-  private final String _dataId;
+  protected final String _dataId;
 
   protected ViewportSpecification _viewportSpec;
   protected ViewportResults _latestResults;

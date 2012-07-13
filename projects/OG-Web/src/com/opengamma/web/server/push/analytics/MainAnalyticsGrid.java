@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.value.ValueSpecification;
@@ -71,7 +74,7 @@ import com.opengamma.util.tuple.Pair;
 
   // -------- dependency graph grids --------
 
-  private DependencyGraphGrid getDependencyGraph(String graphId) {
+  /* package */ DependencyGraphGrid getDependencyGraph(String graphId) {
     DependencyGraphGrid grid = _depGraphs.get(graphId);
     if (grid == null) {
       throw new DataNotFoundException("No dependency graph found with ID " + graphId + " for " + _gridType + " grid");
@@ -103,16 +106,18 @@ import com.opengamma.util.tuple.Pair;
     getViewport(viewportId).update(viewportSpecification, _latestResults, _history);
   }
 
-  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
+  /* package */ List<String> updateResults(ViewResultModel results, AnalyticsHistory history, ViewCycle cycle) {
     _latestResults = results;
     _history = history;
     _cycle = cycle;
+    List<String> updatedIds = Lists.newArrayList();
     for (MainGridViewport viewport : _viewports.values()) {
-      viewport.updateResults(results, history);
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(results, history));
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
-      grid.updateResults(cycle, history);
+      updatedIds.addAll(grid.updateResults(cycle, history));
     }
+    return updatedIds;
   }
 
   /* package */ void closeDependencyGraph(String graphId) {
@@ -153,14 +158,6 @@ import com.opengamma.util.tuple.Pair;
       gridIds.add(grid.getGridId());
     }
     return gridIds;
-  }
-
-  /* package */ List<String> getDependencyGraphViewportDataIds() {
-    List<String> dataIds = new ArrayList<String>();
-    for (DependencyGraphGrid grid : _depGraphs.values()) {
-      dataIds.addAll(grid.getViewportDataIds());
-    }
-    return dataIds;
   }
 
   @Override

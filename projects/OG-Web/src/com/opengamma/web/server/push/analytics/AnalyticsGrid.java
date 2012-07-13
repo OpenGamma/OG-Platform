@@ -5,9 +5,7 @@
  */
 package com.opengamma.web.server.push.analytics;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
@@ -60,13 +58,5 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ String getGridId() {
     return _gridId;
-  }
-
-  /* package */ List<String> getViewportDataIds() {
-    List<String> dataIds = new ArrayList<String>();
-    for (AnalyticsViewport viewport : _viewports.values()) {
-      dataIds.add(viewport.getDataId());
-    }
-    return dataIds;
   }
 }

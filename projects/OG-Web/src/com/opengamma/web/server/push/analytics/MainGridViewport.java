@@ -31,7 +31,7 @@ public class MainGridViewport extends AnalyticsViewport {
   MainGridViewport(ViewportSpecification viewportSpec,
                    MainGridStructure gridStructure,
                    String dataId,
-                   ViewResultModel latestResults, // TODO these need to be full results
+                   ViewResultModel latestResults,
                    AnalyticsHistory history) {
     super(dataId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
@@ -41,7 +41,10 @@ public class MainGridViewport extends AnalyticsViewport {
 
   // TODO this method makes my head hurt. REFACTOR
   // TODO these need to be delta results
-  /* package */ void updateResults(ViewResultModel results, AnalyticsHistory history) {
+  // TODO results cache built from successive deltas. so new viewports have data without waiting for the cycle to finish
+  // TODO cache should be at the view level so it can be shared with the primitives grid
+  /* package */ String updateResults(ViewResultModel results, AnalyticsHistory history) {
+    boolean updated = false;
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
@@ -58,11 +61,10 @@ public class MainGridViewport extends AnalyticsViewport {
             for (ValueRequirement req : valueReqs) {
               int colIndex = _gridStructure.getColumnIndexForRequirement(calcConfigName, req);
               Object resultValue = result.getValue();
-              // TODO this stinks - column types are known when the first results arrive but aren't updated without a viewport
               if (_viewportSpec.getColumns().contains(colIndex)) {
                 Collection<Object> valueHistory = history.getHistory(calcConfigName, valueSpec, resultValue);
                 ViewportResults.Cell cell = ViewportResults.valueCell(resultValue, valueSpec, valueHistory);
-                // TODO set a flag to say something has changed in the viewport?
+                updated = true;
                 rowResultsMap.put(colIndex, cell);
               }
             }
@@ -78,13 +80,22 @@ public class MainGridViewport extends AnalyticsViewport {
       for (int colIndex = 1; colIndex < _gridStructure.getColumnCount(); colIndex++) {
         if (_viewportSpec.getColumns().contains(colIndex)) {
           // this intentionally inserts null into the results if there is no value for a given column
-          rowResults.add(rowResultsMap.get(colIndex));
+          ViewportResults.Cell cell = rowResultsMap.get(colIndex);
+          if (cell != null) {
+            rowResults.add(cell);
+          } else {
+            rowResults.add(ViewportResults.emptyCell());
+          }
         }
       }
       allResults.add(rowResults);
     }
-    // TODO support delta results, merge new results with existing
-    _latestResults = new ViewportResults(allResults, _viewportSpec.isExpanded());
+    _latestResults = new ViewportResults(allResults, _viewportSpec, _gridStructure.getColumnStructure());
+    if (updated) {
+      return _dataId;
+    } else {
+      return null;
+    }
   }
 
   public void update(ViewportSpecification viewportSpec, ViewResultModel results, AnalyticsHistory history) {

@@ -22,6 +22,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_MIC_PRIM_EXCH;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_CONT_SIZE;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.Collections;
@@ -102,7 +103,7 @@ public class BondFutureLoader extends SecurityLoader {
     String bbgUnique = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     double unitAmount;
     try {
-      unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_VAL_PT));
+      unitAmount = Double.valueOf(fieldData.getString(FIELD_FUT_CONT_SIZE)); // FIELD_FUT_VAL_PT 
     } catch (NumberFormatException ex) {
       s_logger.warn("FIELD_FUT_VAL_PT does not contain a numeric value (" + fieldData.getString(FIELD_FUT_VAL_PT) + ")");
       return null;

@@ -186,6 +186,11 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, A
   }
 
   @Override
+  public void gridDataChanged(String dataId) {
+    _listener.itemUpdated(dataId);
+  }
+
+  @Override
   public void gridDataChanged(List<String> dataIds) {
     _listener.itemsUpdated(dataIds);
   }

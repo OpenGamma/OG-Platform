@@ -53,7 +53,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     updateResults(cycle, history);
   }
 
-  /* package */ void updateResults(ViewCycle cycle, AnalyticsHistory history) {
+  /* package */ String updateResults(ViewCycle cycle, AnalyticsHistory history) {
     ComputationCacheQuery query = new ComputationCacheQuery();
     Map<ValueSpecification, Object> resultsMap = Maps.newHashMap();
     query.setCalculationConfigurationName(_calcConfigName);
@@ -67,6 +67,8 @@ public class DependencyGraphViewport extends AnalyticsViewport {
     }
     List<List<ViewportResults.Cell>> gridResults =
         _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, history, _calcConfigName);
-    _latestResults = new ViewportResults(gridResults, _viewportSpec.isExpanded());
+    _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure());
+    // TODO return null if nothing was updated
+    return _dataId;
   }
 }
