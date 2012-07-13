@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.RequirementBasedColumnKey;
 
 /**
@@ -21,8 +22,13 @@ public class AnalyticsColumn {
   private final Class<?> _type;
 
   public AnalyticsColumn(String header, String description, Class<?> type) {
+    ArgumentChecker.notNull(header, "header");
     _header = header;
-    _description = description;
+    if (description != null) {
+      _description = description;
+    } else {
+      _description = header;
+    }
     _type = type;
   }
 
@@ -40,21 +46,6 @@ public class AnalyticsColumn {
 
   public Class<?> getType() {
     return _type;
-  }
-
-  /**
-   * Sets the type of this column's data. This is necessary because the type of data produced for a requirement isn't
-   * known when the view compiles and the initial grid structure is built. The type can only be inferred from the type
-   * of the values in the first set of results.
-   * @param type The type of the column's data, not null
-   * @return {@code true} if the type was updated
-   */
-  public boolean setType(Class<?> type) {
-    throw new UnsupportedOperationException();
-    /*ArgumentChecker.notNull(type, "type");
-    boolean updated = !Objects.equal(_type, type);
-    _type = type;
-    return updated;*/
   }
 
   private static String createHeader(RequirementBasedColumnKey columnKey) {

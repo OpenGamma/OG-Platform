@@ -23,7 +23,8 @@ public interface Formatter<T> {
     LABELLED_MATRIX_2D,
     LABELLED_MATRIX_3D,
     TIME_SERIES,
-    TENOR
+    TENOR,
+    UNKNOWN
   }
 
   Object formatForDisplay(T value, ValueSpecification valueSpec);
