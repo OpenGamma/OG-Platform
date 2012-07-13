@@ -172,7 +172,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
 
       out.put("securityEntryData", securityEntryData);
-      out.put("securityAttributes", security.getAttributes());
       RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
       if (underlyingRawSecurity != null) {
         FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
@@ -185,9 +184,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
         s_logger.error("Couldn't find security");
       }
 
-    }
-    if (security.getSecurityType().equals(RawSecurity.UNSUPPORTED_SECURITY_TYPE)) {
-      out.put("securityAttributes", security.getAttributes());
     }
     if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
       RawSecurity rawSecurity = (RawSecurity) security;
