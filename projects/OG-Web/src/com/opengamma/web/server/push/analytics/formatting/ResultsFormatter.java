@@ -38,6 +38,7 @@ public class ResultsFormatter {
   private final Formatter _nullFormatter = new NullFormatter();
   private final Formatter _defaultFormatter = new DefaultFormatter();
   private final ClassMap<Formatter<?>> _formatters = new ClassMap<Formatter<?>>();
+  private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
   public ResultsFormatter() {
     BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
@@ -81,6 +82,9 @@ public class ResultsFormatter {
   }
 
   private Formatter getFormatterForType(Class<?> type) {
+    if (type == null) {
+      return _unknownTypeFormatter;
+    }
     Formatter formatter = _formatters.get(type);
     if (formatter == null) {
       return _defaultFormatter;

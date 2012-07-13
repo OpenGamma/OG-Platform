@@ -43,10 +43,8 @@ public class AnalyticsColumnsJsonWriter {
         columnMap.put("header", column.getHeader());
         columnMap.put("description", column.getDescription());
         Class<?> columnType = column.getType();
-        if (columnType != null) {
-          String type = _formatter.getFormatName(columnType);
-          columnMap.put("type", type);
-        }
+        String type = _formatter.getFormatName(columnType);
+        columnMap.put("type", type);
         columnList.add(columnMap);
       }
       groupMap.put("columns", columnList);
