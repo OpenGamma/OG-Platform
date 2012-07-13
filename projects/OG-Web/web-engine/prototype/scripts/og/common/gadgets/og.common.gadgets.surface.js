@@ -122,7 +122,7 @@ $.register_module({
             config.zs = tmp_data[config.id].zs;
             config.zs_labels = tmp_data[config.id].zs_labels;
             config.zs_label = tmp_data[config.id].zs_label;
-            var surface = this, hud = {}, selector = config.selector, $selector = $(selector),
+            var gadget = this, surface = {}, hud = {}, selector = config.selector, $selector = $(selector),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
                 surface_top_group = new THREE.Object3D(), // actual surface and anything that needs to be at that y pos
                 surface_bottom_group = new THREE.Object3D(), // the bottom grid, axis etc
@@ -211,6 +211,101 @@ $.register_module({
                 return mesh;
             };
             /**
+             * Tells the resize manager if the gadget is still alive
+             * TODO: set this up
+             */
+            gadget.alive = function () {return true};
+            /**
+             * Rotate the group on mouse drag
+             */
+            gadget.animate = function () {
+                var mousedown = false, sx = 0, sy = 0;
+                $selector
+                    .on('mousedown', function (event) {
+                        mousedown = true, sx = event.clientX, sy = event.clientY;
+                        $(document).on('mouseup.gadget.animate', function () {
+                            mousedown = false;
+                            $(document).off('mouseup.gadget.animate');
+                        });
+                    })
+                    .on('mousemove.gadget.animate', function (event) {
+                        if (!mousedown) return;
+                        var dx = event.clientX - sx, dy = event.clientY - sy;
+                        animation_group.rotation.y += dx * 0.01;
+                        animation_group.rotation.x += dy * 0.01;
+                        renderer.render(scene, camera);
+                        sx += dx, sy += dy;
+                    });
+                return gadget;
+            };
+            /**
+             * Creates floor
+             * @return {THREE.Object3D}
+             */
+            gadget.create_floor = function () {
+                var plane = new THREE.PlaneGeometry(1000, 1000, 10, 10), floor,
+                    materials = [
+                        new THREE.MeshPhongMaterial({
+                            color: 0xffffff, specular: 0xeeeeee, shininess: 0.5, ambient: 0xffff00
+                        }),
+                        new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
+                    ];
+                floor = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
+                floor.position.y = -0.01;
+                return floor;
+            };
+            gadget.load = function () {
+                width = $selector.width(), height = $selector.height();
+                // interaction
+                projector = new THREE.Projector();
+                vertex_sphere = surface.vertex_sphere();
+                // create lights
+                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
+                backlight.position.set(-150, 150, -200).normalize();
+                keylight = new THREE.DirectionalLight(0xfffaf2, 0.6, 300);
+                keylight.position.set(-150, 150, 150).normalize();
+                filllight = new THREE.DirectionalLight(0xfffdf8, 0.6, 500);
+                filllight.position.set(150, 200, 150).normalize();
+                // setup actors / groups & create scene
+                camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
+                surface_top_group.add(surface.create_surface());
+                surface_top_group.add(vertex_sphere);
+                surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_bottom_group.add(gadget.create_floor());
+                if (webgl) surface_bottom_group.add(surface.create_axes());
+                animation_group.add(surface_top_group);
+                animation_group.add(surface_bottom_group);
+                animation_group.add(backlight);
+                animation_group.add(filllight);
+                animation_group.add(keylight);
+                scene = new THREE.Scene();
+                scene.add(animation_group);
+                scene.add(camera);
+                // positions & rotations
+                surface_top_group.position.y = settings.floating_height;
+                animation_group.rotation.y = 0.7;
+                camera.position.x = 0;
+                camera.position.y = 125;
+                camera.position.z = 160;
+                camera.lookAt({x: 0, y: 0, z: 0});
+                // render scene
+                renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
+                renderer.setSize(width, height);
+                renderer.render(scene, camera);
+                $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
+                hud.load();
+                return gadget;
+            };
+            gadget.resize = function () {
+                width = $selector.width();
+                height = $selector.height();
+                $selector.find('> canvas').css({width: width, height: height});
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+                renderer.render(scene, camera);
+            };
+            /**
              * Loads 2D overlay display with options
              */
             hud.load = function () {
@@ -248,30 +343,6 @@ $.register_module({
                 gradient.addColorStop(1, 'hsl(' + min_hue + ', 100%, 50%)');
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, 10, hud.vol_canvas_height);
-            };
-            surface.alive = function () {return true};
-            /**
-             * Rotate the group on mouse drag
-             */
-            surface.animate = function () {
-                var mousedown = false, sx = 0, sy = 0;
-                $selector
-                    .on('mousedown', function (event) {
-                        mousedown = true, sx = event.clientX, sy = event.clientY;
-                        $(document).on('mouseup.surface.animate', function () {
-                            mousedown = false;
-                            $(document).off('mouseup.surface.animate');
-                        });
-                    })
-                    .on('mousemove.surface.animate', function (event) {
-                        if (!mousedown) return;
-                        var dx = event.clientX - sx, dy = event.clientY - sy;
-                        animation_group.rotation.y += dx * 0.01;
-                        animation_group.rotation.x += dy * 0.01;
-                        renderer.render(scene, camera);
-                        sx += dx, sy += dy;
-                    });
-                return surface;
             };
             /**
              * Creates both axes
@@ -359,22 +430,6 @@ $.register_module({
                 mesh = new THREE.Mesh(new Plane(), material);
                 mesh.overdraw = true;
                 return mesh;
-            };
-            /**
-             * Creates floor
-             * @return {THREE.Object3D}
-             */
-            surface.create_floor = function () {
-                var plane = new THREE.PlaneGeometry(1000, 1000, 10, 10), floor,
-                    materials = [
-                        new THREE.MeshPhongMaterial({
-                            color: 0xffffff, specular: 0xeeeeee, shininess: 0.5, ambient: 0xffff00
-                        }),
-                        new THREE.MeshBasicMaterial({color: 0xdddddd, wireframe: true})
-                    ];
-                floor = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
-                floor.position.y = -0.01;
-                return floor;
             };
             /**
              * Create the actual surface
@@ -537,57 +592,6 @@ $.register_module({
                 });
                 return surface;
             };
-            surface.load = function () {
-                width = $selector.width(), height = $selector.height();
-                // interaction
-                projector = new THREE.Projector();
-                vertex_sphere = surface.vertex_sphere();
-                // create lights
-                backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
-                backlight.position.set(-150, 150, -200).normalize();
-                keylight = new THREE.DirectionalLight(0xfffaf2, 0.6, 300);
-                keylight.position.set(-150, 150, 150).normalize();
-                filllight = new THREE.DirectionalLight(0xfffdf8, 0.6, 500);
-                filllight.position.set(150, 200, 150).normalize();
-                // setup actors / groups & create scene
-                camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
-                surface_top_group.add(surface.create_surface());
-                surface_top_group.add(vertex_sphere);
-                surface_bottom_group.add(surface.create_bottom_grid());
-                if (webgl) surface_bottom_group.add(surface.create_floor());
-                if (webgl) surface_bottom_group.add(surface.create_axes());
-                animation_group.add(surface_top_group);
-                animation_group.add(surface_bottom_group);
-                animation_group.add(backlight);
-                animation_group.add(filllight);
-                animation_group.add(keylight);
-                scene = new THREE.Scene();
-                scene.add(animation_group);
-                scene.add(camera);
-                // positions & rotations
-                surface_top_group.position.y = settings.floating_height;
-                animation_group.rotation.y = 0.7;
-                camera.position.x = 0;
-                camera.position.y = 125;
-                camera.position.z = 160;
-                camera.lookAt({x: 0, y: 0, z: 0});
-                // render scene
-                renderer = webgl ? new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
-                renderer.setSize(width, height);
-                renderer.render(scene, camera);
-                $selector.html(renderer.domElement).find('canvas').css({position: 'relative'});
-                hud.load();
-                return surface;
-            };
-            surface.resize = function () {
-                width = $selector.width();
-                height = $selector.height();
-                $selector.find('> canvas').css({width: width, height: height});
-                camera.aspect = width / height;
-                camera.updateProjectionMatrix();
-                renderer.setSize(width, height);
-                renderer.render(scene, camera);
-            };
             surface.vertex_sphere = function () {
                 var sphere = new THREE.Mesh(
                     new THREE.SphereGeometry(1.5, 10, 10),
@@ -597,7 +601,8 @@ $.register_module({
                 return sphere;
             };
             if (!config.child) og.common.gadgets.manager.register(surface);
-            surface.load().animate().interactive();
+            gadget.load().animate();
+            surface.interactive();
         }
     }
 });
