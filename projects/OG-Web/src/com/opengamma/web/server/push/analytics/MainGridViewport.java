@@ -46,6 +46,7 @@ public class MainGridViewport extends AnalyticsViewport {
   /* package */ String updateResults(ViewResultModel results, AnalyticsHistory history) {
     boolean updated = false;
     List<List<ViewportResults.Cell>> allResults = new ArrayList<List<ViewportResults.Cell>>();
+    // iterate over each row in the viewport
     for (Integer rowIndex : _viewportSpec.getRows()) {
       MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
       ComputationTargetSpecification target = row.getTarget();
@@ -76,7 +77,7 @@ public class MainGridViewport extends AnalyticsViewport {
       List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(_viewportSpec.getColumns().size() + 1);
       // row label always goes in the first column
       rowResults.add(ViewportResults.stringCell(rowName));
-      // iterate over all columns in the viewport, updating the result for the row
+      // iterate over all columns in the viewport and populate the results for the current row
       for (int colIndex = 1; colIndex < _gridStructure.getColumnCount(); colIndex++) {
         if (_viewportSpec.getColumns().contains(colIndex)) {
           // this intentionally inserts null into the results if there is no value for a given column
@@ -84,6 +85,7 @@ public class MainGridViewport extends AnalyticsViewport {
           if (cell != null) {
             rowResults.add(cell);
           } else {
+            // TODO look up the previous value in the cache
             rowResults.add(ViewportResults.emptyCell());
           }
         }
