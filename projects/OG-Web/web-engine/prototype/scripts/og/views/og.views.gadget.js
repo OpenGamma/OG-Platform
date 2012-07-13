@@ -18,7 +18,7 @@ $.register_module({
                     source: {
                         type: 'portfolio',
                         depgraph: false,
-                        viewdefinition: 'DbCfg~2194997',
+                        viewdefinition: 'DbCfg~2196860',
                         live: true,
                         provider: 'Live market data (Bloomberg, Activ, TullettPrebon)'
                     }

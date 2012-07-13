@@ -601,16 +601,17 @@ $.register_module({
                         put: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['id', 'rows', 'columns'],
+                                fields = ['view_id', 'viewport_id', 'rows', 'columns'],
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
-                                required: [{all_of: fields}]
+                                required: [{all_of: ['view_id', 'rows', 'columns']}]
                             });
                             meta.type = 'POST';
-                            fields.forEach(function (val, idx) {data[fields[idx]] = config[val];});
+                            data.rows = config.rows;
+                            data.columns = config.columns;
                             data['clientId'] = api.id;
-                            delete data.id;
-                            method[1] = config.id;
+                            method[1] = config.view_id;
+                            if (config.viewport_id) (meta.type = 'PUT'), method.push(config.viewport_id);
                             return request(method, {data: data, meta: meta});
                         },
                         del: not_available.partial('del')

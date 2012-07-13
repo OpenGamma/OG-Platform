@@ -46,40 +46,35 @@ $.register_module({
             var args = Array.prototype.slice.call(arguments, 2);
             grid.events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
         };
+        var format = function (grid, value, type) {
+            return grid.formatter[type] ? grid.formatter[type](value) : value || '&nbsp;';
+        };
         var init_data = function (grid, config) {
             grid.alive = function () {return grid.$(grid.id).length ? true : !grid.elements.style.remove();};
-            grid.elements = {};
+            grid.elements = {empty: true};
             grid.id = '#analytics_grid_' + counter++;
             grid.meta = null;
             grid.resize = set_size.partial(grid, config);
-            (grid.dataman = new og.analytics.Data(config.source)).on('init', init_grid, grid, config);
-        };
-        var init_grid = function (grid, config, metadata) {
-            var $ = grid.$, columns = metadata.columns;
-            grid.events = {mousedown: [], scroll: []};
-            grid.meta = metadata;
-            grid.meta.row_height = row_height;
-            grid.meta.header_height = header_height;
-            grid.meta.fixed_length = grid.meta.columns.fixed
-                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            grid.meta.scroll_length = grid.meta.columns.fixed
-                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            (grid.dataman = new og.analytics.Data(config.source))
+                .on('meta', init_grid, grid, config)
+                .on('data', render_rows, grid);
+            grid.events = {mousedown: [], scroll: [], render: []};
             grid.on = function (type, handler) {
                 if (type in grid.events)
                     grid.events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
             };
+            grid.formatter = new og.analytics.Formatter(grid);
+        };
+        var init_elements = function (grid, config) {
             grid.elements.style = $('<style type="text/css" />').appendTo('head');
-            grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}));
+            grid.elements.parent = $(config.selector).html(templates.container({id: grid.id.substring(1)}))
+                .on('mousedown', function (event) {event.preventDefault(), fire(grid, 'mousedown', event);});
+            grid.elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
             grid.elements.main = $(grid.id);
             grid.elements.fixed_body = $(grid.id + ' .OG-g-b-fixed');
             grid.elements.scroll_body = $(grid.id + ' .OG-g-b-scroll');
             grid.elements.scroll_head = $(grid.id + ' .OG-g-h-scroll');
             grid.elements.fixed_head = $(grid.id + ' .OG-g-h-fixed');
-            grid.elements.parent[0].onselectstart = function () {return false;}; // stop selections in IE
-            grid.elements.parent.on('mousedown', function (event) {
-                event.preventDefault();
-                fire(grid, 'mousedown', event);
-            });
             grid.elements.scroll_body.on('scroll', (function (timeout) {
                 return function (event) { // sync scroll instantaneously and set viewport after scroll stops
                     grid.dataman.busy(true);
@@ -90,9 +85,24 @@ $.register_module({
                 }
             })(null));
             grid.selector = new og.analytics.Selector(grid);
+            grid.elements.empty = false;
+        };
+        var init_grid = function (grid, config, metadata) {
+            var $ = grid.$, columns = metadata.columns;
+            grid.meta = metadata;
+            grid.meta.row_height = row_height;
+            grid.meta.header_height = header_height;
+            grid.meta.fixed_length = grid.meta.columns.fixed
+                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            grid.meta.scroll_length = grid.meta.columns.fixed
+                .reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            grid.meta.columns.types = columns.fixed[0].columns.map(function (col) {return col.type;})
+                .concat(columns.scroll.reduce(function (acc, set) {
+                    return acc.concat(set.columns.map(function (col) {return col.type;}));
+                }, []));
+            if (grid.elements.empty) init_elements(grid, config);
             set_size(grid, config);
             render_header(grid);
-            grid.dataman.on('data', render_rows, grid);
             og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize});
         };
         var render_header = (function () {
@@ -122,15 +132,15 @@ $.register_module({
             };
         })();
         var render_rows = (function () {
-            var row_data = function (meta, data, fixed) {
-                var fixed_length = meta.fixed_length;
+            var row_data = function (grid, data, fixed) {
+                var meta = grid.meta, fixed_length = meta.fixed_length;
                 return data.reduce(function (acc, row, idx) {
                     var slice = fixed ? row.slice(0, fixed_length) : row.slice(fixed_length);
                     acc.rows.push({
                         top: (idx + meta.viewport.abs_rows[0]) * row_height,
                         cells: slice.reduce(function (acc, val, idx) {
-                            return val === null ? acc
-                                : acc.concat({column: fixed ? idx : fixed_length + idx, value: val});
+                            var column = meta.viewport.cols[fixed ? idx : fixed_length + idx];
+                            return acc.concat({column: column, value: format(grid, val, meta.columns.types[column])});
                         }, [])
                     });
                     return acc;
@@ -138,9 +148,10 @@ $.register_module({
             };
             return function (grid, data) {
                 if (grid.dataman.busy()) return;
-                grid.elements.fixed_body.html(templates.row(row_data(grid.meta, data, true)));
-                grid.elements.scroll_body.html(templates.row(row_data(grid.meta, data, false)));
+                grid.elements.fixed_body.html(templates.row(row_data(grid, data, true)));
+                grid.elements.scroll_body.html(templates.row(row_data(grid, data, false)));
                 grid.selector.render();
+                fire(grid, 'render', data);
             };
         })();
         var set_css = function (id, sets, offset) {
