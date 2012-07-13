@@ -93,7 +93,7 @@ public class ResultConverterCache {
     if (converter == null) {
       converter = getConverterForType(valueType);
       _valueNameConverterCache.put(valueName, converter);
-      s_logger.warn("'{}' {}", valueName, valueType.getName());
+      s_logger.info("'{}' {}", valueName, valueType.getName());
     }
     return converter;
   }
