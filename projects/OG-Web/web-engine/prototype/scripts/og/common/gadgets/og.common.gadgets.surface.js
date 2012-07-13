@@ -335,7 +335,7 @@ $.register_module({
                 canvas.width = 10;
                 canvas.height = hud.vol_canvas_height;
                 gradient.addColorStop(0, 'hsl(' + max_hue + ', 100%, 50%)');
-                while (steps--) { // 60 is the number hue increaments before one color starts fading in and another out
+                while (steps--) { // 60: the number of hue increaments before one color starts fading in and another out
                     stop = (steps * 60 / (min_hue / 100)) / 100;
                     gradient.addColorStop(stop, 'hsl(' + steps * 60 + ', 100%, 50%)');
                     gradient.addColorStop(stop, 'hsl(' + steps * 60 + ', 100%, 50%)');
