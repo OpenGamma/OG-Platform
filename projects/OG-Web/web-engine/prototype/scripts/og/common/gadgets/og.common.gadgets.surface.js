@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         var webgl = Detector.webgl ? true : false, util = {}, tmp_data,
             settings = {
+                floating_height: 10, // how high does the top surface float over the bottom grid
                 font_face: 'Arial',
                 font_size: 40,
                 font_size_axis_labels: 70,
@@ -18,14 +19,14 @@ $.register_module({
                 font_color_axis_labels: '0xffffff',
                 interactive_color_nix: '0xff0000',
                 interactive_color_css: '#f00',
+                log10: true,
                 precision: 3, // floating point presions for vol display
                 snap_distance: 3,
                 surface_x: 100,
                 surface_z: 100,
                 surface_y: 35, // the height range of the surface
                 vertex_shading_hue_min: 180,
-                vertex_shading_hue_max: 0,
-                floating_height: 10 // how high does the top surface float over the bottom grid
+                vertex_shading_hue_max: 0
             };
         tmp_data = {
             1: {
@@ -91,7 +92,9 @@ $.register_module({
          * @param {Array} arr
          * @returns {Array}
          */
-        util.log = function (arr) {return arr.map(function (val) {return Math.log(val) / Math.LN10});};
+        util.log = function (arr) {
+            return settings.log10 ? arr.map(function (val) {return Math.log(val) / Math.LN10}) : arr;
+        };
         /**
          * Remove every nth item in Array keeping the first and last,
          * also spesificaly remove the second last (as we want to keep the last)
@@ -124,17 +127,15 @@ $.register_module({
             config.zs_label = tmp_data[config.id].zs_label;
             var gadget = this, surface = {}, hud = {}, selector = config.selector, $selector = $(selector),
                 animation_group = new THREE.Object3D(), // everything in animation_group rotates with mouse drag
-                surface_top_group = new THREE.Object3D(), // actual surface and anything that needs to be at that y pos
-                surface_bottom_group = new THREE.Object3D(), // the bottom grid, axis etc
-                hover_group,   // THREE.Object3D that gets created on hover and destroyed afterward
-                width, height, // selector / canvas width and height
-                vertex_sphere, // the sphere displayed on vertex hover
+                hover_group,          // THREE.Object3D that gets created on hover and destroyed afterward
+                width, height,        // selector / canvas width and height
+                surface_top_group,    // actual surface and anything that needs to be at that y pos
+                surface_bottom_group, // the bottom grid, axis etc
+                surface_group,        // full surface group, including axis
+                vertex_sphere,        // the sphere displayed on vertex hover
                 x_segments = config.xs.length - 1, y_segments = config.zs.length - 1, // surface segments
                 renderer, camera, scene, backlight, keylight, filllight,
-                projector, interactive_meshs = [], // interaction
-                adjusted_vol = util.scale(config.vol, 0, settings.surface_y),
-                adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2),
-                adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
+                adjusted_vol, adjusted_xs, adjusted_zs; // call gadget.init_data to setup
             /**
              * Constructor for plane with correct x / z vertex positions
              * @returns {THREE.PlaneGeometry}
@@ -216,7 +217,7 @@ $.register_module({
              */
             gadget.alive = function () {return true};
             /**
-             * Rotate the group on mouse drag
+             * Rotate the (world) group on mouse drag
              */
             gadget.animate = function () {
                 var mousedown = false, sx = 0, sy = 0;
@@ -254,10 +255,37 @@ $.register_module({
                 floor.position.y = -0.01;
                 return floor;
             };
+            /**
+             * Scale data to fit surface dimentions, apply Log scales if enabled
+             */
+            gadget.init_data = function () {
+                adjusted_vol = util.scale(config.vol, 0, settings.surface_y);
+                adjusted_xs = util.scale(util.log(config.xs), -(settings.surface_x / 2), settings.surface_x / 2);
+                adjusted_zs = util.scale(util.log(config.zs), -(settings.surface_z / 2), settings.surface_z / 2);
+            };
+            /**
+             * Keeps a tally of meshes that need to support raycasting
+             */
+            gadget.interactive_meshes = {
+                add: function (name, mesh) {
+                    var obj = {};
+                    obj[name] = mesh;
+                    gadget.interactive_meshes.obj_arr.push(obj);
+                    gadget.interactive_meshes.meshes.push(mesh);
+                },
+                meshes: [],  // meshes array
+                obj_arr: [], // array of objects {name: mesh}
+                remove: function (name) {
+                    gadget.interactive_meshes.obj_arr.forEach(function (val, i) {
+                        if (!(name in val)) return;
+                        gadget.interactive_meshes.obj_arr.splice(i, 1);
+                        gadget.interactive_meshes.meshes.splice(i, 1);
+                    });
+                }
+            };
             gadget.load = function () {
                 width = $selector.width(), height = $selector.height();
-                // interaction
-                projector = new THREE.Projector();
+                gadget.init_data();
                 vertex_sphere = surface.vertex_sphere();
                 // create lights
                 backlight = new THREE.DirectionalLight(0xf2f6ff, 0.3, 100);
@@ -268,21 +296,14 @@ $.register_module({
                 filllight.position.set(150, 200, 150).normalize();
                 // setup actors / groups & create scene
                 camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000); /* fov, aspect, near, far */
-                surface_top_group.add(surface.create_surface());
-                surface_top_group.add(vertex_sphere);
-                surface_bottom_group.add(surface.create_bottom_grid());
-                if (webgl) surface_bottom_group.add(gadget.create_floor());
-                if (webgl) surface_bottom_group.add(surface.create_axes());
-                animation_group.add(surface_top_group);
-                animation_group.add(surface_bottom_group);
                 animation_group.add(backlight);
                 animation_group.add(filllight);
                 animation_group.add(keylight);
+                animation_group.add(surface.create_surface());
                 scene = new THREE.Scene();
                 scene.add(animation_group);
                 scene.add(camera);
                 // positions & rotations
-                surface_top_group.position.y = settings.floating_height;
                 animation_group.rotation.y = 0.7;
                 camera.position.x = 0;
                 camera.position.y = 125;
@@ -306,22 +327,40 @@ $.register_module({
                 renderer.render(scene, camera);
             };
             /**
+             * Updates without reloading everything
+             */
+            gadget.update = function () {
+                gadget.init_data();
+                animation_group.add(surface.create_surface());
+            };
+            /**
              * Loads 2D overlay display with options
              */
             hud.load = function () {
                 $.when(og.api.text({module: 'og.views.gadgets.surface.hud_tash'})).then(function (tmpl) {
-                    var html = (Handlebars.compile(tmpl))({min: hud.min, max: hud.max});
+                    var html = (Handlebars.compile(tmpl))({min: hud.vol_min, max: hud.vol_max});
+                    hud.vol_canvas_height = height / 2;
                     hud.volatility($(html).appendTo($selector).find('canvas')[0]);
+                    hud.options();
                 });
             };
-            hud.max = (Math.max.apply(null, config.vol)).toFixed(settings.precision);
-            hud.min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
-            hud.options = function () {};
+            hud.vol_max = (Math.max.apply(null, config.vol)).toFixed(settings.precision);
+            hud.vol_min = (Math.min.apply(null, config.vol)).toFixed(settings.precision);
+            hud.options = function () {
+                $selector.find('.og-options input').on('change', function () {
+                    settings.log10 = $(this).is(':checked');
+                    gadget.update();
+                });
+            };
+            /**
+             * Set a value in the 2D volatility display
+             * @param {Number} value The value to set. If value is not a number the indicator is hidden
+             */
             hud.set_volatility = function (value) {
-                var top = (util.scale([hud.min, value, hud.max], hud.vol_canvas_height, 0))[1],
+                var top = (util.scale([hud.vol_min, value, hud.vol_max], hud.vol_canvas_height, 0))[1],
                     css = {top: top + 'px', color: settings.interactive_color_css},
                     $vol = $selector.find('.og-val-vol');
-                value
+                typeof value === 'number'
                     ? $vol.html(value.toFixed(settings.precision)).css(css).show()
                     : $vol.empty().hide();
             };
@@ -330,7 +369,6 @@ $.register_module({
                 var ctx = canvas.getContext('2d'), gradient,
                     min_hue = settings.vertex_shading_hue_min, max_hue = settings.vertex_shading_hue_max,
                     steps = Math.abs(max_hue - min_hue) / 60, stop;
-                hud.vol_canvas_height = height / 2;
                 gradient = ctx.createLinearGradient(0, 0, 0, hud.vol_canvas_height);
                 canvas.width = 10;
                 canvas.height = hud.vol_canvas_height;
@@ -432,10 +470,30 @@ $.register_module({
                 return mesh;
             };
             /**
-             * Create the actual surface
+             * Create the actual full surface object with axis. Removes any existing ones first
              * @return {THREE.Object3D}
              */
             surface.create_surface = function () {
+                if (surface_group) animation_group.remove(surface_group);
+                gadget.interactive_meshes.remove('surface');
+                surface_group = new THREE.Object3D();
+                surface_top_group = new THREE.Object3D();
+                surface_bottom_group = new THREE.Object3D();
+                surface_top_group.add(surface.create_surface_plane());
+                surface_top_group.add(vertex_sphere);
+                surface_top_group.position.y = settings.floating_height;
+                surface_bottom_group.add(surface.create_bottom_grid());
+                if (webgl) surface_bottom_group.add(gadget.create_floor());
+                if (webgl) surface_bottom_group.add(surface.create_axes());
+                surface_group.add(surface_top_group);
+                surface_group.add(surface_bottom_group);
+                return surface_group;
+            };
+            /**
+             * Create the surface plane with vertex shading
+             * @return {THREE.Object3D}
+             */
+            surface.create_surface_plane = function () {
                 var plane = new Plane(), group, materials, i,
                     weblg_materials = [
                         new THREE.MeshLambertMaterial({color: 0xffffff, shading: THREE.FlatShading,
@@ -472,7 +530,7 @@ $.register_module({
                 // actualy duplicates the geometry and adds each material separatyle, returns the group
                 group = THREE.SceneUtils.createMultiMaterialObject(plane, materials);
                 group.children.forEach(function (mesh) {mesh.doubleSided = true;});
-                interactive_meshs.push(group.children[0]);
+                gadget.interactive_meshes.add('surface', group.children[0]);
                 return group;
             };
             /**
@@ -571,7 +629,7 @@ $.register_module({
                     vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
                     projector.unprojectVector(vector, camera);
                     ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
-                    intersects = ray.intersectObjects(interactive_meshs);
+                    intersects = ray.intersectObjects(gadget.interactive_meshes.meshes);
                     if (intersects.length > 0) { // intersecting at least one object
                         point = intersects[0].point, object = intersects[0].object;
                         for (i = 0; i < 4; i++) { // loop through vertices

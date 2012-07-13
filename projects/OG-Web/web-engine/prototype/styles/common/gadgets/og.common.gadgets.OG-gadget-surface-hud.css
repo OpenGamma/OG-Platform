@@ -1,40 +1,55 @@
 .OG-gadget-surface-hud {
     bottom: 10px;
     left: 10px;
+    top: 0;
     position: absolute;
 }
 
-.OG-gadget-surface-hud canvas {
+/* Options */
+.OG-gadget-surface-hud .og-options {
+    position: absolute;
+    top: 10px;
+    white-space: nowrap;
+}
+
+.OG-gadget-surface-hud .og-options input {
+    vertical-align: top;
+}
+
+/* Volatility */
+.OG-gadget-surface-hud .og-volatility {
+    /* padding accomodates vertical centering numbers without having to duplicate the values in the js */
+    padding-top: 9px;
+    padding-bottom: 3px;
+    position: absolute;
+    bottom: 0;
+}
+
+.OG-gadget-surface-hud .og-volatility canvas {
     border: 1px solid #ccc;
 }
 
-.OG-gadget-surface-hud div {
-    /* margin accomodates vertical centering numbers without having to duplicate the values in the js */
-    margin-top: 8px;
-    margin-bottom: 3px
-}
-
-.OG-gadget-surface-hud span {
+.OG-gadget-surface-hud .og-volatility span {
     position: absolute;
     left: 20px;
 }
 
-.OG-gadget-surface-hud .og-max-vol {
+.OG-gadget-surface-hud .og-volatility .og-max-vol {
     top: 0;
 }
 
-.OG-gadget-surface-hud .og-min-vol {
+.OG-gadget-surface-hud .og-volatility .og-min-vol {
     bottom: 0;
 }
 
-.OG-gadget-surface-hud .og-val-vol {
+.OG-gadget-surface-hud .og-volatility .og-val-vol {
     display: none;
     background: #eee;
     border: 1px solid #ddd;
     padding: 0 5px;
 }
 
-.OG-gadget-surface-hud .og-val-vol:after {
+.OG-gadget-surface-hud .og-volatility .og-val-vol:after {
     content: '';
     display: block;
     position: absolute;
