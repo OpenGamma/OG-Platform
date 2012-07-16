@@ -50,7 +50,7 @@ public class BloombergTestUtils {
    * 
    * @return the session options, not null
    */
-  public static SessionOptions getSessionOptions() {
+  private static SessionOptions getSessionOptions() {
     SessionOptions options = new SessionOptions();
     Properties properties = TestProperties.getTestProperties();
     String serverHost = properties.getProperty("bbgServer.host");
@@ -59,7 +59,6 @@ public class BloombergTestUtils {
     if (StringUtils.isBlank(serverHost)) {
       throw new OpenGammaRuntimeException("bbgServer.host is missing in tests.properties");
     }
-    
     if (StringUtils.isBlank(serverPort)) {
       throw new OpenGammaRuntimeException("bbgServer.port is missing in tests.properties");
     }

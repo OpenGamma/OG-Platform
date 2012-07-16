@@ -21,10 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.bloomberglp.blpapi.SessionOptions;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergConnector;
+import com.opengamma.bbg.BloombergConnectorFactoryBean;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergReferenceDataProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
@@ -192,10 +192,8 @@ public class BloombergRefDataCollector implements Lifecycle {
     
     s_logger.info("loading ref data with host: {} port: {} fields: {} identifies: {} outputfile {}", new Object[]{host, port, dataFieldFile, identifiersFile, outputFile});
     
-    SessionOptions sessionOptions = new SessionOptions();
-    sessionOptions.setServerHost(host);
-    sessionOptions.setServerPort(Integer.parseInt(port));
-    BloombergConnector bloombergConnector = new BloombergConnector("BloombergRefDataCollector", sessionOptions);
+    BloombergConnectorFactoryBean factory = new BloombergConnectorFactoryBean("BloombergRefDataCollector", host, Integer.valueOf(port));
+    BloombergConnector bloombergConnector = factory.getObjectCreating();
     BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(bloombergConnector);
     refDataProvider.start();
     
