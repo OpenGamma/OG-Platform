@@ -8,7 +8,6 @@ package com.opengamma.web.server.push.analytics;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,7 +19,6 @@ public class ViewportResults {
   private final List<List<Cell>> _allResults;
   private final AnalyticsColumnGroups _columns;
   private final ViewportSpecification _viewportSpec;
-  private final List<Integer> _colIndices;
 
   /* package */ ViewportResults(List<List<Cell>> allResults,
                                 ViewportSpecification viewportSpec,
@@ -31,7 +29,6 @@ public class ViewportResults {
     _allResults = allResults;
     _viewportSpec = viewportSpec;
     _columns = columns;
-    _colIndices = ImmutableList.copyOf(_viewportSpec.getColumns());
   }
 
   public List<List<Cell>> getResults() {
@@ -49,7 +46,7 @@ public class ViewportResults {
    * @return The type of the specified column
    */
   public Class<?> getColumnType(int viewportColIndex) {
-    Integer gridColIndex = _colIndices.get(viewportColIndex);
+    Integer gridColIndex = _viewportSpec.getGridColumnIndex(viewportColIndex);
     return _columns.getColumn(gridColIndex).getType();
   }
 
@@ -68,8 +65,6 @@ public class ViewportResults {
   }
 
   public static Cell valueCell(Object value, ValueSpecification valueSpecification, Collection<Object> history) {
-    ArgumentChecker.notNull(value, "value");
-    ArgumentChecker.notNull(valueSpecification, "valueSpecification");
     return new Cell(value, valueSpecification, history);
   }
 

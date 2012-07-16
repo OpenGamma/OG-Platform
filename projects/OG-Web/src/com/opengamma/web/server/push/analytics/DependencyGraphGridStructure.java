@@ -72,11 +72,11 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ List<List<ViewportResults.Cell>> createResultsForViewport(ViewportSpecification viewportSpec,
                                                                           Map<ValueSpecification, Object> results,
-                                                                          AnalyticsHistory history,
+                                                                          ResultsCache cache,
                                                                           String calcConfigName) {
     List<List<ViewportResults.Cell>> resultsList = Lists.newArrayList();
     for (Integer rowIndex : viewportSpec.getRows()) {
-      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, history, calcConfigName));
+      resultsList.add(createResultsForRow(rowIndex, viewportSpec.getColumns(), results, cache, calcConfigName));
     }
     return resultsList;
   }
@@ -84,12 +84,13 @@ public class DependencyGraphGridStructure implements GridStructure {
   private List<ViewportResults.Cell> createResultsForRow(int rowIndex,
                                                          SortedSet<Integer> cols,
                                                          Map<ValueSpecification, Object> results,
-                                                         AnalyticsHistory history, String calcConfigName) {
+                                                         ResultsCache cache,
+                                                         String calcConfigName) {
     Object value = results.get(getTargetForRow(rowIndex));
     Row row = _rows.get(rowIndex);
     List<ViewportResults.Cell> rowResults = Lists.newArrayListWithCapacity(cols.size());
     for (Integer colIndex : cols) {
-      rowResults.add(getValueForColumn(colIndex, row, value, history, calcConfigName));
+      rowResults.add(getValueForColumn(colIndex, row, value, cache, calcConfigName));
     }
     return rowResults;
   }
@@ -97,7 +98,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   /* package */ ViewportResults.Cell getValueForColumn(int colIndex,
                                                        Row row,
                                                        Object value,
-                                                       AnalyticsHistory history,
+                                                       ResultsCache cache,
                                                        String calcConfigName) {
     ValueSpecification valueSpec = row.getValueSpec();
     switch (colIndex) {
@@ -108,7 +109,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       case 2: // value name
         return ViewportResults.stringCell(valueSpec.getValueName());
       case 3: // value
-        Collection<Object> cellHistory = history.getHistory(calcConfigName, valueSpec, value);
+        Collection<Object> cellHistory = cache.getHistory(calcConfigName, valueSpec);
         return ViewportResults.valueCell(value, valueSpec, cellHistory);
       case 4: // function name
         return ViewportResults.stringCell(row.getFunctionName());

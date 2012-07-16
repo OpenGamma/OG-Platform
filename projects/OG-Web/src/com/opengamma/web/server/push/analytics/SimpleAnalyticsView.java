@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleAnalyticsView.class);
 
-  private final AnalyticsHistory _history = new AnalyticsHistory();
+  private final ResultsCache _cache = new ResultsCache();
   private final AnalyticsViewListener _listener;
   private final ComputationTargetResolver _targetResolver;
 
@@ -63,11 +63,10 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void updateResults(ViewResultModel results, ViewCycle viewCycle) {
-    // TODO update full results cache
-    _history.addResults(results);
+    _cache.put(results);
     List<String> updatedIds = Lists.newArrayList();
-    updatedIds.addAll(_portfolioGrid.updateResults(results, _history, viewCycle));
-    updatedIds.addAll(_primitivesGrid.updateResults(results, _history, viewCycle));
+    updatedIds.addAll(_portfolioGrid.updateResults(results, _cache, viewCycle));
+    updatedIds.addAll(_primitivesGrid.updateResults(results, _cache, viewCycle));
     _listener.gridDataChanged(updatedIds);
   }
 

@@ -125,7 +125,7 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
    * @return Pair of value spec and calculation config name.
    * TODO need to specify this using a stable target ID to cope with dynamic reaggregation
    */
-  /* package */ Pair<ValueSpecification, String> getTargetForCell(int rowIndex, int colIndex) {
+  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
     if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
@@ -135,11 +135,15 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       return null;
     }
     Row row = _rows.get(rowIndex);
-     ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
+    ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
     String calcConfigName = colKey.getCalcConfigName();
     ValueRequirementKey requirementKey = new ValueRequirementKey(valueReq, calcConfigName);
     ValueSpecification valueSpec = _reqsToSpecs.get(requirementKey);
-    return Pair.of(valueSpec, calcConfigName);
+    if (valueSpec != null) {
+      return Pair.of(calcConfigName, valueSpec);
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -155,6 +159,10 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
   @Override
   public int getColumnCount() {
     return _columnGroups.getColumnCount();
+  }
+
+  public Class<?> getColumnType(int colIndex) {
+    return _columnGroups.getColumn(colIndex).getType();
   }
 
   /* package */ static class Row {
@@ -219,6 +227,14 @@ import com.opengamma.web.server.RequirementBasedColumnKey;
       int result = _valueRequirement.hashCode();
       result = 31 * result + _calcConfigName.hashCode();
       return result;
+    }
+
+    @Override
+    public String toString() {
+      return "ValueRequirementKey [" +
+          "_valueRequirement=" + _valueRequirement +
+          ", _calcConfigName='" + _calcConfigName + '\'' +
+          "]";
     }
   }
 }

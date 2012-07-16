@@ -32,28 +32,28 @@ public class DependencyGraphViewport extends AnalyticsViewport {
                           String calcConfigName,
                           DependencyGraphGridStructure gridStructure,
                           ViewCycle cycle,
-                          AnalyticsHistory history,
+                          ResultsCache cache,
                           String dataId) {
     super(dataId);
     _calcConfigName = calcConfigName;
     _gridStructure = gridStructure;
-    update(viewportSpec, cycle, history);
+    update(viewportSpec, cycle, cache);
   }
 
-  /* package */ void update(ViewportSpecification viewportSpec, ViewCycle cycle, AnalyticsHistory history) {
+  /* package */ void update(ViewportSpecification viewportSpec, ViewCycle cycle, ResultsCache cache) {
     ArgumentChecker.notNull(viewportSpec, "viewportSpec");
     ArgumentChecker.notNull(cycle, "cycle");
-    ArgumentChecker.notNull(history, "history");
+    ArgumentChecker.notNull(cache, "cache");
     if (!viewportSpec.isValidFor(_gridStructure)) {
       throw new IllegalArgumentException("Viewport contains cells outside the bounds of the grid. Viewport: " +
                                              viewportSpec + ", grid: " + _gridStructure);
     }
     _viewportSpec = viewportSpec;
     _viewportValueSpecs = _gridStructure.getValueSpecificationsForRows(_viewportSpec.getRows());
-    updateResults(cycle, history);
+    updateResults(cycle, cache);
   }
 
-  /* package */ String updateResults(ViewCycle cycle, AnalyticsHistory history) {
+  /* package */ String updateResults(ViewCycle cycle, ResultsCache cache) {
     ComputationCacheQuery query = new ComputationCacheQuery();
     Map<ValueSpecification, Object> resultsMap = Maps.newHashMap();
     query.setCalculationConfigurationName(_calcConfigName);
@@ -66,7 +66,7 @@ public class DependencyGraphViewport extends AnalyticsViewport {
       resultsMap.put(valueSpec, value);
     }
     List<List<ViewportResults.Cell>> gridResults =
-        _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, history, _calcConfigName);
+    _gridStructure.createResultsForViewport(_viewportSpec, resultsMap, cache, _calcConfigName);
     _latestResults = new ViewportResults(gridResults, _viewportSpec, _gridStructure.getColumnStructure());
     // TODO return null if nothing was updated
     return _dataId;
