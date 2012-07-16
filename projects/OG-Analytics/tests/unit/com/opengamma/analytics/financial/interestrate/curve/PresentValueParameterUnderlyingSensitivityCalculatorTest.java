@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.interestrate.curve;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
+import java.util.HashSet;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
@@ -56,8 +58,8 @@ public class PresentValueParameterUnderlyingSensitivityCalculatorTest extends Pa
 
   @Test
   public void curveWithSpreadAllCurves() {
-    final DoubleMatrix1D resultCleanComputed = PARAMETER_UNDERLYING_CALCULATOR.calculateSensitivity(SWAP, null, CURVE_BUNDLE_SPREAD);
-    final DoubleMatrix1D resultDirty = PARAMETER_CALCULATOR.calculateSensitivity(SWAP, null, CURVE_BUNDLE_SPREAD);
+    final DoubleMatrix1D resultCleanComputed = PARAMETER_UNDERLYING_CALCULATOR.calculateSensitivity(SWAP, new HashSet<String>(), CURVE_BUNDLE_SPREAD);
+    final DoubleMatrix1D resultDirty = PARAMETER_CALCULATOR.calculateSensitivity(SWAP, new HashSet<String>(), CURVE_BUNDLE_SPREAD);
     int nbNode = 9;
     int nbSpreadParam = 1;
     double[] resultCleanExpected = new double[nbNode + nbSpreadParam];

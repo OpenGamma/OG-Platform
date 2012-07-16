@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.curve;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -38,54 +39,62 @@ public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterS
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to the continuously compounded rate.
    * @param sensitivity The point sensitivity.
-   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @param fixedCurves The fixed curves names (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
+   * The curve in the list may or may not be in the bundle. Not null.
+   * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
   @Override
-  public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves) {
+  public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     Integer nbCurve = 0;
     LinkedHashMap<String, Integer> curveNum = new LinkedHashMap<String, Integer>();
-    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-      curveNum.put(name, nbCurve++);
+    for (final String name : bundle.getAllNames()) { // loop over all curves (by name)
+      if (!fixedCurves.contains(name)) {
+        curveNum.put(name, nbCurve++);
+      }
     }
     nbCurve = 0;
-    int[] nbNewParameters = new int[sensitivityCurves.size()];
+    int[] nbNewParameters = new int[curveNum.size()];
     // Implementation note: 
-    int[] startCleanParameter = new int[sensitivityCurves.size()];
+    int[] startCleanParameter = new int[curveNum.size()];
     // Implementation note: 
-    int[][] startDirtyParameter = new int[sensitivityCurves.size()][];
-    int[][] indexOther = new int[sensitivityCurves.size()][];
+    int[][] startDirtyParameter = new int[curveNum.size()][];
+    int[][] indexOther = new int[curveNum.size()][];
     // Implementation note: the start of the different blocs of parameters. First the other curves, then the new part.
     int nbCleanParameters = 0;
     int currentDirtyStart = 0;
-    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-      List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
-      startCleanParameter[nbCurve] = nbCleanParameters;
-      nbNewParameters[nbCurve] = curve.getNumberOfParameters();
-      List<Integer> indexOtherList = new ArrayList<Integer>();
-      List<Integer> startDirtyParameterList = new ArrayList<Integer>();
-      for (String u : underlyingCurveNames) {
-        Integer i = curveNum.get(u);
-        if (i != null) {
-          indexOtherList.add(i);
-          nbNewParameters[nbCurve] -= nbNewParameters[i];
-          startDirtyParameterList.add(currentDirtyStart);
-          currentDirtyStart += nbNewParameters[i];
+    for (final String name : bundle.getAllNames()) { // loop over all curves (by name)
+      if (!fixedCurves.contains(name)) {
+        final YieldAndDiscountCurve curve = bundle.getCurve(name);
+        List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
+        startCleanParameter[nbCurve] = nbCleanParameters;
+        nbNewParameters[nbCurve] = curve.getNumberOfParameters();
+        List<Integer> indexOtherList = new ArrayList<Integer>();
+        List<Integer> startDirtyParameterList = new ArrayList<Integer>();
+        for (String u : underlyingCurveNames) {
+          Integer i = curveNum.get(u);
+          if (i != null) {
+            indexOtherList.add(i);
+            nbNewParameters[nbCurve] -= nbNewParameters[i];
+            startDirtyParameterList.add(currentDirtyStart);
+            currentDirtyStart += nbNewParameters[i];
+          }
         }
+        startDirtyParameterList.add(currentDirtyStart);
+        currentDirtyStart += nbNewParameters[nbCurve];
+        indexOther[nbCurve] = ArrayUtils.toPrimitive(indexOtherList.toArray(new Integer[0]));
+        startDirtyParameter[nbCurve] = ArrayUtils.toPrimitive(startDirtyParameterList.toArray(new Integer[0]));
+        nbCleanParameters += nbNewParameters[nbCurve];
+        nbCurve++;
       }
-      startDirtyParameterList.add(currentDirtyStart);
-      currentDirtyStart += nbNewParameters[nbCurve];
-      indexOther[nbCurve] = ArrayUtils.toPrimitive(indexOtherList.toArray(new Integer[0]));
-      startDirtyParameter[nbCurve] = ArrayUtils.toPrimitive(startDirtyParameterList.toArray(new Integer[0]));
-      nbCleanParameters += nbNewParameters[nbCurve];
-      nbCurve++;
     }
     final List<Double> sensiDirtyList = new ArrayList<Double>();
-    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-      List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
-      sensiDirtyList.addAll(oneCurveSensitivity);
+    for (final String name : bundle.getAllNames()) { // loop over all curves (by name)
+      if (!fixedCurves.contains(name)) {
+        final YieldAndDiscountCurve curve = bundle.getCurve(name);
+        List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
+        sensiDirtyList.addAll(oneCurveSensitivity);
+      }
     }
     double[] sensiDirty = ArrayUtils.toPrimitive(sensiDirtyList.toArray(new Double[0]));
     double[] sensiClean = new double[nbCleanParameters];

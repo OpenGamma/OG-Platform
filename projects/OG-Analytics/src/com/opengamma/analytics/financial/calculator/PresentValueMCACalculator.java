@@ -19,6 +19,8 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -64,12 +66,15 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
-  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
-  private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
-  private static final CouponIborSpreadDiscountingMethod METHOD_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
+  private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FXSWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+
+  // -----     Deposit     ------
 
   @Override
   public MultipleCurrencyAmount visitCash(final Cash deposit, final YieldCurveBundle curves) {
@@ -90,17 +95,22 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
 
   @Override
   public MultipleCurrencyAmount visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
-    return MultipleCurrencyAmount.of(METHOD_OIS.presentValue(payment, data));
+    return MultipleCurrencyAmount.of(METHOD_CPN_OIS.presentValue(payment, data));
   }
 
   @Override
   public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final YieldCurveBundle curves) {
-    return MultipleCurrencyAmount.of(METHOD_IBOR.presentValue(coupon, curves));
+    return MultipleCurrencyAmount.of(METHOD_CPN_IBOR.presentValue(coupon, curves));
   }
 
   @Override
   public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread coupon, final YieldCurveBundle curves) {
-    return MultipleCurrencyAmount.of(METHOD_IBOR_SPREAD.presentValue(coupon, curves));
+    return MultipleCurrencyAmount.of(METHOD_CPN_IBOR_SPREAD.presentValue(coupon, curves));
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
+    return MultipleCurrencyAmount.of(METHOD_FRA.presentValue(fra, curves));
   }
 
   // -----     Annuity     ------
@@ -136,6 +146,8 @@ public class PresentValueMCACalculator extends AbstractInstrumentDerivativeVisit
   public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
   }
+
+  // -----     Forex     ------
 
   @Override
   public MultipleCurrencyAmount visitForex(final Forex derivative, final YieldCurveBundle data) {

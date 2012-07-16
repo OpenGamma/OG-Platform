@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -33,16 +34,20 @@ public class ParameterSensitivityCalculator extends AbstractParameterSensitivity
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to the continuously compounded rate.
    * @param sensitivity The point sensitivity.
-   * @param sensitivityCurves The curves which respect to which the sensitivity is computed.
+   * @param fixedCurves The fixed curves names (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
+   * The curve in the list may or may not be in the bundle. Not null.
+   * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
   @Override
-  public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final YieldCurveBundle sensitivityCurves) {
+  public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
     final List<Double> result = new ArrayList<Double>();
-    for (final String name : sensitivityCurves.getAllNames()) { // loop over all curves (by name)
-      final YieldAndDiscountCurve curve = sensitivityCurves.getCurve(name);
-      List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
-      result.addAll(oneCurveSensitivity);
+    for (final String name : bundle.getAllNames()) { // loop over all curves (by name)
+      if (!fixedCurves.contains(name)) {
+        final YieldAndDiscountCurve curve = bundle.getCurve(name);
+        List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
+        result.addAll(oneCurveSensitivity);
+      }
     }
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }

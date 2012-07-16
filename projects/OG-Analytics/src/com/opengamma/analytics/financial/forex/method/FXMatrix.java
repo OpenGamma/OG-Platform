@@ -95,9 +95,9 @@ public class FXMatrix {
    * coherent with the data provided.
    */
   public void addCurrency(final Currency ccyToAdd, final Currency ccyReference, final double fxRate) {
-    Validate.notNull(ccyToAdd, "Currency to add to the FX matrix should not be null");
-    Validate.notNull(ccyReference, "Reference currency should not be null");
-    Validate.isTrue(!ccyToAdd.equals(ccyReference), "Currencies should be different");
+    ArgumentChecker.notNull(ccyToAdd, "Currency to add to the FX matrix should not be null");
+    ArgumentChecker.notNull(ccyReference, "Reference currency should not be null");
+    ArgumentChecker.isTrue(!ccyToAdd.equals(ccyReference), "Currencies should be different");
     if (_nbCurrencies == 0) { // FX Matrix is empty. 
       _currencies.put(ccyReference, 0);
       _currencies.put(ccyToAdd, 1);
@@ -136,8 +136,8 @@ public class FXMatrix {
   public double getFxRate(final Currency ccy1, final Currency ccy2) {
     Integer index1 = _currencies.get(ccy1);
     Integer index2 = _currencies.get(ccy2);
-    Validate.notNull(index1, "Currency 1 not in the FX Matrix.");
-    Validate.notNull(index2, "Currency 2 not in the FX Matrix.");
+    ArgumentChecker.notNull(index1, "Currency 1 not in the FX Matrix.");
+    ArgumentChecker.notNull(index2, "Currency 2 not in the FX Matrix.");
     return _fxRates[index1][index2];
   }
 
@@ -164,8 +164,8 @@ public class FXMatrix {
    * using cross rate coherent with the data provided.
    */
   public void updateRates(final Currency ccyToUpdate, final Currency ccyReference, final double fxRate) {
-    Validate.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
-    Validate.isTrue(_currencies.containsKey(ccyToUpdate), "Currency to update not in the FX matrix");
+    ArgumentChecker.isTrue(_currencies.containsKey(ccyReference), "Reference currency not in the FX matrix");
+    ArgumentChecker.isTrue(_currencies.containsKey(ccyToUpdate), "Currency to update not in the FX matrix");
     int indexUpdate = _currencies.get(ccyToUpdate);
     int indexRef = _currencies.get(ccyReference);
     for (int loopccy = 0; loopccy < _nbCurrencies; loopccy++) {

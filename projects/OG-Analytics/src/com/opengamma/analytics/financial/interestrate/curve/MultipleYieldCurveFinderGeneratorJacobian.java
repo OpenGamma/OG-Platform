@@ -34,7 +34,7 @@ public class MultipleYieldCurveFinderGeneratorJacobian extends Function1D<Double
     final double[][] res = new double[nbParameters][nbParameters];
     for (int i = 0; i < _data.getNumberOfInstruments(); i++) { // loop over all instruments
       InstrumentDerivative deriv = _data.getInstrument(i);
-      res[i] = _parameterSensitivityCalculator.calculateSensitivity(deriv, null, bundle).getData(); // REVIEW: dowe need to pass the knownData?
+      res[i] = _parameterSensitivityCalculator.calculateSensitivity(deriv, _data.getKnownData().getAllNames(), bundle).getData();
     }
     return new DoubleMatrix2D(res);
   }
