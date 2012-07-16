@@ -22,7 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewportSpecification {
 
   private final List<Integer> _rows;
-  private final SortedSet<Integer> _columns;
+  private final SortedSet<Integer> _columnSet;
+  private final List<Integer> _columnList;
   private final boolean _expanded;
 
   /**
@@ -48,20 +49,25 @@ public class ViewportSpecification {
       }
     }
     _rows = ImmutableList.copyOf(sortedRows);
-    _columns = ImmutableSortedSet.copyOf(sortedColumns);
+    _columnSet = ImmutableSortedSet.copyOf(sortedColumns);
+    _columnList = ImmutableList.copyOf(sortedColumns);
     _expanded = expanded;
   }
 
-  public static ViewportSpecification empty() {
+  /* package */ static ViewportSpecification empty() {
     return new ViewportSpecification(Collections.<Integer>emptyList(), Collections.<Integer>emptyList(), false);
   }
 
-  public List<Integer> getRows() {
+  /* package */ List<Integer> getRows() {
     return _rows;
   }
 
-  public SortedSet<Integer> getColumns() {
-    return _columns;
+  /* package */ SortedSet<Integer> getColumns() {
+    return _columnSet;
+  }
+
+  /* package */ int getGridColumnIndex(int viewportColumnIndex) {
+    return _columnList.get(viewportColumnIndex);
   }
 
   /**
@@ -69,15 +75,15 @@ public class ViewportSpecification {
    * @param grid The structure of a grid
    * @return {@code true} if the viewport defined by this object fits within the grid.
    */
-  public boolean isValidFor(GridStructure grid) {
+  /* package */ boolean isValidFor(GridStructure grid) {
     if (!_rows.isEmpty()) {
       int maxRow = _rows.get(_rows.size() - 1);
       if (maxRow >= grid.getRowCount()) {
         return false;
       }
     }
-    if (!_columns.isEmpty()) {
-      int maxCol = _columns.last();
+    if (!_columnSet.isEmpty()) {
+      int maxCol = _columnSet.last();
       if (maxCol >= grid.getColumnCount()) {
         return false;
       }
@@ -85,12 +91,17 @@ public class ViewportSpecification {
     return true;
   }
 
-  public boolean isExpanded() {
+  /* package */ boolean isExpanded() {
     return _expanded;
   }
 
   @Override
   public String toString() {
-    return "ViewportSpecification [_rows=" + _rows + ", _columns=" + _columns + ", _expanded=" + _expanded + "]";
+    return "ViewportSpecification [" +
+        "_rows=" + _rows +
+        ", _columnSet=" + _columnSet +
+        ", _columnList=" + _columnList +
+        ", _expanded=" + _expanded +
+        "]";
   }
 }

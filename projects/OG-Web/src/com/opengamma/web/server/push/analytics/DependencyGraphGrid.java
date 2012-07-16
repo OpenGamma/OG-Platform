@@ -25,23 +25,23 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   private final DependencyGraphGridStructure _gridStructure;
 
   private ViewCycle _latestCycle;
-  private AnalyticsHistory _history;
+  private ResultsCache _cache;
 
   protected DependencyGraphGrid(DependencyGraphGridStructure gridStructure,
                                 String calcConfigName,
                                 String gridId,
                                 ViewCycle cycle,
-                                AnalyticsHistory history) {
+                                ResultsCache cache) {
     super(gridId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(gridId, "gridId");
     ArgumentChecker.notNull(cycle, "cycle");
-    ArgumentChecker.notNull(history, "history");
+    ArgumentChecker.notNull(cache, "history");
     _gridStructure = gridStructure;
     _calcConfigName = calcConfigName;
     _latestCycle = cycle;
-    _history = history;
+    _cache = cache;
   }
 
   /* package */
@@ -49,14 +49,14 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                     ValueSpecification target,
                                     String calcConfigName,
                                     ViewCycle cycle,
-                                    AnalyticsHistory history,
+                                    ResultsCache cache,
                                     String gridId,
                                     ComputationTargetResolver targetResolver) {
     DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
                                                                                   target,
                                                                                   calcConfigName,
                                                                                   targetResolver);
-    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, gridId, cycle, history);
+    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, gridId, cycle, cache);
   }
 
   @Override
@@ -66,15 +66,15 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
 
   @Override
   protected DependencyGraphViewport createViewport(ViewportSpecification viewportSpec, String dataId) {
-    return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _history, dataId);
+    return new DependencyGraphViewport(viewportSpec, _calcConfigName, _gridStructure, _latestCycle, _cache, dataId);
   }
 
-  public List<String> updateResults(ViewCycle cycle, AnalyticsHistory history) {
+  public List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
     _latestCycle = cycle;
-    _history = history;
+    _cache = cache;
     List<String> updatedIds = Lists.newArrayList();
     for (DependencyGraphViewport viewport : _viewports.values()) {
-      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cycle, history));
+      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cycle, cache));
     }
     return updatedIds;
   }
@@ -82,7 +82,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   public void updateViewport(String viewportId,
                              ViewportSpecification viewportSpec,
                              ViewCycle cycle,
-                             AnalyticsHistory history) {
-    getViewport(viewportId).update(viewportSpec, cycle, history);
+                             ResultsCache cache) {
+    getViewport(viewportId).update(viewportSpec, cycle, cache);
   }
 }
