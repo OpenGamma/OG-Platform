@@ -38,6 +38,7 @@ import com.opengamma.util.time.Expiry;
     Map<String, Object> templateData = Maps.newHashMap();
     addDefaultFields(security, templateData);
 
+    templateData.put("attributes", security.getAttributes());
     if (StringUtils.isNotBlank(security.getShortName())) {
       templateData.put("shortName", security.getShortName());
     }
